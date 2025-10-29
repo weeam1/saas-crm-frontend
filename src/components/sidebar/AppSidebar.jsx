@@ -287,7 +287,7 @@ export default function AppSidebar({
 	const surface = useColorModeValue('white', 'gray.900');
 	const border = useColorModeValue('gray.200', 'whiteAlpha.200');
 
-	const EXPANDED_W = 300;
+	const EXPANDED_W = 270;
 	const COLLAPSED_W = 80;
 
 	const { hasPermission } = usePermissions();
@@ -515,7 +515,9 @@ export default function AppSidebar({
 			h='100vh'
 			// top='56px'
 			// h='calc(100dvh - 56px)'
-			w={collapsed ? `${COLLAPSED_W}px` : `${EXPANDED_W}px`}
+			w={{
+				base: collapsed ? `${COLLAPSED_W}px` : `${EXPANDED_W}px`,
+			}}
 			transition='width 220ms cubic-bezier(.4,0,.2,1)'
 			willChange='width'
 			zIndex={20}

@@ -1,7 +1,7 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { formatDate, CATEGORIES } from './helpers';
+import { formatDate, CATEGORIES, normalizeSearch } from './helpers';
 
 // export const useLeadAnalytics = () => {
 // 	const [searchParams, setSearchParams] = useSearchParams();
@@ -252,16 +252,16 @@ export const useLeadAnalytics = () => {
 	const urlFromDate = searchParams.get('from');
 	const urlToDate = searchParams.get('to');
 
-	const savedSort = localStorage.getItem('analyticsSort');
-	const initialSort = savedSort
-		? JSON.parse(savedSort)
-		: { key: null, direction: 'asc' };
+	// const savedSort = localStorage.getItem('analyticsSort');
+	// const initialSort = savedSort
+	// 	? JSON.parse(savedSort)
+	// 	: { key: null, direction: 'asc' };
 
 	const [selectedCategory, setSelectedCategory] = useState(
 		urlCategory || CATEGORIES[0].value
 	);
 	const [searchTerm, setSearchTerm] = useState(urlSearch || '');
-	const [sortConfig, setSortConfig] = useState(initialSort);
+	const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 	const [dateRange, setDateRange] = useState(() => {
 		if (urlFromDate && urlToDate) return { from: urlFromDate, to: urlToDate };
 		const to = new Date();
@@ -299,12 +299,7 @@ export const useLeadAnalytics = () => {
 
 	useEffect(() => {
 		if (analyticsData?.data && Array.isArray(analyticsData.data)) {
-			setData(
-				analyticsData.data.map((item) => ({
-					category: item?.name || 'N/A',
-					...item,
-				}))
-			);
+			setData(analyticsData.data);
 		}
 	}, [analyticsData]);
 
@@ -314,12 +309,15 @@ export const useLeadAnalytics = () => {
 
 		let filtered = data;
 
-		const lower = searchTerm.trim().toLowerCase();
-		if (lower) {
-			// real-time filtering without layout thrash
-			filtered = filtered.filter((item) =>
-				item.category.toLowerCase().includes(lower)
-			);
+		if (searchTerm) {
+			const lower = normalizeSearch(searchTerm.trim());
+
+			if (lower) {
+				// real-time filtering without layout thrash
+				filtered = filtered.filter((item) =>
+					normalizeSearch(item.name).includes(lower)
+				);
+			}
 		}
 
 		if (sortConfig?.key) {
@@ -351,7 +349,7 @@ export const useLeadAnalytics = () => {
 					? { key, direction: current.direction === 'asc' ? 'desc' : 'asc' }
 					: { key, direction: 'asc' };
 
-			localStorage.setItem('analyticsSort', JSON.stringify(next));
+			// localStorage.setItem('analyticsSort', JSON.stringify(next));
 			return next;
 		});
 	}, []);
@@ -378,7 +376,7 @@ export const useLeadAnalytics = () => {
 			// Defer URL update (non-blocking)
 			if ('requestIdleCallback' in window)
 				requestIdleCallback(() => updateSearchParams({ search: value }));
-			else setTimeout(() => updateSearchParams({ search: value }), 150);
+			else setTimeout(() => updateSearchParams({ search: value }), 50);
 		},
 		[updateSearchParams]
 	);
@@ -413,6 +411,7 @@ export const useLeadAnalytics = () => {
 		totals: analyticsData?.totalResults || 0,
 		data: processedData,
 		handleDateFilter,
+		dateRange,
 		isLoading,
 		isFetching,
 		isError,

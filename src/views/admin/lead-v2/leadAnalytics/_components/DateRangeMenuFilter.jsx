@@ -11,28 +11,30 @@ import {
 	Icon,
 	Divider,
 } from '@chakra-ui/react';
+import { useSearchParams } from 'react-router-dom';
 import { ChevronDownIcon, CalendarIcon, CheckIcon } from '@chakra-ui/icons';
-import { useState } from 'react';
-import { getDateRange } from '../helpers';
+import { useState, useEffect } from 'react';
+import { getDateRange, dateOptions, findMatchingRange } from '../helpers';
 
 const DateRangeMenuFilter = ({ onDateRangeChange, isLoading }) => {
 	const [selectedRange, setSelectedRange] = useState('last30Days');
+	const [searchParams] = useSearchParams();
 
-	const dateOptions = [
-		{ label: 'Today', value: 'today' },
-		{ label: 'Yesterday', value: 'yesterday' },
-		{ label: 'Last 7 days', value: 'last7Days' },
-		{ label: 'Last 30 days', value: 'last30Days' },
-		{ label: 'This month', value: 'thisMonth' },
-		{ label: 'Last month', value: 'lastMonth' },
-		{ label: 'This year', value: 'thisYear' },
-		{ label: 'All Time', value: 'allTime' },
-	];
+	useEffect(() => {
+		const fromParam = searchParams.get('from');
+		const toParam = searchParams.get('to');
+
+		if (fromParam && toParam) {
+			// Try to match it with one of your predefined ranges
+			const matchedRange = findMatchingRange(fromParam, toParam);
+			if (matchedRange) setSelectedRange(matchedRange);
+		}
+	}, [searchParams]);
 
 	const handleDateSelect = (option) => {
 		const range = getDateRange(option.value);
 
-		setSelectedRange(option.label);
+		setSelectedRange(option.value);
 
 		// Call the callback function with date range
 		if (onDateRangeChange) {
@@ -96,6 +98,8 @@ const DateRangeMenuFilter = ({ onDateRangeChange, isLoading }) => {
 					borderColor='gray.200'
 					boxShadow='lg'
 					minW='200px'
+					transition='all 0.15s ease-in-out'
+					transformOrigin='top'
 				>
 					{dateOptions.map((option, index) => (
 						<Box key={option.value}>

@@ -18,6 +18,7 @@ import NoData from 'components/Message/NoData';
 import TableLoading from 'components/loading/TableLoading';
 import { leadStatus, mainLeadStatus } from 'utils/options';
 import { analyticsColumnDescriptions } from '../helpers';
+import { useEffect, useState } from 'react';
 
 // const SortableHeader = ({ column, children, sortConfig, onSort }) => {
 // 	const isActive = sortConfig.key === column;
@@ -120,7 +121,7 @@ const SortableHeader = ({ column, children, sortConfig, onSort, category }) => {
 				color={isActive ? 'blue.600' : 'gray.700'}
 				_hover={{ color: 'blue.500', bg: 'gray.100' }}
 				transition='all 0.2s ease-in-out'
-				minW={column === 'category' ? '200px' : '50px'}
+				minW={column === 'name' ? '200px' : '50px'}
 			>
 				<Flex align='center' justify='space-between' gap={2}>
 					<Text>{children}</Text>
@@ -144,7 +145,7 @@ export const LeadAnalyticsTable = ({
 	isLoading,
 }) => {
 	const columns = [
-		{ key: 'category', label: selectedCategoryLabel || 'Category' },
+		{ key: 'name', label: selectedCategoryLabel || 'Category' },
 		{ key: 'leadCount', label: 'Leads' },
 		{ key: 'deals', label: 'Deals' },
 		{ key: 'notesCount', label: 'Notes' },
@@ -166,6 +167,24 @@ export const LeadAnalyticsTable = ({
 		{ key: 'unassignedLeads', label: 'Unassigned' },
 		{ key: 'releasedLeads', label: 'Released' },
 	];
+
+	const [delayedLoading, setDelayedLoading] = useState(isLoading);
+
+	useEffect(() => {
+		let timer;
+
+		if (isLoading) {
+			// instantly show loading
+			setDelayedLoading(true);
+		} else {
+			// delay hiding the loader by 1s for smoother UX
+			timer = setTimeout(() => {
+				setDelayedLoading(false);
+			}, 1000);
+		}
+
+		return () => clearTimeout(timer);
+	}, [isLoading]);
 
 	const currentCategoryLeadStatus =
 		selectedCategoryLabel === 'Main Status'
@@ -215,7 +234,7 @@ export const LeadAnalyticsTable = ({
 				</Thead>
 
 				<Tbody>
-					{isLoading ? (
+					{isLoading || delayedLoading ? (
 						<TableLoading columns={columns} length={10} py='4' />
 					) : data.length === 0 ? (
 						<Tr>
@@ -255,9 +274,7 @@ export const LeadAnalyticsTable = ({
 											fontSize='sm'
 											textAlign={i === 0 ? 'left' : 'center'}
 											borderColor='gray.200'
-											fontWeight={
-												column.key === 'category' ? 'semibold' : 'medium'
-											}
+											fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
 											color='gray.700'
 										>
 											{displayValue}

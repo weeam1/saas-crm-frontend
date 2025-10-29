@@ -271,7 +271,7 @@ export default function CheckTable(props) {
 																minWidth='100px'
 																textAlign={'center'}
 															>
-																{cell?.row?.index + 1 + pageIndex * pageSize}
+																{cell?.row?.index + 1}
 															</Text>
 														);
 													} else if (cell?.column.Header === 'Role Name') {

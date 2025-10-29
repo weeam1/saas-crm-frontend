@@ -36,7 +36,7 @@ const DealCards = ({
 							gridTemplateColumns: 'repeat(2, 1fr)', // md
 						},
 						'@media screen and (min-width: 1024px)': {
-							gridTemplateColumns: 'repeat(3, 1fr)', // lg
+							gridTemplateColumns: 'repeat(2, 1fr)', // lg
 						},
 						'@media screen and (min-width: 1280px)': {
 							gridTemplateColumns: 'repeat(3, 1fr)', // xl

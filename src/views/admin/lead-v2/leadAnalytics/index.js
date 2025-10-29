@@ -3,6 +3,7 @@ import { useLeadAnalytics } from './useLeadAnalytics';
 import LeadAnalyticsTable from './_components/LeadAnaylticsTable';
 import AnalyticsHeader from './_components/AnalyticsHeader';
 import { SummaryCards } from './_components/SummaryCards';
+import ErrorMessage from 'components/Message/ErrorMessage';
 
 const LeadAnalytics = () => {
 	const {
@@ -29,8 +30,6 @@ const LeadAnalytics = () => {
 		(cat) => cat.value === selectedCategory
 	)?.label;
 
-	console.log({ selectedCategoryLabel });
-
 	return (
 		<Box minH='100vh' bg={bgColor} p='4' rounded='lg' shadow='md'>
 			<VStack spacing={0} align='stretch' gap='2'>
@@ -46,18 +45,27 @@ const LeadAnalytics = () => {
 					handleDateFilter={handleDateFilter}
 				/>
 
-				{/* Summary Cards - AT THE TOP */}
-				<SummaryCards summary={summary} isLoading={isLoading || isFetching} />
+				{isError && error ? (
+					<ErrorMessage message={error || 'Something went wrong!'} />
+				) : (
+					<>
+						{/* Summary Cards - AT THE TOP */}
+						<SummaryCards
+							summary={summary}
+							isLoading={isLoading || isFetching}
+						/>
 
-				<LeadAnalyticsTable
-					selectedCategoryLabel={selectedCategoryLabel}
-					data={data}
-					sortConfig={sortConfig}
-					onSort={handleSort}
-					isLoading={isLoading || isFetching}
-					isError={isError}
-					error={error}
-				/>
+						<LeadAnalyticsTable
+							selectedCategoryLabel={selectedCategoryLabel}
+							data={data}
+							sortConfig={sortConfig}
+							onSort={handleSort}
+							isLoading={isLoading || isFetching}
+							isError={isError}
+							error={error}
+						/>
+					</>
+				)}
 			</VStack>
 		</Box>
 	);

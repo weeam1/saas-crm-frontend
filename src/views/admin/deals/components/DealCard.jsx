@@ -138,7 +138,7 @@ export const DealCard = ({
 						<Text fontSize='x-small' color='gray.500' mb={1}>
 							Unit Price
 						</Text>
-						<Text fontSize='xs' fontWeight='bold' color='brand.600'>
+						<Text fontSize='xs' fontWeight='medium' color='brand.600'>
 							{formatCurrency(unitPrice, currency)}
 						</Text>
 					</Box>
@@ -147,7 +147,7 @@ export const DealCard = ({
 							Deal Amount
 						</Text>
 						<Flex align='baseline' gap={1}>
-							<Text fontSize='xs' fontWeight='bold'>
+							<Text fontSize='xs' fontWeight='medium'>
 								{formatCurrency(bookingAmountPaid, currency)}
 							</Text>
 							{/* <Text fontSize='xs' color='gray.500'>
@@ -160,7 +160,7 @@ export const DealCard = ({
 							Downpayment
 						</Text>
 						<Flex align='baseline' gap={1}>
-							<Text fontSize='xs' fontWeight='bold'>
+							<Text fontSize='xs' fontWeight='medium'>
 								{formatCurrency(downpaymentPaid, currency)}
 							</Text>
 							{/* <Text fontSize='xs' color='gray.500'>
@@ -172,7 +172,7 @@ export const DealCard = ({
 						<Text fontSize='x-small' color='gray.500' mb={1}>
 							Deal Closed On
 						</Text>
-						<Text fontSize='xs' fontWeight='bold'>
+						<Text fontSize='xs' fontWeight='medium'>
 							{formatPostDate(createdAt)}
 						</Text>
 					</Box>

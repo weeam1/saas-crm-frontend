@@ -21,6 +21,9 @@ import {
 	FiXCircle,
 	FiRefreshCw,
 	FiBarChart2,
+	FiClipboard,
+	FiUserMinus,
+	FiCalendar,
 	FiActivity,
 } from 'react-icons/fi';
 import {
@@ -49,11 +52,14 @@ const iconConfig = {
 	'Interested Leads': { icon: FiHeart, color: 'pink' },
 	'Not Interested': { icon: FiXCircle, color: 'red' },
 	'Released Leads': { icon: FiRefreshCw, color: 'gray' },
+	'Monthly Leads': { icon: FiCalendar, color: 'cyan' },
+	'Notes Count': { icon: FiClipboard, color: 'purple' },
+	'Unassigned Leads': { icon: FiUserMinus, color: 'orange' },
+	'Previous Month Leads': { icon: FiCalendar, color: 'teal' },
 	'New Leads Today': { icon: BsLightningFill, color: 'orange' },
 	'Avg Response Time': { icon: FiActivity, color: 'purple' },
 	default: { icon: MdOutlineAnalytics, color: 'brand' },
 };
-
 const TrendIndicator = ({ trend, isPositive }) => (
 	<HStack spacing={1}>
 		<Icon
@@ -139,7 +145,7 @@ export const StatCard = ({
 	return (
 		<Box
 			bg={bgColor}
-			p={6}
+			p={3}
 			borderRadius='2xl'
 			border='1px solid'
 			borderColor={borderColor}
@@ -183,7 +189,7 @@ export const StatCard = ({
 							bgGradient={`linear(135deg, ${colorScheme}.100, ${colorScheme}.200)`}
 							color={`${colorScheme}.600`}
 						>
-							<Icon as={IconComponent} boxSize={5} />
+							<Icon as={IconComponent} boxSize={4} />
 						</Box>
 						<Text
 							fontSize='sm'
@@ -198,15 +204,14 @@ export const StatCard = ({
 
 					<Flex direction='column' align='flex-end' gap={1}>
 						{trend && <TrendIndicator trend={trend} isPositive={isPositive} />}
-						{/* <PerformanceBadge value={value} threshold={threshold} /> */}
 					</Flex>
 				</Flex>
 
 				{/* Value Section */}
 				<Box mt={2}>
 					<Text
-						fontSize='3xl'
-						fontWeight='extrabold'
+						fontSize='xl'
+						fontWeight='bold'
 						color={textColor}
 						lineHeight='1.1'
 						mb={2}
@@ -224,28 +229,26 @@ export const StatCard = ({
 
 				{/* Help Text Section */}
 				{/* {helpText && (
-						<StatHelpText
-							mt='auto'
-							mb={0}
-							fontSize='sm'
+					<Text
+						mt='auto'
+						mb={0}
+						fontSize='sm'
+						color={trend ? (isPositive ? 'green.500' : 'red.500') : labelColor}
+						display='flex'
+						alignItems='center'
+						gap={2}
+						fontWeight='medium'
+					>
+						<Icon
+							as={isPositive ? FiTrendingUp : FiTrendingDown}
 							color={
 								trend ? (isPositive ? 'green.500' : 'red.500') : labelColor
 							}
-							display='flex'
-							alignItems='center'
-							gap={2}
-							fontWeight='medium'
-						>
-							<Icon
-								as={isPositive ? FiTrendingUp : FiTrendingDown}
-								color={
-									trend ? (isPositive ? 'green.500' : 'red.500') : labelColor
-								}
-								boxSize={3}
-							/>
-							{helpText}
-						</StatHelpText>
-					)} */}
+							boxSize={3}
+						/>
+						{helpText}
+					</Text>
+				)} */}
 			</Flex>
 
 			{/* Animated Accent Bar */}
@@ -294,7 +297,7 @@ export const StatCardSkeleton = () => {
 			boxShadow='sm'
 			position='relative'
 			overflow='hidden'
-			height='150px'
+			height='110px'
 			animation={pulseAnimation}
 		>
 			<Flex direction='column' height='full' gap={3}>
@@ -335,16 +338,33 @@ export const SummaryCards = ({ summary, isLoading }) => {
 			format: 'number',
 			threshold: 50,
 		},
-		// {
-		// 	label: 'Conversion Rate',
-		// 	value: summary?.dealConversionRate,
-		// 	helpText: 'Overall success rate',
-		// 	tooltip: 'Percentage of leads that convert to deals',
-		// 	colorScheme: 'brand',
-		// 	format: 'percentage',
-		// 	threshold: 2,
-		// 	isPositive: parseFloat(summary?.dealConversionRate) > 1,
-		// },
+		{
+			label: 'Conversion Rate',
+			value: summary?.dealConversionRate,
+			helpText: 'Overall success rate',
+			tooltip: 'Percentage of leads that convert to deals',
+			colorScheme: 'brand',
+			format: 'percentage',
+			threshold: 2,
+			isPositive: parseFloat(summary?.dealConversionRate) > 1,
+		},
+		{
+			label: 'Total Notes',
+			value: summary?.notesCount,
+			helpText: 'Total notes logged',
+			tooltip: 'Number of notes or comments added by team members',
+			colorScheme: 'purple',
+			format: 'number',
+		},
+		{
+			label: 'Unassigned Leads',
+			value: summary?.unassignedLeads,
+			helpText: 'Awaiting assignment',
+			tooltip: 'Leads not yet assigned to any agent or manager',
+			colorScheme: 'orange',
+			format: 'number',
+		},
+
 		{
 			label: 'Interested Leads',
 			value: summary?.interestedLeads,
@@ -370,13 +390,29 @@ export const SummaryCards = ({ summary, isLoading }) => {
 			colorScheme: 'gray',
 			format: 'number',
 		},
+		{
+			label: 'Monthly Leads',
+			value: summary?.currentMonthLeads,
+			helpText: 'Current monthly leads',
+			tooltip: 'Leads generated during the current month',
+			colorScheme: 'cyan',
+			format: 'number',
+		},
+		{
+			label: 'Prev Month Leads',
+			value: summary?.prevMonthLeads,
+			helpText: 'Last month’s performance',
+			tooltip: 'Total leads captured during the previous month',
+			colorScheme: 'teal',
+			format: 'number',
+		},
 	];
 
 	if (isLoading) {
 		return (
 			<Box mb={8}>
-				<SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 5 }} spacing={6}>
-					{[...Array(5)].map((_, index) => (
+				<SimpleGrid mb={1} columns={{ base: 1, md: 2, lg: 3, xl: 5 }} gap={4}>
+					{[...Array(10)].map((_, index) => (
 						<StatCardSkeleton key={index} />
 					))}
 				</SimpleGrid>
@@ -385,7 +421,7 @@ export const SummaryCards = ({ summary, isLoading }) => {
 	}
 
 	return (
-		<Box mb={8}>
+		<Box>
 			{/* <Flex justify='space-between' align='center' mb={4}>
 				<Text fontSize='lg' fontWeight='bold' color='gray.700'>
 					Overview
@@ -395,7 +431,7 @@ export const SummaryCards = ({ summary, isLoading }) => {
 				</Badge>
 			</Flex> */}
 
-			<SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 5 }} spacing={6}>
+			<SimpleGrid mb='1' columns={{ base: 1, md: 2, lg: 3, xl: 5 }} spacing={4}>
 				{cards.map((card, index) => (
 					<StatCard key={index} isLoading={isLoading} {...card} />
 				))}

@@ -1,9 +1,9 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useState, memo } from 'react';
 import { Input, InputGroup, InputLeftElement, Box } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import { MdClear } from 'react-icons/md';
 
-const SearchInput = ({ onSearch, isLoading }) => {
+const SearchInput = memo(({ onSearch, isLoading }) => {
 	const inputRef = useRef(null);
 	const rafId = useRef(null);
 
@@ -83,7 +83,7 @@ const SearchInput = ({ onSearch, isLoading }) => {
 				isDisabled={isLoading}
 			/>
 
-			{inputRef.current.value && (
+			{inputRef?.current?.value && (
 				<Box
 					position='absolute'
 					right='12px'
@@ -100,6 +100,8 @@ const SearchInput = ({ onSearch, isLoading }) => {
 			)}
 		</InputGroup>
 	);
-};
+});
+
+SearchInput.displayName = 'SearchInput';
 
 export default SearchInput;

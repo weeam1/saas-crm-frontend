@@ -27,6 +27,9 @@ export const analyticsColumnDescriptions = {
 		'Growth rate: percentage change in leads compared to last month.\nFormula: (This Month - Last Month) / Last Month × 100.',
 };
 
+export const normalizeSearch = (str) =>
+	str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
 // Helper function to format date as YYYY-M-D
 export const formatDate = (date) => {
 	if (!date) return null;
@@ -105,4 +108,23 @@ export const getDateRange = (range) => {
 	// }
 
 	return { from: formatDate(from), to: formatDate(to) };
+};
+
+export const dateOptions = [
+	{ label: 'Today', value: 'today' },
+	{ label: 'Yesterday', value: 'yesterday' },
+	{ label: 'Last 7 days', value: 'last7Days' },
+	{ label: 'Last 30 days', value: 'last30Days' },
+	{ label: 'This month', value: 'thisMonth' },
+	{ label: 'Last month', value: 'lastMonth' },
+	{ label: 'This year', value: 'thisYear' },
+	{ label: 'All Time', value: 'allTime' },
+];
+
+export const findMatchingRange = (from, to) => {
+	for (const { value } of dateOptions) {
+		const { from: f, to: t } = getDateRange(value);
+		if (f === from && t === to) return value;
+	}
+	return null;
 };

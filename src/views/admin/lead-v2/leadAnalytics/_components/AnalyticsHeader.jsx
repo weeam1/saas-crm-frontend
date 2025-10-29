@@ -1,13 +1,7 @@
 import {
 	Box,
 	Flex,
-	Select,
-	Input,
-	InputGroup,
-	InputLeftElement,
-	Text,
 	HStack,
-	Badge,
 	Tooltip,
 	IconButton,
 	useColorModeValue,
@@ -16,19 +10,13 @@ import {
 	MenuButton,
 	MenuList,
 	Button,
+	Text,
 	MenuItem,
 	useDisclosure,
 } from '@chakra-ui/react';
-import {
-	SearchIcon,
-	ChevronDownIcon,
-	CheckIcon,
-	InfoIcon,
-} from '@chakra-ui/icons';
-import { MdClear } from 'react-icons/md';
+import { ChevronDownIcon, CheckIcon, InfoIcon } from '@chakra-ui/icons';
 import { FaLayerGroup } from 'react-icons/fa';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import DateFilter from '../../components/DateFilter';
 import DateRangeMenuFilter from './DateRangeMenuFilter';
 import SearchInput from './SearchInput';
 import { useEffect } from 'react';
@@ -64,11 +52,11 @@ const AnalyticsHeader = ({
 	// 	(cat) => cat.value === selectedCategory
 	// )?.label;
 
-	const {
-		isOpen: dateFilterIsOpen,
-		onOpen: dateFilterOnOpen,
-		onClose: dateFilterOnClose,
-	} = useDisclosure();
+	// const {
+	// 	isOpen: dateFilterIsOpen,
+	// 	onOpen: dateFilterOnOpen,
+	// 	onClose: dateFilterOnClose,
+	// } = useDisclosure();
 
 	// Trigger parent callback outside the render cycle
 	useEffect(() => {
@@ -244,6 +232,8 @@ const AnalyticsHeader = ({
 								boxShadow='lg'
 								minW='200px'
 								fontSize='xs'
+								transition='all 0.15s ease-in-out'
+								transformOrigin='top'
 							>
 								{categories.map((option, index) => (
 									<Box key={option.value}>
@@ -283,13 +273,13 @@ const AnalyticsHeader = ({
 				</HStack>
 			</Flex>
 
-			{dateFilterIsOpen && (
+			{/* {dateFilterIsOpen && (
 				<DateFilter
 					isOpen={dateFilterIsOpen}
 					onClose={dateFilterOnClose}
 					handleDateFilter={handleDateFilter}
 				/>
-			)}
+			)} */}
 		</Box>
 	);
 };
