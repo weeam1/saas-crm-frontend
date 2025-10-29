@@ -41,7 +41,7 @@ export const buttonStyle = {
 	color: 'white',
 	fontWeight: 'medium',
 	sx: {
-		svg: { fill: 'white', bg: 'green.600', borderRadius: 'full', p: '.5px' },
+		svg: { fill: 'white', bg: 'transparent', borderRadius: 'full', p: '.5px' },
 	}, // ✅ Only changes icon color
 };
 

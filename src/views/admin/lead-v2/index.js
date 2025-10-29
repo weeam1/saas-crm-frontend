@@ -298,10 +298,10 @@ const Index = () => {
 							<Button
 								{...buttonStyle}
 								variant='solid'
-								bg='brand.400'
+								bg='brand.500'
 								py='2'
 								px='5'
-								leftIcon={<FaPlus />}
+								leftIcon={<FaPlus active={ { bg: 'brand.600' }}/>}
 								aria-label='New lead'
 								onClick={() => setAddLead(true)}
 							>
