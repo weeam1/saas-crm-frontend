@@ -1,37 +1,41 @@
 import {
 	Box,
 	Flex,
-	Select,
-	Input,
-	InputGroup,
-	InputLeftElement,
-	Text,
 	HStack,
-	Badge,
 	Tooltip,
 	IconButton,
 	useColorModeValue,
 	useToken,
+	Menu,
+	MenuButton,
+	MenuList,
+	Button,
+	Text,
+	MenuItem,
+	useDisclosure,
 } from '@chakra-ui/react';
-import { SearchIcon, ChevronDownIcon, InfoIcon } from '@chakra-ui/icons';
-import { MdClear } from 'react-icons/md';
+import { ChevronDownIcon, CheckIcon, InfoIcon } from '@chakra-ui/icons';
+import { FaLayerGroup } from 'react-icons/fa';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import DateRangeMenuFilter from './DateRangeMenuFilter';
+import SearchInput from './SearchInput';
+import { useEffect } from 'react';
 
-const StatBadge = ({ label, value, colorScheme = 'brand' }) => (
-	<Tooltip label={label} hasArrow>
-		<Badge
-			colorScheme={colorScheme}
-			variant='subtle'
-			px={3}
-			py={1}
-			borderRadius='full'
-			fontSize='xs'
-			fontWeight='medium'
-		>
-			{value}
-		</Badge>
-	</Tooltip>
-);
+// const StatBadge = ({ label, value, colorScheme = 'brand' }) => (
+// 	<Tooltip label={label} hasArrow>
+// 		<Badge
+// 			colorScheme={colorScheme}
+// 			variant='subtle'
+// 			px={3}
+// 			py={1}
+// 			borderRadius='full'
+// 			fontSize='xs'
+// 			fontWeight='medium'
+// 		>
+// 			{value}
+// 		</Badge>
+// 	</Tooltip>
+// );
 
 const AnalyticsHeader = ({
 	totals,
@@ -42,10 +46,29 @@ const AnalyticsHeader = ({
 	searchTerm,
 	onSearchChange,
 	isLoading,
+	handleDateFilter,
 }) => {
 	// const selectedCategoryLabel = categories.find(
 	// 	(cat) => cat.value === selectedCategory
 	// )?.label;
+
+	// const {
+	// 	isOpen: dateFilterIsOpen,
+	// 	onOpen: dateFilterOnOpen,
+	// 	onClose: dateFilterOnClose,
+	// } = useDisclosure();
+
+	// Trigger parent callback outside the render cycle
+	useEffect(() => {
+		if (searchTerm === undefined) return;
+
+		let frame;
+		frame = requestAnimationFrame(() => {
+			onSearchChange(searchTerm.trim());
+		});
+
+		return () => cancelAnimationFrame(frame);
+	}, [searchTerm, onSearchChange]);
 
 	// Color hooks
 	const bgColor = useColorModeValue('white', 'navy.800');
@@ -121,13 +144,18 @@ const AnalyticsHeader = ({
 				<HStack
 					// spacing={3}
 					width={{ base: '100%', lg: 'auto' }}
-					align='flex-start'
+					align='center'
 					gap='2'
 					flexDirection={{ base: 'column', md: 'row' }}
 				>
+					<DateRangeMenuFilter
+						onDateRangeChange={handleDateFilter}
+						isLoading={isLoading}
+					/>
+
 					{/* Category Dropdown */}
 					<Box position='relative' minW='200px'>
-						<Select
+						{/* <Select
 							value={selectedCategory}
 							onChange={(e) => onCategoryChange(e.target.value)}
 							bg={bgColor}
@@ -147,7 +175,7 @@ const AnalyticsHeader = ({
 								cursor: 'not-allowed',
 							}}
 							fontSize='sm'
-							height='44px'
+							// height='44px'
 							icon={<ChevronDownIcon color='brand.500' />}
 							isDisabled={isLoading}
 							transition='all 0.2s ease'
@@ -164,69 +192,151 @@ const AnalyticsHeader = ({
 									{category.label}
 								</option>
 							))}
-						</Select>
+						</Select> */}
+						<Menu>
+							<MenuButton
+								as={Button}
+								rightIcon={<ChevronDownIcon />}
+								leftIcon={<FaLayerGroup />}
+								variant='outline'
+								minW='200px'
+								justifyContent='space-between'
+								bg='white'
+								fontSize={{ base: 'xs', md: 'sm' }}
+								fontWeight='medium'
+								borderWidth='2px'
+								borderRadius='lg'
+								borderColor='softGray.400'
+								_hover={{
+									borderColor: 'brand.300',
+									boxShadow: `0 0 0 1px brand.200`,
+								}}
+								_focus={{
+									borderColor: 'brand.500',
+									boxShadow: `0 0 0 2px brand.200`,
+								}}
+								_disabled={{
+									opacity: 0.6,
+									cursor: 'not-allowed',
+								}}
+								isDisabled={isLoading}
+								textAlign='left'
+								transition='all 0.2s ease'
+								_expanded={{ bg: 'brand.50', borderColor: 'brand.200' }}
+							>
+								{selectedCategoryLabel}
+							</MenuButton>
+							<MenuList
+								py={2}
+								borderColor='gray.200'
+								boxShadow='lg'
+								minW='200px'
+								fontSize='xs'
+								transition='all 0.15s ease-in-out'
+								transformOrigin='top'
+							>
+								{categories.map((option, index) => (
+									<Box key={option.value}>
+										<MenuItem
+											onClick={() => onCategoryChange(option.value)}
+											bg={
+												selectedCategoryLabel === option.label
+													? 'brand.50'
+													: 'transparent'
+											}
+											color={
+												selectedCategoryLabel === option.label
+													? 'brand.600'
+													: 'gray.700'
+											}
+											_hover={{
+												bg: 'brand.50',
+												color: 'brand.600',
+											}}
+											py={2}
+										>
+											<HStack justify='space-between' w='100%'>
+												<Text fontWeight='medium'>{option.label}</Text>
+												{selectedCategoryLabel === option.label && (
+													<CheckIcon color='brand.500' boxSize={3} />
+												)}
+											</HStack>
+										</MenuItem>
+									</Box>
+								))}
+							</MenuList>
+						</Menu>
 					</Box>
 
 					{/* Search Input */}
-					<InputGroup minW='280px' position='relative'>
-						<InputLeftElement pointerEvents='none' height='44px'>
-							<SearchIcon color='brand.400' />
-						</InputLeftElement>
-						<Input
-							type='text'
-							placeholder='Search...'
-							value={searchTerm}
-							onChange={(e) => onSearchChange(e.target.value)}
-							bg={bgColor}
-							borderColor={softGray400}
-							borderWidth='2px'
-							borderRadius='lg'
-							height='44px'
-							pl={10}
-							_placeholder={{
-								color: 'gray.500',
-								fontSize: 'sm',
-							}}
-							_hover={{
-								borderColor: 'brand.300',
-								boxShadow: `0 0 0 1px ${brand200}`,
-							}}
-							_focus={{
-								borderColor: 'brand.500',
-								boxShadow: `0 0 0 2px ${brand200}`,
-								bg: 'white',
-							}}
-							_disabled={{
-								opacity: 0.6,
-								cursor: 'not-allowed',
-							}}
-							fontSize='sm'
-							transition='all 0.2s ease'
-							isDisabled={isLoading}
-						/>
-
-						{/* Search Clear Button */}
-						{searchTerm && (
-							<Box
-								position='absolute'
-								right='12px'
-								top='50%'
-								transform='translateY(-50%)'
-								cursor='pointer'
-								onClick={() => onSearchChange('')}
-								color='gray.400'
-								_hover={{ color: 'brand.500' }}
-								zIndex={2}
-								transition='color 0.2s ease'
-							>
-								<MdClear />
-							</Box>
-						)}
-					</InputGroup>
+					<SearchInput onSearch={onSearchChange} isLoading={isLoading} />
 				</HStack>
 			</Flex>
+
+			{/* {dateFilterIsOpen && (
+				<DateFilter
+					isOpen={dateFilterIsOpen}
+					onClose={dateFilterOnClose}
+					handleDateFilter={handleDateFilter}
+				/>
+			)} */}
 		</Box>
 	);
 };
 
 export default AnalyticsHeader;
+
+// <InputGroup minW='280px' position='relative'>
+// 	<InputLeftElement pointerEvents='none' height='44px'>
+// 		<SearchIcon color='brand.400' />
+// 	</InputLeftElement>
+// 	<Input
+// 		type='text'
+// 		placeholder='Search...'
+// 		value={searchTerm}
+// 		onChange={(e) => onSearchChange(e.target.value)}
+// 		bg={bgColor}
+// 		borderColor={softGray400}
+// 		borderWidth='2px'
+// 		borderRadius='lg'
+// 		// height='44px'
+// 		pl={10}
+// 		_placeholder={{
+// 			color: 'gray.500',
+// 			fontSize: 'sm',
+// 		}}
+// 		_hover={{
+// 			borderColor: 'brand.300',
+// 			boxShadow: `0 0 0 1px ${brand200}`,
+// 		}}
+// 		_focus={{
+// 			borderColor: 'brand.500',
+// 			boxShadow: `0 0 0 2px ${brand200}`,
+// 			bg: 'white',
+// 		}}
+// 		_disabled={{
+// 			opacity: 0.6,
+// 			cursor: 'not-allowed',
+// 		}}
+// 		fontSize='sm'
+// 		transition='all 0.2s ease'
+// 		isDisabled={isLoading}
+// 	/>
+
+// 	{searchTerm && (
+// 		<Box
+// 			position='absolute'
+// 			right='12px'
+// 			top='50%'
+// 			transform='translateY(-50%)'
+// 			cursor='pointer'
+// 			onClick={() => onSearchChange('')}
+// 			color='gray.400'
+// 			_hover={{ color: 'brand.500' }}
+// 			zIndex={2}
+// 			transition='color 0.2s ease'
+// 		>
+// 			<MdClear />
+// 		</Box>
+// 	)}
+// </InputGroup>;
