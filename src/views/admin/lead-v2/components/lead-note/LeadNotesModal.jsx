@@ -143,7 +143,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
               align="center"
               fontWeight="600"
               mb={{ base: 1, md: 0 }}
-              fontSize="clamp(1rem, 2.5vw, 1.5rem)"
+              fontSize={{ base: "md", md: "lg" }}
             >
               <Text lineHeight="short" fontWeight="600">
                 Lead Notes
