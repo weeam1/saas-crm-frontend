@@ -34,7 +34,6 @@ const AddLead = ({ isOpen, onClose, size = "6xl" }) => {
   const bg = useColorModeValue("white", "gray.800");
   const headerColor = useColorModeValue("brand.300", "brand.100");
   const textColor = useColorModeValue("brand.700", "brand.900");
-  const closeBtnColor = useColorModeValue("brand.700", "brand.900");
 
   const initialValues = {
     leadName: "",
