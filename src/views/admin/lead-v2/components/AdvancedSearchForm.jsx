@@ -136,10 +136,8 @@ const AdvancedSearchForm = (props) => {
 
 	return (
 		<Grid
-			overflow='scroll'
-			height='65vh'
 			p='2'
-			templateColumns='repeat(24, 1fr)'
+			templateColumns={ {base: "1fr", sm: "1fr", md:'repeat(24, 1fr)'}}
 			mb={3}
 			gap={2}
 		>
