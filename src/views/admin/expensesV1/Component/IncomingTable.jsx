@@ -22,7 +22,7 @@ import {
   Select,
   useDisclosure,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon, DownloadIcon } from "@chakra-ui/icons";
+import { AddIcon, DeleteIcon, EditIcon, DownloadIcon, CalendarIcon } from "@chakra-ui/icons";
 import { FiFilter } from "react-icons/fi";
 import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
@@ -34,7 +34,15 @@ import { useUserActivityLog } from "hooks/useUserActivityLog";
 import AddEditCashModal from "./Sub_Component/AddEditCashModal";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const IncomingCashTable = ({ month, year, refetchSummary }) => {
+const IncomingCashTable = ({
+  month,
+  year,
+  refetchSummary,
+  handleOpenModal,
+  getMonthName,
+  monthFromParams,
+  yearFromParams,
+}) => {
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
   const [tempSelectedAgency, setTempSelectedAgency] = useState("");
   const [selectionAgency, setSelectionAgency] = useState("");
@@ -245,7 +253,39 @@ const IncomingCashTable = ({ month, year, refetchSummary }) => {
             borderRadius="full"
             boxShadow="md"
           />
-
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={1}
+            px={3}
+            py={0}
+            borderRadius="md"
+            bg="brand.500"
+            color="white"
+            boxShadow="md"
+            cursor="pointer"
+            transition="all 0.2s"
+            border="none"
+            onClick={handleOpenModal}
+            _hover={{
+              boxShadow: "lg",
+              bg: "brand.600",
+              transform: "scale(1.04)",
+            }}
+          >
+            <IconButton
+              icon={<CalendarIcon />}
+              aria-label="Open date filter"
+              color="white"
+              bg="transparent"
+              _hover={{ bg: "transparent", color: "white" }}
+              _focus={{ bg: "transparent" }}
+              size="sm"
+            />
+            <Text color="white" fontWeight="bold" fontSize={"sm"}>
+              {getMonthName(monthFromParams)} {yearFromParams}
+            </Text>
+          </Box>
           <Button
             size="sm"
             borderRadius={"md"}

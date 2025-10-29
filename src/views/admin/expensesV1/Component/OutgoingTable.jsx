@@ -30,6 +30,7 @@ import {
   EditIcon,
   ViewIcon,
   DownloadIcon,
+  CalendarIcon,
 } from "@chakra-ui/icons";
 import AddOutgoingPaymentModal from "./Sub_Component/AddOutgoingPaymentModal";
 import { FiFilter } from "react-icons/fi";
@@ -48,7 +49,15 @@ import * as XLSX from "xlsx";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
-const OutgoingTable = ({ month, year, refetchSummary }) => {
+const OutgoingTable = ({
+  month,
+  year,
+  refetchSummary,
+  handleOpenModal,
+  getMonthName,
+  monthFromParams,
+  yearFromParams,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [agencyFilterOpen, setAgencyFilterOpen] = useState(false);
   const [tempSelectedAgency, setTempSelectedAgency] = useState("");
@@ -411,7 +420,39 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             borderRadius="full"
             boxShadow="md"
           /> */}
-
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={1}
+            px={3}
+            py={0}
+            borderRadius="md"
+            bg="brand.500"
+            color="white"
+            boxShadow="md"
+            cursor="pointer"
+            transition="all 0.2s"
+            border="none"
+            onClick={handleOpenModal}
+            _hover={{
+              boxShadow: "lg",
+              bg: "brand.600",
+              transform: "scale(1.04)",
+            }}
+          >
+            <IconButton
+              icon={<CalendarIcon />}
+              aria-label="Open date filter"
+              color="white"
+              bg="transparent"
+              _hover={{ bg: "transparent", color: "white" }}
+              _focus={{ bg: "transparent" }}
+              size="sm"
+            />
+            <Text color="white" fontWeight="bold" fontSize={"sm"}>
+              {getMonthName(monthFromParams)} {yearFromParams}
+            </Text>
+          </Box>
           <Button
             size="sm"
             borderRadius={"md"}
@@ -431,7 +472,7 @@ const OutgoingTable = ({ month, year, refetchSummary }) => {
             px={6}
             onClick={exportToExcel}
             bg={"green.400"}
-            _hover={{bg:"green.500"}}
+            _hover={{ bg: "green.500" }}
             mr={2}
             color={"white"}
           >

@@ -75,47 +75,15 @@ const ExpenseBalanceScreen = () => {
 
   return (
     <Box>
-      <Flex justifyContent="flex-end" mr={4}>
-        <Box
-          display="flex"
-          alignItems="center"
-          gap={1}
-          px={3}
-          py={1}
-          borderRadius="md"
-          bg="brand.500"
-          color="white"
-          boxShadow="md"
-          cursor="pointer"
-          transition="all 0.2s"
-          border="none"
-          onClick={handleOpenModal}
-          _hover={{
-            boxShadow: "lg",
-            bg: "brand.600",
-            transform: "scale(1.04)",
-          }}
-        >
-          <IconButton
-            icon={<CalendarIcon />}
-            aria-label="Open date filter"
-            color="white"
-            bg="transparent"
-            _hover={{ bg: "transparent", color: "white" }}
-            _focus={{ bg: "transparent" }}
-            size="sm"
-          />
-          <Text color="white" fontWeight="bold">
-            {getMonthName(monthFromParams)} {yearFromParams}
-          </Text>
-        </Box>
-      </Flex>
-
       <Box my={4}>
         <IncomingTable
           month={monthFromParams}
           year={yearFromParams}
           refetchSummary={refetch}
+          handleOpenModal={handleOpenModal}
+          getMonthName={getMonthName}
+          monthFromParams={monthFromParams}
+          yearFromParams={yearFromParams}
         />
       </Box>
 
