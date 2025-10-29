@@ -165,7 +165,7 @@ const Index = () => {
                           minWidth="100px"
                           textAlign={"center"}
                         >
-                          {index + 1}
+                          {role.serialNumber}
                         </Td>
                         <Td
                           whiteSpace="nowrap"

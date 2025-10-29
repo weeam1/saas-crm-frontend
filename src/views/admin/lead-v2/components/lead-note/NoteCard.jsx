@@ -1,99 +1,114 @@
 import {
-	Box,
-	GridItem,
-	Text,
-	IconButton,
-	Avatar,
-	HStack,
-	Flex,
-	Divider,
-} from '@chakra-ui/react';
-import ConfirmationModal from 'components/Message/ConfirmationModal';
-import { constant } from 'constant';
-import { useState } from 'react';
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
-import { formatPostDate } from 'utils/helpers';
-import NoteBody from './NoteBody';
-import CustomTooltip from 'components/shared/CustomTooltip';
+  Box,
+  GridItem,
+  Text,
+  IconButton,
+  Avatar,
+  HStack,
+  Flex,
+  Divider,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import ConfirmationModal from "components/Message/ConfirmationModal";
+import { constant } from "constant";
+import { useState } from "react";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { formatPostDate } from "utils/helpers";
+import NoteBody from "./NoteBody";
 
 const NoteCard = ({ id, note, onEdit, onDelete }) => {
-	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem("user"));
 
-	const user = JSON.parse(localStorage.getItem('user'));
+  const handleConfirmRemove = async () => {
+    await onDelete(note);
+    setDeleteModalOpen(false);
+  };
 
-	const handleConfirmRemove = async () => {
-		await onDelete(note);
-		setDeleteModalOpen(false);
-	};
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const bgColor = useColorModeValue("whitesmoke", "gray.800");
 
-	return (
-		<>
-			<GridItem key={id}>
-				<Box
-					bg='whitesmoke'
-					borderRadius='lg'
-					p={{ base: 2, md: 4 }}
-					// h='100%'
-					shadow='sm'
-				>
-					{/* Header */}
-					<Flex justify='space-between' align='flex-start' mb={2}>
-						<HStack align='center'>
-							<Avatar
-								src={
-									note.addedBy?.profileImage
-										? `${constant.baseUrl}${note.addedBy.profileImage}`
-										: undefined
-								}
-								name={note.addedBy?.fullName ?? 'User'}
-								boxSize={{ base: '40px', md: '50px' }}
-								bg='brand.200'
-								color='gray.800'
-								imgProps={{
-									loading: 'lazy',
-									referrerPolicy: 'no-referrer',
-									style: {
-										objectFit: 'cover',
-										imageRendering: 'auto',
-									},
-								}}
-							/>
-							<Box>
-								<Text
-									fontWeight='semibold'
-									fontSize={{ base: 'sm', md: 'md' }}
-									noOfLines={1}
-								>
-									{note.addedBy?.fullName}
-								</Text>
-								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
-									{formatPostDate(new Date(note?.createdAt))}
-								</Text>
-							</Box>
-						</HStack>
-						{user?.role === 'superAdmin' && (
-							<Box display='flex' gap={1}>
-								<IconButton
-									aria-label='Edit Note'
-									icon={<FiEdit />}
-									size='sm'
-									variant='ghost'
-									onClick={() => onEdit(note)}
-								/>
+  return (
+    <>
+      <GridItem
+        key={id}
+        w="full"
+        colSpan={{ base: 12, md: 6, lg: 4 }}
+        display="flex"
+      >
+        <Box
+          bg={bgColor}
+          borderWidth="1px"
+          borderColor={borderColor}
+          borderRadius="lg"
+          p={{ base: 3, md: 4 }}
+          shadow="md"
+          w="full"
+          transition="all 0.2s ease-in-out"
+          _hover={{ shadow: "lg", transform: "scale(1.01)" }}
+        >
+          {/* Header */}
+          <Flex justify="space-between" align="center" mb={2}>
+            <HStack spacing={2} align="center">
+              <Avatar
+                src={
+                  note.addedBy?.profileImage
+                    ? `${constant.baseUrl}${note.addedBy.profileImage}`
+                    : undefined
+                }
+                name={note.addedBy?.fullName ?? "User"}
+                boxSize={{ base: "28px", md: "34px" }}
+                bg="brand.200"
+                color="gray.800"
+                imgProps={{
+                  loading: "lazy",
+                  referrerPolicy: "no-referrer",
+                  style: {
+                    objectFit: "cover",
+                    imageRendering: "auto",
+                  },
+                }}
+              />
+              <Box lineHeight="1">
+                <Text
+                  fontWeight="600"
+                  fontSize="clamp(0.7rem, 1.5vw, 0.9rem)"
+                  color="gray.800"
+                >
+                  {note.addedBy?.fullName || "Unknown User"}
+                </Text>
+                <Text fontSize="clamp(0.65rem, 1.2vw, 0.8rem)" color="gray.500">
+                  {formatPostDate(new Date(note?.createdAt))}
+                </Text>
+              </Box>
+            </HStack>
 
-								<IconButton
-									aria-label='Delete Note'
-									icon={<FiTrash2 />}
-									size='sm'
-									variant='ghost'
-									onClick={() => setDeleteModalOpen(true)}
-								/>
-							</Box>
-						)}
-					</Flex>
+            {user?.role === "superAdmin" && (
+              <HStack spacing={1}>
+                <IconButton
+                  aria-label="Edit Note"
+                  icon={<FiEdit />}
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="gray"
+                  onClick={() => onEdit(note)}
+                />
+                <IconButton
+                  aria-label="Delete Note"
+                  icon={<FiTrash2 />}
+                  size="xs"
+                  variant="ghost"
+                  colorScheme="red"
+                  onClick={() => setDeleteModalOpen(true)}
+                />
+              </HStack>
+            )}
+          </Flex>
 
-					{/* Note Body */}
-					{/* <Box overflowY='auto' maxH='200px' p='1'>
+          <Divider mb={3} />
+
+          {/* Note Body */}
+          {/* <Box overflowY='auto' maxH='200px' p='1'>
 						<Text
 							as='pre'
 							// fontWeight='semibold'
@@ -106,27 +121,25 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
 							{note?.note}
 						</Text>
 					</Box> */}
+          <NoteBody text={note?.note} />
+        </Box>
+      </GridItem>
 
-					<Divider color='gray.600' />
-					<NoteBody text={note?.note} />
-				</Box>
-			</GridItem>
-
-			{isDeleteModalOpen && (
-				<ConfirmationModal
-					isOpen={isDeleteModalOpen}
-					onClose={() => {
-						setDeleteModalOpen(false);
-					}}
-					onConfirm={handleConfirmRemove}
-					title='Remove Lead Note'
-					message='Are you sure you want to remove the lead note?'
-					confirmText='Yes, Remove'
-					cancelText='Cancel'
-				/>
-			)}
-		</>
-	);
+      {isDeleteModalOpen && (
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+          }}
+          onConfirm={handleConfirmRemove}
+          title="Remove Lead Note"
+          message="Are you sure you want to remove the lead note?"
+          confirmText="Yes, Remove"
+          cancelText="Cancel"
+        />
+      )}
+    </>
+  );
 };
 
 export default NoteCard;

@@ -122,7 +122,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="5xl" isCentered >
+    <Modal isOpen={isOpen} onClose={onClose} size="5xl" isCentered>
       <ModalOverlay />
       <ModalContent m="2" borderRadius="2xl">
         <ModalHeader
@@ -143,12 +143,9 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
               align="center"
               fontWeight="600"
               mb={{ base: 1, md: 0 }}
+              fontSize="clamp(1rem, 2.5vw, 1.5rem)"
             >
-              <Text
-                fontSize="clamp(1rem, 2.5vw, 1.5rem)"
-                lineHeight="short"
-                fontWeight="600"
-              >
+              <Text lineHeight="short" fontWeight="600">
                 Lead Notes
               </Text>
               <CountUpComponent targetNumber={allNotes?.length || 0} />
@@ -166,7 +163,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
                 fontSize="clamp(0.75rem, 1.8vw, 0.875rem)"
                 onClick={() => setAddNote(true)}
                 aria-label="add new note"
-				borderRadius={"md"}
+                borderRadius={"md"}
               >
                 Add Note
               </Button>
@@ -174,7 +171,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
               <ModalCloseButton
                 position="relative"
                 top="0"
-				right="0"
+                right="0"
                 color="white"
                 _focus={{ outline: "none" }}
                 _hover={{ bg: "whiteAlpha.300" }}
