@@ -295,7 +295,9 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 						}}
 						onClick={(e) => {
 							e.stopPropagation();
-							navigate(`/survey/view-survey/${data.id || data._id}`);
+							navigate(
+								`/survey/all-surveys/view-survey/${data.id || data._id}`
+							);
 						}}
 					>
 						View
@@ -329,7 +331,9 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 						isDisabled={isSurveyCompleted}
 						onClick={(e) => {
 							e.stopPropagation();
-							navigate(`/survey/take-survey/${data.id || data._id}`);
+							navigate(
+								`/survey/all-surveys/take-survey/${data.id || data._id}`
+							);
 						}}
 					>
 						{isSurveyCompleted ? 'Completed' : 'Take Survey'}
