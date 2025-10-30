@@ -38,8 +38,10 @@ const AdvancedSearchModal = ({
 }) => {
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
   const bgColor = useColorModeValue("white", "gray.800");
-  const headerBg = useColorModeValue("brand.600", "brand.700");
-  const headerText = useColorModeValue("brand.700", "brand.800");
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const months = [
     { value: "1", label: "January" },
@@ -445,7 +447,16 @@ const AdvancedSearchModal = ({
             </VStack>
           </ModalBody>
 
-          <ModalFooter gap={3} px={6}>
+          <ModalFooter position="sticky"
+            bottom="0"
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            py={3}
+            px={5}
+            zIndex="10"
+            justifyContent="flex-end"
+            gap={3}>
             <Button
               variant="outline"
               onClick={handleClear}
