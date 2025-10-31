@@ -15,9 +15,12 @@ import {
   Flex,
   Button,
   Badge,
+  Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 
+// Priority and status color maps
 const priorityColors = {
   Low: "green",
   Medium: "yellow",
@@ -33,31 +36,84 @@ const statusColors = {
 };
 
 const TaskDetailsModal = ({ isOpen, onClose, task }) => {
+
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const bgColor = useColorModeValue("white", "gray.800");
+  const inputBg = useColorModeValue("gray.50", "gray.700");
+  
   if (!task) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
-      <ModalContent mx={{ base: 4, sm: 6 }}>
-        <ModalHeader>Task Details</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody maxHeight="60vh" overflowY="auto">
-          <VStack spacing={4}>
+      <ModalContent
+        mx={{ base: 3, sm: 6 }}
+        borderRadius="2xl"
+        shadow="2xl"
+        bg={bgColor}
+        maxH="85vh"
+        overflow="hidden"
+        display="flex"
+        flexDirection="column"
+      >
+        {/* Sticky Header */}
+        <Flex
+          align="center"
+          justify="space-between"
+          bg={headerBg}
+          color={headerText}
+          px={6}
+          py={3}
+          borderBottom="1px solid"
+          borderColor={borderColor}
+          position="sticky"
+          top="0"
+          zIndex="10"
+        >
+          <Text fontSize="lg" fontWeight="bold">
+            Task Details
+          </Text>
+          <ModalCloseButton position="static" />
+        </Flex>
+
+        {/* Scrollable Body */}
+        <ModalBody
+          p={5}
+          overflowY="auto"
+          maxH="65vh"
+          scrollBehavior="smooth"
+          sx={{
+            "&::-webkit-scrollbar": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "#c1c1c1",
+              borderRadius: "10px",
+            },
+          }}
+        >
+          <VStack spacing={5}>
+            {/* Title */}
             <FormControl>
               <FormLabel>Title</FormLabel>
-              <Input value={task.title || ""} isReadOnly bg="gray.50" />
+              <Input value={task.title || ""} isReadOnly bg={inputBg} />
             </FormControl>
 
+            {/* Description */}
             <FormControl>
               <FormLabel>Description</FormLabel>
               <Textarea
                 value={task.description || ""}
                 isReadOnly
-                bg="gray.50"
+                bg={inputBg}
                 minH="120px"
               />
             </FormControl>
 
+            {/* Due Date & Priority */}
             <Flex gap={4} w="100%" flexDirection={{ base: "column", md: "row" }}>
               <FormControl>
                 <FormLabel>Due Date</FormLabel>
@@ -68,7 +124,7 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
                       : "N/A"
                   }
                   isReadOnly
-                  bg="gray.50"
+                  bg={inputBg}
                 />
               </FormControl>
 
@@ -80,16 +136,18 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
                   w="100%"
                   textAlign="center"
                   fontSize="md"
+                  borderRadius="md"
                 >
                   {task.priority || "N/A"}
                 </Badge>
               </FormControl>
             </Flex>
 
+            {/* Type & Status */}
             <Flex gap={4} w="100%" flexDirection={{ base: "column", md: "row" }}>
               <FormControl>
                 <FormLabel>Type</FormLabel>
-                <Input value={task.type || "N/A"} isReadOnly bg="gray.50" />
+                <Input value={task.type || "N/A"} isReadOnly bg={inputBg} />
               </FormControl>
 
               <FormControl>
@@ -100,19 +158,21 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
                   w="100%"
                   textAlign="center"
                   fontSize="md"
+                  borderRadius="md"
                 >
                   {task.status || "N/A"}
                 </Badge>
               </FormControl>
             </Flex>
 
+            {/* Assigned To & Assigned By */}
             <Flex gap={4} w="100%" flexDirection={{ base: "column", md: "row" }}>
               <FormControl>
                 <FormLabel>Assigned To</FormLabel>
                 <Input
                   value={task.assigned_to?.fullName || "N/A"}
                   isReadOnly
-                  bg="gray.50"
+                  bg={inputBg}
                 />
               </FormControl>
 
@@ -121,11 +181,12 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
                 <Input
                   value={task.assigned_by?.fullName || "N/A"}
                   isReadOnly
-                  bg="gray.50"
+                  bg={inputBg}
                 />
               </FormControl>
             </Flex>
 
+            {/* Created At */}
             <FormControl>
               <FormLabel>Created At</FormLabel>
               <Input
@@ -135,13 +196,25 @@ const TaskDetailsModal = ({ isOpen, onClose, task }) => {
                     : "N/A"
                 }
                 isReadOnly
-                bg="gray.50"
+                bg={inputBg}
               />
             </FormControl>
           </VStack>
         </ModalBody>
-        <ModalFooter>
-          <Button variant="outline" onClick={onClose}>
+
+        {/* Sticky Footer */}
+        <ModalFooter
+          bg={footerBg}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          position="sticky"
+          bottom="0"
+          zIndex="10"
+          py={3}
+          px={5}
+          justifyContent="flex-end"
+        >
+          <Button variant="outline" onClick={onClose} size="md" borderRadius={"md"}>
             Close
           </Button>
         </ModalFooter>
