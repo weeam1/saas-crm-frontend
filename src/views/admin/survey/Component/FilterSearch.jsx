@@ -128,6 +128,7 @@ const FilterSearch = ({
               py={1}
               borderRadius="full"
               _hover={{ bg: "red.50" }}
+              onClick={handleClear}
             >
               Clear
             </Text>
