@@ -82,7 +82,7 @@ const FilterSearch = ({
         flexDir={{ base: "column", sm: "column", md: "row" }}
       >
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
-          Survey Records
+          All Surveys
         </Text>
 
         <Box

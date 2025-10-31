@@ -74,15 +74,15 @@ export const useUserSession = () => {
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state.user.user);
 
-	useEffect(() => {
-		const handleStorageChange = (e) => {
-			if (e.key === 'user') {
-				dispatch(syncUser());
-			}
-		};
-		window.addEventListener('storage', handleStorageChange);
-		return () => window.removeEventListener('storage', handleStorageChange);
-	}, [dispatch]);
+	// useEffect(() => {
+	// 	const handleStorageChange = (e) => {
+	// 		if (e.key === 'user') {
+	// 			dispatch(syncUser());
+	// 		}
+	// 	};
+	// 	window.addEventListener('storage', handleStorageChange);
+	// 	return () => window.removeEventListener('storage', handleStorageChange);
+	// }, [dispatch]);
 
 	return {
 		user,

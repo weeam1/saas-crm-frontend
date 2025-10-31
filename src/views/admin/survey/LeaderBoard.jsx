@@ -142,7 +142,7 @@ const LeaderBoard = () => {
   ];
   return (
     <Box p={{ base: 2, md: 4 }}>
-      <Breadcrumb items={items} />
+      {/* <Breadcrumb items={items} /> */}
 
       {/* Back Button */}
       <AppButton

@@ -210,10 +210,11 @@ const Interviewed = ({
 				px='.5rem'
 				mb='4'
 				shadow='none'
+				gap='2'
 			>
 				<HStack gap='2'>
 					<FaUserCheck w='14' h='14' />
-					<Heading size='20px' color='gray.800' fontWeight={"bold"}>
+					<Heading size='20px' color='gray.800' fontWeight={'bold'}>
 						Interviewed Candidates
 						{data && (
 							<span style={{ marginLeft: '6px' }}>
@@ -223,7 +224,12 @@ const Interviewed = ({
 					</Heading>
 				</HStack>
 
-				<HStack gap='2'>
+				<HStack
+					w={{ base: '100%', md: 'fit-content' }}
+					justify='flex-end'
+					flexDir={{ base: 'column', md: 'row' }}
+					gap='2'
+				>
 					{/* <SearchBar data={allData?.doc} onFilteredData={handleFilteredData} /> */}
 					<SearchBar onSearchTermChange={handleSearchTermChange} />
 
@@ -231,7 +237,7 @@ const Interviewed = ({
 						colorScheme='brand'
 						rounded='md'
 						size={'sm'} // Adjusts the size
-						py={3}	
+						py={3}
 						px={6}
 						onClick={() => setAdvanceSearch(true)}
 					>

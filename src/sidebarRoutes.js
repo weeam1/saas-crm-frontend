@@ -497,9 +497,10 @@ export const sidebarRoutes = [
 				path: '/survey/dashboard',
 			},
 			{
-				name: 'Survey Records',
-				path: '/survey/records',
+				name: 'All Surveys',
+				path: '/survey/all-surveys',
 			},
+			{ id: 'create', name: 'Create Survey', path: '/survey/create' },
 		],
 	},
 

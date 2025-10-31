@@ -34,6 +34,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useMemo } from 'react';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 // Validation Schema
 const candidateSchema = Yup.object().shape({
@@ -59,6 +60,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 	const [updateCandidate, { isLoading }] = useUpdateItemMutation();
 
 	const countries = useSelector((state) => state.countries.countryNames);
+	const { headerBg, headerText } = useModalColors();
 
 	const { data: positionOptions, isLoading: positionsLoading } =
 		useFetchItemsQuery({
@@ -138,9 +140,17 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
-			<ModalOverlay />
-			<ModalContent mx='2'>
-				<ModalHeader>Edit Candidate Information</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					w='100%'
+				>
+					Edit Candidate Information
+				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody pb={6}>
 					{positionsLoading || agencyLoading ? (

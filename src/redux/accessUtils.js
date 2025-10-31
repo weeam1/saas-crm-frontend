@@ -12,7 +12,7 @@ export const HasAccess = (actions) => {
 		dispatch(fetchRoles(user?._id));
 	}, [dispatch]);
 
-	const roles = useSelector((state) => state?.roles?.roles);
+	const roles = useSelector((state) => state?.roles?.roles) || [];
 	const rolesToCheck = roles?.map((item) => item.roleName);
 	const mergedPermissions = {};
 	const superAdminPermission = {

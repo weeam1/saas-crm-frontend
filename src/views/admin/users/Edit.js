@@ -198,12 +198,15 @@ const Edit = (props) => {
 						};
 					}
 
-					const updatedDataString = JSON.stringify(updatedUserData);
+					// const updatedDataString = JSON.stringify(updatedUserData);
 
-					dispatch(setUser(updatedDataString));
+					dispatch(setUser(updatedUserData));
 				}
 
-				if (user?._id === props.selectedId && values.password) {
+				console.log({ bodyData, values });
+
+				if (user?._id === props.selectedId && bodyData?.password) {
+					console.warn('reeload the pagee');
 					window.location.reload();
 					localStorage.removeItem('token');
 					localStorage.removeItem('user');
@@ -218,8 +221,8 @@ const Edit = (props) => {
 				props.setAction((pre) => !pre);
 
 				// get updated users data
-				fetchActiveTree(dispatch);
-				fetchTree(dispatch);
+				// fetchActiveTree(dispatch);
+				// fetchTree(dispatch);
 
 				if (!controller.signal.aborted) {
 					toast.success('User update successfully');

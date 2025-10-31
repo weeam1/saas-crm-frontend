@@ -449,7 +449,7 @@ const ViewSurveyResponse = () => {
         pb={isMobile ? "80px" : 0}
       >
         <Box width={{ base: "100%", lg: "85%" }} maxW="100%" mx="0">
-          <Breadcrumb items={items} />
+          {/* <Breadcrumb items={items} /> */}
           <Flex justify="flex-start" mb={4}>
             <AppButton
               ml="2"

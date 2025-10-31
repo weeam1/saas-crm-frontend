@@ -24,6 +24,7 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import SearchUsers from '../WhatsappSettings/SearchUsers';
 import { toast } from 'react-toastify';
+import { useModalColors } from 'hooks/useModalColors';
 
 const schema = Yup.object().shape({
 	userId: Yup.string().required('User is requried'),
@@ -42,6 +43,8 @@ const CreateInstance = ({
 	const { data: usersData, isLoading: usersLoading } = useFetchItemsQuery({
 		path: '/v2/user/search_users',
 	});
+
+	const { headerBg, headerText } = useModalColors();
 
 	const initialValues = {
 		instanceName: instance?.instanceName || '',
@@ -117,9 +120,17 @@ const CreateInstance = ({
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='3xl'>
-			<ModalOverlay />
-			<ModalContent m={2}>
-				<ModalHeader>{mode} Whatsapp Chat</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					w='100%'
+				>
+					{mode} Whatsapp Chat
+				</ModalHeader>
 				<ModalCloseButton _focus={{ outline: 'none' }} />
 				<ModalBody pb={4}>
 					<FormControl isInvalid={errors.userId} mb={4}>
