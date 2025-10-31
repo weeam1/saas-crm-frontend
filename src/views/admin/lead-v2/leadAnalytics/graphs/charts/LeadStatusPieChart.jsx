@@ -176,19 +176,19 @@ const LeadStatusPieChart = ({ summary, isFullScreen }) => {
 			flexDir={{ base: 'column', md: 'row' }}
 			align='center'
 			justify='center'
-			spacing={6}
+			spacing={2}
 		>
 			{/* Left Summary */}
-			<VStack align='start' spacing={2} p='2' minW='250px'>
+			<VStack align='start' spacing={1} p='2' minW='170px'>
 				{leadStatusData.map((item, i) => {
 					const percentage = ((item.value / TOTAL_LEADS) * 100).toFixed(1);
 					return (
-						<HStack key={item.name} spacing={3}>
-							<Circle size='10px' bg={COLORS[i]} />
-							<Text fontSize='xs' color='gray.700' fontWeight='medium'>
+						<HStack key={item.name} spacing={1}>
+							<Circle size='8px' bg={COLORS[i]} />
+							<Text fontSize='10px' color='gray.700' fontWeight='normal'>
 								{item.name}:
 							</Text>
-							<Text fontSize='xs' fontWeight='semibold' color={COLORS[i]}>
+							<Text fontSize='10px' fontWeight='semibold' color={COLORS[i]}>
 								{percentage}%
 							</Text>
 						</HStack>

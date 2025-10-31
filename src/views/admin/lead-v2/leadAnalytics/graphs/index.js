@@ -122,7 +122,41 @@ const Graphs = ({ summary, isLoading, layout = 'default' }) => {
 				<>
 					{/* Dynamic Chart Grid */}
 					<SimpleGrid
-						columns={{ base: 1, md: 2, xl: chartKeys.length >= 2 ? 2 : 1 }}
+						// columns={{ base: 1, md: 2, xl: chartKeys.length >= 2 ? 2 : 1 }}
+						sx={{
+							// >= 0px
+							'@media (min-width: 0px)': {
+								gridTemplateColumns: '1fr',
+							},
+							// >= 992px
+							'@media (min-width: 700px)': {
+								gridTemplateColumns: 'repeat(1, 1fr)',
+							},
+							// >= 1280px
+							'@media (min-width: 1080px)': {
+								gridTemplateColumns: 'repeat(2, 1fr)',
+							},
+							// >= 1664px
+							'@media (min-width: 1664px)': {
+								gridTemplateColumns: 'repeat(2, 1fr)',
+							},
+							// >= 1920px (e.g., Full HD+)
+							'@media (min-width: 2120px)': {
+								gridTemplateColumns: 'repeat(2, 1fr)',
+							},
+							// >= 2560px (2.5K / QHD)
+							'@media (min-width: 2560px)': {
+								gridTemplateColumns: 'repeat(2, 1fr)',
+							},
+							// >= 3840px (4K)
+							'@media (min-width: 3840px)': {
+								gridTemplateColumns: 'repeat(3, 1fr)',
+							},
+							// >= 7680px (8K)
+							'@media (min-width: 7680px)': {
+								gridTemplateColumns: 'repeat(4, 1fr)',
+							},
+						}}
 						gap='2'
 					>
 						{chartKeys.map((chartKey) => {
@@ -162,8 +196,8 @@ const ChartContainer = ({
 	const bgColor = useColorModeValue('white', 'gray.800');
 	const borderColor = useColorModeValue('gray.200', 'gray.600');
 	const chartHeight = useBreakpointValue({
-		base: 220,
-		md: 250,
+		base: 260,
+		md: 260,
 		lg: 280,
 	});
 
