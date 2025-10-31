@@ -9,6 +9,7 @@ import { updateMultipleLeadFields } from '../../../../redux/leadsSlice';
 import { sendBulkLeadNotification } from 'api';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useModalColors } from 'hooks/useModalColors';
 
 const {
 	Modal,
@@ -72,6 +73,9 @@ const BulkAssignModal = (props) => {
 	} = props;
 
 	const [isMounted, setIsMounted] = useState(true);
+
+	const { headerBg, closeBtnColor, primaryBtnBg, headerText } =
+		useModalColors();
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -248,9 +252,18 @@ const BulkAssignModal = (props) => {
 				isCentered
 				motionPreset='slideInBottom'
 			>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
 						Bulk Assign ({selectedValues?.length} Leads)
 					</ModalHeader>
 					<ModalBody>
