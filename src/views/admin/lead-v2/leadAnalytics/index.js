@@ -4,6 +4,7 @@ import LeadAnalyticsTable from './_components/LeadAnaylticsTable';
 import AnalyticsHeader from './_components/AnalyticsHeader';
 import { SummaryCards } from './_components/SummaryCards';
 import ErrorMessage from 'components/Message/ErrorMessage';
+import Graphs from './graphs';
 
 const LeadAnalytics = () => {
 	const {
@@ -54,6 +55,8 @@ const LeadAnalytics = () => {
 							summary={summary}
 							isLoading={isLoading || isFetching}
 						/>
+
+						<Graphs summary={summary} isLoading={isLoading || isFetching} />
 
 						<LeadAnalyticsTable
 							selectedCategoryLabel={selectedCategoryLabel}
