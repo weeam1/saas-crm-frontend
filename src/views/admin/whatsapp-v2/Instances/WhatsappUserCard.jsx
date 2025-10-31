@@ -16,6 +16,7 @@ import {
 	IconButton,
 	useDisclosure,
 	Tooltip,
+	HStack,
 } from '@chakra-ui/react';
 import {
 	FaUser,
@@ -88,7 +89,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 		<Box
 			bg={cardBg}
 			rounded='lg'
-			p={5}
+			p={4}
 			borderWidth='1px'
 			borderColor={borderColor}
 			transition='all 0.3s ease'
@@ -113,12 +114,12 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 
 			{/* Header */}
 			<Flex justify='space-between' align='center' mb={4}>
-				<Flex gap={4} align='center' flex='1'>
+				<Flex gap={2} align='center' flex='1'>
 					<UserAvatar name={instanceName} size='sm' />
 					<Box flex='1' maxW='150px' minW={0}>
 						<Text
 							fontWeight='bold'
-							fontSize='sm'
+							fontSize={{ base: 'xs', md: 'sm' }}
 							noOfLines={1}
 							isTruncated
 							color={textColor}
@@ -133,7 +134,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 					<FormLabel
 						htmlFor={`status-${data?._id}`}
 						mb='0'
-						fontSize='sm'
+						fontSize={{ base: 'xs', md: 'sm' }}
 						color={secondaryTextColor}
 					>
 						{isActive ? 'Active' : 'Disabled'}
@@ -143,7 +144,7 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 						isChecked={isActive}
 						onChange={(e) => updateInstanceStatus(e.target.checked)}
 						colorScheme='whatsapp'
-						size='md'
+						size='sm'
 						isDisabled={isUpdating}
 						transition='all 0.2s ease'
 					/>
@@ -153,14 +154,13 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 			<Divider borderColor={borderColor} my={3} />
 
 			{/* Details */}
-			<Stack spacing={3} fontSize='sm' color={textColor} mb={4}>
-				<Flex
-					align='center'
-					gap={2}
-					fontSize='sm'
-					color={secondaryTextColor}
-					mt={1}
-				>
+			<Stack
+				spacing={3}
+				fontSize={{ base: 'xs', md: 'sm' }}
+				color={textColor}
+				mb={4}
+			>
+				<Flex align='center' gap={2} color={secondaryTextColor} mt={1}>
 					<FaUser size='1em' />
 					<Text>{user?.fullName}</Text>
 				</Flex>
@@ -217,9 +217,11 @@ const WhatsappUserCard = ({ data, updateInstances, removeInstance }) => {
 					bg={whatsappGreen}
 					_hover={{ bg: whatsappGreen, transform: 'scale(1.02)' }}
 					_active={{ bg: whatsappGreen }}
-					size='sm'
 					rounded='full'
+					fontSize={{ base: 'sm' }}
 					px={4}
+					py={1}
+					size='sm'
 					onClick={() => navigate(`/whatsapp/instances/${data?.sessionId}`)}
 					shadow='md'
 				>

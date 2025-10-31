@@ -7,15 +7,11 @@ import {
 	Box,
 	Button,
 	Flex,
-	IconButton,
-	Stack,
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
-import CustomTooltip from 'components/shared/CustomTooltip';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiSettings } from 'react-icons/fi';
 import { usePermissions } from 'hooks/usePermissions';
 import CreateInstance from './CreateInstance';
 import { whatsappColors } from 'utils/helpers';

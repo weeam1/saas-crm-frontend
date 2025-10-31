@@ -225,54 +225,101 @@ function App() {
 		};
 	}, [dispatch, user]);
 
-	const getToken = () => {
-		return localStorage.getItem('token') || null;
-	};
+	// const getToken = () => {
+	// 	return localStorage.getItem('token') || null;
+	// };
 
-	const fetchTree = async () => {
-		setAppLoaded(false);
-		const response = await getApi('api/user/tree');
-		const data = response.data || null;
+	// const fetchTree = async () => {
+	// 	setAppLoaded(false);
+	// 	const response = await getApi('api/user/tree');
+	// 	const data = response.data || null;
 
-		dispatch(setTree(data));
+	// 	dispatch(setTree(data));
 
-		setTimeout(() => {
-			setAppLoaded(true);
-		}, 0);
-	};
+	// 	setTimeout(() => {
+	// 		setAppLoaded(true);
+	// 	}, 0);
+	// };
 
-	const fetchActiveTree = async () => {
-		setAppLoaded(false);
-		const response = await getApi('api/v2/user/active_tree');
-		const data = response.data || null;
+	// const fetchActiveTree = async () => {
+	// 	setAppLoaded(false);
+	// 	const response = await getApi('api/v2/user/active_tree');
+	// 	const data = response.data || null;
 
-		dispatch(setActiveTree(data));
+	// 	dispatch(setActiveTree(data));
 
-		setTimeout(() => {
-			setAppLoaded(true);
-		}, 0);
-	};
+	// 	setTimeout(() => {
+	// 		setAppLoaded(true);
+	// 	}, 0);
+	// };
 
-	const fetchUsers = async () => {
-		setAppLoaded(false);
-		const response = await getApi('api/user/');
-		const data = response.data || null;
-		dispatch(setUsers(data?.user));
+	// const fetchUsers = useCallback(async () => {
+	// 	setAppLoaded(false);
+	// 	const response = await getApi('api/user/');
+	// 	const data = response.data || null;
+	// 	dispatch(setUsers(data?.user));
 
-		setTimeout(() => {
-			setAppLoaded(true);
-		}, 0);
-	};
+	// 	setTimeout(() => {
+	// 		setAppLoaded(true);
+	// 	}, 0);
+	// }, [dispatch]);
+
+	// useEffect(() => {
+	// 	if (getToken() && user) {
+	// 		console.log('get tree and users ');
+	// 		fetchTree();
+	// 		fetchActiveTree();
+	// 		fetchUsers();
+	// 	} else if (!getToken()) {
+	// 		setAppLoaded(true);
+	// 	}
+	// }, [user]);
 
 	useEffect(() => {
-		if (getToken() && user2) {
-			fetchTree();
-			fetchActiveTree();
-			fetchUsers();
-		} else if (!getToken()) {
+		const token = localStorage.getItem('token');
+		if (!token || !user) {
 			setAppLoaded(true);
+			return;
 		}
-	}, [user2]);
+
+		const fetchAllData = async () => {
+			setAppLoaded(false);
+
+			try {
+				const [treeRes, activeTreeRes, usersRes] = await Promise.allSettled([
+					getApi('api/user/tree'),
+					getApi('api/v2/user/active_tree'),
+					getApi('api/user/'),
+				]);
+
+				if (treeRes.status === 'fulfilled') {
+					dispatch(setTree(treeRes.value.data || null));
+				} else {
+					console.warn('Tree fetch failed:', treeRes.reason);
+				}
+
+				if (activeTreeRes.status === 'fulfilled') {
+					dispatch(setActiveTree(activeTreeRes.value.data || null));
+				} else {
+					console.warn('Active tree fetch failed:', activeTreeRes.reason);
+				}
+
+				if (usersRes.status === 'fulfilled') {
+					dispatch(setUsers(usersRes.value.data?.user || []));
+				} else {
+					console.warn('Users fetch failed:', usersRes.reason);
+				}
+			} catch (err) {
+				console.error('Unexpected error:', err);
+			} finally {
+				setAppLoaded(true);
+			}
+		};
+
+		fetchAllData();
+	}, [user]);
+
+	console.log({ appLoaded });
 
 	// Show splash screen
 	if (!appLoaded || splashScreen) {

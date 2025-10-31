@@ -22,6 +22,7 @@ import { jobTypes } from 'utils/options';
 import { experienceYearsOptions, genderOptions } from '../../helpers';
 import { visaOptions } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const initialValues = {
@@ -43,6 +44,8 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const [formValues, setFormValues] = useState(initialValues);
 
 	const { user, isSuperAdmin } = useUserSession();
+	const { headerBg, closeBtnColor, primaryBtnBg, headerText } =
+		useModalColors();
 
 	const { data: countries } = useFetchItemsQuery({
 		path: '/countries',
@@ -128,11 +131,19 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
-			<ModalOverlay />
-			<ModalContent p='2'>
-				<ModalHeader>Advanced Search</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					w='100%'
+				>
+					Advanced Search
+				</ModalHeader>
 				<ModalCloseButton />
-				<ModalBody>
+				<ModalBody p='2'>
 					<Formik
 						initialValues={formValues}
 						validationSchema={validationSchema}
@@ -533,11 +544,12 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 										onClick={() => resetForm()}
 										variant='outline'
 										size='sm'
+										rounded='md'
 									>
 										Clear
 									</Button>
 									<Button
-										bg='brand.500'
+										bg={primaryBtnBg}
 										color='white'
 										_hover={{
 											bg: 'brand.600',
@@ -546,6 +558,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 										_active={{
 											bg: 'brand.600',
 										}}
+										rounded='md'
 										size='sm'
 										type='submit'
 									>

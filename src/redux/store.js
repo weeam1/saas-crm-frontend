@@ -31,7 +31,7 @@ const store = configureStore({
 	reducer: {
 		onlineUsers: onlineUsersReducer,
 		leads: leadsReducer,
-		roles: roleReducer,
+		// roles: roleReducer,
 		filters: filtersReducer,
 		positions: positionsReducer,
 		countries: countriesReducer,

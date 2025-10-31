@@ -260,10 +260,11 @@ const PendingInvitedCandidates = ({
 				px='.5rem'
 				shadow='none'
 				mb={2}
+				gap='2'
 			>
 				<HStack gap='2'>
 					<FaUsers w='14' h='14' />
-					<Heading size='20px' color='gray.800' fontWeight={"bold"}>
+					<Heading size='20px' color='gray.800' fontWeight={'bold'}>
 						Old Pending Interviews
 						{data && (
 							<span style={{ marginLeft: '6px' }}>
@@ -273,7 +274,12 @@ const PendingInvitedCandidates = ({
 					</Heading>
 				</HStack>
 
-				<HStack gap='2'>
+				<HStack
+					w={{ base: '100%', md: 'fit-content' }}
+					justify='flex-end'
+					flexDir={{ base: 'column', md: 'row' }}
+					gap='2'
+				>
 					{/* <SearchBar data={allData?.doc} onFilteredData={handleFilteredData} /> */}
 					<SearchBar onSearchTermChange={handleSearchTermChange} />
 
@@ -281,7 +287,7 @@ const PendingInvitedCandidates = ({
 						colorScheme='brand'
 						rounded='md'
 						size={'sm'} // Adjusts the size
-						py={3}	
+						py={3}
 						px={6}
 						onClick={() => setAdvanceSearch(true)}
 					>

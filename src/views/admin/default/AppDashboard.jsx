@@ -1,6 +1,6 @@
 import { useColorModeValue, Box, useColorMode } from '@chakra-ui/react';
 import { useState } from 'react';
-import { HasAccess } from '../../../redux/accessUtils';
+// import { HasAccess } from '../../../redux/accessUtils';
 
 import DashboardStatCards from './components/DashboardStatCards';
 import { useFetchItemsQuery } from 'api/apiSlice';
@@ -17,15 +17,15 @@ export default function AppDashboard() {
 	const { colorMode } = useColorMode();
 	const { hasPermission } = usePermissions();
 	// Chakra Color Mode
-	const viewsState = HasAccess([
-		'Contacts',
-		'Task',
-		'Lead',
-		'Property',
-		'Email',
-		'Call',
-		'Meeting',
-	]);
+	// const viewsState = HasAccess([
+	// 	'Contacts',
+	// 	'Task',
+	// 	'Lead',
+	// 	'Property',
+	// 	'Email',
+	// 	'Call',
+	// 	'Meeting',
+	// ]);
 
 	const brandColor = useColorModeValue('brand.500', 'white');
 	const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
