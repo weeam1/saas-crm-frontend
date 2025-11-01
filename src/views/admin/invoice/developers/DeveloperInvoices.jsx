@@ -174,7 +174,7 @@ const DeveloperInvoices = () => {
 
 	const breadcrumbItems = useMemo(
 		() => [
-			{ label: 'Developers', path: '/invoice?tab=developers' },
+			{ label: 'Developers', path: '/invoice/developer' },
 			{
 				label: 'Invoices',
 				path: `/invoice/developers/invoices/${developer_id}`,
@@ -193,10 +193,7 @@ const DeveloperInvoices = () => {
 		<Box fontFamily="'DM Sans', sans-serif">
 			<BreadCrumb items={breadcrumbItems} />
 
-			<AppButton
-				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/invoice?tab=developers')}
-			>
+			<AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
 				Back
 			</AppButton>
 

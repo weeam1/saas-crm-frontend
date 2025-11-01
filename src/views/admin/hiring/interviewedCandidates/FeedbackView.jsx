@@ -8,13 +8,27 @@ import {
 	Button,
 	Box,
 } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const FeedbackView = ({ title, message, isOpen, onClose }) => {
+	const { headerBg, headerText } = useModalColors();
+
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>{title}</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					{title}
+				</ModalHeader>
 				<ModalBody>
 					<Box
 						border='none'

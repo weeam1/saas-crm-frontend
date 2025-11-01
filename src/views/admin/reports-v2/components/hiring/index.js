@@ -39,7 +39,7 @@ const HiringReport = () => {
 					Hiring Report
 				</Text>
 				{hasPermission('reports', 'link') && hasPermission('hiring') && (
-					<RefButton to='/hiring?tab=dashboard' label='Hiring Module' />
+					<RefButton to='/hiring/dashboard' label='Hiring Module' />
 				)}
 			</HStack>
 

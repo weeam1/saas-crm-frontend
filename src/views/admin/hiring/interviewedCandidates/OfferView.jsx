@@ -52,7 +52,7 @@ const OfferView = () => {
 				py={{ base: 2, md: 3 }}
 				fontSize={{ base: 'sm', md: 'md' }}
 				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/hiring?tab=interviewed-candidates')}
+				onClick={() => navigate(-1)}
 				mb={4}
 			>
 				Back
