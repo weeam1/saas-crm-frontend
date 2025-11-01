@@ -29,8 +29,16 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const colors = {
+    bg: useColorModeValue("gray.50", "gray.800"),
+    card: useColorModeValue("white", "gray.700"),
+    border: useColorModeValue("gray.200", "gray.600"),
+    text: useColorModeValue("gray.700", "gray.200"),
+    placeholder: useColorModeValue("gray.500", "gray.400"),
+    headerText: useColorModeValue("brand.700", "brand.900"),
+    headerBg: useColorModeValue("brand.300", "brand.100"),
+    footerBg: useColorModeValue("gray.100", "gray.700"),
+  };
 
   const { data: usersData, isLoading } = useFetchItemsQuery(
     { path: "/v2/user/search_users" },
@@ -98,77 +106,78 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
           data: payload,
         },
       }).unwrap();
+
       setSelectedUsers([]);
       setSearch("");
       onClose();
     } catch (err) {
-      console.error("❌ Share failed:", err);
+      console.error("Share failed:", err);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl" isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} size="4xl" isCentered borderRadius="2xl"> 
       <ModalOverlay />
       <ModalContent
-        bg={bgColor}
+        mx={{ base: 4, sm: 6 }}
         borderRadius="2xl"
+        overflow="hidden"
+        bg={colors.card}
         boxShadow="2xl"
-        p={[2, 4, 6]}
-        mx={2}
         ref={dropdownRef}
+        h={"65vh"}
+        maxH={"80vh"}
+        position={"relative"}
       >
         <ModalHeader
-          fontWeight="bold"
-          fontSize={["lg", "xl"]}
-          color="brand.600"
-          textAlign="center"
+          bg={colors.headerBg}
+          color={colors.headerText}
+          fontWeight="700"
+          fontSize="lg"
+          py={4}
         >
           Share Recording
         </ModalHeader>
-        <ModalCloseButton />
+        <ModalCloseButton color={colors.headerText} />
 
-        <ModalBody>
-          {/* 🎧 Recording Details */}
+        <ModalBody bg={colors.bg} p={5}>
           <Box mb={4}>
-            <Text fontSize="sm" color="gray.600" noOfLines={1}>
+            <Text fontSize="sm" color={colors.text}>
               <b>Recording:</b> {call?.uniqueid || call?.recording}
             </Text>
-            <Text fontSize="xs" color="gray.500">
+            <Text fontSize="xs" color={colors.placeholder}>
               {call?.src} → {call?.dst}
             </Text>
           </Box>
 
-          {/* User Search Input */}
-          <Box position="relative" mb={3}>
+          <Box position="relative" mb={3} zIndex="50"> 
             <Input
-              placeholder="Search users by name..."
+              placeholder="Search users by name or email..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
                 setShowDropdown(e.target.value.length > 0);
               }}
               bg={useColorModeValue("gray.50", "gray.700")}
-              borderColor={borderColor}
+              borderColor={colors.border}
               _focus={{
                 borderColor: "brand.500",
                 boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
               }}
-              size="md"
             />
 
-            {/* Dropdown */}
             {showDropdown && (
               <Box
                 position="absolute"
                 top="100%"
                 left="0"
                 right="0"
-                bg={bgColor}
+                bg={colors.card}
                 border="1px solid"
-                borderColor={borderColor}
+                borderColor={colors.border}
                 borderRadius="md"
                 mt={1}
-                zIndex={20}
+                zIndex="9999"
                 maxH="230px"
                 overflowY="auto"
                 boxShadow="md"
@@ -179,8 +188,13 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
                     <Text fontSize="sm">Loading users...</Text>
                   </HStack>
                 ) : filteredUsers.length === 0 ? (
-                  <Text fontSize="sm" color="gray.500" p={3} textAlign="center">
-                    No active users found
+                  <Text
+                    fontSize="sm"
+                    color={colors.placeholder}
+                    p={3}
+                    textAlign="center"
+                  >
+                    No users found
                   </Text>
                 ) : (
                   filteredUsers.map((user) => (
@@ -190,13 +204,12 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
                       py={2}
                       _hover={{ bg: "brand.50" }}
                       cursor="pointer"
-                      transition="all 0.2s"
                       onClick={() => handleSelectUser(user)}
                     >
-                      <Text fontWeight="500" color="gray.800">
+                      <Text fontWeight="500" color={colors.text}>
                         {user.fullName || user.name || user.email}
                       </Text>
-                      <Text fontSize="xs" color="gray.500">
+                      <Text fontSize="xs" color={colors.placeholder}>
                         {user.email}
                       </Text>
                     </Box>
@@ -206,19 +219,17 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
             )}
           </Box>
 
-          {/* Selected Users */}
           {selectedUsers.length > 0 && (
-            <VStack align="start" spacing={2} w="full">
-              <Text fontSize="sm" color="gray.600" fontWeight="500">
+            <VStack align="start" spacing={2}>
+              <Text fontSize="sm" color={colors.text} fontWeight="500">
                 Selected Users:
               </Text>
-              <Wrap spacing={2} shouldWrapChildren>
+              <Wrap spacing={2}>
                 {selectedUsers.map((user) => (
                   <WrapItem key={user._id}>
                     <Tag
                       size="md"
                       borderRadius="full"
-                      variant="subtle"
                       bg="brand.50"
                       color="brand.600"
                       _hover={{ bg: "brand.100" }}
@@ -237,23 +248,27 @@ const ShareRecordingModal = ({ isOpen, onClose, call }) => {
           )}
         </ModalBody>
 
-        <ModalFooter flexWrap="wrap" justifyContent="space-between">
+        <ModalFooter
+          borderTopWidth="1px"
+          borderColor={colors.border}
+          bg={colors.footerBg}
+          justifyContent="flex-end"
+          py={3}
+        >
           <Button
             variant="outline"
-            borderColor="brand.500"
-            color="brand.600"
-            _hover={{ bg: "brand.50" }}
+            mr={3}
             onClick={onClose}
+            borderRadius={"md"}
           >
             Cancel
           </Button>
           <Button
-            bg="brand.500"
-            color="white"
-            _hover={{ bg: "brand.600" }}
+            colorScheme="brand"
             onClick={handleShare}
             isLoading={isSharing}
             disabled={selectedUsers.length === 0}
+            borderRadius={"md"}
           >
             Share Recording
           </Button>

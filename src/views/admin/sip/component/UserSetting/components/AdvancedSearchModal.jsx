@@ -14,6 +14,10 @@ import {
   VStack,
   SimpleGrid,
   useBreakpointValue,
+  useColorModeValue,
+  Flex,
+  Text,
+  Divider,
 } from "@chakra-ui/react";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
 
@@ -28,9 +32,7 @@ const AdvancedSearchModal = ({
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
   useEffect(() => {
-    if (isOpen) {
-      setFilters(initialFilters);
-    }
+    if (isOpen) setFilters(initialFilters);
   }, [isOpen, initialFilters]);
 
   const handleApply = () => {
@@ -43,26 +45,82 @@ const AdvancedSearchModal = ({
     onClose();
   };
 
-  const handleClear = () => {
-    setFilters({});
-  };
+  const handleClear = () => setFilters({});
 
   const isFilterUnchanged =
     JSON.stringify(filters) === JSON.stringify(initialFilters);
 
+  const bgColor = useColorModeValue("white", "gray.800");
+  const headerColor = useColorModeValue("brand.300", "brand.100");
+  const textColor = useColorModeValue("brand.700", "brand.900");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const inputBg = useColorModeValue("gray.50", "gray.900");
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="4xl"
+      isCentered
+      scrollBehavior="inside"
+      motionPreset="slideInBottom"
+    >
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 2, sm: 4, md: 8 }}
-        w={{ base: "95vw", sm: "90vw", md: "500px" }}
+        bg={bgColor}
+        borderRadius="2xl"
+        shadow="2xl"
+        maxW={{ base: "full", sm: "full", md: "70vw" }}
+        maxH="90vh"
+        overflow="hidden"
+        mx={{ base: 3, md: 0 }}
       >
-        <ModalHeader>Advanced Search</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <VStack spacing={4} overflow="scroll" height="65vh">
+        {/* Header */}
+        <ModalHeader
+          p={0}
+          borderBottom="1px solid"
+          borderColor={borderColor}
+          fontWeight="semibold"
+          fontSize="lg"
+        >
+          <Flex
+            align="center"
+            justify="space-between"
+            bg={headerColor}
+            color={textColor}
+            px={6}
+            py={3}
+            position="sticky"
+            top="0"
+            zIndex="10"
+            boxShadow="sm"
+          >
+            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="semibold">
+              Advanced Search
+            </Text>
+            <ModalCloseButton
+              color={textColor}
+              position="relative"
+              top="0"
+              size="sm"
+            />
+          </Flex>
+        </ModalHeader>
+
+        {/* Body */}
+        <ModalBody
+          p={5}
+          overflowY="auto"
+          maxH="65vh"
+          bg={inputBg}
+          borderBottom="1px solid"
+          borderColor={borderColor}
+        >
+          <VStack spacing={5} align="stretch">
             <FormControl>
-              <FormLabel>User</FormLabel>
+              <FormLabel fontWeight="medium">
+                Select User
+              </FormLabel>
               <SearchUsers
                 selectedUserId={filters.userId || null}
                 users={usersData?.doc || []}
@@ -71,85 +129,124 @@ const AdvancedSearchModal = ({
                 }
               />
             </FormControl>
-            <SimpleGrid columns={colSpan} gap={4} w="full">
+
+            <SimpleGrid columns={colSpan} gap={5} w="full">
               <FormControl>
-                <FormLabel>SIP ID</FormLabel>
+                <FormLabel fontWeight="medium">
+                  SIP ID
+                </FormLabel>
                 <Input
                   value={filters.sipId || ""}
                   onChange={(e) =>
                     setFilters({ ...filters, sipId: e.target.value })
                   }
-                  placeholder="Search by SIP ID"
+                  placeholder="Enter SIP ID"
+                  bg={bgColor}
                   focusBorderColor="brand.500"
+                  borderRadius="md"
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel>Extension ID</FormLabel>
+                <FormLabel fontWeight="medium">
+                  Extension ID
+                </FormLabel>
                 <Input
                   value={filters.extensionId || ""}
                   onChange={(e) =>
                     setFilters({ ...filters, extensionId: e.target.value })
                   }
-                  placeholder="Search by Extension ID"
+                  placeholder="Enter Extension ID"
+                  bg={bgColor}
                   focusBorderColor="brand.500"
+                  borderRadius="md"
                 />
               </FormControl>
             </SimpleGrid>
 
-            <SimpleGrid columns={colSpan} gap={4} w="full">
+            <SimpleGrid columns={colSpan} gap={5} w="full">
               <FormControl>
-                <FormLabel>SIP IP</FormLabel>
+                <FormLabel fontWeight="medium">
+                  SIP IP
+                </FormLabel>
                 <Input
                   value={filters.sipIp || ""}
                   onChange={(e) =>
                     setFilters({ ...filters, sipIp: e.target.value })
                   }
-                  placeholder="Search by SIP IP"
+                  placeholder="Enter SIP IP"
+                  bg={bgColor}
                   focusBorderColor="brand.500"
+                  borderRadius="md"
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel>SIP Port</FormLabel>
+                <FormLabel fontWeight="medium" >
+                  SIP Port
+                </FormLabel>
                 <Input
                   value={filters.sipPort || ""}
                   onChange={(e) =>
                     setFilters({ ...filters, sipPort: e.target.value })
                   }
-                  placeholder="Search by SIP Port"
+                  placeholder="Enter SIP Port"
+                  bg={bgColor}
                   focusBorderColor="brand.500"
+                  borderRadius="md"
                 />
               </FormControl>
             </SimpleGrid>
 
             <FormControl>
-              <FormLabel>SIM Number</FormLabel>
+              <FormLabel fontWeight="medium">
+                SIM Number
+              </FormLabel>
               <Input
                 value={filters.sipSimNumber || ""}
                 onChange={(e) =>
                   setFilters({ ...filters, sipSimNumber: e.target.value })
                 }
-                placeholder="Search by SIM Number"
+                placeholder="Enter SIM Number"
+                bg={bgColor}
                 focusBorderColor="brand.500"
+                borderRadius="md"
               />
             </FormControl>
           </VStack>
         </ModalBody>
 
-        <ModalFooter>
+        <Divider />
+
+        {/* Footer */}
+        <ModalFooter
+          position="sticky"
+          bottom="0"
+          bg={bgColor}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          py={3}
+          px={5}
+          zIndex="10"
+          justifyContent="flex-end"
+          gap={3}
+        >
           <Button
             variant="outline"
-            mr={3}
+            colorScheme="gray"
+            size="sm"
             onClick={handleClear}
+            borderRadius="md"
             isDisabled={Object.keys(filters).length === 0}
           >
             Clear
           </Button>
           <Button
             colorScheme="brand"
+            size="sm"
             onClick={handleApply}
             isDisabled={isFilterUnchanged}
+            borderRadius="md"
           >
             Apply Filters
           </Button>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -13,24 +13,39 @@ import {
   VStack,
   HStack,
   Avatar,
-  Badge,
   Divider,
   useColorModeValue,
   Spinner,
+  Circle,
+  Tag,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
+import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
 
 const SharedDetailModal = ({ isOpen, onClose, call }) => {
   const recordingId = call?.uniqueid;
 
-  const brandColor = useColorModeValue("brand.600", "brand.300");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const bgCard = useColorModeValue("gray.50", "gray.700");
-  const hoverEffect = useColorModeValue("gray.100", "gray.600");
+  const colors = {
+    bg: useColorModeValue("gray.50", "gray.800"),
+    card: useColorModeValue("white", "gray.700"),
+    border: useColorModeValue("gray.200", "gray.600"),
+    text: useColorModeValue("gray.700", "gray.200"),
+    time: useColorModeValue("gray.500", "gray.400"),
+    headerText: useColorModeValue("brand.700", "brand.900"),
+    headerBg: useColorModeValue("brand.300", "brand.100"),
+    hover: useColorModeValue("gray.100", "gray.600"),
+  };
 
-  const { data: sharedData, isLoading, refetch } = useFetchItemsQuery(
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  const {
+    data: sharedData,
+    isLoading,
+    refetch,
+  } = useFetchItemsQuery(
     { path: `/sipSetting/sharedSipRecording/${recordingId}` },
     { skip: !isOpen || !recordingId, refetchOnMountOrArgChange: true }
   );
@@ -41,7 +56,9 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
   const updateAccess = async (userId) => {
     try {
       setLoadingUserId(userId);
-      const target = sharedData?.data?.find((u) => u.sharedWith?._id === userId);
+      const target = sharedData?.data?.find(
+        (u) => u.sharedWith?._id === userId
+      );
       const oldStatus = target?.active ? "Active" : "Inactive";
       const newStatus = target?.active ? "Inactive" : "Active";
 
@@ -73,86 +90,145 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
 
   const sharedList = sharedData?.data || [];
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered scrollBehavior="inside">
-      <ModalOverlay />
-       <ModalContent borderRadius="2xl" overflow="hidden" maxH="85vh">
-        <ModalHeader bg={brandColor} color="white" fontWeight="semibold" fontSize="lg">
-          Shared Recording Detail
-        </ModalHeader>
-        <ModalCloseButton color="white" />
+  const sortedList = useMemo(
+    () =>
+      [...sharedList].sort(
+        (a, b) => new Date(b.sharedAt) - new Date(a.sharedAt)
+      ),
+    [sharedList]
+  );
 
-        <ModalBody py={5} px={6} bg={bgCard}>
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="3xl"
+      isCentered
+      scrollBehavior="inside"
+    >
+      <ModalOverlay />
+      <ModalContent
+        mx={{ base: 4, sm: 6 }}
+        borderRadius="2xl"
+        overflow="hidden"
+      >
+        {/* Header */}
+        <ModalHeader
+          bg={colors.headerBg}
+          color={colors.headerText}
+          fontWeight="700"
+          fontSize="lg"
+          py={4}
+        >
+          Shared Recording Details
+        </ModalHeader>
+        <ModalCloseButton color={colors.headerText} />
+
+        <ModalBody p={5} bg={colors.bg} maxH="75vh" overflowY="auto">
           {isLoading ? (
             <VStack py={10}>
-              <Spinner size="lg" />
-              <Text color="gray.500">Loading...</Text>
+              <Spinner size="lg" color={colors.headerText} />
+              <Text color={colors.time}>Loading shared details...</Text>
             </VStack>
-          ) : sharedList.length === 0 ? (
-            <Text textAlign="center" color="gray.500">
-              No shared records found
+          ) : sortedList.length === 0 ? (
+            <Text textAlign="center" color={colors.time}>
+              No shared records found.
             </Text>
           ) : (
-            <VStack align="stretch" spacing={4}>
-              {/* Recording Info */}
-              <Box p={3} borderWidth="1px" borderRadius="lg" borderColor={borderColor}>
-                <Text fontSize="sm" color="gray.500">
+            <VStack align="start" spacing={5} mt={2}>
+              <Box
+                w="full"
+                bg={colors.card}
+                borderWidth="1px"
+                borderColor={colors.border}
+                borderRadius="xl"
+                p={4}
+                boxShadow="sm"
+              >
+                <Text fontSize="sm" color={colors.time}>
                   Recording ID
                 </Text>
-                <Text fontWeight="bold" color={brandColor}>
-                  {sharedList[0]?.recordingId}
+                <Text fontWeight="bold" color={colors.headerText}>
+                  {sortedList[0]?.recordingId}
                 </Text>
-                <Text fontSize="xs" color="gray.500">
-                  {sharedList[0]?.callData?.src} → {sharedList[0]?.callData?.dst}
+                <Text fontSize="xs" color={colors.time}>
+                  {sortedList[0]?.callData?.src} →{" "}
+                  {sortedList[0]?.callData?.dst}
                 </Text>
               </Box>
 
               <Divider />
 
-              {/* Shared Users */}
-              <Text fontWeight="600" fontSize="md" color={brandColor}>
-                Shared With ({sharedList.length})
+              <Text fontWeight="700" fontSize="md" color={colors.headerText}>
+                Shared With ({sortedList.length})
               </Text>
 
-              {sharedList.map((item) => (
-                <Box
-                  key={item._id}
-                  p={3}
-                  borderWidth="1px"
-                  borderRadius="lg"
-                  borderColor={borderColor}
-                  _hover={{ bg: hoverEffect }}
-                  transition="0.2s ease"
+              {sortedList.map((item, i) => (
+                <HStack
+                  key={item._id || i}
+                  align="start"
+                  spacing={4}
+                  w="full"
+                  position="relative"
                 >
-                  <HStack justify="space-between" align="start">
-                    <HStack>
+                  <VStack spacing={0} align="center">
+                    <Circle
+                      size="10px"
+                      bg={item.active ? "green.500" : "gray.400"}
+                    />
+                    {i < sortedList.length - 1 && (
+                      <Box w="2px" h="60px" bg={colors.border} />
+                    )}
+                  </VStack>
+
+                  <Box
+                    flex="1"
+                    bg={colors.card}
+                    borderWidth="1px"
+                    borderColor={colors.border}
+                    borderRadius="xl"
+                    p={4}
+                    boxShadow="sm"
+                    _hover={{ bg: colors.hover }}
+                    transition="all 0.2s ease"
+                  >
+                    <HStack justify="space-between" mb={2}>
+                      <Tag
+                        size="sm"
+                        bg={item.active ? "green.50" : "gray.100"}
+                        color={item.active ? "green.600" : "gray.600"}
+                        fontWeight="600"
+                        borderRadius="md"
+                      >
+                        {item.active ? "Active" : "Inactive"}
+                      </Tag>
+
+                      <Text fontSize="xs" color={colors.time}>
+                        {moment(item.sharedAt).fromNow()}
+                      </Text>
+                    </HStack>
+
+                    <HStack align="start" spacing={3}>
                       <Avatar
                         size="sm"
                         name={item.sharedWith?.fullName}
-                        bg={brandColor}
+                        bg={colors.headerText}
                         color="white"
                       />
                       <VStack align="start" spacing={0}>
-                        <Text fontWeight="600">{item.sharedWith?.fullName}</Text>
-                        <Text fontSize="xs" color="gray.500">
+                        <Text fontWeight="600" color={colors.text}>
+                          {item.sharedWith?.fullName}
+                        </Text>
+                        <Text fontSize="xs" color={colors.time}>
                           {item.sharedWith?.agency?.name}
                         </Text>
-                        <Text fontSize="xs" color="gray.500">
-                          Shared on: {new Date(item.sharedAt).toLocaleString()}
+                        <Text fontSize="xs" color={colors.time}>
+                          Shared on: {moment(item.sharedAt).format("LLL")}
                         </Text>
                       </VStack>
                     </HStack>
 
-                    <VStack spacing={2}>
-                      <Badge
-                        colorScheme={item.active ? "green" : "gray"}
-                        px={2}
-                        py={1}
-                        borderRadius="md"
-                      >
-                        {item.active ? "Shared" : "Un Shared"}
-                      </Badge>
-
+                    <HStack justify="flex-end" mt={3}>
                       <Button
                         size="xs"
                         colorScheme={item.active ? "red" : "green"}
@@ -160,23 +236,35 @@ const SharedDetailModal = ({ isOpen, onClose, call }) => {
                         isLoading={loadingUserId === item.sharedWith?._id}
                         borderRadius="md"
                       >
-                        {item.active ? "Un Shared" : "Shared"}
+                        {item.active ? "Unshare" : "Share"}
                       </Button>
-                    </VStack>
-                  </HStack>
-                </Box>
+                    </HStack>
+                  </Box>
+                </HStack>
               ))}
             </VStack>
           )}
         </ModalBody>
 
-        <ModalFooter bg={bgCard}>
+        {/* Footer */}
+        <ModalFooter
+          position="sticky"
+          bottom="0"
+          bg={footerBg}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          py={3}
+          px={5}
+          zIndex="10"
+          justifyContent="flex-end"
+          gap={3}
+        >
           <Button
             onClick={onClose}
             variant="outline"
-            borderColor={brandColor}
-            color={brandColor}
-            _hover={{ bg: useColorModeValue("brand.50", "gray.600") }}
+            px={8}
+            borderRadius="md"
+            fontWeight="600"
           >
             Close
           </Button>

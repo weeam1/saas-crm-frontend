@@ -16,6 +16,9 @@ import {
   Checkbox,
   SimpleGrid,
   useBreakpointValue,
+  Flex,
+  Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
 import SearchUsers from "views/admin/whatsapp/WhatsappSettings/SearchUsers";
@@ -34,7 +37,13 @@ const AdvancedSearchModal = ({
   const [showOverdue, setShowOverdue] = useState(false);
   const [showTodays, setShowTodays] = useState(false);
   const [openCalendar, setOpenCalendar] = useState(null);
+
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
+  const bgColor = useColorModeValue("white", "gray.800");
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   useEffect(() => {
     if (isOpen) {
@@ -50,19 +59,10 @@ const AdvancedSearchModal = ({
 
   const handleApply = () => {
     const newFilters = { ...filters };
-
-    if (showOverdue) {
-      newFilters.overdue = true;
-    } else {
-      delete newFilters.overdue;
-    }
-
-    if (showTodays) {
-      newFilters.todays = true;
-    } else {
-      delete newFilters.todays;
-    }
-
+    if (showOverdue) newFilters.overdue = true;
+    else delete newFilters.overdue;
+    if (showTodays) newFilters.todays = true;
+    else delete newFilters.todays;
     onApplyFilters(newFilters);
     onClose();
   };
@@ -81,19 +81,59 @@ const AdvancedSearchModal = ({
   const handleSelectUser = (user) => {
     setFilters({ ...filters, assignedTo: user?._id || null });
   };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="lg"
+      isCentered
+      scrollBehavior="inside"
+      motionPreset="slideInBottom"
+    >
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 2, sm: 4, md: 8 }}
-        w={{ base: "95vw", sm: "90vw", md: "500px" }}
+        bg={bgColor}
+        borderRadius="2xl"
+        shadow="2xl"
+        maxW={{ base: "full", sm: "90vw", md: "500px" }}
+        overflow="hidden"
+        mx={{ base: 3, md: 0 }}
       >
-        <ModalHeader>Advanced Search</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <VStack spacing={4} overflow="scroll" height="65vh">
+        <ModalHeader p={0} borderBottom="1px solid" borderColor={borderColor}>
+          <Flex
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            position="sticky"
+            top="0"
+            zIndex="10"
+            boxShadow="md"
+          >
+            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+              Advanced Search
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+          </Flex>
+        </ModalHeader>
+
+        <ModalBody
+          p={5}
+          overflowY="auto"
+          maxH="65vh"
+          borderBottom="1px solid"
+          borderColor={borderColor}
+        >
+          <VStack spacing={5} align="stretch">
             <FormControl>
-              <FormLabel>Title</FormLabel>
+              <FormLabel fontWeight="semibold">Title</FormLabel>
               <Input
                 value={filters.title || ""}
                 onChange={(e) =>
@@ -106,7 +146,7 @@ const AdvancedSearchModal = ({
 
             <SimpleGrid columns={colSpan} gap={4} w="full">
               <FormControl>
-                <FormLabel>Status</FormLabel>
+                <FormLabel fontWeight="semibold">Status</FormLabel>
                 <Select
                   value={filters.status || ""}
                   onChange={(e) =>
@@ -123,7 +163,7 @@ const AdvancedSearchModal = ({
               </FormControl>
 
               <FormControl>
-                <FormLabel>Task Type</FormLabel>
+                <FormLabel fontWeight="semibold">Task Type</FormLabel>
                 <Select
                   value={filters.type || ""}
                   onChange={(e) =>
@@ -149,17 +189,21 @@ const AdvancedSearchModal = ({
               user?.roles?.[0]?.roleName === "Manager" ||
               user?.roles?.[0]?.roleName === "HR") && (
               <FormControl>
-                <FormLabel>Assigned To</FormLabel>
+                <FormLabel fontWeight="semibold">Assigned To</FormLabel>
                 <SearchUsers
                   selectedUserId={filters.assignedTo || null}
-                  users={ user?.roles[0]?.roleName === "Manager" ? users: usersData?.doc || []}
+                  users={
+                    user?.roles[0]?.roleName === "Manager"
+                      ? users
+                      : usersData?.doc || []
+                  }
                   onSelectUser={handleSelectUser}
                 />
               </FormControl>
             )}
 
             <FormControl>
-              <FormLabel>Due Date Range</FormLabel>
+              <FormLabel fontWeight="semibold">Due Date Range</FormLabel>
               <VStack width="100%" alignItems="flex-end">
                 <CustomDatePicker
                   selectedDate={filters.dueDateFrom}
@@ -202,11 +246,24 @@ const AdvancedSearchModal = ({
           </VStack>
         </ModalBody>
 
-        <ModalFooter>
+        <ModalFooter
+          position="sticky"
+          bottom="0"
+          bg={footerBg}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          py={3}
+          px={5}
+          zIndex="10"
+          justifyContent="flex-end"
+          gap={3}
+        >
           <Button
             variant="outline"
-            mr={3}
+            colorScheme="gray"
+            size="sm"
             onClick={handleClear}
+            borderRadius="md"
             isDisabled={
               Object.keys(filters).length === 0 && !showOverdue && !showTodays
             }
@@ -215,10 +272,12 @@ const AdvancedSearchModal = ({
           </Button>
           <Button
             colorScheme="brand"
+            size="sm"
+            borderRadius="md"
             onClick={handleApply}
             isDisabled={isFilterUnchanged}
           >
-            Apply Filters
+            Apply
           </Button>
         </ModalFooter>
       </ModalContent>

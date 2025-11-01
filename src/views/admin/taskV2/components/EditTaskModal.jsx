@@ -16,6 +16,8 @@ import {
   VStack,
   Flex,
   FormErrorMessage,
+  useColorModeValue,
+  Text,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -36,27 +38,23 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required("Status is required"),
 });
 
-const EditTaskModal = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  task,
-  users,
-  usersData,
-}) => {
+const EditTaskModal = ({ isOpen, onClose, onSuccess, task, users, usersData }) => {
   const [updateTask] = useUpdateItemMutation();
   const [openCalendar, setOpenCalendar] = useState(null);
+  const { createUserLog } = useUserActivityLog();
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const { createUserLog } = useUserActivityLog();
+  const bgColor = useColorModeValue("white", "gray.800");
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
   };
 
-  const toUTCString = (date) => {
-    return date ? moment(date).utcOffset(0, true).toISOString() : null;
-  };
+  const toUTCString = (date) => (date ? moment(date).utcOffset(0, true).toISOString() : null);
 
   const formik = useFormik({
     initialValues: {
@@ -71,15 +69,8 @@ const EditTaskModal = ({
     validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        const payload = {
-          ...values,
-          due_date: toUTCString(values.due_date),
-        };
-
-        const response = await updateTask({
-          path: `/taskV2/${task._id}`,
-          body: payload,
-        }).unwrap();
+        const payload = { ...values, due_date: toUTCString(values.due_date) };
+        const response = await updateTask({ path: `/taskV2/${task._id}`, body: payload }).unwrap();
 
         createUserLog({
           userId: user?._id,
@@ -97,15 +88,14 @@ const EditTaskModal = ({
       } catch (error) {
         toast.error(error.data?.message || "Error updating task");
         const errorMsg =
-          error?.data?.message ||
-          "Failed to update the priority of task. Please try again.";
+          error?.data?.message || "Failed to update the task. Please try again.";
         createUserLog({
           userId: user?._id,
           action: "UPDATE",
           entity: "Task",
           entityType: "TaskV2",
           entityId: task?._id || null,
-          status: error?.status === "500" ? "error" : "fail",
+          status: "error",
           message: errorMsg,
         });
       } finally {
@@ -137,32 +127,59 @@ const EditTaskModal = ({
     onClose();
   };
 
-  const handleSelectUser = (user) => {
-    formik.setFieldValue("assigned_to", user?._id || null);
+  const handleSelectUser = (selectedUser) => {
+    formik.setFieldValue("assigned_to", selectedUser?._id || null);
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="xl" isCentered>
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
       <ModalContent
-        maxW={{ base: "95vw", md: "600px" }}
-        mx={{ base: 2, md: "auto" }}
+        bg={bgColor}
+        borderRadius="2xl"
+        shadow="2xl"
+        maxW={{ base: "full", sm: "90vw", md: "600px" }}
+        overflow="hidden"
+        mx={{ base: 3, md: 0 }}
       >
-        <ModalHeader>Edit Task</ModalHeader>
-        <ModalCloseButton />
+        {/* Header */}
+        <ModalHeader p={0} borderBottom="1px solid" borderColor={borderColor}>
+          <Flex
+            align="center"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            position="sticky"
+            top="0"
+            zIndex="10"
+            boxShadow="md"
+          >
+            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+              Edit Task
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+          </Flex>
+        </ModalHeader>
+
+        {/* Form */}
         <form onSubmit={formik.handleSubmit}>
           <ModalBody
-            maxHeight={{ base: "60vh", md: "70vh" }}
+            p={5}
             overflowY="auto"
-            pb={6}
+            maxH="65vh"
+            borderBottom="1px solid"
+            borderColor={borderColor}
           >
-            <VStack spacing={4} align="stretch">
-              <FormControl
-                isInvalid={
-                  formik.errors.assigned_to && formik.touched.assigned_to
-                }
-              >
-                <FormLabel>Assigned To</FormLabel>
+            <VStack spacing={5} align="stretch">
+              <FormControl isInvalid={formik.errors.assigned_to && formik.touched.assigned_to}>
+                <FormLabel fontWeight="semibold">Assigned To</FormLabel>
                 <SearchUsers
                   selectedUserId={formik.values.assigned_to || null}
                   users={
@@ -175,75 +192,54 @@ const EditTaskModal = ({
                 <FormErrorMessage>{formik.errors.assigned_to}</FormErrorMessage>
               </FormControl>
 
-              <FormControl
-                isInvalid={formik.errors.title && formik.touched.title}
-              >
-                <FormLabel>Title</FormLabel>
+              <FormControl isInvalid={formik.errors.title && formik.touched.title}>
+                <FormLabel fontWeight="semibold">Title</FormLabel>
                 <Input
                   name="title"
                   value={formik.values.title}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder="Task title"
-                  focusBorderColor={
-                    formik.errors.title ? "red.500" : "brand.400"
-                  }
+                  placeholder="Enter task title"
+                  focusBorderColor="brand.500"
                 />
                 <FormErrorMessage>{formik.errors.title}</FormErrorMessage>
               </FormControl>
 
-              <FormControl
-                isInvalid={
-                  formik.errors.description && formik.touched.description
-                }
-              >
-                <FormLabel>Description</FormLabel>
+              <FormControl isInvalid={formik.errors.description && formik.touched.description}>
+                <FormLabel fontWeight="semibold">Description</FormLabel>
                 <Textarea
                   name="description"
                   value={formik.values.description}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder="Task description"
-                  focusBorderColor={
-                    formik.errors.description ? "red.500" : "brand.400"
-                  }
+                  placeholder="Enter task description"
+                  focusBorderColor="brand.500"
                 />
                 <FormErrorMessage>{formik.errors.description}</FormErrorMessage>
               </FormControl>
 
-              <Flex gap={4} w="100%" direction={{ base: "column", md: "row" }}>
-                <FormControl
-                  isInvalid={formik.errors.due_date && formik.touched.due_date}
-                  flex={1}
-                >
-                  <FormLabel>Due Date</FormLabel>
+              <Flex gap={4} direction={{ base: "column", md: "row" }}>
+                <FormControl isInvalid={formik.errors.due_date && formik.touched.due_date} flex={1}>
+                  <FormLabel fontWeight="semibold">Due Date</FormLabel>
                   <CustomDatePicker
                     selectedDate={formik.values.due_date}
-                    handleDateChange={(date) =>
-                      formik.setFieldValue("due_date", date)
-                    }
+                    handleDateChange={(date) => formik.setFieldValue("due_date", date)}
                     minDate={new Date()}
                     isCalendarOpen={openCalendar === "due_date"}
                     toggleCalendar={() => toggleCalendar("due_date")}
                     placeholder="Select due date"
-                    errors={formik.touched.due_date && formik.errors.due_date}
                   />
                   <FormErrorMessage>{formik.errors.due_date}</FormErrorMessage>
                 </FormControl>
 
-                <FormControl
-                  isInvalid={formik.errors.priority && formik.touched.priority}
-                  flex={1}
-                >
-                  <FormLabel>Priority</FormLabel>
+                <FormControl isInvalid={formik.errors.priority && formik.touched.priority} flex={1}>
+                  <FormLabel fontWeight="semibold">Priority</FormLabel>
                   <Select
                     name="priority"
                     value={formik.values.priority}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    focusBorderColor={
-                      formik.errors.priority ? "red.500" : "brand.400"
-                    }
+                    focusBorderColor="brand.500"
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -254,47 +250,35 @@ const EditTaskModal = ({
                 </FormControl>
               </Flex>
 
-              <Flex gap={4} w="100%" direction={{ base: "column", md: "row" }}>
-                <FormControl
-                  isInvalid={formik.errors.type && formik.touched.type}
-                  flex={1}
-                >
-                  <FormLabel>Type</FormLabel>
+              <Flex gap={4} direction={{ base: "column", md: "row" }}>
+                <FormControl isInvalid={formik.errors.type && formik.touched.type} flex={1}>
+                  <FormLabel fontWeight="semibold">Type</FormLabel>
                   <Select
                     name="type"
                     value={formik.values.type}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    focusBorderColor={
-                      formik.errors.type ? "red.500" : "brand.400"
-                    }
+                    focusBorderColor="brand.500"
                   >
                     <option value="Follow-up">Follow-up</option>
                     <option value="Meeting">Meeting</option>
                     <option value="Site Visit">Site Visit</option>
                     <option value="Call">Call</option>
                     <option value="Email">Email</option>
-                    <option value="Document Collection">
-                      Document Collection
-                    </option>
+                    <option value="Document Collection">Document Collection</option>
                     <option value="Custom">Custom</option>
                   </Select>
                   <FormErrorMessage>{formik.errors.type}</FormErrorMessage>
                 </FormControl>
 
-                <FormControl
-                  isInvalid={formik.errors.status && formik.touched.status}
-                  flex={1}
-                >
-                  <FormLabel>Status</FormLabel>
+                <FormControl isInvalid={formik.errors.status && formik.touched.status} flex={1}>
+                  <FormLabel fontWeight="semibold">Status</FormLabel>
                   <Select
                     name="status"
                     value={formik.values.status}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    focusBorderColor={
-                      formik.errors.status ? "red.500" : "brand.400"
-                    }
+                    focusBorderColor="brand.500"
                   >
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
@@ -306,8 +290,21 @@ const EditTaskModal = ({
               </Flex>
             </VStack>
           </ModalBody>
-          <ModalFooter>
-            <Button variant="outline" mr={3} onClick={handleClose}>
+
+          {/* Footer */}
+          <ModalFooter
+            position="sticky"
+            bottom="0"
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            py={3}
+            px={5}
+            zIndex="10"
+            justifyContent="flex-end"
+            gap={3}
+          >
+            <Button variant="outline" colorScheme="gray" onClick={handleClose} borderRadius="md">
               Cancel
             </Button>
             <Button
@@ -315,6 +312,7 @@ const EditTaskModal = ({
               type="submit"
               isLoading={formik.isSubmitting}
               isDisabled={!formik.dirty || !formik.isValid}
+              borderRadius="md"
             >
               Update Task
             </Button>

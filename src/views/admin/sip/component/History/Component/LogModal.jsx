@@ -6,12 +6,14 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
+  ModalFooter,
   Box,
   Text,
   VStack,
   HStack,
   Tag,
   Circle,
+  Button,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery } from "api/apiSlice";
@@ -26,9 +28,12 @@ const LogModal = ({ isOpen, onClose, call }) => {
     border: useColorModeValue("gray.200", "gray.600"),
     text: useColorModeValue("gray.700", "gray.200"),
     time: useColorModeValue("gray.500", "gray.400"),
-    tag: useColorModeValue("brand.50", "brand.900"),
-    tagText: useColorModeValue("brand.600", "brand.300"),
+    headerText: useColorModeValue("brand.700", "brand.900"),
+    headerBg: useColorModeValue("brand.300", "brand.100"),
   };
+
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const { data: logsData, isLoading } = useFetchItemsQuery(
     { path: `/sipSetting/log/recording/${recordingId}` },
@@ -50,7 +55,7 @@ const LogModal = ({ isOpen, onClose, call }) => {
       case "STATUS_CHANGED":
         return { bg: "orange.50", color: "orange.600" };
       default:
-        return { bg: colors.tag, color: colors.tagText };
+        return { bg: "brand.50", color: "brand.600" };
     }
   };
 
@@ -58,30 +63,38 @@ const LogModal = ({ isOpen, onClose, call }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="md"
+      size="3xl"
       isCentered
       scrollBehavior="inside"
     >
       <ModalOverlay />
-      <ModalContent borderRadius="2xl" overflow="hidden" maxH="85vh">
+      <ModalContent
+        mx={{ base: 4, sm: 6 }}
+        borderRadius="2xl"
+        overflow="hidden"
+      >
         <ModalHeader
+          bg={colors.headerBg}
+          color={colors.headerText}
           fontWeight="700"
-          color="white"
-          borderBottomWidth="1px"
-          borderColor={colors.border}
-          bg="brand.600"
+          fontSize="lg"
+          py={4}
         >
           Recording Activity Log
         </ModalHeader>
-        <ModalCloseButton color="white" />
+        <ModalCloseButton color={colors.headerText} />
 
-        <ModalBody p={5}>
+        <ModalBody p={5} bg={colors.bg} maxH="70vh" overflowY="auto">
           {isLoading ? (
-            <Text>Loading activity logs...</Text>
+            <Text textAlign="center" color={colors.time}>
+              Loading activity logs...
+            </Text>
           ) : sortedLogs.length === 0 ? (
-            <Text color={colors.time}>No activities logged yet</Text>
+            <Text textAlign="center" color={colors.time}>
+              No activities logged yet
+            </Text>
           ) : (
-            <VStack align="start" spacing={5} position="relative" mt={2}>
+            <VStack align="start" spacing={5} mt={2}>
               {sortedLogs.map((log, i) => {
                 const tagStyle = getTagColor(log.action);
                 return (
@@ -89,31 +102,23 @@ const LogModal = ({ isOpen, onClose, call }) => {
                     key={log._id || i}
                     align="start"
                     spacing={4}
-                    position="relative"
                     w="full"
+                    position="relative"
                   >
-                    {/* Timeline dot + connector */}
-                    <VStack spacing={0} align="center" position="relative">
+                    <VStack spacing={0} align="center">
                       <Circle size="10px" bg={tagStyle.color} />
                       {i < sortedLogs.length - 1 && (
-                        <Box
-                          w="2px"
-                          h="50px"
-                          bg={colors.border}
-                          mt="2px"
-                          mb="2px"
-                        />
+                        <Box w="2px" h="50px" bg={colors.border} />
                       )}
                     </VStack>
 
-                    {/* Activity card */}
                     <Box
                       flex="1"
                       bg={colors.card}
                       borderWidth="1px"
                       borderColor={colors.border}
-                      borderRadius="md"
-                      p={3}
+                      borderRadius="xl"
+                      p={4}
                       boxShadow="sm"
                     >
                       <HStack justify="space-between" mb={2}>
@@ -122,7 +127,6 @@ const LogModal = ({ isOpen, onClose, call }) => {
                           bg={tagStyle.bg}
                           color={tagStyle.color}
                           fontWeight="600"
-                          textTransform="uppercase"
                           borderRadius="md"
                         >
                           {log.action}
@@ -146,6 +150,29 @@ const LogModal = ({ isOpen, onClose, call }) => {
             </VStack>
           )}
         </ModalBody>
+
+        <ModalFooter
+          position="sticky"
+          bottom="0"
+          bg={footerBg}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          py={3}
+          px={5}
+          zIndex="10"
+          justifyContent="flex-end"
+          gap={3}
+        >
+          <Button
+            onClick={onClose}
+            variant="outline"
+            px={8}
+            borderRadius="md"
+            fontWeight="600"
+          >
+            Close
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );

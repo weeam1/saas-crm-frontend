@@ -1,96 +1,153 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
-	ModalCloseButton,
-	Button,
-	Select,
-	FormLabel,
-} from '@chakra-ui/react';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import { buttonStyle, getLocalAttendanceFilter } from '../../constants';
-import { useSearchParams } from 'react-router-dom';
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
+  Button,
+  Select,
+  FormControl,
+  FormLabel,
+  Flex,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import { useFetchItemsQuery } from "api/apiSlice";
+import { buttonStyle, getLocalAttendanceFilter } from "../../constants";
+import { useSearchParams } from "react-router-dom";
 
 const FilterModal = ({ isOpen, onClose, updateFilters, setSearchClear }) => {
-	const { data: agencies } = useFetchItemsQuery({ path: '/agencies' });
+  const { data: agencies } = useFetchItemsQuery({ path: "/agencies" });
+  const [searchParams] = useSearchParams();
 
-	const [searchParams] = useSearchParams();
-	const currentAgency =
-		searchParams.get('agency') || getLocalAttendanceFilter() || '';
-	const [selectedAgency, setSelectedAgency] = useState(currentAgency);
+  const currentAgency =
+    searchParams.get("agency") || getLocalAttendanceFilter() || "";
 
-	const handleApplyFilters = () => {
-		updateFilters({ agency: selectedAgency, page: 1 });
-		selectedAgency !== '' && setSearchClear(true);
+  const [selectedAgency, setSelectedAgency] = useState(currentAgency);
 
-		localStorage.setItem('attendanceAgencyFilter', selectedAgency);
-		onClose();
-	};
+  // Update local state when modal opens
+  useEffect(() => {
+    if (isOpen) setSelectedAgency(currentAgency);
+  }, [isOpen, currentAgency]);
 
-	return (
-		<>
-			<Modal
-				fontFamily="'DM Sans', sans-serif"
-				isOpen={isOpen}
-				onClose={onClose}
-				size='md'
-				isCentered
-			>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Agency Filter</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						<FormLabel fontSize='md'>Select Agency</FormLabel>
-						<Select
-							value={selectedAgency}
-							onChange={(e) => setSelectedAgency(e.target.value)}
-						>
-							<option value=''>All</option>
-							{agencies?.doc?.map((agency) => (
-								<option key={agency._id} value={agency.name}>
-									{agency.name}
-								</option>
-							))}
-						</Select>
-					</ModalBody>
-					<ModalFooter>
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='gray.200'
-							color='gray.800'
-							_active={{ bg: 'gray.300' }}
-							py='5'
-							px='8'
-							mr='3'
-							fontSize='lg'
-							aria-label='close'
-							onClick={onClose}
-						>
-							Close
-						</Button>
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='brand.400'
-							py='5'
-							px='8'
-							fontSize='lg'
-							aria-label='update'
-							onClick={handleApplyFilters}
-						>
-							Apply
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-		</>
-	);
+  const handleApplyFilters = () => {
+    updateFilters({ agency: selectedAgency, page: 1 });
+    if (selectedAgency !== "") setSearchClear(true);
+
+    localStorage.setItem("attendanceAgencyFilter", selectedAgency);
+    onClose();
+  };
+
+  const bgColor = useColorModeValue("white", "gray.800");
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  const isFilterUnchanged = selectedAgency === currentAgency;
+
+  return (
+    <Modal
+      fontFamily="'DM Sans', sans-serif"
+      isOpen={isOpen}
+      onClose={onClose}
+      size="md"
+      isCentered
+      scrollBehavior="inside"
+      motionPreset="slideInBottom"
+    >
+      <ModalOverlay />
+      <ModalContent
+        bg={bgColor}
+        borderRadius="2xl"
+        shadow="2xl"
+        maxW={{ base: "full", sm: "90vw", md: "500px" }}
+        overflow="hidden"
+        mx={{ base: 3, md: 0 }}
+      >
+        {/* Header */}
+        <ModalHeader p={0} borderBottom="1px solid" borderColor={borderColor}>
+          <Flex
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            position="sticky"
+            top="0"
+            zIndex="10"
+            boxShadow="md"
+          >
+            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+              Agency Filter
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+          </Flex>
+        </ModalHeader>
+
+        {/* Body */}
+        <ModalBody p={5} borderBottom="1px solid" borderColor={borderColor}>
+          <FormControl>
+            <FormLabel fontWeight="semibold">Select Agency</FormLabel>
+            <Select
+              value={selectedAgency}
+              onChange={(e) => setSelectedAgency(e.target.value)}
+              placeholder="All"
+              focusBorderColor="brand.500"
+            >
+              <option value="">All</option>
+              {agencies?.doc?.map((agency) => (
+                <option key={agency._id} value={agency.name}>
+                  {agency.name}
+                </option>
+              ))}
+            </Select>
+          </FormControl>
+        </ModalBody>
+
+        {/* Footer */}
+        <ModalFooter
+          position="sticky"
+          bottom="0"
+          bg={footerBg}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          py={3}
+          px={5}
+          zIndex="10"
+          justifyContent="flex-end"
+          gap={3}
+        >
+          <Button
+            variant="outline"
+            colorScheme="gray"
+            size="sm"
+            borderRadius="md"
+            onClick={onClose}
+          >
+            Close
+          </Button>
+          <Button
+            colorScheme="brand"
+            size="sm"
+            borderRadius="md"
+            onClick={handleApplyFilters}
+            isDisabled={isFilterUnchanged}
+          >
+            Apply
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
 };
 
 export default FilterModal;
