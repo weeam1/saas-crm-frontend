@@ -26,7 +26,7 @@ import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 
 const validationSchema = Yup.object().shape({
-  type: Yup.string().required("Type is required"),
+  category: Yup.string().required("Category is required"),
   description: Yup.string().required("Description is required"),
   amount: Yup.number()
     .typeError("Amount must be a number")
@@ -61,7 +61,7 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
 
   const formik = useFormik({
     initialValues: {
-      type: "",
+      category: "",
       description: "",
       amount: "",
       vat: "",
@@ -154,8 +154,8 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                   isInvalid={formik.touched.type && formik.errors.type}
                 >
                   <Flex justify="space-between" align="center">
-                    <FormLabel m={0}>Type</FormLabel>
-                    <Tooltip label="Add a new expense type" hasArrow>
+                    <FormLabel m={0}>Category</FormLabel>
+                    <Tooltip label="Add a new expense category" hasArrow>
                       <IconButton
                         icon={<AddIcon />}
                         size="xs"
@@ -166,10 +166,10 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                     </Tooltip>
                   </Flex>
                   <Select
-                    name="type"
+                    name="category"
                     value={formik.values.type}
                     onChange={formik.handleChange}
-                    placeholder="Select type"
+                    placeholder="Select category"
                     focusBorderColor="brand.500"
                   >
                     {types && types.doc.length > 0 ? (
@@ -179,10 +179,10 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                         </option>
                       ))
                     ) : (
-                      <option value="">No types available</option>
+                      <option value="">No category available</option>
                     )}
                   </Select>
-                  <FormErrorMessage>{formik.errors.type}</FormErrorMessage>
+                  <FormErrorMessage>{formik.errors.category}</FormErrorMessage>
                 </FormControl>
 
                 <FormControl
