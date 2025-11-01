@@ -842,7 +842,7 @@ const AddUser = (props) => {
             variant="solid"
             bg="brand.400"
             fontSize="md"
-            aria-label="update"
+            aria-label="saving"
             disabled={isLoading ? true : false}
             onClick={handleSubmit}
           >
