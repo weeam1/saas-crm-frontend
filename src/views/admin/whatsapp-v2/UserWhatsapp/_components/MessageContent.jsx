@@ -54,12 +54,12 @@ const MessageContent = ({ msg, onDownload, downloaded_media }) => {
 
 		// No usable media
 		return null;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		msg?.hasMedia,
 		msg?._data?.body,
 		msg?._data?.mimetype,
-		msg?.type,
-		whatsappMedia.data,
+		whatsappMedia?.data,
 	]);
 
 	const mimeTypeInfo = getMediaTypeInfo(msg?._data?.mimetype);
