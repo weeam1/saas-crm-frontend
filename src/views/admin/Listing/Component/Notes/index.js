@@ -277,6 +277,7 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
                   onClick={openAddNoteModal}
                   bg="whiteAlpha.300"
                   color={headerText}
+                  outline={"none"}
                 >
                   Add New Note
                 </Button>
