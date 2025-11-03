@@ -150,7 +150,6 @@ const AddInvoice = (props) => {
 				<ModalContent
 					width={modalSize.width}
 					height={modalSize.height}
-					fontFamily='DM Sans, sans-serif'
 					maxW='100vw'
 					mx='auto'
 					boxShadow='lg'
@@ -205,15 +204,12 @@ const AddInvoice = (props) => {
 							<form onSubmit={handleSubmit}>
 								<Grid templateColumns='repeat(12, 1fr)' gap={3}>
 									<GridItem colSpan={{ base: 12, md: 6 }}>
-										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-											Project
-										</FormLabel>
+										<FormLabel fontSize='16px'>Project</FormLabel>
 										<Menu>
 											<MenuButton
 												as={Button}
 												rightIcon={customDropdownIcon}
 												fontSize='12px'
-												fontFamily='DM Sans, sans-serif'
 												borderRadius='6px'
 												height='40px'
 												width='100%'
@@ -237,12 +233,7 @@ const AddInvoice = (props) => {
 															? 'Choose Project'
 															: 'No projects available'}
 											</MenuButton>
-											<MenuList
-												maxH='200px'
-												overflowY='auto'
-												fontFamily='DM Sans, sans-serif'
-												fontSize='16px'
-											>
+											<MenuList maxH='200px' overflowY='auto' fontSize='16px'>
 												{projects?.doc.length > 0 ? (
 													projects?.doc?.map((item) => (
 														<MenuItem
@@ -258,7 +249,7 @@ const AddInvoice = (props) => {
 													<MenuItem isDisabled>No projects available</MenuItem>
 												)}
 												<MenuItem
-													onClick={() => navigate('/invoice?tab=projects')}
+													onClick={() => navigate('/invoice/project')}
 													fontWeight='bold'
 													borderTop='1px solid'
 													borderColor='gray.200'
@@ -275,15 +266,12 @@ const AddInvoice = (props) => {
 									</GridItem>
 
 									<GridItem colSpan={{ base: 12, md: 6 }}>
-										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-											Bank Account
-										</FormLabel>
+										<FormLabel fontSize='16px'>Bank Account</FormLabel>
 										<Menu>
 											<MenuButton
 												as={Button}
 												rightIcon={customDropdownIcon}
 												fontSize='12px'
-												fontFamily='DM Sans, sans-serif'
 												borderRadius='6px'
 												height='40px'
 												width='100%'
@@ -307,12 +295,7 @@ const AddInvoice = (props) => {
 															? 'Choose Bank Account'
 															: 'No bank accounts available'}
 											</MenuButton>
-											<MenuList
-												maxH='200px'
-												overflowY='auto'
-												fontFamily='DM Sans, sans-serif'
-												fontSize='16px'
-											>
+											<MenuList maxH='200px' overflowY='auto' fontSize='16px'>
 												{bankAccounts?.data?.length > 0 ? (
 													bankAccounts?.data?.map((bank) => (
 														<MenuItem
@@ -349,9 +332,7 @@ const AddInvoice = (props) => {
 										)}
 									</GridItem>
 									<GridItem colSpan={{ base: 12, md: 6 }}>
-										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-											Claim Type
-										</FormLabel>
+										<FormLabel fontSize='16px'>Claim Type</FormLabel>
 
 										<Menu>
 											<MenuButton
@@ -363,7 +344,6 @@ const AddInvoice = (props) => {
 												}
 												width='100%'
 												fontSize='16px'
-												fontFamily='DM Sans, sans-serif'
 												borderRadius='6px'
 												height='40px'
 												border='1px solid'
