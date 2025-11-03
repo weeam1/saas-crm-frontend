@@ -17,6 +17,8 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
+	Text,
+	ModalCloseButton,
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
@@ -28,6 +30,7 @@ import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
 import { useParams, useNavigate } from 'react-router-dom';
 import AddEntryModal from './AddInvoiceEntry';
 import Loader from 'components/loading/Loader';
+import { useModalColors } from 'hooks/useModalColors';
 
 // Validation schema for invoice
 const invoiceSchema = yup.object().shape({
@@ -45,6 +48,8 @@ const AddInvoice = (props) => {
 	const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
 	const [invoiceData, setInvoiceData] = useState(null);
 	const dispatch = useDispatch();
+
+	const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
 	// const { developers, bankAccounts, isDevelopersLoaded, isBankAccountsLoaded } =
 	// 	useSelector((state) => state.invoiceModalData);
@@ -148,32 +153,52 @@ const AddInvoice = (props) => {
 					fontFamily='DM Sans, sans-serif'
 					maxW='100vw'
 					mx='auto'
-					borderRadius='10px'
 					boxShadow='lg'
+					m='2'
+					borderRadius='2xl'
+					bg={bg}
+					shadow='2xl'
+					overflow='hidden'
+					maxH='85vh'
+					display='flex'
+					flexDirection='column'
 				>
 					<ModalHeader
 						display='flex'
-						justifyContent='space-between'
-						alignItems='center'
-						fontSize={{ base: '20px', md: '24px' }}
-						fontWeight='bold'
-						fontFamily='DM Sans, sans-serif'
+						align='center'
+						justify='space-between'
+						bg={headerBg}
+						color={headerText}
 						px={6}
-						py={4}
-						borderBottom='1px solid #E2E8F0'
+						py={3}
+						borderBottom='1px solid'
+						borderColor={borderColor}
+						position='sticky'
+						top='0'
+						zIndex='10'
 					>
-						Add Invoice
-						<IconButton
+						<Text fontSize='lg' fontWeight='bold'>
+							Add Invoice
+						</Text>
+						<ModalCloseButton
 							onClick={props.onClose}
-							icon={<CloseIcon />}
 							aria-label='Close'
-							size='sm'
-							variant='ghost'
-							color='gray.600'
-							_hover={{ color: 'gray.800', bg: 'gray.100' }}
+							position='static'
 						/>
 					</ModalHeader>
-					<ModalBody maxH='40vh' px={6} py={4}>
+					<ModalBody
+						maxH='40vh'
+						p={5}
+						overflowY='auto'
+						scrollBehavior='smooth'
+						sx={{
+							'&::-webkit-scrollbar': { width: '6px' },
+							'&::-webkit-scrollbar-thumb': {
+								background: '#c1c1c1',
+								borderRadius: '10px',
+							},
+						}}
+					>
 						{projectsLoading || bankAccountsLoading ? (
 							<Loader />
 						) : (
@@ -233,7 +258,7 @@ const AddInvoice = (props) => {
 													<MenuItem isDisabled>No projects available</MenuItem>
 												)}
 												<MenuItem
-													onClick={() => navigate('/invoice/project')}
+													onClick={() => navigate('/invoice?tab=projects')}
 													fontWeight='bold'
 													borderTop='1px solid'
 													borderColor='gray.200'
@@ -389,35 +414,33 @@ const AddInvoice = (props) => {
 						)}
 					</ModalBody>
 					<ModalFooter
+						bg={footerBg}
+						borderTop='1px solid'
+						borderColor={borderColor}
+						position='sticky'
+						bottom='0'
+						zIndex='10'
+						py={3}
+						px={5}
 						justifyContent='flex-end'
-						px={6}
-						py={4}
-						borderTop='1px solid #E2E8F0'
+						gap={3}
 					>
 						<Button
+							variant='outline'
 							bg='#CCCACA'
 							color='black'
-							width={{ base: '80px', md: '83px' }}
-							height='46px'
-							fontSize='16px'
-							borderRadius='6px'
-							fontFamily='DM Sans, sans-serif'
-							sx={{ textTransform: 'capitalize' }}
+							borderRadius='md'
+							size='sm'
+							mr={3}
 							onClick={handleCancel}
-							mr={2}
-							_hover={{ bg: '#B0AEAE' }}
 						>
 							Cancel
 						</Button>
 						<Button
 							bg='#B79045'
 							color='white'
-							width={{ base: '80px', md: '83px' }}
-							height='46px'
-							fontSize='16px'
-							fontFamily='DM Sans, sans-serif'
-							borderRadius='6px'
-							sx={{ textTransform: 'capitalize' }}
+							borderRadius='md'
+							size='sm'
 							disabled={isLoading || !isValid || !dirty}
 							onClick={handleSubmit}
 							_hover={{ bg: '#A17C3A' }}

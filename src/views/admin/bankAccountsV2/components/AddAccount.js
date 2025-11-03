@@ -13,9 +13,11 @@ import {
   Input,
   FormErrorMessage,
   Flex,
+  Text
 } from "@chakra-ui/react";
 import { toast } from "react-toastify";
 import { AddIcon } from "@chakra-ui/icons";
+import { useModalColors } from "hooks/useModalColors";
 
 const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +37,8 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
     bank_name: "",
     branch_address: "",
   });
+
+  const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const handleOpen = () => setIsOpen(true);
 
@@ -214,11 +218,45 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
         <ModalContent
           fontFamily="DM Sans"
           maxW={{ base: "90%", md: "550px" }}
-          borderRadius="12px"
+          m="2"
+          borderRadius="2xl"
+          bg={bg}
+          shadow="2xl"
+          overflow="hidden"
+          maxH="85vh"
+          display="flex"
+          flexDirection="column"
         >
-          <ModalHeader fontFamily="DM Sans">Add Bank Account</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+          <Flex
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            top="0"
+            zIndex="10"
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              Add Bank Account
+            </Text>
+            <ModalCloseButton position="static" />
+          </Flex>
+          <ModalBody
+            p={5}
+            overflowY="auto"
+            scrollBehavior="smooth"
+            sx={{
+              "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#c1c1c1",
+                borderRadius: "10px",
+              },
+            }}
+          >
             <FormControl mb={3} isInvalid={!!errors.account_holder_name}>
               <FormLabel fontFamily="DM Sans">Account Name</FormLabel>
               <Input
@@ -312,17 +350,26 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
             </FormControl>
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            bottom="0"
+            zIndex="10"
+            py={3}
+            px={5}
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
               variant="ghost"
               onClick={handleClose}
               bg="#CCCACA"
               color="black"
-              borderRadius="6px"
-              px={6}
-              py={3}
+              borderRadius="md"
+              size="sm"
               mr={3}
-              fontFamily="DM Sans"
             >
               Cancel
             </Button>
@@ -330,13 +377,11 @@ const AddAccountModal = ({ onAdd, isAdding, isOpen: propsIsOpen }) => {
               bg="#B79045"
               color="white"
               onClick={handleSubmit}
-              borderRadius="6px"
-              px={6}
-              py={3}
+              borderRadius="md"
+              size="sm"
               isLoading={isAdding}
               isDisabled={isAdding || !isFormValid()}
               _hover={{ bg: "#9E7A3B" }}
-              fontFamily="DM Sans"
             >
               Save
             </Button>
