@@ -37,6 +37,7 @@ const Header = ({
         align="center"
         gap={3}
         w={{ base: "100%", md: "auto" }}
+         direction={{ base: "column", md: "row" }}
       >
         {searchComponent}
         {searchQuery && (
