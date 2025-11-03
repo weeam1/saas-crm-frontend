@@ -98,7 +98,7 @@ const NotificationBox = ({ notification, users }) => {
 
 		if (type === 0) {
 			if (!notification) return;
-			navigate(`/lead?page=1&pageSize=1&lead=${notification?.lead_id}`);
+			navigate(`/lead?page=1&pageSize=40&lead=${notification?.lead_id}`);
 		}
 	};
 
