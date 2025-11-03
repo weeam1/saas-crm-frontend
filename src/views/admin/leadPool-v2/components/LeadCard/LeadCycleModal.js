@@ -15,12 +15,15 @@ import { getApi } from 'services/api';
 import LeadHistoryTimeline from '../../../leadCycle/components/LeadHistoryTimeline';
 import { HSeparator } from 'components/separator/Separator';
 import Spinner from 'components/spinner/Spinner';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LeadCycleModal = memo(({ isOpen, onClose, leadId }) => {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const user = JSON.parse(localStorage.getItem('user'));
 	const hasFetched = useRef(false);
+
+	const { headerBg, headerText } = useModalColors();
 
 	const fetchData = async () => {
 		if (hasFetched.current) return;
@@ -79,9 +82,17 @@ const LeadCycleModal = memo(({ isOpen, onClose, leadId }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Lead Cycle</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					w='100%'
+				>
+					Lead Cycle
+				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody overflow='hidden' width='100%'>
 					<Box

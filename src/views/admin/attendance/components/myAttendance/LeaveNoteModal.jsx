@@ -14,6 +14,7 @@ import {
 	FormLabel,
 } from '@chakra-ui/react';
 import { buttonStyle } from 'utils/btn';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 	const [note, setNote] = useState('');
@@ -25,11 +26,24 @@ const LeaveNoteModal = ({ isOpen, onClose, onSubmit, isLoading }) => {
 		setLeaveType('paid');
 	};
 
+	const { headerBg, headerText } = useModalColors();
+
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
-			<ModalOverlay />
-			<ModalContent mx='4'>
-				<ModalHeader>Leave Note</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					Leave Note
+				</ModalHeader>
 				<ModalCloseButton />
 
 				<ModalBody>

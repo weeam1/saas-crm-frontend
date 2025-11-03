@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { buttonStyle } from '../../constants';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AgencyFilter = ({
 	isOpen,
@@ -21,6 +22,8 @@ const AgencyFilter = ({
 	setSelectedAgency,
 }) => {
 	const { data: agencies } = useFetchItemsQuery({ path: '/agencies' });
+
+	const { headerBg, headerText } = useModalColors();
 
 	const handleChange = (e) => {
 		const selectedId = e.target.value;
@@ -32,9 +35,20 @@ const AgencyFilter = ({
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={onClose} size='md' isCentered>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Agency Filter</ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
+						Agency Filter
+					</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						<FormLabel fontSize='md'>Select Agency</FormLabel>
