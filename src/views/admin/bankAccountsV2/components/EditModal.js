@@ -238,6 +238,7 @@ const EditAccountModal = ({ account, onUpdate, isUpdating, children }) => {
               Edit Account
             </Text>
             <ModalCloseButton position="static" />
+            
           </Flex>
           <ModalBody
             p={5}
@@ -360,7 +361,6 @@ const EditAccountModal = ({ account, onUpdate, isUpdating, children }) => {
               borderRadius="md"
               size="sm"
               mr={3}
-              fontFamily="DM Sans"
             >
               Cancel
             </Button>
@@ -373,7 +373,6 @@ const EditAccountModal = ({ account, onUpdate, isUpdating, children }) => {
               isLoading={isUpdating}
               isDisabled={isUpdating || !isFormValid()}
               _hover={{ bg: "#9E7A3B" }}
-              fontFamily="DM Sans"
             >
               Save
             </Button>
