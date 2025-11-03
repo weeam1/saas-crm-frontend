@@ -16,6 +16,7 @@ import {
 import { format } from 'date-fns';
 import StatusBadge from 'components/shared/StatusBadge';
 import { MdAllInbox, MdMarkEmailRead, MdMarkEmailUnread } from 'react-icons/md';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AnnouncementView = ({
 	item,
@@ -24,16 +25,29 @@ const AnnouncementView = ({
 	getBadgeColor,
 	handleReadByOpen,
 }) => {
+	const { headerBg, headerText } = useModalColors();
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
 			size='xl'
+			isCentered
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Announcement Details</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					Announcement Details
+				</ModalHeader>
 				<ModalBody>
 					<Flex direction='column' gap={4}>
 						{/* Announcement Type */}
@@ -110,7 +124,7 @@ const AnnouncementView = ({
 				</ModalBody>
 
 				<ModalFooter>
-					<Button onClick={onClose} colorScheme='brand' rounded='md'>
+					<Button onClick={onClose} colorScheme='gray' rounded='md'>
 						Close
 					</Button>
 				</ModalFooter>

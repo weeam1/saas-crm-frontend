@@ -10,6 +10,7 @@ const InputPair = ({
   color,
   width = { base: "60px", md: "70px" },
 }) => (
+  
   <VStack align="start" spacing={0} flex="1" minW={0}>
     <Text fontSize="9px" color="#C1C1C1" fontFamily="DM Sans">
       {label}

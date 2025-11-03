@@ -18,6 +18,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { buttonStyle } from 'utils/btn';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useModalColors } from 'hooks/useModalColors';
 
 const EditNote = ({
 	onClose,
@@ -35,6 +36,7 @@ const EditNote = ({
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const { headerBg, headerText } = useModalColors();
 
 	const updateLeadLastNote = () => {
 		// Step 1: Clone and update the specific note
@@ -100,9 +102,20 @@ const EditNote = ({
 	return (
 		<div>
 			<Modal size='3xl' onClose={onClose} isOpen={isOpen} isCentered>
-				<ModalOverlay />
-				<ModalContent m='2'>
-					<ModalHeader>Edit Lead Note</ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
+						Edit Lead Note
+					</ModalHeader>
 					<ModalCloseButton _focus={{ outline: 'none' }} />
 					<ModalBody>
 						<Textarea
