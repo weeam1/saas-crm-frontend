@@ -10,6 +10,7 @@ const InfoSection = ({ lead }) => {
 	const infoFields = [
 		{ key: 'nationality', label: 'Nationality', value: lead?.nationality },
 		{ key: 'budget', label: 'Budget', value: lead?.budget },
+		{ key: 'adset', label: 'Adset', value: lead?.adset },
 		{ key: 'leadCampaign', label: 'Campaign', value: lead?.leadCampaign },
 		{ key: 'pageUrl', label: 'Campaign Url', value: lead?.pageUrl },
 		{ key: 'leadSourceMedium', label: 'Medium', value: lead?.leadSourceMedium },

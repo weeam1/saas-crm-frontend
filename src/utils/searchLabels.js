@@ -21,6 +21,8 @@ export const leadLabels = {
 	leadStatus: 'Status',
 	eLeadStatus: 'Main Status',
 	isReleased: 'Rleased Lead',
+	endDate: 'End Date',
+	startDate: 'Start Date',
 };
 
 export const hiringLabels = {

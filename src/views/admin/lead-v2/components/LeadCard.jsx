@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FaPen } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { Box, Flex, Icon, useBreakpointValue } from '@chakra-ui/react';
@@ -9,8 +9,8 @@ import { leadlabelFontSize } from './constants';
 
 import './checkbox.css';
 import LeadNotesModal from './lead-note/LeadNotesModal';
-import { useSelector } from 'react-redux';
 import useUserSession from 'hooks/useUserSession';
+// import moment from 'moment';
 
 const LeadCard = ({
 	lead,
@@ -173,6 +173,8 @@ const LeadCard = ({
 							Lead time
 						</span>
 						{format(new Date(lead?.createdDate), 'MMM d, yyyy h:mm a')}
+
+						{/* {moment.utc(lead.createdDate).format('MMM D, YYYY h:mm A')} */}
 					</Box>
 				)}
 			</Box>

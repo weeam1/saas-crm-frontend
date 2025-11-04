@@ -203,6 +203,12 @@ export const toUTCString = (date) => {
 		: null;
 };
 
+export const toPureUTCString = (date) => {
+	return date
+		? moment(date).utcOffset(0, true).startOf('day').format('YYYY-MM-DD')
+		: null;
+};
+
 export const formatDNS = (dateStr) => {
 	const date = new Date(dateStr);
 	return date.toLocaleDateString('en-GB', {
