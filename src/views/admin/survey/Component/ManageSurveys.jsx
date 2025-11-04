@@ -21,7 +21,10 @@ const ManageSurveys = () => {
 
   const buildQueryParams = () => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const role = user?.role === "superAdmin" ? "superAdmin" : (user?.roles?.[0]?.roleName ?? "unknown");
+    const role =
+      user?.role === "superAdmin"
+        ? "superAdmin"
+        : (user?.roles?.[0]?.roleName ?? "unknown");
 
     const params = {
       page: currentPage,
@@ -78,6 +81,8 @@ const ManageSurveys = () => {
         searchTags={searchTags}
         handleViewChange={handleViewChange}
         view={view}
+        isFetching={isFetching}
+        refetch={refetch}
       />
       {view === "grid" && (isLoading || isFetching) ? (
         <SurveyCardLoading count={pageSize} />
@@ -86,13 +91,27 @@ const ManageSurveys = () => {
           <Grid
             sx={{
               "@media (min-width: 0px)": { gridTemplateColumns: "1fr" },
-              "@media (min-width: 600px)": { gridTemplateColumns: "repeat(2, 1fr)" },
-              "@media (min-width: 1040px)": { gridTemplateColumns: "repeat(3, 1fr)" },
-              "@media (min-width: 1564px)": { gridTemplateColumns: "repeat(4, 1fr)" },
-              "@media (min-width: 2120px)": { gridTemplateColumns: "repeat(5, 1fr)" },
-              "@media (min-width: 2560px)": { gridTemplateColumns: "repeat(6, 1fr)" },
-              "@media (min-width: 3840px)": { gridTemplateColumns: "repeat(7, 1fr)" },
-              "@media (min-width: 7680px)": { gridTemplateColumns: "repeat(8, 1fr)" },
+              "@media (min-width: 600px)": {
+                gridTemplateColumns: "repeat(2, 1fr)",
+              },
+              "@media (min-width: 1040px)": {
+                gridTemplateColumns: "repeat(3, 1fr)",
+              },
+              "@media (min-width: 1564px)": {
+                gridTemplateColumns: "repeat(4, 1fr)",
+              },
+              "@media (min-width: 2120px)": {
+                gridTemplateColumns: "repeat(5, 1fr)",
+              },
+              "@media (min-width: 2560px)": {
+                gridTemplateColumns: "repeat(6, 1fr)",
+              },
+              "@media (min-width: 3840px)": {
+                gridTemplateColumns: "repeat(7, 1fr)",
+              },
+              "@media (min-width: 7680px)": {
+                gridTemplateColumns: "repeat(8, 1fr)",
+              },
             }}
             gap={2}
             marginTop={{ base: 4, md: 6 }}

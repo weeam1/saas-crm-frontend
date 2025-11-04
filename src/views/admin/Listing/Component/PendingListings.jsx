@@ -31,7 +31,7 @@ import TableLoading from "components/loading/TableLoading";
 import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
 import AdvancedFilterModal from "./AdvancedSearchModal";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
@@ -274,29 +274,44 @@ const PendingListings = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Pending Listings
         </Text>
-        {isMobile ? (
+
+        <Flex
+          alignItems="center"
+          gap={3}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
             size="sm"
-            borderRadius="full"
-            boxShadow="md"
           />
-        ) : (
-          <Button
-            colorScheme="brand"
-             size="sm"
+          {isMobile ? (
+            <IconButton
+              icon={<FiSearch />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Search Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          ) : (
+            <Button
+              colorScheme="brand"
+              size="sm"
               borderRadius={"md"}
-            py={3}
-            px={6}
-            onClick={() => setIsFilterOpen(true)}
-          >
-            Advanced Search
-          </Button>
-        )}
+              py={3}
+              px={6}
+              onClick={() => setIsFilterOpen(true)}
+            >
+              Advanced Search
+            </Button>
+          )}
+        </Flex>
       </Flex>
       <ActiveFiltersDisplay
         filters={filters}
@@ -356,7 +371,7 @@ const PendingListings = () => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={10} py="4" />
+              <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
                 {tableData.length > 0 ? (

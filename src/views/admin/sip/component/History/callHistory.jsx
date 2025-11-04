@@ -7,7 +7,7 @@ import {
   useBreakpointValue,
   Button,
 } from "@chakra-ui/react";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import { fetchCallHistoryData } from "../../../../../services/sip/index";
 import ActiveFiltersDisplay from "./Component/ActiveFiltersDisplay";
 import AdvancedSearchModal from "./Component/AdvancedSearchModal";
@@ -185,6 +185,15 @@ const CallHistory = () => {
         gap={2}
         flexWrap={"wrap"}
       >
+        <IconButton
+          icon={<FiRefreshCw />}
+          aria-label="Refresh Analytics"
+          onClick={() => loadCalls()}
+          isLoading={loading}
+          variant="outline"
+          size="sm"
+        />
+
         {isMobile ? (
           <IconButton
             icon={<FiSearch />}

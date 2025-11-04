@@ -12,10 +12,12 @@ import {
   VStack,
   Square,
   Divider,
+  IconButton,
 } from "@chakra-ui/react";
 import Chart from "chart.js/auto";
 import moment from "moment";
 import { fetchTotalTimeCallsRecordStats } from "../../../../../services/sip/index";
+import { FiRefreshCw } from "react-icons/fi";
 
 const formatSeconds = (seconds) => {
   const hrs = Math.floor(seconds / 3600);
@@ -33,6 +35,7 @@ export default function TotalTimeCallsRecordGraph() {
   const [totalSeconds, setTotalSeconds] = useState(0);
   const [monthRanges, setMonthRanges] = useState([]);
   const [monthHeader, setMonthHeader] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const bgColor = useColorModeValue("white", "gray.800");
   const textColor = useColorModeValue("#2D3748", "#E2E8F0");
@@ -47,7 +50,7 @@ export default function TotalTimeCallsRecordGraph() {
         duration: parseFloat(d.duration.replace("s", "")) / 60,
         unique: d.joinedCount,
       }))
-      .sort((a, b) => a.date - b.date); 
+      .sort((a, b) => a.date - b.date);
 
     // Group by month
     const grouped = daily.reduce((acc, item) => {
@@ -192,22 +195,25 @@ export default function TotalTimeCallsRecordGraph() {
     });
   };
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        const data = await fetchTotalTimeCallsRecordStats(days);
-        setUniqueCalls(data.unique_calls);
-        setAvgMinutes(data.average_minutes);
-        const durationInSeconds = parseFloat(
-          data.allTime.duration.replace("s", "")
-        );
-        setTotalSeconds(durationInSeconds);
-        updateChart(data);
-      } catch (error) {
-        console.error("Error loading chart data:", error);
-      }
-    };
+  const getData = async () => {
+    try {
+      setIsLoading(true);
+      const data = await fetchTotalTimeCallsRecordStats(days);
+      setUniqueCalls(data.unique_calls);
+      setAvgMinutes(data.average_minutes);
+      const durationInSeconds = parseFloat(
+        data.allTime.duration.replace("s", "")
+      );
+      setTotalSeconds(durationInSeconds);
+      updateChart(data);
+    } catch (error) {
+      console.error("Error loading chart data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     getData();
     return () => {
       if (chartInstance.current) chartInstance.current.destroy();
@@ -221,20 +227,36 @@ export default function TotalTimeCallsRecordGraph() {
         <Heading size="lg" fontWeight="bold" color={textColor}>
           Total Time and Calls
         </Heading>
-        <Select
-          value={days}
-          onChange={(e) => setDays(Number(e.target.value))}
-          w="160px"
-          bg="gray.100"
-          borderRadius="md"
-          _hover={{ cursor: "pointer" }}
+
+        <Box
+          display="flex"
+          align="center"
+          gap={4}
+          flexDirection={{ base: "column", md: "row" }}
         >
-          <option value={30}>30 Days</option>
-          <option value={60}>60 Days</option>
-          <option value={90}>90 Days</option>
-          <option value={180}>180 Days</option>
-          <option value={360}>360 Days</option>
-        </Select>
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => getData()}
+            isLoading={isLoading}
+            variant="outline"
+            size="sm"
+          />
+          <Select
+            value={days}
+            onChange={(e) => setDays(Number(e.target.value))}
+            w="160px"
+            bg="gray.100"
+            borderRadius="md"
+            _hover={{ cursor: "pointer" }}
+          >
+            <option value={30}>30 Days</option>
+            <option value={60}>60 Days</option>
+            <option value={90}>90 Days</option>
+            <option value={180}>180 Days</option>
+            <option value={360}>360 Days</option>
+          </Select>
+        </Box>
       </Flex>
 
       {/* Summary Stats */}

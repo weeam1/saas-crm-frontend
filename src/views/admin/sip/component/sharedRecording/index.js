@@ -14,7 +14,7 @@ import {
   Button,
   VStack,
 } from "@chakra-ui/react";
-import { FiCopy} from "react-icons/fi";
+import { FiCopy } from "react-icons/fi";
 import moment from "moment";
 import { toast } from "react-toastify";
 
@@ -33,6 +33,7 @@ import IncomingCallIcon from "assets/icons/incomming-call.png";
 import OutgoingCallIcon from "assets/icons/Outgoing-call.png";
 import CustomTooltip from "components/shared/CustomTooltip";
 import { FaPhone } from "react-icons/fa6";
+import { FiRefreshCw } from "react-icons/fi";
 
 const StatusBadge = ({ status }) => (
   <Badge bg="transparent" px={2} py={1} color="black">
@@ -105,15 +106,18 @@ const CallHelper = ({ mode }) => {
   );
 };
 
-
 const SharedSipRecording = () => {
   const [copied, setCopied] = useState(false);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [transcribeModal, setTranscribeModal] = useState(false);
   const [selectedCall, setSelectedCall] = useState(null);
 
-
-  const { data: calls, isLoading } = useFetchItemsQuery(
+  const {
+    data: calls,
+    isLoading,
+    refetch,
+    isFetching
+  } = useFetchItemsQuery(
     { path: "/sipSetting/sharedSipRecording/active" },
     { refetchOnMountOrArgChange: true }
   );
@@ -168,7 +172,17 @@ const SharedSipRecording = () => {
 
   return (
     <>
-    <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto" mt={3}>
+      <Box borderRadius="lg" boxShadow="sm" bg="white" overflowY="auto" mt={3}>
+        <Flex justify={"flex-end"} p={2}>
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+           onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
+        </Flex>
         <Table
           variant="striped"
           size="sm"
@@ -198,7 +212,7 @@ const SharedSipRecording = () => {
             </Tr>
           </Thead>
 
-          {isLoading ? (
+          {isLoading  || isFetching? (
             <TableLoading columns={columns} length={20} />
           ) : calls && calls?.data.length > 0 ? (
             <Tbody>

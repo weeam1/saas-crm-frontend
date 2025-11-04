@@ -235,7 +235,7 @@ const CallTableView = ({
           </Thead>
 
           {loading ? (
-            <TableLoading columns={columns} length={11} py="4" />
+            <TableLoading columns={columns} length={20} py="4" />
           ) : calls && calls.length > 0 ? (
             <Tbody>
               {calls.map((call, index) => (
