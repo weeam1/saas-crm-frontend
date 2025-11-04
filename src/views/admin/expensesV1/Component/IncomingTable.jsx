@@ -22,8 +22,14 @@ import {
   Select,
   useDisclosure,
 } from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon, DownloadIcon, CalendarIcon } from "@chakra-ui/icons";
-import { FiFilter } from "react-icons/fi";
+import {
+  AddIcon,
+  DeleteIcon,
+  EditIcon,
+  DownloadIcon,
+  CalendarIcon,
+} from "@chakra-ui/icons";
+import { FiFilter, FiRefreshCw } from "react-icons/fi";
 import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
@@ -33,6 +39,7 @@ import * as XLSX from "xlsx";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import AddEditCashModal from "./Sub_Component/AddEditCashModal";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { useModalColors } from "hooks/useModalColors";
 
 const IncomingCashTable = ({
   month,
@@ -57,7 +64,7 @@ const IncomingCashTable = ({
 
   const [deleteItemMutation] = useDeleteItemMutation();
   const { createUserLog } = useUserActivityLog();
-
+  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
   const columns = [
     "Date",
     "Payment Method",
@@ -244,6 +251,14 @@ const IncomingCashTable = ({
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
           <IconButton
+              icon={<FiRefreshCw />}
+              aria-label="Refresh Analytics"
+              onClick={() => refetch()}
+              isLoading={isLoading || isFetching}
+              variant="outline"
+              size="sm"
+            />
+          <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
             aria-label="Filter Agency"
@@ -365,7 +380,7 @@ const IncomingCashTable = ({
             </Tr>
           </Thead>
           {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={8} py="4" />
+            <TableLoading columns={columns} length={120} py="4" />
           ) : (
             <Tbody>
               {data && data?.balances?.length > 0 ? (
@@ -484,10 +499,43 @@ const IncomingCashTable = ({
           isCentered
         >
           <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Agency Filter</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
+          <ModalContent borderRadius="2xl" overflow="hidden">
+            <ModalHeader
+              display="flex"
+              align="center"
+              justify="space-between"
+              bg={headerBg}
+              color={headerText}
+              px={6}
+              py={3}
+              borderBottom="1px solid"
+              borderColor={borderColor}
+              position="sticky"
+              top="0"
+              zIndex="10"
+            >
+              <Text fontSize="lg" fontWeight="bold">
+                Agency Filter
+              </Text>
+              <ModalCloseButton
+                position="absolute"
+                right="12px"
+                top="10px"
+                color={headerText}
+                _hover={{ bg: "whiteAlpha.200" }}
+              />
+            </ModalHeader>
+            <ModalBody
+              overflowY="auto"
+              scrollBehavior="smooth"
+              sx={{
+                "&::-webkit-scrollbar": { width: "6px" },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "#c1c1c1",
+                  borderRadius: "10px",
+                },
+              }}
+            >
               <FormLabel fontSize="sm" fontWeight="600">
                 Select Agency
               </FormLabel>
@@ -513,13 +561,23 @@ const IncomingCashTable = ({
                 </Text>
               )}
             </ModalBody>
-            <ModalFooter>
+            <ModalFooter
+              bg={footerBg}
+              borderTop="1px solid"
+              borderColor={borderColor}
+              position="sticky"
+              bottom="0"
+              zIndex="10"
+              py={3}
+              px={5}
+              justifyContent="flex-end"
+              gap={3}
+            >
               <Button
                 variant="outline"
                 bg="#e2e8f0"
-                size="md"
-                w="100px"
-                borderRadius="3px"
+                size="sm"
+                borderRadius="md"
                 mr={2}
                 onClick={() => setAgencyFilterOpen(false)}
               >
@@ -528,9 +586,8 @@ const IncomingCashTable = ({
               <Button
                 bg="#d99a36"
                 color="white"
-                w="100px"
-                borderRadius="3px"
-                size="md"
+                borderRadius="md"
+                size="sm"
                 onClick={handlerAgencyFilter}
               >
                 Apply

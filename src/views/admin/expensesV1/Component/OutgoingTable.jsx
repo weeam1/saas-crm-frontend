@@ -33,7 +33,7 @@ import {
   CalendarIcon,
 } from "@chakra-ui/icons";
 import AddOutgoingPaymentModal from "./Sub_Component/AddOutgoingPaymentModal";
-import { FiFilter } from "react-icons/fi";
+import { FiFilter, FiRefreshCw } from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useCreateItemMutation,
@@ -410,6 +410,14 @@ const OutgoingTable = ({
           alignItems="center"
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
           {/* <IconButton
             icon={<FiFilter />}
             onClick={() => setAgencyFilterOpen(true)}
@@ -531,7 +539,7 @@ const OutgoingTable = ({
             </Tr>
           </Thead>
           {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
+            <TableLoading columns={columns} length={20} py="4" />
           ) : (
             <Tbody>
               {data && data?.doc?.length > 0 ? (
