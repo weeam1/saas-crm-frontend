@@ -328,7 +328,7 @@ const ListingTypes = () => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={7} py="4" />
+              <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
                 {data?.doc?.map((type) => (
