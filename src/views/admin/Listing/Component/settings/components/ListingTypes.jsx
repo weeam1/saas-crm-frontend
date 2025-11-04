@@ -39,6 +39,7 @@ import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useModalColors } from "hooks/useModalColors";
+import { FiRefreshCw } from "react-icons/fi";
 
 const ListingTypeSchema = Yup.object().shape({
   name: Yup.string()
@@ -242,21 +243,35 @@ const ListingTypes = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Listing Types
         </Text>
-        <Button
-          size="sm"
-          borderRadius={"md"}
-          variant="brand"
-          leftIcon={<AddIcon />}
-          py={3}
-          px={6}
-          onClick={() => {
-            setIsEditMode(false);
-            setCurrentType(null);
-            onOpen();
-          }}
+        <Flex
+          alignItems={"center"}
+          gap={2}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
         >
-          Add New
-        </Button>
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
+          <Button
+            size="sm"
+            borderRadius={"md"}
+            variant="brand"
+            leftIcon={<AddIcon />}
+            py={3}
+            px={6}
+            onClick={() => {
+              setIsEditMode(false);
+              setCurrentType(null);
+              onOpen();
+            }}
+          >
+            Add New
+          </Button>
+        </Flex>
       </Flex>
 
       {/* Pagination Controls */}
@@ -312,7 +327,7 @@ const ListingTypes = () => {
                 ))}
               </Tr>
             </Thead>
-            {isLoading && isFetching ? (
+            {isLoading || isFetching ? (
               <TableLoading columns={columns} length={7} py="4" />
             ) : (
               <Tbody>

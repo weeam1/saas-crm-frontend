@@ -41,6 +41,7 @@ import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useModalColors } from "hooks/useModalColors";
+import { FiRefreshCw } from "react-icons/fi";
 
 const UnitTypeSchema = Yup.object().shape({
   name: Yup.string()
@@ -233,6 +234,14 @@ const UnitType = () => {
           Listing Unit Types
         </Text>
         <Stack direction={{ base: "column", sm: "row" }} spacing={4}>
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
           <Button
             size="sm"
             borderRadius={"md"}
@@ -285,7 +294,7 @@ const UnitType = () => {
                 ))}
               </Tr>
             </Thead>
-            {isLoading && isFetching ? (
+            {isLoading || isFetching ? (
               <TableLoading columns={columns} length={7} py="4" />
             ) : (
               <Tbody>
