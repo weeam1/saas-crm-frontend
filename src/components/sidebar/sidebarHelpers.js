@@ -1,10 +1,10 @@
-export const filterRoutes = (routes, hasPermission) => {
+export const sidebarFilterRoutes = (routes, hasPermission) => {
 	return routes
 		.map((route) => {
 			// keep routes without moduleId always
 			if (!route.moduleId) {
 				const children = route.children
-					? filterRoutes(route.children, hasPermission)
+					? sidebarFilterRoutes(route.children, hasPermission)
 					: undefined;
 
 				return { ...route, children };
@@ -24,5 +24,31 @@ export const filterRoutes = (routes, hasPermission) => {
 
 			return { ...route, children };
 		})
-		.filter(Boolean);
+		.filter(
+			(route) =>
+				route &&
+				// include non-nested routes
+				(!route.isNested ||
+					// include nested routes only if children exist
+					(route.isNested &&
+						Array.isArray(route.children) &&
+						route.children.length > 0))
+		);
+};
+
+export const safeStorage = {
+	get(key) {
+		try {
+			if (typeof window === 'undefined') return null;
+			return window.localStorage.getItem(key);
+		} catch {
+			return null;
+		}
+	},
+	set(key, value) {
+		try {
+			if (typeof window === 'undefined') return;
+			window.localStorage.setItem(key, value);
+		} catch {}
+	},
 };

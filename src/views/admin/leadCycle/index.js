@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react';
 import { useStateContext } from 'contexts/store';
 import CardShimmer from 'components/loading/CardShimmer';
+import { useModalColors } from 'hooks/useModalColors';
 
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData, role) {
@@ -31,6 +32,8 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
 	// const [] = useState(true);
 	const user = JSON.parse(localStorage.getItem('user'));
 	// const { isLeadCycle, setIsLeadCycle } = useStateContext();
+
+	const { headerBg, headerText } = useModalColors();
 
 	const fetchData = async () => {
 		try {
@@ -91,9 +94,17 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
 				isOpen={isLeadCycle?.isOpen}
 				isCentered
 			>
-				<ModalOverlay />
-				<ModalContent m='2'>
-					<ModalHeader>Lead Cycle</ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						w='100%'
+					>
+						Lead Cycle
+					</ModalHeader>
 					<ModalCloseButton _focus={{ outline: 'none' }} />
 					<ModalBody overflow='hidden' width='100%'>
 						<Box

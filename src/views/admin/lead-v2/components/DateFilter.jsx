@@ -18,6 +18,7 @@ import CustomDatePicker from 'components/datetime/CustomDatePicker';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import moment from 'moment';
+import { useModalColors } from 'hooks/useModalColors';
 
 const DateFilter = ({
 	setQueryParams,
@@ -34,6 +35,9 @@ const DateFilter = ({
 	const toggleCalendar = (calendar) => {
 		setOpenCalendar(openCalendar === calendar ? null : calendar);
 	};
+
+	const { headerBg, headerText, primaryBtnBg, secondaryBtnBg } =
+		useModalColors();
 
 	const toUTCString = (date) => {
 		return date
@@ -81,9 +85,20 @@ const DateFilter = ({
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>
-			<ModalOverlay />
-			<ModalContent m='2'>
-				<ModalHeader>Date Range Filter</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					Date Range Filter
+				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
 					<VStack p={4} width='100%' gap='2' alignItems='flex-end'>
@@ -117,13 +132,22 @@ const DateFilter = ({
 				</ModalBody>
 
 				<ModalFooter>
-					<Button py='2' px='5' mr='2' variant='ghost' onClick={onClose}>
+					<Button
+						{...buttonStyle}
+						py='2'
+						px='5'
+						mr='2'
+						color='gray.600'
+						bg={secondaryBtnBg}
+						rounded='md'
+						onClick={onClose}
+					>
 						Cancel
 					</Button>
 					<Button
 						{...buttonStyle}
 						variant='solid'
-						bg='brand.400'
+						bg={primaryBtnBg}
 						py='2'
 						px='5'
 						aria-label='New lead'

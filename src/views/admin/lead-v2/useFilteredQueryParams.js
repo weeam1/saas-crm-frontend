@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { shallowEqual, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { formattedDate } from './../../../utils/helpers';
 import { leadLabels } from 'utils/searchLabels';
@@ -87,6 +87,8 @@ export const useFilteredQueryParams = () => {
 	const [searchTags, setSearchTags] = useState([]);
 	const [searchClear, setSearchClear] = useState(false);
 	const [refetchLoading, setRefetchLoading] = useState(false);
+
+	const leads = useSelector((state) => state.leads, shallowEqual);
 
 	const tree = useSelector((state) => state.user.tree);
 
@@ -241,7 +243,11 @@ export const useFilteredQueryParams = () => {
 
 	const setSearchQueryParams = (params) => {
 		// const updatedParams = { ...queryParams, ...params, page: 1, pageSize };
-		const updatedParams = { ...params, page: 1, pageSize };
+		const updatedParams = {
+			...params,
+			page: 1,
+			pageSize: params.pageSize || leads?.pageSize || pageSize,
+		};
 		isEffectTriggered.current = true;
 
 		setCurrentPage(1);
@@ -250,16 +256,17 @@ export const useFilteredQueryParams = () => {
 
 	const clearSearchParams = () => {
 		setSearchParams({
-			page: 1 || DEFAULT_PAGE,
-			pageSize: pageSize || DEFAULT_PAGE_SIZE,
+			page: 1 || leads?.currentPage || DEFAULT_PAGE,
+			pageSize: leads?.pageSize || pageSize || DEFAULT_PAGE_SIZE,
 		});
 		setQueryParams({
-			page: 1 || DEFAULT_PAGE,
-			pageSize: pageSize || DEFAULT_PAGE_SIZE,
+			page: 1 || leads?.currentPage || DEFAULT_PAGE,
+			pageSize: leads?.pageSize || pageSize || DEFAULT_PAGE_SIZE,
 		});
 	};
 
 	return {
+		leads,
 		currentPage,
 		setCurrentPage,
 		pageSize,
@@ -281,8 +288,8 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 	const tags = [];
 
 	if (filters.search) tags.push(`Search: ${filters.search}`);
-	if (filters.from) tags.push(`Start: ${formattedDate(filters.from)}`);
-	if (filters.to) tags.push(`End: ${formattedDate(filters.to)}`);
+	if (filters.from) tags.push(`Start Date: ${formattedDate(filters.from)}`);
+	if (filters.to) tags.push(`End Date: ${formattedDate(filters.to)}`);
 
 	if (tree) {
 		Object.entries(filters).forEach(([key, value]) => {
@@ -326,6 +333,9 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 						? 'No Manager'
 						: value;
 			}
+
+			if (key === 'startDate') displayValue = filters.startDate;
+			if (key === 'endDate') displayValue = filters.endDate;
 
 			// if (key === 'intID') key = 'Lead ID';
 

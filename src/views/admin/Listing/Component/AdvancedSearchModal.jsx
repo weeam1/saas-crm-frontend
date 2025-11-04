@@ -19,6 +19,8 @@ import {
   Box,
   Text,
   useBreakpointValue,
+  useColorModeValue,
+  Divider,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import moment from "moment";
@@ -35,6 +37,11 @@ const AdvancedSearchModal = ({
   countries,
 }) => {
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
+  const bgColor = useColorModeValue("white", "gray.800");
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const months = [
     { value: "1", label: "January" },
@@ -208,21 +215,33 @@ const AdvancedSearchModal = ({
   }, [isOpen, initialFilters]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 2, sm: 4, md: 8 }}
-        w={{ base: "95vw", sm: "90vw", md: "500px" }}
-        maxW="100vw"
-        pb={2}
+        mx={{ base: 3, md: 8 }}
+        w={{ base: "95vw", md: "600px", lg: "650px" }}
+        maxW="95vw"
+        bg={bgColor}
+        borderRadius="2xl"
+        boxShadow="xl"
       >
-        <ModalHeader>Advanced search</ModalHeader>
-        <ModalCloseButton />
+        <ModalHeader
+          bg={headerBg}
+          color={headerText}
+          py={3}
+          px={5}
+          borderTopRadius="2xl"
+          fontWeight="semibold"
+        >
+          Advanced Search
+        </ModalHeader>
+        <ModalCloseButton color={headerText} top={3} right={3} />
+
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody>
-            <VStack spacing={4} overflow="scroll" height="65vh">
+          <ModalBody px={6} pt={5} pb={2} maxH="65vh" overflowY="auto">
+            <VStack spacing={3} align="stretch">
               <FormControl>
-                <FormLabel>Project Name</FormLabel>
+                <FormLabel fontWeight="medium">Project Name</FormLabel>
                 <Input
                   name="projectName"
                   placeholder="e.g. project name"
@@ -232,9 +251,9 @@ const AdvancedSearchModal = ({
                 />
               </FormControl>
 
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel fontWeight="medium">Location</FormLabel>
                   <Input
                     name="location"
                     placeholder="e.g. location"
@@ -245,7 +264,7 @@ const AdvancedSearchModal = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Country</FormLabel>
+                  <FormLabel fontWeight="medium">Country</FormLabel>
                   <Select
                     name="country"
                     placeholder="Select Country"
@@ -262,9 +281,9 @@ const AdvancedSearchModal = ({
                 </FormControl>
               </SimpleGrid>
 
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel>Listing Type</FormLabel>
+                  <FormLabel fontWeight="medium">Listing Type</FormLabel>
                   <Select
                     name="listingType"
                     placeholder="All Listing Types"
@@ -281,7 +300,7 @@ const AdvancedSearchModal = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Unit Type</FormLabel>
+                  <FormLabel fontWeight="medium">Unit Type</FormLabel>
                   <Select
                     name="unitType"
                     placeholder="All Unit Types"
@@ -298,14 +317,16 @@ const AdvancedSearchModal = ({
                 </FormControl>
               </SimpleGrid>
 
-              {/* Date Range Section */}
-              <Box width="100%">
-                <Text fontSize="md" fontWeight="semibold" mb={3}>
+              <Divider my={2} />
+
+               {/* Date Range Section */}
+              <Box>
+                <Text fontSize="md" fontWeight="semibold" mb={2}>
                   Date Range
                 </Text>
-                <VStack width="100%" alignItems="flex-end">
+                <SimpleGrid columns={colSpan} gap={3}>
                   <FormControl>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel fontWeight="medium">Start Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startFrom}
                       handleDateChange={(date) =>
@@ -319,7 +340,7 @@ const AdvancedSearchModal = ({
                   </FormControl>
 
                   <FormControl>
-                    <FormLabel>End Date</FormLabel>
+                    <FormLabel fontWeight="medium">End Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startTo}
                       handleDateChange={(date) =>
@@ -332,12 +353,14 @@ const AdvancedSearchModal = ({
                       toggleCalendar={() => toggleCalendar("startTo")}
                     />
                   </FormControl>
-                </VStack>
+                </SimpleGrid>
               </Box>
 
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <Divider my={2} />
+
+              <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel>Month</FormLabel>
+                  <FormLabel fontWeight="medium">Month</FormLabel>
                   <Select
                     name="month"
                     placeholder="Select Month"
@@ -353,7 +376,7 @@ const AdvancedSearchModal = ({
                   </Select>
                 </FormControl>
                 <FormControl>
-                  <FormLabel>Year</FormLabel>
+                  <FormLabel fontWeight="medium">Year</FormLabel>
                   <Input
                     type="number"
                     name="year"
@@ -365,9 +388,10 @@ const AdvancedSearchModal = ({
                 </FormControl>
               </SimpleGrid>
 
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <Divider my={2} />
+              <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel>Min Price (AED)</FormLabel>
+                  <FormLabel fontWeight="medium">Min Price (AED)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.minPrice}
@@ -381,7 +405,7 @@ const AdvancedSearchModal = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Max Price (AED)</FormLabel>
+                  <FormLabel fontWeight="medium">Max Price (AED)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.maxPrice}
@@ -395,9 +419,9 @@ const AdvancedSearchModal = ({
                 </FormControl>
               </SimpleGrid>
 
-              <SimpleGrid columns={colSpan} gap={4} w="full">
+              <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel>Min Area (sqft)</FormLabel>
+                  <FormLabel fontWeight="medium">Min Area (sqft)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.minArea}
@@ -409,7 +433,7 @@ const AdvancedSearchModal = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Max Area (sqft)</FormLabel>
+                  <FormLabel fontWeight="medium">Max Area (sqft)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.maxArea}
@@ -423,12 +447,21 @@ const AdvancedSearchModal = ({
             </VStack>
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter position="sticky"
+            bottom="0"
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            py={3}
+            px={5}
+            zIndex="10"
+            justifyContent="flex-end"
+            gap={3}>
             <Button
               variant="outline"
-              mr={3}
               onClick={handleClear}
               isDisabled={isFilterUnchangedValueEmpty}
+              borderRadius={"md"}
             >
               Clear Search
             </Button>
@@ -436,6 +469,7 @@ const AdvancedSearchModal = ({
               colorScheme="brand"
               type="submit"
               isDisabled={isFilterUnchanged}
+              borderRadius={"md"}
             >
               Apply Search
             </Button>

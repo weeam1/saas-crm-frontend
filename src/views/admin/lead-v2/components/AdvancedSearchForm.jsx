@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import ManagerAgentForm from './ManagerAgentForm';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
+import CustomDatePicker from 'components/datetime/CustomDatePicker';
 
 const {
 	Grid,
@@ -24,6 +25,12 @@ const AdvancedSearchForm = (props) => {
 		tree,
 		setFieldValue,
 	} = props;
+
+	const [openCalendar, setOpenCalendar] = useState(null); // Track which calendar is open
+
+	const toggleCalendar = (calendar) => {
+		setOpenCalendar(openCalendar === calendar ? null : calendar);
+	};
 
 	// Define field configurations
 	const fields = useMemo(
@@ -136,13 +143,40 @@ const AdvancedSearchForm = (props) => {
 
 	return (
 		<Grid
-			overflow='scroll'
-			height='65vh'
 			p='2'
-			templateColumns='repeat(24, 1fr)'
+			templateColumns={{ base: '1fr', sm: '1fr', md: 'repeat(24, 1fr)' }}
 			mb={3}
 			gap={2}
 		>
+			{/* Start Date */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<CustomDatePicker
+					selectedDate={values.startDate}
+					handleDateChange={(date) => setFieldValue('startDate', date)}
+					errors={touched.startDate && errors.startDate}
+					label='Start Date'
+					placeholder='Select start date'
+					maxDate={values.endDate || new Date()}
+					isCalendarOpen={openCalendar === 'start'}
+					toggleCalendar={() => toggleCalendar('start')}
+				/>
+			</GridItem>
+
+			{/* End Date */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<CustomDatePicker
+					selectedDate={values.endDate}
+					handleDateChange={(date) => setFieldValue('endDate', date)}
+					errors={touched.endDate && errors.endDate}
+					label='End Date'
+					placeholder='Select end date'
+					minDate={values.startDate} // Ensure the end date is after the start date
+					maxDate={new Date()}
+					isCalendarOpen={openCalendar === 'end'}
+					toggleCalendar={() => toggleCalendar('end')}
+				/>
+			</GridItem>
+
 			{fields.map(renderField)}
 
 			{/* Lead Status Field */}

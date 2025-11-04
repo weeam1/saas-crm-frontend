@@ -76,6 +76,16 @@ const AudioPlayer = ({
     }
   }, [url]);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (currentlyPlayingId !== playerId) {
+      audio.pause();
+      setIsPlaying(false);
+    }
+  }, [currentlyPlayingId, playerId]);
+
   //  Audio event listeners
   useEffect(() => {
     const audio = audioRef.current;
@@ -95,7 +105,7 @@ const AudioPlayer = ({
       setIsPlaying(false);
       setCurrentlyPlayingId(null);
 
-      // ✅ Log only when playback completes
+      //  Log only when playback completes
       await handleLogPlay(audio.duration, audio.duration);
 
       // reset log flag so next full play logs again

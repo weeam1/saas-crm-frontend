@@ -24,11 +24,11 @@ const leadsSlice = createSlice({
 			const { currentPage, leads, pageSize } = action.payload;
 
 			// For any other page (e.g., page 2), remove previous doc and update.
-			state.currentPage = currentPage;
+			state.currentPage = leads?.currentPage || currentPage || 1;
 			state.doc = leads?.doc ?? [];
 			state.totalLeads = leads?.totalLeads;
 			state.totalPages = leads?.totalPages;
-			state.pageSize = pageSize;
+			state.pageSize = leads?.pageSize || pageSize || 40;
 		},
 
 		// Updates a specific field of a lead based on lead ID

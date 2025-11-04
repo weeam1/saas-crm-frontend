@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -15,7 +15,10 @@ import {
   VStack,
   Box,
   Text,
+  Divider,
   useBreakpointValue,
+  useColorModeValue,
+  Flex,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
@@ -28,7 +31,14 @@ const AdvancedSearchModal = ({
   initialFilters,
   clearFilter,
 }) => {
-  const [openCalendar, setOpenCalendar] = React.useState(null);
+  const [openCalendar, setOpenCalendar] = useState(null);
+  const colSpan = useBreakpointValue({ base: 1, md: 2 });
+
+  const bgColor = useColorModeValue("white", "gray.800");
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.800");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
@@ -49,21 +59,13 @@ const AdvancedSearchModal = ({
       ...initialFilters,
     },
     onSubmit: (values) => {
-      let cleanedValues = {
+      const cleanedValues = {
         ...values,
         start_date: values.start_date
           ? toUTCString(values.start_date)
           : undefined,
         end_date: values.end_date ? toUTCString(values.end_date) : undefined,
       };
-
-      // cleanedValues = Object.fromEntries(
-      // 	Object.entries(values).map(([key, value]) => [
-      // 		key,
-      // 		value === '' ? undefined : value,
-      // 	])
-      // );
-
       onApplyFilters(cleanedValues);
       onClose();
     },
@@ -82,44 +84,37 @@ const AdvancedSearchModal = ({
     });
   };
 
-  const cleanedInitialFilters = useMemo(() => {
-    const clean = {
+  const cleanedInitialFilters = useMemo(
+    () => ({
       call_from: initialFilters.call_from || "",
       call_to: initialFilters.call_to || "",
       clid: initialFilters.clid || "",
       start_date: initialFilters.start_date || null,
       end_date: initialFilters.end_date || null,
       disposition: initialFilters.disposition || "",
-    };
-    return clean;
-  }, [initialFilters]);
+    }),
+    [initialFilters]
+  );
 
-  const isFilterUnchanged = useMemo(() => {
-    return Object.entries(cleanedInitialFilters).every(
-      ([key, val]) => formik.values[key] === val
-    );
-  }, [formik.values, cleanedInitialFilters]);
+  const isFilterUnchanged = useMemo(
+    () =>
+      Object.entries(cleanedInitialFilters).every(
+        ([key, val]) => formik.values[key] === val
+      ),
+    [formik.values, cleanedInitialFilters]
+  );
 
   useEffect(() => {
-    if (!clearFilter) {
-      formik.resetForm({
-        values: {
-          call_from: "",
-          call_to: "",
-          clid: "",
-          start_date: null,
-          end_date: null,
-          disposition: "",
-        },
-      });
-    }
+    if (!clearFilter) handleClear();
   }, [clearFilter]);
 
-  const isFilterUnchangedValueEmpty = useMemo(() => {
-    return Object.values(formik.values).every(
-      (val) => val === "" || val === undefined || val === null
-    );
-  }, [formik.values]);
+  const isFilterEmpty = useMemo(
+    () =>
+      Object.values(formik.values).every(
+        (val) => val === "" || val === undefined || val === null
+      ),
+    [formik.values]
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -141,23 +136,68 @@ const AdvancedSearchModal = ({
   }, [isOpen, initialFilters]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="lg"
+      isCentered
+      scrollBehavior="inside"
+      motionPreset="slideInBottom"
+    >
       <ModalOverlay />
       <ModalContent
-        mx={{ base: 2, sm: 4, md: 8 }}
-        w={{ base: "95vw", sm: "90vw", md: "500px" }}
-        maxW="100vw"
+        bg={bgColor}
+        borderRadius="2xl"
+        shadow="2xl"
+        maxW={{ base: "full", sm: "90vw", md: "500px" }}
+        overflow="hidden"
+        mx={{ base: 3, md: 0 }}
       >
-        <ModalHeader>Advanced search</ModalHeader>
-        <ModalCloseButton />
+        {/* Header */}
+        <ModalHeader p={0} borderBottom="1px solid" borderColor={borderColor}>
+          <Flex
+            align="center"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            position="sticky"
+            top="0"
+            zIndex="10"
+            boxShadow="md"
+          >
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              flex="1"
+            >
+              Advanced Search
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+          </Flex>
+        </ModalHeader>
+
+        {/* Body */}
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody>
-            <VStack spacing={4} overflow="scroll" height="65vh" pb={5}>
+          <ModalBody
+            p={5}
+            overflowY="auto"
+            maxH="65vh"
+            borderBottom="1px solid"
+            borderColor={borderColor}
+          >
+            <VStack spacing={5} align="stretch">
               <FormControl>
-                <FormLabel>Call From</FormLabel>
+                <FormLabel fontWeight="semibold">Call From</FormLabel>
                 <Input
                   name="call_from"
-                  placeholder="Enter call from"
+                  placeholder="Enter caller number"
                   value={formik.values.call_from}
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
@@ -165,10 +205,10 @@ const AdvancedSearchModal = ({
               </FormControl>
 
               <FormControl>
-                <FormLabel>Call To</FormLabel>
+                <FormLabel fontWeight="semibold">Call To</FormLabel>
                 <Input
                   name="call_to"
-                  placeholder="Enter called to"
+                  placeholder="Enter recipient number"
                   value={formik.values.call_to}
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
@@ -176,21 +216,30 @@ const AdvancedSearchModal = ({
               </FormControl>
 
               <FormControl>
-                <FormLabel>Clid</FormLabel>
+                <FormLabel fontWeight="semibold">CLID</FormLabel>
                 <Input
                   name="clid"
-                  placeholder="Enter call id"
+                  placeholder="Enter CLID"
                   value={formik.values.clid}
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
                 />
               </FormControl>
 
-              {/* Date Range Section */}
-              <Box w="full" pt={2}>
-                <VStack width="100%" alignItems="flex-start">
+              <Divider />
+
+              <Box>
+                <Text
+                  fontWeight="semibold"
+                  mb={2}
+                  color="gray.600"
+                  _dark={{ color: "gray.300" }}
+                >
+                  Date Range
+                </Text>
+                <VStack spacing={3} align="stretch">
                   <FormControl>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel fontWeight="medium">Start Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.start_date}
                       handleDateChange={(date) =>
@@ -202,10 +251,9 @@ const AdvancedSearchModal = ({
                       toggleCalendar={() => toggleCalendar("start_date")}
                     />
                   </FormControl>
-                </VStack>
-                <VStack width="100%" alignItems="flex-start">
+
                   <FormControl>
-                    <FormLabel>End Date</FormLabel>
+                    <FormLabel fontWeight="medium">End Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.end_date}
                       handleDateChange={(date) =>
@@ -221,11 +269,13 @@ const AdvancedSearchModal = ({
                 </VStack>
               </Box>
 
-              <FormControl mb={6}>
-                <FormLabel>Disposition</FormLabel>
+              <Divider />
+
+              <FormControl>
+                <FormLabel fontWeight="semibold">Disposition</FormLabel>
                 <Select
                   name="disposition"
-                  placeholder="Select Disposition"
+                  placeholder="Select disposition"
                   value={formik.values.disposition}
                   onChange={formik.handleChange}
                   focusBorderColor="brand.500"
@@ -239,21 +289,37 @@ const AdvancedSearchModal = ({
             </VStack>
           </ModalBody>
 
-          <ModalFooter>
+          {/* Footer */}
+          <ModalFooter
+            position="sticky"
+            bottom="0"
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            py={3}
+            px={5}
+            zIndex="10"
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
               variant="outline"
-              mr={3}
+              colorScheme="gray"
+              size="sm"
               onClick={handleClear}
-              isDisabled={isFilterUnchangedValueEmpty}
+              borderRadius="md"
+              isDisabled={isFilterEmpty}
             >
-              Clear Search
+              Clear
             </Button>
             <Button
               colorScheme="brand"
+              size="sm"
               type="submit"
+              borderRadius="md"
               isDisabled={isFilterUnchanged}
             >
-              Apply Search
+              Apply
             </Button>
           </ModalFooter>
         </form>

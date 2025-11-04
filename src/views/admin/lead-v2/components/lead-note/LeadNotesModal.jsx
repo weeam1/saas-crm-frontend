@@ -5,7 +5,6 @@ import {
 	GridItem,
 	Text,
 	VStack,
-	useColorModeValue,
 	Modal,
 	ModalOverlay,
 	ModalContent,
@@ -19,7 +18,6 @@ import {
 import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
 import AddNewNote from './AddNewNote';
-import { buttonStyle } from '../constants';
 import NoteCard from './NoteCard';
 import EditNote from './EditNote';
 import { useDeleteItemMutation } from 'api/apiSlice';
@@ -30,11 +28,11 @@ import NoData from 'components/Message/NoData';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 	const [notesLoading, setNotesLoading] = useState(false);
 	const [allNotes, setAllNotes] = useState([]);
-	const textColor = useColorModeValue('gray.500', 'white');
 
 	const [addNote, setAddNote] = useState(false);
 	const [editNote, setEditNote] = useState(false);
@@ -45,6 +43,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const { headerBg, headerText } = useModalColors();
 
 	const fetchLeadNotes = useCallback(async () => {
 		if (!leadId) return;
@@ -123,35 +122,63 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='5xl' isCentered>
-			<ModalOverlay />
-			<ModalContent m='2'>
-				<ModalHeader>
-					<Flex justify='space-between' align='center' pt='8'>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					px={{ base: 4, md: 6 }}
+					py={{ base: 3, md: 4 }}
+					w='100%'
+				>
+					<Flex
+						justify='space-between'
+						align='center'
+						flexWrap='wrap'
+						gap={{ base: 3, md: 0 }}
+					>
 						<HStack
-							gap='1'
-							color='gray.800'
-							fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+							spacing='2'
+							align='center'
 							fontWeight='600'
-							mb='4'
+							mb={{ base: 1, md: 0 }}
+							fontSize={{ base: 'md', md: 'lg' }}
 						>
-							<Text>Lead Notes</Text>
+							<Text lineHeight='short' fontWeight='600'>
+								Lead Notes
+							</Text>
 							<CountUpComponent targetNumber={allNotes?.length || 0} />
 						</HStack>
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='brand.400'
-							py='2'
-							px='5'
-							aria-label='add new note'
-							size='sm'
-							onClick={() => setAddNote(true)}
-						>
-							Add New Note
-						</Button>
+
+						<HStack spacing='3' align='center' gap={2}>
+							<Button
+								bg='brand.500'
+								color='white'
+								_hover={{ bg: 'brand.400' }}
+								_active={{ bg: 'brand.400' }}
+								py='2'
+								px='4'
+								size={{ base: 'xs', md: 'sm' }}
+								fontSize='clamp(0.75rem, 1.8vw, 0.875rem)'
+								onClick={() => setAddNote(true)}
+								aria-label='add new note'
+								borderRadius={'md'}
+							>
+								Add Note
+							</Button>
+
+							<ModalCloseButton
+								position='relative'
+								top='0'
+								right='0'
+								_focus={{ outline: 'none' }}
+								// _hover={{ bg: 'whiteAlpha.300' }}
+							/>
+						</HStack>
 					</Flex>
 				</ModalHeader>
-				<ModalCloseButton _focus={{ outline: 'none' }} />
+
 				<ModalBody>
 					<Box
 						h={{ base: '50vh', md: '60vh', lg: '70vh' }}

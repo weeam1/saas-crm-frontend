@@ -20,12 +20,15 @@ import { generateEmployeeAttendanceReport } from 'api';
 import { buttonStyle } from 'utils/btn';
 import { AiOutlineExport } from 'react-icons/ai';
 import DateFilter from '../DateFilter';
+import { useModalColors } from 'hooks/useModalColors';
 
 const MotionProgress = motion(Box);
 
 const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 	const [progress, setProgress] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
+
+	const { headerBg, headerText } = useModalColors();
 
 	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
 	const [year, setYear] = useState(() => new Date().getFullYear());
@@ -106,14 +109,27 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 			closeOnOverlayClick={!isGenerating}
 			isCentered
 		>
-			<ModalOverlay />
+			<ModalOverlay backdropFilter='blur(2px)' />
 			<ModalContent
 				as={motion.div}
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				mx='4'
+				borderRadius='xl'
+				boxShadow='xl'
 			>
-				<ModalHeader>Export Employee Report</ModalHeader>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					Export Employee Report
+				</ModalHeader>
 				<ModalCloseButton isDisabled={isGenerating} />
 				<ModalBody>
 					<VStack mb='2'>

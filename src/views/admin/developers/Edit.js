@@ -23,6 +23,7 @@ import {
   useDisclosure,
   FormControl,
   Badge,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import Spinner from "components/spinner/Spinner";
 import { useFormik } from "formik";
@@ -35,6 +36,7 @@ import { useDispatch } from "react-redux";
 import { apiSlice } from "api/apiSlice";
 import * as Yup from "yup";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { useModalColors } from "hooks/useModalColors";
 
 const contactSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
@@ -64,6 +66,17 @@ const Edit = (props) => {
   const [contacts, setContacts] = useState(data?.contactDetails || []);
   const [editingContactIndex, setEditingContactIndex] = useState(null);
   const dispatch = useDispatch();
+
+  const {
+    bg,
+    headerBg,
+    primaryBtnBg,
+    secondaryBtnBg,
+    headerText,
+    closeBtnColor,
+    footerBg,
+    borderColor,
+  } = useModalColors();
 
   const {
     isOpen: isContactModalOpen,
@@ -307,7 +320,6 @@ const Edit = (props) => {
   };
 
   const bgColor = useColorModeValue(brandColors[50], brandColors[800]);
-  const borderColor = useColorModeValue(brandColors[200], brandColors[600]);
   const textColor = useColorModeValue(brandColors[800], "white");
 
   return (
@@ -327,26 +339,28 @@ const Edit = (props) => {
         overflow="hide"
       >
         <ModalOverlay />
-        <ModalContent fontFamily="'DM Sans', sans-serif" borderRadius="xl">
+        <ModalContent borderRadius="2xl" shadow="xl" overflow="hidden">
           <ModalHeader
             justifyContent="space-between"
             display="flex"
-            bg={brandColors[200]}
-            color={brandColors[800]}
-            borderTopRadius="xl"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
           >
             Edit Developer
-            <IconButton
+            <ModalCloseButton
               onClick={() => {
                 resetForm();
                 removeImage();
                 setContacts(data?.contactDetails || []);
                 onClose();
               }}
-              icon={<CloseIcon />}
-              variant="ghost"
-              color={brandColors[800]}
-              _hover={{ bg: brandColors[600], color: "white" }}
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
             />
           </ModalHeader>
 
@@ -387,7 +401,6 @@ const Edit = (props) => {
                         <Avatar size="xl" src={previewImage} mb={2} />
                         <Button
                           size="sm"
-                          colorScheme="brand"
                           variant="outline"
                           mt={2}
                           onClick={(e) => {
@@ -405,7 +418,7 @@ const Edit = (props) => {
                             ? "Drop the image here"
                             : "Drag & drop image here, or click to select"}
                         </Text>
-                        <Button size="sm" colorScheme="brand" variant="outline">
+                        <Button size="sm" variant="outline">
                           Select Image
                         </Button>
                       </Center>
@@ -626,9 +639,9 @@ const Edit = (props) => {
                     <Button
                       leftIcon={<AddIcon />}
                       size="sm"
-                      colorScheme="brand"
                       variant="outline"
                       onClick={handleAddContact}
+                      borderRadius={"md"}
                     >
                       Add Contact
                     </Button>
@@ -699,34 +712,50 @@ const Edit = (props) => {
                 </GridItem>
               </Grid>
             </ModalBody>
-            <ModalFooter justifyContent="flex-end" pt={8} pb={6} bg={bgColor}>
-              <Button
-                bg={brandColors[400]}
-                color="white"
+            <ModalFooter
+              bg={footerBg}
+              borderTop="1px solid"
+              borderColor={borderColor}
+              py={3}
+              px={5}
+              justifyContent="flex-end"
+              gap={3}
+            >
+              {/* <Button
+                colorScheme="outline"
                 size="sm"
-                borderRadius="5px"
+                borderRadius="md"
                 onClick={() => {
                   resetForm();
                   removeImage();
                   setContacts(data?.contactDetails || []);
                   onClose();
                 }}
-                _hover={{ bg: brandColors[500] }}
-                fontFamily="'DM Sans', sans-serif"
                 minWidth="100px"
                 mr={3}
+              >
+                Cancel
+              </Button> */}
+              <Button
+                onClick={() => {
+                  resetForm();
+                  removeImage();
+                  setContacts(data?.contactDetails || []);
+                  onClose();
+                }}
+                variant="outline"
+                size="sm"
+                borderRadius={"md"}
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                bg={brandColors[600]}
-                color="white"
+                colorScheme="brand"
                 size="sm"
-                borderRadius="5px"
+                borderRadius="md"
                 disabled={isLoading || mutationLoading || !isFormComplete()}
                 _hover={{ bg: brandColors[700] }}
-                fontFamily="'DM Sans', sans-serif"
                 minWidth="100px"
               >
                 {isLoading || mutationLoading ? <Spinner /> : "Update"}
@@ -748,26 +777,23 @@ const Edit = (props) => {
         isCentered
       >
         <ModalOverlay />
-        <ModalContent fontFamily="'DM Sans', sans-serif" borderRadius="xl">
+        <ModalContent borderRadius="2xl" overflow="hidden">
           <ModalHeader
-            bg={brandColors[200]}
-            color={brandColors[800]}
-            borderTopRadius="xl"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
             display="flex"
             justifyContent="space-between"
             alignItems="center"
           >
             {editingContactIndex !== null ? "Edit Contact" : "Add Contact"}
-            <IconButton
-              icon={<CloseIcon />}
-              variant="ghost"
-              color={brandColors[800]}
-              _hover={{ bg: brandColors[600], color: "white" }}
-              onClick={() => {
-                contactFormik.resetForm();
-                setEditingContactIndex(null);
-                onContactModalClose();
-              }}
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
             />
           </ModalHeader>
           <ModalBody p={6}>
@@ -871,18 +897,24 @@ const Edit = (props) => {
               </Stack>
             </form>
           </ModalBody>
-          <ModalFooter justifyContent="flex-end" pt={4} pb={6} bg={bgColor}>
+          <ModalFooter
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            py={3}
+            px={5}
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
               variant="outline"
-              colorScheme="brand"
               size="sm"
-              borderRadius="5px"
+              borderRadius="md"
               onClick={() => {
                 contactFormik.resetForm();
                 setEditingContactIndex(null);
                 onContactModalClose();
               }}
-              fontFamily="'DM Sans', sans-serif"
               minWidth="100px"
               mr={3}
             >
@@ -890,10 +922,9 @@ const Edit = (props) => {
             </Button>
             <Button
               type="submit"
-              bg={brandColors[600]}
-              color="white"
+              colorScheme="brand"
               size="sm"
-              borderRadius="5px"
+              borderRadius="md"
               onClick={() => contactFormik.handleSubmit()}
               _hover={{ bg: brandColors[700] }}
               fontFamily="'DM Sans', sans-serif"

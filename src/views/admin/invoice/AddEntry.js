@@ -146,7 +146,7 @@ const AddEntry = ({ props }) => {
 
 	const breadcrumbItems = useMemo(
 		() => [
-			{ label: 'Developers', path: '/invoice?tab=developers' },
+			{ label: 'Developers', path: '/invoice/developer' },
 			{
 				label: 'Invoices',
 				path: `/invoice/developers/invoices/${developerId}`,

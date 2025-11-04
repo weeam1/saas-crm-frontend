@@ -45,7 +45,9 @@ const AdvancedFilter = ({
 	const [openCalendar, setOpenCalendar] = React.useState(null);
 	const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
 	const isMobile = useBreakpointValue({ base: true, md: false });
-
+  	const footerBg = useColorModeValue('gray.50', 'gray.700');
+  	const borderColor = useColorModeValue('gray.200', 'gray.600');
+	
 	const toggleCalendar = (calendar) => {
 		setOpenCalendar(openCalendar === calendar ? null : calendar);
 	};
@@ -482,10 +484,12 @@ const AdvancedFilter = ({
 
 					<ModalFooter
 						px={4}
-						pt={0}
+						py={3}
 						position={['sticky', 'static']}
 						bottom={0}
-						bg='white'
+						bg={footerBg}
+          				borderTop="1px solid"
+          				borderColor={borderColor}
 						zIndex='sticky'
 					>
 						<Button
@@ -495,6 +499,7 @@ const AdvancedFilter = ({
 							isDisabled={isFilterEmpty}
 							size='md'
 							width={['50%', 'auto']}
+							borderRadius={"sm"}
 						>
 							Clear Filters
 						</Button>
@@ -502,8 +507,9 @@ const AdvancedFilter = ({
 							colorScheme='brand'
 							type='submit'
 							isDisabled={isFilterUnchanged}
-							size='md'
+							size='sm'
 							width={['50%', 'auto']}
+							borderRadius={"md"}
 						>
 							Apply Filters
 						</Button>

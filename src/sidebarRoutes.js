@@ -10,6 +10,7 @@ import {
 	MdOutlineAdminPanelSettings,
 	MdPeopleOutline,
 	MdCampaign,
+	MdInsights,
 } from 'react-icons/md';
 import {
 	FaTasks,
@@ -250,6 +251,7 @@ export const sidebarRoutes = [
 		name: 'Dashboard',
 		path: '/default',
 		icon: MdHome,
+		isNested: false,
 		color: '#6366F1', // Indigo
 	},
 
@@ -259,12 +261,27 @@ export const sidebarRoutes = [
 		name: 'Lead',
 		path: '/lead',
 		icon: MdLeaderboard,
+		isNested: true,
 		color: '#9333EA', // Emerald
+		children: [
+			{
+				// id: 'leads',
+				name: 'Leads',
+				path: '/lead',
+			},
+			{
+				id: 'lead_analytics',
+				name: 'Analytics',
+				path: '/lead_analytics',
+				version: 'Beta',
+			},
+		],
 	},
 	{
 		moduleId: 'leadpool_admin',
 		name: 'Lead Pool',
 		path: '/pool',
+		isNested: false,
 		icon: MdOutlineAdminPanelSettings,
 		color: '#F59E0B', // Amber
 	},
@@ -272,6 +289,7 @@ export const sidebarRoutes = [
 		moduleId: 'leadpool_agents',
 		name: 'Lead Pool',
 		path: '/agent_pool',
+		isNested: false,
 		icon: MdPeopleOutline,
 		color: '#FBBF24', // Yellow
 	},
@@ -282,7 +300,20 @@ export const sidebarRoutes = [
 		name: 'Deals',
 		path: '/deals',
 		icon: FaHandshake,
+		isNested: true,
 		color: '#22C55E', // Green
+		children: [
+			{
+				id: 'closed_deals',
+				name: 'Close Deals',
+				path: '/deals/close-deal',
+			},
+			{
+				id: 'shared_deals',
+				name: 'Shared Deals',
+				path: '/deals/shared-deals',
+			},
+		],
 	},
 
 	// ------- Announcement ------
@@ -291,7 +322,19 @@ export const sidebarRoutes = [
 		name: 'Announcement',
 		path: '/announcements',
 		icon: MdCampaign,
+		isNested: true,
 		color: '#EC4899', // Pink
+		children: [
+			{
+				id: 'create',
+				name: 'Announcement',
+				path: '/announcement/create',
+			},
+			{
+				name: 'History',
+				path: '/announcement/history',
+			},
+		],
 	},
 
 	// -------- Hiring --------
@@ -299,8 +342,35 @@ export const sidebarRoutes = [
 		moduleId: 'hiring',
 		name: 'Hiring',
 		path: '/hiring',
+		isNested: true,
 		icon: FaClipboardUser,
 		color: '#0EA5E9', // Sky
+		children: [
+			{
+				name: 'Dashboard',
+				path: '/hiring/dasboard',
+			},
+			{
+				name: 'Candidates',
+				path: '/hiring/candidates',
+			},
+			{
+				name: 'Short Listed',
+				path: '/hiring/short-listed',
+			},
+			{
+				name: 'Multi-Round',
+				path: '/hiring/multi-round',
+			},
+			{
+				name: 'Interviewed Candidates',
+				path: '/hiring/interviewed-candidates',
+			},
+			{
+				name: 'Settings',
+				path: '/hiring/settings',
+			},
+		],
 	},
 
 	// -------- Attendance --------
@@ -308,8 +378,31 @@ export const sidebarRoutes = [
 		moduleId: 'attendance',
 		name: 'Attendance',
 		path: '/attendance',
+		isNested: true,
 		icon: FaRegCalendarCheck,
 		color: '#A855F7', // Violet
+		children: [
+			{
+				id: 'dashboard',
+				name: 'Dashboard',
+				path: '/attendance/dashboard',
+			},
+			{
+				id: 'employees',
+				name: 'Employees',
+				path: '/attendance/employees',
+			},
+			{
+				id: 'record',
+				name: 'Record',
+				path: '/attendance/record',
+			},
+			{
+				id: 'my_attendance',
+				name: 'My Attendence',
+				path: '/attendance/my_attendance',
+			},
+		],
 	},
 
 	// -------- Invoices --------
@@ -317,8 +410,23 @@ export const sidebarRoutes = [
 		moduleId: 'invoice',
 		name: 'Invoice',
 		path: '/invoice',
+		isNested: true,
 		icon: HiOutlineDocumentReport,
 		color: '#3B82F6', // Blue
+		children: [
+			{
+				name: 'Bank Accounts',
+				path: '/invoice/bank-account',
+			},
+			{
+				name: 'Developer',
+				path: '/invoice/developer',
+			},
+			{
+				name: 'Project',
+				path: '/invoice/project',
+			},
+		],
 	},
 
 	// -------- Expenses --------
@@ -326,8 +434,19 @@ export const sidebarRoutes = [
 		moduleId: 'expense',
 		name: 'Expenses',
 		path: '/expenses',
+		isNested: true,
 		icon: FaRegCopy,
 		color: '#F97316', // Orange
+		children: [
+			{
+				name: 'Balance',
+				path: '/expenses/balance',
+			},
+			{
+				name: 'Outgoing Cash',
+				path: '/expenses/outgoing-cash',
+			},
+		],
 	},
 
 	// -------- Tasks --------
@@ -336,6 +455,7 @@ export const sidebarRoutes = [
 		name: 'Task',
 		path: '/task',
 		icon: FaTasks,
+		isNested: false,
 		color: '#14B8A6', // Teal
 	},
 
@@ -345,6 +465,8 @@ export const sidebarRoutes = [
 		name: 'Listing',
 		path: '/listing',
 		icon: FaList,
+		isNested: true,
+
 		color: '#64748B', // Slate
 		children: [
 			{
@@ -380,8 +502,20 @@ export const sidebarRoutes = [
 		moduleId: 'survey',
 		name: 'Survey',
 		path: '/survey',
+		isNested: true,
 		icon: FaSquarePlus,
 		color: '#8B5CF6', // Violet
+		children: [
+			{
+				name: 'Dashboard',
+				path: '/survey/dashboard',
+			},
+			{
+				name: 'All Surveys',
+				path: '/survey/all-surveys',
+			},
+			{ id: 'create', name: 'Create Survey', path: '/survey/create' },
+		],
 	},
 
 	// -------- Call Logs (SIP) --------
@@ -389,6 +523,7 @@ export const sidebarRoutes = [
 		moduleId: 'sip',
 		name: 'Call Logs',
 		path: '/sip',
+		isNested: true,
 		icon: FaPhone,
 		color: '#06B6D4', // Cyan
 		children: [
@@ -412,6 +547,7 @@ export const sidebarRoutes = [
 	{
 		moduleId: 'reports',
 		name: 'Reports',
+		isNested: false,
 		path: '/reporting-analytics',
 		icon: MdInsertChartOutlined,
 		color: '#2e6f77ff', // Lime
@@ -422,6 +558,7 @@ export const sidebarRoutes = [
 		moduleId: 'whatsapp',
 		name: 'Whatsapp',
 		path: '/whatsapp',
+		isNested: true,
 		icon: FaWhatsapp,
 		color: '#25D366', // WhatsApp Green
 		children: [
@@ -453,6 +590,7 @@ export const sidebarRoutes = [
 	{
 		moduleId: 'users',
 		name: 'Users',
+		isNested: false,
 		path: '/user',
 		icon: HiUsers,
 		color: '#8B5CF6', // Violet
@@ -463,6 +601,7 @@ export const sidebarRoutes = [
 		moduleId: 'system_log',
 		name: 'System Log',
 		path: '/system-log',
+		isNested: false,
 		icon: MdOutlineLaptopMac,
 		color: '#c03910ff', // Gray
 	},

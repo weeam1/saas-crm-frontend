@@ -226,19 +226,21 @@ const UnitType = () => {
         p={3}
         gap={{ base: 3, md: 0 }}
       >
-        <Text fontSize={{ base: "16px", md: "20px" }} fontWeight="bold">
+        <Text fontSize={"20px"} fontWeight="bold">
           Listing Unit Types
         </Text>
         <Stack direction={{ base: "column", sm: "row" }} spacing={4}>
           <Button
-            size="md"
+            size="sm"
+            borderRadius={"md"}
             variant="brand"
             onClick={() => navigate("/listing/settings/sub-unit-types")}
           >
             Sub Unit type
           </Button>
           <Button
-            size="md"
+            size="sm"
+            borderRadius={"md"}
             variant="brand"
             leftIcon={<AddIcon />}
             onClick={() => {

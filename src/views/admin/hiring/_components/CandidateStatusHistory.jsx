@@ -34,6 +34,12 @@ import {
 import { formatPostDate } from 'utils/helpers';
 
 const statusConfig = {
+	'not eligible': {
+		color: 'red',
+		icon: FiClock,
+		label: 'Not Eligible',
+		description: 'Candidate has not eligible',
+	},
 	applied: {
 		color: 'orange',
 		icon: FiClock,
@@ -107,9 +113,7 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 
 	// Get current status info
 	const currentStatus =
-		sortedHistory.length > 0
-			? sortedHistory[0].status.toLowerCase()
-			: 'applied';
+		sortedHistory.length > 0 ? sortedHistory[0].status.toLowerCase() : 'status';
 	const statusInfo = statusConfig[currentStatus] || statusConfig.applied;
 
 	// Calculate progress in the hiring pipeline

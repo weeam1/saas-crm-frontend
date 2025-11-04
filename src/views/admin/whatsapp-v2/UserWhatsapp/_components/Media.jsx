@@ -16,6 +16,111 @@ import { memo } from 'react';
 import { formatFileSize } from 'utils/whatsappUtils';
 import AudioPlayer from '../../components/Media/AudioPlayer';
 
+export const DefaultMedia = memo(
+	({ msg, mediaUrl, isDownloading, whatsappMedia, onDownload }) => (
+		<Box
+			position='relative'
+			display='inline-block'
+			borderRadius='md'
+			overflow='hidden'
+			w='100%'
+			maxW={{ base: '260px', md: '350px' }}
+		>
+			{mediaUrl && (
+				<Image
+					src={mediaUrl}
+					alt='Shared image'
+					w={msg?.width || '300px'}
+					maxW='350px'
+					maxH={msg?.height || '350px'}
+					objectFit='cover'
+					borderRadius='lg'
+					filter={whatsappMedia ? 'blur(0px)' : 'blur(4px)'}
+				/>
+			)}
+
+			{isDownloading ? (
+				<Center
+					position='absolute'
+					top='50%'
+					left='50%'
+					transform='translate(-50%, -50%)'
+					bg='rgba(0,0,0,0.5)'
+					borderRadius='full'
+					p={3}
+				>
+					<Spinner size='lg' color='white' thickness='3px' speed='0.6s' />
+				</Center>
+			) : msg?._data?.size > 50 * 1024 * 1024 ? ( // check 50 MB in bytes
+				<Center
+					position='absolute'
+					top='50%'
+					left='50%'
+					transform='translate(-50%, -50%)'
+					textAlign='center'
+					px={3}
+				>
+					<Text
+						fontSize='sm'
+						color='white'
+						bg='rgba(0,0,0,0.6)'
+						px={3}
+						py={2}
+						borderRadius='lg'
+					>
+						File too large — please check this video on your mobile.
+					</Text>
+				</Center>
+			) : (
+				!whatsappMedia && (
+					<Flex
+						position='absolute'
+						top='50%'
+						left='50%'
+						transform='translate(-50%, -50%)'
+						align='center'
+						bg='rgba(0,0,0,0.5)'
+						color='white'
+						px={2}
+						py={1}
+						borderRadius='full'
+						_hover={{ bg: 'rgba(0,0,0,0.6)' }}
+						transition='all 0.2s'
+						gap={2}
+						cursor='pointer'
+						onClick={() => onDownload(msg)}
+					>
+						<IconButton
+							aria-label='Download'
+							icon={<DownloadIcon />}
+							borderRadius='full'
+							size='sm' // smaller icon than lg
+							bg='transparent'
+							color='white'
+							_hover={{ bg: 'rgba(255,255,255,0.1)' }}
+						/>
+						{msg?._data?.size && (
+							<Text
+								fontSize='sm'
+								fontWeight='medium'
+								color='whiteAlpha.900'
+								lineHeight='1'
+							>
+								{formatFileSize(msg?._data?.size)}
+							</Text>
+						)}
+					</Flex>
+				)
+			)}
+
+			{msg.caption && (
+				<Text mt={2} fontSize='sm'>
+					{msg.caption}
+				</Text>
+			)}
+		</Box>
+	)
+);
 export const ImageMedia = memo(
 	({ msg, mediaUrl, isDownloading, whatsappMedia, onDownload, onPreview }) => (
 		<Box

@@ -6,11 +6,14 @@ import { useSelector } from 'react-redux';
 import { getMediaSrc } from '../../utils/mediaSelector';
 import {
 	AudioMedia,
+	DefaultMedia,
 	DocumentMedia,
 	ImageMedia,
 	NoMediaFound,
 	VideoMedia,
 } from './Media';
+
+import DefaultPlaceholder from 'assets/img/fileImage/image preivew.png';
 
 const MessageContent = ({ msg, onDownload, downloaded_media }) => {
 	const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -45,10 +48,13 @@ const MessageContent = ({ msg, onDownload, downloaded_media }) => {
 				data: inlineBody,
 				mimeType: msg?._data?.mimetype,
 			});
+		} else if (['image', 'video'].includes(msg?.type)) {
+			return DefaultPlaceholder; // Default placeholder for images/videos without media
 		}
 
 		// No usable media
 		return null;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		msg?.hasMedia,
 		msg?._data?.body,
@@ -97,6 +103,16 @@ const MessageContent = ({ msg, onDownload, downloaded_media }) => {
 		mediaUrl === null
 	) {
 		return <NoMediaFound />;
+	} else if (msg?.body === '' && !msg?.hasMedia) {
+		return (
+			<DefaultMedia
+				mediaUrl={mediaUrl}
+				msg={msg}
+				isDownloading={isDownloading}
+				whatsappMedia={whatsappMedia}
+				onDownload={handleDownload}
+			/>
+		);
 	}
 
 	const renderMedia = () => {

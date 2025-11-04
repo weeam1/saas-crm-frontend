@@ -1,20 +1,22 @@
 import {
-	Drawer,
-	DrawerOverlay,
-	DrawerContent,
-	DrawerCloseButton,
-	DrawerHeader,
-	DrawerBody,
-	DrawerFooter,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalCloseButton,
+	ModalBody,
+	ModalFooter,
 	Button,
 	Grid,
+	useColorModeValue,
+	HStack,
+	Text,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
-import { mainLeadStatus } from 'utils/options';
-import { leadStatus } from 'utils/options';
+import { mainLeadStatus, leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
 import { useDispatch, useSelector } from 'react-redux';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
@@ -22,9 +24,16 @@ import PhoneField from 'components/fields/PhoneField';
 import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import { FiUserPlus } from 'react-icons/fi';
 
-const AddLead = ({ isOpen, onClose, size }) => {
+const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 	const { user } = useUserSession();
+	const dispatch = useDispatch();
+	const { createUserLog } = useUserActivityLog();
+	const countries = useSelector((state) => state.countries.countryNames);
+	const bg = useColorModeValue('white', 'gray.800');
+	const headerColor = useColorModeValue('brand.300', 'brand.100');
+	const textColor = useColorModeValue('brand.700', 'brand.900');
 
 	const initialValues = {
 		leadName: '',
@@ -52,19 +61,13 @@ const AddLead = ({ isOpen, onClose, size }) => {
 		adset: '',
 	};
 
-	const countries = useSelector((state) => state.countries.countryNames);
-
-	// Only "name" is required; others are optional.
 	const validationSchema = Yup.object({
 		leadName: Yup.string().required('Name is required'),
 	});
 
-	// Array of field definitions to avoid repeated code.
 	const fields = [
 		{ name: 'leadName', label: 'Name', type: 'text', required: true },
 		{ name: 'leadEmail', label: 'Email', type: 'email' },
-		// { name: 'leadWhatsappNumber', label: 'WhatsApp', type: 'text' },
-		// { name: 'leadPhoneNumber', label: 'Phone Number', type: 'text' },
 		{ name: 'nationality', label: 'Nationality', type: 'text' },
 		{ name: 'timetocall', label: 'Time to Call', type: 'text' },
 		{ name: 'budget', label: 'Budget', type: 'text' },
@@ -76,11 +79,7 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			type: 'select',
 			options: countries.map((name) => {
 				const countryName = toCapitalCase(name);
-
-				return {
-					label: countryName,
-					value: countryName,
-				};
+				return { label: countryName, value: countryName };
 			}),
 		},
 		{ name: 'leadLang', label: 'Language', type: 'text' },
@@ -89,11 +88,10 @@ const AddLead = ({ isOpen, onClose, size }) => {
 		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
 		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
-		{ name: 'r_u_in_uae', label: 'Are you In UAE ?', type: 'text' },
+		{ name: 'r_u_in_uae', label: 'Are you In UAE?', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
 		{ name: 'adset', label: 'Adset', type: 'text' },
-		// Adding the new 'status' field with select type
 		{
 			name: 'eLeadStatus',
 			label: 'Select Main Status',
@@ -106,13 +104,9 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			type: 'select',
 			options: leadStatus,
 		},
-		// { name: 'lastNote', label: 'Last Note', type: 'text' },
 	];
 
-	const [createItemMuation, { isLoading }] = useCreateItemMutation();
-	const { createUserLog } = useUserActivityLog();
-
-	const dispatch = useDispatch();
+	const [createItemMutation, { isLoading }] = useCreateItemMutation();
 
 	const handleSubmit = async (values, actions) => {
 		try {
@@ -124,14 +118,11 @@ const AddLead = ({ isOpen, onClose, size }) => {
 				.join('-')
 				.trim();
 
-			const updatedValues = {
-				...values,
-				ip: formattedIp,
-			};
+			const updatedValues = { ...values, ip: formattedIp };
 			delete updatedValues.city;
 			delete updatedValues.country;
 
-			const res = await createItemMuation({
+			const res = await createItemMutation({
 				path: '/lead/add-lead',
 				body: updatedValues,
 			}).unwrap();
@@ -140,7 +131,6 @@ const AddLead = ({ isOpen, onClose, size }) => {
 			onClose();
 			actions.resetForm();
 			dispatch(addOrUpdateLead(res));
-			// refreshData();
 
 			createUserLog({
 				userId: user?._id,
@@ -149,12 +139,11 @@ const AddLead = ({ isOpen, onClose, size }) => {
 				enityType: 'Lead',
 				entityId: res?._id || null,
 				status: 'success',
-				message: `${res?.leadName || ''} Lead is created successfully`,
+				message: `${res?.leadName || ''} Lead created successfully`,
 			});
 		} catch (error) {
 			console.error(error);
-			const errorMsg =
-				error.data?.message || 'An error occurred while creating the lead.';
+			const errorMsg = error.data?.message || 'Error creating lead.';
 			toast.error(errorMsg);
 			createUserLog({
 				userId: user?._id,
@@ -168,11 +157,37 @@ const AddLead = ({ isOpen, onClose, size }) => {
 	};
 
 	return (
-		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size={size}>
-			<DrawerOverlay />
-			<DrawerContent>
-				<DrawerCloseButton />
-				<DrawerHeader>Add New Lead</DrawerHeader>
+		<Modal
+			isOpen={isOpen}
+			onClose={onClose}
+			size='6xl'
+			isCentered
+			scrollBehavior='inside'
+		>
+			<ModalOverlay />
+			<ModalContent
+				bg={bg}
+				borderRadius='lg'
+				overflow='hidden'
+				mx={{ base: 2, sm: 2, md: 0 }}
+			>
+				<ModalHeader
+					bg={headerColor}
+					color={textColor}
+					py={{ base: 3, md: 4 }}
+					px={{ base: 4, md: 6 }}
+				>
+					<HStack justify='space-between' align='center'>
+						<HStack spacing='2' align='center'>
+							<FiUserPlus size='22' />
+							<Text fontSize='xl' fontWeight='600'>
+								Add New Lead
+							</Text>
+						</HStack>
+						<ModalCloseButton color={textColor} position='relative' top='0' />
+					</HStack>
+				</ModalHeader>
+
 				<Formik
 					initialValues={initialValues}
 					validationSchema={validationSchema}
@@ -180,17 +195,20 @@ const AddLead = ({ isOpen, onClose, size }) => {
 				>
 					{({ values, errors, touched, handleBlur, setFieldValue }) => (
 						<Form>
-							<DrawerBody>
+							<ModalBody
+								px={{ base: 4, md: 8 }}
+								py={6}
+								maxH='70vh'
+								overflowY='auto'
+							>
 								<Grid
 									templateColumns={{
 										base: '1fr',
+										sm: 'repeat(2, 1fr)',
 										md: 'repeat(3, 1fr)',
+										xl: 'repeat(4, 1fr)',
 									}}
-									gap={2}
-									w='full'
-									overflow='scroll'
-									height={{ base: '60vh', md: '75vh' }}
-									p='4'
+									gap={5}
 								>
 									<PhoneField
 										name='leadWhatsappNumber'
@@ -214,15 +232,15 @@ const AddLead = ({ isOpen, onClose, size }) => {
 									/>
 									<RenderFields fields={fields} />
 								</Grid>
-							</DrawerBody>
-							<DrawerFooter>
+							</ModalBody>
+
+							<ModalFooter gap={3} borderTop='1px solid' borderColor='gray.200'>
 								<Button
-									sx={{ marginLeft: 2, textTransform: 'capitalize' }}
 									variant='outline'
 									colorScheme='gray'
 									size='sm'
-									mr='2'
 									onClick={onClose}
+									borderRadius={'md'}
 								>
 									Close
 								</Button>
@@ -230,16 +248,17 @@ const AddLead = ({ isOpen, onClose, size }) => {
 									size='sm'
 									colorScheme='brand'
 									type='submit'
-									// disabled={isLoading}
+									borderRadius={'md'}
+									isLoading={isLoading}
 								>
-									{isLoading ? 'Adding...' : 'Add Lead'}
+									Add Lead
 								</Button>
-							</DrawerFooter>
+							</ModalFooter>
 						</Form>
 					)}
 				</Formik>
-			</DrawerContent>
-		</Drawer>
+			</ModalContent>
+		</Modal>
 	);
 };
 

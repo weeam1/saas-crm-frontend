@@ -15,6 +15,7 @@ import {
 import { useFetchItemsQuery } from 'api/apiSlice';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
+import { useModalColors } from 'hooks/useModalColors';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FiArrowRight, FiMessageSquare, FiPhone } from 'react-icons/fi';
 import { formatPostDate } from 'utils/helpers';
@@ -31,11 +32,21 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 		}
 	);
 
+	const { headerBg, headerText } = useModalColors();
+
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
-			<ModalOverlay />
-			<ModalContent m='2'>
-				<ModalHeader>Phone Number History</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					w='100%'
+				>
+					Phone Number History
+				</ModalHeader>
 				<ModalCloseButton _focus={{ outline: 'none' }} />
 
 				<ModalBody>

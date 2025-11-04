@@ -193,7 +193,7 @@ const OfferLetter = () => {
 				status: 'success',
 				message: `Offer sent to ${interview?.doc?.candidate?.name} by ${user?.fullName}.`,
 			});
-			navigate('/hiring?tab=interviewed-candidates');
+			navigate('/hiring/interviewed-candidates');
 		} catch (error) {
 			const errorMsg = error?.data?.message || 'Failed to send offer';
 			toast.error(errorMsg);
@@ -230,7 +230,7 @@ const OfferLetter = () => {
 				py={{ base: 2, md: 3 }}
 				fontSize={{ base: 'sm', md: 'md' }}
 				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/hiring?tab=interviewed-candidates')}
+				onClick={() => navigate(-1)}
 				mb={4}
 			>
 				Back

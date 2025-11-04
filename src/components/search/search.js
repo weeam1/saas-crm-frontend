@@ -1,80 +1,149 @@
-import React, { useRef } from 'react';
-import { InputGroup, Input, InputLeftElement } from '@chakra-ui/react';
-import { SearchIcon } from '@chakra-ui/icons';
+import React, { useRef } from "react";
+import {
+  InputGroup,
+  Input,
+  Button,
+  Flex,
+  IconButton,
+} from "@chakra-ui/react";
+import { SearchIcon, CloseIcon } from "@chakra-ui/icons";
 
 const CustomSearchInput = ({
-	allData,
-	setSearchbox,
-	fetchSearch,
-	isPaginated = false,
-	setDisplaySearchData,
-	searchbox,
-	dataColumn,
-	onSearch,
+  allData = [],
+  setSearchbox,
+  fetchSearch,
+  isPaginated = false,
+  setDisplaySearchData,
+  searchbox,
+  dataColumn = [],
+  onSearch,
+  isLoading = false,
 }) => {
-	const handleInputChange = (e) => {
-		if (!isPaginated) {
-			const searchTerm = e.target.value;
+  const inputRef = useRef(null);
 
-			const results = allData.filter((item) => {
-				// Check if any of the specified columns contains the search term
-				return dataColumn.some((column) => {
-					const columnValue = item[column.accessor];
+  // Handle typing
+  const handleInputChange = (e) => {
+    const searchTerm = e.target.value;
+    setSearchbox(searchTerm);
 
-					return columnValue && typeof columnValue === 'string'
-						? columnValue.toLowerCase().includes(searchTerm.toLowerCase())
-						: typeof columnValue === 'number' &&
-								columnValue.toString().includes(searchTerm);
-				});
-			});
+    if (!isPaginated) {
+      const results = allData.filter((item) =>
+        dataColumn.some((column) => {
+          const columnValue = item[column.accessor];
+          if (typeof columnValue === "string") {
+            return columnValue.toLowerCase().includes(searchTerm.toLowerCase());
+          } else if (typeof columnValue === "number") {
+            return columnValue.toString().includes(searchTerm);
+          }
+          return false;
+        })
+      );
 
-			setSearchbox(searchTerm ? searchTerm : '');
-			setDisplaySearchData(e.target.value === '' ? false : true);
-			onSearch(results);
-		}
-	};
+      setDisplaySearchData(searchTerm !== "");
+      onSearch(results);
+    }
+  };
 
-	const handleKeyUp = async (e) => {
-		if (e.key === 'Enter' && isPaginated) {
-			fetchSearch();
-		}
-	};
+  // Handle Enter key
+  const handleKeyUp = async (e) => {
+    if (e.key === "Enter" && isPaginated) {
+      fetchSearch();
+    }
+  };
 
-	const justARef = useRef();
+  // Handle Search button click
+  const handleSearchClick = () => {
+    if (isPaginated) {
+      fetchSearch();
+    } else {
+      const results = allData.filter((item) =>
+        dataColumn.some((column) => {
+          const columnValue = item[column.accessor];
+          if (typeof columnValue === "string") {
+            return columnValue
+              .toLowerCase()
+              .includes(searchbox.toLowerCase());
+          } else if (typeof columnValue === "number") {
+            return columnValue.toString().includes(searchbox);
+          }
+          return false;
+        })
+      );
+      onSearch(results);
+    }
+  };
 
-	const extraProps = {};
+  // Clear search
+  const clearSearch = () => {
+    setSearchbox("");
+    setDisplaySearchData(false);
+    onSearch(allData);
+    inputRef.current?.focus();
+  };
 
-	if (!isPaginated) {
-		extraProps.value = searchbox;
-	}
+  return (
+    <InputGroup
+      bg="white"
+      border="1px solid"
+      borderColor="gray.200"
+      borderRadius="md"
+      width={{ base: "100%", md: "18rem" }}
+      overflow="hidden"
+      size="sm"
+      position="relative"
+    >
+      {/* Input field */}
+      <Input
+        ref={inputRef}
+        placeholder="Search..."
+        border="none"
+        fontSize="sm"
+        height="2.5rem"
+        value={searchbox}
+        onChange={handleInputChange}
+        onKeyUp={handleKeyUp}
+        isDisabled={isLoading}
+        _focus={{ boxShadow: "none" }}
+      />
 
-	return (
-		<InputGroup
-			width={{ sm: '100%', md: '40%' }}
-			mx={{ sm: 0, md: 3 }}
-			my={{ sm: '8px', md: '0' }}
-		>
-			<InputLeftElement
-				size='sm'
-				top='-3px'
-				pointerEvents='none'
-				zIndex='0'
-				children={<SearchIcon color='gray.300' borderRadius='16px' />}
-			/>
-			<Input
-				type='text'
-				size='sm'
-				fontSize='sm'
-				{...extraProps}
-				onChange={handleInputChange}
-				fontWeight='500'
-				ref={isPaginated ? searchbox : justARef}
-				onKeyUp={handleKeyUp}
-				placeholder='Search...'
-				borderRadius='16px'
-			/>
-		</InputGroup>
-	);
+      {/* Clear icon */}
+      {searchbox && (
+        <IconButton
+          aria-label="Clear search"
+          icon={<CloseIcon boxSize={2.5} />}
+          onClick={clearSearch}
+          position="absolute"
+          right="5.5rem"
+          top="50%"
+          transform="translateY(-50%)"
+          bg="transparent"
+          _hover={{ bg: "transparent" }}
+          size="xs"
+        />
+      )}
+
+      {/* Search button */}
+      <Button
+        bg="gray.100"
+        borderLeft="1px solid"
+        borderColor="gray.200"
+        px={5}
+        borderRadius="0"
+        fontSize="sm"
+        display="flex"
+        alignItems="center"
+        _hover={{ bg: "gray.50" }}
+        _active={{ bg: "gray.100" }}
+        onClick={handleSearchClick}
+        isLoading={isLoading}
+        height="100%"
+      >
+        <Flex align="center" h="2.5rem">
+          Search <SearchIcon fontSize="sm" color="brand.500" ml={1} />
+        </Flex>
+      </Button>
+    </InputGroup>
+  );
 };
 
 export default CustomSearchInput;

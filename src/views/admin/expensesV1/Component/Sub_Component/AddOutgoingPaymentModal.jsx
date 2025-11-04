@@ -2,7 +2,7 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
+  ModalCloseButton,
   ModalBody,
   ModalFooter,
   FormLabel,
@@ -13,6 +13,10 @@ import {
   Select,
   Flex,
   Tooltip,
+  useColorModeValue,
+  FormErrorMessage,
+  FormControl,
+  Text,
 } from "@chakra-ui/react";
 import { CloseIcon, AddIcon } from "@chakra-ui/icons";
 import { useFormik } from "formik";
@@ -30,26 +34,34 @@ const validationSchema = Yup.object().shape({
     .positive("Amount must be positive")
     .min(0, "Amount must be greater than 0"),
   vat: Yup.number()
-    .typeError("Amount must be a number")
-    .required("Amount is required")
-    .positive("Amount must be positive")
-    .min(0, "Amount must be greater than 0")
-      .max(100, "vat must be less than 100"),
+    .typeError("VAT must be a number")
+    .required("VAT is required")
+    .positive("VAT must be positive")
+    .min(0, "VAT must be greater than 0")
+    .max(100, "VAT must be less than 100"),
 });
 
 const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
-  const [isAddCategoryeOpen, setAddCategoryOpen] = useState(false);
-  const [newCategory, setNewCategory] = useState("");
+  const [isAddTypeOpen, setAddTypeOpen] = useState(false);
+  const [newType, setNewType] = useState("");
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
-  const { data: categories, refetch } = useFetchItemsQuery(
-    { path: `/expense-category` },
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const bgColor = useColorModeValue("white", "gray.800");
+
+  const { data: types, refetch } = useFetchItemsQuery(
+    { path: `/expense_types` },
     { refetchOnMountOrArgChange: true, skip: !user._id }
   );
-  const [createItemMuation] = useCreateItemMutation();
+
+  const [createItemMutation] = useCreateItemMutation();
+
   const formik = useFormik({
     initialValues: {
-      type: "",
+      category: "",
       description: "",
       amount: "",
       vat: "",
@@ -62,82 +74,123 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
     },
   });
 
-  const handlerCategory = async () => {
-    if (newCategory.trim()) {
+  const handleAddType = async () => {
+    if (newType.trim()) {
       try {
-        await createItemMuation({
-          path: "/expense-category",
-          body: { name: newCategory },
+        await createItemMutation({
+          path: "/expense_types",
+          body: { name: newType },
         }).unwrap();
-        setNewCategory("");
-        setAddCategoryOpen(false);
-        toast.success("Expense Category added successfully.");
+        setNewType("");
+        setAddTypeOpen(false);
+        toast.success("Expense type added successfully.");
         refetch();
       } catch (error) {
-        console.error(error);
-        toast.error(error.data.message || "Expense Category not added");
+        toast.error(error.data?.message || "Expense type not added");
       }
     }
   };
 
-  useEffect(() =>{
-    if(isOpen){
-      formik.resetForm();
-    }
-  },[isOpen])
+  useEffect(() => {
+    if (isOpen) formik.resetForm();
+  }, [isOpen]);
+
   return (
     <>
+      {/* Main Modal */}
       <Modal
-        isOpen={isOpen && !isAddCategoryeOpen}
+        isOpen={isOpen && !isAddTypeOpen}
         onClose={onClose}
-        size="lg"
         isCentered
+        size="lg"
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader display="flex" justifyContent="space-between">
-            Add Office Expense
-            <IconButton icon={<CloseIcon />} onClick={onClose} size="sm" />
-          </ModalHeader>
+        <ModalContent
+          m="2"
+          borderRadius="2xl"
+          bg={bgColor}
+          shadow="2xl"
+          overflow="hidden"
+          maxH="85vh"
+          display="flex"
+          flexDirection="column"
+        >
+          <Flex
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            top="0"
+            zIndex="10"
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              Add Office Expense
+            </Text>
+            <ModalCloseButton position="static" />
+          </Flex>
+
           <form onSubmit={formik.handleSubmit}>
-            <ModalBody>
+            <ModalBody
+              p={5}
+              overflowY="auto"
+              maxH="65vh"
+              scrollBehavior="smooth"
+              sx={{
+                "&::-webkit-scrollbar": { width: "6px" },
+                "&::-webkit-scrollbar-thumb": {
+                  background: "#c1c1c1",
+                  borderRadius: "10px",
+                },
+              }}
+            >
               <Grid gap={4}>
-                <div>
+                <FormControl
+                  isRequired
+                  isInvalid={formik.touched.type && formik.errors.type}
+                >
                   <Flex justify="space-between" align="center">
-                    <FormLabel>Category</FormLabel>
-                    <Tooltip label="Add a new expense Category" hasArrow>
+                    <FormLabel m={0}>Category</FormLabel>
+                    <Tooltip label="Add a new expense category" hasArrow>
                       <IconButton
                         icon={<AddIcon />}
                         size="xs"
                         borderRadius="full"
                         aria-label="Add new type"
-                        onClick={() => setAddCategoryOpen(true)}
+                        onClick={() => setAddTypeOpen(true)}
                       />
                     </Tooltip>
                   </Flex>
                   <Select
                     name="category"
-                    value={formik.values.category}
+                    value={formik.values.type}
                     onChange={formik.handleChange}
                     placeholder="Select category"
                     focusBorderColor="brand.500"
                   >
-                    {categories && categories.doc.length > 0 ? (
-                      categories.doc.map((type) => (
+                    {types && types.doc.length > 0 ? (
+                      types.doc.map((type) => (
                         <option key={type._id} value={type._id}>
                           {type.name}
                         </option>
                       ))
                     ) : (
-                      <option value="">No categories available</option>
+                      <option value="">No category available</option>
                     )}
                   </Select>
-                  {formik.touched.category && formik.errors.category && (
-                    <p style={{ color: "red" }}>{formik.errors.category}</p>
-                  )}
-                </div>
+                  <FormErrorMessage>{formik.errors.category}</FormErrorMessage>
+                </FormControl>
 
-                <div>
+                <FormControl
+                  isRequired
+                  isInvalid={
+                    formik.touched.description && formik.errors.description
+                  }
+                >
                   <FormLabel>Description</FormLabel>
                   <Input
                     name="description"
@@ -146,12 +199,15 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                     placeholder="e.g., Office rent or utilities"
                     focusBorderColor="brand.500"
                   />
-                  {formik.touched.description && formik.errors.description && (
-                    <p style={{ color: "red" }}>{formik.errors.description}</p>
-                  )}
-                </div>
+                  <FormErrorMessage>
+                    {formik.errors.description}
+                  </FormErrorMessage>
+                </FormControl>
 
-                <div>
+                <FormControl
+                  isRequired
+                  isInvalid={formik.touched.amount && formik.errors.amount}
+                >
                   <FormLabel>Amount</FormLabel>
                   <Input
                     name="amount"
@@ -161,28 +217,55 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
                     placeholder="e.g., 5050"
                     focusBorderColor="brand.500"
                   />
-                  {formik.touched.amount && formik.errors.amount && (
-                    <p style={{ color: "red" }}>{formik.errors.amount}</p>
-                  )}
-                </div>
-                <div>
+                  <FormErrorMessage>{formik.errors.amount}</FormErrorMessage>
+                </FormControl>
+
+                <FormControl
+                  isInvalid={formik.touched.vat && formik.errors.vat}
+                >
                   <FormLabel>VAT %</FormLabel>
                   <Input
                     name="vat"
                     type="number"
                     value={formik.values.vat}
                     onChange={formik.handleChange}
-                    placeholder="e.g., 200.0"
+                    placeholder="e.g., 15"
                     focusBorderColor="brand.500"
                   />
-                  {formik.touched.vat && formik.errors.vat && (
-                    <p style={{ color: "red" }}>{formik.errors.vat}</p>
-                  )}
-                </div>
+                  <FormErrorMessage>{formik.errors.vat}</FormErrorMessage>
+                </FormControl>
               </Grid>
             </ModalBody>
-            <ModalFooter>
-              <Button type="submit" variant="brand" colorScheme="#b79045">
+
+            <ModalFooter
+              bg={footerBg}
+              borderTop="1px solid"
+              borderColor={borderColor}
+              py={3}
+              px={5}
+              position="sticky"
+              bottom="0"
+              zIndex="10"
+              justifyContent="flex-end"
+              gap={3}
+            >
+              <Button
+                variant="outline"
+                onClick={onClose}
+                size="sm"
+                borderRadius="md"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                borderRadius="md"
+                colorScheme="brand"
+                bg="#b79045"
+                color="white"
+                _hover={{ bg: "#a67e3d" }}
+              >
                 Add Expense
               </Button>
             </ModalFooter>
@@ -190,45 +273,69 @@ const AddOutgoingPaymentModal = ({ isOpen, onClose, onSubmit }) => {
         </ModalContent>
       </Modal>
 
-      {/* Add Category Modal */}
+      {/* Add New Type Modal */}
       <Modal
-        isOpen={isAddCategoryeOpen}
-        onClose={() => setAddCategoryOpen(false)}
+        isOpen={isAddTypeOpen}
+        onClose={() => setAddTypeOpen(false)}
         isCentered
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader display="flex" justifyContent="space-between">
-            Add New Category
-            <IconButton
-              icon={<CloseIcon />}
-              onClick={() => setAddCategoryOpen(false)}
-              size="sm"
-            />
-          </ModalHeader>
-          <ModalBody>
-            <FormLabel>Category Name</FormLabel>
-            <Input
-              value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
-              placeholder="Enter new category"
-              focusBorderColor="brand.500"
-            />
+        <ModalContent m="2" borderRadius="2xl" shadow="2xl" overflow="hidden">
+          <Flex
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              Add New Type
+            </Text>
+            <ModalCloseButton position="static" />
+          </Flex>
+
+          <ModalBody p={5}>
+            <FormControl>
+              <FormLabel>Type Name</FormLabel>
+              <Input
+                value={newType}
+                onChange={(e) => setNewType(e.target.value)}
+                placeholder="Enter new type"
+                focusBorderColor="brand.500"
+              />
+            </FormControl>
           </ModalBody>
-          <ModalFooter>
+
+          <ModalFooter
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            py={3}
+            px={5}
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
-              onClick={() => setAddCategoryOpen(false)}
-              variant="ghost"
-              mr={3}
+              onClick={() => setAddTypeOpen(false)}
+              variant="outline"
+              size="sm"
+              borderRadius="md"
             >
               Close
             </Button>
             <Button
-              onClick={handlerCategory}
-              variant="brand"
-              colorScheme="#b79045"
+              onClick={handleAddType}
+              size="sm"
+              borderRadius="md"
+              colorScheme="brand"
+              bg="#b79045"
+              color="white"
+              _hover={{ bg: "#a67e3d" }}
             >
-              Add Category
+              Add Type
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
   ModalCloseButton,
   ModalBody,
   ModalFooter,
@@ -13,7 +12,9 @@ import {
   Select,
   VStack,
   Box,
+  Flex,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import moment from "moment";
@@ -27,17 +28,20 @@ const AdvancedSearchModal = ({
   initialFilters = {},
   clearFilter,
 }) => {
-  const [openCalendar, setOpenCalendar] = React.useState(null);
+  const [openCalendar, setOpenCalendar] = useState(null);
+
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const bgColor = useColorModeValue("white", "gray.800");
 
   const toggleCalendar = (calendar) => {
     setOpenCalendar(openCalendar === calendar ? null : calendar);
   };
 
-  const toUTCString = (date) => {
-    return date
-      ? moment(date).utcOffset(0, true).startOf("day").toISOString()
-      : null;
-  };
+  const toUTCString = (date) =>
+    date ? moment(date).utcOffset(0, true).startOf("day").toISOString() : null;
 
   const formik = useFormik({
     initialValues: {
@@ -66,11 +70,7 @@ const AdvancedSearchModal = ({
   useEffect(() => {
     if (!clearFilter) {
       formik.resetForm({
-        values: {
-          agency: "",
-          from: null,
-          to: null,
-        },
+        values: { agency: "", from: null, to: null },
       });
     }
     // eslint-disable-next-line
@@ -78,24 +78,20 @@ const AdvancedSearchModal = ({
 
   const handleClear = () => {
     formik.resetForm({
-      values: {
-        agency: "",
-        from: null,
-        to: null,
-      },
+      values: { agency: "", from: null, to: null },
     });
     onApplyFilters({});
     onClose();
   };
 
-  const isFilterUnchanged = React.useMemo(() => {
-    const currentValues = {
+  const isFilterUnchanged = useMemo(() => {
+    const current = {
       agency: formik.values.agency,
       from: formik.values.from ? toUTCString(formik.values.from) : null,
       to: formik.values.to ? toUTCString(formik.values.to) : null,
     };
 
-    const initialValues = {
+    const initial = {
       agency: initialFilters.agency || "",
       from: initialFilters.from
         ? toUTCString(new Date(initialFilters.from))
@@ -104,13 +100,13 @@ const AdvancedSearchModal = ({
     };
 
     return (
-      currentValues.agency === initialValues.agency &&
-      currentValues.from === initialValues.from &&
-      currentValues.to === initialValues.to
+      current.agency === initial.agency &&
+      current.from === initial.from &&
+      current.to === initial.to
     );
   }, [formik.values, initialFilters]);
 
-  const isFilterEmpty = React.useMemo(() => {
+  const isFilterEmpty = useMemo(() => {
     return !formik.values.agency && !formik.values.from && !formik.values.to;
   }, [formik.values]);
 
@@ -128,17 +124,45 @@ const AdvancedSearchModal = ({
   }, [isOpen, initialFilters]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
+    <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent
         maxW={{ base: "95vw", md: "600px" }}
-        mx={{ base: 2, md: "auto" }}
+        mx="auto"
+        borderRadius="2xl"
+        shadow="2xl"
+        overflow="hidden"
+        bg={bgColor}
       >
-        <ModalHeader>Advanced Search</ModalHeader>
-        <ModalCloseButton />
+        <Flex
+          align="center"
+          justify="space-between"
+          bg={headerBg}
+          color={headerText}
+          px={6}
+          py={3}
+          borderBottom="1px solid"
+          borderColor={borderColor}
+          position="sticky"
+          top="0"
+          zIndex="10"
+          boxShadow="md"
+        >
+          <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+            Advanced Search
+          </Text>
+          <ModalCloseButton position="static" />
+        </Flex>
+
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody>
-            <VStack spacing={2}>
+          <ModalBody
+            p={5}
+            overflowY="auto"
+            maxH="65vh"
+            borderBottom="1px solid"
+            borderColor={borderColor}
+          >
+            <VStack spacing={5}>
               <FormControl>
                 <FormLabel>Agency</FormLabel>
                 <Select
@@ -156,19 +180,15 @@ const AdvancedSearchModal = ({
                 </Select>
               </FormControl>
 
-              <Box width="100%" >
-                <VStack width="100%" alignItems="flex-end">
+              <Box width="100%">
+                <VStack width="100%" alignItems="flex-end" spacing={4}>
                   <FormControl>
                     <FormLabel>Start Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.from}
                       handleDateChange={(date) => {
                         formik.setFieldValue("from", date);
-                        if (
-                          formik.values.to &&
-                          date &&
-                          date > formik.values.to
-                        ) {
+                        if (formik.values.to && date > formik.values.to) {
                           formik.setFieldValue("to", null);
                         }
                       }}
@@ -185,11 +205,7 @@ const AdvancedSearchModal = ({
                       selectedDate={formik.values.to}
                       handleDateChange={(date) => {
                         formik.setFieldValue("to", date);
-                        if (
-                          formik.values.from &&
-                          date &&
-                          date < formik.values.from
-                        ) {
+                        if (formik.values.from && date < formik.values.from) {
                           formik.setFieldValue("from", null);
                         }
                       }}
@@ -204,12 +220,24 @@ const AdvancedSearchModal = ({
               </Box>
             </VStack>
           </ModalBody>
-          <ModalFooter>
+
+          <ModalFooter
+            position="sticky"
+            bottom="0"
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            py={3}
+            px={5}
+            zIndex="10"
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
               variant="outline"
-              mr={3}
               onClick={handleClear}
               isDisabled={isFilterEmpty}
+              borderRadius="md"
             >
               Clear Search
             </Button>
@@ -217,6 +245,7 @@ const AdvancedSearchModal = ({
               colorScheme="brand"
               type="submit"
               isDisabled={isFilterUnchanged || isFilterEmpty}
+              borderRadius="md"
             >
               Apply Search
             </Button>

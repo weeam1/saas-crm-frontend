@@ -284,7 +284,7 @@ const Candidates = () => {
 				marginTop={'-16px'}
 				fontFamily="'DM Sans', sans-serif"
 			>
-				<Heading size='md' color='gray.800'>
+				<Heading size='20px' color='gray.800' fontWeight={'bold'}>
 					Candidates
 					{data && (
 						<span style={{ marginLeft: '6px' }}>
@@ -301,7 +301,8 @@ const Candidates = () => {
 
 					<Button
 						colorScheme='brand'
-						rounded='full'
+						rounded='md'
+						size='sm'
 						onClick={() => setAdvanceSearch(true)}
 					>
 						Advanced Search

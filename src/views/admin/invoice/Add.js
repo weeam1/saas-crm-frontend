@@ -1,28 +1,31 @@
 import { CloseIcon } from "@chakra-ui/icons";
 import {
-	Button,
-	FormLabel,
-	Grid,
-	GridItem,
-	IconButton,
-	Input,
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalFooter,
-	ModalBody,
-	useBreakpointValue,
-} from '@chakra-ui/react';
-import Spinner from 'components/spinner/Spinner';
-import { useFormik } from 'formik';
-import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { useCreateItemMutation } from 'api/apiSlice';
-import * as yup from 'yup';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useUserActivityLog } from 'hooks/useUserActivityLog';
-import useUserSession from 'hooks/useUserSession';
+  Button,
+  FormLabel,
+  Grid,
+  GridItem,
+  IconButton,
+  Input,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  useBreakpointValue,
+  Text,
+  ModalCloseButton,
+} from "@chakra-ui/react";
+import Spinner from "components/spinner/Spinner";
+import { useFormik } from "formik";
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
+import { useCreateItemMutation } from "api/apiSlice";
+import * as yup from "yup";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
+import useUserSession from "hooks/useUserSession";
+import { useModalColors } from "hooks/useModalColors";
 
 // Validation schema for entry
 const entrySchema = yup.object().shape({
@@ -63,15 +66,17 @@ function calculateTotal(unitPrice, commissionPercentage, vatPercentage) {
 }
 
 const AddEntryModal = (props) => {
-	const [isLoading, setIsLoading] = useState(false);
-	const [createItemMutation, { isLoading: mutationLoading }] =
-		useCreateItemMutation();
-	const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [createItemMutation, { isLoading: mutationLoading }] =
+    useCreateItemMutation();
+  const location = useLocation();
 
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
-	const { user } = useUserSession();
-	const { createUserLog } = useUserActivityLog();
+  const { user } = useUserSession();
+  const { createUserLog } = useUserActivityLog();
+
+  const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const queryParams = new URLSearchParams(location.search);
   const incomingPayment = queryParams.get("incomingPayment");
@@ -187,13 +192,14 @@ const AddEntryModal = (props) => {
         entityType: "InvoiceEntry",
         entityId: response?.data?.invoice._id,
         status: "success",
-        message: `"${user?.fullName}" created the invoice entry and referring party is "${response?.data?.name_of_referring_party|| "Untitled"}".`,
+        message: `"${user?.fullName}" created the invoice entry and referring party is "${response?.data?.name_of_referring_party || "Untitled"}".`,
       });
     } catch (e) {
       console.error("Error:", e);
       toast.error(e?.data?.message || e.message || "Operation failed");
       const errorMsg =
-        e?.data?.message || "Failed to creating invoice entry. Please try again.";
+        e?.data?.message ||
+        "Failed to creating invoice entry. Please try again.";
       createUserLog({
         userId: user?._id,
         action: "CREATE",
@@ -229,35 +235,52 @@ const AddEntryModal = (props) => {
       <ModalContent
         width={modalSize.width}
         height={modalSize.height}
-        fontFamily="DM Sans, sans-serif"
-        maxW="100vw"
-        mx="auto"
-        borderRadius="10px"
-        boxShadow="lg"
+        m="2"
+        borderRadius="2xl"
+        bg={bg}
+        shadow="2xl"
+        overflow="hidden"
+        maxH="85vh"
       >
         <ModalHeader
           display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          fontSize={{ base: "20px", md: "24px" }}
-          fontWeight="bold"
-          fontFamily="DM Sans, sans-serif"
+          align="center"
+          justify="space-between"
+          bg={headerBg}
+          color={headerText}
           px={6}
-          py={4}
-          borderBottom="1px solid #E2E8F0"
+          py={3}
+          borderBottom="1px solid"
+          borderColor={borderColor}
+          position="sticky"
+          top="0"
+          zIndex="10"
         >
-          Add Invoice Entry
-          <IconButton
+          <Text fontSize="lg" fontWeight="bold">
+            Add Invoice Entry
+          </Text>
+
+          <ModalCloseButton
             onClick={handleCancel}
-            icon={<CloseIcon />}
-            aria-label="Close"
-            size="sm"
-            variant="ghost"
-            color="gray.600"
-            _hover={{ color: "gray.800", bg: "gray.100" }}
+            position="absolute"
+            right="12px"
+            top="10px"
+            color={headerText}
+            _hover={{ bg: "whiteAlpha.200" }}
           />
         </ModalHeader>
-        <ModalBody overflowY="auto" px={6} py={4}>
+        <ModalBody
+          p={5}
+          overflowY="auto"
+          scrollBehavior="smooth"
+          sx={{
+            "&::-webkit-scrollbar": { width: "6px" },
+            "&::-webkit-scrollbar-thumb": {
+              background: "#c1c1c1",
+              borderRadius: "10px",
+            },
+          }}
+        >
           <form onSubmit={handleSubmit}>
             <Grid templateColumns="repeat(12, 1fr)" gap={4}>
               <GridItem colSpan={{ base: 12, md: 6 }}>
@@ -533,35 +556,33 @@ const AddEntryModal = (props) => {
           </form>
         </ModalBody>
         <ModalFooter
+          bg={footerBg}
+          borderTop="1px solid"
+          borderColor={borderColor}
+          position="sticky"
+          bottom="0"
+          zIndex="10"
+          py={3}
+          px={5}
           justifyContent="flex-end"
-          px={6}
-          py={4}
-          borderTop="1px solid #E2E8F0"
+          gap={3}
         >
           <Button
+            variant="outline"
             bg="#CCCACA"
             color="black"
-            width={{ base: "80px", md: "100px" }}
-            height="40px"
-            fontSize="14px"
-            borderRadius="6px"
-            fontFamily="DM Sans, sans-serif"
-            sx={{ textTransform: "capitalize" }}
+            borderRadius="md"
+            size="sm"
             onClick={handleCancel}
             mr={3}
-            _hover={{ bg: "#B0AEAE" }}
           >
             Cancel
           </Button>
           <Button
             bg="#B79045"
             color="white"
-            width={{ base: "80px", md: "100px" }}
-            height="40px"
-            fontSize="14px"
-            fontFamily="DM Sans, sans-serif"
-            borderRadius="6px"
-            sx={{ textTransform: "capitalize" }}
+            borderRadius="md"
+            size="sm"
             disabled={isLoading || mutationLoading || !isValid || !dirty}
             type="submit"
             onClick={handleSubmit}

@@ -279,9 +279,10 @@ const SharedSipRecording = () => {
                           url={`https://webrtc.weeam.info/file/${call.callData.recording}`}
                           currentlyPlayingId={currentlyPlayingId}
                           setCurrentlyPlayingId={setCurrentlyPlayingId}
-                          playerId={call.uniqueid}
+                          playerId={call.callData.uniqueid}
                           onPlayStart={() => handleLogPlay(call.callData)}
                           call={call.callData}
+                          billsec={call.callData?.billsec}
                         />
                         <Button
                           variant="link"

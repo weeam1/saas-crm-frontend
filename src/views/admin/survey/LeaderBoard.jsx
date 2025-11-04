@@ -132,7 +132,7 @@ const LeaderBoard = () => {
 
   const items = [
     {
-      path: "/survey",
+      path: "/survey/dashboard",
       label: "Surveys",
     },
     {
@@ -142,7 +142,7 @@ const LeaderBoard = () => {
   ];
   return (
     <Box p={{ base: 2, md: 4 }}>
-      <Breadcrumb items={items} />
+      {/* <Breadcrumb items={items} /> */}
 
       {/* Back Button */}
       <AppButton
@@ -317,24 +317,11 @@ const LeaderBoard = () => {
       <Flex
         direction={{ base: "column", md: "row" }}
         alignItems={{ base: "flex-end", md: "center" }}
-        justifyContent="space-between"
+        justifyContent="flex-end"
         gap={3}
         mb={4}
         flexWrap="wrap"
       >
-        <Box minW="250px">
-          <TopPagination
-            currentPage={currentPage}
-            totalPages={leaderboardData?.totalPages || 0}
-            onPageChange={setCurrentPage}
-            totalItems={leaderboardData?.totalDocs || 0}
-            itemsPerPage={pageSize}
-            setPageSize={setPageSize}
-            handlePageSize={handlePageSizeChange}
-            refetching={isLoading}
-            loading={isLoading}
-          />
-        </Box>
         {isMobile ? (
           <IconButton
             icon={<FiSearch />}
@@ -349,8 +336,8 @@ const LeaderBoard = () => {
         ) : (
           <Button
             colorScheme="brand"
-            size="md"
-            borderRadius="full"
+            size="sm"
+            borderRadius="md"
             py={3}
             px={6}
             onClick={() => setIsFilterOpen(true)}
@@ -359,6 +346,19 @@ const LeaderBoard = () => {
           </Button>
         )}
       </Flex>
+      <Box mt={2}>
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={leaderboardData?.totalPages || 0}
+          onPageChange={setCurrentPage}
+          totalItems={leaderboardData?.totalDocs || 0}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
+        />
+      </Box>
       <Box marginY={5}>
         <ActiveFiltersDisplay
           filters={filters}

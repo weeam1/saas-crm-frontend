@@ -43,13 +43,13 @@ const DashboardStatCards = ({ colorMode, stats }) => {
 				label: 'Candidates',
 				value: stats.totalCandidates || 0,
 				icon: FaUsers,
-				route: '/hiring?tab=candidates',
+				route: '/hiring/candidates',
 			},
 			{
 				label: 'Developers',
 				value: stats.totalDevelopers || 0,
 				icon: PiBuildingsBold,
-				route: '/invoice?tab=developers',
+				route: '/invoice/developer',
 			},
 		],
 		[stats]

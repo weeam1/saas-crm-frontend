@@ -17,6 +17,7 @@ import { updateMultipleLeadFields } from '../../../../../redux/leadsSlice';
 import { buttonStyle } from 'utils/btn';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AddNewNote = ({
 	setNoteAdded,
@@ -30,6 +31,7 @@ const AddNewNote = ({
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const { headerBg, headerText } = useModalColors();
 
 	const dispatch = useDispatch();
 
@@ -93,9 +95,20 @@ const AddNewNote = ({
 	return (
 		<div>
 			<Modal size='3xl' onClose={onClose} isOpen={isOpen} isCentered>
-				<ModalOverlay />
-				<ModalContent m='2'>
-					<ModalHeader>Add a new note</ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
+						Add a new note
+					</ModalHeader>
 					<ModalCloseButton _focus={{ outline: 'none' }} />
 					<ModalBody>
 						<Textarea

@@ -29,6 +29,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { FaClockRotateLeft } from 'react-icons/fa6';
 import CandidateStatusHistory from '../../_components/CandidateStatusHistory';
+import { useModalColors } from 'hooks/useModalColors';
 
 const CandidateView = ({
 	isOpen,
@@ -46,6 +47,9 @@ const CandidateView = ({
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+
+	const { headerBg, closeBtnColor, primaryBtnBg, headerText } =
+		useModalColors();
 
 	const {
 		isOpen: isApplicationHistoryOpen,
@@ -92,9 +96,18 @@ const CandidateView = ({
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
-				<ModalOverlay />
-				<ModalContent mx='2' p={4}>
-					<ModalHeader display='flex' gap='2' alignItems='center'>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
 						<Stack
 							flexDir={{ base: 'column', md: 'row' }}
 							align={{ base: 'flex-start', md: 'center' }}
@@ -134,8 +147,8 @@ const CandidateView = ({
 							</HStack>
 						</Stack>
 					</ModalHeader>
-					<ModalCloseButton mt='6' />
-					<ModalBody width='100%'>
+					<ModalCloseButton color={closeBtnColor} />
+					<ModalBody width='100%' p={4}>
 						<Box overflow='scroll' bg='white' height='60vh' p='4'>
 							<Grid
 								templateColumns={{
@@ -223,7 +236,7 @@ const CandidateView = ({
 								bg='brand.500'
 								color='white'
 								width='100%'
-								rounded='full'
+								rounded='md'
 								_hover={{
 									bg: 'brand.600',
 									color: 'white',
@@ -241,7 +254,7 @@ const CandidateView = ({
 								bg='brand.500'
 								color='white'
 								width='100%'
-								rounded='full'
+								rounded='md'
 								_hover={{
 									bg: 'brand.600',
 									color: 'white',
@@ -260,6 +273,7 @@ const CandidateView = ({
 							justifyContent='space-between'
 							alignItems='end'
 							spacing={2}
+							flexDir={{ base: 'column', md: 'row' }}
 							pb='4'
 							px='4'
 							mt={2}
@@ -276,12 +290,13 @@ const CandidateView = ({
 									onClick={onClose}
 									variant='outline'
 									size='sm'
+									rounded='md'
 									mr={2}
 								>
 									Cancel
 								</Button>
 								<Button
-									bg='brand.500'
+									bg={primaryBtnBg}
 									color='white'
 									_hover={{
 										bg: 'brand.600',
@@ -291,6 +306,7 @@ const CandidateView = ({
 										bg: 'brand.600',
 									}}
 									size='sm'
+									rounded='md'
 									disabled={
 										candidate.status === 'Eligible' && candidate.inviteAccepted
 									}

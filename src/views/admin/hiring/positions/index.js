@@ -37,8 +37,8 @@ const Positions = () => {
 		<Loader />
 	) : (
 		<Box>
-			<Flex justifyContent='space-between' alignItems='center'>
-				<Button
+			<Flex justifyContent='flex-end' alignItems='center'>
+				{/* <Button
 					colorScheme='gray'
 					borderRadius='5px'
 					size={{ base: 'sm', md: 'md' }}
@@ -50,14 +50,13 @@ const Positions = () => {
 					mb={4}
 				>
 					Back
-				</Button>
+				</Button> */}
 				<Button
-					colorScheme='gray'
-					borderRadius='5px'
-					size={{ base: 'sm', md: 'md' }}
+					colorScheme='brand'
+					borderRadius='md'
+					size={"md"}
 					px={{ base: 4, md: 6 }}
 					py={{ base: 2, md: 3 }}
-					fontSize={{ base: 'sm', md: 'md' }}
 					leftIcon={<Icon as={IoAdd} boxSize={4} />}
 					onClick={() => setViewForm(true)}
 					mb={4}

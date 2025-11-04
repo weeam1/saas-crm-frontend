@@ -27,6 +27,7 @@ import QuickFilterModal from '../components/QuickFilterModal';
 import DisplayQuickFilter from '../components/DisplayQuickFilter';
 import Loader from 'components/loading/Loader';
 import TopPagination from 'components/pagination/TopPagination';
+import { useSearchParams } from 'react-router-dom';
 
 const LeadTableView = lazy(() => import('./table'));
 const LeadGridView = lazy(() => import('./grid'));
@@ -65,6 +66,7 @@ const LeadsLayout = memo(
 			// setCurrentPage,
 			// pageSize,
 			// setPageSize,
+			leads,
 			queryParams,
 			setQueryParams,
 			setSearchQueryParams,
@@ -81,7 +83,7 @@ const LeadsLayout = memo(
 		// 	(prev, next) => prev === next
 		// );
 
-		const leads = useSelector((state) => state.leads, shallowEqual);
+		// const leads = useSelector((state) => state.leads, shallowEqual);
 
 		const [isLoaded, setIsLoaded] = useState(false);
 		// const [refetchLoading, setRefetchLoading] = useState(false);
@@ -173,7 +175,17 @@ const LeadsLayout = memo(
 
 		const searchTermRef = useRef('');
 
+		const [searchParams, setSearchParams] = useSearchParams();
+		let isLeadParam = searchParams.get('lead') || searchParams.get('invite');
+
 		const handleClear = () => {
+			if (isLeadParam) {
+				const newParams = new URLSearchParams(searchParams);
+				newParams.delete('lead');
+				newParams.delete('invite');
+				setSearchParams(newParams);
+			}
+
 			// for selected leads
 			if (searchTags?.length === 0) {
 				setSelectedLeads([]);
@@ -306,7 +318,7 @@ const LeadsLayout = memo(
 			setSearchClear(true);
 			// setSearchTags([`search: ${term}`]);
 
-			setSearchQueryParams({ search: term });
+			setSearchQueryParams({ search: term, page: 1, pageSize });
 
 			// setQueryParams((prev) => ({
 			// 	...prev,

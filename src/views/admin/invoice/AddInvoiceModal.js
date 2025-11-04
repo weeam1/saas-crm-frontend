@@ -17,6 +17,8 @@ import {
 	MenuButton,
 	MenuList,
 	MenuItem,
+	Text,
+	ModalCloseButton,
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
@@ -28,6 +30,7 @@ import DropdownImg from '../../../assets/img/Invoice/mdi_menu-down.svg';
 import { useParams, useNavigate } from 'react-router-dom';
 import AddEntryModal from './AddInvoiceEntry';
 import Loader from 'components/loading/Loader';
+import { useModalColors } from 'hooks/useModalColors';
 
 // Validation schema for invoice
 const invoiceSchema = yup.object().shape({
@@ -45,6 +48,8 @@ const AddInvoice = (props) => {
 	const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
 	const [invoiceData, setInvoiceData] = useState(null);
 	const dispatch = useDispatch();
+
+	const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
 	// const { developers, bankAccounts, isDevelopersLoaded, isBankAccountsLoaded } =
 	// 	useSelector((state) => state.invoiceModalData);
@@ -111,7 +116,7 @@ const AddInvoice = (props) => {
 	};
 
 	const handleAddBankAccount = () => {
-		navigate('/invoice?tab=bank-accounts');
+		navigate('/invoice/bank-account');
 	};
 
 	const modalSize = useBreakpointValue({
@@ -145,50 +150,66 @@ const AddInvoice = (props) => {
 				<ModalContent
 					width={modalSize.width}
 					height={modalSize.height}
-					fontFamily='DM Sans, sans-serif'
 					maxW='100vw'
 					mx='auto'
-					borderRadius='10px'
 					boxShadow='lg'
+					m='2'
+					borderRadius='2xl'
+					bg={bg}
+					shadow='2xl'
+					overflow='hidden'
+					maxH='85vh'
+					display='flex'
+					flexDirection='column'
 				>
 					<ModalHeader
 						display='flex'
-						justifyContent='space-between'
-						alignItems='center'
-						fontSize={{ base: '20px', md: '24px' }}
-						fontWeight='bold'
-						fontFamily='DM Sans, sans-serif'
+						align='center'
+						justify='space-between'
+						bg={headerBg}
+						color={headerText}
 						px={6}
-						py={4}
-						borderBottom='1px solid #E2E8F0'
+						py={3}
+						borderBottom='1px solid'
+						borderColor={borderColor}
+						position='sticky'
+						top='0'
+						zIndex='10'
 					>
-						Add Invoice
-						<IconButton
+						<Text fontSize='lg' fontWeight='bold'>
+							Add Invoice
+						</Text>
+						<ModalCloseButton
 							onClick={props.onClose}
-							icon={<CloseIcon />}
 							aria-label='Close'
-							size='sm'
-							variant='ghost'
-							color='gray.600'
-							_hover={{ color: 'gray.800', bg: 'gray.100' }}
+							position='static'
 						/>
 					</ModalHeader>
-					<ModalBody maxH='40vh' px={6} py={4}>
+					<ModalBody
+						maxH='40vh'
+						p={5}
+						overflowY='auto'
+						scrollBehavior='smooth'
+						sx={{
+							'&::-webkit-scrollbar': { width: '6px' },
+							'&::-webkit-scrollbar-thumb': {
+								background: '#c1c1c1',
+								borderRadius: '10px',
+							},
+						}}
+					>
 						{projectsLoading || bankAccountsLoading ? (
 							<Loader />
 						) : (
 							<form onSubmit={handleSubmit}>
 								<Grid templateColumns='repeat(12, 1fr)' gap={3}>
 									<GridItem colSpan={{ base: 12, md: 6 }}>
-										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-											Project
-										</FormLabel>
+										<FormLabel fontSize='16px'>Project</FormLabel>
 										<Menu>
 											<MenuButton
 												as={Button}
 												rightIcon={customDropdownIcon}
 												fontSize='12px'
-												fontFamily='DM Sans, sans-serif'
 												borderRadius='6px'
 												height='40px'
 												width='100%'
@@ -212,12 +233,7 @@ const AddInvoice = (props) => {
 															? 'Choose Project'
 															: 'No projects available'}
 											</MenuButton>
-											<MenuList
-												maxH='200px'
-												overflowY='auto'
-												fontFamily='DM Sans, sans-serif'
-												fontSize='16px'
-											>
+											<MenuList maxH='200px' overflowY='auto' fontSize='16px'>
 												{projects?.doc.length > 0 ? (
 													projects?.doc?.map((item) => (
 														<MenuItem
@@ -233,7 +249,7 @@ const AddInvoice = (props) => {
 													<MenuItem isDisabled>No projects available</MenuItem>
 												)}
 												<MenuItem
-													onClick={() => navigate('/invoice?tab=projects')}
+													onClick={() => navigate('/invoice/project')}
 													fontWeight='bold'
 													borderTop='1px solid'
 													borderColor='gray.200'
@@ -250,15 +266,12 @@ const AddInvoice = (props) => {
 									</GridItem>
 
 									<GridItem colSpan={{ base: 12, md: 6 }}>
-										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-											Bank Account
-										</FormLabel>
+										<FormLabel fontSize='16px'>Bank Account</FormLabel>
 										<Menu>
 											<MenuButton
 												as={Button}
 												rightIcon={customDropdownIcon}
 												fontSize='12px'
-												fontFamily='DM Sans, sans-serif'
 												borderRadius='6px'
 												height='40px'
 												width='100%'
@@ -282,12 +295,7 @@ const AddInvoice = (props) => {
 															? 'Choose Bank Account'
 															: 'No bank accounts available'}
 											</MenuButton>
-											<MenuList
-												maxH='200px'
-												overflowY='auto'
-												fontFamily='DM Sans, sans-serif'
-												fontSize='16px'
-											>
+											<MenuList maxH='200px' overflowY='auto' fontSize='16px'>
 												{bankAccounts?.data?.length > 0 ? (
 													bankAccounts?.data?.map((bank) => (
 														<MenuItem
@@ -324,9 +332,7 @@ const AddInvoice = (props) => {
 										)}
 									</GridItem>
 									<GridItem colSpan={{ base: 12, md: 6 }}>
-										<FormLabel fontSize='16px' fontFamily='DM Sans, sans-serif'>
-											Claim Type
-										</FormLabel>
+										<FormLabel fontSize='16px'>Claim Type</FormLabel>
 
 										<Menu>
 											<MenuButton
@@ -338,7 +344,6 @@ const AddInvoice = (props) => {
 												}
 												width='100%'
 												fontSize='16px'
-												fontFamily='DM Sans, sans-serif'
 												borderRadius='6px'
 												height='40px'
 												border='1px solid'
@@ -389,35 +394,33 @@ const AddInvoice = (props) => {
 						)}
 					</ModalBody>
 					<ModalFooter
+						bg={footerBg}
+						borderTop='1px solid'
+						borderColor={borderColor}
+						position='sticky'
+						bottom='0'
+						zIndex='10'
+						py={3}
+						px={5}
 						justifyContent='flex-end'
-						px={6}
-						py={4}
-						borderTop='1px solid #E2E8F0'
+						gap={3}
 					>
 						<Button
+							variant='outline'
 							bg='#CCCACA'
 							color='black'
-							width={{ base: '80px', md: '83px' }}
-							height='46px'
-							fontSize='16px'
-							borderRadius='6px'
-							fontFamily='DM Sans, sans-serif'
-							sx={{ textTransform: 'capitalize' }}
+							borderRadius='md'
+							size='sm'
+							mr={3}
 							onClick={handleCancel}
-							mr={2}
-							_hover={{ bg: '#B0AEAE' }}
 						>
 							Cancel
 						</Button>
 						<Button
 							bg='#B79045'
 							color='white'
-							width={{ base: '80px', md: '83px' }}
-							height='46px'
-							fontSize='16px'
-							fontFamily='DM Sans, sans-serif'
-							borderRadius='6px'
-							sx={{ textTransform: 'capitalize' }}
+							borderRadius='md'
+							size='sm'
 							disabled={isLoading || !isValid || !dirty}
 							onClick={handleSubmit}
 							_hover={{ bg: '#A17C3A' }}
