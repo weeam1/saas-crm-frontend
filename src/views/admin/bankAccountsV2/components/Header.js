@@ -1,8 +1,9 @@
 import React from "react";
-import { Flex, Button } from "@chakra-ui/react";
+import { Flex, Button, IconButton } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import AddAccountModal from "./AddAccount";
 import AccountCount from "./Count";
+import { FiRefreshCw } from "react-icons/fi";
 
 const Header = ({
   accountCount,
@@ -11,6 +12,9 @@ const Header = ({
   searchComponent,
   onClear,
   searchQuery,
+  refetch,
+  isLoading,
+  isFetching
 }) => {
   const navigate = useNavigate();
 
@@ -37,8 +41,16 @@ const Header = ({
         align="center"
         gap={3}
         w={{ base: "100%", md: "auto" }}
-         direction={{ base: "column", md: "row" }}
+        direction={{ base: "column", md: "row" }}
       >
+        <IconButton
+          icon={<FiRefreshCw />}
+          aria-label="Refresh Analytics"
+          onClick={() => refetch()}
+          isLoading={isLoading || isFetching}
+          variant="outline"
+          size="sm"
+        />
         {searchComponent}
         {searchQuery && (
           <Button size="sm" variant="brand" onClick={onClear}>

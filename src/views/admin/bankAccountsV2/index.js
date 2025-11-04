@@ -26,6 +26,7 @@ export default function Index() {
     error: searchError,
     isLoading: isSearching,
     refetch: refetchSearch,
+    isFetching: isFetchingSearch,
   } = useFetchItemsQuery(
     {
       path: "/bankAccount/search",
@@ -46,6 +47,7 @@ export default function Index() {
     error: fetchError,
     isLoading: isGetting,
     refetch: refetchAll,
+    isFetching: isFetchingAll,
   } = useFetchItemsQuery(
     {
       path: "/bankAccount/get",
@@ -186,6 +188,9 @@ export default function Index() {
           }
           onClear={handleClear}
           searchQuery={searchQuery}
+          refetch={searchTerm ? refetchSearch : refetchAll}
+          isLoading={isGetting || isSearching}
+          isFetching={isFetchingSearch || isFetchingAll}
         />
         <Pagination
           data={accountsArray}
@@ -210,6 +215,7 @@ export default function Index() {
           onUpdate={handleUpdate}
           onDelete={handleDelete}
           skeletonCount={skeletonCount}
+          isFetching={isFetchingSearch || isFetchingAll}
         />
       </Box>
     </Box>
