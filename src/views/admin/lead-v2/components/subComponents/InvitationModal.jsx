@@ -292,8 +292,8 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 										</Button>
 
 										<Text color='gray.500' fontSize='xs' textAlign='center'>
-											Process takes 10-15 seconds. Both language versions will
-											be created.
+											Process takes 3-10 seconds. Both language versions will be
+											created.
 										</Text>
 									</VStack>
 								</VStack>
