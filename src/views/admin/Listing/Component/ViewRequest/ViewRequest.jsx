@@ -28,13 +28,14 @@ import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import AdvancedSearchModal from "../AdvancedSearchModal";
 import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { usePermissions } from "hooks/usePermissions";
+import { useModalColors } from "hooks/useModalColors";
 
 const ViewRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -66,6 +67,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
     "Status",
     "Action",
   ];
+
+  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const [updateStatus] = useUpdateItemMutation();
   const { createUserLog } = useUserActivityLog();
@@ -247,34 +250,43 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       marginTop={"-14px"}
       marginLeft={"0px"}
     >
-      <Flex justifyContent="space-between" alignItems="center" p={3}>
+      <Flex justifyContent="space-between" alignItems="center" p={3} flexDir={{base:"column", sm:"column", md:"row"}}>
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           View Requests
         </Text>
-
-        {isMobile ? (
+        <Flex alignItems={"center"} gap={2}  flexDir={{base:"column", sm:"column", md:"row"}}>
           <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
             size="sm"
-            borderRadius="full"
-            boxShadow="md"
           />
-        ) : (
-          <Button
-            colorScheme="brand"
-            size="sm"
-            borderRadius={"md"}
-            py={3}
-            px={6}
-            onClick={() => setIsFilterOpen(true)}
-          >
-            Advanced Search
-          </Button>
-        )}
+          {isMobile ? (
+            <IconButton
+              icon={<FiSearch />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Search Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          ) : (
+            <Button
+              colorScheme="brand"
+              size="sm"
+              borderRadius={"md"}
+              py={3}
+              px={6}
+              onClick={() => setIsFilterOpen(true)}
+            >
+              Advanced Search
+            </Button>
+          )}
+        </Flex>
       </Flex>
       <ActiveFiltersDisplay
         filters={filters}
@@ -334,7 +346,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={10} py="4" />
+              <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
                 {data && data.data.length > 0 ? (
@@ -527,12 +539,46 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       <Modal
         isOpen={isStatusModalOpen}
         onClose={() => setIsStatusModalOpen(false)}
+        isCentered
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Update Request Status</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <ModalContent borderRadius="2xl" overflow="hidden">
+          <ModalHeader
+            display="flex"
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            top="0"
+            zIndex="10"
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              Update Request Status
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+          </ModalHeader>
+          <ModalBody
+            overflowY="auto"
+            scrollBehavior="smooth"
+            sx={{
+              "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#c1c1c1",
+                borderRadius: "10px",
+              },
+            }}
+          >
             <Box mb={4}>
               <FormLabel>New Status</FormLabel>
               <Select
@@ -555,15 +601,33 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
               />
             </Box>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            bottom="0"
+            zIndex="10"
+            py={3}
+            px={5}
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
               variant="outline"
               mr={3}
+              borderRadius="md"
+              size="sm"
               onClick={() => setIsStatusModalOpen(false)}
             >
               Cancel
             </Button>
-            <Button colorScheme="brand" onClick={handleStatusUpdate}>
+            <Button
+              colorScheme="brand"
+              onClick={handleStatusUpdate}
+              borderRadius="md"
+              size="sm"
+            >
               Update Status
             </Button>
           </ModalFooter>

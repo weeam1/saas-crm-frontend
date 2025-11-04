@@ -28,7 +28,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { ViewIcon, RepeatIcon } from "@chakra-ui/icons";
-import { FiChevronDown } from "react-icons/fi";
+import { FiChevronDown, FiRefreshCw } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
@@ -41,6 +41,7 @@ import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { usePermissions } from "hooks/usePermissions";
+import { useModalColors } from "hooks/useModalColors";
 
 const RejectRequests = ({ listingType, listingUnitType }) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -62,6 +63,8 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
   const { hasPermission } = usePermissions();
 
   const { createUserLog } = useUserActivityLog();
+
+  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const columns = [
     "SR.No",
@@ -253,29 +256,43 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
           Rejected Requests
         </Text>
 
-        {isMobile ? (
+        <Flex
+          alignItems={"center"}
+          gap={2}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
             size="sm"
-            borderRadius="full"
-            boxShadow="md"
           />
-        ) : (
-          <Button
-            colorScheme="brand"
-            size="sm"
-            borderRadius={"md"}
-            py={3}
-            px={6}
-            onClick={() => setIsFilterOpen(true)}
-          >
-            Advanced Search
-          </Button>
-        )}
+          {isMobile ? (
+            <IconButton
+              icon={<FiSearch />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Search Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          ) : (
+            <Button
+              colorScheme="brand"
+              size="sm"
+              borderRadius={"md"}
+              py={3}
+              px={6}
+              onClick={() => setIsFilterOpen(true)}
+            >
+              Advanced Search
+            </Button>
+          )}
+        </Flex>
       </Flex>
       <ActiveFiltersDisplay
         filters={filters}
@@ -335,7 +352,7 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={10} py="4" />
+              <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
                 {data && data.data.length > 0 ? (
@@ -571,12 +588,46 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
       <Modal
         isOpen={isStatusModalOpen}
         onClose={() => setIsStatusModalOpen(false)}
+        isCentered
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Reconsider Request</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <ModalContent borderRadius="2xl" overflow="hidden">
+          <ModalHeader
+            display="flex"
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            top="0"
+            zIndex="10"
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              Reconsider Request
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+          </ModalHeader>
+          <ModalBody
+            overflowY="auto"
+            scrollBehavior="smooth"
+            sx={{
+              "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#c1c1c1",
+                borderRadius: "10px",
+              },
+            }}
+          >
             <Box mb={4}>
               <FormLabel>New Status</FormLabel>
               <Select
@@ -589,15 +640,33 @@ const RejectRequests = ({ listingType, listingUnitType }) => {
               </Select>
             </Box>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            bottom="0"
+            zIndex="10"
+            py={3}
+            px={5}
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
               variant="outline"
               mr={3}
+              borderRadius="md"
+              size="sm"
               onClick={() => setIsStatusModalOpen(false)}
             >
               Cancel
             </Button>
-            <Button colorScheme="brand" onClick={handleStatusUpdate}>
+            <Button
+              colorScheme="brand"
+              onClick={handleStatusUpdate}
+              borderRadius="md"
+              size="sm"
+            >
               Update Status
             </Button>
           </ModalFooter>
