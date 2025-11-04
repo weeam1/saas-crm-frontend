@@ -43,6 +43,7 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
+import { useModalColors } from "hooks/useModalColors";
 
 const validationSchema = Yup.object().shape({
 	unitType: Yup.string().required('Unit Type is required'),
@@ -71,6 +72,8 @@ const SubUnitType = () => {
 
 	const { createUserLog } = useUserActivityLog();
 	const navigate = useNavigate();
+
+	const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
 	const [isUnitTypeModalOpen, setIsUnitTypeModalOpen] = useState(false);
 
@@ -313,7 +316,7 @@ const SubUnitType = () => {
 					gap={{ base: 3, md: 0 }}
 				>
 					<Text
-						fontSize={{ base: '16px', md: '20px' }}
+						fontSize={{ base: '20px', md: '20px' }}
 						fontWeight='bold'
 						color='black'
 						p={{ base: 1, md: 3 }}
@@ -329,7 +332,8 @@ const SubUnitType = () => {
 						align={{ base: 'stretch', md: 'center' }}
 					>
 						<Button
-							size='md'
+							size='sm'
+							borderRadius={"md"}
 							variant='brand'
 							leftIcon={<AddIcon />}
 							py={3}
@@ -492,11 +496,33 @@ const SubUnitType = () => {
 			{/* Add/Edit Modal */}
 			<Modal isOpen={isOpen} onClose={onClose} isCentered>
 				<ModalOverlay />
-				<ModalContent w={{ base: '95vw', md: '500px' }}>
-					<ModalHeader>
-						{isEditMode ? 'Edit Unit Types' : 'Add New Unit Types'}
-					</ModalHeader>
-					<ModalCloseButton />
+				<ModalContent w={{ base: '95vw', md: '500px' }} borderRadius="2xl" overflow="hidden">
+
+						   <ModalHeader
+								display="flex"
+								align="center"
+								justify="space-between"
+								bg={headerBg}
+								color={headerText}
+								px={6}
+								py={3}
+								borderBottom="1px solid"
+								borderColor={borderColor}
+								position="sticky"
+								top="0"
+								zIndex="10"
+							  >
+								<Text fontSize="lg" fontWeight="bold">
+								{isEditMode ? 'Edit Unit Types' : 'Add New Unit Types'}
+								</Text>
+								<ModalCloseButton
+								  position="absolute"
+								  right="12px"
+								  top="10px"
+								  color={headerText}
+								  _hover={{ bg: "whiteAlpha.200" }}
+								/>
+							  </ModalHeader>
 					<Formik
 						initialValues={{
 							unitType: currentUnitType?.unitType?._id || '',
@@ -509,7 +535,15 @@ const SubUnitType = () => {
 					>
 						{({ errors, touched, values, setFieldValue }) => (
 							<Form>
-								<ModalBody pb={6}>
+								<ModalBody   overflowY="auto"
+                  scrollBehavior="smooth"
+                  sx={{
+                    "&::-webkit-scrollbar": { width: "6px" },
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "#c1c1c1",
+                      borderRadius: "10px",
+                    },
+                  }}>
 									<FormControl isInvalid={errors.unitType && touched.unitType}>
 										<FormLabel>Unit Type</FormLabel>
 										<Select
@@ -559,11 +593,22 @@ const SubUnitType = () => {
 									</FormControl>
 								</ModalBody>
 
-								<ModalFooter>
-									<Button onClick={onClose} mr={2}>
+								<ModalFooter        bg={footerBg}
+                  borderTop="1px solid"
+                  borderColor={borderColor}
+                  position="sticky"
+                  bottom="0"
+                  zIndex="10"
+                  py={3}
+                  px={5}
+                  justifyContent="flex-end"
+                  gap={3}>
+									<Button onClick={onClose} mr={2}   borderRadius="md"
+														size="sm">
 										Cancel
 									</Button>
-									<Button type='submit' bg='#d99a36' color='white'>
+									<Button type='submit' bg='#d99a36' color='white'   borderRadius="md"
+                    size="sm">
 										Save
 									</Button>
 								</ModalFooter>

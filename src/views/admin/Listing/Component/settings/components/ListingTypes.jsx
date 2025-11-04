@@ -38,6 +38,7 @@ import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
+import { useModalColors } from "hooks/useModalColors";
 
 const ListingTypeSchema = Yup.object().shape({
   name: Yup.string()
@@ -59,6 +60,8 @@ const ListingTypes = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
   const { createUserLog } = useUserActivityLog();
+
+  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const buildQueryParams = () => ({
     page: currentPage,
@@ -388,12 +391,32 @@ const ListingTypes = () => {
       {/* Add/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {isEditMode ? "Edit Listing Type" : "Add New Listing Type"}
+        <ModalContent borderRadius="2xl" overflow="hidden">
+          <ModalHeader
+            display="flex"
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            top="0"
+            zIndex="10"
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              {isEditMode ? "Edit Listing Type" : "Add New Listing Type"}
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
           </ModalHeader>
-          <ModalCloseButton />
-
           <Formik
             enableReinitialize
             initialValues={{
@@ -415,7 +438,18 @@ const ListingTypes = () => {
               isSubmitting,
             }) => (
               <Form onSubmit={handleSubmit}>
-                <ModalBody pb={6}>
+                <ModalBody
+                  pb={6}
+                  overflowY="auto"
+                  scrollBehavior="smooth"
+                  sx={{
+                    "&::-webkit-scrollbar": { width: "6px" },
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "#c1c1c1",
+                      borderRadius: "10px",
+                    },
+                  }}
+                >
                   <FormControl isInvalid={touched.name && errors.name}>
                     <FormLabel>Listing Type</FormLabel>
                     <Input
@@ -442,13 +476,23 @@ const ListingTypes = () => {
                   </FormControl>
                 </ModalBody>
 
-                <ModalFooter>
+                <ModalFooter
+                  bg={footerBg}
+                  borderTop="1px solid"
+                  borderColor={borderColor}
+                  position="sticky"
+                  bottom="0"
+                  zIndex="10"
+                  py={3}
+                  px={5}
+                  justifyContent="flex-end"
+                  gap={3}
+                >
                   <Button
                     variant="outline"
                     bg="#e2e8f0"
-                    size="md"
-                    w="100px"
-                    borderRadius="3px"
+                    borderRadius="md"
+                    size="sm"
                     mr={2}
                     onClick={() => {
                       onClose();
@@ -463,8 +507,8 @@ const ListingTypes = () => {
                     bg="#d99a36"
                     color="white"
                     w="100px"
-                    borderRadius="3px"
-                    size="md"
+                    borderRadius="md"
+                    size="sm"
                     isLoading={isSubmitting}
                     _hover={{ bg: "brand.400", color: "white" }}
                     _active={{ bg: "brand.300" }}
