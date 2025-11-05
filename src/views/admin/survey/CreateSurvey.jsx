@@ -337,9 +337,9 @@ const CreateSurvey = () => {
 										Survey Users
 									</Text>
 									<FormControl isInvalid={formik.errors.selectedRole}>
-										<HStack
+										<Flex
 											{...group}
-											spacing={{ base: 2, md: 2 }}
+											alignItems={"center"}
 											mb={{ base: 2, md: 4 }}
 											wrap='wrap'
 											gap='2'
@@ -357,7 +357,7 @@ const CreateSurvey = () => {
 													</RadioCard>
 												);
 											})}
-										</HStack>
+										</Flex>
 										<FormErrorMessage fontSize='xs'>
 											{formik.errors.selectedRole}
 										</FormErrorMessage>
