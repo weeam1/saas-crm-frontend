@@ -27,6 +27,8 @@ import { toast } from 'react-toastify';
 import { emailSchema } from 'schema';
 import { getApi, postApi } from 'services/api';
 import { buttonStyle } from 'utils/btn';
+import { emailText } from './emailText';
+import { useModalColors } from 'hooks/useModalColors';
 
 // const AddEmailHistory = (props) => {
 // 	const { onClose, isOpen, fetchData, leadDetails, setAction } = props;
@@ -271,6 +273,8 @@ const AddEmailHistory = (props) => {
 
 	const [files, setFiles] = useState(null);
 
+	const { headerBg, headerText } = useModalColors();
+
 	const handleInvite = async () => {
 		try {
 			if (files) return;
@@ -302,8 +306,9 @@ const AddEmailHistory = (props) => {
 	const initialValues = {
 		sender: user?._id,
 		recipient: '',
-		subject: 'WN VIP invitation',
-		title: 'WN Real Estate Expo ( Abu Dhabi)',
+		subject:
+			'Invitation to Attend – Abu Dhabi Real Estate Exhibition (November 14–17, 2025)',
+		title: 'Abu Dhabi Real Estate Exhibition – You’re Invited!',
 		message: '',
 		createBy: '',
 		createByLead: '',
@@ -345,6 +350,8 @@ const AddEmailHistory = (props) => {
 
 			let response = await postApi(url, formValues);
 			if (response.status === 200) {
+				toast.success('Email sent successfully.');
+
 				onClose();
 				// fetchData();
 				setAction((prev) => !prev);
@@ -375,50 +382,31 @@ const AddEmailHistory = (props) => {
 		setLeadLoading(false);
 	};
 
-	// 	const defaultTemplate = `Hello,
+	const defaultTemplate = emailText(leadDetails?.leadName);
 
-	// Mark your calendar! Weeam Real Estate invites you to our exclusive Property Expo.
+	// 	const defaultTemplate = `Dear ${leadDetails?.leadName ?? 'Sir'},
 
-	// ✨ Explore:
-	// ✅ Premier residential & commercial properties
-	// ✅ Expert market insights
-	// ✅ Exclusive deals & financing options
+	// We are delighted to invite you to Weam Elnaggar Real Estate’s Exclusive Property Exhibition in Abu Dhabi—an unmissable opportunity to explore the finest real estate offerings and gain valuable market insights.
+
+	// What to Expect:
+
+	// Premium Residential & Commercial Properties from top-tier developers
+
+	// Exclusive Investment Offers & Flexible Financing Options
+
+	// Personalized Guidance from real estate experts to match your goals
 
 	// Event Details:
-	// 📅 Dates: February 21–23, 2025
-	// ⏰ Time: 10:00 AM – 6:00 PM daily
-	// 📍 Venue: Weam Elnaggar Real Estate Office, 203 API World Tower, Dubai
+	// Dates: April 11–13, 2025
+	// Time: 10:00 AM – 10:00 PM (Daily)
+	// Venue: Beach Rotana Hotel, Abu Dhabi
 
-	// Don’t miss this chance to connect with industry leaders and find your perfect property. Let’s build your future together!
+	// Whether you're a seasoned investor or looking for your dream home, this event is tailored to help you make informed and rewarding real estate decisions.
 
-	// Thanks,
-	// Weeam Real Estate
-	// 	`;
+	// We look forward to welcoming you and supporting your journey in property investment and ownership.
 
-	const defaultTemplate = `Dear ${leadDetails?.leadName ?? 'Sir'},
-
-We are delighted to invite you to Weam Elnaggar Real Estate’s Exclusive Property Exhibition in Abu Dhabi—an unmissable opportunity to explore the finest real estate offerings and gain valuable market insights.
-
-What to Expect:
-
-Premium Residential & Commercial Properties from top-tier developers
-
-Exclusive Investment Offers & Flexible Financing Options
-
-Personalized Guidance from real estate experts to match your goals
-
-
-Event Details:
-Dates: April 11–13, 2025
-Time: 10:00 AM – 10:00 PM (Daily)
-Venue: Beach Rotana Hotel, Abu Dhabi
-
-Whether you're a seasoned investor or looking for your dream home, this event is tailored to help you make informed and rewarding real estate decisions.
-
-We look forward to welcoming you and supporting your journey in property investment and ownership.
-
-Warm regards,
-Weam Elnaggar Real Estate`;
+	// Warm regards,
+	// Weam Elnaggar Real Estate`;
 
 	useEffect(() => {
 		if (isOpen) {
@@ -429,9 +417,20 @@ Weam Elnaggar Real Estate`;
 
 	return (
 		<Modal onClose={onClose} size='2xl' isOpen={isOpen} isCentered>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Send Email</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					Send Email
+				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
 					{leadLoading ? (

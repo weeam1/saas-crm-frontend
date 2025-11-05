@@ -97,7 +97,7 @@ export const useWhatsapp = () => {
 
 	// chat category
 	// chats, groups, all
-	const [category, setCategory] = useState('chats');
+	const [category, setCategory] = useState('all');
 
 	const isSocketConnected = useMemo(
 		() => socketService?.connectionStatus === 'connected' || false,

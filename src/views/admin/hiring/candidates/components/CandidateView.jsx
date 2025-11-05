@@ -273,6 +273,7 @@ const CandidateView = ({
 							justifyContent='space-between'
 							alignItems='end'
 							spacing={2}
+							flexDir={{ base: 'column', md: 'row' }}
 							pb='4'
 							px='4'
 							mt={2}

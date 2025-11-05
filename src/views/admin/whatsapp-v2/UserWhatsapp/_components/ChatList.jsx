@@ -3,19 +3,13 @@ import {
 	Flex,
 	Text,
 	Avatar,
-	Badge,
 	VStack,
 	HStack,
 	Divider,
-	Input,
-	InputGroup,
-	InputLeftElement,
-	Icon,
 	Button,
 	IconButton,
 	Spinner,
 } from '@chakra-ui/react';
-import { SearchIcon, CheckIcon } from '@chakra-ui/icons';
 import { FiMessageSquare, FiUsers } from 'react-icons/fi';
 import { FaChevronLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -23,13 +17,48 @@ import useUserSession from 'hooks/useUserSession';
 import { useSelector } from 'react-redux';
 import { getMessageLabel } from '../../utils/helpers';
 
+// const formatTime = (timestamp) => {
+// 	if (!timestamp) return '';
+// 	const date = new Date(timestamp * 1000);
+// 	return date.toLocaleTimeString('en-US', {
+// 		hour: '2-digit',
+// 		minute: '2-digit',
+// 	});
+// };
+
 const formatTime = (timestamp) => {
 	if (!timestamp) return '';
+
 	const date = new Date(timestamp * 1000);
-	return date.toLocaleTimeString('en-US', {
-		hour: '2-digit',
-		minute: '2-digit',
-	});
+	const now = new Date();
+
+	// Helper to reset hours/minutes/seconds for easy comparison
+	const isSameDay = (d1, d2) =>
+		d1.getFullYear() === d2.getFullYear() &&
+		d1.getMonth() === d2.getMonth() &&
+		d1.getDate() === d2.getDate();
+
+	// Create "yesterday" reference
+	const yesterday = new Date();
+	yesterday.setDate(now.getDate() - 1);
+
+	if (isSameDay(date, now)) {
+		// Same day → show time only
+		return date.toLocaleTimeString('en-US', {
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	} else if (isSameDay(date, yesterday)) {
+		// Yesterday → label it
+		return 'Yesterday';
+	} else {
+		// Otherwise → show date (MM/DD/YYYY)
+		return date.toLocaleDateString('en-US', {
+			month: '2-digit',
+			day: '2-digit',
+			year: 'numeric',
+		});
+	}
 };
 
 const truncateMessage = (message, length = 35) => {

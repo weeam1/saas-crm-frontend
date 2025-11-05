@@ -12,6 +12,7 @@ import {
 	Checkbox,
 	Button,
 } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const columnList = [
 	{ accessor: 'intID', name: '#' },
@@ -60,21 +61,31 @@ const ManageCols = ({
 		[setHiddenCols]
 	);
 
+	const { headerBg, headerText } = useModalColors();
+
 	return (
 		<Modal
 			size='2xl'
 			isOpen={manageCols}
 			onClose={() => setManageCols(false)}
 			isCentered
-			motionPreset='scale'
-			// closeOnOverlayClick={false}
-			disableScrollLocking={true}
 		>
-			<ModalOverlay />
-			<ModalContent overflowY='auto' maxHeight='80vh'>
-				<ModalHeader>Manage Columns</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					Manage Columns
+				</ModalHeader>
 				<ModalCloseButton />
-				<ModalBody>
+				<ModalBody maxH='75vh' overflow='scroll' p={6}>
 					<Grid templateColumns='repeat(3, 1fr)' gap={3}>
 						{columnList.map(({ accessor, name }) => (
 							<Text key={accessor} display='flex' alignItems='center'>
@@ -91,14 +102,21 @@ const ManageCols = ({
 				<ModalFooter>
 					<Button
 						size='sm'
-						variant='outline'
-						colorScheme='red'
+						// variant='outline'
+						colorScheme='gray'
 						mr='2'
+						rounded='md'
 						onClick={() => setManageCols(false)}
 					>
 						Close
 					</Button>
-					<Button colorScheme='brand' size='sm' mr={2} onClick={saveManageCols}>
+					<Button
+						colorScheme='brand'
+						size='sm'
+						rounded='md'
+						mr={2}
+						onClick={saveManageCols}
+					>
 						Save
 					</Button>
 				</ModalFooter>

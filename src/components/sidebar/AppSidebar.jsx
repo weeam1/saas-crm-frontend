@@ -29,90 +29,10 @@ import BrandLogo from 'assets/logo/logo.png';
 import { usePermissions } from 'hooks/usePermissions';
 import { useIsMobile } from 'hooks/useIsMobile';
 import { MdExpandLess, MdExpandMore } from 'react-icons/md';
-import { filterRoutes } from './sidebarHelpers';
+import { sidebarFilterRoutes, safeStorage } from './sidebarHelpers';
 
 // Storage keys
 const COLLAPSE_KEY = 'app:sidebar:collapsed';
-
-const safeStorage = {
-	get(key) {
-		try {
-			if (typeof window === 'undefined') return null;
-			return window.localStorage.getItem(key);
-		} catch {
-			return null;
-		}
-	},
-	set(key, value) {
-		try {
-			if (typeof window === 'undefined') return;
-			window.localStorage.setItem(key, value);
-		} catch {}
-	},
-};
-
-// const SidebarItem = React.memo(function SidebarItem({
-// 	route,
-// 	active,
-// 	collapsed,
-// 	onClick,
-// 	isMobile,
-// }) {
-// 	const activeBg = useColorModeValue('brand.100', 'brand.300');
-// 	const activeColor = useColorModeValue('brand.500', 'gray.200');
-// 	const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.100');
-
-// 	const content = (
-// 		<HStack
-// 			as={NavLink}
-// 			to={route.path}
-// 			onClick={onClick}
-// 			align='center'
-// 			spacing={3}
-// 			px={3}
-// 			py={2.5}
-// 			borderRadius='lg'
-// 			_hover={{ bg: active ? activeBg : hoverBg }}
-// 			bg={active ? activeBg : 'transparent'}
-// 			aria-current={active ? 'page' : undefined}
-// 			role='link'
-// 			data-testid={`sidebar-link-${route.moduleId}`}
-// 			transition='background 200ms ease'
-// 			alignItems={'center'}
-// 		>
-// 			<Box
-// 				as='span'
-// 				fontSize='lg'
-// 				color={active ? activeColor : 'inherit'}
-// 				display='inline-flex'
-// 				alignItems='center'
-// 				justifyContent='center'
-// 				w='32px'
-// 			>
-// 				{route.icon}
-// 			</Box>
-// 			{(!collapsed || isMobile) && (
-// 				<Text
-// 					noOfLines={1}
-// 					fontWeight={'500'}
-// 					color={active ? activeColor : 'inherit'}
-// 					fontSize='sm'
-// 				>
-// 					{route.name}
-// 				</Text>
-// 			)}
-// 		</HStack>
-// 	);
-
-// 	if (collapsed) {
-// 		return (
-// 			<Tooltip label={route.name} placement='right' openDelay={300} hasArrow>
-// 				<Box>{content}</Box>
-// 			</Tooltip>
-// 		);
-// 	}
-// 	return content;
-// });
 
 const SidebarItem = React.memo(function SidebarItem({
 	route,
@@ -297,44 +217,14 @@ export default function AppSidebar({
 
 	const { hasPermission } = usePermissions();
 
-	// filter the only allowed routes (modules)
-	// const visibleRoutes = useMemo(() => {
-	// 	return routes?.filter((route) => {
-	// 		if (!route.moduleId) return true; // routes without moduleId always visible
-	// 		return hasPermission(route.moduleId);
-	// 	});
-	// }, [routes, hasPermission]);
-
-	// const visibleRoutes = useMemo(() => {
-	// 	return routes?.filter((route) => {
-	// 		// always keep routes without moduleId
-	// 		if (!route.moduleId) {
-	// 			return true;
-	// 		}
-	// 		// keep only routes with permission
-	// 		return hasPermission(route.moduleId);
-	// 	});
-
-	// 	// also filter children routes with this mehtod hasPermission(route.moduleId, route.children.id) for every  children check if route.children avlaiable then check other permission nested
-	// }, [routes, hasPermission]);
-
 	const visibleRoutes = useMemo(() => {
-		return filterRoutes(routes || [], hasPermission);
+		return sidebarFilterRoutes(routes || [], hasPermission);
 	}, [routes, hasPermission]);
 
 	const handleNavigate = useCallback(() => {
 		// if (onNavigate) onNavigate();
 		if (isMobile) setMobileOpen(false);
 	}, [isMobile, setMobileOpen]);
-
-	// const isActive = useCallback(
-	// 	(path) => {
-	// 		return (
-	// 			location.pathname === path || location.pathname.startsWith(path + '/')
-	// 		);
-	// 	},
-	// 	[location.pathname]
-	// );
 
 	const isActive = useCallback(
 		(path) => {

@@ -27,6 +27,7 @@ import { AiOutlineExport } from 'react-icons/ai';
 import DateFilterTabs from '../DateFilterTabs';
 import { formatDNS } from 'utils/helpers';
 import useUserSession from 'hooks/useUserSession';
+import { useModalColors } from 'hooks/useModalColors';
 
 const MotionProgress = motion(Box);
 
@@ -44,6 +45,8 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 	const [endDate, setEndDate] = useState('');
 
 	const { user, isSuperAdmin } = useUserSession();
+
+	const { headerBg, headerText } = useModalColors();
 
 	// Fetch agencies
 	const { data: agencies = [], isLoading: isLoadingAgencies } =
@@ -179,14 +182,27 @@ const ExportAttendanceModal = ({ isOpen, onClose }) => {
 			closeOnOverlayClick={!isGenerating}
 			isCentered
 		>
-			<ModalOverlay />
+			<ModalOverlay backdropFilter='blur(2px)' />
 			<ModalContent
 				as={motion.div}
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				mx='4'
+				borderRadius='xl'
+				boxShadow='xl'
 			>
-				<ModalHeader>Export Attendance Report</ModalHeader>
+				<ModalHeader
+					display='flex'
+					gap='2'
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					alignItems='center'
+					w='100%'
+				>
+					Export Attendance Report
+				</ModalHeader>
 				<ModalCloseButton isDisabled={isGenerating} />
 				<ModalBody>
 					<VStack align='center' justifyContent='center'>

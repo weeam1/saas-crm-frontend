@@ -36,7 +36,7 @@ const NextRoundConfirmModal = ({ isOpen, onClose, interview }) => {
 			}).unwrap();
 
 			if (data?.status === 'success' && data?.doc?._id) {
-				navigate('/hiring?tab=multi-round-interviewed');
+				navigate('/hiring/multi-round');
 				toast.success('Interview next round created');
 
 				onClose();

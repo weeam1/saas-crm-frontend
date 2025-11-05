@@ -22,6 +22,7 @@ import { FaRegCalendar, FaClock } from 'react-icons/fa';
 import { useState } from 'react';
 import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import { useModalColors } from 'hooks/useModalColors';
 
 const ArrangeInterview = ({
 	isOpen,
@@ -36,6 +37,8 @@ const ArrangeInterview = ({
 	const [showCalendar, setShowCalendar] = useState(false);
 	const [showTime, setShowTime] = useState('');
 	const [errors, setErrors] = useState({});
+
+	const { headerBg, primaryBtnBg, headerText } = useModalColors();
 
 	const toggleCalendar = () => {
 		setShowCalendar(!showCalendar);
@@ -87,9 +90,20 @@ const ArrangeInterview = ({
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={onClose} isCentered size='lg'>
-				<ModalOverlay />
-				<ModalContent p='1rem'>
-					<ModalHeader>Interview Invite</ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
+						Interview Invite
+					</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						{/* Date Input */}
@@ -195,19 +209,20 @@ const ArrangeInterview = ({
 							onClick={onClose}
 							letiant='outline'
 							size='sm'
+							rounded='md'
 							mr={2}
 						>
 							Cancel
 						</Button>
 						<Button
-							bg='brand.400'
+							bg={primaryBtnBg}
 							color='white'
 							_hover={{
 								bg: 'brand.500',
 							}}
 							size='sm'
 							px='1rem'
-							rounded='full'
+							rounded='md'
 							_active={{ bg: '#D4AC50' }}
 							onClick={handleSubmit}
 						>

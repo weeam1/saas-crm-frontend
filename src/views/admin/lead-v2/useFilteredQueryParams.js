@@ -288,8 +288,8 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 	const tags = [];
 
 	if (filters.search) tags.push(`Search: ${filters.search}`);
-	if (filters.from) tags.push(`Start: ${formattedDate(filters.from)}`);
-	if (filters.to) tags.push(`End: ${formattedDate(filters.to)}`);
+	if (filters.from) tags.push(`Start Date: ${formattedDate(filters.from)}`);
+	if (filters.to) tags.push(`End Date: ${formattedDate(filters.to)}`);
 
 	if (tree) {
 		Object.entries(filters).forEach(([key, value]) => {
@@ -333,6 +333,9 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 						? 'No Manager'
 						: value;
 			}
+
+			if (key === 'startDate') displayValue = filters.startDate;
+			if (key === 'endDate') displayValue = filters.endDate;
 
 			// if (key === 'intID') key = 'Lead ID';
 

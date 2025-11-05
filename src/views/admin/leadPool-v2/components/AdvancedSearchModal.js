@@ -17,6 +17,7 @@ import {
 import { leadLabels } from 'utils/searchLabels';
 import { leadStatusLabels } from 'utils/searchLabels';
 import { mainLeadStatusLabels } from 'utils/searchLabels';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LazyAdvancedSearchForm = React.lazy(() => import('./AdvancedForm'));
 
@@ -37,6 +38,8 @@ const AdvancedSearchModal = ({
 }) => {
 	const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
+
+	const { headerBg, headerText } = useModalColors();
 
 	const initialValues = {
 		intID: '',
@@ -179,9 +182,20 @@ const AdvancedSearchModal = ({
 				isCentered
 				motionPreset='slideInBottom'
 			>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Advanced Search</ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
+						Advanced Search
+					</ModalHeader>
 					<ModalCloseButton onClick={() => setAdvanceSearch(false)} />
 					<ModalBody width='100%'>
 						<LazyAdvancedSearchForm

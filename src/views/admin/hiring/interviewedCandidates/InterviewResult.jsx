@@ -329,6 +329,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useModalColors } from 'hooks/useModalColors';
 
 const getInterviewerPoints = (id, evaluations) =>
 	evaluations?.find((item) => item.interviewer._id === id);
@@ -363,6 +364,8 @@ const InterviewResult = ({
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+
+	const { headerBg, headerText } = useModalColors();
 
 	const totalPoints = (doc) => doc.totalInterviewers - doc.pendingEvaluations;
 
@@ -547,9 +550,20 @@ const InterviewResult = ({
 				isCentered
 				scrollBehavior='inside'
 			>
-				<ModalOverlay />
-				<ModalContent mx='2'>
-					<ModalHeader>{title}</ModalHeader>
+				<ModalOverlay backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+					<ModalHeader
+						display='flex'
+						gap='2'
+						bg={headerBg}
+						color={headerText}
+						borderTopRadius='xl'
+						py={4}
+						alignItems='center'
+						w='100%'
+					>
+						{title}
+					</ModalHeader>
 					<ModalCloseButton />
 					<ModalBody>
 						{isLoading || isFetching ? (

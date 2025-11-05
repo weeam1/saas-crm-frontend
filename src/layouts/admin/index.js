@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import React, { Suspense, useCallback, useState, version } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
+// import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
 
 import { ROLE_PATH } from 'roles';
 import Footer from 'components/footer/FooterAdmin';
@@ -19,15 +19,15 @@ import sidebarRoutes from 'sidebarRoutes';
 import Loader from 'components/loading/Loader';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import useUserSession from 'hooks/useUserSession';
-import { useDispatch } from 'react-redux';
+// import { useDispatch } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
-import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
-import UserWhatsappInstance from 'views/admin/whatsapp-v2/UserWhatsapp';
-import UserWhatsappChat from 'views/admin/whatsapp/UserWhatsapp';
+// import AttendanceDashboard from 'views/admin/attendance/components/dashboard';
+// import UserWhatsappInstance from 'views/admin/whatsapp-v2/UserWhatsapp';
+// import UserWhatsappChat from 'views/admin/whatsapp/UserWhatsapp';
 import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
-import AppLoader from 'components/loading/AppLoader';
-import { filterRoutes } from 'components/sidebar/sidebarHelpers';
+// import AppLoader from 'components/loading/AppLoader';
+// import { filterRoutes } from 'components/sidebar/sidebarHelpers';
 
 export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const [openSidebar, setOpenSidebar] = useState(false);
@@ -68,7 +68,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const whatsappActive = user?.whatsappDetails?.isActive || false;
 	const instanceActive = whatsappInstance?.doc?.isActive || false;
 
-	const dispatch = useDispatch();
+	// const dispatch = useDispatch();
 
 	// if (userRoleName === 'Attendance') {
 	// 	// Define the "Candidates" route
@@ -228,12 +228,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	// 	return () => clearTimeout(timer);
 	// }, []);
 
-	const filterRoute = useCallback((r) => {
-		if (r.moduleId === 'system_log') return true;
-		return true;
-	}, []);
-
-	if (!isSuperAdmin && hasPermission('whatsapp')) {
+	if (hasPermission('whatsapp')) {
 		const whatsappSidebarRoutes = appSidebarRoutes.find(
 			(r) => r.moduleId === 'whatsapp'
 		);
@@ -246,6 +241,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		// Add Chat child if active + not already exists + user lacks the full permission
 		// !hasPermission('whatsapp', 'whatsapp_chats') &&
 		if (
+			!hasPermission('whatsapp', 'whatsapp_chats') &&
 			whatsappActive &&
 			!existingChildren.some((c) => c.path === '/whatsapp/chat')
 		) {
@@ -270,46 +266,18 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 
 		// Only merge once if new children exist
 		if (newChildren.length > 0) {
-			sessionStorage.setItem('isWhatsappUser', true);
-
+			// sessionStorage.setItem('isWhatsappUser', true);
 			whatsappSidebarRoutes.children = [...existingChildren, ...newChildren];
+		}
 
-			// Remove Chat route if WhatsApp is NOT active
-			if (whatsappActive === false) {
-				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/chat');
-			}
+		// Remove Chat route if WhatsApp is NOT active
+		if (whatsappActive === false) {
+			appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/chat');
+		}
 
-			// Remove Instance route if Instance is NOT active
-			if (instanceActive === false) {
-				appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/instance');
-			}
-
-			// Add corresponding app routes
-			// if (!whatsappActive) {
-			// 	appRoutes.push({
-			// 		name: 'Chat',
-			// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 		path: `/whatsapp/chat`,
-			// 		component: UserWhatsappChat,
-			// 	});
-			// }
-
-			// if (!instanceActive) {
-			// 	appRoutes.push({
-			// 		name: 'Instance',
-			// 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-			// 		path: `/whatsapp/instance`,
-			// 		component: UserWhatsappInstance,
-			// 	});
-			// }
-		} else if (!isWhatsappUser) {
-			sessionStorage.setItem('isWhatsappUser', false);
-
-			// remove any old whatsapp routes if permission disabled
-			appRoutes = appRoutes.filter((r) => r.moduleId !== 'whatsapp');
-			appSidebarRoutes = appSidebarRoutes.filter(
-				(r) => r.moduleId !== 'whatsapp'
-			);
+		// Remove Instance route if Instance is NOT active
+		if (instanceActive === false) {
+			appRoutes = appRoutes.filter((r) => r.path !== '/whatsapp/instance');
 		}
 	}
 
@@ -380,7 +348,6 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 				<AppSidebar
 					routes={appSidebarRoutes}
 					brandName='Weeam CRM'
-					filterRoute={filterRoute}
 					isMobileOpen={openSidebar}
 					onMobileOpenChange={setOpenSidebar}
 					mobileOpen={mobileOpen}

@@ -18,6 +18,7 @@ import LeadUnassignedMessage from './subComponents/LeadUnassignedMessage';
 import SearchTags from 'components/search/SearchTags';
 import ErrorMessage from 'components/Message/ErrorMessage';
 import { usePermissions } from 'hooks/usePermissions';
+import { useSearchParams } from 'react-router-dom';
 
 const Leads = ({
 	data,
@@ -119,9 +120,20 @@ const Leads = ({
 	// const [searchClear, setSearchClear] = useState(false);
 	// const [searchTerm, setSearchTerm] = useState('');
 
+	const [searchParams, setSearchParams] = useSearchParams();
+	let isLeadParam = searchParams.get('lead') || searchParams.get('invite');
+
 	const searchTermRef = useRef('');
 
 	const handleClear = () => {
+		if (isLeadParam) {
+			console.log('Clearing lead/invite params');
+			const newParams = new URLSearchParams(searchParams);
+			newParams.delete('lead');
+			newParams.delete('invite');
+			setSearchParams(newParams);
+		}
+
 		// for selected leads
 		if (searchTags?.length === 0) {
 			setSelectedLeads([]);

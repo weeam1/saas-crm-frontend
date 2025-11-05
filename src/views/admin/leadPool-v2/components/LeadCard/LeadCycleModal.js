@@ -13,14 +13,16 @@ import { toast } from 'react-toastify';
 
 import { getApi } from 'services/api';
 import LeadHistoryTimeline from '../../../leadCycle/components/LeadHistoryTimeline';
-import { HSeparator } from 'components/separator/Separator';
 import Spinner from 'components/spinner/Spinner';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LeadCycleModal = memo(({ isOpen, onClose, leadId }) => {
 	const [data, setData] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const user = JSON.parse(localStorage.getItem('user'));
 	const hasFetched = useRef(false);
+
+	const { headerBg, headerText } = useModalColors();
 
 	const fetchData = async () => {
 		if (hasFetched.current) return;
@@ -79,39 +81,27 @@ const LeadCycleModal = memo(({ isOpen, onClose, leadId }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Lead Cycle</ModalHeader>
+			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalHeader
+					bg={headerBg}
+					color={headerText}
+					borderTopRadius='xl'
+					py={4}
+					w='100%'
+				>
+					Lead Cycle
+				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody overflow='hidden' width='100%'>
-					<Box
-						width='100%'
-						m='0'
-						maxH='400px'
-						overflowY='auto'
-						sx={{
-							'&::-webkit-scrollbar': {
-								width: '6px',
-							},
-							'&::-webkit-scrollbar-thumb': {
-								background: 'brand.500',
-								borderRadius: '8px',
-							},
-							'&::-webkit-scrollbar-thumb:hover': {
-								background: 'brand.600',
-							},
-						}}
-					>
+					<Box width='100%' m='0' maxH='400px' overflowY='auto'>
 						{loading ? (
 							<Flex justifyContent='center' alignItems='center' width='100%'>
 								<Spinner />
 							</Flex>
 						) : (
-							<Box>
-								<HSeparator />
-								<Box mt={5} pl={10}>
-									<LeadHistoryTimeline timelineData={data} />
-								</Box>
+							<Box mt={5} pl={10} px={2}>
+								<LeadHistoryTimeline timelineData={data} />
 							</Box>
 						)}
 					</Box>

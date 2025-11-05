@@ -130,7 +130,7 @@ function App() {
 				userId: user?._id,
 			};
 
-			console.log('RIGSTER USER AGAIN RECONNECT');
+			// console.log('RIGSTER USER AGAIN RECONNECT');
 
 			socketService.registerUser(registerPayload);
 
@@ -160,7 +160,7 @@ function App() {
 		webSocketService.socket.onmessage = async (event) => {
 			try {
 				const socketData = JSON.parse(event.data);
-				console.log('WebSocket message:', socketData);
+				// console.log('WebSocket message:', socketData);
 
 				let notificationDetails = {};
 				const { type, data } = socketData;
@@ -318,8 +318,6 @@ function App() {
 
 		fetchAllData();
 	}, [user]);
-
-	console.log({ appLoaded });
 
 	// Show splash screen
 	if (!appLoaded || splashScreen) {

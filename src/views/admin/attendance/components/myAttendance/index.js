@@ -100,7 +100,7 @@ const Attendance = ({ userId }) => {
 					gap='4'
 				>
 					<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
-						Attendance Record s
+						Attendance Record
 					</Text>
 
 					<Stack direction={{ base: 'row' }} spacing={2}>

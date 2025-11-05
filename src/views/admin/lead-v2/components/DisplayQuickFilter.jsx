@@ -1,6 +1,7 @@
 import React from "react";
 import { Flex, Box } from "@chakra-ui/react";
 import { SmallCloseIcon } from "@chakra-ui/icons";
+
 const DisplayQuickFilter = ({
   selectedStatus,
   selectedMstatus,

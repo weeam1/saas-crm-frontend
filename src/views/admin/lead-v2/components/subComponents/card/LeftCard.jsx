@@ -49,9 +49,9 @@ const LeftCard = ({
 
 	// if (role === 'Manager') {
 	// 	hideContact = true;
-	// } else 
-	
-		if (queryParams?.invite && role !== 'superAdmin') {
+	// } else
+
+	if (queryParams?.invite && role !== 'superAdmin') {
 		hideContact = user?._id !== lead?.agentAssigned;
 		// if (role === 'Manager') {
 		// 	hideContact = user?._id !== lead?.managerAssigned;
@@ -108,6 +108,15 @@ const LeftCard = ({
 						/>
 					)}
 
+					{!hiddenFields.includes('adset') && (
+						<EntityField
+							label='Adset'
+							value={safeValue(lead?.adset)}
+							isInfo={true}
+							valueProps={{ color: 'green.600' }}
+						/>
+					)}
+					{/* 
 					{!hiddenFields.includes('timetocall') && (
 						<EntityField
 							label='Time to Call'
@@ -115,7 +124,7 @@ const LeftCard = ({
 							isInfo={true}
 							valueProps={{ color: 'green.600' }}
 						/>
-					)}
+					)} */}
 				</GridItem>
 
 				{/* Manager */}
