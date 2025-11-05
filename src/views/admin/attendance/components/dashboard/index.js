@@ -1,255 +1,256 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
-	Box,
-	Flex,
-	IconButton,
-	useDisclosure,
-	Heading,
-	Button,
-} from '@chakra-ui/react';
+  Box,
+  Flex,
+  IconButton,
+  useDisclosure,
+  Heading,
+  Button,
+} from "@chakra-ui/react";
 import {
-	FaUsers,
-	FaClock,
-	FaUserSlash,
-	FaSearch,
-	FaMoon,
-	FaFileAlt,
-} from 'react-icons/fa';
+  FaUsers,
+  FaClock,
+  FaUserSlash,
+  FaSearch,
+  FaMoon,
+  FaFileAlt,
+} from "react-icons/fa";
 
-import { Link, useNavigate } from 'react-router-dom';
-import { IoArrowBack } from 'react-icons/io5';
-import RealTimeData from './RealTimeData';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import Loader from 'components/loading/Loader';
-import { FiFilter } from 'react-icons/fi';
-import AgencyFilter from './AgencyFilter';
-import AppButton from 'components/shared/AppButton';
-import DashboardShimmer from './DashboardShimmer';
-import useUserSession from 'hooks/useUserSession';
+import { Link, useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
+import RealTimeData from "./RealTimeData";
+import { useFetchItemsQuery } from "api/apiSlice";
+import Loader from "components/loading/Loader";
+import { FiFilter } from "react-icons/fi";
+import AgencyFilter from "./AgencyFilter";
+import AppButton from "components/shared/AppButton";
+import DashboardShimmer from "./DashboardShimmer";
+import useUserSession from "hooks/useUserSession";
+import { FiRefreshCw } from "react-icons/fi";
 
 const Dashboard = () => {
-	const [selectedView, setSelectedView] = useState('weekly');
-	const [selectedAgency, setSelectedAgency] = useState({});
-	const [agency, setAgency] = useState(null);
+  const [selectedView, setSelectedView] = useState("weekly");
+  const [selectedAgency, setSelectedAgency] = useState({});
+  const [agency, setAgency] = useState(null);
 
-	const { isOpen, onOpen, onClose } = useDisclosure();
-	const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
 
-	const { user, userRoleName, isSuperAdmin } = useUserSession();
+  const { user, userRoleName, isSuperAdmin } = useUserSession();
 
-	useEffect(() => {
-		if (user?.agency && !isSuperAdmin) {
-			setSelectedAgency(user.agency);
-			setAgency(user?.agency?.name);
-		}
-	}, []);
+  useEffect(() => {
+    if (user?.agency && !isSuperAdmin) {
+      setSelectedAgency(user.agency);
+      setAgency(user?.agency?.name);
+    }
+  }, []);
 
-	const [queryParams, setQueryParams] = useState({
-		timeframe: selectedView,
-		agency: '',
-	});
+  const [queryParams, setQueryParams] = useState({
+    timeframe: selectedView,
+    agency: "",
+  });
 
-	const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
-		{ path: `/attendance/dashboard`, params: queryParams },
-		{ refetchOnMountOrArgChange: true }
-	);
+  const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
+    { path: `/attendance/dashboard`, params: queryParams },
+    { refetchOnMountOrArgChange: true }
+  );
 
-	useEffect(() => {
-		refetch();
-	}, [queryParams]);
+  useEffect(() => {
+    refetch();
+  }, [queryParams]);
 
-	const stats = [
-		{
-			label: 'Total Employees',
-			value: data?.totalEmployees ?? 0,
-			icon: FaUsers,
-			changePercentage: data?.newEmployeesToday ?? 0,
-			change:
-				data?.newEmployeesToday > 0
-					? `${data?.newEmployeesToday} new employees added`
-					: '',
-			changeColor: 'green.500',
-			link: '/attendance/employees',
-		},
-		{
-			label: 'On Time',
-			value: data?.onTime?.count,
-			icon: FaClock,
-			changePercentage: data?.onTime?.changePercentage ?? 0,
+  const stats = [
+    {
+      label: "Total Employees",
+      value: data?.totalEmployees ?? 0,
+      icon: FaUsers,
+      changePercentage: data?.newEmployeesToday ?? 0,
+      change:
+        data?.newEmployeesToday > 0
+          ? `${data?.newEmployeesToday} new employees added`
+          : "",
+      changeColor: "green.500",
+      link: "/attendance/employees",
+    },
+    {
+      label: "On Time",
+      value: data?.onTime?.count,
+      icon: FaClock,
+      changePercentage: data?.onTime?.changePercentage ?? 0,
 
-			change: `${data?.onTime?.changePercentage} ${data?.onTime?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'green.500',
-			link: '/attendance/record?status=1',
-		},
-		{
-			label: 'Absent',
-			value: data?.absent?.count,
-			icon: FaUserSlash,
-			changePercentage: data?.absent?.changePercentage ?? 0,
+      change: `${data?.onTime?.changePercentage} ${data?.onTime?.change > 0 ? "more" : "less"} than yesterday`,
+      changeColor: "green.500",
+      link: "/attendance/record?status=1",
+    },
+    {
+      label: "Absent",
+      value: data?.absent?.count,
+      icon: FaUserSlash,
+      changePercentage: data?.absent?.changePercentage ?? 0,
 
-			change: `${data?.absent?.changePercentage} ${data?.absent?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'red.500',
-			link: '/attendance/record?status=0',
-		},
-		{
-			label: 'Late Arrival',
-			value: data?.lateArrival?.count,
-			icon: FaSearch,
-			changePercentage: data?.lateArrival?.changePercentage ?? 0,
-			change: `${data?.lateArrival?.changePercentage} ${
-				data?.lateArrival?.change > 0 ? 'more' : 'less'
-			} than yesterday`,
-			changeColor: 'red.500',
-			link: '/attendance/record?status=2',
-		},
-		{
-			label: 'Early Departures',
-			value: data?.earlyDeparture?.count,
-			changePercentage: data?.earlyDeparture?.changePercentage ?? 0,
-			icon: FaMoon,
-			change: `${data?.earlyDeparture?.changePercentage} ${data?.earlyDeparture?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'green.500',
-			link: '/attendance/record?status=1',
-		},
-		{
-			label: 'Time-off',
-			value: data?.timeOff?.count,
-			changePercentage: data?.timeOff?.changePercentage ?? 0,
-			icon: FaFileAlt,
-			change: `${data?.timeOff?.changePercentage} ${data?.timeOff?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'blue.500',
-			link: '/attendance/record', // time off skip direct link
-		},
-	];
+      change: `${data?.absent?.changePercentage} ${data?.absent?.change > 0 ? "more" : "less"} than yesterday`,
+      changeColor: "red.500",
+      link: "/attendance/record?status=0",
+    },
+    {
+      label: "Late Arrival",
+      value: data?.lateArrival?.count,
+      icon: FaSearch,
+      changePercentage: data?.lateArrival?.changePercentage ?? 0,
+      change: `${data?.lateArrival?.changePercentage} ${
+        data?.lateArrival?.change > 0 ? "more" : "less"
+      } than yesterday`,
+      changeColor: "red.500",
+      link: "/attendance/record?status=2",
+    },
+    {
+      label: "Early Departures",
+      value: data?.earlyDeparture?.count,
+      changePercentage: data?.earlyDeparture?.changePercentage ?? 0,
+      icon: FaMoon,
+      change: `${data?.earlyDeparture?.changePercentage} ${data?.earlyDeparture?.change > 0 ? "more" : "less"} than yesterday`,
+      changeColor: "green.500",
+      link: "/attendance/record?status=1",
+    },
+    {
+      label: "Time-off",
+      value: data?.timeOff?.count,
+      changePercentage: data?.timeOff?.changePercentage ?? 0,
+      icon: FaFileAlt,
+      change: `${data?.timeOff?.changePercentage} ${data?.timeOff?.change > 0 ? "more" : "less"} than yesterday`,
+      changeColor: "blue.500",
+      link: "/attendance/record", // time off skip direct link
+    },
+  ];
 
-	const lineChartOptions = useMemo(
-		() => ({
-			chart: {
-				type: 'line',
-				toolbar: { show: false },
-				zoom: { enabled: false },
-			},
-			stroke: {
-				curve: 'smooth',
-				width: 4,
-				colors: ['#D99A36'],
-			},
-			markers: {
-				size: 6,
-				colors: ['#fff'],
-				strokeColors: '#D99A36',
-				strokeWidth: 3,
-				hover: { size: 8 },
-			},
-			fill: {
-				type: 'gradient',
-				gradient: {
-					shade: 'light',
-					shadeIntensity: 0.2,
-					opacityFrom: 0.6,
-					opacityTo: 0,
-					stops: [0, 100],
-					colorStops: [
-						{ offset: 0, color: '#D99A36', opacity: 0.3 },
-						{ offset: 100, color: 'rgba(255, 255, 255, 0)', opacity: 0 },
-					],
-				},
-			},
-			xaxis: {
-				categories: data?.labels ?? [],
-				labels: {
-					style: {
-						colors: '#555',
-						fontSize: '14px',
-						fontWeight: 500,
-					},
-				},
-				axisBorder: { color: '#ccc' },
-				axisTicks: { color: '#ccc' },
-			},
-			yaxis: {
-				min: 0,
-				max: 100,
-				tickAmount: 5,
-				labels: {
-					formatter: (val) => `${Math.round(val)}%`,
-					style: {
-						colors: '#555',
-						fontSize: '14px',
-						fontWeight: 500,
-					},
-				},
-			},
+  const lineChartOptions = useMemo(
+    () => ({
+      chart: {
+        type: "line",
+        toolbar: { show: false },
+        zoom: { enabled: false },
+      },
+      stroke: {
+        curve: "smooth",
+        width: 4,
+        colors: ["#D99A36"],
+      },
+      markers: {
+        size: 6,
+        colors: ["#fff"],
+        strokeColors: "#D99A36",
+        strokeWidth: 3,
+        hover: { size: 8 },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          shade: "light",
+          shadeIntensity: 0.2,
+          opacityFrom: 0.6,
+          opacityTo: 0,
+          stops: [0, 100],
+          colorStops: [
+            { offset: 0, color: "#D99A36", opacity: 0.3 },
+            { offset: 100, color: "rgba(255, 255, 255, 0)", opacity: 0 },
+          ],
+        },
+      },
+      xaxis: {
+        categories: data?.labels ?? [],
+        labels: {
+          style: {
+            colors: "#555",
+            fontSize: "14px",
+            fontWeight: 500,
+          },
+        },
+        axisBorder: { color: "#ccc" },
+        axisTicks: { color: "#ccc" },
+      },
+      yaxis: {
+        min: 0,
+        max: 100,
+        tickAmount: 5,
+        labels: {
+          formatter: (val) => `${Math.round(val)}%`,
+          style: {
+            colors: "#555",
+            fontSize: "14px",
+            fontWeight: 500,
+          },
+        },
+      },
 
-			tooltip: {
-				enabled: true,
-				theme: 'dark',
-				y: { formatter: (val) => `${val}%` },
-				style: { fontSize: '14px' },
-			},
-			grid: {
-				borderColor: '#EAEAEA',
-				strokeDashArray: 4,
-			},
-			legend: { show: false },
-		}),
-		[data?.labels]
-	);
+      tooltip: {
+        enabled: true,
+        theme: "dark",
+        y: { formatter: (val) => `${val}%` },
+        style: { fontSize: "14px" },
+      },
+      grid: {
+        borderColor: "#EAEAEA",
+        strokeDashArray: 4,
+      },
+      legend: { show: false },
+    }),
+    [data?.labels]
+  );
 
-	const lineChartData = useMemo(
-		() => [{ name: 'Attendance', data: data?.attendancePercentages ?? [] }],
-		[data?.attendancePercentages]
-	);
+  const lineChartData = useMemo(
+    () => [{ name: "Attendance", data: data?.attendancePercentages ?? [] }],
+    [data?.attendancePercentages]
+  );
 
-	const barChartOptions = {
-		chart: { type: 'bar' },
-		plotOptions: {
-			bar: {
-				columnWidth: '50%',
-				distributed: false,
-			},
-		},
-		colors: ['#D99A36'],
-		xaxis: { categories: data?.roleNames ?? [] },
-		yaxis: {
-			labels: { formatter: (val) => `${Math.round(val)}%` },
-		},
-		tooltip: { enabled: true, theme: 'light' },
-	};
+  const barChartOptions = {
+    chart: { type: "bar" },
+    plotOptions: {
+      bar: {
+        columnWidth: "50%",
+        distributed: false,
+      },
+    },
+    colors: ["#D99A36"],
+    xaxis: { categories: data?.roleNames ?? [] },
+    yaxis: {
+      labels: { formatter: (val) => `${Math.round(val)}%` },
+    },
+    tooltip: { enabled: true, theme: "light" },
+  };
 
-	const barChartData = [
-		{
-			name: 'Attendance',
-			data: data?.roleCounts ?? [],
-		},
-	];
+  const barChartData = [
+    {
+      name: "Attendance",
+      data: data?.roleCounts ?? [],
+    },
+  ];
 
-	const [loading, setLoading] = useState(true);
-	const [refetching, setRefetching] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [refetching, setRefetching] = useState(false);
 
-	useEffect(() => {
-		const timer = setTimeout(() => setLoading(false), 3500);
-		return () => clearTimeout(timer);
-	}, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 3500);
+    return () => clearTimeout(timer);
+  }, []);
 
-	useEffect(() => {
-		if (!isFetching) setRefetching(false);
-	}, [isFetching]);
+  useEffect(() => {
+    if (!isFetching) setRefetching(false);
+  }, [isFetching]);
 
-	const handleApplyFilter = (newAgency) => {
-		setQueryParams((prev) => ({ ...prev, agency: newAgency }));
-		onClose();
-		setRefetching(true);
-		setAgency(selectedAgency?.name ?? null);
-	};
+  const handleApplyFilter = (newAgency) => {
+    setQueryParams((prev) => ({ ...prev, agency: newAgency }));
+    onClose();
+    setRefetching(true);
+    setAgency(selectedAgency?.name ?? null);
+  };
 
-	return loading ? (
-		<Box h='100vh'>
-			<DashboardShimmer />
-		</Box>
-	) : (
-		<>
-			{/* {role !== 'Attendance' && (
+  return loading ? (
+    <Box h="100vh">
+      <DashboardShimmer />
+    </Box>
+  ) : (
+    <>
+      {/* {role !== 'Attendance' && (
 				<AppButton
 					ml='2'
 					leftIcon={<IoArrowBack />}
@@ -259,77 +260,90 @@ const Dashboard = () => {
 				</AppButton>
 			)} */}
 
-			<Flex
-				bg='white'
-				justifyContent='space-between'
-				py='2'
-				px='4'
-				mx='2'
-				my='2'
-				rounded='md'
-				alignItems='center'
-			>
-				<Heading fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
-					{agency ? `${agency} Agency` : 'All Agencies'}
-				</Heading>
-				{isSuperAdmin && (
-					<IconButton
-						icon={<FiFilter />}
-						onClick={onOpen}
-						aria-label='Filter Date'
-						colorScheme='brand'
-						variant='solid'
-						size='sm'
-						borderRadius='full'
-						boxShadow='md'
-					/>
-				)}
+      <Flex
+        bg="white"
+        justifyContent="space-between"
+        py="2"
+        px="4"
+        mx="2"
+        my="2"
+        rounded="md"
+        alignItems="center"
+      >
+        <Heading fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+          {agency ? `${agency} Agency` : "All Agencies"}
+        </Heading>
+        <Flex
+          align={"center"}
+          gap={2}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
+          {isSuperAdmin && (
+            <IconButton
+              icon={<FiFilter />}
+              onClick={onOpen}
+              aria-label="Filter Date"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          )}
+        </Flex>
+        {userRoleName === "HR" && (
+          <Button
+            as={Link}
+            to={`/office-settings/${user?.agency?._id}`}
+            colorScheme="brand"
+            variant="outline"
+            size="sm"
+            borderRadius="lg"
+          >
+            Office Settings
+          </Button>
+        )}
+      </Flex>
 
-				{userRoleName === 'HR' && (
-					<Button
-						as={Link}
-						to={`/office-settings/${user?.agency?._id}`}
-						colorScheme='brand'
-						variant='outline'
-						size='sm'
-						borderRadius='lg'
-					>
-						Office Settings
-					</Button>
-				)}
-			</Flex>
+      {isLoading || isFetching ? (
+        <Box h="100vh">
+          <Loader />
+        </Box>
+      ) : (
+        <Box p="2">
+          <RealTimeData
+            data={data}
+            stats={stats}
+            lineChartData={lineChartData}
+            lineChartOptions={lineChartOptions}
+            barChartData={barChartData}
+            barChartOptions={barChartOptions}
+            selectedView={selectedView}
+            setSelectedView={setSelectedView}
+            setQueryParams={setQueryParams}
+          />
+        </Box>
+      )}
 
-			{loading || refetching ? (
-				<Box h='100vh'>
-					<Loader />
-				</Box>
-			) : (
-				<Box p='2'>
-					<RealTimeData
-						data={data}
-						stats={stats}
-						lineChartData={lineChartData}
-						lineChartOptions={lineChartOptions}
-						barChartData={barChartData}
-						barChartOptions={barChartOptions}
-						selectedView={selectedView}
-						setSelectedView={setSelectedView}
-						setQueryParams={setQueryParams}
-					/>
-				</Box>
-			)}
-
-			{isOpen && (
-				<AgencyFilter
-					handleApplyFilter={handleApplyFilter}
-					isOpen={isOpen}
-					onClose={onClose}
-					selectedAgency={selectedAgency}
-					setSelectedAgency={setSelectedAgency}
-				/>
-			)}
-		</>
-	);
+      {isOpen && (
+        <AgencyFilter
+          handleApplyFilter={handleApplyFilter}
+          isOpen={isOpen}
+          onClose={onClose}
+          selectedAgency={selectedAgency}
+          setSelectedAgency={setSelectedAgency}
+        />
+      )}
+    </>
+  );
 };
 
 export default Dashboard;
