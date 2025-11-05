@@ -48,6 +48,7 @@ const InterviewedCandidates = () => {
 		data: invitedData,
 		error,
 		isLoading,
+		isFetching,
 		refetch,
 	} = useFetchItemsQuery(
 		{
@@ -311,7 +312,7 @@ const InterviewedCandidates = () => {
 				handlePageSizeChange={handlePageSizeChange}
 				handleGotoPage={handleGotoPage}
 				gopageValue={gopageValue}
-				isRefetching={isRefetching}
+				isRefetching={isRefetching || isFetching}
 				setGopageValue={setGopageValue}
 				setAdvanceSearch={setAdvanceSearch}
 			/>

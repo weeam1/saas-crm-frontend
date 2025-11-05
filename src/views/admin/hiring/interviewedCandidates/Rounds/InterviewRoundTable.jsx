@@ -36,6 +36,7 @@ const InterviewedRoundTable = ({
 	handleViewCandidate,
 	handleViewResult,
 	refetch,
+	isFetching
 }) => {
 	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
 	const [candidate, setCandidate] = useState(null);
@@ -188,7 +189,7 @@ const InterviewedRoundTable = ({
 							</Tr>
 						</Thead>
 						<Tbody>
-							{loading ? (
+							{loading || isFetching ? (
 								<TableLoading columns={headers} length={8} />
 							) : data && data?.length ? (
 								data?.map((item, index) => (
