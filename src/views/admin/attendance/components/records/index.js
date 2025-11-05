@@ -223,8 +223,7 @@ export default function Records() {
 					content={['date', 'agencyFilter', 'report']}
 					filterOpen={filterOnOpen}
 					onDateFilterChange={onFilterChange}
-					isLoading={isLoading}
-					isFetching={isFetching}
+					isLoading={isLoading || isFetching}
 					refetch={attendanceRefetch}
 				/>
 
