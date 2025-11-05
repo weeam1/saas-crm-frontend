@@ -346,7 +346,8 @@ const IncomingCashTable = ({
         borderRadius="lg"
         boxShadow="sm"
         bg="white"
-        maxH={"calc(60vh - 100px)"}
+        maxH={"calc(65vh - 100px)"}
+        h={"85vh"}
         overflowY="auto"
       >
         <Table variant="striped" size="sm" bg="white">
