@@ -16,7 +16,6 @@ import { FiFilter } from "react-icons/fi";
 import DateFilter from "./DateFilter";
 import ViewToggle from "components/toggle/ViewToggle";
 import useUserSession from "hooks/useUserSession";
-import { FiRefreshCw } from "react-icons/fi";
 
 const AttendanceHeader = ({
   title,
@@ -31,9 +30,6 @@ const AttendanceHeader = ({
   content,
   view,
   handleView,
-  isLoading,
-  isFetching,
-  refetch,
 }) => {
   const handleInputChange = (event) => {
     searchTermRef.current = event.target.value;
@@ -68,14 +64,14 @@ const AttendanceHeader = ({
         flexDirection={{ base: "column", md: "row" }}
         alignItems={{ base: "flex-end", md: "center" }}
       >
-        <IconButton
+        {/* <IconButton
           icon={<FiRefreshCw />}
           aria-label="Refresh"
           onClick={() => refetch()}
           isLoading={isLoading || isFetching}
           variant="outline"
           size="sm"
-        />
+        /> */}
         {/* Search Input & Button */}
         <InputGroup
           bg="white"
