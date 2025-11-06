@@ -64,6 +64,7 @@ const Category = () => {
 		},
 		{
 			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
 		}
 	);
 
@@ -91,7 +92,7 @@ const Category = () => {
 		});
 	};
 
-	const removeCategory = (id) => {
+	const removeItem = (id) => {
 		setCategories((prev) => prev.filter((item) => item._id !== id));
 	};
 
@@ -150,7 +151,7 @@ const Category = () => {
 			<CategoryTable
 				data={categories}
 				updateData={updateData}
-				removeCategory={removeCategory}
+				removeItem={removeItem}
 				handleOpenEdit={handleOpenEdit}
 				isLoading={isLoading || isFetching}
 			/>

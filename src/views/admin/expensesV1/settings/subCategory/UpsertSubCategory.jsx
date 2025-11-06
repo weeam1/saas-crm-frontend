@@ -221,7 +221,11 @@ const UpsertSubCategory = ({
 					)}
 				</ModalBody>
 				<ModalFooter gap={3}>
-					<Button variant='ghost' onClick={onClose}>
+					<Button
+						variant='ghost'
+						isDisabled={creating || updating}
+						onClick={onClose}
+					>
 						Cancel
 					</Button>
 					<Button

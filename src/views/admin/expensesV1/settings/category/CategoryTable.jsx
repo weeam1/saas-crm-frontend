@@ -20,26 +20,29 @@ import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState } from 'react';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import { format } from 'date-fns';
+import ConfirmationModal from 'components/Message/ConfirmationModal';
+import { toast } from 'react-toastify';
 
 export const CategoryTable = ({
 	data = [],
 	isLoading,
 	handleOpenEdit,
-	removeCategory,
+	removeItem,
 }) => {
 	const columns = [
-		{ key: 'name', label: 'Name' },
-		{ key: 'description', label: 'Description' },
-		// { key: 'colorCode', label: 'Color' },
-		{ key: 'isActive', label: 'Status' },
-		{ key: 'createdBy', label: 'Created By' },
-		{ key: 'createdAt', label: 'Created At' },
-		// { key: 'updatedAt', label: 'Updated At' },
-		{ key: 'actions', label: 'Actions' },
+		{ key: 'name', label: 'Name', width: '150px' },
+		{ key: 'description', label: 'Description', width: '300px' },
+		{ key: 'isActive', label: 'Status', width: '100px' },
+		{ key: 'createdBy', label: 'Created By', width: '150px' },
+		{ key: 'createdAt', label: 'Created At', width: '200px' },
+		{ key: 'actions', label: 'Actions', width: '120px' },
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
-	const [deleteUser] = useDeleteItemMutation();
+	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+	const [selectedId, setSelectedId] = useState(null);
+
+	const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
 
 	useEffect(() => {
 		let timer;
@@ -80,7 +83,22 @@ export const CategoryTable = ({
 	};
 
 	const handleDelete = (id) => {
-		removeCategory(id);
+		setSelectedId(id);
+		setDeleteModalOpen(true);
+	};
+
+	const handleConfirmRemove = async () => {
+		try {
+			await deleteItem({
+				path: `finance/expenses/categories/${selectedId}`,
+			}).unwrap();
+			toast.success('Category deleted successfully');
+			removeItem(selectedId);
+		} catch (error) {
+			toast.error(error?.data?.message || 'Failed to delete category');
+		} finally {
+			setDeleteModalOpen(false);
+		}
 	};
 
 	return (
@@ -108,7 +126,7 @@ export const CategoryTable = ({
 								textAlign={['name'].includes(column.key) ? 'left' : 'center'}
 								fontWeight='semibold'
 								color='gray.700'
-								minW={column.key === 'description' ? '250px' : 'auto'}
+								minW={column.width}
 							>
 								{column.label}
 							</Th>
@@ -142,7 +160,7 @@ export const CategoryTable = ({
 										px={3}
 										wordBreak='break-word'
 										fontSize='sm'
-										minW='250px'
+										minW={column.width}
 										textAlign={
 											['name'].includes(column.key) ? 'left' : 'center'
 										}
@@ -161,7 +179,7 @@ export const CategoryTable = ({
 														onClick={() => handleOpenEdit(row)}
 													/>
 												</Tooltip>
-												{/* <Tooltip label='Delete'>
+												<Tooltip label='Delete'>
 													<IconButton
 														aria-label='Delete'
 														icon={<FiTrash2 />}
@@ -170,7 +188,7 @@ export const CategoryTable = ({
 														variant='ghost'
 														onClick={() => handleDelete(row._id)}
 													/>
-												</Tooltip> */}
+												</Tooltip>
 											</Flex>
 										) : (
 											formatValue(column.key, row[column.key])
@@ -182,6 +200,20 @@ export const CategoryTable = ({
 					)}
 				</Tbody>
 			</Table>
+
+			{/* Delete Confirmation Modal */}
+			{isDeleteModalOpen && (
+				<ConfirmationModal
+					isOpen={isDeleteModalOpen}
+					onClose={() => setDeleteModalOpen(false)}
+					onConfirm={handleConfirmRemove}
+					title='Delete Category'
+					message={`Are you sure you want to delete this category?`}
+					confirmText='Yes, Delete'
+					cancelText='Cancel'
+					isLoading={isDeleting}
+				/>
+			)}
 		</Box>
 	);
 };

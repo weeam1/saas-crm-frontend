@@ -10,7 +10,7 @@ import {
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { usePermissions } from 'hooks/usePermissions';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
 import UpsertSubCategory from './UpsertSubCategory';
@@ -21,6 +21,9 @@ const SubCategory = () => {
 	const [page, setPage] = useState(1);
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
+
+	const [searchParams] = useSearchParams();
+	const activeTab = searchParams.get('tab') || 'sub-category';
 
 	const {
 		isOpen: categoryIsOpen,
@@ -56,9 +59,13 @@ const SubCategory = () => {
 		{
 			path: 'finance/expenses/subcategories',
 			params: queryParams,
+			activeTab,
 		},
 		{
+			skip: activeTab !== 'sub-category',
 			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+			refetchOnReconnect: true,
 		}
 	);
 
@@ -71,6 +78,10 @@ const SubCategory = () => {
 	useEffect(() => {
 		refetch();
 	}, [page, refetch]);
+
+	useEffect(() => {
+		refetch();
+	}, []);
 
 	const updateData = (id, updated) => {
 		setCategories((prev) => {
