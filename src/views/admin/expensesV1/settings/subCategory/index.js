@@ -145,6 +145,7 @@ const SubCategory = () => {
 			<SubCategoryTable
 				data={subCategories}
 				updateData={updateData}
+				handleOpenEdit={handleOpenEdit}
 				removeCategory={removeCategory}
 				isLoading={isLoading || isFetching}
 			/>

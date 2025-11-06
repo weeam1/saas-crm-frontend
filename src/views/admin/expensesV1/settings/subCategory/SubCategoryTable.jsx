@@ -26,7 +26,8 @@ export const SubCategoryTable = ({
 	removeCategory,
 }) => {
 	const columns = [
-		{ key: 'name', label: 'Name' },
+		{ key: 'name', label: 'Sub Category' },
+		{ key: 'category', label: 'Category' },
 		{ key: 'description', label: 'Description' },
 		// { key: 'colorCode', label: 'Color' },
 		{ key: 'isActive', label: 'Status' },
@@ -70,8 +71,9 @@ export const SubCategoryTable = ({
 				);
 			case 'createdBy':
 				return value?.fullName || value?.username || '-';
+			case 'category':
+				return value?.name || '-';
 			case 'createdAt':
-			case 'updatedAt':
 				return format(new Date(value), 'MMM d, yyyy h:mm a');
 			default:
 				return value || '-';
@@ -94,7 +96,7 @@ export const SubCategoryTable = ({
 			boxShadow='sm'
 			bg='white'
 		>
-			<Table variant='simple' size='md'>
+			<Table variant='striped' size='sm'>
 				<Thead bg='brand.200' position='sticky' top={0} zIndex={1}>
 					<Tr>
 						{columns.map((column) => (
@@ -145,7 +147,16 @@ export const SubCategoryTable = ({
 										textAlign={
 											['name'].includes(column.key) ? 'left' : 'center'
 										}
-										fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
+										fontWeight={
+											['name', 'category'].includes(column.key)
+												? 'semibold'
+												: 'medium'
+										}
+										// bg={
+										// 	column.key === 'category'
+										// 		? row[column.key]?.colorCode
+										// 		: 'inherit'
+										// }
 										color='gray.700'
 									>
 										{column.key === 'actions' ? (

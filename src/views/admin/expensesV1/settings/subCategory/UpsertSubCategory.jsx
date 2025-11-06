@@ -14,9 +14,16 @@ import {
 	Switch,
 	Flex,
 	Text,
+	Select,
 } from '@chakra-ui/react';
-import { useCreateItemMutation, useUpdateItemMutation } from 'api/apiSlice';
+import {
+	useCreateItemMutation,
+	useFetchItemsQuery,
+	useUpdateItemMutation,
+} from 'api/apiSlice';
+import Loader from 'components/loading/Loader';
 import { useModalColors } from 'hooks/useModalColors';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
@@ -28,15 +35,23 @@ const UpsertSubCategory = ({
 }) => {
 	const isEditMode = Boolean(initialData);
 
+	const { data: categories, isLoading: categoriesLoading } = useFetchItemsQuery(
+		{
+			path: '/finance/expenses/categories/options',
+		}
+	);
+
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 		reset,
 		watch,
+		setValue,
 	} = useForm({
 		defaultValues: {
 			name: initialData?.name || '',
+			category: initialData?.category?._id || '',
 			description: initialData?.description || '',
 			isActive: initialData?.isActive ?? true,
 		},
@@ -56,6 +71,7 @@ const UpsertSubCategory = ({
 			const payload = {
 				name: data.name || '',
 				description: data.description || '',
+				category: data.category ?? initialData?.category?._id,
 				isActive: data.isActive ?? true,
 			};
 
@@ -64,19 +80,19 @@ const UpsertSubCategory = ({
 			if (isEditMode) {
 				// Edit Mode → Update
 				res = await update({
-					path: `finance/expenses/categories/${initialData?._id}`,
+					path: `finance/expenses/subcategories/${initialData?._id}`,
 					body: payload,
 				}).unwrap();
 
-				toast.success('Category updated successfully');
+				toast.success('Sub Category updated successfully');
 			} else {
 				// Create Mode → Add
 				res = await create({
-					path: 'finance/expenses/categories',
+					path: 'finance/expenses/subcategories',
 					body: payload,
 				}).unwrap();
 
-				toast.success('Category created successfully');
+				toast.success('Sub Category created successfully');
 			}
 
 			// Update parent state
@@ -105,79 +121,104 @@ const UpsertSubCategory = ({
 					alignItems='center'
 					w='100%'
 				>
-					{isEditMode ? 'Edit Category' : 'Add New Category'}
+					{isEditMode ? 'Edit Sub Category' : 'Add Sub Category'}
 				</ModalHeader>
 				<ModalCloseButton />
 				<ModalBody>
-					<Flex direction='column' gap={5}>
-						<FormControl isRequired isInvalid={!!errors.name}>
-							<FormLabel fontWeight='medium' color='gray.600'>
-								Name
-							</FormLabel>
-							<Input
-								placeholder={
-									isEditMode
-										? 'Update category name (e.g. Facilities)'
-										: 'Enter category name (e.g. Marketing, Utilities)'
-								}
-								focusBorderColor='brand.400'
-								{...register('name', {
-									required: 'Name is required',
-									validate: (value) =>
-										value.trim() !== '' || 'Name cannot be empty',
-								})}
-							/>
-							{errors.name && (
-								<Text mt={1} fontSize='xs' color='red.500'>
-									{errors.name.message}
+					{categoriesLoading ? (
+						<Loader />
+					) : (
+						<Flex direction='column' gap={5}>
+							<FormControl isRequired isInvalid={!!errors.category}>
+								<FormLabel fontWeight='medium' color='gray.600'>
+									Main Category
+								</FormLabel>
+								<Select
+									placeholder='Select main category'
+									focusBorderColor='brand.400'
+									{...register('category', {
+										required: 'Parent category is required',
+									})}
+									isDisabled={categoriesLoading || !categories?.doc?.length}
+								>
+									{categories?.doc?.map((cat) => (
+										<option key={cat._id} value={cat._id}>
+											{cat.name}
+										</option>
+									))}
+								</Select>
+								{errors.category && (
+									<Text mt={1} fontSize='xs' color='red.500'>
+										{errors.category.message}
+									</Text>
+								)}
+							</FormControl>
+
+							<FormControl isRequired isInvalid={!!errors.name}>
+								<FormLabel fontWeight='medium' color='gray.600'>
+									Name
+								</FormLabel>
+								<Input
+									placeholder={
+										isEditMode
+											? 'Update sub category name (e.g. Internet)'
+											: 'Enter sub category name (e.g. Internet, Dinner)'
+									}
+									focusBorderColor='brand.400'
+									{...register('name', {
+										required: 'Name is required',
+										validate: (value) =>
+											value.trim() !== '' || 'Name cannot be empty',
+									})}
+								/>
+								{errors.name && (
+									<Text mt={1} fontSize='xs' color='red.500'>
+										{errors.name.message}
+									</Text>
+								)}
+							</FormControl>
+
+							<FormControl>
+								<FormLabel fontWeight='medium' color='gray.600'>
+									Description
+								</FormLabel>
+								<Textarea
+									focusBorderColor='brand.400'
+									placeholder={'Add details about this category (optional)'}
+									resize='none'
+									{...register('description')}
+								/>
+								<Text mt={1} fontSize='xs' color='gray.500'>
+									Optional, but helps provide context for your team.
 								</Text>
-							)}
-						</FormControl>
+							</FormControl>
 
-						<FormControl>
-							<FormLabel fontWeight='medium' color='gray.600'>
-								Description
-							</FormLabel>
-							<Textarea
-								focusBorderColor='brand.400'
-								placeholder={
-									isEditMode
-										? 'Update category description (e.g. Facilities Expenses)'
-										: 'Add details about this category (optional)'
-								}
-								resize='none'
-								{...register('description')}
-							/>
-							<Text mt={1} fontSize='xs' color='gray.500'>
-								Optional, but helps provide context for your team.
-							</Text>
-						</FormControl>
-
-						<FormControl display='flex' alignItems='center'>
-							<FormLabel fontWeight='medium' color='gray.600' mb='0'>
-								Status
-							</FormLabel>
-							<Switch
-								{...register('isActive')}
-								isChecked={isActive}
-								onChange={(e) =>
-									reset(
-										{ ...watch(), isActive: e.target.checked },
-										{ keepValues: true }
-									)
-								}
-								colorScheme='green'
-								size='lg'
-							/>
-							<Text
-								ml={3}
-								fontSize='sm'
-								color={isActive ? 'green.600' : 'gray.500'}
-							>
-								{isActive ? 'Active' : 'Inactive'}
-							</Text>
-						</FormControl>
-					</Flex>
+							<FormControl display='flex' alignItems='center'>
+								<FormLabel fontWeight='medium' color='gray.600' mb='0'>
+									Status
+								</FormLabel>
+								<Switch
+									{...register('isActive')}
+									isChecked={isActive}
+									onChange={(e) =>
+										reset(
+											{ ...watch(), isActive: e.target.checked },
+											{ keepValues: true }
+										)
+									}
+									colorScheme='green'
+									size='lg'
+								/>
+								<Text
+									ml={3}
+									fontSize='sm'
+									color={isActive ? 'green.600' : 'gray.500'}
+								>
+									{isActive ? 'Active' : 'Inactive'}
+								</Text>
+							</FormControl>
+						</Flex>
+					)}
 				</ModalBody>
 				<ModalFooter gap={3}>
 					<Button variant='ghost' onClick={onClose}>
@@ -191,7 +232,7 @@ const UpsertSubCategory = ({
 						onClick={handleSubmit(submitHandler)}
 						fontWeight='semibold'
 					>
-						{isEditMode ? 'Save Changes' : 'Add Category'}
+						{isEditMode ? 'Save Changes' : 'Add'}
 					</Button>
 				</ModalFooter>
 			</ModalContent>

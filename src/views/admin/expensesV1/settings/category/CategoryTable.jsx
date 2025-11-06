@@ -73,7 +73,6 @@ export const CategoryTable = ({
 			case 'createdBy':
 				return value?.fullName || value?.username || '-';
 			case 'createdAt':
-			case 'updatedAt':
 				return format(new Date(value), 'MMM d, yyyy h:mm a');
 			default:
 				return value || '-';
@@ -96,7 +95,7 @@ export const CategoryTable = ({
 			boxShadow='sm'
 			bg='white'
 		>
-			<Table variant='simple' size='md'>
+			<Table variant='striped' size='sm'>
 				<Thead bg='brand.200' position='sticky' top={0} zIndex={1}>
 					<Tr>
 						{columns.map((column) => (
