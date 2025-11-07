@@ -20,6 +20,7 @@ import {
   FaPhone,
   FaWhatsapp,
   FaHandshake,
+  FaFileAlt
 } from "react-icons/fa";
 import { FaCreativeCommonsBy } from "react-icons/fa";
 import { MdCampaign } from "react-icons/md";
@@ -105,6 +106,11 @@ const ExpenseBalanceScreen = React.lazy(
 const OutgoingCashScreen = React.lazy(
   () => import("views/admin/expensesV1/OutgoingCashScreen")
 );
+
+//Evalution
+const Evalution = React.lazy(() => import ("views/admin/evalution/index"));
+const UserEvalution = React.lazy(() => import("views/admin/evalution/user-evalution/UserEvalution"));
+const EvaluateSettings = React.lazy(() => import("views/admin/evalution/settings/index"));
 
 // Finance
 const Finance = React.lazy(() => import("views/admin/finance/index"));
@@ -563,7 +569,7 @@ const routes = [
     parentName: "finance",
     component: OutgoingCash,
   },
-    {
+  {
     moduleId: "finance",
     name: "Settings",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -598,6 +604,32 @@ const routes = [
     parentName: "Invoice",
     path: "/invoice/developers/invoices/entries/:id",
     component: AddEntry,
+  },
+  {
+    // moduleId: "evalution",
+    name: "Evalution",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    path: "/evalution",
+    icon: <Icon as={FaFileAlt} width="20px" height="20px" color="inherit" />,
+    component: Evalution,
+  },
+   {
+    // moduleId: "evalution",
+    name: "User Evalution",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+      under: "evalution",
+    path: "/evalution/user-evalution",
+    parentName: "evalution",
+    component: UserEvalution,
+  },
+   {
+    // moduleId: "evalution",
+    name: "Settings",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "evalution",
+    path: "/evalution/settings",
+    parentName: "evalution",
+    component: EvaluateSettings,
   },
 
   // -----------------------------Admin setting-------------------------------------

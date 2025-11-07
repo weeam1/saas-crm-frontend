@@ -20,6 +20,7 @@ import {
   FaHandshake,
   FaPhone,
   FaRegCopy,
+  FaFileAlt,
 } from "react-icons/fa";
 import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
 import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
@@ -451,7 +452,7 @@ export const sidebarRoutes = [
 
   // -------- Finance --------
   {
-    moduleId: 'expense',
+    moduleId: "expense",
     name: "Expenses",
     path: "/finance",
     isNested: true,
@@ -628,6 +629,22 @@ export const sidebarRoutes = [
     isNested: false,
     icon: MdOutlineLaptopMac,
     color: "#c03910ff", // Gray
+  },
+  {
+    name: "Evalution",
+    path: "/evalution",
+    icon: FaFileAlt,
+    color: "#86f17dff", // Gray
+      children: [
+      {
+        name: "Evalute User",
+        path: "/evalution/user-evalution",
+      },
+     {
+        name: "Settings",
+        path: "/evalution/settings",
+      },
+    ]
   },
 ];
 
