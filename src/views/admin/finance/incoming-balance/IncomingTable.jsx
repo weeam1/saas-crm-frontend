@@ -97,12 +97,12 @@ export const IncomingTable = ({
 	const handleConfirmRemove = async () => {
 		try {
 			await deleteItem({
-				path: `finance/cash/outgoing/${selectedId}`,
+				path: `finance/cash/incoming/${selectedId}`,
 			}).unwrap();
-			toast.success('Expense deleted successfully');
+			toast.success('Incoming balance deleted successfully');
 			removeItem(selectedId);
 		} catch (error) {
-			toast.error(error?.data?.message || 'Failed to delete expense');
+			toast.error(error?.data?.message || 'Failed to delete Incoming balance');
 		} finally {
 			setDeleteModalOpen(false);
 		}
@@ -234,7 +234,7 @@ export const IncomingTable = ({
 					onClose={() => setDeleteModalOpen(false)}
 					onConfirm={handleConfirmRemove}
 					title='Delete Cash'
-					message={`Are you sure you want to delete this outgoing cash?`}
+					message={`Are you sure you want to delete this Incoming balance?`}
 					confirmText='Yes, Delete'
 					cancelText='Cancel'
 					isLoading={isDeleting}
