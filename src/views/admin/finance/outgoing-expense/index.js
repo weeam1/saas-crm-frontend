@@ -100,7 +100,7 @@ const OutgoingExpense = () => {
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
 					<Text>{selectedAgency?.name || 'All '} Outgoing Cash</Text>
-					<CountUpComponent key={data?.length} targetNumber={data?.length} />
+					<CountUpComponent key={totalRecords} targetNumber={totalRecords} />
 				</Flex>
 
 				<HStack gap='2' alignItems='center'>
