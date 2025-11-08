@@ -169,7 +169,10 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 				bg={bg}
 				borderRadius='lg'
 				overflow='hidden'
+				maxH='90vh'
 				mx={{ base: 2, sm: 2, md: 0 }}
+				maxW={{ base: 'full', sm: 'full', md: '70vw' }}
+				w='full'
 			>
 				<ModalHeader
 					bg={headerColor}
@@ -179,8 +182,11 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 				>
 					<HStack justify='space-between' align='center'>
 						<HStack spacing='2' align='center'>
-							<FiUserPlus size='22' />
-							<Text fontSize='xl' fontWeight='600'>
+							<FiUserPlus size='20' />
+							<Text
+								fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+								fontWeight='600'
+							>
 								Add New Lead
 							</Text>
 						</HStack>
@@ -198,7 +204,7 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 							<ModalBody
 								px={{ base: 4, md: 8 }}
 								py={6}
-								maxH='70vh'
+								maxH='60vh'
 								overflowY='auto'
 							>
 								<Grid
