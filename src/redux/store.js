@@ -19,6 +19,7 @@ import whatsappWebReducer from './whatsappWebSlice';
 import sipReducer from './sipSlice';
 import permissionReducer from './permissionSlice';
 import onlineUsersReducer from './onlineUsersSlice';
+import utilSliceReducer from './utilSlice';
 
 import { apiSlice } from 'api/apiSlice';
 import countriesData from 'data/countries.json';
@@ -29,6 +30,7 @@ enableMapSet();
 
 const store = configureStore({
 	reducer: {
+		util: utilSliceReducer,
 		onlineUsers: onlineUsersReducer,
 		leads: leadsReducer,
 		// roles: roleReducer,

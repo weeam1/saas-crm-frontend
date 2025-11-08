@@ -7,6 +7,7 @@ import {
 	Skeleton,
 	Badge,
 	Icon,
+	HStack,
 } from '@chakra-ui/react';
 import { FaFileInvoiceDollar, FaReceipt } from 'react-icons/fa';
 import {
@@ -18,22 +19,22 @@ import {
 import { MdAttachMoney } from 'react-icons/md';
 import { formatCurrency } from 'utils/helpers';
 
-const monthNames = [
-	'January',
-	'February',
-	'March',
-	'April',
-	'May',
-	'June',
-	'July',
-	'August',
-	'September',
-	'October',
-	'November',
-	'December',
-];
+// const monthNames = [
+// 	'January',
+// 	'February',
+// 	'March',
+// 	'April',
+// 	'May',
+// 	'June',
+// 	'July',
+// 	'August',
+// 	'September',
+// 	'October',
+// 	'November',
+// 	'December',
+// ];
 
-const SummaryCards = ({ data, isLoading = false }) => {
+const SummaryCards = ({ data, isLoading }) => {
 	const cardData = [
 		{
 			title: 'Total Income',
@@ -61,7 +62,7 @@ const SummaryCards = ({ data, isLoading = false }) => {
 			color: 'purple',
 			icon: FaFileInvoiceDollar,
 			// FiPercent,
-			subtitle: `${data?.totalVatPercent || 0}% rate`,
+			percent: `${data?.totalVatPercent || 0}% rate`,
 			description: 'Tax obligations',
 		},
 		{
@@ -76,16 +77,16 @@ const SummaryCards = ({ data, isLoading = false }) => {
 
 	return (
 		<Box
-			bg='white'
-			p={6}
-			shadow='sm'
-			borderRadius='xl'
-			mb={4}
-			border='1px solid'
-			borderColor='gray.100'
+			// bg='white'
+			p={2}
+			// shadow='sm'
+			// borderRadius='xl'
+			mb={1}
+			// border='1px solid'
+			// borderColor='gray.100'
 		>
 			{/* Header */}
-			<Skeleton isLoaded={!isLoading} borderRadius='lg'>
+			{/* <Skeleton isLoaded={!isLoading} borderRadius='lg'>
 				<Flex justify='space-between' align='center' mb={6}>
 					<Box>
 						<Text fontSize='xl' fontWeight='bold' color='gray.800'>
@@ -105,13 +106,17 @@ const SummaryCards = ({ data, isLoading = false }) => {
 						{data?.remainingAmount >= 0 ? 'Profitable' : 'Deficit'}
 					</Badge>
 				</Flex>
-			</Skeleton>
+			</Skeleton> */}
 
-			<SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 4 }} gap={5}>
-				{cardData.map((card, index) => (
-					<SummaryCard key={index} {...card} isLoading={isLoading} />
-				))}
-			</SimpleGrid>
+			{isLoading ? (
+				<SummaryCardsSkeleton />
+			) : (
+				<SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 4 }} gap={5}>
+					{cardData.map((card, index) => (
+						<SummaryCard key={index} {...card} isLoading={isLoading} />
+					))}
+				</SimpleGrid>
+			)}
 		</Box>
 	);
 };
@@ -119,7 +124,7 @@ const SummaryCards = ({ data, isLoading = false }) => {
 const SummaryCard = ({
 	title,
 	value,
-	subtitle,
+	percent,
 	color = 'blue',
 	icon,
 	trend,
@@ -166,28 +171,29 @@ const SummaryCard = ({
 						<Text fontSize='sm' fontWeight='semibold' color='gray.600' mb={1}>
 							{title}
 						</Text>
-						{subtitle && (
-							<Text fontSize='xs' color='gray.500'>
-								{subtitle}
-							</Text>
-						)}
 					</Box>
 					<Icon as={icon} color={`${color}.500`} boxSize={5} mt={1} />
 				</Flex>
 
 				{/* Value */}
-				<Text
-					fontSize={{ base: 'sm', md: 'lg' }}
-					fontWeight='bold'
-					color={value >= 0 ? 'gray.800' : 'red.600'}
-					mb={2}
-				>
-					{formatCurrency(value)}
-				</Text>
+				<HStack justify='space-between' align='center'>
+					<Text
+						fontSize={{ base: 'sm', md: 'lg' }}
+						fontWeight='bold'
+						color={value >= 0 ? 'gray.800' : 'red.600'}
+					>
+						{formatCurrency(value)}
+					</Text>
+					{percent && (
+						<Text fontSize='xs' color='gray.500'>
+							{percent}
+						</Text>
+					)}
+				</HStack>
 
 				{/* Description */}
 				{description && (
-					<Text fontSize='xs' color='gray.500' mb={3}>
+					<Text fontSize='xs' color='gray.500'>
 						{description}
 					</Text>
 				)}
@@ -235,37 +241,23 @@ const SummaryCard = ({
 };
 
 // Skeleton loader component for initial loading
-export const SummaryCardsSkeleton = () => {
+const SummaryCardsSkeleton = () => {
 	return (
-		<Box
-			bg='white'
-			p={6}
-			shadow='sm'
-			borderRadius='xl'
-			mb={4}
-			border='1px solid'
-			borderColor='gray.100'
-		>
-			<Skeleton height='30px' width='200px' mb={6} borderRadius='lg' />
-			<SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 4 }} gap={5}>
-				{[...Array(4)].map((_, index) => (
-					<Box
-						key={index}
-						bg='white'
-						borderRadius='2xl'
-						shadow='md'
-						border='1px solid'
-						borderColor='gray.100'
-						p={6}
-					>
-						<Skeleton height='16px' width='120px' mb={4} borderRadius='md' />
-						<Skeleton height='28px' width='140px' mb={3} borderRadius='md' />
-						<Skeleton height='12px' width='100px' mb={4} borderRadius='md' />
-						<Skeleton height='8px' width='100%' borderRadius='full' />
-					</Box>
-				))}
-			</SimpleGrid>
-		</Box>
+		<SimpleGrid columns={{ base: 1, md: 2, lg: 2, xl: 4 }} gap={5}>
+			{[...Array(4)].map((_, index) => (
+				<Box
+					key={index}
+					bg='white'
+					borderRadius='2xl'
+					shadow='md'
+					border='1px solid'
+					borderColor='gray.100'
+					p={2}
+				>
+					<Skeleton height='90px' mb={2} borderRadius='md' />
+				</Box>
+			))}
+		</SimpleGrid>
 	);
 };
 

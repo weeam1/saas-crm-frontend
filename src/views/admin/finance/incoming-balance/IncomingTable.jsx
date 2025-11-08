@@ -10,11 +10,9 @@ import {
 	Box,
 	Text,
 	Center,
-	useColorModeValue,
-	Tooltip,
-	useDisclosure,
+	Badge,
 } from '@chakra-ui/react';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEdit2, FiEye, FiTrash2 } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
 import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState } from 'react';
@@ -22,19 +20,24 @@ import { useDeleteItemMutation } from 'api/apiSlice';
 import { format } from 'date-fns';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import { toast } from 'react-toastify';
+import { formatCurrency } from 'utils/helpers';
+import { paymentColors } from '../helpers';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
-export const CategoryTable = ({
+export const IncomingTable = ({
 	data = [],
 	isLoading,
 	handleOpenEdit,
 	removeItem,
+	setView,
 }) => {
 	const columns = [
-		{ key: 'name', label: 'Name', width: '150px' },
+		{ key: 'createdAt', label: 'Date', width: '200px' },
 		{ key: 'description', label: 'Description', width: '300px' },
-		{ key: 'isActive', label: 'Status', width: '100px' },
-		{ key: 'createdBy', label: 'Created By', width: '150px' },
-		{ key: 'createdAt', label: 'Created At', width: '200px' },
+		{ key: 'paymentMethod', label: 'Payment Method', width: '300px' },
+		{ key: 'amount', label: 'Amount', width: '180px' },
+		{ key: 'agency', label: 'Agency', width: '180px' },
+		{ key: 'addedBy', label: 'Added By', width: '150px' },
 		{ key: 'actions', label: 'Actions', width: '120px' },
 	];
 
@@ -58,25 +61,29 @@ export const CategoryTable = ({
 
 	const formatValue = (key, value) => {
 		switch (key) {
-			case 'isActive':
-				return value ? 'Active' : 'Inactive';
-			case 'colorCode':
+			case 'paymentMethod': {
+				const color = paymentColors[value] || 'gray';
 				return (
-					<Flex align='center' justify='center' gap={2}>
-						<Box
-							w='18px'
-							h='18px'
-							bg={value}
-							borderRadius='full'
-							border='1px solid #ccc'
-						/>
-						<Text>{value}</Text>
-					</Flex>
+					<Badge
+						colorScheme={color}
+						variant='subtle'
+						fontSize='.9em'
+						px={4}
+						py={2}
+						borderRadius='full'
+						textTransform='capitalize'
+					>
+						{value || 'N/A'}
+					</Badge>
 				);
-			case 'createdBy':
+			}
+
+			case 'agency':
+				return value?.name || 'N/A';
+			case 'addedBy':
 				return value?.fullName || value?.username || '-';
 			case 'createdAt':
-				return format(new Date(value), 'MMM d, yyyy h:mm a');
+				return value ? format(new Date(value), 'MMM d, yyyy h:mm a') : 'N/A';
 			default:
 				return value || '-';
 		}
@@ -90,12 +97,12 @@ export const CategoryTable = ({
 	const handleConfirmRemove = async () => {
 		try {
 			await deleteItem({
-				path: `finance/expenses/categories/${selectedId}`,
+				path: `finance/cash/outgoing/${selectedId}`,
 			}).unwrap();
-			toast.success('Category deleted successfully');
+			toast.success('Expense deleted successfully');
 			removeItem(selectedId);
 		} catch (error) {
-			toast.error(error?.data?.message || 'Failed to delete category');
+			toast.error(error?.data?.message || 'Failed to delete expense');
 		} finally {
 			setDeleteModalOpen(false);
 		}
@@ -159,8 +166,10 @@ export const CategoryTable = ({
 										py={3}
 										px={3}
 										wordBreak='break-word'
+										isTruncated={true}
 										fontSize='sm'
 										minW={column.width}
+										maxW='400px'
 										textAlign={
 											['name'].includes(column.key) ? 'left' : 'center'
 										}
@@ -169,7 +178,17 @@ export const CategoryTable = ({
 									>
 										{column.key === 'actions' ? (
 											<Flex align='center' justify='center' gap={3}>
-												<Tooltip label='Edit'>
+												<CustomTooltip label='View'>
+													<IconButton
+														aria-label='View'
+														icon={<FiEye />}
+														size='sm'
+														colorScheme='teal'
+														variant='ghost'
+														onClick={() => setView({ modal: true, data: row })}
+													/>
+												</CustomTooltip>
+												<CustomTooltip label='Edit'>
 													<IconButton
 														aria-label='Edit'
 														icon={<FiEdit2 />}
@@ -178,8 +197,8 @@ export const CategoryTable = ({
 														variant='ghost'
 														onClick={() => handleOpenEdit(row)}
 													/>
-												</Tooltip>
-												<Tooltip label='Delete'>
+												</CustomTooltip>
+												<CustomTooltip label='Delete'>
 													<IconButton
 														aria-label='Delete'
 														icon={<FiTrash2 />}
@@ -188,8 +207,15 @@ export const CategoryTable = ({
 														variant='ghost'
 														onClick={() => handleDelete(row._id)}
 													/>
-												</Tooltip>
+												</CustomTooltip>
 											</Flex>
+										) : ['amount', 'totalAmount'].includes(column.key) ? (
+											<Text>
+												{formatCurrency(
+													row[column.key],
+													row['agency']?.currency || 'AED'
+												)}
+											</Text>
 										) : (
 											formatValue(column.key, row[column.key])
 										)}
@@ -207,8 +233,8 @@ export const CategoryTable = ({
 					isOpen={isDeleteModalOpen}
 					onClose={() => setDeleteModalOpen(false)}
 					onConfirm={handleConfirmRemove}
-					title='Delete Category'
-					message={`Are you sure you want to delete this category?`}
+					title='Delete Cash'
+					message={`Are you sure you want to delete this outgoing cash?`}
 					confirmText='Yes, Delete'
 					cancelText='Cancel'
 					isLoading={isDeleting}
@@ -218,4 +244,4 @@ export const CategoryTable = ({
 	);
 };
 
-export default CategoryTable;
+export default IncomingTable;

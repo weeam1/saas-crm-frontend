@@ -24,7 +24,7 @@ const UpsertCategory = ({
 	isOpen,
 	onClose,
 	updateData,
-	initialData = null, // if provided → edit mode
+	initialData = null,
 }) => {
 	const isEditMode = Boolean(initialData);
 
@@ -45,7 +45,7 @@ const UpsertCategory = ({
 	// Watch isActive to show Active/Inactive text
 	const isActive = watch('isActive');
 
-	const { headerBg, primaryBtnBg, headerText } = useModalColors();
+	const { headerBg, headerText } = useModalColors();
 
 	const [create, { isLoading: creating }] = useCreateItemMutation();
 	const [update, { isLoading: updating }] = useUpdateItemMutation();

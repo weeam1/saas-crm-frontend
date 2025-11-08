@@ -1,29 +1,14 @@
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import {
-	Badge,
-	Box,
-	Button,
-	Flex,
-	Text,
-	useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { usePermissions } from 'hooks/usePermissions';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
-import UpsertSubCategory from './UpsertSubCategory';
-import SubCategoryTable from './SubCategoryTable';
+import CategoryTable from './CategoryTable';
+import UpsertCategory from './UpsertCategory';
 
-const SubCategory = () => {
-	const [subCategories, setCategories] = useState([]);
-	const [page, setPage] = useState(1);
-	const { hasPermission } = usePermissions();
-	const navigate = useNavigate();
-
-	const [searchParams] = useSearchParams();
-	const activeTab = searchParams.get('tab') || 'sub-category';
+const Category = () => {
+	const [categories, setCategories] = useState([]);
 
 	const {
 		isOpen: categoryIsOpen,
@@ -57,15 +42,12 @@ const SubCategory = () => {
 
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
-			path: 'finance/expenses/subcategories',
+			path: 'finance/expenses/categories',
 			params: queryParams,
-			activeTab,
 		},
 		{
-			skip: activeTab !== 'sub-category',
 			refetchOnMountOrArgChange: true,
 			refetchOnFocus: true,
-			refetchOnReconnect: true,
 		}
 	);
 
@@ -77,11 +59,7 @@ const SubCategory = () => {
 
 	useEffect(() => {
 		refetch();
-	}, [page, refetch]);
-
-	useEffect(() => {
-		refetch();
-	}, []);
+	}, [pagination, refetch]);
 
 	const updateData = (id, updated) => {
 		setCategories((prev) => {
@@ -97,7 +75,7 @@ const SubCategory = () => {
 		});
 	};
 
-	const removeCategory = (id) => {
+	const removeItem = (id) => {
 		setCategories((prev) => prev.filter((item) => item._id !== id));
 	};
 
@@ -118,11 +96,11 @@ const SubCategory = () => {
 				mb={4}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>All Sub Categories</Text>
+					<Text>All Categories</Text>
 
 					<CountUpComponent
-						key={subCategories?.length}
-						targetNumber={subCategories?.length}
+						key={data?.totalRecords}
+						targetNumber={data?.totalRecords}
 					/>
 				</Flex>
 
@@ -136,7 +114,7 @@ const SubCategory = () => {
 					shadow='md'
 					onClick={handleOpenAdd}
 				>
-					Add Sub Category
+					Add Category
 				</Button>
 			</Flex>
 
@@ -153,16 +131,16 @@ const SubCategory = () => {
 				/>
 			)}
 
-			<SubCategoryTable
-				data={subCategories}
+			<CategoryTable
+				data={categories}
 				updateData={updateData}
+				removeItem={removeItem}
 				handleOpenEdit={handleOpenEdit}
-				removeCategory={removeCategory}
 				isLoading={isLoading || isFetching}
 			/>
 
 			{categoryIsOpen && (
-				<UpsertSubCategory
+				<UpsertCategory
 					isOpen={categoryIsOpen}
 					onClose={categoryOnClose}
 					initialData={editData}
@@ -174,4 +152,4 @@ const SubCategory = () => {
 	);
 };
 
-export default SubCategory;
+export default Category;

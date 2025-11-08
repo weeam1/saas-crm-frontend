@@ -11,6 +11,7 @@ import {
 	Text,
 	Center,
 	Tooltip,
+	Badge,
 } from '@chakra-ui/react';
 import { FiEdit2, FiTrash2 } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
@@ -18,18 +19,17 @@ import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState } from 'react';
 import { useDeleteItemMutation } from 'api/apiSlice';
 import { format } from 'date-fns';
-import { toast } from 'react-toastify';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
+import { toast } from 'react-toastify';
 
-export const SubCategoryTable = ({
+export const CategoryTable = ({
 	data = [],
 	isLoading,
 	handleOpenEdit,
 	removeItem,
 }) => {
 	const columns = [
-		{ key: 'name', label: 'Sub Category', width: '150px' },
-		{ key: 'category', label: 'Category', width: '150px' },
+		{ key: 'name', label: 'Name', width: '150px' },
 		{ key: 'description', label: 'Description', width: '300px' },
 		{ key: 'isActive', label: 'Status', width: '100px' },
 		{ key: 'createdBy', label: 'Created By', width: '150px' },
@@ -58,7 +58,19 @@ export const SubCategoryTable = ({
 	const formatValue = (key, value) => {
 		switch (key) {
 			case 'isActive':
-				return value ? 'Active' : 'Inactive';
+				return (
+					<Badge
+						colorScheme={value ? 'green' : 'red'}
+						variant='subtle'
+						px={3}
+						py={1}
+						borderRadius='full'
+						fontSize='sm'
+						textTransform='capitalize'
+					>
+						{value ? 'Active' : 'Inactive'}
+					</Badge>
+				);
 			case 'colorCode':
 				return (
 					<Flex align='center' justify='center' gap={2}>
@@ -74,8 +86,6 @@ export const SubCategoryTable = ({
 				);
 			case 'createdBy':
 				return value?.fullName || value?.username || '-';
-			case 'category':
-				return value?.name || '-';
 			case 'createdAt':
 				return format(new Date(value), 'MMM d, yyyy h:mm a');
 			default:
@@ -165,16 +175,7 @@ export const SubCategoryTable = ({
 										textAlign={
 											['name'].includes(column.key) ? 'left' : 'center'
 										}
-										fontWeight={
-											['name', 'category'].includes(column.key)
-												? 'semibold'
-												: 'medium'
-										}
-										// bg={
-										// 	column.key === 'category'
-										// 		? row[column.key]?.colorCode
-										// 		: 'inherit'
-										// }
+										fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
 										color='gray.700'
 									>
 										{column.key === 'actions' ? (
@@ -217,8 +218,8 @@ export const SubCategoryTable = ({
 					isOpen={isDeleteModalOpen}
 					onClose={() => setDeleteModalOpen(false)}
 					onConfirm={handleConfirmRemove}
-					title='Delete Sub Category'
-					message={`Are you sure you want to delete this sub category?`}
+					title='Delete Category'
+					message={`Are you sure you want to delete this category?`}
 					confirmText='Yes, Delete'
 					cancelText='Cancel'
 					isLoading={isDeleting}
@@ -228,4 +229,4 @@ export const SubCategoryTable = ({
 	);
 };
 
-export default SubCategoryTable;
+export default CategoryTable;

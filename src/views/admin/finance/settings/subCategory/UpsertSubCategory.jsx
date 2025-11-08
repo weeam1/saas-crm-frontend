@@ -23,7 +23,6 @@ import {
 } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
 import { useModalColors } from 'hooks/useModalColors';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 
@@ -31,13 +30,18 @@ const UpsertSubCategory = ({
 	isOpen,
 	onClose,
 	updateData,
-	initialData = null, // if provided → edit mode
+	initialData = null,
 }) => {
 	const isEditMode = Boolean(initialData);
 
 	const { data: categories, isLoading: categoriesLoading } = useFetchItemsQuery(
 		{
 			path: '/finance/expenses/categories/options',
+		},
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+			refetchOnReconnect: true,
 		}
 	);
 
@@ -47,7 +51,6 @@ const UpsertSubCategory = ({
 		formState: { errors },
 		reset,
 		watch,
-		setValue,
 	} = useForm({
 		defaultValues: {
 			name: initialData?.name || '',
@@ -60,7 +63,7 @@ const UpsertSubCategory = ({
 	// Watch isActive to show Active/Inactive text
 	const isActive = watch('isActive');
 
-	const { headerBg, primaryBtnBg, headerText } = useModalColors();
+	const { headerBg, headerText } = useModalColors();
 
 	const [create, { isLoading: creating }] = useCreateItemMutation();
 	const [update, { isLoading: updating }] = useUpdateItemMutation();
@@ -84,7 +87,7 @@ const UpsertSubCategory = ({
 					body: payload,
 				}).unwrap();
 
-				toast.success('Sub Category updated successfully');
+				toast.success('Subcategory updated successfully');
 			} else {
 				// Create Mode → Add
 				res = await create({
@@ -92,7 +95,7 @@ const UpsertSubCategory = ({
 					body: payload,
 				}).unwrap();
 
-				toast.success('Sub Category created successfully');
+				toast.success('Subcategory created successfully');
 			}
 
 			// Update parent state
@@ -137,7 +140,7 @@ const UpsertSubCategory = ({
 									placeholder='Select main category'
 									focusBorderColor='brand.400'
 									{...register('category', {
-										required: 'Parent category is required',
+										required: 'Main category is required',
 									})}
 									isDisabled={categoriesLoading || !categories?.doc?.length}
 								>
@@ -188,9 +191,6 @@ const UpsertSubCategory = ({
 									resize='none'
 									{...register('description')}
 								/>
-								<Text mt={1} fontSize='xs' color='gray.500'>
-									Optional, but helps provide context for your team.
-								</Text>
 							</FormControl>
 
 							<FormControl display='flex' alignItems='center'>
@@ -201,10 +201,7 @@ const UpsertSubCategory = ({
 									{...register('isActive')}
 									isChecked={isActive}
 									onChange={(e) =>
-										reset(
-											{ ...watch(), isActive: e.target.checked },
-											{ keepValues: true }
-										)
+										reset({ ...watch(), isActive: e.target.checked })
 									}
 									colorScheme='green'
 									size='lg'

@@ -1,26 +1,18 @@
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import {
-	Badge,
-	Box,
-	Button,
-	Flex,
-	Text,
-	useDisclosure,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { usePermissions } from 'hooks/usePermissions';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
-import CategoryTable from './CategoryTable';
-import UpsertCategory from './UpsertCategory';
+import UpsertSubCategory from './UpsertSubCategory';
+import SubCategoryTable from './SubCategoryTable';
 
-const Category = () => {
-	const [categories, setCategories] = useState([]);
-	const [page, setPage] = useState(1);
-	const { hasPermission } = usePermissions();
-	const navigate = useNavigate();
+const SubCategory = () => {
+	const [subCategories, setCategories] = useState([]);
+
+	const [searchParams] = useSearchParams();
+	const activeTab = searchParams.get('tab') || 'sub-category';
 
 	const {
 		isOpen: categoryIsOpen,
@@ -40,11 +32,6 @@ const Category = () => {
 		categoryOpen();
 	};
 
-	const handleSubmit = (formData) => {
-		console.log('Submitted:', formData);
-		// your API call here
-	};
-
 	const [pagination, setPagination] = useState({
 		page: 1,
 		limit: 10,
@@ -59,12 +46,15 @@ const Category = () => {
 
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
-			path: 'finance/expenses/categories',
+			path: 'finance/expenses/subcategories',
 			params: queryParams,
+			activeTab,
 		},
 		{
+			skip: activeTab !== 'sub-category',
 			refetchOnMountOrArgChange: true,
 			refetchOnFocus: true,
+			refetchOnReconnect: true,
 		}
 	);
 
@@ -76,7 +66,7 @@ const Category = () => {
 
 	useEffect(() => {
 		refetch();
-	}, [page, refetch]);
+	}, [pagination, refetch]);
 
 	const updateData = (id, updated) => {
 		setCategories((prev) => {
@@ -92,7 +82,7 @@ const Category = () => {
 		});
 	};
 
-	const removeItem = (id) => {
+	const removeCategory = (id) => {
 		setCategories((prev) => prev.filter((item) => item._id !== id));
 	};
 
@@ -113,11 +103,11 @@ const Category = () => {
 				mb={4}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>All Categories</Text>
+					<Text>All Sub Categories</Text>
 
 					<CountUpComponent
-						key={categories?.length}
-						targetNumber={categories?.length}
+						key={data?.totalRecords}
+						targetNumber={data?.totalRecords}
 					/>
 				</Flex>
 
@@ -131,7 +121,7 @@ const Category = () => {
 					shadow='md'
 					onClick={handleOpenAdd}
 				>
-					Add Category
+					Add Sub Category
 				</Button>
 			</Flex>
 
@@ -148,16 +138,16 @@ const Category = () => {
 				/>
 			)}
 
-			<CategoryTable
-				data={categories}
+			<SubCategoryTable
+				data={subCategories}
 				updateData={updateData}
-				removeItem={removeItem}
 				handleOpenEdit={handleOpenEdit}
+				removeCategory={removeCategory}
 				isLoading={isLoading || isFetching}
 			/>
 
 			{categoryIsOpen && (
-				<UpsertCategory
+				<UpsertSubCategory
 					isOpen={categoryIsOpen}
 					onClose={categoryOnClose}
 					initialData={editData}
@@ -169,4 +159,4 @@ const Category = () => {
 	);
 };
 
-export default Category;
+export default SubCategory;
