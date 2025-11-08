@@ -99,13 +99,13 @@ const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
 
 // Finance
 const IncomingCash = React.lazy(
-	() => import('views/admin/Finance/incoming-balance/index')
+	() => import('views/admin/finance/incoming-balance/index')
 );
 const OutgoingCash = React.lazy(
-	() => import('views/admin/Finance/outgoing-expense/index')
+	() => import('views/admin/finance/outgoing-expense/index')
 );
 const FinanceSettings = React.lazy(
-	() => import('views/admin/Finance/settings/index')
+	() => import('views/admin/finance/settings/index')
 );
 
 const DeveloperDetails = React.lazy(
