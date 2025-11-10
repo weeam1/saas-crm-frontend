@@ -47,7 +47,6 @@ const Category = () => {
 		},
 		{
 			refetchOnMountOrArgChange: true,
-			refetchOnFocus: true,
 		}
 	);
 
@@ -56,10 +55,6 @@ const Category = () => {
 			setCategories(data?.doc);
 		}
 	}, [data?.doc]);
-
-	useEffect(() => {
-		refetch();
-	}, [pagination, refetch]);
 
 	const updateData = (id, updated) => {
 		setCategories((prev) => {

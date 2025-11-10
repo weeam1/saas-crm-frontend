@@ -459,14 +459,17 @@ export const sidebarRoutes = [
 		color: '#F97316', // Orange
 		children: [
 			{
+				id: 'incoming_cash',
 				name: 'Incomming Cash',
 				path: '/finance/incoming-cash',
 			},
 			{
+				id: 'outgoing_cash',
 				name: 'Outgoing Cash',
 				path: '/finance/outgoing-cash',
 			},
 			{
+				id: 'settings',
 				name: 'Settings',
 				path: '/finance/settings',
 			},

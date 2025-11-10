@@ -4,7 +4,7 @@ import TabNavigationDisplay from 'components/TabNavigationDisplay/TabNavigationD
 import Category from './category';
 import SubCategory from './subCategory';
 
-const DEFAULT_TAB = 'Category';
+const DEFAULT_TAB = 'category';
 
 const Settings = () => {
 	const [searchParams, setSearchParams] = useSearchParams();

@@ -132,6 +132,8 @@ const UpsertExpense = ({
 				date: data?.date || new Date(),
 				agency: data?.agency || null,
 				source: data?.source || '',
+				month: selectedMonth,
+				year: selectedYear,
 			};
 
 			const res = isEditMode

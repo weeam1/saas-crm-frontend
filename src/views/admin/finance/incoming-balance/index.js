@@ -24,6 +24,8 @@ import CountUpComponent from 'components/countUpComponent/countUpComponent';
 
 const IncomingBalance = () => {
 	const {
+		month,
+		year,
 		isAgenciesAllowed,
 		agencies,
 		queryParams,
@@ -193,6 +195,8 @@ const IncomingBalance = () => {
 					initialData={editData}
 					updateData={updateData}
 					mode='Add'
+					selectedMonth={month}
+					selectedYear={year}
 					isAgenciesAllowed={isAgenciesAllowed}
 				/>
 			)}

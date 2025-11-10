@@ -106,6 +106,8 @@ export const useCashListing = ({ endpoint }) => {
 		if (data?.doc) {
 			setList(data?.doc || []);
 			setTotalCount(data?.totalRecords || 0);
+
+			console.log('update list and total');
 		}
 	}, [data?.doc, data?.totalRecords]);
 
@@ -169,12 +171,13 @@ export const useCashListing = ({ endpoint }) => {
 	// 	}
 	// };
 	const updateData = (id, updated, type = 'update') => {
+		const updatedAgencyId = updated?.agency?._id;
+		const filterActive = Boolean(agencyId);
+		const violatesFilter = filterActive && updatedAgencyId !== agencyId;
+
 		setList((prev) => {
 			// Find index once instead of mapping multiple times
 			const index = prev.findIndex((item) => item._id === id);
-			const updatedAgencyId = updated?.agency?._id;
-			const filterActive = Boolean(agencyId);
-			const violatesFilter = filterActive && updatedAgencyId !== agencyId;
 
 			// --- UPDATE logic ---
 			if (type === 'update') {
@@ -209,9 +212,6 @@ export const useCashListing = ({ endpoint }) => {
 					return next;
 				}
 
-				// update count
-				setTotalCount((prev) => prev++);
-
 				// Add new item at the top
 				return [{ ...updated }, ...prev];
 			}
@@ -220,12 +220,19 @@ export const useCashListing = ({ endpoint }) => {
 			return prev;
 		});
 
+		if (type === 'add' && !violatesFilter) {
+			setTotalCount((prev) => prev + 1);
+		}
+
 		refetchSummary();
 	};
 
 	const removeItem = (id) => {
 		setList((prev) => prev.filter((item) => item._id !== id));
+
 		refetchSummary();
+
+		setTotalCount((prev) => prev - 1);
 	};
 
 	return {

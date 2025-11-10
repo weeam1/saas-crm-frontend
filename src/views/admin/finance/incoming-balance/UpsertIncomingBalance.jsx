@@ -49,6 +49,8 @@ const UpsertIncomingBalance = ({
 	initialData = null,
 	updateData,
 	isAgenciesAllowed,
+	selectedMonth,
+	selectedYear,
 }) => {
 	const isEditMode = Boolean(initialData);
 
@@ -93,6 +95,8 @@ const UpsertIncomingBalance = ({
 				amount: parseFloat(data.amount),
 				description: data.description?.trim() || '',
 				agency: data?.agency || null,
+				month: selectedMonth,
+				year: selectedYear,
 			};
 
 			const res = isEditMode

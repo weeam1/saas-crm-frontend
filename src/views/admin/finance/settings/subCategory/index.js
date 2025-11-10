@@ -64,9 +64,9 @@ const SubCategory = () => {
 		}
 	}, [data?.doc]);
 
-	useEffect(() => {
-		refetch();
-	}, [pagination, refetch]);
+	// useEffect(() => {
+	// 	refetch();
+	// }, [pagination, refetch]);
 
 	const updateData = (id, updated) => {
 		setCategories((prev) => {

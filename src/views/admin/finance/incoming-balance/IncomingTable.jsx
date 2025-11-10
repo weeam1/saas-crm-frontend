@@ -32,7 +32,7 @@ export const IncomingTable = ({
 	setView,
 }) => {
 	const columns = [
-		{ key: 'createdAt', label: 'Date', width: '200px' },
+		{ key: 'createdAt', label: 'Created Date', width: '200px' },
 		{ key: 'description', label: 'Description', width: '300px' },
 		{ key: 'paymentMethod', label: 'Payment Method', width: '300px' },
 		{ key: 'amount', label: 'Amount', width: '180px' },
