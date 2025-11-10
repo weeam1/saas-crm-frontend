@@ -36,6 +36,19 @@ const LeftCard = ({
 
 	const { hasPermission } = usePermissions();
 
+	const QR_CHANGE_MANAGER_AGENT_PERMISSION =
+		queryParams?.invite && hasPermission('leads', 'qr_change_manager_agent');
+
+	const MANAGER_ASSIGNED_PERMISSION =
+		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
+		hasPermission('leads', 'managerAssign') &&
+		!hiddenFields.includes('managerAssigned');
+
+	const AGENT_ASSIGNED_PERMISSION =
+		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
+		hasPermission('leads', 'agentAssign') &&
+		!hiddenFields.includes('agentAssigned');
+
 	// const hideContact =
 	// 	role === 'Manager'
 	// 		? true
@@ -45,19 +58,19 @@ const LeftCard = ({
 	// 				: user?._id !== lead?.agentAssigned
 	// 			: false;
 
-	let hideContact = false;
+	// let hideContact = false;
 
 	// if (role === 'Manager') {
 	// 	hideContact = true;
 	// } else
 
-	if (queryParams?.invite && role !== 'superAdmin') {
-		hideContact = user?._id !== lead?.agentAssigned;
-		// if (role === 'Manager') {
-		// 	hideContact = user?._id !== lead?.managerAssigned;
-		// } else {
-		// }
-	}
+	// if (queryParams?.invite && role !== 'superAdmin') {
+	// 	hideContact = user?._id !== lead?.agentAssigned;
+	// 	// if (role === 'Manager') {
+	// 	// 	hideContact = user?._id !== lead?.managerAssigned;
+	// 	// } else {
+	// 	// }
+	// }
 
 	return (
 		<Box flex='1' overflow='hidden'>
@@ -127,38 +140,10 @@ const LeftCard = ({
 					)} */}
 				</GridItem>
 
-				{/* Manager */}
-				{/* {role === 'superAdmin' && !hiddenFields.includes('managerAssigned') && (
-					<GridItem
-						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
-					>
-						<Managers
-							managerAssigned={lead?.managerAssigned}
-							lead={lead}
-							refreshLeads={refreshLeads}
-							role={role}
-							queryParams={queryParams}
-						/>
-					</GridItem>
-				)} */}
-				{queryParams?.invite ? (
-					<GridItem
-						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
-					>
-						<Managers
-							managerAssigned={lead?.managerAssigned}
-							lead={lead}
-							refreshLeads={refreshLeads}
-							role={role}
-							queryParams={queryParams}
-						/>
-					</GridItem>
-				) : (
-					hasPermission('leads', 'managerAssign') &&
-					!hiddenFields.includes('managerAssigned') && (
-						<GridItem
-							colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
-						>
+				{/* QR Invite: permission to change assigned Manager or Agent */}
+				{QR_CHANGE_MANAGER_AGENT_PERMISSION && (
+					<>
+						<GridItem colSpan={1}>
 							<Managers
 								managerAssigned={lead?.managerAssigned}
 								lead={lead}
@@ -167,20 +152,42 @@ const LeftCard = ({
 								queryParams={queryParams}
 							/>
 						</GridItem>
-					)
+
+						<GridItem colSpan={1}>
+							<Agents
+								agentAssigned={lead?.agentAssigned}
+								managerAssigned={lead?.managerAssigned}
+								lead={lead}
+								refreshLeads={refreshLeads}
+							/>
+						</GridItem>
+					</>
 				)}
 
-				{/* Agent */}
-				{queryParams?.invite ? (
+				{/* Manager assigned */}
+				{MANAGER_ASSIGNED_PERMISSION && (
 					<GridItem
-						colSpan={
-							queryParams?.invite
-								? '1'
-								: (!queryParams?.invite && role === 'Manager') ||
-									  hiddenFields.includes('agentAssigned')
-									? '2'
-									: '1'
-						}
+						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+					>
+						<Managers
+							managerAssigned={lead?.managerAssigned}
+							lead={lead}
+							refreshLeads={refreshLeads}
+							role={role}
+							queryParams={queryParams}
+						/>
+					</GridItem>
+				)}
+
+				{/* Agent assigned*/}
+				{AGENT_ASSIGNED_PERMISSION && (
+					<GridItem
+						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+						// colSpan={
+						// 	role === 'Manager' || hiddenFields.includes('agentAssigned')
+						// 		? '2'
+						// 		: '1'
+						// }
 					>
 						<Agents
 							agentAssigned={lead?.agentAssigned}
@@ -189,25 +196,6 @@ const LeftCard = ({
 							refreshLeads={refreshLeads}
 						/>
 					</GridItem>
-				) : (
-					hasPermission('leads', 'agentAssign') &&
-					!hiddenFields.includes('agentAssigned') && (
-						<GridItem
-							colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
-							// colSpan={
-							// 	role === 'Manager' || hiddenFields.includes('agentAssigned')
-							// 		? '2'
-							// 		: '1'
-							// }
-						>
-							<Agents
-								agentAssigned={lead?.agentAssigned}
-								managerAssigned={lead?.managerAssigned}
-								lead={lead}
-								refreshLeads={refreshLeads}
-							/>
-						</GridItem>
-					)
 				)}
 
 				{/* Main lead status */}
@@ -228,7 +216,7 @@ const LeftCard = ({
 						</GridItem>
 					)}
 
-				{!hideContact && hasPermission('leads', 'contactDetails') && (
+				{hasPermission('leads', 'contactDetails') && (
 					<GridItem colSpan={2} display='flex' justifyContent='space-between'>
 						{/* Phone */}
 						{!hiddenFields.includes('leadPhoneNumber') && (
@@ -272,3 +260,74 @@ const LeftCard = ({
 };
 
 export default LeftCard;
+
+// {
+// 	queryParams?.invite ? (
+// 		<GridItem colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}>
+// 			<Managers
+// 				managerAssigned={lead?.managerAssigned}
+// 				lead={lead}
+// 				refreshLeads={refreshLeads}
+// 				role={role}
+// 				queryParams={queryParams}
+// 			/>
+// 		</GridItem>
+// 	) : (
+// 		hasPermission('leads', 'managerAssign') &&
+// 		!hiddenFields.includes('managerAssigned') && (
+// 			<GridItem colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}>
+// 				<Managers
+// 					managerAssigned={lead?.managerAssigned}
+// 					lead={lead}
+// 					refreshLeads={refreshLeads}
+// 					role={role}
+// 					queryParams={queryParams}
+// 				/>
+// 			</GridItem>
+// 		)
+// 	);
+// }
+
+// {
+// 	/* Agent */
+// }
+// {
+// 	queryParams?.invite ? (
+// 		<GridItem
+// 			colSpan={
+// 				queryParams?.invite
+// 					? '1'
+// 					: (!queryParams?.invite && role === 'Manager') ||
+// 						  hiddenFields.includes('agentAssigned')
+// 						? '2'
+// 						: '1'
+// 			}
+// 		>
+// 			<Agents
+// 				agentAssigned={lead?.agentAssigned}
+// 				managerAssigned={lead?.managerAssigned}
+// 				lead={lead}
+// 				refreshLeads={refreshLeads}
+// 			/>
+// 		</GridItem>
+// 	) : (
+// 		hasPermission('leads', 'agentAssign') &&
+// 		!hiddenFields.includes('agentAssigned') && (
+// 			<GridItem
+// 				colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+// 				// colSpan={
+// 				// 	role === 'Manager' || hiddenFields.includes('agentAssigned')
+// 				// 		? '2'
+// 				// 		: '1'
+// 				// }
+// 			>
+// 				<Agents
+// 					agentAssigned={lead?.agentAssigned}
+// 					managerAssigned={lead?.managerAssigned}
+// 					lead={lead}
+// 					refreshLeads={refreshLeads}
+// 				/>
+// 			</GridItem>
+// 		)
+// 	);
+// }

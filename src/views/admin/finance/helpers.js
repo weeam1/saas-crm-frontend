@@ -1,0 +1,31 @@
+export const paymentOptions = [
+	'Cash',
+	'Bank Transfer',
+	'Cheque',
+	'Online Transfer',
+	'Credit Card',
+	'Debit Card',
+	'PayPal',
+	'Stripe',
+	'Apple Pay',
+	'Google Pay',
+	'Wire Transfer',
+	'Mobile Money',
+	'Cryptocurrency',
+];
+
+export const paymentColors = {
+	Cash: 'green',
+	'Bank Transfer': 'blue',
+	Cheque: 'yellow',
+	'Online Transfer': 'cyan',
+	'Credit Card': 'purple',
+	'Debit Card': 'teal',
+	PayPal: 'blue',
+	Stripe: 'purple',
+	'Apple Pay': 'gray',
+	'Google Pay': 'orange',
+	'Wire Transfer': 'blue',
+	'Mobile Money': 'teal',
+	Cryptocurrency: 'yellow',
+};

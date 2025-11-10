@@ -122,7 +122,7 @@ const AttendanceHeader = ({
 						<IconButton
 							icon={<FiFilter />}
 							onClick={filterOpen}
-							aria-label='Filter Date'
+							aria-label='Filter agency'
 							colorScheme='brand'
 							variant='solid'
 							size='sm'

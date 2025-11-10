@@ -20,7 +20,7 @@ import {
   FaPhone,
   FaWhatsapp,
   FaHandshake,
-  FaFileAlt
+  FaFileAlt,
 } from "react-icons/fa";
 import { FaCreativeCommonsBy } from "react-icons/fa";
 import { MdCampaign } from "react-icons/md";
@@ -98,27 +98,21 @@ const DeveloperInvoices = React.lazy(
 const SingleInvoice = React.lazy(() => import("views/admin/invoice/View"));
 const AddEntry = React.lazy(() => import("views/admin/invoice/AddEntry"));
 
-const Expenses = React.lazy(() => import("views/admin/expenses"));
-const ExpensesV1 = React.lazy(() => import("views/admin/expensesV1/index"));
-const ExpenseBalanceScreen = React.lazy(
-  () => import("views/admin/expensesV1/ExpenseBalanceScreen")
-);
-const OutgoingCashScreen = React.lazy(
-  () => import("views/admin/expensesV1/OutgoingCashScreen")
-);
-
 //Evalution
-const Evalution = React.lazy(() => import ("views/admin/evalution/index"));
-const UserEvalution = React.lazy(() => import("views/admin/evalution/user-evalution/UserEvalution"));
-const EvaluateSettings = React.lazy(() => import("views/admin/evalution/settings/index"));
+const Evalution = React.lazy(() => import("views/admin/evalution/index"));
+const UserEvalution = React.lazy(
+  () => import("views/admin/evalution/user-evalution/UserEvalution")
+);
+const EvaluateSettings = React.lazy(
+  () => import("views/admin/evalution/settings/index")
+);
 
 // Finance
-const Finance = React.lazy(() => import("views/admin/finance/index"));
 const IncomingCash = React.lazy(
-  () => import("views/admin/finance/incoming-cash/index")
+  () => import("views/admin/finance/incoming-balance/index")
 );
 const OutgoingCash = React.lazy(
-  () => import("views/admin/finance/outgoing-cash/index")
+  () => import("views/admin/finance/outgoing-expense/index")
 );
 const FinanceSettings = React.lazy(
   () => import("views/admin/finance/settings/index")
@@ -516,33 +510,8 @@ const routes = [
     parentName: "invoice",
     component: ProjectScreen,
   },
-  // {
-  // 	moduleId: 'expense',
-  // 	name: 'Expenses',
-  // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-  // 	path: '/expenses',
-  // 	icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
-  // 	component: ExpensesV1,
-  // },
-  // {
-  // 	moduleId: 'expense',
-  // 	name: 'Balance',
-  // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-  // 	under: 'expense',
-  // 	path: '/expenses/balance',
-  // 	parentName: 'expense',
-  // 	component: ExpenseBalanceScreen,
-  // },
-  // {
-  // 	moduleId: 'expense',
-  // 	name: 'Outgoing Cash',
-  // 	layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-  // 	under: 'expense',
-  // 	path: '/expenses/outgoing-cash',
-  // 	parentName: 'expense',
-  // 	component: OutgoingCashScreen,
-  // },
 
+  //****** Finance routes *********//
   {
     moduleId: "finance",
     name: "Finance",
@@ -613,16 +582,16 @@ const routes = [
     icon: <Icon as={FaFileAlt} width="20px" height="20px" color="inherit" />,
     component: Evalution,
   },
-   {
+  {
     // moduleId: "evalution",
     name: "User Evalution",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-      under: "evalution",
+    under: "evalution",
     path: "/evalution/user-evalution",
     parentName: "evalution",
     component: UserEvalution,
   },
-   {
+  {
     // moduleId: "evalution",
     name: "Settings",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -630,6 +599,59 @@ const routes = [
     path: "/evalution/settings",
     parentName: "evalution",
     component: EvaluateSettings,
+  },
+  {
+    name: "Incoming Cash",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "finance",
+    path: "/finance/incoming-cash",
+    parentName: "finance",
+    component: IncomingCash,
+  },
+  {
+    name: "Outgoing Cash",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "finance",
+    path: "/finance/outgoing-cash",
+    parentName: "finance",
+    component: OutgoingCash,
+  },
+  {
+    name: "Finance Settings",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "finance",
+    path: "/finance/settings",
+    parentName: "finance",
+    component: FinanceSettings,
+  },
+
+  // ****** Invoice Routes ******** //
+  {
+    moduleId: "invoice",
+    name: "Developer Invoices",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "developer-invoices",
+    path: "/invoice/developers/invoices/:id",
+    parentName: "Invoice",
+    component: DeveloperInvoices,
+  },
+  {
+    moduleId: "invoice",
+    name: "Single Invoice",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "single-invoice",
+    parentName: "Invoice",
+    path: "/invoice/developers/invoices/view/:id",
+    component: SingleInvoice,
+  },
+  {
+    moduleId: "invoice",
+    name: "Invoice Entries",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "invoice-entries",
+    parentName: "Invoice",
+    path: "/invoice/developers/invoices/entries/:id",
+    component: AddEntry,
   },
 
   // -----------------------------Admin setting-------------------------------------
