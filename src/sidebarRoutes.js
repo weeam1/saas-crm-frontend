@@ -430,21 +430,45 @@ export const sidebarRoutes = [
 	},
 
 	// -------- Expenses --------
+	// {
+	// 	moduleId: 'expense',
+	// 	name: 'Expenses',
+	// 	path: '/expenses',
+	// 	isNested: true,
+	// 	icon: FaRegCopy,
+	// 	color: '#F97316', // Orange
+	// 	children: [
+	// 		{
+	// 			name: 'Balance',
+	// 			path: '/expenses/balance',
+	// 		},
+	// 		{
+	// 			name: 'Outgoing Cash',
+	// 			path: '/expenses/outgoing-cash',
+	// 		},
+	// 	],
+	// },
+
+	// -------- Finance --------
 	{
 		moduleId: 'expense',
 		name: 'Expenses',
-		path: '/expenses',
+		path: '/finance',
 		isNested: true,
 		icon: FaRegCopy,
 		color: '#F97316', // Orange
 		children: [
 			{
-				name: 'Balance',
-				path: '/expenses/balance',
+				name: 'Incomming Cash',
+				path: '/finance/incoming-cash',
 			},
 			{
 				name: 'Outgoing Cash',
-				path: '/expenses/outgoing-cash',
+				path: '/finance/outgoing-cash',
+			},
+			{
+				name: 'Settings',
+				path: '/finance/settings',
 			},
 		],
 	},

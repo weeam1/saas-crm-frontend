@@ -23,13 +23,13 @@ import { CalendarIcon } from '@chakra-ui/icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import moment from 'moment';
 
-import IncomingTable from './Component/IncomingTable';
-import OutgoingTable from './Component/OutgoingTable';
+import IncomingTable from './components/IncomingTable';
+import OutgoingTable from './components/OutgoingTable';
 import TabNavigationDisplay from 'components/TabNavigationDisplay/TabNavigationDisplay';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { usePermissions } from 'hooks/usePermissions';
 
-const DEFAULT_TAB = 'incoming-cash';
+const DEFAULT_TAB = 'balance';
 
 const Expenses = () => {
 	const user = JSON.parse(localStorage.getItem('user')) || {};
@@ -53,10 +53,9 @@ const Expenses = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-
 	const { data: SummaryData, refetch } = useFetchItemsQuery(
 		{
-			path: `/expenses/summary`,
+			path: `/expensev2/outgoing-cash/summary`,
 			params: { month: monthFromParams, year: yearFromParams },
 		},
 		{ refetchOnMountOrArgChange: true, skip: !user._id }
@@ -64,8 +63,8 @@ const Expenses = () => {
 
 	const tabsData = [
 		{
-			label: 'Incoming Cash',
-			param: 'incoming-cash',
+			label: 'Balance',
+			param: 'balance',
 			component: (
 				<IncomingTable
 					key={tabKey}
@@ -160,23 +159,32 @@ const Expenses = () => {
 					display='flex'
 					alignItems='center'
 					gap={1}
-					px={2}
-					py={1}
+					px={3}
+					py={2}
 					borderRadius='10px'
-					border='1px solid #D5D9DD'
+					bg='gray.500'
+					color='white'
+					boxShadow='md'
 					cursor='pointer'
+					transition='all 0.2s'
+					border='none'
 					onClick={handleOpenModal}
+					_hover={{
+						boxShadow: 'lg',
+						bg: 'gray.600',
+						transform: 'scale(1.04)',
+					}}
 				>
 					<IconButton
 						icon={<CalendarIcon />}
 						aria-label='Open date filter'
-						color='lightgray'
+						color='white'
 						bg='transparent'
-						_hover={{ bg: 'transparent' }}
+						_hover={{ bg: 'transparent', color: 'white' }}
 						_focus={{ bg: 'transparent' }}
 						size='sm'
 					/>
-					<Text color='lightgray'>
+					<Text color='white' fontWeight='bold'>
 						{getMonthName(monthFromParams)} {yearFromParams}
 					</Text>
 				</Box>
@@ -199,12 +207,10 @@ const Expenses = () => {
 					<VStack align='center' p={2} fontSize='23px'>
 						<HStack w='100%'>
 							<Text color='green.500' fontWeight='bold'>
-								Incoming Cash
+								Balance
 							</Text>
 							<Spacer />
-							<Text color='green.500'>
-								{SummaryData?.data?.totalIncomingAmount || 0}
-							</Text>
+							<Text color='green.500'>{SummaryData?.totalBalance || 0}</Text>
 						</HStack>
 						<Divider />
 						<HStack w='100%'>
@@ -212,17 +218,13 @@ const Expenses = () => {
 								Outgoing Cash
 							</Text>
 							<Spacer />
-							<Text color='red.500'>
-								{SummaryData?.data?.totalOutgoingAmount || 0}
-							</Text>
+							<Text color='red.500'>{SummaryData?.totalExpenses || 0}</Text>
 						</HStack>
 						<Divider />
 						<HStack w='100%'>
-							<Text fontWeight='bold'>Total Profit</Text>
+							<Text fontWeight='bold'>Total Remaining</Text>
 							<Spacer />
-							<Text fontWeight='bold'>
-								{SummaryData?.data?.totalProfit || 0}
-							</Text>
+							<Text fontWeight='bold'>{SummaryData?.closingBalance || 0}</Text>
 						</HStack>
 					</VStack>
 				</Box>

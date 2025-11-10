@@ -97,13 +97,15 @@ const DeveloperInvoices = React.lazy(
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
 
-const Expenses = React.lazy(() => import('views/admin/expenses'));
-const ExpensesV1 = React.lazy(() => import('views/admin/expensesV1/index'));
-const ExpenseBalanceScreen = React.lazy(
-	() => import('views/admin/expensesV1/ExpenseBalanceScreen')
+// Finance
+const IncomingCash = React.lazy(
+	() => import('views/admin/finance/incoming-balance/index')
 );
-const OutgoingCashScreen = React.lazy(
-	() => import('views/admin/expensesV1/OutgoingCashScreen')
+const OutgoingCash = React.lazy(
+	() => import('views/admin/finance/outgoing-expense/index')
+);
+const FinanceSettings = React.lazy(
+	() => import('views/admin/finance/settings/index')
 );
 
 const DeveloperDetails = React.lazy(
@@ -498,32 +500,35 @@ const routes = [
 		parentName: 'invoice',
 		component: ProjectScreen,
 	},
+
+	//****** Finance routes *********//
+
 	{
-		moduleId: 'expense',
-		name: 'Expenses',
+		name: 'Incoming Cash',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/expenses',
-		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
-		component: ExpensesV1,
+		under: 'finance',
+		path: '/finance/incoming-cash',
+		parentName: 'finance',
+		component: IncomingCash,
 	},
 	{
-		moduleId: 'expense',
-		name: 'Balance',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'expense',
-		path: '/expenses/balance',
-		parentName: 'expense',
-		component: ExpenseBalanceScreen,
-	},
-	{
-		moduleId: 'expense',
 		name: 'Outgoing Cash',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'expense',
-		path: '/expenses/outgoing-cash',
-		parentName: 'expense',
-		component: OutgoingCashScreen,
+		under: 'finance',
+		path: '/finance/outgoing-cash',
+		parentName: 'finance',
+		component: OutgoingCash,
 	},
+	{
+		name: 'Finance Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/settings',
+		parentName: 'finance',
+		component: FinanceSettings,
+	},
+
+	// ****** Invoice Routes ******** //
 	{
 		moduleId: 'invoice',
 		name: 'Developer Invoices',
