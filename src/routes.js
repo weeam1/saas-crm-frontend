@@ -510,43 +510,6 @@ const routes = [
     parentName: "invoice",
     component: ProjectScreen,
   },
-
-  //****** Finance routes *********//
-  {
-    moduleId: "finance",
-    name: "Finance",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/finance",
-    icon: <Icon as={FaRegCopy} width="20px" height="20px" color="inherit" />,
-    component: Finance,
-  },
-  {
-    moduleId: "finance",
-    name: "Incoming Cash",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    under: "finance",
-    path: "/finance/incoming-cash",
-    parentName: "finance",
-    component: IncomingCash,
-  },
-  {
-    moduleId: "finance",
-    name: "Outgoing Cash",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    under: "finance",
-    path: "/finance/outgoing-cash",
-    parentName: "finance",
-    component: OutgoingCash,
-  },
-  {
-    moduleId: "finance",
-    name: "Settings",
-    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    under: "finance",
-    path: "/finance/settings",
-    parentName: "finance",
-    component: FinanceSettings,
-  },
   {
     moduleId: "invoice",
     name: "Developer Invoices",
@@ -600,6 +563,8 @@ const routes = [
     parentName: "evalution",
     component: EvaluateSettings,
   },
+  
+  //****** Finance routes *********//
   {
     name: "Incoming Cash",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
