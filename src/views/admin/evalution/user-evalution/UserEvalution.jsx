@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -14,72 +14,77 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { FiRefreshCw } from "react-icons/fi";
-import { FaClipboardCheck } from "react-icons/fa";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
-import EvaluteModal from "../components/EvaluteModal";
+import EvaluteModal from "./components/EvaluteModal";
+import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 
-const UserEvalution = () => {
-  const [tableData, setTableData] = useState([
-    {
-      id: 1,
-      User: "John Doe",
-      Avg: 7.5,
-      noOfEvalution: 3,
-      Agency: "Dubai",
-      Role: "Sales Executive",
-    },
-    {
-      id: 2,
-      User: "Mary Smith",
-      Avg: 9,
-      noOfEvalution: 5,
-      Agency: "Egypt",
-      Role: "HR Manager",
-    },
-    {
-      id: 3,
-      User: "Ali Khan",
-      Avg: 6.8,
-      noOfEvalution: 2,
-      Agency: "Qatar",
-      Role: "Marketing Officer",
-    },
-    {
-      id: 4,
-      User: "Sophia Lee",
-      Avg: 8.2,
-      noOfEvalution: 4,
-      Agency: "UAE",
-      Role: "Admin Coordinator",
-    },
-  ]);
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(false);
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
+const UserEvaluation = () => {
+  const [mergedData, setMergedData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const {
+    data: usersData,
+    isFetching: usersFetching,
+    refetch: refetchUsers,
+  } = useFetchItemsQuery(
+    { path: "/v2/user/search_users" },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const {
+    data: evaluationsData,
+    isFetching: evalFetching,
+    refetch: refetchEvaluations,
+  } = useFetchItemsQuery(
+    { path: "/evaluation/user-evaluation" },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const [createEvaluation] = useCreateItemMutation();
+
+  useEffect(() => {
+    if (usersData?.doc) {
+      const merged = usersData.doc.map((user) => {
+        const evaluation = evaluationsData?.data?.find(
+          (e) => e.userId?._id === user._id
+        );
+        return {
+          ...user,
+          Avg: evaluation?.avg?.toFixed(2) || "N/A",
+          noOfEvaluations: evaluation?.noOfEvaluations || 0,
+          feedback: evaluation?.feedback || "",
+          agency: evaluation?.userId?.agency?.name || "",
+          evaluations: evaluation?.evaluations || [],
+        };
+      });
+      setMergedData(merged);
+    }
+  }, [usersData, evaluationsData]);
 
   const handleEvaluate = (user) => {
     setSelectedUser(user);
     onOpen();
   };
 
-  const handleSaveEvaluation = (updatedData) => {
-    setTableData((prev) =>
-      prev.map((item) =>
-        item.id === updatedData.id
-          ? {
-              ...item,
-              Avg: updatedData.Avg,
-              noOfEvalution: item.noOfEvalution + 1,
-            }
-          : item
-      )
-    );
-    onClose();
+  const handleSaveEvaluation = async (payload) => {
+    try {
+      const res = await createEvaluation({
+        path: "/evaluation/user-evaluation",
+        body: payload,
+      }).unwrap();
+
+      if (res?.success) {
+        await refetchEvaluations();
+        onClose();
+      }
+    } catch (err) {
+      console.error("Error saving evaluation:", err);
+    }
   };
+
+  const isLoading = usersFetching || evalFetching;
 
   const columns = ["User", "Avg", "No.of.ev", "Agency", "Role", "Actions"];
 
@@ -113,7 +118,11 @@ const UserEvalution = () => {
             aria-label="Refresh"
             variant="outline"
             size="sm"
-            isLoading={isLoading || isFetching}
+            onClick={() => {
+              refetchUsers();
+              refetchEvaluations();
+            }}
+            isLoading={isLoading}
           />
         </Box>
       </Flex>
@@ -157,24 +166,24 @@ const UserEvalution = () => {
             </Tr>
           </Thead>
 
-          {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={20} py="4" />
+          {isLoading ? (
+            <TableLoading columns={columns} length={10} py="4" />
           ) : (
             <Tbody>
-              {tableData && tableData.length > 0 ? (
-                tableData.map((evalute, index) => (
+              {mergedData?.length > 0 ? (
+                mergedData.map((user, index) => (
                   <Tr key={index}>
-                    <Td textAlign="center">{evalute.User}</Td>
-                    <Td textAlign="center">{evalute.Avg || "N/A"}</Td>
-                    <Td textAlign="center">{evalute.noOfEvalution || "N/A"}</Td>
-                    <Td textAlign="center">{evalute.Agency || "N/A"}</Td>
-                    <Td textAlign="center">{evalute.Role}</Td>
+                    <Td textAlign="center">{user?.fullName}</Td>
+                    <Td textAlign="center">{user?.Avg}</Td>
+                    <Td textAlign="center">{user?.noOfEvaluations}</Td>
+                    <Td textAlign="center">{user?.agency || "N/A"}</Td>
+                    <Td textAlign="center">{user?.roles[0]?.roleName}</Td>
                     <Td textAlign="center">
                       <Button
                         colorScheme="brand"
                         borderRadius="md"
                         size="xs"
-                        onClick={() => handleEvaluate(evalute)}
+                        onClick={() => handleEvaluate(user)}
                       >
                         Evaluate
                       </Button>
@@ -182,16 +191,16 @@ const UserEvalution = () => {
                   </Tr>
                 ))
               ) : (
-                <Tr borderColor="gray.200" textAlign="center">
+                <Tr>
                   <Td
-                    borderBottom="none"
                     colSpan={columns.length}
+                    borderBottom="none"
                     fontSize={{ base: "12px", md: "15px" }}
                     fontWeight="500"
                     color="gray.500"
                     textAlign="center"
                   >
-                    <NoData label="tasks" />
+                    <NoData label="evaluations" />
                   </Td>
                 </Tr>
               )}
@@ -212,4 +221,4 @@ const UserEvalution = () => {
   );
 };
 
-export default UserEvalution;
+export default UserEvaluation;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -20,52 +20,93 @@ import {
 import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 import { useModalColors } from "hooks/useModalColors";
 import { toast } from "react-toastify";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
-  const [questions, setQuestions] = useState(role.questions || []);
-  const [newQuestion, setNewQuestion] = useState("");
+  const [evalutions, setEvalutions] = useState([]);
+  const [newEvalution, setNewEvalution] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
   const [editText, setEditText] = useState("");
 
+  const { data, isLoading, refetch } = useFetchItemsQuery(
+    { path: `/evaluation/templates/${role?._id}` },
+    { skip: !role?._id, refetchOnMountOrArgChange: true }
+  );
+
+  useEffect(() => {
+    if (isOpen && role?._id) {
+      refetch();
+    }
+  }, [isOpen, role, refetch]);
+
+  useEffect(() => {
+    if (data?.evaluationTemplate?.evaluationPoints) {
+      setEvalutions(data.evaluationTemplate.evaluationPoints);
+    } else {
+      setEvalutions([]);
+    }
+    setNewEvalution("");
+  }, [data, isOpen]);
+
+  const handleClose = () => {
+    setEvalutions([]);
+    setNewEvalution("");
+    setEditingIndex(null);
+    setEditText("");
+    onClose();
+  };
+
   const handleAddQuestion = () => {
-    if (!newQuestion.trim()) {
-      toast.error("Question cannot be empty.");
+    if (!newEvalution.trim()) {
+      toast.error("Evaluation cannot be empty.");
       return;
     }
-    if (questions.length >= 10) {
-      toast.info("Maximum 10 questions allowed.");
+    if (evalutions.length >= 10) {
+      toast.info("Maximum 10 evaluations allowed.");
       return;
     }
-    setQuestions([...questions, newQuestion]);
-    setNewQuestion("");
+    setEvalutions([...evalutions, newEvalution]);
+    setNewEvalution("");
   };
 
   const handleDelete = (index) => {
-    setQuestions(questions.filter((_, i) => i !== index));
+    setEvalutions(evalutions.filter((_, i) => i !== index));
   };
 
   const handleEdit = (index) => {
     setEditingIndex(index);
-    setEditText(questions[index]);
+    setEditText(evalutions[index]);
   };
 
   const handleSaveEdit = () => {
-    const updated = [...questions];
+    const updated = [...evalutions];
     updated[editingIndex] = editText;
-    setQuestions(updated);
+    setEvalutions(updated);
     setEditingIndex(null);
     setEditText("");
   };
 
-  const handleSaveTemplate = () => {
-    onSave({ ...role, questions });
-    toast.success("Template saved successfully.");
+  const handleSaveTemplate = async () => {
+    if (!role?._id) return toast.error("Role not found!");
+    const flatPoints = evalutions
+      .flat()
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (flatPoints.length === 0) {
+      toast.error("Please add at least one evaluation point.");
+      return;
+    }
+
+    await onSave({ role: role._id, evaluationPoints: flatPoints });
+
+    handleClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
-      <ModalOverlay  backdropFilter="blur(3px)"/>
+    <Modal isOpen={isOpen} onClose={handleClose} isCentered size="xl">
+      <ModalOverlay backdropFilter="blur(3px)" />
       <ModalContent
         mx="auto"
         boxShadow="lg"
@@ -74,7 +115,7 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
         bg={bg}
         shadow="2xl"
         overflow="hidden"
-        maxH="85vh"
+        H="85vh"
         display="flex"
         flexDirection="column"
       >
@@ -92,7 +133,7 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
           zIndex="10"
         >
           <Text fontSize="lg" fontWeight="bold">
-            Evaluation Template — {role.roleName}
+            Evaluation Template — {role?.roleName || "N/A"}
           </Text>
 
           <ModalCloseButton aria-label="Close" position="static" />
@@ -110,16 +151,17 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
         >
           <VStack align="stretch" spacing={3}>
             <FormControl>
-              <FormLabel>Add New Question</FormLabel>
+              <FormLabel>Add New Evaluation</FormLabel>
               <HStack>
                 <Input
-                  value={newQuestion}
-                  onChange={(e) => setNewQuestion(e.target.value)}
-                  placeholder="Enter question"
+                  value={newEvalution}
+                  onChange={(e) => setNewEvalution(e.target.value)}
+                  placeholder="Enter evaluation point"
                 />
                 <IconButton
                   icon={<FiPlus />}
-                  aria-label="Add question"
+                  type="submit"
+                  aria-label="Add evaluation"
                   colorScheme="brand"
                   onClick={handleAddQuestion}
                 />
@@ -127,14 +169,15 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
             </FormControl>
 
             <Text fontWeight="600" mt={4}>
-              Questions ({questions.length}/10)
+              Evaluation points ({evalutions.length}/10)
             </Text>
-            {questions.length === 0 ? (
+
+            {evalutions.length === 0 ? (
               <Text color="gray.500" fontSize="sm">
-                No questions added yet.
+                No evaluation points added yet.
               </Text>
             ) : (
-              questions.map((q, index) => (
+              evalutions.map((q, index) => (
                 <HStack
                   key={index}
                   justify="space-between"
@@ -198,19 +241,13 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
         >
           <Button
             variant="outline"
-            size="sm"
             borderRadius={"md"}
-            mr={3}
-            onClick={onClose}
+            size="sm"
+            onClick={handleClose}
           >
             Cancel
           </Button>
-          <Button
-            colorScheme="brand"
-            borderRadius={"md"}
-            size="sm"
-            onClick={handleSaveTemplate}
-          >
+          <Button colorScheme="brand" size="sm" borderRadius={"md"} onClick={handleSaveTemplate}>
             Save Template
           </Button>
         </ModalFooter>

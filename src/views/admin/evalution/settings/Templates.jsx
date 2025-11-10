@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -15,54 +15,80 @@ import {
 } from "@chakra-ui/react";
 import { FiRefreshCw } from "react-icons/fi";
 import TemplateModal from "./components/TemplateModal";
+import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import TopPagination from "components/pagination/TopPagination";
+import TableLoading from "components/loading/TableLoading";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { toast } from "react-toastify";
 
 const Templates = () => {
-  const [tableData, setTableData] = useState([
-    {
-      id: 1,
-      roleName: "Sales Agent",
-      description: "Template for sales performance evaluation",
-      questions: [
-        "Puntual",
-        "Active",
-      ],
-    },
-    {
-      id: 2,
-      roleName: "HR Manager",
-      description: "Template for HR department evaluation",
-      questions: ["Performance"],
-    },
-    {
-      id: 3,
-      roleName: "Marketing Officer",
-      description: "Template for campaign management review",
-      questions: [
-        "How successful was your latest campaign?",
-        "Was ROI achieved as planned?",
-      ],
-    },
-  ]);
+  const [tableData, setTableData] = useState();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedRole, setSelectedRole] = useState(null);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
   const handleAddTemplate = (role) => {
     setSelectedRole(role);
     onOpen();
   };
 
-  const handleSaveTemplate = (updatedTemplate) => {
-    setTableData((prev) =>
-      prev.map((t) => (t.id === updatedTemplate.id ? updatedTemplate : t))
-    );
-    onClose();
+	const [createItemMutation, { isLoading: isCreating }] =
+		useCreateItemMutation();
+
+  const handleSaveTemplate = async (data) => {
+    console.log("data", data)
+    try{
+      	await createItemMutation({
+					path: `/evaluation/templates/`,
+					body: data,
+				}).unwrap();
+            onClose();
+        toast.success("Evalution template created successfully!")
+    }catch(error) {
+      console.log("error" , error);
+      toast.error("Error in creating the evalution!")
+    }
   };
 
   const columns = ["SR.No", "Role Name", "Description", "Action"];
 
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    return params;
+  };
+
+  const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
+    { path: `/role-access/v2`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true }
+  );
+  useEffect(() => {
+    if (data) {
+      setTotalPages(data.totalPages || 0);
+      setTotalItems(data.totalRecords || 0);
+      setTableData(data?.data);
+    }
+  }, [data]);
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
   return (
-    <Box overflowY="auto" scrollBehavior="smooth" boxShadow="sm" bg="white" px={2} mt={"-16px"}> 
+    <Box
+      overflowY="auto"
+      scrollBehavior="smooth"
+      boxShadow="sm"
+      bg="white"
+      px={2}
+      mt={"-16px"}
+    >
       <Flex
         justifyContent="space-between"
         alignItems={{ base: "normal", sm: "normal", md: "center" }}
@@ -84,12 +110,32 @@ const Templates = () => {
             icon={<FiRefreshCw />}
             aria-label="Refresh"
             variant="outline"
+            onClick={() => refetch()}
+            loading={isLoading || isFetching}
             size="sm"
           />
         </Box>
       </Flex>
-
-      <Box borderRadius="lg" boxShadow="sm" bg="white" maxH="85vh" overflowY="auto">
+      <Box my={2}>
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
+        />
+      </Box>
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        maxH="85vh"
+        overflowY="auto"
+      >
         <Table variant="striped" size="lg" bg="white">
           <Thead
             position="sticky"
@@ -103,7 +149,11 @@ const Templates = () => {
             <Tr>
               {columns.map((header, index) => (
                 <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box display="flex" alignItems="center" justifyContent="center">
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
                     <Text
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="600"
@@ -117,25 +167,44 @@ const Templates = () => {
               ))}
             </Tr>
           </Thead>
-          <Tbody>
-            {tableData.map((template, index) => (
-              <Tr key={template.id}>
-                <Td textAlign="center">{index + 1}</Td>
-                <Td textAlign="center">{template.roleName}</Td>
-                <Td textAlign="center">{template.description}</Td>
-                <Td textAlign="center">
-                  <Button
-                    colorScheme="brand"
-                    borderRadius={"md"}
-                    size="xs"
-                    onClick={() => handleAddTemplate(template)}
+          {isLoading || isFetching ? (
+            <TableLoading columns={columns} length={7} py="4" />
+          ) : (
+            <Tbody>
+              {tableData && tableData.length > 0 ? (
+                tableData.map((template, index) => (
+                  <Tr key={template.id}>
+                    <Td textAlign="center">{index + 1}</Td>
+                    <Td textAlign="center">{template.roleName}</Td>
+                    <Td textAlign="center">{template.description}</Td>
+                    <Td textAlign="center">
+                      <Button
+                        colorScheme="brand"
+                        borderRadius={"md"}
+                        size="xs"
+                        onClick={() => handleAddTemplate(template)}
+                      >
+                        Add Template
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="13"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
                   >
-                    Add Template
-                  </Button>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
+                    <NoData label="listing" />
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          )}
         </Table>
       </Box>
 

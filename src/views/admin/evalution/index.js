@@ -17,7 +17,7 @@ import { FiRefreshCw } from "react-icons/fi";
 import { FaClipboardCheck } from "react-icons/fa";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
-import EvaluteModal from "./components/EvaluteModal";
+import EvaluteModal from "./user-evalution/components/EvaluteModal";
 
 const Evalution = () => {
   const [tableData, setTableData] = useState([
