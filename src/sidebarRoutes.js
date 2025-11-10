@@ -20,6 +20,7 @@ import {
   FaHandshake,
   FaPhone,
   FaRegCopy,
+  FaFileAlt,
 } from "react-icons/fa";
 import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
 import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
@@ -449,29 +450,32 @@ export const sidebarRoutes = [
 	// 	],
 	// },
 
-  // -------- Finance --------
-  {
-    moduleId: 'expense',
-    name: "Expenses",
-    path: "/finance",
-    isNested: true,
-    icon: FaRegCopy,
-    color: "#F97316", // Orange
-    children: [
-      {
-        name: "Incomming Cash",
-        path: "/finance/incoming-cash",
-      },
-      {
-        name: "Outgoing Cash",
-        path: "/finance/outgoing-cash",
-      },
-      {
-        name: "Settings",
-        path: "/finance/settings",
-      },
-    ],
-  },
+	// -------- Finance --------
+	{
+		moduleId: 'expense',
+		name: 'Expenses',
+		path: '/finance',
+		isNested: true,
+		icon: FaRegCopy,
+		color: '#F97316', // Orange
+		children: [
+			{
+				id: 'incoming_cash',
+				name: 'Incomming Cash',
+				path: '/finance/incoming-cash',
+			},
+			{
+				id: 'outgoing_cash',
+				name: 'Outgoing Cash',
+				path: '/finance/outgoing-cash',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/finance/settings',
+			},
+		],
+	},
 
 	// -------- Tasks --------
 	{
@@ -628,6 +632,24 @@ export const sidebarRoutes = [
     isNested: false,
     icon: MdOutlineLaptopMac,
     color: "#c03910ff", // Gray
+  },
+
+  // ------- Evaluation ---------
+  {
+    name: "Evaluation",
+    path: "/evaluation",
+    icon: FaFileAlt,
+    color: "#86f17dff", // Gray
+      children: [
+      {
+        name: "Evalute User",
+        path: "/evaluation/user-evaluation",
+      },
+     {
+        name: "Settings",
+        path: "/evaluation/settings",
+      },
+    ]
   },
 ];
 
