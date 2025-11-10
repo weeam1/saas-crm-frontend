@@ -39,6 +39,7 @@ export const useCashListing = ({ endpoint }) => {
 
 	const [month, setMonth] = useState(initialMonth);
 	const [list, setList] = useState([]);
+	const [totalCount, setTotalCount] = useState(0);
 	const [year, setYear] = useState(initialYear);
 	const [agencyId, setAgencyId] = useState(initialAgencyId);
 	const [pagination, setPagination] = useState({
@@ -104,8 +105,9 @@ export const useCashListing = ({ endpoint }) => {
 	useEffect(() => {
 		if (data?.doc) {
 			setList(data?.doc || []);
+			setTotalCount(data?.totalRecords || 0);
 		}
-	}, [data?.doc]);
+	}, [data?.doc, data?.totalRecords]);
 
 	const handlePageChange = (page) => {
 		setPagination((prev) => ({ ...prev, page: Number(page) }));
@@ -123,20 +125,101 @@ export const useCashListing = ({ endpoint }) => {
 		setYear(newYear);
 	};
 
-	const updateData = (id, updated) => {
+	// const updateData = (id, updated, type = 'update') => {
+	// 	if (type === 'update') {
+	// 		setList((prev) => {
+	// 			const exists = prev.some((item) => item._id === id);
+	// 			if (exists) {
+	// 				// check if agency filter apply then check the agency also
+	// 				if (agencyId && exists?.agency?._id !== agencyId) {
+	// 					return;
+	// 				}
+
+	// 				// Update existing expense
+
+	// 				return prev.map((item) =>
+	// 					item._id === id ? { ...item, ...updated } : item
+	// 				);
+	// 			}
+	// 			// Add new expense if not found
+	// 			return [{ ...updated }, ...prev];
+	// 		});
+
+	// 		// refetch the real time data of summary
+	// 		refetchSummary();
+	// 	} else if (pagination.page === 1 && type === 'add') {
+	// 		setList((prev) => {
+	// 			const exists = prev.some((item) => item._id === id);
+	// 			if (exists) {
+	// 				// check if agency filter apply then check the agency also
+	// 				if (agencyId && exists?.agency?._id !== agencyId) {
+	// 					return;
+	// 				}
+	// 				// Update existing expense
+	// 				return prev.map((item) =>
+	// 					item._id === id ? { ...item, ...updated } : item
+	// 				);
+	// 			}
+	// 			// Add new expense if not found
+	// 			return [{ ...updated }, ...prev];
+	// 		});
+
+	// 		// refetch the real time data of summary
+	// 		refetchSummary();
+	// 	}
+	// };
+	const updateData = (id, updated, type = 'update') => {
 		setList((prev) => {
-			const exists = prev.some((item) => item._id === id);
-			if (exists) {
-				// Update existing expense
-				return prev.map((item) =>
-					item._id === id ? { ...item, ...updated } : item
-				);
+			// Find index once instead of mapping multiple times
+			const index = prev.findIndex((item) => item._id === id);
+			const updatedAgencyId = updated?.agency?._id;
+			const filterActive = Boolean(agencyId);
+			const violatesFilter = filterActive && updatedAgencyId !== agencyId;
+
+			// --- UPDATE logic ---
+			if (type === 'update') {
+				// If item doesn't exist, do nothing
+				if (index === -1) return prev;
+
+				// If agency filter is applied and new agency doesn't match -> remove it
+				if (violatesFilter) {
+					const next = [...prev];
+					next.splice(index, 1);
+					return next;
+				}
+
+				// Otherwise, update it in place
+				const next = [...prev];
+				next[index] = { ...next[index], ...updated };
+				return next;
 			}
-			// Add new expense if not found
-			return [{ ...updated }, ...prev];
+
+			// --- ADD logic ---
+			if (type === 'add') {
+				// Only add on the first page
+				if (pagination.page !== 1) return prev;
+
+				// Respect filter — only add if matches or no filter
+				if (violatesFilter) return prev;
+
+				// If exists, update in place
+				if (index !== -1) {
+					const next = [...prev];
+					next[index] = { ...next[index], ...updated };
+					return next;
+				}
+
+				// update count
+				setTotalCount((prev) => prev++);
+
+				// Add new item at the top
+				return [{ ...updated }, ...prev];
+			}
+
+			// If unknown type, return as-is
+			return prev;
 		});
 
-		// refetch the real time data of summary
 		refetchSummary();
 	};
 
@@ -156,7 +239,7 @@ export const useCashListing = ({ endpoint }) => {
 		summary: summary?.data ?? {},
 		setData: setList,
 		totalPages: data?.totalPages ?? 0,
-		totalRecords: data?.totalRecords ?? 0,
+		totalRecords: totalCount ?? 0,
 
 		// filters
 		month,

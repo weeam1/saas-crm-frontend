@@ -147,7 +147,7 @@ const UpsertExpense = ({
 			toast.success(
 				`Expense ${isEditMode ? 'updated' : 'created'} successfully`
 			);
-			updateData(res?.doc?._id, res?.doc);
+			updateData(res?.doc?._id, res?.doc, isEditMode ? 'update' : 'add');
 			reset();
 			onClose();
 		} catch (error) {

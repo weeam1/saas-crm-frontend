@@ -163,8 +163,8 @@ export const sendLeadFeedback = async (pixelData) => {
 		if (zip) user_data.zp = [sha256Hash(zip)];
 		if (city) user_data.ct = [sha256Hash(city)];
 		if (country) user_data.country = [sha256Hash(country)];
-		if (firstName) user_data.fn = sha256Hash(firstName); // first name
-		if (lastName) user_data.ln = sha256Hash(lastName); // last name
+		if (firstName) user_data.fn = sha256Hash(firstName);
+		if (lastName) user_data.ln = sha256Hash(lastName);
 
 		const eventData = {
 			data: [
