@@ -15,14 +15,19 @@ import {
 } from "@chakra-ui/react";
 import { FiRefreshCw } from "react-icons/fi";
 import TemplateModal from "./components/TemplateModal";
-import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import {
+  useFetchItemsQuery,
+  useCreateItemMutation,
+  useDeleteItemMutation,
+} from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { toast } from "react-toastify";
 
 const Templates = () => {
-  const [tableData, setTableData] = useState();
+  const [tableData, setTableData] = useState([]);
+  const [mergedData, setMergedData] = useState([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedRole, setSelectedRole] = useState(null);
@@ -30,56 +35,97 @@ const Templates = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
+
+  const [createItemMutation, { isLoading: isCreating }] =
+    useCreateItemMutation();
+  const [deleteItemMutation] = useDeleteItemMutation();
+
+  const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
+    { path: `/role-access/v2`, params: { page: currentPage, limit: pageSize } },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const {
+    data: evaluationsData,
+    isFetching: evalFetching,
+    refetch: refetchEvaluations,
+  } = useFetchItemsQuery(
+    { path: "/evaluation/user-evaluation" },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  useEffect(() => {
+    if (data?.data) {
+      setTableData(data.data);
+      setTotalPages(data.totalPages || 0);
+      setTotalItems(data.totalRecords || 0);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!tableData?.length || !evaluationsData) return;
+    console.log("evaluationsData", evaluationsData);
+
+    const evalList = evaluationsData?.data.evaluations || evaluationsData || [];
+    
+    const merged = tableData.map((role, index) => {
+      const found = evalList?.data.find((item) =>
+        item?.userId?.roles?.some((r) => r === role?._id)
+      );
+
+      console.log("found", found);
+      return {
+        ...role,
+        hasTemplate: !!found,
+        templateId: found?._id || null,
+      };
+    });
+
+    setMergedData(merged);
+  }, [tableData, evaluationsData]);
+
   const handleAddTemplate = (role) => {
     setSelectedRole(role);
     onOpen();
   };
 
-	const [createItemMutation, { isLoading: isCreating }] =
-		useCreateItemMutation();
-
-  const handleSaveTemplate = async (data) => {
-    console.log("data", data)
-    try{
-      	await createItemMutation({
-					path: `/evaluation/templates/`,
-					body: data,
-				}).unwrap();
-            onClose();
-        toast.success("Evalution template created successfully!")
-    }catch(error) {
-      console.log("error" , error);
-      toast.error("Error in creating the evalution!")
+  const handleSaveTemplate = async (formData) => {
+    try {
+      await createItemMutation({
+        path: `/evaluation/templates/`,
+        body: formData,
+      }).unwrap();
+      toast.success("Evaluation template saved successfully!");
+      onClose();
+      refetchEvaluations();
+      refetch();
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Error in creating the evaluation!");
     }
+  };
+
+  const handleDeleteTemplate = async (id) => {
+    try {
+      await deleteItemMutation({
+        path: `/evaluation/templates/${id}`,
+        body: {},
+      }).unwrap();
+      toast.success("Evaluation template deleted successfully!");
+      refetchEvaluations();
+      refetch();
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Error deleting the template!");
+    }
+  };
+
+  const handleRefresh = async () => {
+    await Promise.all([refetch(), refetchEvaluations()]);
   };
 
   const columns = ["SR.No", "Role Name", "Description", "Action"];
 
-  const buildQueryParams = () => {
-    const params = {
-      page: currentPage,
-      limit: pageSize,
-    };
-
-    return params;
-  };
-
-  const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
-    { path: `/role-access/v2`, params: buildQueryParams() },
-    { refetchOnMountOrArgChange: true }
-  );
-  useEffect(() => {
-    if (data) {
-      setTotalPages(data.totalPages || 0);
-      setTotalItems(data.totalRecords || 0);
-      setTableData(data?.data);
-    }
-  }, [data]);
-
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
-  };
   return (
     <Box
       overflowY="auto"
@@ -87,13 +133,13 @@ const Templates = () => {
       boxShadow="sm"
       bg="white"
       px={2}
-      mt={"-16px"}
+      mt="-16px"
     >
       <Flex
         justifyContent="space-between"
-        alignItems={{ base: "normal", sm: "normal", md: "center" }}
+        alignItems={{ base: "normal", md: "center" }}
         p={3}
-        flexDir={{ base: "column", sm: "column", md: "row" }}
+        flexDir={{ base: "column", md: "row" }}
       >
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Evaluation Templates
@@ -103,19 +149,20 @@ const Templates = () => {
           gap={2}
           display="flex"
           alignItems="center"
-          flexDir={{ base: "column", sm: "column", md: "row" }}
-          justifyContent={{ base: "center", sm: "center", md: "normal" }}
+          flexDir={{ base: "column", md: "row" }}
+          justifyContent={{ base: "center", md: "normal" }}
         >
           <IconButton
             icon={<FiRefreshCw />}
             aria-label="Refresh"
             variant="outline"
-            onClick={() => refetch()}
-            loading={isLoading || isFetching}
+            onClick={handleRefresh}
+            isLoading={isLoading || isFetching || evalFetching}
             size="sm"
           />
         </Box>
       </Flex>
+
       <Box my={2}>
         <TopPagination
           currentPage={currentPage}
@@ -124,11 +171,11 @@ const Templates = () => {
           totalItems={totalItems}
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
-          handlePageSize={handlePageSizeChange}
           refetching={isLoading}
           loading={isLoading}
         />
       </Box>
+
       <Box
         borderRadius="lg"
         boxShadow="sm"
@@ -167,39 +214,63 @@ const Templates = () => {
               ))}
             </Tr>
           </Thead>
-          {isLoading || isFetching ? (
+
+          {isLoading || isFetching || evalFetching ? (
             <TableLoading columns={columns} length={7} py="4" />
           ) : (
             <Tbody>
-              {tableData && tableData.length > 0 ? (
-                tableData.map((template, index) => (
-                  <Tr key={template.id}>
+              {mergedData && mergedData.length > 0 ? (
+                mergedData.map((template) => (
+                  <Tr key={template._id}>
                     <Td textAlign="center">{template.serialNumber}</Td>
                     <Td textAlign="center">{template.roleName}</Td>
                     <Td textAlign="center">{template.description}</Td>
                     <Td textAlign="center">
-                      <Button
-                        colorScheme="brand"
-                        borderRadius={"md"}
-                        size="xs"
-                        onClick={() => handleAddTemplate(template)}
+                      <Box
+                        display="flex"
+                        gap={2}
+                        justifyContent="center"
+                        alignItems="center"
                       >
-                        Add Template
-                      </Button>
+                        {template.hasTemplate ? (
+                          <>
+                            <Button
+                              colorScheme="brand"
+                              borderRadius="md"
+                              size="xs"
+                              onClick={() => handleAddTemplate(template)}
+                            >
+                              Edit Template
+                            </Button>
+                            <Button
+                              colorScheme="red"
+                              borderRadius="md"
+                              size="xs"
+                              onClick={() =>
+                                handleDeleteTemplate(template.templateId)
+                              }
+                            >
+                              Delete Template
+                            </Button>
+                          </>
+                        ) : (
+                          <Button
+                            colorScheme="brand"
+                            borderRadius="md"
+                            size="xs"
+                            onClick={() => handleAddTemplate(template)}
+                          >
+                            Add Template
+                          </Button>
+                        )}
+                      </Box>
                     </Td>
                   </Tr>
                 ))
               ) : (
-                <Tr borderColor="gray.200" textAlign="center">
-                  <Td
-                    borderBottom="none"
-                    colSpan="13"
-                    fontSize={{ base: "12px", md: "15px" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
-                    <NoData label="listing" />
+                <Tr>
+                  <Td colSpan="13" textAlign="center">
+                    <NoData label="Evaluation template" />
                   </Td>
                 </Tr>
               )}

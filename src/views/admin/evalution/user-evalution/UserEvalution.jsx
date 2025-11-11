@@ -70,7 +70,7 @@ const UserEvaluation = () => {
 
   const handleSaveEvaluation = async (payload) => {
     try {
-      const res = await createEvaluation({
+      await createEvaluation({
         path: "/evaluation/user-evaluation",
         body: payload,
       }).unwrap();
