@@ -75,10 +75,8 @@ const UserEvaluation = () => {
         body: payload,
       }).unwrap();
 
-      if (res?.success) {
-        await refetchEvaluations();
-        onClose();
-      }
+      refetchEvaluations();
+      onClose();
     } catch (err) {
       console.error("Error saving evaluation:", err);
     }
