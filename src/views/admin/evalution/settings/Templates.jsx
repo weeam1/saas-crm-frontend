@@ -174,7 +174,7 @@ const Templates = () => {
               {tableData && tableData.length > 0 ? (
                 tableData.map((template, index) => (
                   <Tr key={template.id}>
-                    <Td textAlign="center">{index + 1}</Td>
+                    <Td textAlign="center">{template.serialNumber}</Td>
                     <Td textAlign="center">{template.roleName}</Td>
                     <Td textAlign="center">{template.description}</Td>
                     <Td textAlign="center">
