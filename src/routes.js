@@ -266,6 +266,7 @@ const AnnouncementHistory = React.lazy(
 
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
 const User = React.lazy(() => import('views/admin/users'));
+const EditUser = React.lazy(() => import('views/admin/users/EditUser'));
 const UserView = React.lazy(() => import('views/admin/users/View'));
 
 // Auth
@@ -1186,7 +1187,7 @@ const routes = [
 		moduleId: 'users',
 		name: 'Users',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/user',
+		path: '/users',
 		under: 'user',
 		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
 		component: User,
@@ -1205,8 +1206,16 @@ const routes = [
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		parentName: 'Email',
 		under: 'user',
-		path: '/userView/:id',
+		path: '/users/:id',
 		component: UserView,
+	},
+	{
+		name: 'User View',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		parentName: 'Email',
+		under: 'user',
+		path: '/users/edit/:id',
+		component: EditUser,
 	},
 
 	{

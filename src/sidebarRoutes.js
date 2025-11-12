@@ -623,7 +623,7 @@ export const sidebarRoutes = [
 		moduleId: 'users',
 		name: 'Users',
 		isNested: false,
-		path: '/user',
+		path: '/users',
 		icon: HiUsers,
 		color: '#8B5CF6', // Violet
 	},
