@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 
-const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
+const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 	const [search, setSearch] = useState('');
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [showDropdown, setShowDropdown] = useState(false);
@@ -50,8 +50,8 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 			? users.filter(
 					(user) =>
 						user.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-						user.username?.toLowerCase().includes(search.toLowerCase()) || 
-						user.name?.toLowerCase().includes(search.toLowerCase()) 
+						user.username?.toLowerCase().includes(search.toLowerCase()) ||
+						user.name?.toLowerCase().includes(search.toLowerCase())
 				)
 			: [];
 
@@ -66,14 +66,16 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 					borderColor='gray.300'
 					fontSize='sm'
 					py={1}
-					{...(size === "sm" ? { size: "sm" } : {})}
+					{...(size === 'sm' ? { size: 'sm' } : {})}
 					borderRadius='md'
 					_focus={{
 						borderColor: '#D99A36',
 						boxShadow: '0 0 0 1px #D99A36',
 						outline: 'none',
 					}}
-					value={selectedUser ? (selectedUser.fullName || selectedUser.name): search}
+					value={
+						selectedUser ? selectedUser.fullName || selectedUser.name : search
+					}
 					onChange={(e) => {
 						setSearch(e.target.value);
 						setShowDropdown(true);
@@ -91,7 +93,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 							size='sm'
 							onClick={handleClear}
 							aria-label='Clear selection'
-							top={size === "sm" ? "-4px" : "0px"}
+							top={size === 'sm' ? '-4px' : '0px'}
 						/>
 					</InputRightElement>
 				)}

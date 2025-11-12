@@ -34,13 +34,13 @@ export const OutgoingTable = ({
 		{ key: 'date', label: 'Expense Date', width: '200px' },
 		{ key: 'category', label: 'Category', width: '150px' },
 		{ key: 'subCategory', label: 'Subcategory', width: '150px' },
-		// { key: 'description', label: 'Description', width: '300px' },
 		{ key: 'amount', label: 'Amount', width: '180px' },
 		{ key: 'vatPercent', label: 'Vat %', width: '100px' },
 		{ key: 'totalAmount', label: 'Net Amount', width: '200px' },
 		{ key: 'addedBy', label: 'Added By', width: '150px' },
 		{ key: 'createdAt', label: 'Created At', width: '200px' },
 		{ key: 'actions', label: 'Actions', width: '120px' },
+		// { key: 'description', label: 'Description', width: '300px' },
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
@@ -136,7 +136,7 @@ export const OutgoingTable = ({
 						<Tr>
 							<Td colSpan={columns.length} py={10}>
 								<Center>
-									<NoData label='category' />
+									<NoData label='outgoing expense' />
 								</Center>
 							</Td>
 						</Tr>

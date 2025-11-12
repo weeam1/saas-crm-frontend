@@ -10,7 +10,6 @@ const UserAvatar = ({
 	fallbackBg = 'gray.100',
 	fallbackColor = 'white',
 	fallbackSrc = '',
-
 	...props
 }) => {
 	const avatarSrc = src?.includes(constant.baseUrl)
