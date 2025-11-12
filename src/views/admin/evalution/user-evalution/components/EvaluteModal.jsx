@@ -15,16 +15,19 @@ import {
   Flex,
   SimpleGrid,
   Box,
+  Spinner,
+  useToast,
 } from "@chakra-ui/react";
 import { useModalColors } from "hooks/useModalColors";
-import { toast } from "react-toastify";
 import { useFetchItemsQuery } from "api/apiSlice";
 
 const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
+  const toast = useToast();
 
   const [feedback, setFeedback] = useState("");
   const [evaluationInputs, setEvaluationInputs] = useState([]);
+  const [isUpdate, setIsUpdate] = useState(false);
   const [hasTemplate, setHasTemplate] = useState(true);
 
   const { data, isLoading } = useFetchItemsQuery(
@@ -39,6 +42,7 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
       setHasTemplate(true);
 
       if (user?.feedback && user?.evaluations?.length) {
+        setIsUpdate(true);
         setFeedback(user.feedback);
         setEvaluationInputs(
           user.evaluations.map((e) => ({
@@ -47,6 +51,7 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
           }))
         );
       } else {
+        setIsUpdate(false);
         const fields = data.evaluationTemplate.evaluationPoints.map((point) => ({
           entityName: point,
           number: "",
@@ -62,14 +67,28 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
   }, [isOpen, user, data]);
 
   const handleInputChange = (index, value) => {
-    const updated = [...evaluationInputs];
-    updated[index].number = value;
-    setEvaluationInputs(updated);
+    if (value === "" || (Number(value) >= 0 && Number(value) <= 10)) {
+      const updated = [...evaluationInputs];
+      updated[index].number = value;
+      setEvaluationInputs(updated);
+    } else {
+      toast({
+        description: "Score must be between 0 and 10",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
   };
 
   const handleSave = () => {
     if (!feedback || evaluationInputs.some((i) => i.number === "")) {
-      toast.info("Please complete all fields");
+      toast({
+        description: "Please complete all fields",
+        status: "info",
+        duration: 2000,
+        isClosable: true,
+      });
       return;
     }
 
@@ -83,7 +102,12 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
     };
 
     onSave(payload);
-    toast.success("Evaluation saved successfully");
+    toast({
+      description: `Evaluation ${isUpdate ? "updated" : "added"} successfully`,
+      status: "success",
+      duration: 2000,
+      isClosable: true,
+    });
     onClose();
   };
 
@@ -92,16 +116,15 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
       <ModalOverlay backdropFilter="blur(3px)" />
       <ModalContent
         mx="auto"
-        boxShadow="lg"
-        m="2"
+        boxShadow="2xl"
         borderRadius="2xl"
         bg={bg}
-        shadow="2xl"
         overflow="hidden"
         maxH="85vh"
         display="flex"
         flexDirection="column"
       >
+        {/* Header */}
         <Flex
           align="center"
           justify="space-between"
@@ -121,13 +144,16 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
           <ModalCloseButton aria-label="Close" position="static" />
         </Flex>
 
-        <ModalBody overflowY="auto">
+        {/* Body */}
+        <ModalBody overflowY="auto" py={4}>
           {isLoading ? (
-            <Text>Loading evaluation template...</Text>
+            <Flex justify="center" align="center" py={10}>
+              <Spinner size="xl" color="brand.500" />
+            </Flex>
           ) : !hasTemplate ? (
             <Box textAlign="center" py={10}>
               <Text fontSize="md" fontWeight="bold" color="red.500">
-                No evaluation template available yet.
+                No evaluation template available
               </Text>
               <Text mt={2} color="gray.600">
                 Please contact the administrator to create one.
@@ -138,19 +164,24 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
               {evaluationInputs.length > 0 && (
                 <Box mt={4}>
                   <Text fontWeight="bold" mb={2}>
-                    Evaluation Points
+                    Evaluation Points (0-10)
                   </Text>
-                  <SimpleGrid columns={2} spacing={4}>
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                     {evaluationInputs.map((item, index) => (
                       <FormControl key={index}>
                         <FormLabel fontSize="sm">{item.entityName}</FormLabel>
                         <Input
                           type="number"
-                          placeholder="Enter score"
+                          placeholder="0-10"
                           value={item.number}
-                          onChange={(e) =>
-                            handleInputChange(index, e.target.value)
-                          }
+                          onChange={(e) => handleInputChange(index, e.target.value)}
+                          focusBorderColor="brand.500"
+                          border="1px solid transparent"
+                          _hover={{ borderColor: "gray.300" }}
+                          _focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px #3182ce" }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSave();
+                          }}
                         />
                       </FormControl>
                     ))}
@@ -158,18 +189,28 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
                 </Box>
               )}
 
-              <FormControl mt={4} mb={3}>
+              {/* Feedback */}
+              <FormControl mt={6}>
                 <FormLabel>Feedback</FormLabel>
                 <Textarea
                   value={feedback}
+                  maxLength={300}
                   onChange={(e) => setFeedback(e.target.value)}
                   placeholder="Write feedback..."
+                  focusBorderColor="brand.500"
+                  border="1px solid transparent"
+                  _hover={{ borderColor: "gray.300" }}
+                  _focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px #3182ce" }}
                 />
+                <Text fontSize="xs" color="gray.500" mt={1}>
+                  {feedback.length}/300
+                </Text>
               </FormControl>
             </>
           )}
         </ModalBody>
 
+        {/* Footer */}
         {hasTemplate && (
           <ModalFooter
             bg={footerBg}
@@ -191,7 +232,7 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
               borderRadius="md"
               onClick={handleSave}
             >
-              Save Evaluation
+              {isUpdate ? "Update Evaluation" : "Add Evaluation"}
             </Button>
           </ModalFooter>
         )}

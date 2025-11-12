@@ -57,6 +57,7 @@ const UserEvaluation = () => {
           feedback: evaluation?.feedback || "",
           agency: evaluation?.userId?.agency?.name || "",
           evaluations: evaluation?.evaluations || [],
+          evaluatedBy: evaluation?.evaluatedBy?.fullName || "N/A",
         };
       });
       setMergedData(merged);
@@ -74,7 +75,6 @@ const UserEvaluation = () => {
         path: "/evaluation/user-evaluation",
         body: payload,
       }).unwrap();
-
       refetchEvaluations();
       onClose();
     } catch (err) {
@@ -84,7 +84,15 @@ const UserEvaluation = () => {
 
   const isLoading = usersFetching || evalFetching;
 
-  const columns = ["User", "Avg", "No.of.ev", "Agency", "Role", "Actions"];
+  const columns = [
+    "User",
+    "Avg",
+    "No. of Evaluations",
+    "Agency",
+    "Role",
+    "Evaluated By",
+    "Actions",
+  ];
 
   return (
     <Box
@@ -172,18 +180,35 @@ const UserEvaluation = () => {
                 mergedData.map((user, index) => (
                   <Tr key={index}>
                     <Td textAlign="center">{user?.fullName}</Td>
-                    <Td textAlign="center">{user?.Avg}</Td>
-                    <Td textAlign="center">{user?.noOfEvaluations}</Td>
+                    <Td
+                      textAlign="center"
+                      color={user?.Avg > 0 ? "black" : "gray.400"}
+                    >
+                      {user?.Avg > 0 ? user?.Avg : "No evaluations"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      color={user?.noOfEvaluations > 0 ? "black" : "gray.400"}
+                    >
+                      {user?.noOfEvaluations > 0
+                        ? user?.noOfEvaluations
+                        : "No evaluations"}
+                    </Td>
                     <Td textAlign="center">{user?.agency || "N/A"}</Td>
-                    <Td textAlign="center">{user?.roles[0]?.roleName}</Td>
+                    <Td textAlign="center">
+                      {user?.roles[0]?.roleName || "N/A"}
+                    </Td>
+                    <Td textAlign="center">{user?.evaluatedBy}</Td>
                     <Td textAlign="center">
                       <Button
-                        colorScheme="brand"
+                        colorScheme={"brand"}
                         borderRadius="md"
                         size="xs"
                         onClick={() => handleEvaluate(user)}
                       >
-                        Evaluate
+                        {user?.noOfEvaluations > 0
+                          ? "View Evaluation"
+                          : "Evaluate User"}
                       </Button>
                     </Td>
                   </Tr>

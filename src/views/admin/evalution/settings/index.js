@@ -1,58 +1,222 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import TabNavigationDisplay from "../../../../components/TabNavigationDisplay/TabNavigationDisplay";
-import Templates from "./Templates";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Button,
+  Flex,
+  Text,
+  IconButton,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { FiRefreshCw } from "react-icons/fi";
+import TemplateModal from "./components/TemplateModal";
+import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import TopPagination from "components/pagination/TopPagination";
+import TableLoading from "components/loading/TableLoading";
+import NoData from "views/admin/lead-v2/components/subComponents/NoData";
+import { toast } from "react-toastify";
 
-const DEFAULT_TAB = "templates";
+const Templates = () => {
+  const [tableData, setTableData] = useState();
 
-const ListingSettings = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [tabKey, setTabKey] = useState(0);
-  const tabsData = [
-    {
-      label: "Template",
-      title: "Evalution Template",
-      description: "Create and manage evalution template.",
-      component: <Templates/>,
-    },
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const handleAddTemplate = (role) => {
+    setSelectedRole(role);
+    onOpen();
+  };
 
-  ];
+  const [createItemMutation, { isLoading: isCreating }] =
+    useCreateItemMutation();
 
-  const tabFromParams = searchParams.get("tab")?.toLowerCase();
-  const initialTabIndex = tabsData.findIndex(
-    (tab) =>
-      tab.label.toLowerCase().replace(/\s/g, "-") ===
-      (tabFromParams || DEFAULT_TAB)
-  );
-  const [activeTabIndex, setActiveTabIndex] = useState(
-    initialTabIndex >= 0 ? initialTabIndex : 0
-  );
-
-  useEffect(() => {
-    if (!searchParams.get("tab")) {
-      setSearchParams({ tab: DEFAULT_TAB }, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
-
-  const handleTabChange = (index) => {
-    if (index === activeTabIndex) {
-      setTabKey((prev) => prev + 1);
-    } else {
-      setActiveTabIndex(index);
-      const newTab = tabsData[index].label.toLowerCase().replace(/\s/g, "-");
-      setSearchParams({ tab: newTab }, { replace: true });
+  const handleSaveTemplate = async (data) => {
+    console.log("data", data)
+    try{
+        await createItemMutation({
+          path: `/evaluation/templates/`,
+          body: data,
+        }).unwrap();
+            onClose();
+    }catch(error) {
+      console.log("error" , error);
+      toast.error("Error in creating the evalution!")
     }
   };
 
+  const columns = ["SR.No", "Role Name", "Description", "Action"];
+
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    return params;
+  };
+
+  const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
+    { path: `/role-access/v2`, params: buildQueryParams() },
+    { refetchOnMountOrArgChange: true }
+  );
+  useEffect(() => {
+    if (data) {
+      setTotalPages(data.totalPages || 0);
+      setTotalItems(data.totalRecords || 0);
+      setTableData(data?.data);
+    }
+  }, [data]);
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
   return (
-    <>
-      <TabNavigationDisplay
-        tabsData={tabsData}
-        activeTab={activeTabIndex}
-        onTabChange={handleTabChange}
-      />
-    </>
+    <Box
+      overflowY="auto"
+      scrollBehavior="smooth"
+      boxShadow="sm"
+      bg="white"
+      px={2}
+      mt={"-16px"}
+    >
+      <Flex
+        justifyContent="space-between"
+        alignItems={{ base: "normal", sm: "normal", md: "center" }}
+        p={3}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
+      >
+        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+          Evaluation Templates
+        </Text>
+
+        <Box
+          gap={2}
+          display="flex"
+          alignItems="center"
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+          justifyContent={{ base: "center", sm: "center", md: "normal" }}
+        >
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh"
+            variant="outline"
+            onClick={() => refetch()}
+            loading={isLoading || isFetching}
+            size="sm"
+          />
+        </Box>
+      </Flex>
+      <Box my={2}>
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
+        />
+      </Box>
+      <Box
+        borderRadius="lg"
+        boxShadow="sm"
+        bg="white"
+        maxH="85vh"
+        overflowY="auto"
+      >
+        <Table variant="striped" size="lg" bg="white">
+          <Thead
+            position="sticky"
+            top={0}
+            bg="white"
+            zIndex={2}
+            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+            fontSize="16px"
+            borderRadius="lg"
+          >
+            <Tr>
+              {columns.map((header, index) => (
+                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text
+                      fontSize={{ base: "12px", md: "14px" }}
+                      fontWeight="600"
+                      color="gray.700"
+                      textTransform="capitalize"
+                    >
+                      {header}
+                    </Text>
+                  </Box>
+                </Th>
+              ))}
+            </Tr>
+          </Thead>
+          {isLoading || isFetching ? (
+            <TableLoading columns={columns} length={7} py="4" />
+          ) : (
+            <Tbody>
+              {tableData && tableData.length > 0 ? (
+                tableData.map((template, index) => (
+                  <Tr key={template.id}>
+                    <Td textAlign="center">{template.serialNumber}</Td>
+                    <Td textAlign="center">{template.roleName}</Td>
+                    <Td textAlign="center">{template.description}</Td>
+                    <Td textAlign="center"z>
+                      <Button
+                        colorScheme="brand"
+                        borderRadius={"md"}
+                        size="xs"
+                        onClick={() => handleAddTemplate(template)}
+                      >
+                        View
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr borderColor="gray.200" textAlign="center">
+                  <Td
+                    borderBottom="none"
+                    colSpan="13"
+                    fontSize={{ base: "12px", md: "15px" }}
+                    fontWeight="500"
+                    color="gray.500"
+                    textAlign="center"
+                  >
+                    <NoData label="listing" />
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          )}
+        </Table>
+      </Box>
+
+      {selectedRole && (
+        <TemplateModal
+          isOpen={isOpen}
+          onClose={onClose}
+          role={selectedRole}
+          onSave={handleSaveTemplate}
+        />
+      )}
+    </Box>
   );
 };
 
-export default ListingSettings;
+export default Templates;
