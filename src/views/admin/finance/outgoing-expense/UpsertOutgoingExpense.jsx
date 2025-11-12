@@ -175,7 +175,7 @@ const UpsertExpense = ({
 			onClose={handleClose}
 			size='3xl'
 			isCentered
-			closeOnOverlayClick={!creating && !updating}
+			closeOnOverlayClick={false}
 			scrollBehavior='inside'
 		>
 			<ModalOverlay backdropFilter='blur(4px)' bg='blackAlpha.600' />

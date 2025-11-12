@@ -107,6 +107,12 @@ const OutgoingCash = React.lazy(
 const FinanceSettings = React.lazy(
 	() => import('views/admin/finance/settings/index')
 );
+const EmployeeLoans = React.lazy(
+	() => import('views/admin/finance/employee-laon/index')
+);
+const EmployeeLoanDetails = React.lazy(
+	() => import('views/admin/finance/employee-laon/loan-details/index')
+);
 
 const DeveloperDetails = React.lazy(
 	() => import('views/admin/developers/components/DeveloperView')
@@ -518,6 +524,22 @@ const routes = [
 		path: '/finance/outgoing-cash',
 		parentName: 'finance',
 		component: OutgoingCash,
+	},
+	{
+		name: 'Employee Loans',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/employee-loans',
+		parentName: 'finance',
+		component: EmployeeLoans,
+	},
+	{
+		name: 'Employee Loan Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/employee-loans/:id',
+		parentName: 'finance',
+		component: EmployeeLoanDetails,
 	},
 	{
 		name: 'Finance Settings',

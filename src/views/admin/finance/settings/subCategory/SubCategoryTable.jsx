@@ -155,7 +155,7 @@ export const SubCategoryTable = ({
 						<Tr>
 							<Td colSpan={columns.length} py={10}>
 								<Center>
-									<NoData label='category' />
+									<NoData label='subcategory' />
 								</Center>
 							</Td>
 						</Tr>

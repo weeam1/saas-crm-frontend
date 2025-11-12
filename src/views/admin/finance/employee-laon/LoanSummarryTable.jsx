@@ -11,6 +11,7 @@ import {
 	Text,
 	Center,
 	Badge,
+	Avatar,
 } from '@chakra-ui/react';
 import { FiEdit2, FiEye, FiTrash2 } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
@@ -21,10 +22,13 @@ import { format } from 'date-fns';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import { toast } from 'react-toastify';
 import { formatCurrency } from 'utils/helpers';
-import { paymentColors } from '../helpers';
+import { getAvatarColor, getInitials, paymentColors } from '../helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { constant } from 'constant';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 
-export const IncomingTable = ({
+const LoanSummaryTable = ({
 	data = [],
 	isLoading,
 	handleOpenEdit,
@@ -32,13 +36,18 @@ export const IncomingTable = ({
 	setView,
 }) => {
 	const columns = [
+		{ key: 'user', label: 'Employee', width: '300px' },
+		// { key: 'description', label: 'Description', width: '300px' },
+		{ key: 'totalLoans', label: 'Loans', width: '100px' },
+		{ key: 'activeLoans', label: 'Active', width: '80px' },
+		{ key: 'closedLoans', label: 'Closed', width: '80px' },
+		{ key: 'totalTenureMonths', label: 'Total Months', width: '80px' },
+		{ key: 'totalBorrowedAmount', label: 'Borrowed', width: '150px' },
+		{ key: 'totalRemainingAmount', label: 'Remaining', width: '150px' },
+		{ key: 'monthlyInstallment', label: 'Installment', width: '150px' },
+		{ key: 'status', label: 'Status', width: '100px' },
 		{ key: 'createdAt', label: 'Created Date', width: '200px' },
-		{ key: 'description', label: 'Description', width: '300px' },
-		{ key: 'paymentMethod', label: 'Payment Method', width: '300px' },
-		{ key: 'amount', label: 'Amount', width: '180px' },
-		{ key: 'agency', label: 'Agency', width: '180px' },
-		{ key: 'addedBy', label: 'Added By', width: '150px' },
-		{ key: 'actions', label: 'Actions', width: '120px' },
+		{ key: 'details', label: 'Details', width: '50px' },
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
@@ -46,6 +55,8 @@ export const IncomingTable = ({
 	const [selectedId, setSelectedId] = useState(null);
 
 	const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		let timer;
@@ -61,7 +72,7 @@ export const IncomingTable = ({
 
 	const formatValue = (key, value) => {
 		switch (key) {
-			case 'paymentMethod': {
+			case 'active': {
 				const color = paymentColors[value] || 'gray';
 				return (
 					<Badge
@@ -80,10 +91,55 @@ export const IncomingTable = ({
 
 			case 'agency':
 				return value?.name || 'N/A';
-			case 'addedBy':
-				return value?.fullName || value?.username || '-';
+			case 'createdBy':
+			case 'user':
+				return (
+					<Box
+						as={Link}
+						to={`/finance/employee-loans/${value?._id}`}
+						display='flex'
+						alignItems='center'
+						_hover={{ bg: 'gray.100', transition: 'background 0.2s ease' }}
+						cursor='pointer'
+					>
+						<Avatar
+							src={
+								value?.profileImage
+									? ` ${constant.baseUrl}${value?.profileImage}`
+									: undefined
+							}
+							name={value?.fullName || value?.username || undefined}
+							bg={getAvatarColor(value?.fullName || value?.username || '')}
+							boxSize='40px'
+							mr={3}
+						>
+							{/* Avatar will show initials automatically from `name` prop,
+            but in case you want to override: */}
+							{!value?.profileImage && !value?.fullName && (
+								<Text fontSize='sm' fontWeight='600'>
+									{getInitials(value?.username || '')}
+								</Text>
+							)}
+						</Avatar>
+
+						<Box>
+							<Text fontWeight='600' fontSize='sm'>
+								{value?.fullName || value?.username || '-'}
+							</Text>
+							{value?.username && (
+								<Text fontSize='xs' color='gray.500'>
+									@{value.username}
+								</Text>
+							)}
+						</Box>
+					</Box>
+				);
 			case 'createdAt':
 				return value ? format(new Date(value), 'MMM d, yyyy h:mm a') : 'N/A';
+			case 'activeLoans':
+			case 'totalLoans':
+			case 'closedLoans':
+				return value || 0;
 			default:
 				return value || '-';
 		}
@@ -130,7 +186,7 @@ export const IncomingTable = ({
 								textTransform='capitalize'
 								fontSize='md'
 								py='4'
-								textAlign={['name'].includes(column.key) ? 'left' : 'center'}
+								textAlign={['user'].includes(column.key) ? 'left' : 'center'}
 								fontWeight='semibold'
 								color='gray.700'
 								minW={column.width}
@@ -148,7 +204,7 @@ export const IncomingTable = ({
 						<Tr>
 							<Td colSpan={columns.length} py={10}>
 								<Center>
-									<NoData label='incoming balance' />
+									<NoData label='employee loans' />
 								</Center>
 							</Td>
 						</Tr>
@@ -171,51 +227,51 @@ export const IncomingTable = ({
 										minW={column.width}
 										maxW='400px'
 										textAlign={
-											['name'].includes(column.key) ? 'left' : 'center'
+											['user'].includes(column.key) ? 'left' : 'center'
 										}
-										fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
+										fontWeight={column.key === 'user' ? 'semibold' : 'medium'}
 										color='gray.700'
 									>
-										{column.key === 'actions' ? (
-											<Flex align='center' justify='center' gap={3}>
-												<CustomTooltip label='View'>
-													<IconButton
-														aria-label='View'
-														icon={<FiEye />}
-														size='sm'
-														colorScheme='teal'
-														variant='ghost'
-														onClick={() => setView({ modal: true, data: row })}
-													/>
-												</CustomTooltip>
-												<CustomTooltip label='Edit'>
-													<IconButton
-														aria-label='Edit'
-														icon={<FiEdit2 />}
-														size='sm'
-														colorScheme='blue'
-														variant='ghost'
-														onClick={() => handleOpenEdit(row)}
-													/>
-												</CustomTooltip>
-												<CustomTooltip label='Delete'>
-													<IconButton
-														aria-label='Delete'
-														icon={<FiTrash2 />}
-														size='sm'
-														colorScheme='red'
-														variant='ghost'
-														onClick={() => handleDelete(row._id)}
-													/>
-												</CustomTooltip>
-											</Flex>
-										) : ['amount', 'totalAmount'].includes(column.key) ? (
+										{column.key === 'details' ? (
+											<CustomTooltip label='Loan details'>
+												<IconButton
+													aria-label='Loan details'
+													icon={<FaExternalLinkAlt />}
+													size='sm'
+													colorScheme='teal'
+													variant='ghost'
+													onClick={() =>
+														navigate(
+															`/finance/employee-loans/${row['user']?._id}`
+														)
+													}
+												/>
+											</CustomTooltip>
+										) : [
+												'totalBorrowedAmount',
+												'totalRemainingAmount',
+												'monthlyInstallment',
+										  ].includes(column.key) ? (
 											<Text>
 												{formatCurrency(
 													row[column.key],
-													row['agency']?.currency || 'AED'
+													row['user']?.agency?.currency || 'AED'
 												)}
 											</Text>
+										) : column.key === 'status' ? (
+											<Badge
+												colorScheme={
+													row['activeLoans'] === 0 ? 'green' : 'yellow'
+												}
+												variant='subtle'
+												fontSize='.9em'
+												px={4}
+												py={2}
+												borderRadius='full'
+												textTransform='capitalize'
+											>
+												{row['activeLoans'] === 0 ? 'Completed' : 'Pending'}
+											</Badge>
 										) : (
 											formatValue(column.key, row[column.key])
 										)}
@@ -244,4 +300,4 @@ export const IncomingTable = ({
 	);
 };
 
-export default IncomingTable;
+export default LoanSummaryTable;

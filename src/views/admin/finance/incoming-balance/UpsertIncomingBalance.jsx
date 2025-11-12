@@ -131,7 +131,7 @@ const UpsertIncomingBalance = ({
 			onClose={handleClose}
 			isCentered
 			size='xl'
-			closeOnOverlayClick={!creating && !updating}
+			closeOnOverlayClick={false}
 			scrollBehavior='inside'
 		>
 			<ModalOverlay backdropFilter='blur(4px)' bg='blackAlpha.600' />

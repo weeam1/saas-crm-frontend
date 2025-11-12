@@ -11,6 +11,7 @@ import {
 	Text,
 	Center,
 	Badge,
+	Avatar,
 } from '@chakra-ui/react';
 import { FiEdit2, FiEye, FiTrash2 } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
@@ -21,10 +22,11 @@ import { format } from 'date-fns';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import { toast } from 'react-toastify';
 import { formatCurrency } from 'utils/helpers';
-import { paymentColors } from '../helpers';
+import { getAvatarColor, getInitials, paymentColors } from '../../helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { constant } from 'constant';
 
-export const IncomingTable = ({
+const LoansTable = ({
 	data = [],
 	isLoading,
 	handleOpenEdit,
@@ -32,13 +34,17 @@ export const IncomingTable = ({
 	setView,
 }) => {
 	const columns = [
-		{ key: 'createdAt', label: 'Created Date', width: '200px' },
-		{ key: 'description', label: 'Description', width: '300px' },
-		{ key: 'paymentMethod', label: 'Payment Method', width: '300px' },
-		{ key: 'amount', label: 'Amount', width: '180px' },
-		{ key: 'agency', label: 'Agency', width: '180px' },
-		{ key: 'addedBy', label: 'Added By', width: '150px' },
-		{ key: 'actions', label: 'Actions', width: '120px' },
+		{ key: 'createdBy', label: 'Added By', width: '250px' },
+		{ key: 'type', label: 'Type', width: '180px' },
+		{ key: 'description', label: 'Description', width: '250px' },
+		{ key: 'amount', label: 'Amount', width: '100px' },
+		{ key: 'paidAmount', label: 'Paid Amount', width: '100px' },
+		{ key: 'tenure', label: 'Tenure', width: '80px' },
+		// { key: 'remainingAmount', label: 'Remaining', width: '120px' },
+		{ key: 'monthlyInstallment', label: 'Installment', width: '80px' },
+		{ key: 'isActive', label: 'Status', width: '80px' },
+		{ key: 'startDate', label: 'Start Date', width: '200px' },
+		{ key: 'actions', label: 'Actions', width: '100px' },
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
@@ -61,7 +67,7 @@ export const IncomingTable = ({
 
 	const formatValue = (key, value) => {
 		switch (key) {
-			case 'paymentMethod': {
+			case 'active': {
 				const color = paymentColors[value] || 'gray';
 				return (
 					<Badge
@@ -80,10 +86,50 @@ export const IncomingTable = ({
 
 			case 'agency':
 				return value?.name || 'N/A';
-			case 'addedBy':
-				return value?.fullName || value?.username || '-';
+			case 'createdBy':
+			case 'user':
+				return (
+					<Box display='flex' alignItems='center'>
+						<Avatar
+							src={
+								value?.profileImage
+									? ` ${constant.baseUrl}${value?.profileImage}`
+									: undefined
+							}
+							name={value?.fullName || value?.username || undefined}
+							bg={getAvatarColor(value?.fullName || value?.username || '')}
+							boxSize='36px'
+							mr={3}
+						>
+							{/* Avatar will show initials automatically from `name` prop,
+            but in case you want to override: */}
+							{!value?.profileImage && !value?.fullName && (
+								<Text fontSize='sm' fontWeight='600'>
+									{getInitials(value?.username || '')}
+								</Text>
+							)}
+						</Avatar>
+
+						<Box>
+							<Text fontWeight='600' fontSize='sm'>
+								{value?.fullName || value?.username || '-'}
+							</Text>
+							{value?.username && (
+								<Text fontSize='xs' color='gray.500'>
+									@{value.username}
+								</Text>
+							)}
+						</Box>
+					</Box>
+				);
 			case 'createdAt':
+			case 'startDate':
 				return value ? format(new Date(value), 'MMM d, yyyy h:mm a') : 'N/A';
+			case 'tenure':
+			case 'monthsPaid':
+			case 'monthsRemaining':
+			case 'monthlyInstallment':
+				return value || 0;
 			default:
 				return value || '-';
 		}
@@ -97,12 +143,12 @@ export const IncomingTable = ({
 	const handleConfirmRemove = async () => {
 		try {
 			await deleteItem({
-				path: `finance/cash/incoming/${selectedId}`,
+				path: `finance/loans/${selectedId}`,
 			}).unwrap();
-			toast.success('Incoming balance deleted successfully');
+			toast.success('Loan deleted successfully');
 			removeItem(selectedId);
 		} catch (error) {
-			toast.error(error?.data?.message || 'Failed to delete Incoming balance');
+			toast.error(error?.data?.message || 'Failed to delete loan');
 		} finally {
 			setDeleteModalOpen(false);
 		}
@@ -130,7 +176,7 @@ export const IncomingTable = ({
 								textTransform='capitalize'
 								fontSize='md'
 								py='4'
-								textAlign={['name'].includes(column.key) ? 'left' : 'center'}
+								textAlign={['user'].includes(column.key) ? 'left' : 'center'}
 								fontWeight='semibold'
 								color='gray.700'
 								minW={column.width}
@@ -148,7 +194,7 @@ export const IncomingTable = ({
 						<Tr>
 							<Td colSpan={columns.length} py={10}>
 								<Center>
-									<NoData label='incoming balance' />
+									<NoData label='loans' />
 								</Center>
 							</Td>
 						</Tr>
@@ -171,9 +217,9 @@ export const IncomingTable = ({
 										minW={column.width}
 										maxW='400px'
 										textAlign={
-											['name'].includes(column.key) ? 'left' : 'center'
+											['user'].includes(column.key) ? 'left' : 'center'
 										}
-										fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
+										fontWeight={column.key === 'user' ? 'semibold' : 'medium'}
 										color='gray.700'
 									>
 										{column.key === 'actions' ? (
@@ -188,34 +234,57 @@ export const IncomingTable = ({
 														onClick={() => setView({ modal: true, data: row })}
 													/>
 												</CustomTooltip>
-												<CustomTooltip label='Edit'>
-													<IconButton
-														aria-label='Edit'
-														icon={<FiEdit2 />}
-														size='sm'
-														colorScheme='blue'
-														variant='ghost'
-														onClick={() => handleOpenEdit(row)}
-													/>
-												</CustomTooltip>
-												<CustomTooltip label='Delete'>
-													<IconButton
-														aria-label='Delete'
-														icon={<FiTrash2 />}
-														size='sm'
-														colorScheme='red'
-														variant='ghost'
-														onClick={() => handleDelete(row._id)}
-													/>
-												</CustomTooltip>
+												{row['monthsPaid'] === 0 && (
+													<>
+														<CustomTooltip label='Edit'>
+															<IconButton
+																aria-label='Edit'
+																icon={<FiEdit2 />}
+																size='sm'
+																colorScheme='blue'
+																variant='ghost'
+																onClick={() => handleOpenEdit(row)}
+															/>
+														</CustomTooltip>
+														<CustomTooltip label='Delete'>
+															<IconButton
+																aria-label='Delete'
+																icon={<FiTrash2 />}
+																size='sm'
+																colorScheme='red'
+																variant='ghost'
+																onClick={() => handleDelete(row._id)}
+															/>
+														</CustomTooltip>
+													</>
+												)}
 											</Flex>
-										) : ['amount', 'totalAmount'].includes(column.key) ? (
+										) : [
+												'amount',
+												'paidAmount',
+												'remainingAmount',
+												'monthlyInstallment',
+										  ].includes(column.key) ? (
 											<Text>
 												{formatCurrency(
 													row[column.key],
-													row['agency']?.currency || 'AED'
+													row['user']?.agency?.currency || 'AED'
 												)}
 											</Text>
+										) : column.key === 'isActive' ? (
+											<Badge
+												colorScheme={
+													row[column.key] === false ? 'green' : 'yellow'
+												}
+												variant='subtle'
+												fontSize='.9em'
+												px={4}
+												py={2}
+												borderRadius='full'
+												textTransform='uppercase'
+											>
+												{row[column.key] === false ? 'Paid' : 'Pending'}
+											</Badge>
 										) : (
 											formatValue(column.key, row[column.key])
 										)}
@@ -233,8 +302,8 @@ export const IncomingTable = ({
 					isOpen={isDeleteModalOpen}
 					onClose={() => setDeleteModalOpen(false)}
 					onConfirm={handleConfirmRemove}
-					title='Delete Cash'
-					message={`Are you sure you want to delete this Incoming balance?`}
+					title='Delete Loan'
+					message={`Are you sure you want to delete this Loan?`}
 					confirmText='Yes, Delete'
 					cancelText='Cancel'
 					isLoading={isDeleting}
@@ -244,4 +313,4 @@ export const IncomingTable = ({
 	);
 };
 
-export default IncomingTable;
+export default LoansTable;
