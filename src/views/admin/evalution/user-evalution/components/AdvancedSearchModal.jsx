@@ -185,7 +185,7 @@ const AdvancedSearchModal = ({
           <ModalBody px={6} pt={5} pb={2} maxH="65vh" overflowY="auto">
             <VStack spacing={3} align="stretch">
               {/* Date Range */}
-              {/* <Box>
+              <Box>
                 <Text fontSize="md" fontWeight="semibold" mb={2}>
                   Date Range
                 </Text>
@@ -229,7 +229,7 @@ const AdvancedSearchModal = ({
                 </SimpleGrid>
               </Box>
 
-              <Divider my={2} /> */}
+              <Divider my={2} />
 
               {/* Month & Year */}
               <SimpleGrid columns={colSpan} gap={3}>

@@ -54,8 +54,8 @@ const UserEvaluation = () => {
     if (Object.keys(filters).length > 0) {
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
-      if (filters.startFrom) params.startFrom = filters.startFrom;
-      if (filters.startTo) params.startTo = filters.startTo;
+      if (filters.startFrom) params.startDate = filters.startFrom;
+      if (filters.startTo) params.endDate = filters.startTo;
       if (filters.filterStatus) params.filterStatus = filters.filterStatus;
     }
 
