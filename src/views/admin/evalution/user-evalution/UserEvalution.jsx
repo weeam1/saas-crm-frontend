@@ -12,17 +12,28 @@ import {
   Text,
   IconButton,
   useDisclosure,
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw, FiSearch } from "react-icons/fi";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import EvaluteModal from "./components/EvaluteModal";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
+import TopPagination from "components/pagination/TopPagination";
+import AdvancedSearchModal from "./components/AdvancedSearchModal";
+import ActiveFiltersDisplay from "./components/ActiveFiltersDisplay"
 
 const UserEvaluation = () => {
   const [mergedData, setMergedData] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [filters, setFilters] = useState({});
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterChanged, setFilterChanged] = useState(false);
 
   const {
     data: usersData,
@@ -32,13 +43,31 @@ const UserEvaluation = () => {
     { path: "/v2/user/search_users" },
     { refetchOnMountOrArgChange: true }
   );
+  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+
+  const buildQueryParams = () => {
+    const params = {
+      page: currentPage,
+      limit: pageSize,
+    };
+
+    if (Object.keys(filters).length > 0) {
+      if (filters.month) params.month = filters.month;
+      if (filters.year) params.year = filters.year;
+      if (filters.startFrom) params.startFrom = filters.startFrom;
+      if (filters.startTo) params.startTo = filters.startTo;
+      if (filters.filterStatus) params.filterStatus = filters.filterStatus;
+    }
+
+    return params;
+  };
 
   const {
     data: evaluationsData,
     isFetching: evalFetching,
     refetch: refetchEvaluations,
   } = useFetchItemsQuery(
-    { path: "/evaluation/user-evaluation" },
+    { path: "/evaluation/user-evaluation", params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -61,6 +90,10 @@ const UserEvaluation = () => {
         };
       });
       setMergedData(merged);
+      if (evaluationsData?.data) {
+        setTotalPages(evaluationsData.totalPages || 0);
+        setTotalItems(evaluationsData.totalItems || 0);
+      }
     }
   }, [usersData, evaluationsData]);
 
@@ -80,6 +113,44 @@ const UserEvaluation = () => {
     } catch (err) {
       console.error("Error saving evaluation:", err);
     }
+  };
+
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1);
+  };
+
+  const handleApplyFilters = (newFilters) => {
+    const cleanedFilters = Object.fromEntries(
+      Object.entries(newFilters).filter(
+        ([_, value]) => value !== "" && value !== undefined
+      )
+    );
+
+    setFilters(cleanedFilters);
+    setCurrentPage(1);
+    setIsFilterOpen(false);
+    setFilterChanged(true);
+    refetchEvaluations();
+  };
+
+  useEffect(() => {
+    if (filterChanged) {
+      setFilterChanged(false);
+    }
+  }, [filterChanged]);
+
+  const handleClearFilters = (filterKey) => {
+    if (filterKey) {
+      const newFilters = { ...filters };
+      delete newFilters[filterKey];
+      setFilters(newFilters);
+    } else {
+      setFilters({});
+    }
+    setCurrentPage(1);
+    setFilterChanged(true);
+    refetchEvaluations();
   };
 
   const isLoading = usersFetching || evalFetching;
@@ -130,9 +201,49 @@ const UserEvaluation = () => {
             }}
             isLoading={isLoading}
           />
+          {isMobile ? (
+            <IconButton
+              icon={<FiSearch />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Search Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          ) : (
+            <Button
+              colorScheme="brand"
+              size="sm"
+              borderRadius="md"
+              py={3}
+              px={6}
+              onClick={() => setIsFilterOpen(true)}
+            >
+              Advanced Search
+            </Button>
+          )}
         </Box>
       </Flex>
 
+      <ActiveFiltersDisplay
+        filters={filters}
+        onClearFilters={handleClearFilters}
+      />
+      <Box my={2}>
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={totalItems}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          handlePageSize={handlePageSizeChange}
+          refetching={isLoading}
+          loading={isLoading}
+        />
+      </Box>
       <Box
         borderRadius="lg"
         boxShadow="sm"
@@ -240,6 +351,13 @@ const UserEvaluation = () => {
           onSave={handleSaveEvaluation}
         />
       )}
+      <AdvancedSearchModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApplyFilters={handleApplyFilters}
+        initialFilters={filters}
+        clearFilter={filterChanged}
+      />
     </Box>
   );
 };
