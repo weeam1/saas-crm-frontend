@@ -175,7 +175,7 @@ const LoansTable = ({
 								whiteSpace='nowrap'
 								textTransform='capitalize'
 								fontSize='md'
-								py='4'
+								py='5'
 								textAlign={['user'].includes(column.key) ? 'left' : 'center'}
 								fontWeight='semibold'
 								color='gray.700'
@@ -209,7 +209,7 @@ const LoansTable = ({
 								{columns.map((column) => (
 									<Td
 										key={column.key}
-										py={3}
+										py={4}
 										px={3}
 										wordBreak='break-word'
 										isTruncated={true}

@@ -116,7 +116,7 @@ const EmployeeLoan = () => {
 						/>
 					)}
 
-					<DateFilter onFilterChange={onDateFilterChange} />
+					{/* <DateFilter onFilterChange={onDateFilterChange} /> */}
 
 					<Button
 						alignSelf='flex-end'

@@ -290,7 +290,7 @@ const loanSchema = yup.object().shape({
 	type: yup
 		.string()
 		.min(1, 'Minimum loan type 2 characters')
-		.max(30, 'Maximum oan type 30 characters')
+		.max(30, 'Maximum loan type 30 characters')
 		.required('Loan type is required'),
 	tenure: yup
 		.number()

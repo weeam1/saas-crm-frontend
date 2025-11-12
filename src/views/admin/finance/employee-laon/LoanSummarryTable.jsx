@@ -38,23 +38,23 @@ const LoanSummaryTable = ({
 	const columns = [
 		{ key: 'user', label: 'Employee', width: '300px' },
 		// { key: 'description', label: 'Description', width: '300px' },
-		{ key: 'totalLoans', label: 'Loans', width: '100px' },
+		{ key: 'totalLoans', label: 'Loans', width: '80px' },
 		{ key: 'activeLoans', label: 'Active', width: '80px' },
 		{ key: 'closedLoans', label: 'Closed', width: '80px' },
 		{ key: 'totalTenureMonths', label: 'Total Months', width: '80px' },
 		{ key: 'totalBorrowedAmount', label: 'Borrowed', width: '150px' },
 		{ key: 'totalRemainingAmount', label: 'Remaining', width: '150px' },
 		{ key: 'monthlyInstallment', label: 'Installment', width: '150px' },
-		{ key: 'status', label: 'Status', width: '100px' },
-		{ key: 'createdAt', label: 'Created Date', width: '200px' },
+		{ key: 'status', label: 'Status', width: '80px' },
+		{ key: 'updatedAt', label: 'Last Update', width: '200px' },
 		{ key: 'details', label: 'Details', width: '50px' },
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
-	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-	const [selectedId, setSelectedId] = useState(null);
+	// const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+	// const [selectedId, setSelectedId] = useState(null);
 
-	const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
+	// const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
 
 	const navigate = useNavigate();
 
@@ -135,6 +135,7 @@ const LoanSummaryTable = ({
 					</Box>
 				);
 			case 'createdAt':
+			case 'updatedAt':
 				return value ? format(new Date(value), 'MMM d, yyyy h:mm a') : 'N/A';
 			case 'activeLoans':
 			case 'totalLoans':
@@ -145,24 +146,24 @@ const LoanSummaryTable = ({
 		}
 	};
 
-	const handleDelete = (id) => {
-		setSelectedId(id);
-		setDeleteModalOpen(true);
-	};
+	// const handleDelete = (id) => {
+	// 	setSelectedId(id);
+	// 	setDeleteModalOpen(true);
+	// };
 
-	const handleConfirmRemove = async () => {
-		try {
-			await deleteItem({
-				path: `finance/cash/incoming/${selectedId}`,
-			}).unwrap();
-			toast.success('Incoming balance deleted successfully');
-			removeItem(selectedId);
-		} catch (error) {
-			toast.error(error?.data?.message || 'Failed to delete Incoming balance');
-		} finally {
-			setDeleteModalOpen(false);
-		}
-	};
+	// const handleConfirmRemove = async () => {
+	// 	try {
+	// 		await deleteItem({
+	// 			path: `finance/cash/incoming/${selectedId}`,
+	// 		}).unwrap();
+	// 		toast.success('Incoming balance deleted successfully');
+	// 		removeItem(selectedId);
+	// 	} catch (error) {
+	// 		toast.error(error?.data?.message || 'Failed to delete Incoming balance');
+	// 	} finally {
+	// 		setDeleteModalOpen(false);
+	// 	}
+	// };
 
 	return (
 		<Box
@@ -185,7 +186,7 @@ const LoanSummaryTable = ({
 								whiteSpace='nowrap'
 								textTransform='capitalize'
 								fontSize='md'
-								py='4'
+								py='6'
 								textAlign={['user'].includes(column.key) ? 'left' : 'center'}
 								fontWeight='semibold'
 								color='gray.700'
@@ -219,7 +220,7 @@ const LoanSummaryTable = ({
 								{columns.map((column) => (
 									<Td
 										key={column.key}
-										py={3}
+										py={4}
 										px={3}
 										wordBreak='break-word'
 										isTruncated={true}
@@ -268,7 +269,7 @@ const LoanSummaryTable = ({
 												px={4}
 												py={2}
 												borderRadius='full'
-												textTransform='capitalize'
+												textTransform='uppercase'
 											>
 												{row['activeLoans'] === 0 ? 'Completed' : 'Pending'}
 											</Badge>
@@ -284,7 +285,7 @@ const LoanSummaryTable = ({
 			</Table>
 
 			{/* Delete Confirmation Modal */}
-			{isDeleteModalOpen && (
+			{/* {isDeleteModalOpen && (
 				<ConfirmationModal
 					isOpen={isDeleteModalOpen}
 					onClose={() => setDeleteModalOpen(false)}
@@ -295,7 +296,7 @@ const LoanSummaryTable = ({
 					cancelText='Cancel'
 					isLoading={isDeleting}
 				/>
-			)}
+			)} */}
 		</Box>
 	);
 };

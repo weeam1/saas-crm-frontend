@@ -42,8 +42,8 @@ export const useEmployeeLoanSummary = () => {
 		const raw = {
 			page: pagination.page,
 			limit: pagination.limit,
-			month,
-			year,
+			// month,
+			// year,
 			agency: isAgenciesAllowed
 				? agencyId || undefined
 				: user?.agency?._id || undefined,
@@ -52,8 +52,8 @@ export const useEmployeeLoanSummary = () => {
 	}, [
 		pagination.page,
 		pagination.limit,
-		month,
-		year,
+		// month,
+		// year,
 		isAgenciesAllowed,
 		agencyId,
 		user?.agency?._id,
