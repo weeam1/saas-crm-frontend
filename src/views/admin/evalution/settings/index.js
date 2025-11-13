@@ -13,7 +13,7 @@ import {
   IconButton,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw, FiEye } from "react-icons/fi";
 import TemplateModal from "./components/TemplateModal";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
@@ -39,16 +39,15 @@ const Templates = () => {
     useCreateItemMutation();
 
   const handleSaveTemplate = async (data) => {
-    console.log("data", data)
-    try{
-        await createItemMutation({
-          path: `/evaluation/templates/`,
-          body: data,
-        }).unwrap();
-            onClose();
-    }catch(error) {
-      console.log("error" , error);
-      toast.error("Error in creating the evalution!")
+    try {
+      await createItemMutation({
+        path: `/evaluation/templates/`,
+        body: data,
+      }).unwrap();
+      onClose();
+    } catch (error) {
+      console.log("error", error);
+      toast.error("Error in creating the evalution!");
     }
   };
 
@@ -175,16 +174,16 @@ const Templates = () => {
                   <Tr key={template.id}>
                     <Td textAlign="center">{template.serialNumber}</Td>
                     <Td textAlign="center">{template.roleName}</Td>
-                    <Td textAlign="center">{template.description}</Td>
-                    <Td textAlign="center"z>
-                      <Button
-                        colorScheme="brand"
-                        borderRadius={"md"}
-                        size="xs"
+                    <Td>{template.description}</Td>
+                    <Td textAlign="center" >
+                      <IconButton
+                        aria-label="View"
+                        icon={<FiEye />}
+                        size="sm"
+                        colorScheme="teal"
+                        variant="ghost"
                         onClick={() => handleAddTemplate(template)}
-                      >
-                        View
-                      </Button>
+                      />
                     </Td>
                   </Tr>
                 ))

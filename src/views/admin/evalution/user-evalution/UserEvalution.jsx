@@ -14,14 +14,14 @@ import {
   useDisclosure,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { FiRefreshCw, FiSearch } from "react-icons/fi";
+import { FiRefreshCw, FiSearch, FiEye, FiEdit2 } from "react-icons/fi";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import EvaluteModal from "./components/EvaluteModal";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
 import AdvancedSearchModal from "./components/AdvancedSearchModal";
-import ActiveFiltersDisplay from "./components/ActiveFiltersDisplay"
+import ActiveFiltersDisplay from "./components/ActiveFiltersDisplay";
 
 const UserEvaluation = () => {
   const [mergedData, setMergedData] = useState([]);
@@ -311,16 +311,25 @@ const UserEvaluation = () => {
                     </Td>
                     <Td textAlign="center">{user?.evaluatedBy}</Td>
                     <Td textAlign="center">
-                      <Button
-                        colorScheme={"brand"}
-                        borderRadius="md"
-                        size="xs"
-                        onClick={() => handleEvaluate(user)}
-                      >
-                        {user?.noOfEvaluations > 0
-                          ? "View Evaluation"
-                          : "Evaluate User"}
-                      </Button>
+                      {user?.noOfEvaluations > 0 ? (
+                        <IconButton
+                          aria-label="View"
+                          icon={<FiEye />}
+                          size="sm"
+                          colorScheme="teal"
+                          variant="ghost"
+                          onClick={() => handleEvaluate(user)}
+                        />
+                      ) : (
+                         <IconButton
+                          aria-label="Evaluate User"
+                          icon={<FiEdit2 />}
+                          size="sm"
+                          colorScheme="teal"
+                          variant="ghost"
+                          onClick={() => handleEvaluate(user)}
+                        />
+                      )}
                     </Td>
                   </Tr>
                 ))
