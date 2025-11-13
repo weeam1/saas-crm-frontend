@@ -167,7 +167,12 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 		if (hasPermission('leads', 'update')) return fields;
 		if (hasPermission('leads', 'edit_contacts')) {
 			return fields.filter((f) =>
-				['leadName', 'leadPhoneNumber', 'leadWhatsappNumber'].includes(f.name)
+				[
+					'leadName',
+					'leadEmail',
+					'leadPhoneNumber',
+					'leadWhatsappNumber',
+				].includes(f.name)
 			);
 		}
 		return [];

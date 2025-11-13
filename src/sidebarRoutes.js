@@ -469,7 +469,7 @@ export const sidebarRoutes = [
 				path: '/finance/outgoing-cash',
 			},
 			{
-				// id: 'outgoing_cash',
+				id: 'employee_loans',
 				name: 'Employee Loans',
 				path: '/finance/employee-loans',
 			},
