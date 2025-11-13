@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -15,71 +15,79 @@ import {
   Flex,
   SimpleGrid,
   Box,
-  Spinner,
   FormErrorMessage,
   VStack,
   Divider,
+  Progress,
+  useColorModeValue,
+  Icon,
+  Skeleton,
+  SkeletonText,
 } from "@chakra-ui/react";
 import { useModalColors } from "hooks/useModalColors";
 import { useFetchItemsQuery } from "api/apiSlice";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { FiAlertCircle } from "react-icons/fi";
 
-const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
+const EvaluteModal = ({ isOpen, onClose, user, onSave, viewOnly }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
-
+  const inputBg = useColorModeValue("gray.50", "gray.700");
   const [evaluationInputs, setEvaluationInputs] = useState([]);
   const [isUpdate, setIsUpdate] = useState(false);
   const [hasTemplate, setHasTemplate] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(true);
 
-  const { data, isLoading } = useFetchItemsQuery(
+  const { data, isLoading, refetch } = useFetchItemsQuery(
     { path: `/evaluation/templates/${user?.roles[0]?._id}` },
     { skip: !user?.roles[0]?._id, refetchOnMountOrArgChange: true }
   );
 
   const validationSchema = Yup.object().shape({
-    feedback: Yup.string().required("Feedback is required"),
+    feedback: Yup.string()
+      .max(300, "Maximum 300 characters allowed")
+      .required("Feedback is required"),
     evaluations: Yup.array()
       .of(
         Yup.object().shape({
           number: Yup.number()
             .typeError("Must be a number")
-            .min(0, "Min 0")
-            .max(10, "Max 10")
-            .required("Score is required"),
+            .min(0, "Minimum is 0")
+            .max(10, "Maximum is 10")
+            .required("Score required"),
         })
       )
-      .min(1, "Evaluation points are required"),
+      .min(1, "Evaluation points required"),
   });
 
   const formik = useFormik({
-    initialValues: {
-      feedback: "",
-      evaluations: [],
-    },
+    initialValues: { feedback: "", evaluations: [] },
     validationSchema,
     onSubmit: (values) => {
       const payload = {
         userId: user._id,
-        feedback: values.feedback,
+        feedback: values.feedback.trim(),
         evaluations: values.evaluations.map((e, i) => ({
           entityName: evaluationInputs[i].entityName,
           number: Number(e.number),
         })),
       };
       onSave(payload);
-      toast.success(`Evaluation ${isUpdate ? "updated" : "added"} successfully`);
+      toast.success(
+        `Evaluation ${isUpdate ? "updated" : "added"} successfully`
+      );
       onClose();
     },
   });
 
   useEffect(() => {
     if (!isOpen) return;
+    setShowSkeleton(true);
+    refetch().finally(() => setShowSkeleton(false));
 
     if (data?.evaluationTemplate?.evaluationPoints?.length) {
       setHasTemplate(true);
-
       const templatePoints = data.evaluationTemplate.evaluationPoints;
       const mergedEvaluations = templatePoints.map((point) => {
         const existing = user?.evaluations?.find((e) => e.entityName === point);
@@ -88,13 +96,11 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
           number: existing ? existing.number.toString() : "0",
         };
       });
-
       setEvaluationInputs(mergedEvaluations);
       formik.setFieldValue(
         "evaluations",
         mergedEvaluations.map((e) => ({ number: e.number }))
       );
-
       formik.setFieldValue("feedback", user?.feedback || "");
       setIsUpdate(Boolean(user?.feedback && user?.evaluations?.length));
     } else {
@@ -103,16 +109,30 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
       formik.setFieldValue("feedback", "");
       formik.setFieldValue("evaluations", []);
     }
-  }, [isOpen, user, data]);
+  }, [isOpen]);
 
   const handleInputChange = (index, value) => {
-    const updated = [...formik.values.evaluations];
-    updated[index] = { ...updated[index], number: value };
-    formik.setFieldValue("evaluations", updated);
+    if (
+      value === "" ||
+      (/^\d{0,2}$/.test(value) && value >= 0 && value <= 10)
+    ) {
+      const updated = [...formik.values.evaluations];
+      updated[index] = { ...updated[index], number: value };
+      formik.setFieldValue("evaluations", updated);
+    }
   };
 
+  const totalPercentage = useMemo(() => {
+    if (!formik.values.evaluations.length) return 0;
+    const sum = formik.values.evaluations.reduce(
+      (acc, e) => acc + Number(e.number || 0),
+      0
+    );
+    return Math.round((sum / (formik.values.evaluations.length * 10)) * 100);
+  }, [formik.values.evaluations]);
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} isCentered size="2xl">
       <ModalOverlay backdropFilter="blur(3px)" />
       <ModalContent
         mx="auto"
@@ -120,11 +140,10 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
         borderRadius="2xl"
         bg={bg}
         overflow="hidden"
-        maxH="85vh"
+        maxH="90vh"
         display="flex"
         flexDirection="column"
       >
-        {/* Header */}
         <Flex
           align="center"
           justify="space-between"
@@ -145,90 +164,191 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
         </Flex>
 
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody overflowY="auto" py={4}>
-            {isLoading ? (
-              <Flex justify="center" align="center" py={10}>
-                <Spinner size="xl" color="brand.500" />
-              </Flex>
-            ) : !hasTemplate ? (
-              <Box textAlign="center" py={10}>
-                <Text fontSize="md" fontWeight="bold" color="red.500">
-                  No evaluation template available
-                </Text>
-                <Text mt={2} color="gray.600">
-                  Please contact the administrator to create one.
-                </Text>
-              </Box>
-            ) : (
-              <VStack spacing={6} align="stretch">
-                {/* Evaluation Points */}
-                {evaluationInputs.length > 0 && (
-                  <Box>
-                    <Text fontWeight="bold" mb={2}>
-                      Evaluation Points (0-10)
-                    </Text>
-                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                      {evaluationInputs.map((item, index) => (
-                        <FormControl
-                          key={index}
-                          isInvalid={
-                            formik.touched.evaluations?.[index]?.number &&
-                            formik.errors.evaluations?.[index]?.number
-                          }
-                        >
-                          <FormLabel fontSize="sm">{item.entityName}</FormLabel>
-                          <Input
-                            type="number"
-                            placeholder="0-10"
-                            value={formik.values.evaluations[index]?.number || ""}
-                            onChange={(e) => handleInputChange(index, e.target.value)}
-                            focusBorderColor="brand.500"
-                            border="1px solid transparent"
-                            _hover={{ borderColor: "gray.300" }}
-                            _focus={{
-                              borderColor: "brand.500",
-                              boxShadow: "0 0 0 1px #3182ce",
-                            }}
-                          />
-                          <FormErrorMessage>
-                            {formik.errors.evaluations?.[index]?.number}
-                          </FormErrorMessage>
-                        </FormControl>
-                      ))}
-                    </SimpleGrid>
-                  </Box>
-                )}
+          <ModalBody overflowY="auto" py={5} px={6}>
+            {showSkeleton || isLoading ? (
+              <VStack spacing={8} align="stretch">
+                {/* Progress Section Skeleton */}
+                <Box>
+                  <Flex justify="space-between" mb={2}>
+                    <Skeleton height="16px" width="120px" />
+                    <Skeleton height="16px" width="40px" />
+                  </Flex>
+                  <Skeleton height="8px" borderRadius="md" />
+                </Box>
+
+                {/* Evaluation Points Skeleton */}
+                <Box>
+                  <Skeleton height="18px" width="160px" mb={3} />
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                    {[...Array(4)].map((_, i) => (
+                      <Box key={i}>
+                        <Skeleton height="14px" width="100px" mb={2} />
+                        <Skeleton height="40px" borderRadius="md" />
+                      </Box>
+                    ))}
+                  </SimpleGrid>
+                </Box>
 
                 <Divider />
 
-                {/* Feedback */}
-                <FormControl
-                  isInvalid={formik.touched.feedback && formik.errors.feedback}
-                >
-                  <FormLabel>Feedback</FormLabel>
-                  <Textarea
-                    value={formik.values.feedback}
-                    onChange={formik.handleChange}
-                    name="feedback"
-                    placeholder="Write feedback..."
-                    focusBorderColor="brand.500"
-                    border="1px solid transparent"
-                    _hover={{ borderColor: "gray.300" }}
-                    _focus={{
-                      borderColor: "brand.500",
-                      boxShadow: "0 0 0 1px #3182ce",
-                    }}
-                  />
-                  <FormErrorMessage>{formik.errors.feedback}</FormErrorMessage>
-                  <Text fontSize="xs" color="gray.500" mt={1}>
-                    {formik.values.feedback.length}/300
+                {/* Feedback Section Skeleton */}
+                <Box>
+                  <Skeleton height="20px" width="100px" mb={3} />
+                  <Skeleton height="14px" width="250px" mb={4} />
+                  <Skeleton height="120px" borderRadius="xl" />
+                  <Flex justify="space-between" mt={3}>
+                    <Skeleton height="10px" width="60px" />
+                    <Skeleton height="10px" width="100px" />
+                  </Flex>
+                </Box>
+              </VStack>
+            ) : !hasTemplate ? (
+              <Flex
+                direction="column"
+                align="center"
+                justify="center"
+                py={10}
+                color="gray.500"
+              >
+                <Icon as={FiAlertCircle} boxSize={10} color="red.400" mb={3} />
+                <Text fontWeight="bold" fontSize="md">
+                  No evaluation template found
+                </Text>
+                <Text fontSize="sm">Please contact the administrator.</Text>
+              </Flex>
+            ) : (
+              <VStack spacing={8} align="stretch">
+                <Box mb={6}>
+                  <Flex justify="space-between" align="center" mb={2}>
+                    <Text fontWeight="semibold" fontSize="sm">
+                      Overall Progress
+                    </Text>
+                    <Text
+                      fontSize="sm"
+                      color={totalPercentage === 100 ? "green" : "brand.500"}
+                      fontWeight="bold"
+                    >
+                      {totalPercentage}%
+                    </Text>
+                  </Flex>
+
+                  <Box w="100%">
+                    <Progress
+                      value={totalPercentage}
+                      size="md"
+                      colorScheme={totalPercentage === 100 ? "green" : "blue"}
+                      borderRadius="lg"
+                      isAnimated
+                      width="100%"
+                    />
+                  </Box>
+
+                  {totalPercentage === 100 && (
+                    <Text
+                      fontSize="xs"
+                      color="green.500"
+                      mt={1}
+                      fontWeight="medium"
+                    >
+                      Perfect score achieved!
+                    </Text>
+                  )}
+                </Box>
+
+                <Box>
+                  <Text fontWeight="bold" mb={3}>
+                    Evaluation Points (0–10)
                   </Text>
-                </FormControl>
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                    {evaluationInputs.map((item, index) => (
+                      <FormControl
+                        key={index}
+                        isInvalid={
+                          formik.touched.evaluations?.[index]?.number &&
+                          formik.errors.evaluations?.[index]?.number
+                        }
+                      >
+                        <FormLabel fontSize="sm" fontWeight="semibold">
+                          {item.entityName}
+                        </FormLabel>
+                        <Input
+                          type="number"
+                          placeholder="0–10"
+                          bg={inputBg}
+                          value={formik.values.evaluations[index]?.number || ""}
+                          onChange={(e) =>
+                            handleInputChange(index, e.target.value)
+                          }
+                          min={0}
+                          max={10}
+                          textAlign="center"
+                          fontWeight="bold"
+                          focusBorderColor="brand.500"
+                          border="1px solid transparent"
+                          _hover={{ borderColor: "gray.300" }}
+                          _focus={{
+                            borderColor: "brand.500",
+                            boxShadow: "0 0 0 1px #3182ce",
+                          }}
+                        />
+                        <FormErrorMessage fontSize="xs">
+                          {formik.errors.evaluations?.[index]?.number}
+                        </FormErrorMessage>
+                      </FormControl>
+                    ))}
+                  </SimpleGrid>
+                </Box>
+
+                <Divider />
+
+                <Box>
+                  <Text fontWeight="bold" fontSize="lg" mb={3} color="gray.800">
+                    Feedback
+                  </Text>
+                  <Text fontSize="sm" color="gray.500" mb={3}>
+                    Share your thoughts, suggestions, or areas of improvement.
+                  </Text>
+
+                  <FormControl
+                    isInvalid={
+                      formik.touched.feedback && formik.errors.feedback
+                    }
+                  >
+                    <Textarea
+                      value={formik.values.feedback}
+                      onChange={formik.handleChange}
+                      name="feedback"
+                      placeholder="Write constructive feedback..."
+                      rows={6}
+                      resize="none"
+                      border="1px solid"
+                      borderColor="gray.200"
+                      bg="gray.50"
+                      borderRadius="xl"
+                      _focus={{
+                        borderColor: "brand.500",
+                        boxShadow: "0 0 0 1px #3182ce",
+                        bg: "white",
+                      }}
+                      _dark={{ bg: "gray.800", borderColor: "gray.700" }}
+                    />
+                    <FormErrorMessage>
+                      {formik.errors.feedback}
+                    </FormErrorMessage>
+                    <Flex justify="space-between" mt={2}>
+                      <Text fontSize="xs" color="gray.500">
+                        {formik.values.feedback.length}/300
+                      </Text>
+                      <Text fontSize="xs" color="gray.400">
+                        Be clear and specific
+                      </Text>
+                    </Flex>
+                  </FormControl>
+                </Box>
               </VStack>
             )}
           </ModalBody>
 
-          {/* Footer */}
           {hasTemplate && (
             <ModalFooter
               bg={footerBg}
@@ -241,7 +361,12 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
               justifyContent="flex-end"
               gap={3}
             >
-              <Button variant="outline" size="sm" borderRadius="md" onClick={onClose}>
+              <Button
+                variant="outline"
+                size="sm"
+                borderRadius="md"
+                onClick={onClose}
+              >
                 Cancel
               </Button>
               <Button
@@ -249,8 +374,9 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
                 size="sm"
                 borderRadius="md"
                 type="submit"
+                isDisabled={isLoading}
               >
-                {isUpdate ? "Update Evaluation" : "Add Evaluation"}
+                {isUpdate ? "Update Evaluation" : "Submit Evaluation"}
               </Button>
             </ModalFooter>
           )}

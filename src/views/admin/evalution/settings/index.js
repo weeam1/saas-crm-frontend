@@ -12,6 +12,7 @@ import {
   Text,
   IconButton,
   useDisclosure,
+  Badge,
 } from "@chakra-ui/react";
 import { FiRefreshCw, FiEye } from "react-icons/fi";
 import TemplateModal from "./components/TemplateModal";
@@ -78,6 +79,59 @@ const Templates = () => {
     setPageSize(newPageSize);
     setCurrentPage(1);
   };
+
+  const getRoleBadgeColor = (() => {
+    const usedColors = new Map();
+
+    const colorSchemes = [
+      "red",
+      "orange",
+      "yellow",
+      "green",
+      "teal",
+      "blue",
+      "cyan",
+      "purple",
+      "pink",
+      "linkedin",
+      "facebook",
+      "messenger",
+      "whatsapp",
+      "twitter",
+      "telegram",
+    ];
+
+    const availableColors = [...colorSchemes];
+
+    return (roleName) => {
+      if (usedColors.has(roleName)) {
+        return usedColors.get(roleName);
+      }
+
+      if (availableColors.length === 0) {
+        availableColors.push(...colorSchemes);
+      }
+
+      const hashString = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return hash;
+      };
+
+      const hash = hashString(roleName);
+      const index = Math.abs(hash) % availableColors.length;
+
+      const selectedColor = availableColors[index];
+      availableColors.splice(index, 1);
+
+      usedColors.set(roleName, selectedColor);
+
+      return selectedColor;
+    };
+  })();
+  
   return (
     <Box
       overflowY="auto"
@@ -173,9 +227,30 @@ const Templates = () => {
                 tableData.map((template, index) => (
                   <Tr key={template.id}>
                     <Td textAlign="center">{template.serialNumber}</Td>
-                    <Td textAlign="center">{template.roleName}</Td>
-                    <Td>{template.description}</Td>
-                    <Td textAlign="center" >
+                    <Td textAlign="center">
+                      <Badge
+                        colorScheme={getRoleBadgeColor(template.roleName)}
+                        fontSize="12px"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontWeight="600"
+                        textTransform="capitalize"
+                      >
+                        {template.roleName}
+                      </Badge>
+                    </Td>
+                    <Td maxW="300px">
+                      <Text
+                        fontSize="14px"
+                        color="gray.600"
+                        noOfLines={2}
+                        title={template.description}
+                      >
+                        {template.description}
+                      </Text>
+                    </Td>
+                    <Td textAlign="center">
                       <IconButton
                         aria-label="View"
                         icon={<FiEye />}
