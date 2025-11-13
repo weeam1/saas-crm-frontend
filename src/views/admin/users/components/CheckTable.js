@@ -739,6 +739,9 @@ export default function CheckTable(props) {
 																			<MenuItem
 																				py={2.5}
 																				onClick={() => {
+																					// return navigate(
+																					// 	`/users/edit/${cell?.row?.original._id}`
+																					// );
 																					setEdit(true);
 																					setSelectedId(
 																						cell?.row?.original._id

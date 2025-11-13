@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
@@ -40,11 +40,13 @@ import PasswordPermission from './components/PasswordPermission';
 import { fetchActiveTree, fetchTree } from './userApis';
 import { currencyOptions } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
+import { useRoles } from 'hooks/user/userRoles';
+import Loader from 'components/loading/Loader';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
 
-	const [roles, setRoles] = useState([]);
+	const { roles } = useRoles();
 
 	const bgColor = useColorModeValue('white', 'gray.800');
 	const headerBg = useColorModeValue('brand.300', 'brand.100');
@@ -75,6 +77,10 @@ const Edit = (props) => {
 		path: '/agencies',
 	});
 
+	const { data: tree, isLoading: teamLoading } = useFetchItemsQuery({
+		path: '/v2/user/team-structure',
+	});
+
 	const initialValues = {
 		firstName: data?.firstName ?? '',
 		lastName: data?.lastName ?? '',
@@ -88,25 +94,17 @@ const Edit = (props) => {
 		target: data?.target ?? '',
 		roles: data?.roles ?? [],
 		role: data?.roles[0]?._id ?? '',
-		currency: data?.currency ?? 'AED',
+		currency: data?.currency || 'AED',
+		teamLead: data?.teamLead || '',
 	};
 
 	const { user, isSuperAdmin } = useUserSession();
 
-	const tree = useSelector((state) => state.user.activeTree);
-
-	const filteredManagers = tree?.managers?.filter(
-		(item) => item._id !== data?._id
-	);
-
 	const [filteredAgents, setFilteredAgents] = useState([]);
 
-	// const getAllAgents = (tree) => {
-	// 	const agentsList = Object.values(tree?.agents || {}).flat();
-	// 	return agentsList;
-	// };
+	const managers = useMemo(() => tree?.data || [], [tree?.data]);
 
-	// const allAgents = getAllAgents(tree);
+	console.log({ tree, managers });
 
 	const handleManagerChange = (e) => {
 		const selectedManagerId = e.target.value;
@@ -161,6 +159,9 @@ const Edit = (props) => {
 	const EditData = async () => {
 		try {
 			const role = roles.find((role) => role?._id === values.role);
+			const isAgentOrTeamLeadRole = ['Team Leader', 'Agent'].includes(
+				role?.roleName
+			);
 
 			const valuesObj = { ...values };
 
@@ -176,11 +177,16 @@ const Edit = (props) => {
 				valuesObj['replacementManager'] = replacementManager;
 			}
 
-			if (role?.roleName === 'Agent') {
+			if (isAgentOrTeamLeadRole) {
 				if (!values.parent) {
 					toast.error('Please select a manager.');
 					return;
 				}
+				// // check agent team lead
+				// if (!values.teamLead) {
+				// 	toast.error('Please select a team leader.');
+				// 	return;
+				// }
 				valuesObj['parent'] = values.parent;
 				valuesObj['replacementManager'] = values.parent;
 
@@ -189,6 +195,11 @@ const Edit = (props) => {
 				delete valuesObj['parent'];
 			} else {
 				delete valuesObj['parent'];
+				delete valuesObj['teamLead'];
+			}
+
+			if (role?.roleName === 'Team Leader') {
+				delete valuesObj['teamLead'];
 			}
 
 			if (
@@ -273,18 +284,12 @@ const Edit = (props) => {
 		}
 	};
 
-	const fetchRoles = async () => {
-		let result = await getApi('api/role-access');
-		setRoles(result.data);
-	};
-
-	useEffect(() => {
-		fetchRoles();
-
-		return () => {
-			controller.abort();
-		};
-	}, []);
+	const managerTeamLeaders = useMemo(
+		() =>
+			managers?.find((manager) => manager?.managerId === values?.parent)
+				?.teamLeaders,
+		[managers, values?.parent]
+	);
 
 	return (
 		<>
@@ -340,365 +345,24 @@ const Edit = (props) => {
 						borderBottom='1px solid'
 						borderColor={borderColor}
 					>
-						<Grid
-							h={isSuperAdmin ? '60vh' : '50vh'}
-							overflow={'scroll'}
-							templateColumns='repeat(12, 1fr)'
-							gap={3}
-							p={4}
-						>
-							<GridItem colSpan={12}>
-								<ImageUpload
-									profileImage={values?.profileImage}
-									formik={formik}
-									user={data}
-									setUploadImage={setUploadImage}
-								/>
-							</GridItem>
-							<GridItem colSpan={{ base: 6 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									First Name
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.firstName}
-									name='firstName'
-									placeholder='firstName'
-									fontWeight='500'
-									borderColor={
-										errors.firstName && touched.firstName ? 'red.300' : null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.firstName && touched.firstName && errors.firstName}
-								</Text>
-							</GridItem>
-							<GridItem colSpan={{ base: 6 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Last Name
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.lastName}
-									name='lastName'
-									placeholder='Last Name'
-									fontWeight='500'
-									borderColor={
-										errors.lastName && touched.lastName ? 'red.300' : null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.lastName && touched.lastName && errors.lastName}
-								</Text>
-							</GridItem>
-							<GridItem colSpan={{ base: 6 }}>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Phone Number<Text color={'red'}>*</Text>
-								</FormLabel>
-								<InputGroup>
-									<InputLeftElement
-										pointerEvents='none'
-										children={
-											<PhoneIcon color='gray.300' borderRadius='16px' />
-										}
+						{teamLoading ? (
+							<Loader />
+						) : (
+							<Grid
+								h={isSuperAdmin ? '60vh' : '50vh'}
+								overflow={'scroll'}
+								templateColumns='repeat(12, 1fr)'
+								gap={3}
+								p={4}
+							>
+								<GridItem colSpan={12}>
+									<ImageUpload
+										profileImage={values?.profileImage}
+										formik={formik}
+										user={data}
+										setUploadImage={setUploadImage}
 									/>
-									<Input
-										type='tel'
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.phoneNumber}
-										name='phoneNumber'
-										fontWeight='500'
-										borderColor={
-											errors.phoneNumber && touched.phoneNumber
-												? 'red.300'
-												: null
-										}
-										placeholder='Phone number'
-										borderRadius='16px'
-									/>
-								</InputGroup>
-								<Text mb='10px' color={'red'}>
-									{errors.phoneNumber &&
-										touched.phoneNumber &&
-										errors.phoneNumber}
-								</Text>
-							</GridItem>
-							{isSuperAdmin && (
-								<>
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Email
-										</FormLabel>
-										<Input
-											fontSize='sm'
-											type='email'
-											onChange={handleChange}
-											onBlur={handleBlur}
-											value={values.username}
-											name='username'
-											placeholder='Email Address'
-											fontWeight='500'
-											borderColor={
-												errors.username && touched.username ? 'red.300' : null
-											}
-										/>
-										<Text mb='10px' color={'red'}>
-											{errors.username && touched.username && errors.username}
-										</Text>
-									</GridItem>
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Salary Type
-										</FormLabel>
-										<Select
-											name='salaryType'
-											value={values.salaryType}
-											onChange={handleChange}
-											onBlur={handleBlur}
-											placeholder='Select salary type'
-											borderColor={
-												errors.salaryType && touched.salaryType
-													? 'red.300'
-													: null
-											}
-										>
-											{jobTypes?.map((job) => (
-												<option key={job.value} value={job.value}>
-													{job.label}
-												</option>
-											))}
-										</Select>
-
-										<Text mb='10px' color={'red'}>
-											{errors.salaryType &&
-												touched.salaryType &&
-												errors.salaryType}
-										</Text>
-									</GridItem>
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Salary
-										</FormLabel>
-										<Input
-											fontSize='sm'
-											type='number'
-											min={0}
-											onChange={handleChange}
-											onBlur={handleBlur}
-											value={values.salary}
-											name='salary'
-											fontWeight='500'
-											borderColor={
-												errors.salary && touched.salary ? 'red.300' : null
-											}
-										/>
-										<Text mb='10px' color={'red'}>
-											{errors.salary && touched.salary && errors.salary}
-										</Text>
-									</GridItem>
-
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Select Role <Text color={'red'}>*</Text>
-										</FormLabel>
-										<Select
-											name='role'
-											value={values.role}
-											onChange={handleChange}
-											onBlur={handleBlur}
-											placeholder='Select Role'
-											borderColor={
-												errors.role && touched.role ? 'red.300' : null
-											}
-											className={
-												errors.role && touched.role ? 'isInvalid' : null
-											}
-										>
-											{roles
-												?.filter((role) => role.roleName !== 'sadmin')
-												?.map((role) => (
-													<option key={role?._id} value={role?._id}>
-														{role?.roleName}
-													</option>
-												))}
-										</Select>
-										<Text mb='10px' color='red'>
-											{errors.role && touched.role && errors.role}
-										</Text>
-									</GridItem>
-									{roles.find((role) => role?._id === values.role)?.roleName ===
-										'Agent' && (
-										<GridItem colSpan={{ base: 6 }}>
-											<FormLabel
-												display='flex'
-												ms='4px'
-												fontSize='sm'
-												fontWeight='500'
-												mb='8px'
-											>
-												Select Manager <Text color={'red'}>*</Text>
-											</FormLabel>
-											<Select
-												name='parent'
-												value={values.parent}
-												onChange={handleChange}
-												onBlur={handleBlur}
-												placeholder='Select Manager'
-											>
-												{filteredManagers?.map((manager) => (
-													<option value={manager?._id}>
-														{manager?.firstName + ' ' + manager?.lastName}
-													</option>
-												))}
-											</Select>
-										</GridItem>
-									)}
-
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Select agency <Text color={'red'}>*</Text>
-										</FormLabel>
-										<Select
-											name='agency'
-											value={values.agency}
-											onChange={handleChange}
-											onBlur={handleBlur}
-											placeholder='Select agency'
-											borderColor={
-												errors.agency && touched.agency ? 'red.300' : null
-											}
-										>
-											{agencies?.doc?.map((agency) => (
-												<option key={agency._id} value={agency._id}>
-													{agency.name}
-												</option>
-											))}
-										</Select>
-
-										<Text mb='10px' color={'red'}>
-											{errors.agency && touched.agency && errors.agency}
-										</Text>
-									</GridItem>
-								</>
-							)}
-
-							{(isSuperAdmin ||
-								(user?.roles[0]?.roleName === 'Manager' &&
-									user._id !== data._id)) && (
-								<>
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Currency
-										</FormLabel>
-										<Select
-											name='currency'
-											value={values.currency}
-											onChange={handleChange}
-											onBlur={handleBlur}
-											isDisabled
-											placeholder='Select currency'
-											borderColor={
-												errors.currency && touched.currency ? 'red.300' : null
-											}
-										>
-											{currencyOptions?.map((item) => (
-												<option key={item.value} value={item.value}>
-													{item.label}
-												</option>
-											))}
-										</Select>
-
-										<Text mb='10px' color={'red'}>
-											{errors.currency && touched.currency && errors.currency}
-										</Text>
-									</GridItem>
-									<GridItem colSpan={{ base: 6 }}>
-										<FormLabel
-											display='flex'
-											ms='4px'
-											fontSize='sm'
-											fontWeight='500'
-											mb='8px'
-										>
-											Target
-										</FormLabel>
-										<InputGroup>
-											<Input
-												type='number'
-												fontSize='sm'
-												onChange={handleChange}
-												onBlur={handleBlur}
-												value={values.target}
-												name='target'
-												fontWeight='500'
-												placeholder='Target'
-											/>
-										</InputGroup>
-									</GridItem>
-								</>
-							)}
-
-							{isSuperAdmin && (
+								</GridItem>
 								<GridItem colSpan={{ base: 6 }}>
 									<FormLabel
 										display='flex'
@@ -707,24 +371,412 @@ const Edit = (props) => {
 										fontWeight='500'
 										mb='8px'
 									>
-										New Password
+										First Name
+									</FormLabel>
+									<Input
+										fontSize='sm'
+										onChange={handleChange}
+										onBlur={handleBlur}
+										value={values.firstName}
+										name='firstName'
+										placeholder='firstName'
+										fontWeight='500'
+										borderColor={
+											errors.firstName && touched.firstName ? 'red.300' : null
+										}
+									/>
+									<Text mb='10px' color={'red'}>
+										{errors.firstName && touched.firstName && errors.firstName}
+									</Text>
+								</GridItem>
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
+										fontSize='sm'
+										fontWeight='500'
+										mb='8px'
+									>
+										Last Name
+									</FormLabel>
+									<Input
+										fontSize='sm'
+										onChange={handleChange}
+										onBlur={handleBlur}
+										value={values.lastName}
+										name='lastName'
+										placeholder='Last Name'
+										fontWeight='500'
+										borderColor={
+											errors.lastName && touched.lastName ? 'red.300' : null
+										}
+									/>
+									<Text mb='10px' color={'red'}>
+										{errors.lastName && touched.lastName && errors.lastName}
+									</Text>
+								</GridItem>
+								<GridItem colSpan={{ base: 6 }}>
+									<FormLabel
+										display='flex'
+										ms='4px'
+										fontSize='sm'
+										fontWeight='500'
+										mb='8px'
+									>
+										Phone Number<Text color={'red'}>*</Text>
 									</FormLabel>
 									<InputGroup>
+										<InputLeftElement
+											pointerEvents='none'
+											children={
+												<PhoneIcon color='gray.300' borderRadius='16px' />
+											}
+										/>
 										<Input
-											type='text'
+											type='tel'
 											fontSize='sm'
 											onChange={handleChange}
 											onBlur={handleBlur}
-											value={values.password}
-											name='password'
+											value={values.phoneNumber}
+											name='phoneNumber'
 											fontWeight='500'
-											placeholder='New Password'
+											borderColor={
+												errors.phoneNumber && touched.phoneNumber
+													? 'red.300'
+													: null
+											}
+											placeholder='Phone number'
 											borderRadius='16px'
 										/>
 									</InputGroup>
+									<Text mb='10px' color={'red'}>
+										{errors.phoneNumber &&
+											touched.phoneNumber &&
+											errors.phoneNumber}
+									</Text>
 								</GridItem>
-							)}
-						</Grid>
+								{isSuperAdmin && (
+									<>
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Email
+											</FormLabel>
+											<Input
+												fontSize='sm'
+												type='email'
+												onChange={handleChange}
+												onBlur={handleBlur}
+												value={values.username}
+												name='username'
+												placeholder='Email Address'
+												fontWeight='500'
+												borderColor={
+													errors.username && touched.username ? 'red.300' : null
+												}
+											/>
+											<Text mb='10px' color={'red'}>
+												{errors.username && touched.username && errors.username}
+											</Text>
+										</GridItem>
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Salary Type
+											</FormLabel>
+											<Select
+												name='salaryType'
+												value={values.salaryType}
+												onChange={handleChange}
+												onBlur={handleBlur}
+												placeholder='Select salary type'
+												borderColor={
+													errors.salaryType && touched.salaryType
+														? 'red.300'
+														: null
+												}
+											>
+												{jobTypes?.map((job) => (
+													<option key={job.value} value={job.value}>
+														{job.label}
+													</option>
+												))}
+											</Select>
+
+											<Text mb='10px' color={'red'}>
+												{errors.salaryType &&
+													touched.salaryType &&
+													errors.salaryType}
+											</Text>
+										</GridItem>
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Salary
+											</FormLabel>
+											<Input
+												fontSize='sm'
+												type='number'
+												min={0}
+												onChange={handleChange}
+												onBlur={handleBlur}
+												value={values.salary}
+												name='salary'
+												fontWeight='500'
+												borderColor={
+													errors.salary && touched.salary ? 'red.300' : null
+												}
+											/>
+											<Text mb='10px' color={'red'}>
+												{errors.salary && touched.salary && errors.salary}
+											</Text>
+										</GridItem>
+
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Select Role <Text color={'red'}>*</Text>
+											</FormLabel>
+											<Select
+												name='role'
+												value={values.role}
+												onChange={handleChange}
+												onBlur={handleBlur}
+												placeholder='Select Role'
+												borderColor={
+													errors.role && touched.role ? 'red.300' : null
+												}
+												className={
+													errors.role && touched.role ? 'isInvalid' : null
+												}
+											>
+												{roles?.map((role) => (
+													<option key={role?._id} value={role?._id}>
+														{role?.roleName}
+													</option>
+												))}
+											</Select>
+											<Text mb='10px' color='red'>
+												{errors.role && touched.role && errors.role}
+											</Text>
+										</GridItem>
+										{['Agent', 'Team Leader']?.includes(
+											roles?.find((role) => role?._id === values.role)?.roleName
+										) && (
+											<GridItem colSpan={{ base: 6 }}>
+												<FormLabel
+													display='flex'
+													ms='4px'
+													fontSize='sm'
+													fontWeight='500'
+													mb='8px'
+												>
+													Manager <Text color={'red'}>*</Text>
+												</FormLabel>
+												<Select
+													name='parent'
+													value={values.parent}
+													onChange={handleChange}
+													onBlur={handleBlur}
+													placeholder='Select Manager'
+												>
+													{/* <option
+															value=''
+															disabled
+															style={{color: '#444'}}
+													>
+														Select Manager
+													</option> */}
+													{managers?.map((manager) => (
+														<option
+															key={manager?.managerId}
+															value={manager?.managerId}
+														>
+															{manager?.managerName}
+														</option>
+													))}
+												</Select>
+											</GridItem>
+										)}
+										{['Agent']?.includes(
+											roles?.find((role) => role?._id === values.role)?.roleName
+										) && (
+											<GridItem colSpan={{ base: 6 }}>
+												<FormLabel
+													display='flex'
+													ms='4px'
+													fontSize='sm'
+													fontWeight='500'
+													mb='8px'
+												>
+													Team Leader<Text color={'red'}>*</Text>
+												</FormLabel>
+												<Select
+													name='teamLead'
+													value={values.teamLead}
+													onChange={handleChange}
+													onBlur={handleBlur}
+													placeholder='Select Team Leader'
+												>
+													{managerTeamLeaders?.length ? (
+														managerTeamLeaders?.map((tl) => (
+															<option key={tl._id} value={tl._id}>
+																{tl.fullName}
+															</option>
+														))
+													) : (
+														<option value='' disabled>
+															Team leaders not available
+														</option>
+													)}
+												</Select>
+											</GridItem>
+										)}
+
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Select agency <Text color={'red'}>*</Text>
+											</FormLabel>
+											<Select
+												name='agency'
+												value={values.agency}
+												onChange={handleChange}
+												onBlur={handleBlur}
+												placeholder='Select agency'
+												borderColor={
+													errors.agency && touched.agency ? 'red.300' : null
+												}
+											>
+												{agencies?.doc?.map((agency) => (
+													<option key={agency._id} value={agency._id}>
+														{agency.name}
+													</option>
+												))}
+											</Select>
+
+											<Text mb='10px' color={'red'}>
+												{errors.agency && touched.agency && errors.agency}
+											</Text>
+										</GridItem>
+									</>
+								)}
+
+								{(isSuperAdmin ||
+									(user?.roles[0]?.roleName === 'Manager' &&
+										user._id !== data._id)) && (
+									<>
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Currency
+											</FormLabel>
+											<Select
+												name='currency'
+												value={values.currency}
+												onChange={handleChange}
+												onBlur={handleBlur}
+												isDisabled
+												placeholder='Select currency'
+												borderColor={
+													errors.currency && touched.currency ? 'red.300' : null
+												}
+											>
+												{currencyOptions?.map((item) => (
+													<option key={item.value} value={item.value}>
+														{item.label}
+													</option>
+												))}
+											</Select>
+
+											<Text mb='10px' color={'red'}>
+												{errors.currency && touched.currency && errors.currency}
+											</Text>
+										</GridItem>
+										<GridItem colSpan={{ base: 6 }}>
+											<FormLabel
+												display='flex'
+												ms='4px'
+												fontSize='sm'
+												fontWeight='500'
+												mb='8px'
+											>
+												Target
+											</FormLabel>
+											<InputGroup>
+												<Input
+													type='number'
+													fontSize='sm'
+													onChange={handleChange}
+													onBlur={handleBlur}
+													value={values.target}
+													name='target'
+													fontWeight='500'
+													placeholder='Target'
+												/>
+											</InputGroup>
+										</GridItem>
+									</>
+								)}
+
+								{isSuperAdmin && (
+									<GridItem colSpan={{ base: 6 }}>
+										<FormLabel
+											display='flex'
+											ms='4px'
+											fontSize='sm'
+											fontWeight='500'
+											mb='8px'
+										>
+											New Password
+										</FormLabel>
+										<InputGroup>
+											<Input
+												type='text'
+												fontSize='sm'
+												onChange={handleChange}
+												onBlur={handleBlur}
+												value={values.password}
+												name='password'
+												fontWeight='500'
+												placeholder='New Password'
+												borderRadius='16px'
+											/>
+										</InputGroup>
+									</GridItem>
+								)}
+							</Grid>
+						)}
 					</ModalBody>
 					<ModalFooter
 						position='sticky'
@@ -767,7 +819,7 @@ const Edit = (props) => {
 				<ReplaceManager
 					isOpen={replaceIsOpen}
 					onClose={replaceOnClose}
-					managers={filteredManagers}
+					managers={managers}
 					replacementManager={replacementManager}
 					handleProceed={() => {
 						replaceOnClose();
