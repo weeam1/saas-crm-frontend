@@ -20,6 +20,7 @@ import {
 	useDisclosure,
 	useColorModeValue,
 	Flex,
+	Box,
 } from '@chakra-ui/react';
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
@@ -346,7 +347,9 @@ const Edit = (props) => {
 						borderColor={borderColor}
 					>
 						{teamLoading ? (
-							<Loader />
+							<Box p={4} h={isSuperAdmin ? '60vh' : '50vh'}>
+								<Loader />
+							</Box>
 						) : (
 							<Grid
 								h={isSuperAdmin ? '60vh' : '50vh'}
@@ -629,7 +632,7 @@ const Edit = (props) => {
 													fontWeight='500'
 													mb='8px'
 												>
-													Team Leader<Text color={'red'}>*</Text>
+													Team Leader
 												</FormLabel>
 												<Select
 													name='teamLead'
