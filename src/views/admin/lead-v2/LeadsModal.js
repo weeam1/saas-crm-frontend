@@ -79,7 +79,7 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 					color='gray.800'
 					p={5}
 					borderTopRadius='2xl'
-					maxH='85vh'
+					maxH={{ base: '50vh', md: '70vh' }}
 					overflowY='auto'
 					scrollBehavior='smooth'
 				>
