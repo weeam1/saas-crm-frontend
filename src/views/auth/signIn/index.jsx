@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import {
 	Box,
@@ -39,6 +39,8 @@ function SignIn() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [addAgentModal, setAddAgentModal] = useState(false);
+
+	const [searchParams] = useSearchParams();
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -129,7 +131,13 @@ function SignIn() {
 					userId: userData?._id || '',
 				});
 
-				navigate('/');
+				const redirectPath = localStorage.getItem('redirectInvite');
+
+				if (redirectPath) {
+					localStorage.removeItem('redirectInvite');
+				}
+
+				navigate(redirectPath || '/');
 
 				// create a user login log
 				createUserLog({
