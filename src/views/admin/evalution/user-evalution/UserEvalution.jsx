@@ -12,9 +12,23 @@ import {
   Text,
   IconButton,
   useDisclosure,
-  useBreakpointValue,
+  HStack,
+  Avatar,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  SimpleGrid,
+  Badge,
 } from "@chakra-ui/react";
-import { FiRefreshCw, FiSearch, FiEye, FiEdit2 } from "react-icons/fi";
+import {
+  FiRefreshCw,
+  FiEye,
+  FiEdit2,
+  FiUsers,
+  FiCheckCircle,
+  FiXCircle,
+} from "react-icons/fi";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import EvaluteModal from "./components/EvaluteModal";
@@ -43,14 +57,9 @@ const UserEvaluation = () => {
     { path: "/v2/user/search_users" },
     { refetchOnMountOrArgChange: true }
   );
-  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   const buildQueryParams = () => {
-    const params = {
-      page: currentPage,
-      limit: pageSize,
-    };
-
+    const params = { page: currentPage, limit: pageSize };
     if (Object.keys(filters).length > 0) {
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
@@ -58,7 +67,6 @@ const UserEvaluation = () => {
       if (filters.startTo) params.endDate = filters.startTo;
       if (filters.filterStatus) params.filterStatus = filters.filterStatus;
     }
-
     return params;
   };
 
@@ -81,7 +89,7 @@ const UserEvaluation = () => {
         );
         return {
           ...user,
-          Avg: evaluation?.avg?.toFixed(2) || "N/A",
+          Avg: evaluation?.avg?.toFixed(2) || 0,
           noOfEvaluations: evaluation?.noOfEvaluations || 0,
           feedback: evaluation?.feedback || "",
           agency: evaluation?.userId?.agency?.name || "",
@@ -97,8 +105,8 @@ const UserEvaluation = () => {
     }
   }, [usersData, evaluationsData]);
 
-  const handleEvaluate = (user) => {
-    setSelectedUser(user);
+  const handleEvaluate = (user, mode) => {
+    setSelectedUser({ ...user, mode });
     onOpen();
   };
 
@@ -126,7 +134,6 @@ const UserEvaluation = () => {
         ([_, value]) => value !== "" && value !== undefined
       )
     );
-
     setFilters(cleanedFilters);
     setCurrentPage(1);
     setIsFilterOpen(false);
@@ -135,9 +142,7 @@ const UserEvaluation = () => {
   };
 
   useEffect(() => {
-    if (filterChanged) {
-      setFilterChanged(false);
-    }
+    if (filterChanged) setFilterChanged(false);
   }, [filterChanged]);
 
   const handleClearFilters = (filterKey) => {
@@ -155,6 +160,11 @@ const UserEvaluation = () => {
 
   const isLoading = usersFetching || evalFetching;
 
+  // Card calculations
+  const totalUsers = mergedData.length;
+  const evaluatedUsers = mergedData.filter((u) => u.noOfEvaluations > 0).length;
+  const nonEvaluatedUsers = totalUsers - evaluatedUsers;
+
   const columns = [
     "User",
     "Avg",
@@ -162,34 +172,83 @@ const UserEvaluation = () => {
     "Agency",
     "Role",
     "Evaluated By",
+    "Status",
     "Actions",
   ];
 
+  const handleDelete = () => {};
   return (
-    <Box
-      overflowY="auto"
-      scrollBehavior="smooth"
-      boxShadow="sm"
-      bg="white"
-      px={2}
-    >
+    <Box px={{ base: 2, md: 6 }} py={4} bg="white" minH="100vh">
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={6}>
+        <Stat
+          px={5}
+          py={6}
+          bg="white"
+          borderRadius="2xl"
+          boxShadow="md"
+          borderTop="6px solid"
+          borderTopColor="blue.400"
+          transition="all 0.3s"
+          _hover={{ transform: "translateY(-4px)", shadow: "lg" }}
+        >
+          <HStack mb={3}>
+            <FiUsers size={28} color="#3182CE" />
+            <StatLabel fontWeight="bold">Total Users</StatLabel>
+          </HStack>
+          <StatNumber fontSize="2xl">{totalUsers}</StatNumber>
+          <StatHelpText>All registered users</StatHelpText>
+        </Stat>
+
+        <Stat
+          px={5}
+          py={6}
+          bg="white"
+          borderRadius="2xl"
+          boxShadow="md"
+          borderTop="6px solid"
+          borderTopColor="green.400"
+          transition="all 0.3s"
+          _hover={{ transform: "translateY(-4px)", shadow: "lg" }}
+        >
+          <HStack mb={3}>
+            <FiCheckCircle size={28} color="#38A169" />
+            <StatLabel fontWeight="bold">Evaluated Users</StatLabel>
+          </HStack>
+          <StatNumber fontSize="2xl">{evaluatedUsers}</StatNumber>
+          <StatHelpText>Users with evaluations</StatHelpText>
+        </Stat>
+
+        <Stat
+          px={5}
+          py={6}
+          bg="white"
+          borderRadius="2xl"
+          boxShadow="md"
+          borderTop="6px solid"
+          borderTopColor="red.400"
+          transition="all 0.3s"
+          _hover={{ transform: "translateY(-4px)", shadow: "lg" }}
+        >
+          <HStack mb={3}>
+            <FiXCircle size={28} color="#E53E3E" />
+            <StatLabel fontWeight="bold">Non-Evaluated Users</StatLabel>
+          </HStack>
+          <StatNumber fontSize="2xl">{nonEvaluatedUsers}</StatNumber>
+          <StatHelpText>Users pending evaluation</StatHelpText>
+        </Stat>
+      </SimpleGrid>
+
+      {/* Header */}
       <Flex
         justifyContent="space-between"
-        alignItems={{ base: "normal", sm: "normal", md: "center" }}
-        p={3}
-        flexDir={{ base: "column", sm: "column", md: "row" }}
+        alignItems="center"
+        mb={3}
+        flexDir={{ base: "column", md: "row" }}
       >
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
-          Evaluation
+        <Text fontSize="2xl" fontWeight="bold" color="gray.800">
+          User Evaluations
         </Text>
-
-        <Box
-          gap={2}
-          display="flex"
-          alignItems="center"
-          flexDir={{ base: "column", sm: "column", md: "row" }}
-          justifyContent={{ base: "center", sm: "center", md: "normal" }}
-        >
+        <HStack spacing={2} mt={{ base: 2, md: 0 }}>
           <IconButton
             icon={<FiRefreshCw />}
             aria-label="Refresh"
@@ -201,36 +260,22 @@ const UserEvaluation = () => {
             }}
             isLoading={isLoading}
           />
-          {isMobile ? (
-            <IconButton
-              icon={<FiSearch />}
-              onClick={() => setIsFilterOpen(true)}
-              aria-label="Search Listings"
-              colorScheme="brand"
-              variant="solid"
-              size="sm"
-              borderRadius="full"
-              boxShadow="md"
-            />
-          ) : (
-            <Button
-              colorScheme="brand"
-              size="sm"
-              borderRadius="md"
-              py={3}
-              px={6}
-              onClick={() => setIsFilterOpen(true)}
-            >
-              Advanced Search
-            </Button>
-          )}
-        </Box>
+          <Button
+            colorScheme="brand"
+            size="sm"
+            borderRadius="md"
+            onClick={() => setIsFilterOpen(true)}
+          >
+            Advanced Search
+          </Button>
+        </HStack>
       </Flex>
 
       <ActiveFiltersDisplay
         filters={filters}
         onClearFilters={handleClearFilters}
       />
+
       <Box my={2}>
         <TopPagination
           currentPage={currentPage}
@@ -287,47 +332,78 @@ const UserEvaluation = () => {
             <TableLoading columns={columns} length={10} py="4" />
           ) : (
             <Tbody>
-              {mergedData?.length > 0 ? (
+              {mergedData.length > 0 ? (
                 mergedData.map((user, index) => (
-                  <Tr key={index}>
-                    <Td textAlign="center">{user?.fullName}</Td>
-                    <Td
-                      textAlign="center"
-                      color={user?.Avg > 0 ? "black" : "gray.400"}
-                    >
-                      {user?.Avg > 0 ? user?.Avg : "No evaluations"}
+                  <Tr key={index} _hover={{ bg: "gray.50" }}>
+                    <Td>
+                      <Flex align="center" gap={3}>
+                        <Avatar size="sm" name={user.fullName} />
+                        <Text fontSize="sm">{user.fullName}</Text>
+                      </Flex>
                     </Td>
-                    <Td
-                      textAlign="center"
-                      color={user?.noOfEvaluations > 0 ? "black" : "gray.400"}
-                    >
-                      {user?.noOfEvaluations > 0
-                        ? user?.noOfEvaluations
-                        : "No evaluations"}
-                    </Td>
-                    <Td textAlign="center">{user?.agency || "N/A"}</Td>
                     <Td textAlign="center">
-                      {user?.roles[0]?.roleName || "N/A"}
+                      {user.Avg > 0 ? user.Avg : "N/A"}
                     </Td>
-                    <Td textAlign="center">{user?.evaluatedBy}</Td>
                     <Td textAlign="center">
-                      {user?.noOfEvaluations > 0 ? (
+                      {user.noOfEvaluations > 0 ? user.noOfEvaluations : "N/A"}
+                    </Td>
+                    <Td textAlign="center">{user.agency || "N/A"}</Td>
+                    <Td textAlign="center">
+                      {user.roles[0]?.roleName || "N/A"}
+                    </Td>
+                    <Td textAlign="center">{user.evaluatedBy}</Td>
+                    <Td textAlign="center">
+                      <Badge
+                        colorScheme={user.noOfEvaluations > 0 ? "green" : "red"}
+                        variant="solid"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                      >
+                        {user.noOfEvaluations > 0
+                          ? "Evaluated"
+                          : "Not Evaluated"}
+                      </Badge>
+                    </Td>
+                    <Td textAlign="center">
+                      {user.noOfEvaluations > 0 && (
                         <IconButton
                           aria-label="View"
                           icon={<FiEye />}
                           size="sm"
                           colorScheme="teal"
                           variant="ghost"
-                          onClick={() => handleEvaluate(user)}
+                          onClick={() => handleEvaluate(user, "view")}
                         />
-                      ) : (
-                         <IconButton
-                          aria-label="Evaluate User"
+                      )}
+                      {user.noOfEvaluations > 0 && (
+                        <IconButton
+                          aria-label="Edit"
                           icon={<FiEdit2 />}
                           size="sm"
-                          colorScheme="teal"
+                          colorScheme="orange"
                           variant="ghost"
-                          onClick={() => handleEvaluate(user)}
+                          onClick={() => handleEvaluate(user, "edit")}
+                        />
+                      )}
+                      {user.noOfEvaluations <= 0 && (
+                        <IconButton
+                          aria-label="Add Evaluation"
+                          icon={<FiEdit2 />}
+                          size="sm"
+                          colorScheme="green"
+                          variant="ghost"
+                          onClick={() => handleEvaluate(user, "add")}
+                        />
+                      )}
+                      {user.noOfEvaluations > 0 && (
+                        <IconButton
+                          aria-label="Delete"
+                          icon={<FiXCircle />}
+                          size="sm"
+                          colorScheme="red"
+                          variant="ghost"
+                          onClick={() => handleDelete(user._id)}
                         />
                       )}
                     </Td>
@@ -335,14 +411,7 @@ const UserEvaluation = () => {
                 ))
               ) : (
                 <Tr>
-                  <Td
-                    colSpan={columns.length}
-                    borderBottom="none"
-                    fontSize={{ base: "12px", md: "15px" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
+                  <Td colSpan={columns.length} textAlign="center">
                     <NoData label="evaluations" />
                   </Td>
                 </Tr>
@@ -360,6 +429,7 @@ const UserEvaluation = () => {
           onSave={handleSaveEvaluation}
         />
       )}
+
       <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}

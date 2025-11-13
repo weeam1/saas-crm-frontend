@@ -22,7 +22,6 @@ import {
   useColorModeValue,
   Icon,
   Skeleton,
-  SkeletonText,
 } from "@chakra-ui/react";
 import { useModalColors } from "hooks/useModalColors";
 import { useFetchItemsQuery } from "api/apiSlice";
@@ -31,13 +30,20 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { FiAlertCircle } from "react-icons/fi";
 
-const EvaluteModal = ({ isOpen, onClose, user, onSave, viewOnly }) => {
+const EvaluteModal = ({ isOpen, onClose, user, onSave }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
   const inputBg = useColorModeValue("gray.50", "gray.700");
   const [evaluationInputs, setEvaluationInputs] = useState([]);
   const [isUpdate, setIsUpdate] = useState(false);
   const [hasTemplate, setHasTemplate] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
+
+  const mode = user?.mode || "add";
+  const isView = mode === "view";
+  const isEdit = mode === "edit";
+  const isAdd = mode === "add";
+
+  const isDisabled = isView;
 
   const { data, isLoading, refetch } = useFetchItemsQuery(
     { path: `/evaluation/templates/${user?.roles[0]?._id}` },
@@ -158,7 +164,12 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave, viewOnly }) => {
           zIndex="10"
         >
           <Text fontSize="lg" fontWeight="bold">
-            Evaluate: {user?.fullName}
+            {isView
+              ? "View Evaluation"
+              : isEdit
+                ? "Edit Evaluation"
+                : "Add Evaluation"}
+            : {user?.fullName}
           </Text>
           <ModalCloseButton aria-label="Close" position="static" />
         </Flex>
@@ -277,8 +288,10 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave, viewOnly }) => {
                           bg={inputBg}
                           value={formik.values.evaluations[index]?.number || ""}
                           onChange={(e) =>
+                            !isDisabled &&
                             handleInputChange(index, e.target.value)
                           }
+                          isReadOnly={isDisabled}
                           min={0}
                           max={10}
                           textAlign="center"
@@ -331,6 +344,7 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave, viewOnly }) => {
                         bg: "white",
                       }}
                       _dark={{ bg: "gray.800", borderColor: "gray.700" }}
+                        isReadOnly={isDisabled}
                     />
                     <FormErrorMessage>
                       {formik.errors.feedback}
@@ -349,7 +363,7 @@ const EvaluteModal = ({ isOpen, onClose, user, onSave, viewOnly }) => {
             )}
           </ModalBody>
 
-          {hasTemplate && (
+          {hasTemplate  && !isView && (
             <ModalFooter
               bg={footerBg}
               borderTop="1px solid"
