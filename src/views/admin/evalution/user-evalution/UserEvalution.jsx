@@ -335,7 +335,13 @@ const UserEvaluation = () => {
               {mergedData.length > 0 ? (
                 mergedData.map((user, index) => (
                   <Tr key={index} _hover={{ bg: "gray.50" }}>
-                    <Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
                       <Flex align="center" gap={3}>
                         <Avatar size="sm" name={user.fullName} />
                         <Text fontSize="sm">{user.fullName}</Text>
@@ -344,15 +350,49 @@ const UserEvaluation = () => {
                     <Td textAlign="center">
                       {user.Avg > 0 ? user.Avg : "N/A"}
                     </Td>
-                    <Td textAlign="center">
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
                       {user.noOfEvaluations > 0 ? user.noOfEvaluations : "N/A"}
                     </Td>
-                    <Td textAlign="center">{user.agency || "N/A"}</Td>
-                    <Td textAlign="center">
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {user.agency || "N/A"}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
                       {user.roles[0]?.roleName || "N/A"}
                     </Td>
-                    <Td textAlign="center">{user.evaluatedBy}</Td>
-                    <Td textAlign="center">
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
+                      {user.evaluatedBy}
+                    </Td>
+                    <Td
+                      textAlign="center"
+                      whiteSpace="nowrap"
+                      minWidth="100px"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                    >
                       <Badge
                         colorScheme={user.noOfEvaluations > 0 ? "green" : "red"}
                         variant="solid"
@@ -365,47 +405,49 @@ const UserEvaluation = () => {
                           : "Not Evaluated"}
                       </Badge>
                     </Td>
-                    <Td textAlign="center">
-                      {user.noOfEvaluations > 0 && (
-                        <IconButton
-                          aria-label="View"
-                          icon={<FiEye />}
-                          size="sm"
-                          colorScheme="teal"
-                          variant="ghost"
-                          onClick={() => handleEvaluate(user, "view")}
-                        />
-                      )}
-                      {user.noOfEvaluations > 0 && (
-                        <IconButton
-                          aria-label="Edit"
-                          icon={<FiEdit2 />}
-                          size="sm"
-                          colorScheme="orange"
-                          variant="ghost"
-                          onClick={() => handleEvaluate(user, "edit")}
-                        />
-                      )}
-                      {user.noOfEvaluations <= 0 && (
-                        <IconButton
-                          aria-label="Add Evaluation"
-                          icon={<FiEdit2 />}
-                          size="sm"
-                          colorScheme="green"
-                          variant="ghost"
-                          onClick={() => handleEvaluate(user, "add")}
-                        />
-                      )}
-                      {user.noOfEvaluations > 0 && (
-                        <IconButton
-                          aria-label="Delete"
-                          icon={<FiXCircle />}
-                          size="sm"
-                          colorScheme="red"
-                          variant="ghost"
-                          onClick={() => handleDelete(user._id)}
-                        />
-                      )}
+                    <Td textAlign="center" whiteSpace="nowrap" minWidth="100px">
+                      <Box display={"flex"} gap={2} justifyContent="center">
+                        {user.noOfEvaluations > 0 && (
+                          <IconButton
+                            aria-label="View"
+                            icon={<FiEye />}
+                            size="sm"
+                            colorScheme="teal"
+                            variant="ghost"
+                            onClick={() => handleEvaluate(user, "view")}
+                          />
+                        )}
+                        {user.noOfEvaluations > 0 && (
+                          <IconButton
+                            aria-label="Edit"
+                            icon={<FiEdit2 />}
+                            size="sm"
+                            colorScheme="orange"
+                            variant="ghost"
+                            onClick={() => handleEvaluate(user, "edit")}
+                          />
+                        )}
+                        {user.noOfEvaluations <= 0 && (
+                          <IconButton
+                            aria-label="Add Evaluation"
+                            icon={<FiEdit2 />}
+                            size="sm"
+                            colorScheme="green"
+                            variant="ghost"
+                            onClick={() => handleEvaluate(user, "add")}
+                          />
+                        )}
+                        {user.noOfEvaluations > 0 && (
+                          <IconButton
+                            aria-label="Delete"
+                            icon={<FiXCircle />}
+                            size="sm"
+                            colorScheme="red"
+                            variant="ghost"
+                            onClick={() => handleDelete(user._id)}
+                          />
+                        )}
+                      </Box>
                     </Td>
                   </Tr>
                 ))
