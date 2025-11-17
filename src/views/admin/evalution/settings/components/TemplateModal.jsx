@@ -170,7 +170,7 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
 
               <Grid templateColumns={"1fr"} gap={4}>
                 <Input
-                  placeholder="Attribute Name"
+                  placeholder="E.g. Performance, Communication, Leadership"
                   value={newAttr.name}
                   onChange={(e) =>
                     setNewAttr({ ...newAttr, name: e.target.value })
@@ -182,7 +182,7 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
                 />
 
                 <Textarea
-                  placeholder="Description"
+                  placeholder="E.g. Evaluate how the employee performs under pressure."
                   value={newAttr.description}
                   onChange={(e) =>
                     setNewAttr({ ...newAttr, description: e.target.value })
