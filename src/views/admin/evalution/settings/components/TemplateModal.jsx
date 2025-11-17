@@ -7,9 +7,8 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  FormControl,
-  FormLabel,
   Input,
+  Textarea,
   IconButton,
   VStack,
   HStack,
@@ -17,249 +16,298 @@ import {
   Flex,
   Box,
   useBreakpointValue,
+  Divider,
+  Badge,
+  Grid,
 } from "@chakra-ui/react";
-import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import {
+  FiEdit2,
+  FiTrash2,
+  FiPlus,
+  FiFileText,
+  FiTag,
+  FiList,
+  FiCheckCircle,
+} from "react-icons/fi";
 import { useModalColors } from "hooks/useModalColors";
 import { toast } from "react-toastify";
-import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice"
-import CustomTooltip  from "components/shared/CustomTooltip"; 
 
 const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
-  const [evaluations, setEvaluations] = useState([]);
-  const [newEvaluation, setNewEvaluation] = useState("");
+
+  const [attributes, setAttributes] = useState([]);
+  const [newAttr, setNewAttr] = useState({ name: "", description: "" });
   const [editingIndex, setEditingIndex] = useState(null);
-  const [editText, setEditText] = useState("");
-  const [deleteItemMutation] = useDeleteItemMutation();
+  const [editItem, setEditItem] = useState({ name: "", description: "" });
 
-  const { data, refetch } = useFetchItemsQuery(
-    { path: `/evaluation/templates/${role?._id}` },
-    { skip: !role?._id, refetchOnMountOrArgChange: true }
-  );
-
-  const hasTemplate = Boolean(data?.evaluationTemplate?._id);
+  const hasTemplate = Boolean(role?.template?.attributes?.length);
 
   useEffect(() => {
-    if (isOpen && role?._id) refetch();
-  }, [isOpen, role, refetch]);
-
-  useEffect(() => {
-    setEvaluations(data?.evaluationTemplate?.evaluationPoints || []);
-    setNewEvaluation("");
-  }, [data, isOpen]);
+    if (isOpen) {
+      setAttributes(role?.template?.attributes || []);
+      setNewAttr({ name: "", description: "" });
+    }
+  }, [isOpen, role]);
 
   const handleClose = () => {
-    setEvaluations([]);
-    setNewEvaluation("");
+    setAttributes([]);
+    setNewAttr({ name: "", description: "" });
     setEditingIndex(null);
-    setEditText("");
+    setEditItem({ name: "", description: "" });
     onClose();
   };
 
-  const handleAddQuestion = () => {
-    if (!newEvaluation.trim()) return toast.error("Evaluation cannot be empty.");
-    if (evaluations.length >= 10)
-      return toast.info("Maximum 10 evaluations allowed.");
-    setEvaluations([...evaluations, newEvaluation.trim()]);
-    setNewEvaluation("");
-  };
+  const handleAdd = () => {
+    if (!newAttr.name.trim() || !newAttr.description.trim())
+      return toast.error("Name and Description are required.");
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddQuestion();
-    }
+    setAttributes([...attributes, { ...newAttr }]);
+    setNewAttr({ name: "", description: "" });
   };
 
   const handleDelete = (index) => {
-    setEvaluations(evaluations.filter((_, i) => i !== index));
+    setAttributes(attributes.filter((_, i) => i !== index));
   };
 
   const handleEdit = (index) => {
     setEditingIndex(index);
-    setEditText(evaluations[index]);
+    setEditItem({ ...attributes[index] });
   };
 
   const handleSaveEdit = () => {
-    const updated = [...evaluations];
-    updated[editingIndex] = editText.trim();
-    setEvaluations(updated);
+    const updated = [...attributes];
+    updated[editingIndex] = { ...editItem };
+    setAttributes(updated);
     setEditingIndex(null);
-    setEditText("");
+    setEditItem({ name: "", description: "" });
   };
 
   const handleSaveTemplate = async () => {
-    if (!role?._id) return toast.error("Role not found!");
-    const flatPoints = evaluations.map((item) => item.trim()).filter(Boolean);
-    if (flatPoints.length === 0)
-      return toast.error("Please add at least one evaluation point.");
+    if (!role?._id) return toast.error("Role not found.");
+    if (attributes.length === 0)
+      return toast.error("Add at least one attribute.");
 
-    await onSave({ role: role._id, evaluationPoints: flatPoints });
-    refetch();
-    toast.success(hasTemplate ? "Template updated!" : "Template added!");
+    onSave({
+      role: role._id,
+      attributes: attributes.map((a) => ({
+        name: a.name.trim(),
+        description: a.description.trim(),
+      })),
+    });
+
+    toast.success(hasTemplate ? "Template Updated!" : "Template Added!");
     handleClose();
   };
 
-  const handleDeleteTemplate = async () => {
-    if (!data?.evaluationTemplate?._id) return;
-    try {
-      await deleteItemMutation({
-        path: `/evaluation/templates/${data.evaluationTemplate._id}`,
-        body: {},
-      }).unwrap();
-      toast.success("Template deleted successfully!");
-      refetch();
-    } catch {
-      toast.error("Failed to delete the template!");
-    }
-  };
-
-  const modalSize = useBreakpointValue({ base: "sm", md: "xl" });
+  const modalSize = useBreakpointValue({ base: "lg", md: "5xl" });
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered size={modalSize}>
-      <ModalOverlay backdropFilter="blur(4px)" />
+      <ModalOverlay backdropFilter="blur(8px)" />
+
       <ModalContent
         mx={{ base: 3, md: 8 }}
-        boxShadow="2xl"
+        boxShadow="0 12px 45px rgba(0,0,0,0.25)"
         borderRadius="2xl"
         bg={bg}
         overflow="hidden"
+        h="85vh"
         display="flex"
         flexDirection="column"
-        h="65vh"
       >
+        {/* Header */}
         <Flex
           align="center"
           justify="space-between"
           bg={headerBg}
           color={headerText}
-          px={{ base: 4, md: 6 }}
-          py={3}
+          px={{ base: 6, md: 8 }}
+          py={4}
           borderBottom="1px solid"
           borderColor={borderColor}
         >
-          <Text
-            fontSize={{ base: "md", md: "lg" }}
-            fontWeight="bold"
-            noOfLines={1}
-          >
-            Evaluation Template — {role?.roleName || "N/A"}
-          </Text>
+          <HStack spacing={3}>
+            <FiList size={22} />
+            <Text fontSize="lg" fontWeight="700">
+              Role Attributes — {role?.roleName || "N/A"}
+            </Text>
+          </HStack>
           <ModalCloseButton position="static" />
         </Flex>
 
+        {/* Body */}
         <ModalBody
           overflowY="auto"
-          px={{ base: 4, md: 6 }}
-          py={4}
+          px={{ base: 6, md: 8 }}
+          py={5}
           flex="1"
           sx={{
             "&::-webkit-scrollbar": { width: "6px" },
             "&::-webkit-scrollbar-thumb": {
-              background: "#b0b0b0",
-              borderRadius: "8px",
+              background: "gray.400",
+              borderRadius: "12px",
             },
           }}
         >
-          <VStack align="stretch" spacing={4}>
-            <FormControl>
-              <FormLabel fontWeight="600" fontSize="sm">
-                Add New Evaluation
-              </FormLabel>
-              <HStack spacing={2}>
-                <Input
-                  value={newEvaluation}
-                  onChange={(e) => setNewEvaluation(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Enter evaluation point"
-                  size="sm"
-                  borderColor="brand.500"
-                  focusBorderColor="brand.500"
-                  borderRadius={"md"}
-                />
-                <CustomTooltip label="Add Evaluation" hasArrow>
-                  <IconButton
-                    icon={<FiPlus />}
-                    aria-label="Add evaluation"
-                    colorScheme="brand"
-                    onClick={handleAddQuestion}
-                    size="sm"
-                  />
-                </CustomTooltip>
+          <VStack align="stretch" spacing={6}>
+            {/* Add Attribute Section */}
+            <Box
+              p={5}
+              borderRadius="xl"
+              border="1px solid"
+              borderColor="gray.200"
+              bg="white"
+              shadow="sm"
+              transition="0.3s"
+              _hover={{ shadow: "md" }}
+            >
+              <HStack mb={3} spacing={2}>
+                <FiTag size={18} color="#3b82f6" />
+                <Text fontWeight="600" fontSize="md">
+                  Add New Attribute
+                </Text>
               </HStack>
-            </FormControl>
 
+              <Grid templateColumns={"1fr"} gap={4}>
+                <Input
+                  placeholder="Attribute Name"
+                  value={newAttr.name}
+                  onChange={(e) =>
+                    setNewAttr({ ...newAttr, name: e.target.value })
+                  }
+                  size="md"
+                  focusBorderColor="brand.500"
+                  borderRadius="md"
+                  _placeholder={{ color: "gray.400" }}
+                />
+
+                <Textarea
+                  placeholder="Description"
+                  value={newAttr.description}
+                  onChange={(e) =>
+                    setNewAttr({ ...newAttr, description: e.target.value })
+                  }
+                  size="md"
+                  focusBorderColor="brand.500"
+                  borderRadius="md"
+                  resize="none"
+                  _placeholder={{ color: "gray.400" }}
+                />
+              </Grid>
+
+              <Button
+                leftIcon={<FiPlus />}
+                mt={4}
+                colorScheme="brand"
+                borderRadius="md"
+                onClick={handleAdd}
+              >
+                Add Attribute
+              </Button>
+            </Box>
+
+            {/* ATTRIBUTE LIST */}
             <Box>
-              <Text fontWeight="600" fontSize="sm" mb={2}>
-                Evaluation Points ({evaluations.length}/10)
-              </Text>
+              <HStack mb={3}>
+                <FiFileText size={18} color="#10b981" />
+                <Text fontWeight="600" fontSize="md">
+                  Attributes ({attributes.length})
+                </Text>
+              </HStack>
 
-              {evaluations.length === 0 ? (
-                <Text color="gray.500" fontSize="sm">
-                  No evaluation points added yet.
+              {attributes.length === 0 ? (
+                <Text fontSize="sm" color="gray.500">
+                  No attributes added yet.
                 </Text>
               ) : (
-                <VStack align="stretch" spacing={2}>
-                  {evaluations.map((q, index) => (
-                    <Flex
+                <VStack spacing={4} align="stretch">
+                  {attributes.map((item, index) => (
+                    <Box
                       key={index}
-                      justify="space-between"
-                      align="center"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      p={2}
-                      borderRadius="md"
-                      _hover={{ bg: "gray.50" }}
+                      p={4}
+                      borderRadius="xl"
+                      shadow="md"
+                      bg="white"
+                      position="relative"
+                      borderLeft="5px solid"
+                      borderColor="brand.500"
+                      transition="0.3s"
+                      _hover={{ shadow: "xl", transform: "translateY(-2px)" }}
                     >
                       {editingIndex === index ? (
-                        <HStack w="full" spacing={2}>
+                        <VStack spacing={3} align="stretch">
                           <Input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            size="sm"
-                            autoFocus
-                            borderColor="brand.500"
+                            value={editItem.name}
+                            onChange={(e) =>
+                              setEditItem({ ...editItem, name: e.target.value })
+                            }
+                            size="md"
                             focusBorderColor="brand.500"
+                            borderRadius="md"
+                          />
+                          <Textarea
+                            value={editItem.description}
+                            onChange={(e) =>
+                              setEditItem({
+                                ...editItem,
+                                description: e.target.value,
+                              })
+                            }
+                            size="md"
+                            focusBorderColor="brand.500"
+                            borderRadius="md"
+                            resize="none"
                           />
                           <Button
-                            size="xs"
+                            size="sm"
+                            leftIcon={<FiCheckCircle />}
                             colorScheme="brand"
                             borderRadius="md"
                             onClick={handleSaveEdit}
                           >
                             Save
                           </Button>
-                        </HStack>
+                        </VStack>
                       ) : (
                         <>
-                          <Text fontSize="sm" flex="1">
-                            {q}
-                          </Text>
-                          <HStack spacing={1}>
-                            <CustomTooltip label="Edit" hasArrow>
+                          <HStack justify="space-between" align="start">
+                            <VStack align="start" spacing={1}>
+                              <HStack spacing={2}>
+                                <Badge colorScheme="brand" variant="subtle">
+                                  #{index + 1}
+                                </Badge>
+                                <Text fontWeight="600" fontSize="md">
+                                  {item.name}
+                                </Text>
+                              </HStack>
+                              <Text fontSize="sm" color="gray.600">
+                                {item.description}
+                              </Text>
+                            </VStack>
+
+                            <HStack spacing={2}>
                               <IconButton
                                 icon={<FiEdit2 />}
-                                aria-label="Edit"
-                                size="xs"
+                                size="sm"
                                 variant="ghost"
+                                borderRadius="md"
                                 onClick={() => handleEdit(index)}
+                                _hover={{ bg: "blue.50", color: "brand.600" }}
                               />
-                            </CustomTooltip>
-                            <CustomTooltip label="Delete" hasArrow>
                               <IconButton
                                 icon={<FiTrash2 />}
-                                aria-label="Delete"
-                                size="xs"
+                                size="sm"
                                 colorScheme="red"
                                 variant="ghost"
+                                borderRadius="md"
                                 onClick={() => handleDelete(index)}
+                                _hover={{ bg: "red.50" }}
                               />
-                            </CustomTooltip>
+                            </HStack>
                           </HStack>
                         </>
                       )}
-                    </Flex>
+                    </Box>
                   ))}
                 </VStack>
               )}
@@ -267,57 +315,27 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
           </VStack>
         </ModalBody>
 
+        {/* Footer */}
         <ModalFooter
           bg={footerBg}
           borderTop="1px solid"
           borderColor={borderColor}
-          py={3}
-          px={{ base: 4, md: 6 }}
-          justifyContent="space-between"
+          py={4}
+          px={{ base: 6, md: 8 }}
+          justifyContent="flex-end"
         >
-          <Box>
-            {hasTemplate && (
-              <>
-                <Box display={{ base: "none", md: "block" }}>
-                  <CustomTooltip label="Delete Template" hasArrow>
-                    <Button
-                      colorScheme="red"
-                      borderRadius="md"
-                      size="sm"
-                      onClick={handleDeleteTemplate}
-                      leftIcon={<FiTrash2 />}
-                    >
-                      Delete Template
-                    </Button>
-                  </CustomTooltip>
-                </Box>
-                <Box display={{ base: "block", md: "none" }}>
-                  <CustomTooltip label="Delete Template" hasArrow>
-                    <IconButton
-                      icon={<FiTrash2 />}
-                      aria-label="Delete Template"
-                      colorScheme="red"
-                      size="sm"
-                      onClick={handleDeleteTemplate}
-                    />
-                  </CustomTooltip>
-                </Box>
-              </>
-            )}
-          </Box>
-
           <HStack spacing={3}>
             <Button
+              size="sm"
               variant="outline"
               borderRadius="md"
-              size="sm"
               onClick={handleClose}
             >
               Cancel
             </Button>
             <Button
-              colorScheme="brand"
               size="sm"
+              colorScheme="brand"
               borderRadius="md"
               onClick={handleSaveTemplate}
             >

@@ -49,12 +49,22 @@ const UserEvaluation = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterChanged, setFilterChanged] = useState(false);
 
+  const buildQueryParamsForUser = () => {
+    const params = { page: currentPage, limit: pageSize };
+    if (Object.keys(filters).length > 0) {
+      if (filters.agency) params.agency = filters.agency;
+      if(filters.userId) params.userId = filters.userId;
+      if(filters.roleId) params.roleId = filters.roleId;
+    }
+    return params;
+  };
+
   const {
     data: usersData,
     isFetching: usersFetching,
     refetch: refetchUsers,
   } = useFetchItemsQuery(
-    { path: "/v2/user/search_users" },
+    { path: "/v2/user/search_users",params:buildQueryParamsForUser() },
     { refetchOnMountOrArgChange: true }
   );
 

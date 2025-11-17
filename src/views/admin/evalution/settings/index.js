@@ -7,14 +7,13 @@ import {
   Tr,
   Th,
   Td,
-  Button,
   Flex,
   Text,
   IconButton,
   useDisclosure,
   Badge,
 } from "@chakra-ui/react";
-import { FiRefreshCw, FiEye } from "react-icons/fi";
+import { FiRefreshCw, FiEye,FiEdit2 } from "react-icons/fi";
 import TemplateModal from "./components/TemplateModal";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
@@ -42,17 +41,18 @@ const Templates = () => {
   const handleSaveTemplate = async (data) => {
     try {
       await createItemMutation({
-        path: `/evaluation/templates/`,
+        path: `/evaluation/templates`,
         body: data,
       }).unwrap();
       onClose();
+      refetch()
     } catch (error) {
       console.log("error", error);
       toast.error("Error in creating the evalution!");
     }
   };
 
-  const columns = ["SR.No", "Role Name", "Description", "Action"];
+  const columns = ["Role Name", "Description", "Template", "Action"];
 
   const buildQueryParams = () => {
     const params = {
@@ -64,14 +64,14 @@ const Templates = () => {
   };
 
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
-    { path: `/role-access/v2`, params: buildQueryParams() },
+    { path: `/evaluation/templates/roles`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
   useEffect(() => {
     if (data) {
       setTotalPages(data.totalPages || 0);
-      setTotalItems(data.totalRecords || 0);
-      setTableData(data?.data);
+      setTotalItems(data.total || 0);
+      setTableData(data?.doc);
     }
   }, [data]);
 
@@ -131,7 +131,7 @@ const Templates = () => {
       return selectedColor;
     };
   })();
-  
+
   return (
     <Box
       overflowY="auto"
@@ -226,7 +226,6 @@ const Templates = () => {
               {tableData && tableData.length > 0 ? (
                 tableData.map((template, index) => (
                   <Tr key={template.id}>
-                    <Td textAlign="center">{template.serialNumber}</Td>
                     <Td textAlign="center">
                       <Badge
                         colorScheme={getRoleBadgeColor(template.roleName)}
@@ -251,9 +250,22 @@ const Templates = () => {
                       </Text>
                     </Td>
                     <Td textAlign="center">
+                      <Badge
+                        colorScheme={template.hasTemplate ? "green" : "red"}
+                        fontSize="12px"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontWeight="600"
+                        textTransform="capitalize"
+                      >
+                        {template.hasTemplate ? "available": "not available"}
+                      </Badge>
+                    </Td>
+                    <Td textAlign="center">
                       <IconButton
                         aria-label="View"
-                        icon={<FiEye />}
+                        icon={template.hasTemplate ? <FiEye /> : <FiEdit2 /> }
                         size="sm"
                         colorScheme="teal"
                         variant="ghost"
