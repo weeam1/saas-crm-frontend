@@ -13,17 +13,17 @@ import {
 	MdInsights,
 } from 'react-icons/md';
 import {
-  FaTasks,
-  FaRegCalendarCheck,
-  FaList,
-  FaWhatsapp,
-  FaHandshake,
-  FaPhone,
-  FaRegCopy,
-  FaFileAlt,
-} from "react-icons/fa";
-import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
-import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
+	FaTasks,
+	FaRegCalendarCheck,
+	FaList,
+	FaWhatsapp,
+	FaHandshake,
+	FaPhone,
+	FaRegCopy,
+	FaFileAlt,
+} from 'react-icons/fa';
+import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
+import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 
 // const sidebarRoutes = [
 // 	// -------- Dashboard --------
@@ -629,33 +629,36 @@ export const sidebarRoutes = [
 		color: '#8B5CF6', // Violet
 	},
 
-  // -------- System Log --------
-  {
-    moduleId: "system_log",
-    name: "System Log",
-    path: "/system-log",
-    isNested: false,
-    icon: MdOutlineLaptopMac,
-    color: "#c03910ff", // Gray
-  },
+	// -------- System Log --------
+	{
+		moduleId: 'system_log',
+		name: 'System Log',
+		path: '/system-log',
+		isNested: false,
+		icon: MdOutlineLaptopMac,
+		color: '#c03910ff', // Gray
+	},
 
-  // ------- Evaluation ---------
-  {
-    name: "Evaluation",
-    path: "/evaluation",
-    icon: FaFileAlt,
-    color: "#86f17dff", // Gray
-      children: [
-      {
-        name: "Evalute User",
-        path: "/evaluation/user-evaluation",
-      },
-     {
-        name: "Settings",
-        path: "/evaluation/settings",
-      },
-    ]
-  },
+	// ------- Evaluation ---------
+	{
+		moduleId: 'evaluation',
+		name: 'Evaluation',
+		path: '/evaluation',
+		icon: FaFileAlt,
+		color: '#86f17dff', // Gray
+		children: [
+			{
+				id: 'evaluation_users',
+				name: 'Evalute User',
+				path: '/evaluation/user-evaluation',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/evaluation/settings',
+			},
+		],
+	},
 ];
 
 export default sidebarRoutes;
