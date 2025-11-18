@@ -7,9 +7,8 @@ import {
   ModalBody,
   ModalCloseButton,
   Button,
-  FormControl,
-  FormLabel,
   Input,
+  Textarea,
   IconButton,
   VStack,
   HStack,
@@ -17,249 +16,370 @@ import {
   Flex,
   Box,
   useBreakpointValue,
+  Badge,
+  Grid,
 } from "@chakra-ui/react";
-import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import {
+  FiEdit2,
+  FiTrash2,
+  FiPlus,
+  FiFileText,
+  FiTag,
+  FiList,
+  FiCheckCircle,
+} from "react-icons/fi";
 import { useModalColors } from "hooks/useModalColors";
 import { toast } from "react-toastify";
-import { useFetchItemsQuery, useDeleteItemMutation } from "api/apiSlice"
-import CustomTooltip  from "components/shared/CustomTooltip"; 
+import * as yup from "yup";
 
-const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
+const schema = yup.object().shape({
+  name: yup.string().required("Name is required").min(2).max(50),
+  description: yup.string().max(200, "Max 200 characters"),
+});
+
+const TemplateModal = ({ isOpen, onClose, role, onSave, mode }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
-  const [evaluations, setEvaluations] = useState([]);
-  const [newEvaluation, setNewEvaluation] = useState("");
+  const [attributes, setAttributes] = useState([]);
+  const [newAttr, setNewAttr] = useState({ name: "", description: "" });
+  const [newErrors, setNewErrors] = useState({});
   const [editingIndex, setEditingIndex] = useState(null);
-  const [editText, setEditText] = useState("");
-  const [deleteItemMutation] = useDeleteItemMutation();
+  const [editItem, setEditItem] = useState({ name: "", description: "" });
+  const [editErrors, setEditErrors] = useState({});
 
-  const { data, refetch } = useFetchItemsQuery(
-    { path: `/evaluation/templates/${role?._id}` },
-    { skip: !role?._id, refetchOnMountOrArgChange: true }
-  );
+  const hasTemplate = Boolean(role?.template?.attributes?.length);
 
-  const hasTemplate = Boolean(data?.evaluationTemplate?._id);
-
-  useEffect(() => {
-    if (isOpen && role?._id) refetch();
-  }, [isOpen, role, refetch]);
+  const isView = mode === "view";
+  const isEdit = mode === "edit";
+  const isAdd = mode === "add";
 
   useEffect(() => {
-    setEvaluations(data?.evaluationTemplate?.evaluationPoints || []);
-    setNewEvaluation("");
-  }, [data, isOpen]);
+    if (isOpen) {
+      setAttributes(role?.template?.attributes || []);
+      setNewAttr({ name: "", description: "" });
+      setNewErrors({});
+      setEditingIndex(null);
+      setEditItem({ name: "", description: "" });
+      setEditErrors({});
+    }
+  }, [isOpen, role]);
 
   const handleClose = () => {
-    setEvaluations([]);
-    setNewEvaluation("");
+    setAttributes([]);
+    setNewAttr({ name: "", description: "" });
+    setNewErrors({});
     setEditingIndex(null);
-    setEditText("");
+    setEditItem({ name: "", description: "" });
+    setEditErrors({});
     onClose();
   };
 
-  const handleAddQuestion = () => {
-    if (!newEvaluation.trim()) return toast.error("Evaluation cannot be empty.");
-    if (evaluations.length >= 10)
-      return toast.info("Maximum 10 evaluations allowed.");
-    setEvaluations([...evaluations, newEvaluation.trim()]);
-    setNewEvaluation("");
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddQuestion();
+  const handleAdd = async () => {
+    try {
+      await schema.validate(newAttr, { abortEarly: false });
+      setAttributes([...attributes, { ...newAttr }]);
+      setNewAttr({ name: "", description: "" });
+      setNewErrors({});
+    } catch (err) {
+      const errors = {};
+      err.inner.forEach((e) => (errors[e.path] = e.message));
+      setNewErrors(errors);
     }
   };
 
   const handleDelete = (index) => {
-    setEvaluations(evaluations.filter((_, i) => i !== index));
+    setAttributes(attributes.filter((_, i) => i !== index));
   };
 
   const handleEdit = (index) => {
     setEditingIndex(index);
-    setEditText(evaluations[index]);
+    setEditItem({ ...attributes[index] });
+    setEditErrors({});
   };
 
-  const handleSaveEdit = () => {
-    const updated = [...evaluations];
-    updated[editingIndex] = editText.trim();
-    setEvaluations(updated);
-    setEditingIndex(null);
-    setEditText("");
-  };
-
-  const handleSaveTemplate = async () => {
-    if (!role?._id) return toast.error("Role not found!");
-    const flatPoints = evaluations.map((item) => item.trim()).filter(Boolean);
-    if (flatPoints.length === 0)
-      return toast.error("Please add at least one evaluation point.");
-
-    await onSave({ role: role._id, evaluationPoints: flatPoints });
-    refetch();
-    toast.success(hasTemplate ? "Template updated!" : "Template added!");
-    handleClose();
-  };
-
-  const handleDeleteTemplate = async () => {
-    if (!data?.evaluationTemplate?._id) return;
+  const handleSaveEdit = async () => {
     try {
-      await deleteItemMutation({
-        path: `/evaluation/templates/${data.evaluationTemplate._id}`,
-        body: {},
-      }).unwrap();
-      toast.success("Template deleted successfully!");
-      refetch();
-    } catch {
-      toast.error("Failed to delete the template!");
+      await schema.validate(editItem, { abortEarly: false });
+      const updated = [...attributes];
+      updated[editingIndex] = { ...editItem };
+      setAttributes(updated);
+      setEditingIndex(null);
+      setEditItem({ name: "", description: "" });
+      setEditErrors({});
+    } catch (err) {
+      const errors = {};
+      err.inner.forEach((e) => (errors[e.path] = e.message));
+      setEditErrors(errors);
     }
   };
 
-  const modalSize = useBreakpointValue({ base: "sm", md: "xl" });
+  const handleSaveTemplate = () => {
+    if (!role?._id) return toast.error("Role not found.");
+    if (attributes.length === 0)
+      return toast.error("Add at least one attribute.");
+
+    onSave({
+      role: role._id,
+      attributes: attributes.map((a) => ({
+        name: a.name.trim(),
+        description: a.description.trim(),
+      })),
+    });
+
+    toast.success(hasTemplate ? "Template Updated!" : "Template Added!");
+    handleClose();
+  };
+
+  const modalSize = useBreakpointValue({ base: "lg", md: "5xl" });
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} isCentered size={modalSize}>
-      <ModalOverlay backdropFilter="blur(4px)" />
+      <ModalOverlay backdropFilter="blur(8px)" />
+
       <ModalContent
         mx={{ base: 3, md: 8 }}
-        boxShadow="2xl"
+        boxShadow="0 12px 45px rgba(0,0,0,0.25)"
         borderRadius="2xl"
         bg={bg}
         overflow="hidden"
+        h="85vh"
         display="flex"
         flexDirection="column"
-        h="65vh"
       >
         <Flex
           align="center"
           justify="space-between"
           bg={headerBg}
           color={headerText}
-          px={{ base: 4, md: 6 }}
-          py={3}
+          px={{ base: 6, md: 8 }}
+          py={4}
           borderBottom="1px solid"
           borderColor={borderColor}
         >
-          <Text
-            fontSize={{ base: "md", md: "lg" }}
-            fontWeight="bold"
-            noOfLines={1}
-          >
-            Evaluation Template — {role?.roleName || "N/A"}
-          </Text>
+          <HStack spacing={3}>
+            <FiList size={22} />
+            <Text fontSize="lg" fontWeight="700">
+              Role Attributes — {role?.roleName || "N/A"}
+            </Text>
+          </HStack>
           <ModalCloseButton position="static" />
         </Flex>
 
         <ModalBody
           overflowY="auto"
-          px={{ base: 4, md: 6 }}
-          py={4}
+          px={{ base: 6, md: 8 }}
+          py={5}
           flex="1"
           sx={{
             "&::-webkit-scrollbar": { width: "6px" },
             "&::-webkit-scrollbar-thumb": {
-              background: "#b0b0b0",
-              borderRadius: "8px",
+              background: "gray.400",
+              borderRadius: "12px",
             },
           }}
         >
-          <VStack align="stretch" spacing={4}>
-            <FormControl>
-              <FormLabel fontWeight="600" fontSize="sm">
-                Add New Evaluation
-              </FormLabel>
-              <HStack spacing={2}>
-                <Input
-                  value={newEvaluation}
-                  onChange={(e) => setNewEvaluation(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  placeholder="Enter evaluation point"
-                  size="sm"
-                  borderColor="brand.500"
-                  focusBorderColor="brand.500"
-                  borderRadius={"md"}
-                />
-                <CustomTooltip label="Add Evaluation" hasArrow>
-                  <IconButton
-                    icon={<FiPlus />}
-                    aria-label="Add evaluation"
+          <VStack align="stretch" spacing={6}>
+            {!isView && (
+              <Box
+                p={5}
+                borderRadius="xl"
+                border="1px solid"
+                borderColor="gray.200"
+                bg="white"
+                shadow="sm"
+                transition="0.3s"
+                _hover={{ shadow: "md" }}
+              >
+                <HStack mb={3} spacing={2}>
+                  <FiTag size={18} color="#3b82f6" />
+                  <Text fontWeight="600" fontSize="md">
+                    Add New Attribute
+                  </Text>
+                </HStack>
+
+                <Grid templateColumns={"1fr"} gap={4}>
+                  <Box>
+                    <Input
+                      placeholder="E.g. Performance, Communication, Leadership"
+                      value={newAttr.name}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= 50) {
+                          setNewAttr({ ...newAttr, name: value });
+                        }
+                      }}
+                      size="md"
+                      focusBorderColor="brand.500"
+                      borderRadius="md"
+                      _placeholder={{ color: "gray.400" }}
+                      isDisabled={isView}
+                    />
+                    <Text fontSize="xs" color="gray.500">
+                      {newAttr.name.length}/50
+                    </Text>
+                    {newErrors.name && (
+                      <Text fontSize="xs" color="red.500">
+                        {newErrors.name}
+                      </Text>
+                    )}
+                  </Box>
+
+                  <Box>
+                    <Textarea
+                      placeholder="E.g. Evaluate how the employee performs under pressure."
+                      value={newAttr.description}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= 200) {
+                          setNewAttr({ ...newAttr, description: value });
+                        }
+                      }}
+                      size="md"
+                      focusBorderColor="brand.500"
+                      borderRadius="md"
+                      resize="none"
+                      _placeholder={{ color: "gray.400" }}
+                      isDisabled={isView}
+                    />
+                    <Text fontSize="xs" color="gray.500">
+                      {newAttr.description.length}/200
+                    </Text>
+                    {newErrors.description && (
+                      <Text fontSize="xs" color="red.500">
+                        {newErrors.description}
+                      </Text>
+                    )}
+                  </Box>
+                </Grid>
+
+                {!isView && (
+                  <Button
+                    leftIcon={<FiPlus />}
+                    mt={4}
                     colorScheme="brand"
-                    onClick={handleAddQuestion}
-                    size="sm"
-                  />
-                </CustomTooltip>
-              </HStack>
-            </FormControl>
+                    borderRadius="md"
+                    onClick={handleAdd}
+                  >
+                    Add Attribute
+                  </Button>
+                )}
+              </Box>
+            )}
 
             <Box>
-              <Text fontWeight="600" fontSize="sm" mb={2}>
-                Evaluation Points ({evaluations.length}/10)
-              </Text>
+              <HStack mb={3}>
+                <FiFileText size={18} color="#10b981" />
+                <Text fontWeight="600" fontSize="md">
+                  Attributes ({attributes.length})
+                </Text>
+              </HStack>
 
-              {evaluations.length === 0 ? (
-                <Text color="gray.500" fontSize="sm">
-                  No evaluation points added yet.
+              {attributes.length === 0 ? (
+                <Text fontSize="sm" color="gray.500">
+                  No attributes added yet.
                 </Text>
               ) : (
-                <VStack align="stretch" spacing={2}>
-                  {evaluations.map((q, index) => (
-                    <Flex
+                <VStack spacing={4} align="stretch">
+                  {attributes.map((item, index) => (
+                    <Box
                       key={index}
-                      justify="space-between"
-                      align="center"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      p={2}
-                      borderRadius="md"
-                      _hover={{ bg: "gray.50" }}
+                      p={4}
+                      borderRadius="xl"
+                      shadow="md"
+                      bg="white"
+                      position="relative"
+                      borderLeft="5px solid"
+                      borderColor="brand.500"
+                      transition="0.3s"
+                      _hover={{
+                        shadow: !isView ? "xl" : "md",
+                        transform: !isView ? "translateY(-2px)" : "none",
+                      }}
                     >
-                      {editingIndex === index ? (
-                        <HStack w="full" spacing={2}>
+                      {editingIndex === index && !isView ? (
+                        <VStack spacing={3} align="stretch">
                           <Input
-                            value={editText}
-                            onChange={(e) => setEditText(e.target.value)}
-                            size="sm"
-                            autoFocus
-                            borderColor="brand.500"
-                            focusBorderColor="brand.500"
+                            value={editItem.name}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value.length <= 50) {
+                                setEditItem({
+                                  ...editItem,
+                                  name: e.target.value,
+                                });
+                              }
+                            }}
+                            maxLength={50}
                           />
+                          <Text fontSize="xs" color="gray.500">
+                            {editItem.name.length}/50
+                          </Text>
+
+                          <Textarea
+                            value={editItem.description}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value.length <= 200) {
+                                setEditItem({
+                                  ...editItem,
+                                  description: e.target.value,
+                                });
+                              }
+                            }}
+                            maxLength={200}
+                            resize="none"
+                          />
+                          <Text fontSize="xs" color="gray.500">
+                            {editItem.description.length}/200
+                          </Text>
+
                           <Button
-                            size="xs"
+                            size="sm"
+                            leftIcon={<FiCheckCircle />}
                             colorScheme="brand"
                             borderRadius="md"
                             onClick={handleSaveEdit}
                           >
                             Save
                           </Button>
-                        </HStack>
+                        </VStack>
                       ) : (
-                        <>
-                          <Text fontSize="sm" flex="1">
-                            {q}
-                          </Text>
-                          <HStack spacing={1}>
-                            <CustomTooltip label="Edit" hasArrow>
+                        <HStack justify="space-between" align="start">
+                          <VStack align="start" spacing={1}>
+                            <HStack spacing={2}>
+                              <Badge colorScheme="brand" variant="subtle">
+                                #{index + 1}
+                              </Badge>
+                              <Text fontWeight="600" fontSize="md">
+                                {item.name}
+                              </Text>
+                            </HStack>
+                            <Text fontSize="sm" color="gray.600">
+                              {item.description}
+                            </Text>
+                          </VStack>
+
+                          {!isView && (
+                            <HStack spacing={2}>
                               <IconButton
                                 icon={<FiEdit2 />}
-                                aria-label="Edit"
-                                size="xs"
+                                size="sm"
                                 variant="ghost"
+                                borderRadius="md"
                                 onClick={() => handleEdit(index)}
                               />
-                            </CustomTooltip>
-                            <CustomTooltip label="Delete" hasArrow>
                               <IconButton
                                 icon={<FiTrash2 />}
-                                aria-label="Delete"
-                                size="xs"
+                                size="sm"
                                 colorScheme="red"
                                 variant="ghost"
+                                borderRadius="md"
                                 onClick={() => handleDelete(index)}
                               />
-                            </CustomTooltip>
-                          </HStack>
-                        </>
+                            </HStack>
+                          )}
+                        </HStack>
                       )}
-                    </Flex>
+                    </Box>
                   ))}
                 </VStack>
               )}
@@ -271,58 +391,30 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
           bg={footerBg}
           borderTop="1px solid"
           borderColor={borderColor}
-          py={3}
-          px={{ base: 4, md: 6 }}
-          justifyContent="space-between"
+          py={4}
+          px={{ base: 6, md: 8 }}
+          justifyContent="flex-end"
         >
-          <Box>
-            {hasTemplate && (
-              <>
-                <Box display={{ base: "none", md: "block" }}>
-                  <CustomTooltip label="Delete Template" hasArrow>
-                    <Button
-                      colorScheme="red"
-                      borderRadius="md"
-                      size="sm"
-                      onClick={handleDeleteTemplate}
-                      leftIcon={<FiTrash2 />}
-                    >
-                      Delete Template
-                    </Button>
-                  </CustomTooltip>
-                </Box>
-                <Box display={{ base: "block", md: "none" }}>
-                  <CustomTooltip label="Delete Template" hasArrow>
-                    <IconButton
-                      icon={<FiTrash2 />}
-                      aria-label="Delete Template"
-                      colorScheme="red"
-                      size="sm"
-                      onClick={handleDeleteTemplate}
-                    />
-                  </CustomTooltip>
-                </Box>
-              </>
-            )}
-          </Box>
-
           <HStack spacing={3}>
             <Button
+              size="sm"
               variant="outline"
               borderRadius="md"
-              size="sm"
               onClick={handleClose}
             >
               Cancel
             </Button>
-            <Button
-              colorScheme="brand"
-              size="sm"
-              borderRadius="md"
-              onClick={handleSaveTemplate}
-            >
-              {hasTemplate ? "Update Template" : "Add Template"}
-            </Button>
+
+            {!isView && (
+              <Button
+                size="sm"
+                colorScheme="brand"
+                borderRadius="md"
+                onClick={handleSaveTemplate}
+              >
+                {isAdd ? "Add Template" : "Update Template"}
+              </Button>
+            )}
           </HStack>
         </ModalFooter>
       </ModalContent>

@@ -7,14 +7,14 @@ import {
   Tr,
   Th,
   Td,
-  Button,
   Flex,
   Text,
   IconButton,
   useDisclosure,
   Badge,
+  HStack,
 } from "@chakra-ui/react";
-import { FiRefreshCw, FiEye } from "react-icons/fi";
+import { FiRefreshCw, FiEye, FiEdit2, FiPlus } from "react-icons/fi";
 import TemplateModal from "./components/TemplateModal";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
@@ -27,32 +27,35 @@ const Templates = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedRole, setSelectedRole] = useState(null);
+  const [modalMode, setModalMode] = useState("view");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
-  const handleAddTemplate = (role) => {
+
+  const [createItemMutation] = useCreateItemMutation();
+
+  const handleOpenModal = (role, mode) => {
     setSelectedRole(role);
+    setModalMode(mode);
     onOpen();
   };
-
-  const [createItemMutation, { isLoading: isCreating }] =
-    useCreateItemMutation();
 
   const handleSaveTemplate = async (data) => {
     try {
       await createItemMutation({
-        path: `/evaluation/templates/`,
+        path: `/evaluation/templates`,
         body: data,
       }).unwrap();
       onClose();
+      refetch();
     } catch (error) {
       console.log("error", error);
       toast.error("Error in creating the evalution!");
     }
   };
 
-  const columns = ["SR.No", "Role Name", "Description", "Action"];
+  const columns = ["Role Name", "Description", "Template", "Action"];
 
   const buildQueryParams = () => {
     const params = {
@@ -64,14 +67,14 @@ const Templates = () => {
   };
 
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
-    { path: `/role-access/v2`, params: buildQueryParams() },
+    { path: `/evaluation/templates/roles`, params: buildQueryParams() },
     { refetchOnMountOrArgChange: true }
   );
   useEffect(() => {
     if (data) {
       setTotalPages(data.totalPages || 0);
-      setTotalItems(data.totalRecords || 0);
-      setTableData(data?.data);
+      setTotalItems(data.total || 0);
+      setTableData(data?.doc || []);
     }
   }, [data]);
 
@@ -131,7 +134,7 @@ const Templates = () => {
       return selectedColor;
     };
   })();
-  
+
   return (
     <Box
       overflowY="auto"
@@ -226,7 +229,6 @@ const Templates = () => {
               {tableData && tableData.length > 0 ? (
                 tableData.map((template, index) => (
                   <Tr key={template.id}>
-                    <Td textAlign="center">{template.serialNumber}</Td>
                     <Td textAlign="center">
                       <Badge
                         colorScheme={getRoleBadgeColor(template.roleName)}
@@ -251,14 +253,48 @@ const Templates = () => {
                       </Text>
                     </Td>
                     <Td textAlign="center">
-                      <IconButton
-                        aria-label="View"
-                        icon={<FiEye />}
-                        size="sm"
-                        colorScheme="teal"
-                        variant="ghost"
-                        onClick={() => handleAddTemplate(template)}
-                      />
+                      <Badge
+                        colorScheme={template.hasTemplate ? "green" : "red"}
+                        fontSize="12px"
+                        px={3}
+                        py={1}
+                        borderRadius="full"
+                        fontWeight="600"
+                        textTransform="capitalize"
+                      >
+                        {template.hasTemplate ? "Available" : "Not Available"}
+                      </Badge>
+                    </Td>
+                    <Td textAlign="center">
+                      {template.hasTemplate ? (
+                        <HStack justify="center" spacing={2}>
+                          <IconButton
+                            icon={<FiEye />}
+                            size="sm"
+                            colorScheme="teal"
+                            variant="ghost"
+                            aria-label="View"
+                            onClick={() => handleOpenModal(template, "view")}
+                          />
+                          <IconButton
+                            icon={<FiEdit2 />}
+                            size="sm"
+                            variant="ghost"
+                            colorScheme="teal"
+                            aria-label="Edit"
+                            onClick={() => handleOpenModal(template, "edit")}
+                          />
+                        </HStack>
+                      ) : (
+                        <IconButton
+                          icon={<FiPlus />}
+                          size="sm"
+                          colorScheme="green"
+                          variant="ghost"
+                          aria-label="Add"
+                          onClick={() => handleOpenModal(template, "add")}
+                        />
+                      )}
                     </Td>
                   </Tr>
                 ))
@@ -286,6 +322,7 @@ const Templates = () => {
           isOpen={isOpen}
           onClose={onClose}
           role={selectedRole}
+          mode={modalMode}
           onSave={handleSaveTemplate}
         />
       )}
