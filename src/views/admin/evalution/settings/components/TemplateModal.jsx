@@ -16,7 +16,6 @@ import {
   Flex,
   Box,
   useBreakpointValue,
-  Divider,
   Badge,
   Grid,
 } from "@chakra-ui/react";
@@ -31,38 +30,60 @@ import {
 } from "react-icons/fi";
 import { useModalColors } from "hooks/useModalColors";
 import { toast } from "react-toastify";
+import * as yup from "yup";
 
-const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
+const schema = yup.object().shape({
+  name: yup.string().required("Name is required").min(2).max(50),
+  description: yup.string().max(200, "Max 200 characters"),
+});
+
+const TemplateModal = ({ isOpen, onClose, role, onSave, mode }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
-
   const [attributes, setAttributes] = useState([]);
   const [newAttr, setNewAttr] = useState({ name: "", description: "" });
+  const [newErrors, setNewErrors] = useState({});
   const [editingIndex, setEditingIndex] = useState(null);
   const [editItem, setEditItem] = useState({ name: "", description: "" });
+  const [editErrors, setEditErrors] = useState({});
 
   const hasTemplate = Boolean(role?.template?.attributes?.length);
+
+  const isView = mode === "view";
+  const isEdit = mode === "edit";
+  const isAdd = mode === "add";
 
   useEffect(() => {
     if (isOpen) {
       setAttributes(role?.template?.attributes || []);
       setNewAttr({ name: "", description: "" });
+      setNewErrors({});
+      setEditingIndex(null);
+      setEditItem({ name: "", description: "" });
+      setEditErrors({});
     }
   }, [isOpen, role]);
 
   const handleClose = () => {
     setAttributes([]);
     setNewAttr({ name: "", description: "" });
+    setNewErrors({});
     setEditingIndex(null);
     setEditItem({ name: "", description: "" });
+    setEditErrors({});
     onClose();
   };
 
-  const handleAdd = () => {
-    if (!newAttr.name.trim() || !newAttr.description.trim())
-      return toast.error("Name and Description are required.");
-
-    setAttributes([...attributes, { ...newAttr }]);
-    setNewAttr({ name: "", description: "" });
+  const handleAdd = async () => {
+    try {
+      await schema.validate(newAttr, { abortEarly: false });
+      setAttributes([...attributes, { ...newAttr }]);
+      setNewAttr({ name: "", description: "" });
+      setNewErrors({});
+    } catch (err) {
+      const errors = {};
+      err.inner.forEach((e) => (errors[e.path] = e.message));
+      setNewErrors(errors);
+    }
   };
 
   const handleDelete = (index) => {
@@ -72,17 +93,26 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
   const handleEdit = (index) => {
     setEditingIndex(index);
     setEditItem({ ...attributes[index] });
+    setEditErrors({});
   };
 
-  const handleSaveEdit = () => {
-    const updated = [...attributes];
-    updated[editingIndex] = { ...editItem };
-    setAttributes(updated);
-    setEditingIndex(null);
-    setEditItem({ name: "", description: "" });
+  const handleSaveEdit = async () => {
+    try {
+      await schema.validate(editItem, { abortEarly: false });
+      const updated = [...attributes];
+      updated[editingIndex] = { ...editItem };
+      setAttributes(updated);
+      setEditingIndex(null);
+      setEditItem({ name: "", description: "" });
+      setEditErrors({});
+    } catch (err) {
+      const errors = {};
+      err.inner.forEach((e) => (errors[e.path] = e.message));
+      setEditErrors(errors);
+    }
   };
 
-  const handleSaveTemplate = async () => {
+  const handleSaveTemplate = () => {
     if (!role?._id) return toast.error("Role not found.");
     if (attributes.length === 0)
       return toast.error("Add at least one attribute.");
@@ -115,7 +145,6 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
         display="flex"
         flexDirection="column"
       >
-        {/* Header */}
         <Flex
           align="center"
           justify="space-between"
@@ -135,7 +164,6 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
           <ModalCloseButton position="static" />
         </Flex>
 
-        {/* Body */}
         <ModalBody
           overflowY="auto"
           px={{ base: 6, md: 8 }}
@@ -150,63 +178,93 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
           }}
         >
           <VStack align="stretch" spacing={6}>
-            {/* Add Attribute Section */}
-            <Box
-              p={5}
-              borderRadius="xl"
-              border="1px solid"
-              borderColor="gray.200"
-              bg="white"
-              shadow="sm"
-              transition="0.3s"
-              _hover={{ shadow: "md" }}
-            >
-              <HStack mb={3} spacing={2}>
-                <FiTag size={18} color="#3b82f6" />
-                <Text fontWeight="600" fontSize="md">
-                  Add New Attribute
-                </Text>
-              </HStack>
-
-              <Grid templateColumns={"1fr"} gap={4}>
-                <Input
-                  placeholder="E.g. Performance, Communication, Leadership"
-                  value={newAttr.name}
-                  onChange={(e) =>
-                    setNewAttr({ ...newAttr, name: e.target.value })
-                  }
-                  size="md"
-                  focusBorderColor="brand.500"
-                  borderRadius="md"
-                  _placeholder={{ color: "gray.400" }}
-                />
-
-                <Textarea
-                  placeholder="E.g. Evaluate how the employee performs under pressure."
-                  value={newAttr.description}
-                  onChange={(e) =>
-                    setNewAttr({ ...newAttr, description: e.target.value })
-                  }
-                  size="md"
-                  focusBorderColor="brand.500"
-                  borderRadius="md"
-                  resize="none"
-                  _placeholder={{ color: "gray.400" }}
-                />
-              </Grid>
-
-              <Button
-                leftIcon={<FiPlus />}
-                mt={4}
-                colorScheme="brand"
-                borderRadius="md"
-                onClick={handleAdd}
+            {!isView && (
+              <Box
+                p={5}
+                borderRadius="xl"
+                border="1px solid"
+                borderColor="gray.200"
+                bg="white"
+                shadow="sm"
+                transition="0.3s"
+                _hover={{ shadow: "md" }}
               >
-                Add Attribute
-              </Button>
-            </Box>
+                <HStack mb={3} spacing={2}>
+                  <FiTag size={18} color="#3b82f6" />
+                  <Text fontWeight="600" fontSize="md">
+                    Add New Attribute
+                  </Text>
+                </HStack>
 
-            {/* ATTRIBUTE LIST */}
+                <Grid templateColumns={"1fr"} gap={4}>
+                  <Box>
+                    <Input
+                      placeholder="E.g. Performance, Communication, Leadership"
+                      value={newAttr.name}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= 50) {
+                          setNewAttr({ ...newAttr, name: value });
+                        }
+                      }}
+                      size="md"
+                      focusBorderColor="brand.500"
+                      borderRadius="md"
+                      _placeholder={{ color: "gray.400" }}
+                      isDisabled={isView}
+                    />
+                    <Text fontSize="xs" color="gray.500">
+                      {newAttr.name.length}/50
+                    </Text>
+                    {newErrors.name && (
+                      <Text fontSize="xs" color="red.500">
+                        {newErrors.name}
+                      </Text>
+                    )}
+                  </Box>
+
+                  <Box>
+                    <Textarea
+                      placeholder="E.g. Evaluate how the employee performs under pressure."
+                      value={newAttr.description}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.length <= 200) {
+                          setNewAttr({ ...newAttr, description: value });
+                        }
+                      }}
+                      size="md"
+                      focusBorderColor="brand.500"
+                      borderRadius="md"
+                      resize="none"
+                      _placeholder={{ color: "gray.400" }}
+                      isDisabled={isView}
+                    />
+                    <Text fontSize="xs" color="gray.500">
+                      {newAttr.description.length}/200
+                    </Text>
+                    {newErrors.description && (
+                      <Text fontSize="xs" color="red.500">
+                        {newErrors.description}
+                      </Text>
+                    )}
+                  </Box>
+                </Grid>
+
+                {!isView && (
+                  <Button
+                    leftIcon={<FiPlus />}
+                    mt={4}
+                    colorScheme="brand"
+                    borderRadius="md"
+                    onClick={handleAdd}
+                  >
+                    Add Attribute
+                  </Button>
+                )}
+              </Box>
+            )}
+
             <Box>
               <HStack mb={3}>
                 <FiFileText size={18} color="#10b981" />
@@ -232,32 +290,48 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
                       borderLeft="5px solid"
                       borderColor="brand.500"
                       transition="0.3s"
-                      _hover={{ shadow: "xl", transform: "translateY(-2px)" }}
+                      _hover={{
+                        shadow: !isView ? "xl" : "md",
+                        transform: !isView ? "translateY(-2px)" : "none",
+                      }}
                     >
-                      {editingIndex === index ? (
+                      {editingIndex === index && !isView ? (
                         <VStack spacing={3} align="stretch">
                           <Input
                             value={editItem.name}
-                            onChange={(e) =>
-                              setEditItem({ ...editItem, name: e.target.value })
-                            }
-                            size="md"
-                            focusBorderColor="brand.500"
-                            borderRadius="md"
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value.length <= 50) {
+                                setEditItem({
+                                  ...editItem,
+                                  name: e.target.value,
+                                });
+                              }
+                            }}
+                            maxLength={50}
                           />
+                          <Text fontSize="xs" color="gray.500">
+                            {editItem.name.length}/50
+                          </Text>
+
                           <Textarea
                             value={editItem.description}
-                            onChange={(e) =>
-                              setEditItem({
-                                ...editItem,
-                                description: e.target.value,
-                              })
-                            }
-                            size="md"
-                            focusBorderColor="brand.500"
-                            borderRadius="md"
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value.length <= 200) {
+                                setEditItem({
+                                  ...editItem,
+                                  description: e.target.value,
+                                });
+                              }
+                            }}
+                            maxLength={200}
                             resize="none"
                           />
+                          <Text fontSize="xs" color="gray.500">
+                            {editItem.description.length}/200
+                          </Text>
+
                           <Button
                             size="sm"
                             leftIcon={<FiCheckCircle />}
@@ -269,22 +343,22 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
                           </Button>
                         </VStack>
                       ) : (
-                        <>
-                          <HStack justify="space-between" align="start">
-                            <VStack align="start" spacing={1}>
-                              <HStack spacing={2}>
-                                <Badge colorScheme="brand" variant="subtle">
-                                  #{index + 1}
-                                </Badge>
-                                <Text fontWeight="600" fontSize="md">
-                                  {item.name}
-                                </Text>
-                              </HStack>
-                              <Text fontSize="sm" color="gray.600">
-                                {item.description}
+                        <HStack justify="space-between" align="start">
+                          <VStack align="start" spacing={1}>
+                            <HStack spacing={2}>
+                              <Badge colorScheme="brand" variant="subtle">
+                                #{index + 1}
+                              </Badge>
+                              <Text fontWeight="600" fontSize="md">
+                                {item.name}
                               </Text>
-                            </VStack>
+                            </HStack>
+                            <Text fontSize="sm" color="gray.600">
+                              {item.description}
+                            </Text>
+                          </VStack>
 
+                          {!isView && (
                             <HStack spacing={2}>
                               <IconButton
                                 icon={<FiEdit2 />}
@@ -292,7 +366,6 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
                                 variant="ghost"
                                 borderRadius="md"
                                 onClick={() => handleEdit(index)}
-                                _hover={{ bg: "blue.50", color: "brand.600" }}
                               />
                               <IconButton
                                 icon={<FiTrash2 />}
@@ -301,11 +374,10 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
                                 variant="ghost"
                                 borderRadius="md"
                                 onClick={() => handleDelete(index)}
-                                _hover={{ bg: "red.50" }}
                               />
                             </HStack>
-                          </HStack>
-                        </>
+                          )}
+                        </HStack>
                       )}
                     </Box>
                   ))}
@@ -315,7 +387,6 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
           </VStack>
         </ModalBody>
 
-        {/* Footer */}
         <ModalFooter
           bg={footerBg}
           borderTop="1px solid"
@@ -333,14 +404,17 @@ const TemplateModal = ({ isOpen, onClose, role, onSave }) => {
             >
               Cancel
             </Button>
-            <Button
-              size="sm"
-              colorScheme="brand"
-              borderRadius="md"
-              onClick={handleSaveTemplate}
-            >
-              {hasTemplate ? "Update Template" : "Add Template"}
-            </Button>
+
+            {!isView && (
+              <Button
+                size="sm"
+                colorScheme="brand"
+                borderRadius="md"
+                onClick={handleSaveTemplate}
+              >
+                {isAdd ? "Add Template" : "Update Template"}
+              </Button>
+            )}
           </HStack>
         </ModalFooter>
       </ModalContent>

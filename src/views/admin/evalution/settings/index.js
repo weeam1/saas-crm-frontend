@@ -12,8 +12,9 @@ import {
   IconButton,
   useDisclosure,
   Badge,
+  HStack,
 } from "@chakra-ui/react";
-import { FiRefreshCw, FiEye,FiEdit2 } from "react-icons/fi";
+import { FiRefreshCw, FiEye, FiEdit2, FiPlus } from "react-icons/fi";
 import TemplateModal from "./components/TemplateModal";
 import { useFetchItemsQuery, useCreateItemMutation } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
@@ -26,17 +27,19 @@ const Templates = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedRole, setSelectedRole] = useState(null);
+  const [modalMode, setModalMode] = useState("view");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
-  const handleAddTemplate = (role) => {
+
+  const [createItemMutation] = useCreateItemMutation();
+
+  const handleOpenModal = (role, mode) => {
     setSelectedRole(role);
+    setModalMode(mode);
     onOpen();
   };
-
-  const [createItemMutation, { isLoading: isCreating }] =
-    useCreateItemMutation();
 
   const handleSaveTemplate = async (data) => {
     try {
@@ -45,7 +48,7 @@ const Templates = () => {
         body: data,
       }).unwrap();
       onClose();
-      refetch()
+      refetch();
     } catch (error) {
       console.log("error", error);
       toast.error("Error in creating the evalution!");
@@ -71,7 +74,7 @@ const Templates = () => {
     if (data) {
       setTotalPages(data.totalPages || 0);
       setTotalItems(data.total || 0);
-      setTableData(data?.doc);
+      setTableData(data?.doc || []);
     }
   }, [data]);
 
@@ -259,18 +262,39 @@ const Templates = () => {
                         fontWeight="600"
                         textTransform="capitalize"
                       >
-                        {template.hasTemplate ? "available": "not available"}
+                        {template.hasTemplate ? "Available" : "Not Available"}
                       </Badge>
                     </Td>
                     <Td textAlign="center">
-                      <IconButton
-                        aria-label="View"
-                        icon={template.hasTemplate ? <FiEye /> : <FiEdit2 /> }
-                        size="sm"
-                        colorScheme="teal"
-                        variant="ghost"
-                        onClick={() => handleAddTemplate(template)}
-                      />
+                      {template.hasTemplate ? (
+                        <HStack justify="center" spacing={2}>
+                          <IconButton
+                            icon={<FiEye />}
+                            size="sm"
+                            colorScheme="teal"
+                            variant="ghost"
+                            aria-label="View"
+                            onClick={() => handleOpenModal(template, "view")}
+                          />
+                          <IconButton
+                            icon={<FiEdit2 />}
+                            size="sm"
+                            variant="ghost"
+                            colorScheme="teal"
+                            aria-label="Edit"
+                            onClick={() => handleOpenModal(template, "edit")}
+                          />
+                        </HStack>
+                      ) : (
+                        <IconButton
+                          icon={<FiPlus />}
+                          size="sm"
+                          colorScheme="green"
+                          variant="ghost"
+                          aria-label="Add"
+                          onClick={() => handleOpenModal(template, "add")}
+                        />
+                      )}
                     </Td>
                   </Tr>
                 ))
@@ -298,6 +322,7 @@ const Templates = () => {
           isOpen={isOpen}
           onClose={onClose}
           role={selectedRole}
+          mode={modalMode}
           onSave={handleSaveTemplate}
         />
       )}
