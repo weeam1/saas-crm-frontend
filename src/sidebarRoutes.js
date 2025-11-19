@@ -11,6 +11,7 @@ import {
 	MdPeopleOutline,
 	MdCampaign,
 	MdInsights,
+	MdOutlinePayments,
 } from 'react-icons/md';
 import {
 	FaTasks,
@@ -21,6 +22,8 @@ import {
 	FaPhone,
 	FaRegCopy,
 	FaFileAlt,
+	FaFileInvoiceDollar,
+	FaMoneyCheckAlt,
 } from 'react-icons/fa';
 import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
@@ -480,6 +483,17 @@ export const sidebarRoutes = [
 				path: '/finance/settings',
 			},
 		],
+	},
+
+	// ---------- Payroll -----------
+	{
+		// moduleId: 'payroll',
+		name: 'Payroll',
+		path: '/payroll',
+		icon: MdOutlinePayments,
+		// icon: FaMoneyCheckAlt,
+		isNested: false,
+		color: '#36ce6dff', // Teal
 	},
 
 	// -------- Tasks --------
