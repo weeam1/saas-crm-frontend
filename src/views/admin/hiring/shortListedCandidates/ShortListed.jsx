@@ -266,7 +266,7 @@ const ShortListed = ({
 				<HStack gap='2'>
 					<FaUsers w='14' h='14' />
 					<Heading size='20px' color='gray.800' fontWeight={'bold'}>
-						Short Listed 324
+						Short Listed
 						{data && (
 							<span style={{ marginLeft: '6px' }}>
 								({<CountUpComponent targetNumber={totalDocs || 0} />})

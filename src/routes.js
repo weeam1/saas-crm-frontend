@@ -20,6 +20,7 @@ import {
 	FaPhone,
 	FaWhatsapp,
 	FaHandshake,
+	FaFileAlt,
 } from 'react-icons/fa';
 import { FaCreativeCommonsBy } from 'react-icons/fa';
 import { MdCampaign } from 'react-icons/md';
@@ -96,6 +97,18 @@ const DeveloperInvoices = React.lazy(
 );
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
+
+//Evalution
+// const Evalution = React.lazy(() => imporviews/admin/evalution/user-evalution/indexdex'));
+const UserEvalution = React.lazy(
+	() => import('views/admin/evalution/user-evalution/index')
+);
+const EvaluationForm = React.lazy(
+	() => import('views/admin/evalution/user-evalution/EvaluationForm')
+);
+const EvaluateSettings = React.lazy(
+	() => import('views/admin/evalution/settings/index')
+);
 
 // Finance
 const IncomingCash = React.lazy(
@@ -507,9 +520,62 @@ const routes = [
 		parentName: 'invoice',
 		component: ProjectScreen,
 	},
+	{
+		moduleId: 'invoice',
+		name: 'Developer Invoices',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'developer-invoices',
+		path: '/invoice/developers/invoices/:id',
+		parentName: 'Invoice',
+		component: DeveloperInvoices,
+	},
+	{
+		moduleId: 'invoice',
+		name: 'Single Invoice',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'single-invoice',
+		parentName: 'Invoice',
+		path: '/invoice/developers/invoices/view/:id',
+		component: SingleInvoice,
+	},
+	{
+		moduleId: 'invoice',
+		name: 'Invoice Entries',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'invoice-entries',
+		parentName: 'Invoice',
+		path: '/invoice/developers/invoices/entries/:id',
+		component: AddEntry,
+	},
+	{
+		// moduleId: "evaluation",
+		name: 'User Evalution',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/user-evaluation',
+		parentName: 'evaluation',
+		component: UserEvalution,
+	},
+	{
+		// moduleId: "evaluation",
+		name: 'Add Evalution',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/user-evaluation/role/:roleId/user/:userId',
+		parentName: 'evaluation',
+		component: EvaluationForm,
+	},
+	{
+		// moduleId: "evaluation",
+		name: 'Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/settings',
+		parentName: 'evaluation',
+		component: EvaluateSettings,
+	},
 
 	//****** Finance routes *********//
-
 	{
 		name: 'Incoming Cash',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -525,22 +591,6 @@ const routes = [
 		path: '/finance/outgoing-cash',
 		parentName: 'finance',
 		component: OutgoingCash,
-	},
-	{
-		name: 'Employee Loans',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'finance',
-		path: '/finance/employee-loans',
-		parentName: 'finance',
-		component: EmployeeLoans,
-	},
-	{
-		name: 'Employee Loan Details',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'finance',
-		path: '/finance/employee-loans/:id',
-		parentName: 'finance',
-		component: EmployeeLoanDetails,
 	},
 	{
 		name: 'Finance Settings',
@@ -588,6 +638,46 @@ const routes = [
 		under: 'admin',
 		path: '/admin-setting',
 		component: AdminSetting,
+	},
+	{
+		name: 'Incoming Cash',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/incoming-cash',
+		parentName: 'finance',
+		component: IncomingCash,
+	},
+	{
+		name: 'Outgoing Cash',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/outgoing-cash',
+		parentName: 'finance',
+		component: OutgoingCash,
+	},
+	{
+		name: 'Employee Loans',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/employee-loans',
+		parentName: 'finance',
+		component: EmployeeLoans,
+	},
+	{
+		name: 'Employee Loan Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/employee-loans/:id',
+		parentName: 'finance',
+		component: EmployeeLoanDetails,
+	},
+	{
+		name: 'Finance Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/settings',
+		parentName: 'finance',
+		component: FinanceSettings,
 	},
 
 	// ------------- Task Routes ------------------------

@@ -6,6 +6,8 @@ import {
 	Routes,
 	Route,
 	useNavigate,
+	useLocation,
+	useSearchParams,
 } from 'react-router-dom';
 import AuthLayout from './layouts/auth';
 import AdminLayout from 'layouts/admin';
@@ -275,9 +277,20 @@ function App() {
 	// 	}
 	// }, [user]);
 
+	const location = useLocation();
+	// const [searchParams, setSearchParams] = useSearchParams();
+
+	const saveInviteRedirect = useCallback(() => {
+		const fullPath = location.pathname + location.search;
+		if (fullPath.includes('invite')) {
+			localStorage.setItem('redirectInvite', fullPath);
+		}
+	}, []);
+
 	useEffect(() => {
 		const token = localStorage.getItem('token');
 		if (!token || !user) {
+			saveInviteRedirect();
 			setAppLoaded(true);
 			return;
 		}
@@ -317,7 +330,7 @@ function App() {
 		};
 
 		fetchAllData();
-	}, [user]);
+	}, [user, dispatch]);
 
 	// Show splash screen
 	if (!appLoaded || splashScreen) {

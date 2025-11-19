@@ -20,6 +20,7 @@ import {
 	FaHandshake,
 	FaPhone,
 	FaRegCopy,
+	FaFileAlt,
 } from 'react-icons/fa';
 import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
@@ -469,7 +470,7 @@ export const sidebarRoutes = [
 				path: '/finance/outgoing-cash',
 			},
 			{
-				// id: 'outgoing_cash',
+				id: 'employee_loans',
 				name: 'Employee Loans',
 				path: '/finance/employee-loans',
 			},
@@ -636,6 +637,27 @@ export const sidebarRoutes = [
 		isNested: false,
 		icon: MdOutlineLaptopMac,
 		color: '#c03910ff', // Gray
+	},
+
+	// ------- Evaluation ---------
+	{
+		moduleId: 'evaluation',
+		name: 'Evaluation',
+		path: '/evaluation',
+		icon: FaFileAlt,
+		color: '#86f17dff', // Gray
+		children: [
+			{
+				id: 'evaluation_users',
+				name: 'Evalute User',
+				path: '/evaluation/user-evaluation',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/evaluation/settings',
+			},
+		],
 	},
 ];
 
