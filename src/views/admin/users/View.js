@@ -295,6 +295,18 @@ const View = () => {
 												value={data?.salaryType}
 											/>
 											<DisplayField label='Salary' value={data?.salary} />
+											{data?.incentive && (
+												<DisplayField
+													label='Incentive'
+													value={data?.incentive}
+												/>
+											)}
+											{data?.commission && (
+												<DisplayField
+													label='Commission'
+													value={data?.commission}
+												/>
+											)}
 											<DisplayField
 												label='Target'
 												value={formatCurrency(data?.target, data?.currency)}
