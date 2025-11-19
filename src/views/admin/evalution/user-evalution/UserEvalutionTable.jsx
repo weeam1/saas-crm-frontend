@@ -245,7 +245,7 @@ const UserEvaluationTable = ({
 													)}
 
 													{!row?.evaluation?.[0]?.evaluations?.find(
-														(item) => item?.evaluator?._id === loggedInUser?._id
+														(item) => item?.evaluator === loggedInUser?._id
 													) && (
 														<CustomTooltip label='Add Evaluation'>
 															<IconButton

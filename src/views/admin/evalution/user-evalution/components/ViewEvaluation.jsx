@@ -95,7 +95,9 @@ const EvaluationDetailModal = ({
 							</Box>
 							<Box textAlign='center'>
 								<Text>Total Score</Text>
-								<Text color='green.500'>{evaluation?.totalScore}</Text>
+								<Text color='green.500'>
+									{evaluation?.obtainedScore} / {evaluation?.totalScore}
+								</Text>
 							</Box>
 							<Box textAlign='center'>
 								<Text>Percentage</Text>
@@ -236,8 +238,13 @@ const ViewEvaluation = ({ isOpen, onClose, data }) => {
 		);
 
 	const { doc, userDetails, month, year } = evaluationData || {};
-	const { evaluations, finalPercentage, finalScore, totalEvaluators } =
-		doc || {};
+	const {
+		evaluations,
+		finalPercentage,
+		totalObtainedScore,
+		totalScore,
+		totalEvaluators,
+	} = doc || {};
 
 	// Get score color and label
 	const getScoreColor = (percentage) => {
@@ -421,7 +428,7 @@ const ViewEvaluation = ({ isOpen, onClose, data }) => {
 													Total Points
 												</Text>
 												<Text color='green.500' fontSize='2xl'>
-													{finalScore}
+													{totalObtainedScore} / {totalScore}
 												</Text>
 												<Text>Accumulated score</Text>
 											</Box>
