@@ -31,7 +31,7 @@ import { userSchema } from 'schema';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { jobTypes } from 'utils/options';
+import { jobTypes, salaryTypes } from 'utils/options';
 import ImageUpload from './components/ImageUpload';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { getApi } from 'services/api';
@@ -43,6 +43,7 @@ import { currencyOptions } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
 import { useRoles } from 'hooks/user/userRoles';
 import Loader from 'components/loading/Loader';
+import { getSalaryType } from 'schema/userSchema';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -88,6 +89,8 @@ const Edit = (props) => {
 		username: data?.username ?? '',
 		agency: data?.agency?._id ?? '',
 		salary: data?.salary ?? '',
+		commission: data?.commission ?? '',
+		incentive: data?.incentive ?? '',
 		salaryType: data?.salaryType ?? '',
 		phoneNumber: data?.phoneNumber ?? '',
 		profileImage: data?.profileImage ?? '',
@@ -509,7 +512,7 @@ const Edit = (props) => {
 														: null
 												}
 											>
-												{jobTypes?.map((job) => (
+												{salaryTypes?.map((job) => (
 													<option key={job.value} value={job.value}>
 														{job.label}
 													</option>
@@ -549,6 +552,72 @@ const Edit = (props) => {
 												{errors.salary && touched.salary && errors.salary}
 											</Text>
 										</GridItem>
+
+										{getSalaryType(values.salaryType)?.hasCommission && (
+											<GridItem colSpan={{ base: 6 }}>
+												<FormLabel
+													display='flex'
+													ms='4px'
+													fontSize='sm'
+													fontWeight='500'
+													mb='8px'
+												>
+													Commission
+												</FormLabel>
+												<Input
+													fontSize='sm'
+													type='number'
+													onChange={handleChange}
+													onBlur={handleBlur}
+													value={values.commission}
+													name='commission'
+													fontWeight='500'
+													borderColor={
+														errors.commission && touched.commission
+															? 'red.300'
+															: null
+													}
+												/>
+												<Text mb='10px' color={'red'}>
+													{errors.commission &&
+														touched.commission &&
+														errors.commission}
+												</Text>
+											</GridItem>
+										)}
+										{getSalaryType(values.salaryType)?.hasIncentive && (
+											<GridItem colSpan={{ base: 6 }}>
+												<FormLabel
+													display='flex'
+													ms='4px'
+													fontSize='sm'
+													fontWeight='500'
+													mb='8px'
+												>
+													Incentive
+												</FormLabel>
+												<Input
+													fontSize='sm'
+													type='number'
+													min={0}
+													onChange={handleChange}
+													onBlur={handleBlur}
+													value={values.incentive}
+													name='incentive'
+													fontWeight='500'
+													borderColor={
+														errors.incentive && touched.incentive
+															? 'red.300'
+															: null
+													}
+												/>
+												<Text mb='10px' color={'red'}>
+													{errors.incentive &&
+														touched.incentive &&
+														errors.incentive}
+												</Text>
+											</GridItem>
+										)}
 
 										<GridItem colSpan={{ base: 6 }}>
 											<FormLabel
