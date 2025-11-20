@@ -559,7 +559,7 @@ const routes = [
 	},
 
 	{
-		// moduleId: "evaluation",
+		// moduleId: 'evaluation',
 		name: 'User Evalution',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		under: 'evaluation',
@@ -568,7 +568,7 @@ const routes = [
 		component: UserEvalution,
 	},
 	{
-		// moduleId: "evaluation",
+		// moduleId: 'evaluation',
 		name: 'Add Evalution',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		under: 'evaluation',
@@ -577,7 +577,7 @@ const routes = [
 		component: EvaluationForm,
 	},
 	{
-		// moduleId: "evaluation",
+		// moduleId: 'evaluation',
 		name: 'Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		under: 'evaluation',
