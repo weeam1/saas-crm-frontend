@@ -27,7 +27,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 	const COLUMNS = [
 		{ key: 'user', label: 'Employee', width: '220px' },
 		{
-			key: 'attendanceSummary.netSalary',
+			key: 'payrollSummary.attendanceEarnedSalary',
 			label: 'Attendance Salary',
 			width: '150px',
 		},

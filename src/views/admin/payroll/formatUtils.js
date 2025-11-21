@@ -12,7 +12,7 @@ export const formatValue = (key, value, row = {}) => {
 		case 'salaryType':
 			return formatSalaryType(value);
 		case 'evaluationScore':
-			return `${row.evaluation?.[0]?.finalPercentage || 0}%`;
+			return `${row.evaluation?.finalPercentage || 0}%`;
 		default:
 			return value ?? '-';
 	}
