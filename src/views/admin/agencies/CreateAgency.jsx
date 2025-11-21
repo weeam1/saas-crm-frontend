@@ -7,6 +7,7 @@ import {
 	DrawerBody,
 	DrawerFooter,
 	Grid,
+	Select,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -14,10 +15,14 @@ import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import RenderFields from 'components/shared/RenderFields';
+import Loader from 'components/loading/Loader';
+import useCurrency from 'hooks/currrency/useCurrency';
+import CurrencySelect from './components/CurrencySelect';
 
 const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 	const initialValues = {
 		name: '',
+		email: '',
 		location: '',
 		TRN: '',
 		contactNumberPrimary: '',
@@ -25,13 +30,17 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 		currency: '',
 	};
 
+	const { currencies, isLoading: currencyLoading } = useCurrency();
+
 	const validationSchema = Yup.object({
 		name: Yup.string().required('Name is required'),
+		email: Yup.string().required('Email is required'),
 		location: Yup.string().required('Location is required'),
 	});
 
 	const fields = [
 		{ name: 'name', label: 'Name', type: 'text', required: true },
+		{ name: 'email', label: 'Email', type: 'text', required: true },
 		{ name: 'location', label: 'Location', type: 'textarea', required: true },
 		{ name: 'TRN', label: 'TRN', type: 'text' },
 		{
@@ -44,11 +53,11 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 			label: 'Alternate Contact',
 			type: 'text',
 		},
-		{
-			name: 'currency',
-			label: 'Currency',
-			type: 'text',
-		},
+		// {
+		// 	name: 'currency',
+		// 	label: 'Currency',
+		// 	type: 'text',
+		// },
 	];
 
 	const [createItemMuation, { isLoading }] = useCreateItemMutation();
@@ -84,20 +93,25 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 				>
 					{() => (
 						<Form>
-							<DrawerBody h={"80vh"} overflowY={"scroll"}>
-								<Grid
-									templateColumns={{
-										base: '1fr',
-									}}
-									gap={2}
-									w='full'
-									overflow='scroll'
-									overflowY={"scroll"}
-									// height='50vh'
-									p='4'
-								>
-									<RenderFields fields={fields} />
-								</Grid>
+							<DrawerBody h={'80vh'} overflowY={'scroll'}>
+								{currencyLoading ? (
+									<Loader />
+								) : (
+									<Grid
+										templateColumns={{
+											base: '1fr',
+										}}
+										gap={2}
+										w='full'
+										overflow='scroll'
+										overflowY={'scroll'}
+										// height='50vh'
+										p='4'
+									>
+										<RenderFields fields={fields} />
+										<CurrencySelect currencies={currencies} />
+									</Grid>
+								)}
 							</DrawerBody>
 							<DrawerFooter>
 								<AppButton mr='2' onClick={onClose}>

@@ -7,6 +7,7 @@ import {
 	DrawerBody,
 	DrawerFooter,
 	Grid,
+	Select,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -14,6 +15,8 @@ import { toast } from 'react-toastify';
 import AppButton from 'components/shared/AppButton';
 import RenderFields from 'components/shared/RenderFields';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import useCurrency from 'hooks/currrency/useCurrency';
+import CurrencySelect from './components/CurrencySelect';
 
 const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 	const initialValues = {
@@ -32,6 +35,8 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 		location: Yup.string().required('Location is required'),
 	});
 
+	const { currencies, isLoading: currencyLoading } = useCurrency();
+
 	const fields = [
 		{ name: 'name', label: 'Name', type: 'text', required: true },
 		{ name: 'email', label: 'Email', type: 'text', required: true },
@@ -45,11 +50,6 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 		{
 			name: 'contactNumberAlternate',
 			label: 'Alternate Contact',
-			type: 'text',
-		},
-		{
-			name: 'currency',
-			label: 'Currency',
 			type: 'text',
 		},
 	];
@@ -84,6 +84,7 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 					initialValues={initialValues}
 					validationSchema={validationSchema}
 					onSubmit={handleSubmit}
+					values
 				>
 					{() => (
 						<Form>
@@ -100,6 +101,7 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 									p='4'
 								>
 									<RenderFields fields={fields} />
+									<CurrencySelect currencies={currencies} />
 								</Grid>
 							</DrawerBody>
 							<DrawerFooter>

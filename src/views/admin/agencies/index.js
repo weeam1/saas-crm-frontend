@@ -42,7 +42,7 @@ const Agency = () => {
 					isOpen={openModal}
 					onClose={() => setOpenModal(false)}
 					refreshData={refetch}
-					size='sm'
+					size='lg'
 				/>
 			)}
 
@@ -52,7 +52,7 @@ const Agency = () => {
 					onClose={() => setOpenEditModal(false)}
 					refreshData={refetch}
 					data={agency}
-					size='sm'
+					size='lg'
 				/>
 			)}
 
