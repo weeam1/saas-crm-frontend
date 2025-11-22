@@ -38,17 +38,19 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import logo from '../../../../assets/logo-crm.png';
 import useUserSession from 'hooks/useUserSession';
 import { useModalColors } from 'hooks/useModalColors';
+import { useNavigate } from 'react-router-dom';
 
 const EmployeePayrollTable = ({ data = [], isLoading }) => {
 	const { user } = useUserSession();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
+	const navigate = useNavigate();
 
 	// Most important columns for payroll overview
 	const COLUMNS = [
 		{ key: 'user', label: 'Employee', width: '220px' },
 		{
-			key: 'attendanceSummary.netSalary',
+			key: 'payrollSummary.attendanceEarnedSalary',
 			label: 'Attendance Salary',
 			width: '150px',
 		},
@@ -532,7 +534,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 							size='sm'
 							colorScheme='teal'
 							variant='ghost'
-							// onClick={() => onView(row)}
+							onClick={() => navigate(`/payroll/payslip/${row._id}`)}
 						/>
 					</CustomTooltip>
 

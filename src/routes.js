@@ -98,6 +98,9 @@ const DeveloperInvoices = React.lazy(
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
 const Payroll = React.lazy(() => import('views/admin/payroll/index'));
+const Payslip = React.lazy(
+	() => import('views/admin/payroll/components/EmployeePayrollDetails')
+);
 
 //Evalution
 // const Evalution = React.lazy(() => imporviews/admin/evalution/user-evalution/indexdex'));
@@ -551,11 +554,18 @@ const routes = [
 
 	// ********** Payrol routes ************** //
 	{
-		// moduleId: 'payroll',
+		moduleId: 'payroll',
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/payroll',
 		component: Payroll,
+	},
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/payroll/payslip/:userId',
+		component: Payslip,
 	},
 
 	{

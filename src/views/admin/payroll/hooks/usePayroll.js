@@ -16,7 +16,7 @@ export const useEmployeePayroll = () => {
 	const { user } = useUserSession();
 
 	// check  all agencies permission
-	const isAgenciesAllowed = hasPermission('payroll', 'all_agencies') || true;
+	const isAgenciesAllowed = hasPermission('payroll', 'all_agencies');
 
 	// derive initial values from URL (stable on first render)
 	const initialMonth =

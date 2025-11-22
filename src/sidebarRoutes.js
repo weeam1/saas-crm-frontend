@@ -487,7 +487,7 @@ export const sidebarRoutes = [
 
 	// ---------- Payroll -----------
 	{
-		// moduleId: 'payroll',
+		moduleId: 'payroll',
 		name: 'Payroll',
 		path: '/payroll',
 		icon: MdOutlinePayments,
