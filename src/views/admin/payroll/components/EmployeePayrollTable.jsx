@@ -11,8 +11,18 @@ import {
   Text,
   Center,
   Badge,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  ModalCloseButton,
+  ModalFooter,
+  Button,
+  VStack,
+  HStack,
 } from "@chakra-ui/react";
-import { FiEye, FiDownload } from "react-icons/fi";
+import { FiEye, FiDownload, FiLock, FiRefreshCw } from "react-icons/fi";
 import NoData from "components/Message/NoData";
 import TableLoading from "components/loading/TableLoading";
 import { useEffect, useState } from "react";
@@ -27,9 +37,12 @@ import { toast } from "react-toastify";
 import { useFetchItemsQuery } from "api/apiSlice";
 import logo from "../../../../assets/logo-crm.png";
 import useUserSession from "hooks/useUserSession";
+import { useModalColors } from "hooks/useModalColors";
 
 const EmployeePayrollTable = ({ data = [], isLoading }) => {
   const { user } = useUserSession();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   // Most important columns for payroll overview
   const COLUMNS = [
@@ -67,6 +80,8 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [employeeToDownload, setEmployeeToDownload] = useState(null);
+  const [selectedEmployeeForModal, setSelectedEmployeeForModal] = useState(null);
+  const [forceGenerate, setForceGenerate] = useState(false);
 
   const { data: payslipData, isLoading: payslipLoading } = useFetchItemsQuery(
     {
@@ -94,11 +109,82 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
     if (payslipData && selectedEmployeeId && employeeToDownload) {
       generatePayslipPDF(employeeToDownload, payslipData);
       setEmployeeToDownload(null);
+      setSelectedEmployeeId(null);
     }
   }, [payslipData, selectedEmployeeId, employeeToDownload]);
 
   const getNestedValue = (obj, path) => {
     return path.split(".").reduce((current, key) => current?.[key], obj);
+  };
+
+  const hasCompletedAttendance = (employee) => {
+    const attendanceSummary = employee.attendanceSummary || {};
+    return (
+      attendanceSummary.totalRecords === attendanceSummary.totalWorkingDays
+    );
+  };
+
+  const getAttendancePercentage = (employee) => {
+    const attendanceSummary = employee.attendanceSummary || {};
+    if (
+      !attendanceSummary.totalWorkingDays ||
+      attendanceSummary.totalWorkingDays === 0
+    ) {
+      return 0;
+    }
+    return Math.round(
+      (attendanceSummary.totalRecords / attendanceSummary.totalWorkingDays) *
+        100
+    );
+  };
+
+  const isPayslipGenerated = (employee) => {
+    return employee?.payslip?.status === "generated";
+  };
+
+  const getPayslipActionText = (employee) => {
+    if (isPayslipGenerated(employee)) {
+      return "Regenerate Payslip";
+    }
+    return "Generate Payslip";
+  };
+
+  const getTooltipText = (employee) => {
+    const attendancePercentage = getAttendancePercentage(employee);
+    
+    if (!hasCompletedAttendance(employee)) {
+      return `Attendance incomplete (${attendancePercentage}%). Complete attendance or force generate payslip.`;
+    }
+    
+    if (isPayslipGenerated(employee)) {
+      return "Regenerate payslip for this employee";
+    }
+    
+    return "Generate payslip for this employee";
+  };
+
+  const showAttendanceDetails = (employee) => {
+    setSelectedEmployeeForModal(employee);
+    setForceGenerate(false);
+    onOpen();
+  };
+
+  const handleForceGenerate = () => {
+    if (!selectedEmployeeForModal?._id) {
+      toast.error("Employee data not available");
+      return;
+    }
+
+    try {
+      setSelectedEmployeeId(selectedEmployeeForModal._id);
+      setEmployeeToDownload(selectedEmployeeForModal);
+      setForceGenerate(true);
+      onClose();
+      toast.warning("Force generating payslip with incomplete attendance data");
+    } catch (error) {
+      console.error("Error force generating payslip:", error);
+      toast.error("Failed to generate payslip");
+    }
   };
 
   // PDF Generation function
@@ -131,7 +217,6 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
       : format(new Date(), "dd/MM/yyyy HH:mm");
 
     const currentDate = format(new Date(), "dd/MM/yyyy");
-    const dueDate = format(new Date(), "dd/MM/yyyy");
 
     const totalEarnings = earnings?.totalEarnings || 0;
     const totalDeductions = deductions?.loanDeduction || 0;
@@ -139,10 +224,10 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
     // Extract data from snapshots
     const payrollCalculation = snapshots?.payrollCalculation || {};
-    const loanSummary = snapshots?.loanSummary || {};
-    const attendanceSummary = snapshots?.attendanceSummary || {};
-    const closeDeals = snapshots?.closeDeals || {};
-    const evaluation = snapshots?.evaluation?.[0] || {};
+    // const loanSummary = snapshots?.loanSummary || {};
+    // const attendanceSummary = snapshots?.attendanceSummary || {};
+    // const closeDeals = snapshots?.closeDeals || {};
+    // const evaluation = snapshots?.evaluation?.[0] || {};
 
     const formatCurrencyValue = (value, currency) => {
       return new Intl.NumberFormat("en-US", {
@@ -374,17 +459,29 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
       pdf.save(
         `payslip-${userData?.fullName || "employee"}-${doc.month}-${doc.year}.pdf`
       );
-      toast.success("Payslip downloaded successfully!");
+      
+      if (forceGenerate) {
+        toast.success("Payslip force generated successfully with incomplete attendance!");
+      } else {
+        toast.success("Payslip downloaded successfully!");
+      }
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast.error("Failed to generate payslip");
     } finally {
       document.body.removeChild(element);
+      setForceGenerate(false);
     }
   };
+
   const handleDownloadPayslip = (employee) => {
     if (!employee?._id) {
       toast.error("Employee data not available");
+      return;
+    }
+
+    if (!hasCompletedAttendance(employee)) {
+      showAttendanceDetails(employee);
       return;
     }
 
@@ -404,6 +501,9 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
     if (column.key === "actions") {
       const isDownloading = payslipLoading && selectedEmployeeId === row._id;
+      const canDownload = hasCompletedAttendance(row);
+      const isGenerated = isPayslipGenerated(row);
+      const attendancePercentage = getAttendancePercentage(row);
 
       return (
         <Flex align="center" justify="center">
@@ -417,17 +517,31 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
               // onClick={() => onView(row)}
             />
           </CustomTooltip>
-          <CustomTooltip label="Download Payslip">
-            <IconButton
-              aria-label="Download Payslip"
-              icon={<FiDownload />}
-              size="sm"
-              colorScheme="teal"
-              variant="ghost"
-              onClick={() => handleDownloadPayslip(row)}
-              isLoading={isDownloading}
-            />
-          </CustomTooltip>
+
+          {canDownload ? (
+            <CustomTooltip label={getTooltipText(row)}>
+              <IconButton
+                aria-label={getPayslipActionText(row)}
+                icon={isGenerated ? <FiRefreshCw /> : <FiDownload />}
+                size="sm"
+                colorScheme={isGenerated ? "orange" : "teal"}
+                variant="ghost"
+                onClick={() => handleDownloadPayslip(row)}
+                isLoading={isDownloading}
+              />
+            </CustomTooltip>
+          ) : (
+            <CustomTooltip label={getTooltipText(row)}>
+              <IconButton
+                aria-label="Attendance incomplete"
+                icon={<FiLock />}
+                size="sm"
+                colorScheme="red"
+                variant="ghost"
+                onClick={() => showAttendanceDetails(row)}
+              />
+            </CustomTooltip>
+          )}
         </Flex>
       );
     }
@@ -469,76 +583,226 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
   };
 
   return (
-    <Box
-      my="2"
-      overflowX="auto"
-      overflowY="auto"
-      maxH="calc(100vh - 200px)"
-      borderWidth="1px"
-      borderColor="gray.200"
-      rounded="xl"
-      boxShadow="sm"
-      bg="white"
-    >
-      <Table variant="striped" size="sm">
-        <Thead bg="brand.200" position="sticky" top={0} zIndex={1}>
-          <Tr>
-            {COLUMNS.map((column) => (
-              <Th
-                key={column.key}
-                whiteSpace="nowrap"
-                textTransform="capitalize"
-                fontSize="md"
-                py="4"
-                textAlign={["name"].includes(column.key) ? "left" : "center"}
-                fontWeight="semibold"
-                color="gray.700"
-                minW={column.width}
-              >
-                {column.label}
-              </Th>
-            ))}
-          </Tr>
-        </Thead>
-
-        <Tbody>
-          {isLoading || delayedLoading ? (
-            <TableLoading columns={COLUMNS} length={10} py="4" />
-          ) : data.length === 0 ? (
+    <>
+      <Box
+        my="2"
+        overflowX="auto"
+        overflowY="auto"
+        maxH="calc(100vh - 200px)"
+        borderWidth="1px"
+        borderColor="gray.200"
+        rounded="xl"
+        boxShadow="sm"
+        bg="white"
+      >
+        <Table variant="striped" size="sm">
+          <Thead bg="brand.200" position="sticky" top={0} zIndex={1}>
             <Tr>
-              <Td colSpan={COLUMNS.length} py={10}>
-                <Center>
-                  <NoData label="incoming balance" />
-                </Center>
-              </Td>
+              {COLUMNS.map((column) => (
+                <Th
+                  key={column.key}
+                  whiteSpace="nowrap"
+                  textTransform="capitalize"
+                  fontSize="md"
+                  py="4"
+                  textAlign={["name"].includes(column.key) ? "left" : "center"}
+                  fontWeight="semibold"
+                  color="gray.700"
+                  minW={column.width}
+                >
+                  {column.label}
+                </Th>
+              ))}
             </Tr>
-          ) : (
-            data.map((row, index) => (
-              <Tr
-                key={row._id || index}
-                _hover={{ bg: "gray.50" }}
-                bg={index % 2 === 0 ? "white" : "gray.25"}
-                transition="background-color 0.2s"
-              >
-                {COLUMNS.map((column) => (
-                  <Td
-                    key={column.key}
-                    px={3}
-                    py={3}
-                    fontSize="sm"
-                    color="gray.700"
-                    minW={column.width}
-                    textAlign={column.key === "user" ? "left" : "center"}
-                  >
-                    {renderCellContent(column, row)}
-                  </Td>
-                ))}
+          </Thead>
+
+          <Tbody>
+            {isLoading || delayedLoading ? (
+              <TableLoading columns={COLUMNS} length={10} py="4" />
+            ) : data.length === 0 ? (
+              <Tr>
+                <Td colSpan={COLUMNS.length} py={10}>
+                  <Center>
+                    <NoData label="incoming balance" />
+                  </Center>
+                </Td>
               </Tr>
-            ))
-          )}
-        </Tbody>
-      </Table>
-    </Box>
+            ) : (
+              data.map((row, index) => (
+                <Tr
+                  key={row._id || index}
+                  _hover={{ bg: "gray.50" }}
+                  bg={index % 2 === 0 ? "white" : "gray.25"}
+                  transition="background-color 0.2s"
+                >
+                  {COLUMNS.map((column) => (
+                    <Td
+                      key={column.key}
+                      px={3}
+                      py={3}
+                      fontSize="sm"
+                      color="gray.700"
+                      minW={column.width}
+                      textAlign={column.key === "user" ? "left" : "center"}
+                    >
+                      {renderCellContent(column, row)}
+                    </Td>
+                  ))}
+                </Tr>
+              ))
+            )}
+          </Tbody>
+        </Table>
+      </Box>
+
+      {/* Attendance Details Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
+        <ModalOverlay backdropFilter="blur(8px)" />
+        <ModalContent
+          mx={{ base: 3, md: 8 }}
+          boxShadow="0 12px 45px rgba(0,0,0,0.25)"
+          borderRadius="2xl"
+          bg={bg}
+          overflow="hidden"
+          display="flex"
+          flexDirection="column"
+        >
+          <Flex
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={{ base: 6, md: 8 }}
+            py={4}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+          >
+            <Flex align="center">
+              <FiLock style={{ marginRight: "8px", color: "#E53E3E" }} />
+              Attendance Incomplete - Action Required
+            </Flex>
+            <ModalCloseButton position="static" />
+          </Flex>
+
+          <ModalBody
+            overflowY="auto"
+            px={{ base: 6, md: 8 }}
+            py={5}
+            flex="1"
+            sx={{
+              "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "gray.400",
+                borderRadius: "12px",
+              },
+            }}
+          >
+            {selectedEmployeeForModal && (
+              <VStack align="stretch" spacing={4}>
+                <Text fontWeight="bold" fontSize="lg" color="red.600">
+                  {selectedEmployeeForModal.fullName}
+                </Text>
+
+                <Box
+                  p={4}
+                  bg="red.50"
+                  borderRadius="md"
+                  borderLeft="4px solid"
+                  borderLeftColor="red.500"
+                >
+                  <Text color="red.700" fontWeight="medium" mb={2}>
+                    ⚠️ Attendance Not Yet Completed
+                  </Text>
+                  <Text color="red.600" fontSize="sm">
+                    Cannot generate payslip automatically until all attendance records are completed for the current pay period.
+                  </Text>
+                </Box>
+
+                <Box>
+                  <Text fontWeight="semibold" mb={3} color="gray.700">
+                    Attendance Summary Details:
+                  </Text>
+                  <VStack align="stretch" spacing={2}>
+                    <HStack justify="space-between">
+                      <Text color="gray.600">Total Working Days:</Text>
+                      <Text fontWeight="bold" color="gray.800">
+                        {selectedEmployeeForModal.attendanceSummary
+                          ?.totalWorkingDays || 0}
+                      </Text>
+                    </HStack>
+                    <HStack justify="space-between">
+                      <Text color="gray.600">Days Recorded:</Text>
+                      <Text fontWeight="bold" color="gray.800">
+                        {selectedEmployeeForModal.attendanceSummary
+                          ?.totalRecords || 0}
+                      </Text>
+                    </HStack>
+                    <HStack justify="space-between">
+                      <Text color="gray.600">Missing Days:</Text>
+                      <Text fontWeight="bold" color="red.600">
+                        {(selectedEmployeeForModal.attendanceSummary?.totalWorkingDays || 0) - 
+                         (selectedEmployeeForModal.attendanceSummary?.totalRecords || 0)}
+                      </Text>
+                    </HStack>
+                    <HStack justify="space-between">
+                      <Text color="gray.600">Completion Status:</Text>
+                      <Badge
+                        colorScheme="red"
+                        fontSize="sm"
+                        px={2}
+                        py={1}
+                      >
+                        {getAttendancePercentage(selectedEmployeeForModal)}% Complete
+                      </Badge>
+                    </HStack>
+                  </VStack>
+                </Box>
+
+                <Box p={3} bg="orange.50" borderRadius="md" border="1px solid" borderColor="orange.200">
+                  <Text fontSize="sm" color="orange.800" fontWeight="medium" mb={2}>
+                    📝 Important Note:
+                  </Text>
+                  <Text fontSize="sm" color="orange.700">
+                    For accurate payroll processing, it's recommended to complete all attendance records first. 
+                    However, you can force generate the payslip if needed. The generated payslip will use currently 
+                    available data and may not reflect final adjustments.
+                  </Text>
+                </Box>
+              </VStack>
+            )}
+          </ModalBody>
+
+          <ModalFooter 
+            bg={footerBg} 
+            px={{ base: 6, md: 8 }} 
+            py={4}
+            borderTop="1px solid"
+            borderColor={borderColor}
+          >
+            <HStack spacing={3} width="full" justify="space-between">
+              <Button
+                variant="outline"
+                colorScheme="gray"
+                onClick={onClose}
+                size="sm"
+                borderRadius={"md"}
+              >
+                Cancel
+              </Button>
+              <Button
+                colorScheme="brand"
+                onClick={handleForceGenerate}
+                leftIcon={<FiRefreshCw />}
+                size="sm"
+                borderRadius={"md"}
+              >
+                {getPayslipActionText(selectedEmployeeForModal)}
+              </Button>
+            </HStack>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 
