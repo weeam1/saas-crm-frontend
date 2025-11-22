@@ -18,7 +18,7 @@ import Card from 'components/card/Card';
 import { HSeparator } from 'components/separator/Separator';
 import { useEffect, useState } from 'react';
 import { IoIosArrowBack } from 'react-icons/io';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { getApi } from 'services/api';
 import Delete from './Delete';
 import Edit from './Edit';
@@ -42,6 +42,8 @@ const View = () => {
 	];
 	const dispatch = useDispatch();
 	const userData = useSelector((state) => state.user.user);
+
+	const navigate = useNavigate();
 
 	const { user, isSuperAdmin, isAdmin, userRoleName } = useUserSession();
 
@@ -199,15 +201,14 @@ const View = () => {
 											</Button>
 										)
 									)}
-									<Link to='/user'>
-										<Button
-											leftIcon={<IoIosArrowBack />}
-											variant='brand'
-											size='sm'
-										>
-											Back
-										</Button>
-									</Link>
+									<Button
+										leftIcon={<IoIosArrowBack />}
+										variant='brand'
+										size='sm'
+										onClick={() => navigate('/users')}
+									>
+										Back
+									</Button>
 								</Flex>
 							</GridItem>
 						</Grid>
@@ -294,6 +295,18 @@ const View = () => {
 												value={data?.salaryType}
 											/>
 											<DisplayField label='Salary' value={data?.salary} />
+											{data?.incentive && (
+												<DisplayField
+													label='Incentive'
+													value={data?.incentive}
+												/>
+											)}
+											{data?.commission && (
+												<DisplayField
+													label='Commission'
+													value={data?.commission}
+												/>
+											)}
 											<DisplayField
 												label='Target'
 												value={formatCurrency(data?.target, data?.currency)}

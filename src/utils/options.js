@@ -267,3 +267,48 @@ export const jobTypes = [
 	{ value: 'Commission', label: 'Commission' },
 	{ value: 'SalaryPlusCommission', label: 'Salary + Comission' },
 ];
+
+export const salaryTypes = [
+	{
+		value: 'SALARY_ONLY',
+		label: 'Salary',
+		description: 'Fixed monthly or yearly compensation',
+		hasBaseSalary: true,
+		hasCommission: false,
+		hasIncentive: false,
+	},
+	{
+		value: 'SALARY_COMMISSION',
+		label: 'Salary + Commission',
+		description: 'Fixed salary plus commission on sales',
+		hasBaseSalary: true,
+		hasCommission: true,
+		hasIncentive: false,
+	},
+	{
+		value: 'SALARY_INCENTIVE',
+		label: 'Salary + Incentive',
+		description: 'Fixed salary plus performance incentives',
+		hasBaseSalary: true,
+		hasCommission: false,
+		hasIncentive: true,
+	},
+	{
+		value: 'SALARY_COMMISSION_INCENTIVE',
+		label: 'Salary + Commission + Incentive',
+		description: 'Base salary, commission on sales, and performance incentives',
+		hasBaseSalary: true,
+		hasCommission: true,
+		hasIncentive: true,
+	},
+];
+
+export const currencyAllOptions = (currencies) => {
+	if (!currencies) return [];
+
+	return Object.entries(currencies).map(([key, value]) => ({
+		value: key,
+		label: `${key} - ${value.name}`,
+		symbol: value.symbol,
+	}));
+};

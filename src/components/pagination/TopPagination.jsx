@@ -20,6 +20,7 @@ const TopPagination = ({
 	loading,
 	handlePageSize,
 	sizeMedium = false,
+	pageLimit = true,
 }) => {
 	const [gotoPage, setGotoPage] = useState(currentPage ?? 1);
 
@@ -233,31 +234,32 @@ const TopPagination = ({
 
 			{/* Next & Last Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
-				<Select
-					size={sizeMedium ? 'xs' : 'sm'}
-					w={{ base: '32' }}
-					value={itemsPerPage}
-					// value={
-					// 	generatePageSizeOptions(totalItems, itemsPerPage).includes(
-					// 		itemsPerPage
-					// 	)
-					// 		? itemsPerPage
-					// 		: Math.min(totalItems, 100)
-					// }
-					color='gray.800'
-					bg='softGray.400'
-					borderRadius='md'
-					border='2px solid'
-					_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
-					onChange={onPageSizeChange}
-					isDisabled={!totalItems || loading || refetching}
-				>
-					{generatePageSizeOptions(totalItems, itemsPerPage).map((size) => (
-						<option key={size} value={size}>
-							Show {size}
-						</option>
-					))}
-					{/* <option key={10} value={10}>
+				{pageLimit && (
+					<Select
+						size={sizeMedium ? 'xs' : 'sm'}
+						w={{ base: '32' }}
+						value={itemsPerPage}
+						// value={
+						// 	generatePageSizeOptions(totalItems, itemsPerPage).includes(
+						// 		itemsPerPage
+						// 	)
+						// 		? itemsPerPage
+						// 		: Math.min(totalItems, 100)
+						// }
+						color='gray.800'
+						bg='softGray.400'
+						borderRadius='md'
+						border='2px solid'
+						_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
+						onChange={onPageSizeChange}
+						isDisabled={!totalItems || loading || refetching}
+					>
+						{generatePageSizeOptions(totalItems, itemsPerPage).map((size) => (
+							<option key={size} value={size}>
+								Show {size}
+							</option>
+						))}
+						{/* <option key={10} value={10}>
 						Show 10
 					</option>
 					<option key={20} value={20}>
@@ -275,7 +277,8 @@ const TopPagination = ({
 					<option key={100} value={100}>
 						Show 100
 					</option> */}
-				</Select>
+					</Select>
+				)}
 
 				<Button
 					{...buttonStyle}

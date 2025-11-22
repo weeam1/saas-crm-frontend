@@ -11,6 +11,7 @@ import {
 	MdPeopleOutline,
 	MdCampaign,
 	MdInsights,
+	MdOutlinePayments,
 } from 'react-icons/md';
 import {
 	FaTasks,
@@ -20,6 +21,9 @@ import {
 	FaHandshake,
 	FaPhone,
 	FaRegCopy,
+	FaFileAlt,
+	FaFileInvoiceDollar,
+	FaMoneyCheckAlt,
 } from 'react-icons/fa';
 import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
@@ -481,6 +485,17 @@ export const sidebarRoutes = [
 		],
 	},
 
+	// ---------- Payroll -----------
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		path: '/payroll',
+		icon: MdOutlinePayments,
+		// icon: FaMoneyCheckAlt,
+		isNested: false,
+		color: '#36ce6dff', // Teal
+	},
+
 	// -------- Tasks --------
 	{
 		moduleId: 'task',
@@ -623,7 +638,7 @@ export const sidebarRoutes = [
 		moduleId: 'users',
 		name: 'Users',
 		isNested: false,
-		path: '/user',
+		path: '/users',
 		icon: HiUsers,
 		color: '#8B5CF6', // Violet
 	},
@@ -636,6 +651,27 @@ export const sidebarRoutes = [
 		isNested: false,
 		icon: MdOutlineLaptopMac,
 		color: '#c03910ff', // Gray
+	},
+
+	// ------- Evaluation ---------
+	{
+		moduleId: 'evaluation',
+		name: 'Evaluation',
+		path: '/evaluation',
+		icon: FaFileAlt,
+		color: '#86f17dff', // Gray
+		children: [
+			{
+				id: 'evaluation_users',
+				name: 'Evalute User',
+				path: '/evaluation/user-evaluation',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/evaluation/settings',
+			},
+		],
 	},
 ];
 
