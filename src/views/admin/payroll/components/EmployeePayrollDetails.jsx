@@ -36,7 +36,7 @@ import {
 	FiPhone,
 	FiChevronLeft,
 } from 'react-icons/fi';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { constant } from 'constant';
 import { FaBuilding } from 'react-icons/fa';
@@ -134,9 +134,19 @@ const EmployeePayrollDetails = () => {
 	const { userId } = useParams();
 	const navigate = useNavigate();
 
+	const now = new Date();
+	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
+	const defaultYear = String(now.getFullYear());
+
+	const [searchParams] = useSearchParams();
+
+	const month = searchParams.get('month') || defaultMonth;
+	const year = searchParams.get('year') || defaultYear;
+
 	const { data: payrollData, isLoading: payrollLoading } = useFetchItemsQuery(
 		{
 			path: `/payroll/user/${userId}`,
+			params: { month, year },
 		},
 		{
 			refetchOnMountOrArgChange: true,

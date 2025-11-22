@@ -47,7 +47,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useModalColors } from 'hooks/useModalColors';
 import { useNavigate } from 'react-router-dom';
 
-const EmployeePayrollTable = ({ data = [], isLoading }) => {
+const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 	const { user } = useUserSession();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
@@ -96,6 +96,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 	const { data: payslipData, isLoading: payslipLoading } = useFetchItemsQuery(
 		{
 			path: `/payroll/generate/${selectedEmployeeId}`,
+			params: { month, year },
 		},
 		{
 			refetchOnMountOrArgChange: true,
@@ -556,7 +557,11 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 							size='sm'
 							colorScheme='teal'
 							variant='ghost'
-							onClick={() => navigate(`/payroll/payslip/${row._id}`)}
+							onClick={() =>
+								navigate(
+									`/payroll/payslip/${row._id}?month=${month}&year=${year}`
+								)
+							}
 						/>
 					</CustomTooltip>
 

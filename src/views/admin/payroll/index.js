@@ -135,6 +135,8 @@ const Payroll = () => {
 			<EmployeePayrollTable
 				data={data || []}
 				isLoading={isLoading || isFetching}
+				month={month}
+				year={year}
 			/>
 
 			{agencyFilterIsOpen && (
