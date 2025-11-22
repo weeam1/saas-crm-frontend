@@ -260,13 +260,13 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
         <div style="border-bottom: 1px solid #d7d7d7; padding: 8px 12px;">
           <div style="width:100%; text-align:center; font-weight:700; font-size:11px; margin-bottom:6px; color:#000000; -webkit-print-color-adjust: exact;">Payslip</div>
 
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px;margin-top: 5vh">
             <div style="display:flex; gap:10px; align-items:flex-start;">
               <div style="width:40px; height:40px; margin-top: 8px">
                 <img src="${logo}" alt="Company Logo" style="width:100%; height:100%; object-fit:cover; image-rendering: crisp-edges;" onerror="this.style.display='none'" />
               </div>
               <div style="font-size:10px; color:#000000; -webkit-print-color-adjust: exact;">
-                <div style="font-weight:700; font-size:12px; margin-bottom:4px;">Weam Real Estate - ${userData?.agency?.name || "Company"}</div>
+                <div style="font-weight:700; font-size:12px; margin-bottom:4px;">Weeam Real Estate - ${userData?.agency?.name || "Company"}</div>
                 <div>${userData?.agency?.location || "Address not available"}</div>
                 <div>${userData?.agency?.email || "Email not available"}</div>
                 <div>${userData?.agency?.contactNumberPrimary || "Phone not available"}</div>
