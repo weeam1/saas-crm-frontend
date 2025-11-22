@@ -10,10 +10,7 @@ import {
 	Box,
 	Text,
 	Center,
-	Badge,
 	useDisclosure,
-	Tooltip,
-	HStack,
 } from '@chakra-ui/react';
 import { FiEye, FiPrinter } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
@@ -26,7 +23,6 @@ import { formatValue } from '../formatUtils';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-// Import the new modules
 import { usePayslipGenerator } from './PayslipGenerator';
 import AttendanceWarningModal from './AttendanceWarningModal';
 
@@ -34,7 +30,6 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 	const navigate = useNavigate();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
-	// Use the custom hooks
 	const {
 		initiatePayslipDownload,
 		payslipLoading,
