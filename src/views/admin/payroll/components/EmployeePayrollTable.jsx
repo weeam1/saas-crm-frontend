@@ -80,7 +80,8 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
   const [employeeToDownload, setEmployeeToDownload] = useState(null);
-  const [selectedEmployeeForModal, setSelectedEmployeeForModal] = useState(null);
+  const [selectedEmployeeForModal, setSelectedEmployeeForModal] =
+    useState(null);
   const [forceGenerate, setForceGenerate] = useState(false);
 
   const { data: payslipData, isLoading: payslipLoading } = useFetchItemsQuery(
@@ -151,15 +152,15 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
   const getTooltipText = (employee) => {
     const attendancePercentage = getAttendancePercentage(employee);
-    
+
     if (!hasCompletedAttendance(employee)) {
       return `Attendance incomplete (${attendancePercentage}%). Complete attendance or force generate payslip.`;
     }
-    
+
     if (isPayslipGenerated(employee)) {
       return "Regenerate payslip for this employee";
     }
-    
+
     return "Generate payslip for this employee";
   };
 
@@ -218,6 +219,13 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
     const currentDate = format(new Date(), "dd/MM/yyyy");
 
+    const createdAt = doc.createdAt
+      ? format(new Date(doc.createdAt), "dd/MM/yyyy HH:mm")
+      : "N/A";
+
+    const updatedAt = doc.updatedAt
+      ? format(new Date(doc.updatedAt), "dd/MM/yyyy HH:mm")
+      : "N/A";
     const totalEarnings = earnings?.totalEarnings || 0;
     const totalDeductions = deductions?.loanDeduction || 0;
     const netSalary = doc.netSalary || 0;
@@ -276,6 +284,14 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
               <div style="margin-bottom: 2px;">
                 <span style="font-style: italic;">Email: </span>
                 <span style="font-weight:600;">${user?.username || "N/A"}</span>
+              </div>
+               <div style="margin-bottom: 2px;">
+                <span style="font-style: italic;">Created On: </span>
+                <span style="font-weight:600;">${createdAt}</span>
+              </div>
+              <div style="margin-bottom: 2px;">
+                <span style="font-style: italic;">Last Updated: </span>
+                <span style="font-weight:600;">${updatedAt}</span>
               </div>
               <div style="margin-top:4px;">Date: <span style="font-weight:600;">${currentDate}</span></div>
             </div>
@@ -459,9 +475,11 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
       pdf.save(
         `payslip-${userData?.fullName || "employee"}-${doc.month}-${doc.year}.pdf`
       );
-      
+
       if (forceGenerate) {
-        toast.success("Payslip force generated successfully with incomplete attendance!");
+        toast.success(
+          "Payslip force generated successfully with incomplete attendance!"
+        );
       } else {
         toast.success("Payslip downloaded successfully!");
       }
@@ -714,7 +732,8 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
                     ⚠️ Attendance Not Yet Completed
                   </Text>
                   <Text color="red.600" fontSize="sm">
-                    Cannot generate payslip automatically until all attendance records are completed for the current pay period.
+                    Cannot generate payslip automatically until all attendance
+                    records are completed for the current pay period.
                   </Text>
                 </Box>
 
@@ -740,41 +759,52 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
                     <HStack justify="space-between">
                       <Text color="gray.600">Missing Days:</Text>
                       <Text fontWeight="bold" color="red.600">
-                        {(selectedEmployeeForModal.attendanceSummary?.totalWorkingDays || 0) - 
-                         (selectedEmployeeForModal.attendanceSummary?.totalRecords || 0)}
+                        {(selectedEmployeeForModal.attendanceSummary
+                          ?.totalWorkingDays || 0) -
+                          (selectedEmployeeForModal.attendanceSummary
+                            ?.totalRecords || 0)}
                       </Text>
                     </HStack>
                     <HStack justify="space-between">
                       <Text color="gray.600">Completion Status:</Text>
-                      <Badge
-                        colorScheme="red"
-                        fontSize="sm"
-                        px={2}
-                        py={1}
-                      >
-                        {getAttendancePercentage(selectedEmployeeForModal)}% Complete
+                      <Badge colorScheme="red" fontSize="sm" px={2} py={1}>
+                        {getAttendancePercentage(selectedEmployeeForModal)}%
+                        Complete
                       </Badge>
                     </HStack>
                   </VStack>
                 </Box>
 
-                <Box p={3} bg="orange.50" borderRadius="md" border="1px solid" borderColor="orange.200">
-                  <Text fontSize="sm" color="orange.800" fontWeight="medium" mb={2}>
+                <Box
+                  p={3}
+                  bg="orange.50"
+                  borderRadius="md"
+                  border="1px solid"
+                  borderColor="orange.200"
+                >
+                  <Text
+                    fontSize="sm"
+                    color="orange.800"
+                    fontWeight="medium"
+                    mb={2}
+                  >
                     📝 Important Note:
                   </Text>
                   <Text fontSize="sm" color="orange.700">
-                    For accurate payroll processing, it's recommended to complete all attendance records first. 
-                    However, you can force generate the payslip if needed. The generated payslip will use currently 
-                    available data and may not reflect final adjustments.
+                    For accurate payroll processing, it's recommended to
+                    complete all attendance records first. However, you can
+                    force generate the payslip if needed. The generated payslip
+                    will use currently available data and may not reflect final
+                    adjustments.
                   </Text>
                 </Box>
               </VStack>
             )}
           </ModalBody>
 
-          <ModalFooter 
-            bg={footerBg} 
-            px={{ base: 6, md: 8 }} 
+          <ModalFooter
+            bg={footerBg}
+            px={{ base: 6, md: 8 }}
             py={4}
             borderTop="1px solid"
             borderColor={borderColor}
