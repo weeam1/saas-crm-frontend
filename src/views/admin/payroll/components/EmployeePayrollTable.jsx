@@ -21,8 +21,9 @@ import {
   Button,
   VStack,
   HStack,
+  Tooltip,
 } from "@chakra-ui/react";
-import { FiEye, FiDownload, FiLock, FiRefreshCw } from "react-icons/fi";
+import { FiEye, FiLock, FiPrinter } from "react-icons/fi";
 import NoData from "components/Message/NoData";
 import TableLoading from "components/loading/TableLoading";
 import { useEffect, useState } from "react";
@@ -44,38 +45,38 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
-	// Most important columns for payroll overview
-	const COLUMNS = [
-		{ key: 'user', label: 'Employee', width: '220px' },
-		{
-			key: 'payrollSummary.attendanceEarnedSalary',
-			label: 'Attendance Salary',
-			width: '150px',
-		},
-		{
-			key: 'payrollSummary.commissionEarned',
-			label: 'Commission',
-			width: '130px',
-		},
-		{
-			key: 'payrollSummary.incentiveEarned',
-			label: 'Incentive',
-			width: '120px',
-		},
-		{
-			key: 'loanSummary.monthlyInstallment',
-			label: 'Loan Deduction',
-			width: '140px',
-		},
-		{ key: 'payrollSummary.netSalary', label: 'Net Salary', width: '140px' },
-		{
-			key: 'evaluationScore',
-			label: 'Performance',
-			width: '120px',
-		},
-		{ key: 'createdAt', label: 'Joining Date', width: '100px' },
-		{ key: 'actions', label: 'Actions', width: '100px' },
-	];
+  // Most important columns for payroll overview
+  const COLUMNS = [
+    { key: "user", label: "Employee", width: "220px" },
+    {
+      key: "payrollSummary.attendanceEarnedSalary",
+      label: "Attendance Salary",
+      width: "150px",
+    },
+    {
+      key: "payrollSummary.commissionEarned",
+      label: "Commission",
+      width: "130px",
+    },
+    {
+      key: "payrollSummary.incentiveEarned",
+      label: "Incentive",
+      width: "120px",
+    },
+    {
+      key: "loanSummary.monthlyInstallment",
+      label: "Loan Deduction",
+      width: "140px",
+    },
+    { key: "payrollSummary.netSalary", label: "Net Salary", width: "140px" },
+    {
+      key: "evaluationScore",
+      label: "Performance",
+      width: "120px",
+    },
+    { key: "createdAt", label: "Joining Date", width: "100px" },
+    { key: "actions", label: "Actions", width: "100px" },
+  ];
 
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
@@ -437,7 +438,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
     try {
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 4,
         useCORS: true,
         backgroundColor: "#ffffff",
         logging: false,
@@ -555,25 +556,37 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
             <CustomTooltip label={getTooltipText(row)}>
               <IconButton
                 aria-label={getPayslipActionText(row)}
-                icon={isGenerated ? <FiRefreshCw /> : <FiDownload />}
+                icon={<FiPrinter />}
                 size="sm"
-                colorScheme={isGenerated ? "orange" : "teal"}
+                colorScheme={"teal"}
                 variant="ghost"
                 onClick={() => handleDownloadPayslip(row)}
                 isLoading={isDownloading}
               />
             </CustomTooltip>
           ) : (
-            <CustomTooltip label={getTooltipText(row)}>
+            <Tooltip
+              label={getTooltipText(row)}
+              placement="top"
+              maxW="300px"
+              hasArrow
+              bg="gray.700"
+              color="white"
+              fontSize="sm"
+              px={3}
+              py={2}
+              borderRadius="md"
+               textAlign="center"
+            >
               <IconButton
                 aria-label="Attendance incomplete"
-                icon={<FiLock />}
+                icon={<FiPrinter />}
                 size="sm"
                 colorScheme="red"
                 variant="ghost"
                 onClick={() => showAttendanceDetails(row)}
               />
-            </CustomTooltip>
+            </Tooltip>
           )}
         </Flex>
       );
@@ -837,7 +850,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
               <Button
                 colorScheme="brand"
                 onClick={handleForceGenerate}
-                leftIcon={<FiRefreshCw />}
+                leftIcon={<FiPrinter />}
                 size="sm"
                 borderRadius={"md"}
               >
