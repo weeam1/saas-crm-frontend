@@ -44,38 +44,38 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
-  // Most important columns for payroll overview
-  const COLUMNS = [
-    { key: "user", label: "Employee", width: "220px" },
-    {
-      key: "attendanceSummary.netSalary",
-      label: "Attendance Salary",
-      width: "150px",
-    },
-    {
-      key: "payrollSummary.commissionEarned",
-      label: "Commission",
-      width: "130px",
-    },
-    {
-      key: "payrollSummary.incentiveEarned",
-      label: "Incentive",
-      width: "120px",
-    },
-    {
-      key: "loanSummary.monthlyInstallment",
-      label: "Loan Deduction",
-      width: "140px",
-    },
-    { key: "payrollSummary.netSalary", label: "Net Salary", width: "140px" },
-    {
-      key: "evaluationScore",
-      label: "Performance",
-      width: "120px",
-    },
-    { key: "createdAt", label: "Joining Date", width: "100px" },
-    { key: "actions", label: "Actions", width: "100px" },
-  ];
+	// Most important columns for payroll overview
+	const COLUMNS = [
+		{ key: 'user', label: 'Employee', width: '220px' },
+		{
+			key: 'payrollSummary.attendanceEarnedSalary',
+			label: 'Attendance Salary',
+			width: '150px',
+		},
+		{
+			key: 'payrollSummary.commissionEarned',
+			label: 'Commission',
+			width: '130px',
+		},
+		{
+			key: 'payrollSummary.incentiveEarned',
+			label: 'Incentive',
+			width: '120px',
+		},
+		{
+			key: 'loanSummary.monthlyInstallment',
+			label: 'Loan Deduction',
+			width: '140px',
+		},
+		{ key: 'payrollSummary.netSalary', label: 'Net Salary', width: '140px' },
+		{
+			key: 'evaluationScore',
+			label: 'Performance',
+			width: '120px',
+		},
+		{ key: 'createdAt', label: 'Joining Date', width: '100px' },
+		{ key: 'actions', label: 'Actions', width: '100px' },
+	];
 
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);

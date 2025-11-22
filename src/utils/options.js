@@ -302,3 +302,13 @@ export const salaryTypes = [
 		hasIncentive: true,
 	},
 ];
+
+export const currencyAllOptions = (currencies) => {
+	if (!currencies) return [];
+
+	return Object.entries(currencies).map(([key, value]) => ({
+		value: key,
+		label: `${key} - ${value.name}`,
+		symbol: value.symbol,
+	}));
+};
