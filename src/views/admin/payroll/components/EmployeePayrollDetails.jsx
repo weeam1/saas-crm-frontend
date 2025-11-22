@@ -39,7 +39,6 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { constant } from 'constant';
-import UserProfileCell from './UserProfileCell';
 import { FaBuilding } from 'react-icons/fa';
 
 // Custom components for better organization
@@ -609,8 +608,8 @@ const EmployeePayrollDetails = () => {
 
 // Skeleton Loader Component
 const PayrollSkeleton = () => (
-	<Box bg='gray.50' minH='100vh' py={8}>
-		<Container maxW='container.xl'>
+	<Box bg='gray.50' minH='100vh' py={8} px={2}>
+		<Container maxW='container.4xl'>
 			<VStack spacing={6} align='stretch'>
 				<Skeleton height='40px' width='300px' />
 				<Skeleton height='120px' borderRadius='lg' />
@@ -621,10 +620,17 @@ const PayrollSkeleton = () => (
 							<Skeleton key={i} height='100px' borderRadius='lg' />
 						))}
 				</SimpleGrid>
+				<SimpleGrid columns={{ base: 1, md: 2, lg: 2 }} spacing={6}>
+					{Array(2)
+						.fill(0)
+						.map((_, i) => (
+							<Skeleton key={i} height='400px' borderRadius='lg' />
+						))}
+				</SimpleGrid>
 				<Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
 					<VStack spacing={6}>
-						<Skeleton height='300px' borderRadius='lg' />
-						<Skeleton height='250px' borderRadius='lg' />
+						<Skeleton height='500px' borderRadius='lg' />
+						<Skeleton height='550px' borderRadius='lg' />
 					</VStack>
 					<VStack spacing={6}>
 						<Skeleton height='200px' borderRadius='lg' />

@@ -41,8 +41,6 @@ export const useEmployeePayroll = () => {
 		limit: initialLimit,
 	});
 
-	console.log({ initialAgencyId, agencyId });
-
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
 		const raw = {
@@ -69,7 +67,6 @@ export const useEmployeePayroll = () => {
 		{
 			skip: !agencyId || !month || !year,
 			refetchOnMountOrArgChange: true,
-			refetchOnFocus: true,
 			refetchOnReconnect: true,
 		}
 	);
