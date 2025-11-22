@@ -297,7 +297,6 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
                 <span style="font-style: italic;">Last Updated: </span>
                 <span style="font-weight:600;">${updatedAt}</span>
               </div>
-              <div style="margin-top:4px;">Date: <span style="font-weight:600;">${currentDate}</span></div>
             </div>
           </div>
 
