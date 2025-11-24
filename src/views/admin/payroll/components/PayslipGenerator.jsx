@@ -52,12 +52,21 @@ export const usePayslipGenerator = () => {
   const formatCurrencyValue = useCallback((value, currency) => {
     if (value === null || value === undefined) return "₀0.00";
 
+    const numericValue = Number(value) || 0;
+
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currency || "AED",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(value);
+    }).format(numericValue);
+  }, []);
+
+  const formatToTwoDecimals = useCallback((value) => {
+    if (value === null || value === undefined) return "0.00";
+
+    const numericValue = Number(value) || 0;
+    return numericValue.toFixed(2);
   }, []);
 
   const convertSalaryType = useCallback((str) => {
@@ -86,6 +95,104 @@ export const usePayslipGenerator = () => {
       "December",
     ];
     return months[monthNumber - 1] || "Invalid Month";
+  }, []);
+
+  const convertNumberToWords = useCallback((amount, currency = "AED") => {
+    if (amount === 0) return "Zero";
+
+    const ones = [
+      "",
+      "One",
+      "Two",
+      "Three",
+      "Four",
+      "Five",
+      "Six",
+      "Seven",
+      "Eight",
+      "Nine",
+    ];
+    const teens = [
+      "Ten",
+      "Eleven",
+      "Twelve",
+      "Thirteen",
+      "Fourteen",
+      "Fifteen",
+      "Sixteen",
+      "Seventeen",
+      "Eighteen",
+      "Nineteen",
+    ];
+    const tens = [
+      "",
+      "",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
+    ];
+
+    const convertLessThanThousand = (num) => {
+      if (num === 0) return "";
+
+      let result = "";
+
+      if (num >= 100) {
+        result += ones[Math.floor(num / 100)] + " Hundred ";
+        num %= 100;
+      }
+
+      if (num >= 20) {
+        result += tens[Math.floor(num / 10)] + " ";
+        num %= 10;
+      } else if (num >= 10) {
+        result += teens[num - 10] + " ";
+        num = 0;
+      }
+
+      if (num > 0) {
+        result += ones[num] + " ";
+      }
+
+      return result.trim();
+    };
+
+    let wholePart = Math.floor(amount);
+    const decimalPart = Math.round((amount - wholePart) * 100);
+
+    let words = "";
+
+    if (wholePart === 0) {
+      words = "Zero";
+    } else {
+      if (wholePart >= 1000000) {
+        words +=
+          convertLessThanThousand(Math.floor(wholePart / 1000000)) +
+          " Million ";
+        wholePart %= 1000000;
+      }
+
+      if (wholePart >= 1000) {
+        words +=
+          convertLessThanThousand(Math.floor(wholePart / 1000)) + " Thousand ";
+        wholePart %= 1000;
+      }
+
+      if (wholePart > 0) {
+        words += convertLessThanThousand(wholePart);
+      }
+    }
+
+    const currencyName = currency;
+
+    let result = words.trim() + " " + currencyName;
+
+    return result;
   }, []);
 
   const generatePayslipPDF = useCallback(
@@ -132,30 +239,36 @@ export const usePayslipGenerator = () => {
         ? format(new Date(doc.updatedAt), "dd/MM/yyyy HH:mm")
         : "N/A";
 
-      const totalEarnings = earnings?.totalEarnings || 0;
-      const totalDeductions =
-        snapshots?.payrollCalculation?.totalDeductions || 0;
-      const netSalary = doc.netSalary || 0;
-      const grossSalary = doc.grossSalary || 0;
+      let totalDeductions = snapshots?.payrollCalculation?.totalDeductions || 0;
+      let netSalary = doc.netSalary || 0;
+      let grossSalary = doc.grossSalary || 0;
       const payrollCalculation = snapshots?.payrollCalculation || {};
 
       const monthNumber = doc.month || new Date().getMonth() + 1;
       const year = doc.year || new Date().getFullYear();
       const monthName = getMonthName(monthNumber);
 
-      const basicSalary =
+      let basicSalary =
         payrollCalculation.basicSalary || earnings?.baseSalary || 0;
-      const commissionEarned =
+      let commissionEarned =
         payrollCalculation.commissionEarned || earnings?.commissionEarned || 0;
-      const commissionPercentage =
-        payrollCalculation?.commissionPercentage || 0;
-      const incentiveEarned =
+      let incentiveEarned =
         payrollCalculation.incentiveEarned || earnings?.incentiveEarned || 0;
-      const incentive = payrollCalculation?.incentive || 0;
-      const loanDeduction = deductions?.loanDeduction || 0;
-      const attendanceDeduction =
+      let loanDeduction = deductions?.loanDeduction || 0;
+      let attendanceDeduction =
         doc?.payrollCalculation?.attendanceDeduction || 0;
-      const activeLoan = doc?.loanSummary?.activeLoans || 0;
+      const activeLoan = snapshots?.loanSummary?.activeLoans || 0;
+
+      basicSalary = formatToTwoDecimals(basicSalary);
+      commissionEarned = formatToTwoDecimals(commissionEarned);
+      incentiveEarned = formatToTwoDecimals(incentiveEarned);
+      grossSalary = formatToTwoDecimals(grossSalary);
+      loanDeduction = formatToTwoDecimals(loanDeduction);
+      attendanceDeduction = formatToTwoDecimals(attendanceDeduction);
+      totalDeductions = formatToTwoDecimals(totalDeductions);
+      netSalary = formatToTwoDecimals(netSalary);
+
+      const netSalaryInWords = convertNumberToWords(netSalary, doc.currency);
 
       element.innerHTML = `
       <div style="height: 100%; padding: 5mm; position: relative;">
@@ -290,6 +403,12 @@ export const usePayslipGenerator = () => {
                     <td style="font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">Total Net Salary:</td>
                     <td style="text-align:right; font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(netSalary, doc.currency)}</td>
                   </tr>
+                  <!-- Salary in Words -->
+                  <tr>
+                    <td colspan="2" style="padding:8px 5px; border-bottom:1px solid #d7d7d7; color:#000000; font-style: italic; text-align:center; -webkit-print-color-adjust: exact;">
+                      <strong>Net Salary in Words:</strong> ${netSalaryInWords}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -373,6 +492,8 @@ export const usePayslipGenerator = () => {
       convertSalaryType,
       user,
       removeLoadingEmployee,
+      formatToTwoDecimals,
+      convertNumberToWords,
     ]
   );
 
