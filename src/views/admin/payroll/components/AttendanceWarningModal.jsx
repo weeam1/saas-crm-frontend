@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { FiLock, FiPrinter } from "react-icons/fi";
 import { useModalColors } from "hooks/useModalColors";
-import { FaExclamationTriangle, FaExclamationCircle  } from "react-icons/fa";
+import { FaExclamationTriangle, FaExclamationCircle } from "react-icons/fa";
 
 const AttendanceWarningModal = ({
   isOpen,
@@ -24,10 +24,17 @@ const AttendanceWarningModal = ({
   onForceGenerate,
   getPayslipActionText,
   getAttendancePercentage,
+  isLoading = false,
 }) => {
   const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   if (!selectedEmployee) return null;
+
+  const handleForceGenerate = () => {
+    if (!isLoading) {
+      onForceGenerate();
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
@@ -120,8 +127,7 @@ const AttendanceWarningModal = ({
                 <HStack justify="space-between">
                   <Text color="gray.600">Missing Days:</Text>
                   <Text fontWeight="bold" color="red.600">
-                    {(selectedEmployee.attendanceSummary?.totalWorkingDays ||
-                      0) -
+                    {(selectedEmployee.attendanceSummary?.totalWorkingDays || 0) -
                       (selectedEmployee.attendanceSummary?.totalRecords || 0)}
                   </Text>
                 </HStack>
@@ -150,7 +156,7 @@ const AttendanceWarningModal = ({
                 gap={1}
                 alignItems={"center"}
               >
-                <FaExclamationCircle  /> Important Note:
+                <FaExclamationCircle /> Important Note:
               </Text>
               <Text fontSize="sm" color="orange.700">
                 For accurate payroll processing, it's recommended to complete
@@ -176,15 +182,19 @@ const AttendanceWarningModal = ({
               onClick={onClose}
               size="sm"
               borderRadius={"md"}
+              disabled={isLoading}
             >
               Cancel
             </Button>
             <Button
               colorScheme="brand"
-              onClick={onForceGenerate}
+              onClick={handleForceGenerate}
               leftIcon={<FiPrinter />}
               size="sm"
               borderRadius={"md"}
+              isLoading={isLoading}
+              loadingText="Generating..."
+              disabled={isLoading}
             >
               {getPayslipActionText(selectedEmployee)}
             </Button>
