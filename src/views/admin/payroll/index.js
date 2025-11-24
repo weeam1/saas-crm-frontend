@@ -39,6 +39,8 @@ const Payroll = () => {
     handlePageChange,
     handlePageSize,
     onDateFilterChange,
+    filters, 
+    setFilters
   } = useEmployeePayroll();
 
   const selectedAgency = useMemo(
@@ -48,7 +50,6 @@ const Payroll = () => {
 
   const [clearFilters, setClearFilters] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState({});
   const [filterChanged, setFilterChanged] = useState(false);
 
   const {
