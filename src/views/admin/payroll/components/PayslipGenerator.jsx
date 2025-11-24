@@ -28,6 +28,23 @@ export const usePayslipGenerator = () => {
     setLoadingEmployees((prev) => new Set(prev).add(employeeId));
   };
 
+
+
+	
+
+	const isEmployeeLoading = (employeeId) => {
+		return loadingEmployees.has(employeeId);
+	};
+
+	useEffect(() => {
+		if (payslipData && selectedEmployeeId && employeeToDownload) {
+			generatePayslipPDF(employeeToDownload, payslipData);
+			setEmployeeToDownload(null);
+			setSelectedEmployeeId(null);
+			removeLoadingEmployee(selectedEmployeeId);
+		}
+	}, [payslipData, selectedEmployeeId, employeeToDownload]);
+
   const removeLoadingEmployee = (employeeId) => {
     setLoadingEmployees((prev) => {
       const newSet = new Set(prev);
@@ -36,9 +53,7 @@ export const usePayslipGenerator = () => {
     });
   };
 
-  const isEmployeeLoading = (employeeId) => {
-    return loadingEmployees.has(employeeId);
-  };
+
 
   useEffect(() => {
     if (payslipData && selectedEmployeeId && employeeToDownload) {
@@ -81,6 +96,7 @@ export const usePayslipGenerator = () => {
     ];
     return months[monthNumber - 1] || "Invalid Month";
   };
+
 
 	const generatePayslipPDF = async (employeeData, payslipData) => {
 		if (!payslipData || !payslipData.doc) {
@@ -144,7 +160,6 @@ export const usePayslipGenerator = () => {
 									<img src="${logo}" alt="Company Logo" style="width:100%; height:100%; object-fit:cover; image-rendering: crisp-edges;" onerror="this.style.display='none'" />
 								</div>
 								<div style="font-size:10px; color:#000000; -webkit-print-color-adjust: exact;">
-									<div style="font-weight:700; font-size:12px; margin-bottom:4px;">Weeam Real Estate - ${userData?.agency?.name || 'Company'}</div>
 									<div>${userData?.agency?.location || 'Address not available'}</div>
 									<div>${userData?.agency?.email || 'Email not available'}</div>
 									<div>${userData?.agency?.contactNumberPrimary || 'Phone not available'}</div>
@@ -187,6 +202,7 @@ export const usePayslipGenerator = () => {
 							</div>
 							<div style="font-size:10px; color:#000000; text-align:right; -webkit-print-color-adjust: exact; margin-top:5px">
 								<div>Pay of ${monthName} ${year}</div>
+
 								<div>Status: <span style="font-weight:600; text-transform:capitalize;">${doc.status}</span></div>
 								<div>Currency: ${doc.currency}</div>
 							</div>
@@ -270,7 +286,6 @@ export const usePayslipGenerator = () => {
 							</table>
 						</div>
 					</div>
-
 					<!-- Footer -->
 					<div style="margin: 0 12px; padding: 12px 0; border-top:1px solid #d7d7d7; text-align:center; font-size:9px; color:#666666; -webkit-print-color-adjust: exact;">
 						<div>This is a computer-generated document and does not require a signature.</div>
@@ -354,18 +369,17 @@ export const usePayslipGenerator = () => {
       toast.error("Employee data not available");
       return;
     }
+		addLoadingEmployee(employee._id);
+		setSelectedEmployeeId(employee._id);
+		setEmployeeToDownload(employee);
+		setForceGenerate(force);
+	};
 
-    addLoadingEmployee(employee._id);
-    setSelectedEmployeeId(employee._id);
-    setEmployeeToDownload(employee);
-    setForceGenerate(force);
-  };
-
-  return {
-    initiatePayslipDownload,
-    payslipLoading,
-    forceGenerate,
-    setForceGenerate,
-    isEmployeeLoading,
-  };
+	return {
+		initiatePayslipDownload,
+		payslipLoading,
+		forceGenerate,
+		setForceGenerate,
+		isEmployeeLoading,
+	};
 };
