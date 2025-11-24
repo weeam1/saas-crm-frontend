@@ -40,7 +40,8 @@ const Payroll = () => {
     handlePageSize,
     onDateFilterChange,
     filters, 
-    setFilters
+    setFilters,
+    refetch
   } = useEmployeePayroll();
 
   const selectedAgency = useMemo(
@@ -134,7 +135,7 @@ const Payroll = () => {
           <IconButton
             icon={<FiRefreshCw />}
             aria-label="Refresh Analytics"
-            onClick={() => {}}
+            onClick={refetch}
             isLoading={isFetching}
             isDisabled={isLoading}
             variant="outline"
