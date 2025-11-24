@@ -12,6 +12,7 @@ export const usePayslipGenerator = () => {
 	const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
 	const [employeeToDownload, setEmployeeToDownload] = useState(null);
 	const [forceGenerate, setForceGenerate] = useState(false);
+	const [loadingEmployees, setLoadingEmployees] = useState(new Set());
 
 	const { data: payslipData, isLoading: payslipLoading } = useFetchItemsQuery(
 		{
@@ -23,11 +24,28 @@ export const usePayslipGenerator = () => {
 		}
 	);
 
+	const addLoadingEmployee = (employeeId) => {
+		setLoadingEmployees(prev => new Set(prev).add(employeeId));
+	};
+
+	const removeLoadingEmployee = (employeeId) => {
+		setLoadingEmployees(prev => {
+			const newSet = new Set(prev);
+			newSet.delete(employeeId);
+			return newSet;
+		});
+	};
+
+	const isEmployeeLoading = (employeeId) => {
+		return loadingEmployees.has(employeeId);
+	};
+
 	useEffect(() => {
 		if (payslipData && selectedEmployeeId && employeeToDownload) {
 			generatePayslipPDF(employeeToDownload, payslipData);
 			setEmployeeToDownload(null);
 			setSelectedEmployeeId(null);
+			removeLoadingEmployee(selectedEmployeeId);
 		}
 	}, [payslipData, selectedEmployeeId, employeeToDownload]);
 
@@ -44,6 +62,14 @@ export const usePayslipGenerator = () => {
 			.split('_')
 			.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
 			.join(' / ');
+	};
+
+	const getMonthName = (monthNumber) => {
+		const months = [
+			'January', 'February', 'March', 'April', 'May', 'June',
+			'July', 'August', 'September', 'October', 'November', 'December'
+		];
+		return months[monthNumber - 1] || 'Invalid Month';
 	};
 
 	const generatePayslipPDF = async (employeeData, payslipData) => {
@@ -74,8 +100,8 @@ export const usePayslipGenerator = () => {
 		const { doc, userData } = payslipData;
 		const { earnings, deductions, snapshots } = doc;
 
-		const generatedDate = doc.generatedDate
-			? format(new Date(doc.generatedDate), 'dd/MM/yyyy HH:mm')
+		const generatedDate = doc.generatedAt
+			? format(new Date(doc.generatedAt), 'dd/MM/yyyy HH:mm')
 			: format(new Date(), 'dd/MM/yyyy HH:mm');
 
 		const currentDate = format(new Date(), 'dd/MM/yyyy');
@@ -90,18 +116,16 @@ export const usePayslipGenerator = () => {
 		const netSalary = doc.netSalary || 0;
 
 		const payrollCalculation = snapshots?.payrollCalculation || {};
+		
+		const monthNumber = doc.month || new Date().getMonth() + 1;
+		const year = doc.year || new Date().getFullYear();
+		const monthName = getMonthName(monthNumber);
 
 		element.innerHTML = `
 			<div style="height: 100%; padding: 5mm; position: relative;">
-				<!-- Watermark -->
-				<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; z-index: 0; pointer-events: none;">
-					<img src="${logo}" alt="Watermark" style="width: 400px; height: 400px; object-fit: contain;" />
-				</div>
-
-				<!-- Main Content -->
 				<div style="position: relative; z-index: 1;">
 					<div style="border-bottom: 1px solid #d7d7d7; padding: 8px 12px;">
-						<div style="width:100%; text-align:center; font-weight:700; font-size:11px; margin-bottom:6px; color:#000000; -webkit-print-color-adjust: exact;">Payslip</div>
+						<div style="width:100%; text-align:center; font-weight:700; font-size:11px; margin-bottom:6px; color:#000000; -webkit-print-color-adjust: exact;">Payslip for ${monthName} ${year}</div>
 
 						<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px;margin-top: 5vh">
 							<div style="display:flex; gap:10px; align-items:flex-start;">
@@ -109,7 +133,6 @@ export const usePayslipGenerator = () => {
 									<img src="${logo}" alt="Company Logo" style="width:100%; height:100%; object-fit:cover; image-rendering: crisp-edges;" onerror="this.style.display='none'" />
 								</div>
 								<div style="font-size:10px; color:#000000; -webkit-print-color-adjust: exact;">
-									<div style="font-weight:700; font-size:12px; margin-bottom:4px;">Weeam Real Estate - ${userData?.agency?.name || 'Company'}</div>
 									<div>${userData?.agency?.location || 'Address not available'}</div>
 									<div>${userData?.agency?.email || 'Email not available'}</div>
 									<div>${userData?.agency?.contactNumberPrimary || 'Phone not available'}</div>
@@ -151,7 +174,7 @@ export const usePayslipGenerator = () => {
 								<div>Salary Type: ${convertSalaryType(userData.salaryType)} </div>
 							</div>
 							<div style="font-size:10px; color:#000000; text-align:right; -webkit-print-color-adjust: exact;">
-								<div>Pay Period: ${doc.month}/${doc.year}</div>
+								<div>Pay Period: ${monthName} ${year}</div>
 								<div>Status: <span style="font-weight:600; text-transform:capitalize;">${doc.status}</span></div>
 								<div>Currency: ${doc.currency}</div>
 							</div>
@@ -238,7 +261,7 @@ export const usePayslipGenerator = () => {
 
 					<!-- Final Summary Section -->
 					<div style="margin: 12px; padding: 12px; border: 1px solid #d7d7d7; border-radius: 4px; background-color: #f9f9f9;">
-						<div style="font-weight: 700; font-size: 11px; margin-bottom: 8px; color: #000000; border-bottom: 1px solid #d7d7d7; padding-bottom: 4px; -webkit-print-color-adjust: exact;">Monthly Summary</div>
+						<div style="font-weight: 700; font-size: 11px; margin-bottom: 8px; color: #000000; border-bottom: 1px solid #d7d7d7; padding-bottom: 4px; -webkit-print-color-adjust: exact;">${monthName} ${year} Summary</div>
 							<div style="display: flex; justify-content: space-between; font-size: 9px; gap: 20px; width: 100%;">
 								<div style="display: flex; flex-direction: column; gap: 4px;">
 									<div style="font-weight: 600; color: #000000; -webkit-print-color-adjust: exact;">
@@ -323,7 +346,7 @@ export const usePayslipGenerator = () => {
 			);
 
 			pdf.save(
-				`payslip-${userData?.fullName || 'employee'}-${doc.month}-${doc.year}.pdf`
+				`payslip-${userData?.fullName || 'employee'}-${monthName}-${year}.pdf`
 			);
 
 			if (forceGenerate) {
@@ -350,6 +373,7 @@ export const usePayslipGenerator = () => {
 			return;
 		}
 
+		addLoadingEmployee(employee._id);
 		setSelectedEmployeeId(employee._id);
 		setEmployeeToDownload(employee);
 		setForceGenerate(force);
@@ -360,5 +384,6 @@ export const usePayslipGenerator = () => {
 		payslipLoading,
 		forceGenerate,
 		setForceGenerate,
+		isEmployeeLoading,
 	};
 };

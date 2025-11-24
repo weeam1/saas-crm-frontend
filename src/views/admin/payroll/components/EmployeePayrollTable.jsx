@@ -32,9 +32,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
 	const {
 		initiatePayslipDownload,
-		payslipLoading,
-		forceGenerate,
-		setForceGenerate,
+		isEmployeeLoading,
 	} = usePayslipGenerator();
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
@@ -136,7 +134,6 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
 	const showAttendanceDetails = (employee) => {
 		setSelectedEmployeeForModal(employee);
-		setForceGenerate(false);
 		onOpen();
 	};
 
@@ -180,7 +177,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 		}
 
 		if (column.key === 'actions') {
-			const isDownloading = payslipLoading;
+			const isDownloading = isEmployeeLoading(row._id);
 			const canDownload = hasCompletedAttendance(row);
 			const isGenerated = isPayslipGenerated(row);
 
@@ -207,6 +204,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 								variant='ghost'
 								onClick={() => handleDownloadPayslip(row)}
 								isLoading={isDownloading}
+								disabled={isDownloading}
 							/>
 						</CustomTooltip>
 					) : (
@@ -230,6 +228,8 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 								colorScheme='red'
 								variant='ghost'
 								onClick={() => showAttendanceDetails(row)}
+								isLoading={isDownloading}
+								disabled={isDownloading}
 							/>
 						</CustomTooltip>
 					)}
