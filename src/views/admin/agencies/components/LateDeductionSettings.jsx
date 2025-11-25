@@ -9,48 +9,42 @@ import {
 	Td,
 	Button,
 	IconButton,
-	Select,
 	FormControl,
 	FormLabel,
 	VStack,
 	HStack,
 	Text,
-	useToast,
+	Flex,
+	useDisclosure,
+	useColorModeValue,
+	Select,
+	Badge,
 } from '@chakra-ui/react';
-import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import moment from 'moment-timezone';
-import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
+import * as yup from 'yup';
+import LateDeductionRuleModal from './LateDeductionRuleModal';
 
-// TimePicker component (you can replace this with your actual NormalTimePicker)
-const TimePicker = ({ value, onChange }) => {
-	return (
-		<input
-			type='time'
-			value={value}
-			onChange={(e) => onChange(e.target.value)}
-			style={{
-				border: '1px solid #E2E8F0',
-				borderRadius: '4px',
-				padding: '8px',
-				width: '100%',
-			}}
-		/>
-	);
-};
+const ruleValidationSchema = yup.object().shape({
+	name: yup.string().required('Rule name is required'),
+	from: yup.string().required('From time is required'),
+	to: yup.string().required('To time is required'),
+	deduction: yup
+		.number()
+		.min(0, 'Deduction must be at least 0%')
+		.max(100, 'Deduction cannot exceed 100%')
+		.required('Deduction is required'),
+});
 
 const LateDeductionRulesTable = ({
 	lateDeductionSettings,
 	setLateDeductionSettings,
 }) => {
-	// Initialize with empty rule for adding new ones
-	const [newRule, setNewRule] = useState({
-		name: '',
-		from: '09:00',
-		to: '17:00',
-		deduction: 0.25,
-	});
+	const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
+	const [editingRuleIndex, setEditingRuleIndex] = useState(null);
+	const [formErrors, setFormErrors] = useState({});
 
-	const daysOfWeek = [
+	const importantDaysOptions = [
 		{ value: null, label: 'No important day' },
 		{ value: 0, label: 'Sunday' },
 		{ value: 1, label: 'Monday' },
@@ -61,64 +55,98 @@ const LateDeductionRulesTable = ({
 		{ value: 6, label: 'Saturday' },
 	];
 
-	const deductionOptions = [
-		{ value: 0.25, label: '0.25 (Quarter Day)' },
-		{ value: 0.5, label: '0.5 (Half Day)' },
-		{ value: 0.75, label: '0.75 (Three Quarters)' },
-		{ value: 1, label: '1 (Full Day)' },
-	];
+	const [ruleForm, setRuleForm] = useState({
+		name: '',
+		from: '09:00',
+		to: '17:00',
+		deduction: 25,
+	});
 
-	const handleAddRule = () => {
-		if (!newRule.name.trim()) {
-			// toast({
-			// 	title: 'Error',
-			// 	description: 'Please enter a rule name',
-			// 	status: 'error',
-			// 	duration: 3000,
-			// 	isClosable: true,
-			// });
+	const getTimeBadgeColor = (time, type) => {
+		const hour = moment(time, 'hh:mm A').hours();
+		if (type === 'from') {
+			if (hour < 12) return 'green';
+			if (hour < 17) return 'blue';
+			return 'purple';
+		} else {
+			if (hour < 12) return 'orange';
+			if (hour < 17) return 'red';
+			return 'pink';
+		}
+	};
+
+	const resetForm = () => {
+		setRuleForm({
+			name: '',
+			from: '09:00',
+			to: '17:00',
+			deduction: 25,
+		});
+		setEditingRuleIndex(null);
+		setFormErrors({});
+	};
+
+	const handleOpenAddModal = () => {
+		resetForm();
+		onModalOpen();
+	};
+
+	const handleOpenEditModal = (index) => {
+		const rule = lateDeductionSettings.lateDeductionRules[index];
+		setRuleForm({
+			...rule,
+			from: parseTimeForInput(rule.from),
+			to: parseTimeForInput(rule.to),
+		});
+		setEditingRuleIndex(index);
+		onModalOpen();
+	};
+
+	const validateForm = async () => {
+		try {
+			await ruleValidationSchema.validate(ruleForm, { abortEarly: false });
+			setFormErrors({});
+			return true;
+		} catch (error) {
+			const errors = {};
+			error.inner.forEach((err) => {
+				errors[err.path] = err.message;
+			});
+			setFormErrors(errors);
+			return false;
+		}
+	};
+
+	const handleSaveRule = async () => {
+		const isValid = await validateForm();
+		if (!isValid) return;
+
+		if (ruleForm.from >= ruleForm.to) {
+			setFormErrors({ ...formErrors, time: '"From" time must be before "To" time' });
 			return;
 		}
 
-		if (newRule.from >= newRule.to) {
-			// toast({
-			// 	title: 'Error',
-			// 	description: '"From" time must be before "To" time',
-			// 	status: 'error',
-			// 	duration: 3000,
-			// 	isClosable: true,
-			// });
-			return;
-		}
+		const ruleData = {
+			...ruleForm,
+			from: formatTimeForDisplay(ruleForm.from),
+			to: formatTimeForDisplay(ruleForm.to),
+		};
 
-		const updatedRules = [
-			...lateDeductionSettings.lateDeductionRules,
-			{
-				...newRule,
-				from: formatTimeForDisplay(newRule.from),
-				to: formatTimeForDisplay(newRule.to),
-			},
-		];
+		let updatedRules;
+		if (editingRuleIndex !== null) {
+			updatedRules = [...lateDeductionSettings.lateDeductionRules];
+			updatedRules[editingRuleIndex] = ruleData;
+		} else {
+			updatedRules = [...lateDeductionSettings.lateDeductionRules, ruleData];
+		}
 
 		setLateDeductionSettings({
 			...lateDeductionSettings,
 			lateDeductionRules: updatedRules,
 		});
 
-		// Reset new rule form
-		setNewRule({
-			name: '',
-			from: '09:00',
-			to: '17:00',
-			deduction: 0.25,
-		});
-
-		// toast({
-		// 	title: 'Rule added',
-		// 	status: 'success',
-		// 	duration: 2000,
-		// 	isClosable: true,
-		// });
+		onModalClose();
+		resetForm();
 	};
 
 	const handleDeleteRule = (index) => {
@@ -139,7 +167,7 @@ const LateDeductionRulesTable = ({
 	};
 
 	const formatTimeForDisplay = (time) => {
-		return moment(`${time}`).format('hh:mm A');
+		return moment(`${time}`, 'HH:mm').format('hh:mm A');
 	};
 
 	const parseTimeForInput = (timeString) => {
@@ -149,207 +177,140 @@ const LateDeductionRulesTable = ({
 	return (
 		<Box>
 			<VStack spacing={6} align='stretch'>
-				{/* Important Day Selection */}
-				<FormControl>
-					<FormLabel fontWeight='bold'>Important Day</FormLabel>
-					<Select
-						value={lateDeductionSettings.importantDay ?? 'null'}
-						onChange={(e) => handleImportantDayChange(e.target.value)}
-						maxW='300px'
-					>
-						{daysOfWeek.map((day) => (
-							<option key={day.value} value={day.value}>
-								{day.label}
-							</option>
-						))}
-					</Select>
-				</FormControl>
-
-				{/* Add New Rule Form */}
-				<Box borderWidth='1px' borderRadius='lg' p={4}>
-					<Text fontWeight='bold' mb={4}>
-						Add New Late Deduction Rule
+				<Box>
+					<Text fontSize="20px" fontWeight="bold" color="black" mb={4}>
+						Late Deduction Rules
 					</Text>
-					<HStack spacing={4} align='flex-end'>
-						<FormControl>
-							<FormLabel fontSize='sm'>Rule Name</FormLabel>
-							<input
-								type='text'
-								value={newRule.name}
-								onChange={(e) =>
-									setNewRule({ ...newRule, name: e.target.value })
-								}
-								placeholder='e.g., Quarter Deduction'
-								style={{
-									border: '1px solid #E2E8F0',
-									borderRadius: '4px',
-									padding: '8px',
-									width: '100%',
-								}}
-							/>
-						</FormControl>
-
-						<FormControl>
-							<FormLabel fontSize='sm'>From Time</FormLabel>
-							<TimePicker
-								value={newRule.from}
-								onChange={(time) => setNewRule({ ...newRule, from: time })}
-							/>
-						</FormControl>
-
-						<FormControl>
-							<FormLabel fontSize='sm'>To Time</FormLabel>
-							<TimePicker
-								value={newRule.to}
-								onChange={(time) => setNewRule({ ...newRule, to: time })}
-							/>
-						</FormControl>
-
-						<FormControl maxW='200px'>
-							<FormLabel fontSize='sm'>Deduction</FormLabel>
+					
+					<Flex 
+						justifyContent="space-between" 
+						alignItems={{ base: "stretch", md: "center" }}
+						flexDir={{ base: "column", md: "row" }}
+						gap={4}
+					>
+						<FormControl maxW="300px">
+							<FormLabel fontWeight="semibold" mb={2}>
+								Important Day
+							</FormLabel>
 							<Select
-								value={newRule.deduction}
-								onChange={(e) =>
-									setNewRule({
-										...newRule,
-										deduction: parseFloat(e.target.value),
-									})
-								}
+								value={lateDeductionSettings.importantDay ?? 'null'}
+								onChange={(e) => handleImportantDayChange(e.target.value)}
+								bg="white"
+								borderColor="gray.200"
+								_focus={{ borderColor: "brand.500", boxShadow: "0 0 0 1px brand.500" }}
 							>
-								{deductionOptions.map((option) => (
-									<option key={option.value} value={option.value}>
-										{option.label}
+								{importantDaysOptions.map((day) => (
+									<option key={day.value} value={day.value}>
+										{day.label}
 									</option>
 								))}
 							</Select>
 						</FormControl>
 
-						<Button
-							leftIcon={<AddIcon />}
-							colorScheme='blue'
-							onClick={handleAddRule}
-						>
-							Add Rule
-						</Button>
-					</HStack>
+						<Box alignSelf={{ base: "stretch", md: "center" }}>
+							<Button
+								leftIcon={<AddIcon />}
+								colorScheme="brand"
+								onClick={handleOpenAddModal}
+								size="sm"
+								borderRadius="md"
+								width={{ base: "100%", md: "auto" }}
+							>
+								Add New Rule
+							</Button>
+						</Box>
+					</Flex>
 				</Box>
 
-				{/* Rules Table */}
-				<Box borderWidth='1px' borderRadius='lg' overflow='hidden'>
-					<Table variant='simple'>
-						<Thead bg='gray.50'>
+				<Box 
+					borderWidth='1px' 
+					borderRadius='lg' 
+					overflow='hidden' 
+					boxShadow="sm"
+					overflowX="auto"
+				>
+					<Table variant='simple' bg="white" minWidth="600px">
+						<Thead bg='brand.200' position="sticky" top={0} zIndex={2}>
 							<Tr>
-								<Th>Rule Name</Th>
-								<Th>From Time</Th>
-								<Th>To Time</Th>
-								<Th>Deduction</Th>
-								<Th width='100px'>Actions</Th>
+								<Th whiteSpace="nowrap" py={4}>
+									<Text fontSize="14px" fontWeight="600" color="gray.700">
+										Rule Name
+									</Text>
+								</Th>
+								<Th whiteSpace="nowrap" py={4}>
+									<Text fontSize="14px" fontWeight="600" color="gray.700">
+										From Time
+									</Text>
+								</Th>
+								<Th whiteSpace="nowrap" py={4}>
+									<Text fontSize="14px" fontWeight="600" color="gray.700">
+										To Time
+									</Text>
+								</Th>
+								<Th whiteSpace="nowrap" py={4}>
+									<Text fontSize="14px" fontWeight="600" color="gray.700">
+										Deduction (%)
+									</Text>
+								</Th>
+								<Th width='120px' whiteSpace="nowrap" py={4}>
+									<Text fontSize="14px" fontWeight="600" color="gray.700">
+										Actions
+									</Text>
+								</Th>
 							</Tr>
 						</Thead>
 
 						<Tbody>
 							{lateDeductionSettings.lateDeductionRules.length === 0 ? (
 								<Tr>
-									<Td colSpan={5} textAlign='center' color='gray.500'>
+									<Td colSpan={5} textAlign='center' color='gray.500' py={8}>
 										No late deduction rules added yet
 									</Td>
 								</Tr>
 							) : (
 								lateDeductionSettings.lateDeductionRules.map((rule, index) => (
-									<Tr key={index}>
-										{/* Editable Rule Name */}
-										<Td>
-											<input
-												value={rule.name}
-												onChange={(e) => {
-													const updatedRules = [
-														...lateDeductionSettings.lateDeductionRules,
-													];
-													updatedRules[index].name = e.target.value;
-													setLateDeductionSettings({
-														...lateDeductionSettings,
-														lateDeductionRules: updatedRules,
-													});
-												}}
-												style={{
-													border: '1px solid #E2E8F0',
-													borderRadius: '4px',
-													padding: '6px',
-													width: '100%',
-												}}
-											/>
-										</Td>
-
-										{/* Editable From Time */}
-										<Td>
-											<NormalTimePicker
-												value={parseTimeForInput(rule.from)}
-												onChange={(time) => {
-													const updatedRules = [
-														...lateDeductionSettings.lateDeductionRules,
-													];
-													updatedRules[index].from = formatTimeForDisplay(time);
-													setLateDeductionSettings({
-														...lateDeductionSettings,
-														lateDeductionRules: updatedRules,
-													});
-												}}
-											/>
-										</Td>
-
-										{/* Editable To Time */}
-										<Td>
-											<NormalTimePicker
-												value={parseTimeForInput(rule.to)}
-												onChange={(time) => {
-													const updatedRules = [
-														...lateDeductionSettings.lateDeductionRules,
-													];
-													updatedRules[index].to = formatTimeForDisplay(time);
-													setLateDeductionSettings({
-														...lateDeductionSettings,
-														lateDeductionRules: updatedRules,
-													});
-												}}
-											/>
-										</Td>
-
-										{/* Editable Deduction */}
-										<Td>
-											<Select
-												value={rule.deduction}
-												onChange={(e) => {
-													const updatedRules = [
-														...lateDeductionSettings.lateDeductionRules,
-													];
-													updatedRules[index].deduction = parseFloat(
-														e.target.value
-													);
-													setLateDeductionSettings({
-														...lateDeductionSettings,
-														lateDeductionRules: updatedRules,
-													});
-												}}
-												maxW='150px'
+									<Tr key={index} _hover={{ bg: 'gray.50' }}>
+										<Td fontWeight="medium" whiteSpace="nowrap">{rule.name}</Td>
+										<Td whiteSpace="nowrap">
+											<Badge 
+												colorScheme={getTimeBadgeColor(rule.from, 'from')} 
+												fontSize="sm" 
+												px={3} 
+												py={1}
 											>
-												{deductionOptions.map((opt) => (
-													<option key={opt.value} value={opt.value}>
-														{opt.label}
-													</option>
-												))}
-											</Select>
+												{rule.from}
+											</Badge>
 										</Td>
-
-										{/* Delete */}
-										<Td>
-											<IconButton
-												icon={<DeleteIcon />}
-												colorScheme='red'
-												variant='ghost'
-												size='sm'
-												onClick={() => handleDeleteRule(index)}
-												aria-label='Delete rule'
-											/>
+										<Td whiteSpace="nowrap">
+											<Badge 
+												colorScheme={getTimeBadgeColor(rule.to, 'to')} 
+												fontSize="sm" 
+												px={3} 
+												py={1}
+											>
+												{rule.to}
+											</Badge>
+										</Td>
+										<Td fontWeight="bold" whiteSpace="nowrap">{rule.deduction}%</Td>
+										<Td whiteSpace="nowrap">
+											<HStack spacing={2}>
+												<IconButton
+													icon={<EditIcon />}
+													colorScheme="teal"
+													variant="ghost"
+													size="sm"
+													onClick={() => handleOpenEditModal(index)}
+													aria-label='Edit rule'
+												/>
+												<IconButton
+													icon={<DeleteIcon />}
+													colorScheme="red"
+													variant="ghost"
+													size="sm"
+													onClick={() => handleDeleteRule(index)}
+													aria-label='Delete rule'
+												/>
+											</HStack>
 										</Td>
 									</Tr>
 								))
@@ -358,19 +319,28 @@ const LateDeductionRulesTable = ({
 					</Table>
 				</Box>
 
-				{/* Summary */}
 				{lateDeductionSettings.lateDeductionRules.length > 0 && (
 					<Box bg='blue.50' p={3} borderRadius='md'>
 						<Text fontSize='sm' fontWeight='medium'>
 							Total Rules: {lateDeductionSettings.lateDeductionRules.length} |
 							Important Day:{' '}
-							{daysOfWeek.find(
+							{importantDaysOptions.find(
 								(d) => d.value === lateDeductionSettings.importantDay
 							)?.label || 'None'}
 						</Text>
 					</Box>
 				)}
 			</VStack>
+
+			<LateDeductionRuleModal
+				isOpen={isModalOpen}
+				onClose={onModalClose}
+				editingRuleIndex={editingRuleIndex}
+				ruleForm={ruleForm}
+				setRuleForm={setRuleForm}
+				formErrors={formErrors}
+				handleSaveRule={handleSaveRule}
+			/>
 		</Box>
 	);
 };
