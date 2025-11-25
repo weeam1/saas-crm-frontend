@@ -24,6 +24,7 @@ const AttendanceMark = ({
 	const [status, setStatus] = useState(null);
 
 	const [time, setTime] = useState(moment().tz(timezone));
+	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
 
 	const {
 		isOpen: noteIsOpen,
@@ -42,8 +43,6 @@ const AttendanceMark = ({
 		onOpen: absentNoteOnOpen,
 		onClose: absentNoteOnClose,
 	} = useDisclosure();
-
-	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
 
 	const [lastRecord, setLastRecord] = useState(null);
 

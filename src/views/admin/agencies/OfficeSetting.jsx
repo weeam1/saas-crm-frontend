@@ -30,6 +30,7 @@ import moment from 'moment';
 import OfficeShimmer from './OfficeShimmer';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
+import LateDeductionRulesTable from './components/LateDeductionSettings';
 
 const OfficeSettings = ({ userId }) => {
 	const searchTermRef = useRef('');
@@ -51,6 +52,11 @@ const OfficeSettings = ({ userId }) => {
 	const [officeTimezone, setOfficeTimezone] = useState('');
 	const [officeOffDays, setOfficeOffDays] = useState([0]);
 	const [officeGracePeriod, setOfficeGracePeriod] = useState(0);
+
+	const [lateDeductionSettings, setLateDeductionSettings] = useState({
+		lateDeductionRules: [],
+		importantDay: null,
+	});
 
 	const [rules, setRules] = useState([
 		{
@@ -147,6 +153,10 @@ const OfficeSettings = ({ userId }) => {
 			setOfficeOffDays(settings?.offDays || [0]);
 			setOfficeGracePeriod(settings?.gracePeriod || 0);
 			setSpecialUsers(settings?.specialUsers || []);
+			setLateDeductionSettings({
+				importantDay: settings?.importantDay?.[0] || null,
+				lateDeductionRules: settings?.lateDeductionRules || [],
+			});
 
 			if (settings?.rules) {
 				const transformedRules = settings?.rules.map((rule) => {
@@ -180,6 +190,8 @@ const OfficeSettings = ({ userId }) => {
 			}
 		}
 	}, [officeSettings?.doc]);
+
+	console.log({ lateDeductionSettings });
 
 	const handleSave = async () => {
 		const checkIn = moment(officeCheckinTime, 'hh:mm A');
@@ -229,6 +241,7 @@ const OfficeSettings = ({ userId }) => {
 				gracePeriod: officeGracePeriod,
 				agency: agencyId,
 				rules: transformedRules,
+				...lateDeductionSettings,
 				// specialUsers,
 			};
 
@@ -372,7 +385,15 @@ const OfficeSettings = ({ userId }) => {
 					</Box>
 				</Flex>
 
-				<RulesSection rules={rules} setRules={setRules} />
+				<LateDeductionRulesTable
+					lateDeductionSettings={lateDeductionSettings}
+					setLateDeductionSettings={setLateDeductionSettings}
+				/>
+
+				<Flex flexDir={{ base: 'column', lg: 'row' }}>
+					<RulesSection rules={rules} setRules={setRules} />
+				</Flex>
+
 				<Buttons
 					onCancel={handleCancel}
 					onSave={handleSave}

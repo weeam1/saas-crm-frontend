@@ -369,15 +369,15 @@ const EmployeePayrollDetails = () => {
 											</Box>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Commission ({commission})</Text>
+											<Text color='gray.600'>Commission ({commission}%)</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												+{payrollSummary?.commissionEarned?.toLocaleString()}
+												{payrollSummary?.commissionEarned?.toLocaleString()}
 											</Text>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
 											<Text color='gray.600'>Incentive ({incentive})</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												+{payrollSummary?.incentiveEarned?.toLocaleString()}
+												{payrollSummary?.incentiveEarned?.toLocaleString()}
 											</Text>
 										</HStack>
 									</VStack>
@@ -513,28 +513,24 @@ const EmployeePayrollDetails = () => {
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Total Borrowed</Text>
 										<Text fontWeight='semibold'>
-											{payrollSummary?.currency}{' '}
 											{loanSummary?.totalBorrowedAmount?.toLocaleString()}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Amount Paid</Text>
 										<Text fontWeight='semibold' color='green.600'>
-											{payrollSummary?.currency}{' '}
 											{loanSummary?.totalPaidAmount?.toLocaleString()}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Remaining</Text>
 										<Text fontWeight='semibold' color='red.600'>
-											{payrollSummary?.currency}{' '}
 											{loanSummary?.totalRemainingAmount?.toLocaleString()}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Monthly Installment</Text>
 										<Text fontWeight='semibold'>
-											{payrollSummary?.currency}{' '}
 											{loanSummary?.monthlyInstallment?.toLocaleString()}
 										</Text>
 									</HStack>
