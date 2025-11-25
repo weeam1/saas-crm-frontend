@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
 import html2canvas from "html2canvas";
@@ -13,7 +13,12 @@ export const usePayslipGenerator = () => {
   const [employeeToDownload, setEmployeeToDownload] = useState(null);
   const [forceGenerate, setForceGenerate] = useState(false);
   const [loadingEmployees, setLoadingEmployees] = useState(new Set());
+  
+  // Use refs to track current state and prevent infinite loops
+  const isProcessingRef = useRef(false);
+  const currentEmployeeIdRef = useRef(null);
 
+  // Add timestamp to prevent caching
   const { data: payslipData, isLoading: payslipLoading } = useFetchItemsQuery(
     {
       path: `/payroll/generate/${selectedEmployeeId}`,
@@ -26,7 +31,7 @@ export const usePayslipGenerator = () => {
 
   const addLoadingEmployee = useCallback((employeeId) => {
     setLoadingEmployees((prev) => new Set(prev).add(employeeId));
-  }, []);
+  }, [selectedEmployeeId]);
 
   const removeLoadingEmployee = useCallback((employeeId) => {
     setLoadingEmployees((prev) => {
@@ -34,7 +39,7 @@ export const usePayslipGenerator = () => {
       newSet.delete(employeeId);
       return newSet;
     });
-  }, []);
+  }, [selectedEmployeeId]);
 
   const isEmployeeLoading = useCallback(
     (employeeId) => {
@@ -43,11 +48,39 @@ export const usePayslipGenerator = () => {
     [loadingEmployees]
   );
 
+  // Fixed useEffect to prevent infinite loops
   useEffect(() => {
-    if (payslipData && selectedEmployeeId && employeeToDownload) {
-      generatePayslipPDF(employeeToDownload, payslipData);
-    }
-  }, [payslipData, selectedEmployeeId, employeeToDownload]);
+    const processPayslip = async () => {
+      // Prevent multiple processing and ensure we have all required data
+      if (!payslipData || !employeeToDownload || isProcessingRef.current) {
+        return;
+      }
+
+      // Ensure we're processing the correct employee
+      if (employeeToDownload._id !== selectedEmployeeId) {
+        return;
+      }
+
+      isProcessingRef.current = true;
+
+      try {
+        await generatePayslipPDF(employeeToDownload, payslipData);
+      } catch (error) {
+        console.error("Error generating payslip:", error);
+        toast.error("Failed to generate payslip");
+      } finally {
+        // Reset states
+        removeLoadingEmployee(employeeToDownload._id);
+        setSelectedEmployeeId(null);
+        setEmployeeToDownload(null);
+        setForceGenerate(false);
+        isProcessingRef.current = false;
+        currentEmployeeIdRef.current = null;
+      }
+    };
+
+    processPayslip();
+  }, [payslipData, employeeToDownload, selectedEmployeeId, removeLoadingEmployee]);
 
   const formatCurrencyValue = useCallback((value, currency) => {
     if (value === null || value === undefined) return "₀0.00";
@@ -195,13 +228,10 @@ export const usePayslipGenerator = () => {
     return result;
   }, []);
 
-  const generatePayslipPDF = useCallback(
+  const generatePayslipPDF =
     async (employeeData, payslipData) => {
       if (!payslipData || !payslipData.doc) {
         toast.error("Payslip data not available");
-        removeLoadingEmployee(employeeData._id);
-        setSelectedEmployeeId(null);
-        setEmployeeToDownload(null);
         return;
       }
 
@@ -260,7 +290,6 @@ export const usePayslipGenerator = () => {
       const activeLoan = snapshots?.loanSummary?.activeLoans || 0;
       const remainingDaysDeduction = formatToTwoDecimals(snapshots?.attendanceSummary?.remainingDaysDeduction || 0);
 
-
       basicSalary = formatToTwoDecimals(basicSalary);
       commissionEarned = formatToTwoDecimals(commissionEarned);
       incentiveEarned = formatToTwoDecimals(incentiveEarned);
@@ -291,7 +320,7 @@ export const usePayslipGenerator = () => {
                 </div>
               </div>
 
-              <div style="text-align:right; font-size:9px; color:#000000; -webkit-print-color-adjust: exact;">
+              <div style="text-align:right; font-size:9px; color="#000000; -webkit-print-color-adjust: exact;">
                 <div style="font-weight:700; font-size:11px; margin-bottom: 4px;">PAYSLIP: ${doc.payslipId || "N/A"}</div>
                 <div style="margin-bottom: 2px;">
                   <span style="font-style: italic;">Generated On: </span>
@@ -318,13 +347,13 @@ export const usePayslipGenerator = () => {
 
             <!-- Employee Information -->
             <div style="display:flex; justify-content:space-between; margin-top:8px; padding:8px 0px; border-top:1px solid #f0f0f0;">
-              <div style="font-size:10px; color:#000000; -webkit-print-color-adjust: exact;">
+              <div style="font-size:10px; color="#000000; -webkit-print-color-adjust: exact;">
                 <div style="font-weight:700;">Employee: ${userData?.fullName || "N/A"}</div>
                 <div>Department: ${userData?.roles?.[0]?.roleName || "N/A"}</div>
                 <div>Email: ${userData?.username || "N/A"}</div>
                 <div>Salary Type: ${convertSalaryType(userData?.salaryType)}</div>
               </div>
-              <div style="font-size:10px; color:#000000; text-align:right; -webkit-print-color-adjust: exact; margin-top:5px">
+              <div style="font-size:10px; color="#000000; text-align:right; -webkit-print-color-adjust: exact; margin-top:5px">
                 <div>Pay of ${monthName} ${year}</div>
                 <div>Status: <span style="font-weight:600; text-transform:capitalize;">${doc.status || "unknown"}</span></div>
                 <div>Currency: ${doc.currency || "AED"}</div>
@@ -347,16 +376,16 @@ export const usePayslipGenerator = () => {
                   <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">${basicSalary}</td>
                 </tr>
                 <tr>
-                  <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">Commission (${userData?.commission}%)</td>
-                  <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">${commissionEarned}</td>
+                  <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">Commission (${userData?.commission}%)</td>
+                  <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">${commissionEarned}</td>
                 </tr>
                 <tr>
-                  <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">Incentive (${userData?.incentive})</td>
-                  <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">${incentiveEarned}</td>
+                  <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">Incentive (${userData?.incentive})</td>
+                  <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">${incentiveEarned}</td>
                 </tr>
                 <tr>
-                  <td style="padding:8px 6px; font-weight:700; border-bottom:2px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">Total Gross Salary</td>
-                  <td style="padding:8px 6px; text-align:right; font-weight:700; border-bottom:2px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(grossSalary, doc.currency)}</td>
+                  <td style="padding:8px 6px; font-weight:700; border-bottom:2px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">Total Gross Salary</td>
+                  <td style="padding:8px 6px; text-align:right; font-weight:700; border-bottom:2px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(grossSalary, doc.currency)}</td>
                 </tr>
               </tbody>
             </table>
@@ -367,23 +396,23 @@ export const usePayslipGenerator = () => {
             <table style="width:100%; border-collapse:collapse; font-size:10px; border-bottom: 1px solid #d7d7d7;">
               <thead>
                 <tr>
-                  <th style="text-align:left; padding:8px 6px; border-bottom:2px solid #d7d7d7; color:#000000; font-weight:700; -webkit-print-color-adjust: exact;">Deduction</th>
-                  <th style="text-align:right; padding:8px 6px; border-bottom:2px solid #d7d7d7; color:#000000; font-weight:700; -webkit-print-color-adjust: exact;">Amount</th>
+                  <th style="text-align:left; padding:8px 6px; border-bottom:2px solid #d7d7d7; color="#000000; font-weight:700; -webkit-print-color-adjust: exact;">Deduction</th>
+                  <th style="text-align:right; padding:8px 6px; border-bottom:2px solid #d7d7d7; color="#000000; font-weight:700; -webkit-print-color-adjust: exact;">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">Loan (${activeLoan})</td>
-                  <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">${loanDeduction}</td>
+                  <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">Loan (${activeLoan})</td>
+                  <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">${loanDeduction}</td>
                 </tr>
                 ${
                   remainingDaysDeduction > 0
                     ? `
                       <tr>
-                        <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">
+                        <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">
                           Remaining Days Amount
                         </td>
-                        <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">
+                        <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color="#000000; -webkit-print-color-adjust: exact;">
                           ${remainingDaysDeduction}
                         </td>
                       </tr>
@@ -391,8 +420,8 @@ export const usePayslipGenerator = () => {
                 }
                 
                 <tr>
-                  <td style="padding:8px 6px; font-weight:700; border-bottom:2px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">Total Deductions</td>
-                  <td style="padding:8px 6px; text-align:right; font-weight:700; border-bottom:2px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(totalDeductions, doc.currency)}</td>
+                  <td style="padding:8px 6px; font-weight:700; border-bottom:2px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">Total Deductions</td>
+                  <td style="padding:8px 6px; text-align:right; font-weight:700; border-bottom:2px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(totalDeductions, doc.currency)}</td>
                 </tr>
               </tbody>
             </table>
@@ -404,20 +433,20 @@ export const usePayslipGenerator = () => {
               <table style="width:250px; border:none; font-size:10px; border-collapse:collapse;">
                 <tbody>
                   <tr>
-                    <td style="font-weight:700; padding:6px 5px; border-top:1px solid #d7d7d7; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">Total Gross Salary:</td>
-                    <td style="text-align:right; font-weight:700; padding:6px 5px; border-top:1px solid #d7d7d7; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">${grossSalary}</td>
+                    <td style="font-weight:700; padding:6px 5px; border-top:1px solid #d7d7d7; border-bottom:1px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">Total Gross Salary:</td>
+                    <td style="text-align:right; font-weight:700; padding:6px 5px; border-top:1px solid #d7d7d7; border-bottom:1px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">${grossSalary}</td>
                   </tr>
                   <tr>
-                    <td style="font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">Total Deductions:</td>
-                    <td style="text-align:right; font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">- ${totalDeductions}</td>
+                    <td style="font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">Total Deductions:</td>
+                    <td style="text-align:right; font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">- ${totalDeductions}</td>
                   </tr>
                   <tr>
-                    <td style="font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">Total Net Salary:</td>
-                    <td style="text-align:right; font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(netSalary, doc.currency)}</td>
+                    <td style="font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">Total Net Salary:</td>
+                    <td style="text-align:right; font-weight:700; padding:6px 5px; border-bottom:1px solid #d7d7d7; color="#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(netSalary, doc.currency)}</td>
                   </tr>
                   <!-- Salary in Words -->
                   <tr>
-                    <td colspan="2" style="padding:8px 5px; border-bottom:1px solid #d7d7d7; color:#000000; font-style: italic; text-align:center; -webkit-print-color-adjust: exact;">
+                    <td colspan="2" style="padding:8px 5px; border-bottom:1px solid #d7d7d7; color="#000000; font-style: italic; text-align:center; -webkit-print-color-adjust: exact;">
                       <strong>Net Salary in Words:</strong> ${netSalaryInWords}
                     </td>
                   </tr>
@@ -490,24 +519,8 @@ export const usePayslipGenerator = () => {
         if (document.body.contains(element)) {
           document.body.removeChild(element);
         }
-
-        removeLoadingEmployee(employeeData._id);
-        setSelectedEmployeeId(null);
-        setEmployeeToDownload(null);
-        setForceGenerate(false);
       }
-    },
-    [
-      forceGenerate,
-      getMonthName,
-      formatCurrencyValue,
-      convertSalaryType,
-      user,
-      removeLoadingEmployee,
-      formatToTwoDecimals,
-      convertNumberToWords,
-    ]
-  );
+    }
 
   const initiatePayslipDownload = useCallback(
     (employee, force = false) => {
@@ -516,17 +529,26 @@ export const usePayslipGenerator = () => {
         return;
       }
 
+      // Prevent multiple downloads for same employee
       if (loadingEmployees.has(employee._id)) {
         toast.info("Payslip generation already in progress...");
         return;
       }
 
+      // Stop any ongoing download
+      if (isProcessingRef.current && currentEmployeeIdRef.current !== employee._id) {
+        removeLoadingEmployee(currentEmployeeIdRef.current);
+        isProcessingRef.current = false;
+      }
+
+      // Set new download
       addLoadingEmployee(employee._id);
       setSelectedEmployeeId(employee._id);
       setEmployeeToDownload(employee);
       setForceGenerate(force);
+      currentEmployeeIdRef.current = employee._id;
     },
-    [addLoadingEmployee, loadingEmployees]
+    [addLoadingEmployee, removeLoadingEmployee, loadingEmployees]
   );
 
   return {
