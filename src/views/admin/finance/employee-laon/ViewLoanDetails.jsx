@@ -57,6 +57,7 @@ const ViewLoanDetails = ({ isOpen, onClose, data }) => {
 		remainingAmount,
 		monthlyInstallment,
 		progress,
+		agency,
 	} = data;
 
 	const { headerBg, headerText } = useModalColors();
@@ -150,7 +151,7 @@ const ViewLoanDetails = ({ isOpen, onClose, data }) => {
 									Total Loan Amount
 								</Text>
 								<Text fontSize='xl' color='blue.900' fontWeight='bold'>
-									{formatCurrency(amount, user?.agency?.currency || 'AED')}
+									{formatCurrency(amount, agency?.currency || 'AED')}
 								</Text>
 							</Box>
 						</Box>
@@ -168,7 +169,7 @@ const ViewLoanDetails = ({ isOpen, onClose, data }) => {
 									Paid Amount
 								</Text>
 								<Text fontSize='xl' color='whatsapp.900' fontWeight='bold'>
-									{formatCurrency(paidAmount, user?.agency?.currency || 'AED')}
+									{formatCurrency(paidAmount, agency?.currency || 'AED')}
 								</Text>
 							</Box>
 						</Box>
@@ -185,10 +186,7 @@ const ViewLoanDetails = ({ isOpen, onClose, data }) => {
 									Remaining Balance
 								</Text>
 								<Text fontSize='xl' color='red.900' fontWeight='bold'>
-									{formatCurrency(
-										remainingAmount,
-										user?.agency?.currency || 'AED'
-									)}
+									{formatCurrency(remainingAmount, agency?.currency || 'AED')}
 								</Text>
 							</Box>
 						</Box>
@@ -251,7 +249,7 @@ const ViewLoanDetails = ({ isOpen, onClose, data }) => {
 											Paid:{' '}
 											{formatCurrency(
 												paidAmount || 0,
-												user?.agency?.currency || 'AED'
+												agency?.currency || 'AED'
 											)}
 										</Text>
 										<Text fontSize='sm' color='gray.500'>
@@ -263,7 +261,7 @@ const ViewLoanDetails = ({ isOpen, onClose, data }) => {
 											Remaining:{' '}
 											{formatCurrency(
 												remainingAmount || amount || 0,
-												user?.agency?.currency || 'AED'
+												agency?.currency || 'AED'
 											)}
 										</Text>
 										<Text fontSize='sm' color='gray.500'>
@@ -330,7 +328,7 @@ const ViewLoanDetails = ({ isOpen, onClose, data }) => {
 							label='Monthly Installment'
 							value={formatCurrency(
 								monthlyInstallment,
-								user?.agency?.currency || 'AED'
+								agency?.currency || 'AED'
 							)}
 							icon={FaMoneyCheckAlt}
 						/>

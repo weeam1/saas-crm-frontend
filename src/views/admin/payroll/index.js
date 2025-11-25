@@ -141,7 +141,7 @@ const Payroll = () => {
             variant="outline"
             size="sm"
           />
-
+          
           {isAgenciesAllowed && (
             <IconButton
               icon={<FiFilter />}
