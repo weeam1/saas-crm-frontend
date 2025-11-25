@@ -258,6 +258,8 @@ export const usePayslipGenerator = () => {
       let attendanceDeduction =
         doc?.payrollCalculation?.attendanceDeduction || 0;
       const activeLoan = snapshots?.loanSummary?.activeLoans || 0;
+      const remainingDaysDeduction = formatToTwoDecimals(snapshots?.attendanceSummary?.remainingDaysDeduction || 0);
+
 
       basicSalary = formatToTwoDecimals(basicSalary);
       commissionEarned = formatToTwoDecimals(commissionEarned);
@@ -374,10 +376,20 @@ export const usePayslipGenerator = () => {
                   <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">Loan (${activeLoan})</td>
                   <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">${loanDeduction}</td>
                 </tr>
-                <tr>
-                  <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">Attendance</td>
-                  <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">${attendanceDeduction}</td>
-                </tr>
+                ${
+                  remainingDaysDeduction > 0
+                    ? `
+                      <tr>
+                        <td style="padding:8px 6px; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">
+                          Remaining Days Amount
+                        </td>
+                        <td style="padding:8px 6px; text-align:right; border-bottom:1px solid #f2f2f2; color:#000000; -webkit-print-color-adjust: exact;">
+                          ${remainingDaysDeduction}
+                        </td>
+                      </tr>
+                    `:""
+                }
+                
                 <tr>
                   <td style="padding:8px 6px; font-weight:700; border-bottom:2px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">Total Deductions</td>
                   <td style="padding:8px 6px; text-align:right; font-weight:700; border-bottom:2px solid #d7d7d7; color:#000000; -webkit-print-color-adjust: exact;">${formatCurrencyValue(totalDeductions, doc.currency)}</td>
