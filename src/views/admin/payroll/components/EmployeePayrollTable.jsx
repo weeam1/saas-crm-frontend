@@ -46,12 +46,15 @@ import logo from '../../../../assets/logo-crm.png';
 import useUserSession from 'hooks/useUserSession';
 import { useModalColors } from 'hooks/useModalColors';
 import { useNavigate } from 'react-router-dom';
+import { usePdfDownloader } from 'hooks/usePdfDownloader';
 
 const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 	const { user } = useUserSession();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 	const navigate = useNavigate();
+
+	const { downloadPdf, loading, progress, error } = usePdfDownloader();
 
 	// Most important columns for payroll overview
 	const COLUMNS = [
@@ -573,7 +576,10 @@ const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 								size='sm'
 								colorScheme={'teal'}
 								variant='ghost'
-								onClick={() => handleDownloadPayslip(row)}
+								onClick={() =>
+									downloadPdf('/api/payroll/generate', 'payslip.pdf')
+								}
+								// onClick={() => handleDownloadPayslip(row)}
 								isLoading={isDownloading}
 							/>
 						</CustomTooltip>
@@ -597,7 +603,13 @@ const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 								size='sm'
 								colorScheme='red'
 								variant='ghost'
-								onClick={() => showAttendanceDetails(row)}
+								onClick={() =>
+									downloadPdf(
+										`api/payroll/generate/${row?._id}?month=${month}&year=${year}`,
+										'payslip.pdf'
+									)
+								}
+								// onClick={() => showAttendanceDetails(row)}
 							/>
 						</Tooltip>
 					)}
