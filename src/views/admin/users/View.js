@@ -33,6 +33,7 @@ import DisplayField from 'components/displays/DisplayField';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { formatCurrency } from 'utils/helpers';
 import useUserSession from 'hooks/useUserSession';
+import { salaryTypes } from 'utils/options';
 
 const View = () => {
 	const RoleColumn = [
@@ -292,21 +293,18 @@ const View = () => {
 										>
 											<DisplayField
 												label='Salary Type'
-												value={data?.salaryType}
+												value={
+													salaryTypes?.find(
+														(item) => item.value === data?.salaryType
+													)?.label || 'N/A'
+												}
 											/>
 											<DisplayField label='Salary' value={data?.salary} />
-											{data?.incentive && (
-												<DisplayField
-													label='Incentive'
-													value={data?.incentive}
-												/>
-											)}
-											{data?.commission && (
-												<DisplayField
-													label='Commission'
-													value={data?.commission}
-												/>
-											)}
+											<DisplayField label='Incentive' value={data?.incentive} />
+											<DisplayField
+												label='Commission'
+												value={`${data?.commission || 0}%`}
+											/>
 											<DisplayField
 												label='Target'
 												value={formatCurrency(data?.target, data?.currency)}
