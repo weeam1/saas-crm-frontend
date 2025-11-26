@@ -23,17 +23,11 @@ import { formatValue } from '../formatUtils';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-import { usePayslipGenerator } from './PayslipGenerator';
 import AttendanceWarningModal from './AttendanceWarningModal';
 
 const EmployeePayrollTable = ({ data = [], isLoading }) => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const {
-    initiatePayslipDownload,
-    isEmployeeLoading,
-  } = usePayslipGenerator();
 
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
   const [selectedEmployeeForModal, setSelectedEmployeeForModal] = useState(null);
@@ -146,7 +140,6 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
     try {
       setModalLoading(true);
-      await initiatePayslipDownload(selectedEmployeeForModal, true);
       onClose();
     } catch (error) {
       console.error('Error force generating payslip:', error);
@@ -154,7 +147,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
     } finally {
       setModalLoading(false);
     }
-  }, [selectedEmployeeForModal, initiatePayslipDownload, onClose]);
+  }, [selectedEmployeeForModal, onClose]);
 
   const handleDownloadPayslip = useCallback(async (employee) => {
     if (!employee?._id) {
@@ -168,12 +161,11 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
     }
 
     try {
-      await initiatePayslipDownload(employee, false);
     } catch (error) {
       console.error('Error initiating payslip download:', error);
       toast.error('Failed to download payslip');
     }
-  }, [hasCompletedAttendance, showAttendanceDetails, initiatePayslipDownload]);
+  }, [hasCompletedAttendance, showAttendanceDetails]);
 
   const renderCellContent = useCallback((column, row) => {
     if (column.key === 'user') {
@@ -181,7 +173,6 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
     }
 
     if (column.key === 'actions') {
-      const isDownloading = isEmployeeLoading(row._id);
       const canDownload = hasCompletedAttendance(row);
       const isGenerated = isPayslipGenerated(row);
 
@@ -206,8 +197,6 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
               colorScheme={canDownload ? 'teal' : 'red'}
               variant='ghost'
               onClick={() => handleDownloadPayslip(row)}
-              isLoading={isDownloading}
-              disabled={isDownloading}
             />
           </CustomTooltip>
         </Flex>
@@ -240,7 +229,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
     }
 
     return formatValue(column.key, value, row);
-  }, [getNestedValue, isEmployeeLoading, hasCompletedAttendance, isPayslipGenerated, getTooltipText, getPayslipActionText, handleDownloadPayslip, navigate]);
+  }, [getNestedValue, hasCompletedAttendance, isPayslipGenerated, getTooltipText, getPayslipActionText, handleDownloadPayslip, navigate]);
 
   return (
     <>

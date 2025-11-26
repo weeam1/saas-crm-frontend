@@ -16,7 +16,6 @@ import {
 	Text,
 	Flex,
 	useDisclosure,
-	useColorModeValue,
 	Select,
 	Badge,
 } from '@chakra-ui/react';
@@ -31,6 +30,7 @@ const ruleValidationSchema = yup.object().shape({
 	to: yup.string().required('To time is required'),
 	deduction: yup
 		.number()
+		.typeError('Deduction must be a number')
 		.min(0, 'Deduction must be at least 0%')
 		.max(100, 'Deduction cannot exceed 100%')
 		.required('Deduction is required'),
