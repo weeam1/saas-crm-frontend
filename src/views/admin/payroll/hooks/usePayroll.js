@@ -40,6 +40,7 @@ export const useEmployeePayroll = () => {
 		page: initialPage,
 		limit: initialLimit,
 	});
+  	const [filters, setFilters] = useState({});
 
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
@@ -49,9 +50,10 @@ export const useEmployeePayroll = () => {
 			month,
 			year,
 			agency: agencyId || agencies[agencies]?._id,
+			...(filters.userId && { userId: filters.userId })
 		};
 		return cleanSearchParams(raw);
-	}, [pagination.page, pagination.limit, month, year, agencies, agencyId]);
+	}, [pagination.page, pagination.limit, month, year, agencies, agencyId, filters]);
 
 	// sync queryParams -> URL (loop proof)
 	useEffect(() => {
@@ -198,5 +200,9 @@ export const useEmployeePayroll = () => {
 		onDateFilterChange,
 		updateData,
 		removeItem,
+
+		//Filters
+		filters, 
+		setFilters
 	};
 };
