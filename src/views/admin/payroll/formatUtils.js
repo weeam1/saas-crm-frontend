@@ -17,3 +17,35 @@ export const formatValue = (key, value, row = {}) => {
 			return value ?? '-';
 	}
 };
+
+export const PAYROLL_COLUMNS = [
+	{ key: 'user', label: 'Employee', width: '220px' },
+	{
+		key: 'payrollSummary.basicSalary',
+		label: 'Basic Salary',
+		width: '150px',
+	},
+	{
+		key: 'payrollSummary.commissionEarned',
+		label: 'Commission',
+		width: '130px',
+	},
+	{
+		key: 'payrollSummary.incentiveEarned',
+		label: 'Incentive',
+		width: '120px',
+	},
+	{
+		key: 'payrollSummary.totalDeductions',
+		label: 'Total Deduction',
+		width: '140px',
+	},
+	{ key: 'payrollSummary.netSalary', label: 'Net Salary', width: '140px' },
+	{
+		key: 'evaluationScore',
+		label: 'Performance',
+		width: '120px',
+	},
+	{ key: 'createdAt', label: 'Joining Date', width: '100px' },
+	{ key: 'actions', label: 'Actions', width: '100px' },
+];

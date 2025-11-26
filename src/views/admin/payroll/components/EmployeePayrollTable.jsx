@@ -10,65 +10,28 @@ import {
 	Box,
 	Text,
 	Center,
+	Tooltip,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { FiEye, FiPrinter } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
 import TableLoading from 'components/loading/TableLoading';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { formatCurrency } from 'utils/helpers';
-import CustomTooltip from 'components/shared/CustomTooltip';
 import UserProfileCell from './UserProfileCell';
-import { formatValue } from '../formatUtils';
-import { toast } from 'react-toastify';
+import PayslipDownloadModal from './PayslipDownloadModal';
+import { formatValue, PAYROLL_COLUMNS } from '../formatUtils';
 import { useNavigate } from 'react-router-dom';
-import { usePdfDownloader } from 'hooks/usePdfDownloader';
 
-import AttendanceWarningModal from './AttendanceWarningModal';
-
-const EmployeePayrollTable = ({ data = [], isLoading }) => {
+const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 	const navigate = useNavigate();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
 	const [selectedEmployeeForModal, setSelectedEmployeeForModal] =
 		useState(null);
-	const [modalLoading, setModalLoading] = useState(false);
 
-	const COLUMNS = useMemo(
-		() => [
-			{ key: 'user', label: 'Employee', width: '220px' },
-			{
-				key: 'payrollSummary.attendanceEarnedSalary',
-				label: 'Attendance Salary',
-				width: '150px',
-			},
-			{
-				key: 'payrollSummary.commissionEarned',
-				label: 'Commission',
-				width: '130px',
-			},
-			{
-				key: 'payrollSummary.incentiveEarned',
-				label: 'Incentive',
-				width: '120px',
-			},
-			{
-				key: 'loanSummary.monthlyInstallment',
-				label: 'Loan Deduction',
-				width: '140px',
-			},
-			{ key: 'payrollSummary.netSalary', label: 'Net Salary', width: '140px' },
-			{
-				key: 'evaluationScore',
-				label: 'Performance',
-				width: '120px',
-			},
-			{ key: 'createdAt', label: 'Joining Date', width: '100px' },
-			{ key: 'actions', label: 'Actions', width: '100px' },
-		],
-		[]
-	);
+	const [modalLoading, setModalLoading] = useState(false);
 
 	useEffect(() => {
 		let timer;
@@ -86,102 +49,33 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 		return path.split('.').reduce((current, key) => current?.[key], obj);
 	}, []);
 
-	const hasCompletedAttendance = useCallback((employee) => {
-		const attendanceSummary = employee.attendanceSummary || {};
-		return (
-			attendanceSummary.totalRecords === attendanceSummary.totalWorkingDays
-		);
-	}, []);
+	// const isPayslipGenerated = useCallback((employee) => {
+	// 	return employee?.payslip?.status === 'generated';
+	// }, []);
 
-	const getAttendancePercentage = useCallback((employee) => {
-		const attendanceSummary = employee.attendanceSummary || {};
-		if (
-			!attendanceSummary.totalWorkingDays ||
-			attendanceSummary.totalWorkingDays === 0
-		) {
-			return 0;
-		}
-		return Math.round(
-			(attendanceSummary.totalRecords / attendanceSummary.totalWorkingDays) *
-				100
-		);
-	}, []);
+	// const getTooltipText = useCallback(
+	// 	(employee) => {
+	// 		const attendancePercentage = getAttendancePercentage(employee);
 
-	const isPayslipGenerated = useCallback((employee) => {
-		return employee?.payslip?.status === 'generated';
-	}, []);
+	// 		if (!hasCompletedAttendance(employee)) {
+	// 			return `Attendance incomplete (${attendancePercentage}%). Complete attendance or force generate payslip.`;
+	// 		}
 
-	const getPayslipActionText = useCallback(
-		(employee) => {
-			if (isPayslipGenerated(employee)) {
-				return 'Regenerate Payslip';
-			}
-			return 'Generate Payslip';
-		},
-		[isPayslipGenerated]
-	);
+	// 		if (isPayslipGenerated(employee)) {
+	// 			return 'Regenerate payslip for this employee';
+	// 		}
 
-	const getTooltipText = useCallback(
-		(employee) => {
-			const attendancePercentage = getAttendancePercentage(employee);
+	// 		return 'Generate payslip for this employee';
+	// 	},
+	// 	[getAttendancePercentage, hasCompletedAttendance, isPayslipGenerated]
+	// );
 
-			if (!hasCompletedAttendance(employee)) {
-				return `Attendance incomplete (${attendancePercentage}%). Complete attendance or force generate payslip.`;
-			}
-
-			if (isPayslipGenerated(employee)) {
-				return 'Regenerate payslip for this employee';
-			}
-
-			return 'Generate payslip for this employee';
-		},
-		[getAttendancePercentage, hasCompletedAttendance, isPayslipGenerated]
-	);
-
-	const showAttendanceDetails = useCallback(
+	const handlePayslipGenerate = useCallback(
 		(employee) => {
 			setSelectedEmployeeForModal(employee);
 			onOpen();
 		},
 		[onOpen]
-	);
-
-	const handleForceGenerate = useCallback(async () => {
-		if (!selectedEmployeeForModal?._id) {
-			toast.error('Employee data not available');
-			return;
-		}
-
-		try {
-			setModalLoading(true);
-			onClose();
-		} catch (error) {
-			console.error('Error force generating payslip:', error);
-			toast.error('Failed to generate payslip');
-		} finally {
-			setModalLoading(false);
-		}
-	}, [selectedEmployeeForModal, onClose]);
-
-	const handleDownloadPayslip = useCallback(
-		async (employee) => {
-			if (!employee?._id) {
-				toast.error('Employee data not available');
-				return;
-			}
-
-			if (!hasCompletedAttendance(employee)) {
-				showAttendanceDetails(employee);
-				return;
-			}
-
-			try {
-			} catch (error) {
-				console.error('Error initiating payslip download:', error);
-				toast.error('Failed to download payslip');
-			}
-		},
-		[hasCompletedAttendance, showAttendanceDetails]
 	);
 
 	const renderCellContent = useCallback(
@@ -191,32 +85,32 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 			}
 
 			if (column.key === 'actions') {
-				const canDownload = hasCompletedAttendance(row);
-				const isGenerated = isPayslipGenerated(row);
+				// const canDownload = hasCompletedAttendance(row);
+				// const isGenerated = isPayslipGenerated(row);
 
 				return (
-					<Flex align='center' justify='center'>
-						<CustomTooltip label='View Details'>
+					<Flex align='center' justify='center' gap='2'>
+						<Tooltip label='View Details' placement='top' hasArrow>
 							<IconButton
 								aria-label='View employee details'
 								icon={<FiEye />}
 								size='sm'
-								colorScheme='teal'
+								colorScheme='blue'
 								variant='ghost'
 								onClick={() => navigate(`/payroll/payslip/${row._id}`)}
 							/>
-						</CustomTooltip>
+						</Tooltip>
 
-						<CustomTooltip label={getTooltipText(row)}>
+						<Tooltip label='Generate Payslip' placement='top' hasArrow>
 							<IconButton
-								aria-label={getPayslipActionText(row)}
+								aria-label={'generate payslip'}
 								icon={<FiPrinter />}
 								size='sm'
-								colorScheme={canDownload ? 'teal' : 'red'}
+								colorScheme={'green'}
 								variant='ghost'
-								onClick={() => handleDownloadPayslip(row)}
+								onClick={() => handlePayslipGenerate(row)}
 							/>
-						</CustomTooltip>
+						</Tooltip>
 					</Flex>
 				);
 			}
@@ -248,15 +142,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
 			return formatValue(column.key, value, row);
 		},
-		[
-			getNestedValue,
-			hasCompletedAttendance,
-			isPayslipGenerated,
-			getTooltipText,
-			getPayslipActionText,
-			handleDownloadPayslip,
-			navigate,
-		]
+		[navigate, handlePayslipGenerate, getNestedValue]
 	);
 
 	return (
@@ -275,7 +161,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 				<Table variant='striped' size='sm'>
 					<Thead bg='brand.200' position='sticky' top={0} zIndex={1}>
 						<Tr>
-							{COLUMNS.map((column) => (
+							{PAYROLL_COLUMNS.map((column) => (
 								<Th
 									key={column.key}
 									whiteSpace='nowrap'
@@ -295,10 +181,10 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 
 					<Tbody>
 						{isLoading || delayedLoading ? (
-							<TableLoading columns={COLUMNS} length={10} py='4' />
+							<TableLoading columns={PAYROLL_COLUMNS} length={10} py='4' />
 						) : data.length === 0 ? (
 							<Tr>
-								<Td colSpan={COLUMNS.length} py={10}>
+								<Td colSpan={PAYROLL_COLUMNS.length} py={10}>
 									<Center>
 										<NoData label='incoming balance' />
 									</Center>
@@ -312,7 +198,7 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 									bg={index % 2 === 0 ? 'white' : 'gray.25'}
 									transition='background-color 0.2s'
 								>
-									{COLUMNS.map((column) => (
+									{PAYROLL_COLUMNS.map((column) => (
 										<Td
 											key={column.key}
 											px={3}
@@ -333,15 +219,15 @@ const EmployeePayrollTable = ({ data = [], isLoading }) => {
 			</Box>
 
 			{/* Attendance Warning Modal */}
-			<AttendanceWarningModal
-				isOpen={isOpen}
-				onClose={onClose}
-				selectedEmployee={selectedEmployeeForModal}
-				onForceGenerate={handleForceGenerate}
-				getPayslipActionText={getPayslipActionText}
-				getAttendancePercentage={getAttendancePercentage}
-				isLoading={modalLoading}
-			/>
+			{isOpen && selectedEmployeeForModal && (
+				<PayslipDownloadModal
+					isOpen={isOpen}
+					onClose={onClose}
+					employee={selectedEmployeeForModal}
+					month={month}
+					year={year}
+				/>
+			)}
 		</>
 	);
 };

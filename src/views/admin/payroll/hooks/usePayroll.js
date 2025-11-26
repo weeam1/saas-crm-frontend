@@ -29,7 +29,7 @@ export const useEmployeePayroll = () => {
 		: user?.agency?._id;
 
 	const initialPage = Number(searchParams.get('page')) || 1;
-	const initialLimit = Number(searchParams.get('limit')) || 10;
+	const initialLimit = Number(searchParams.get('limit')) || 20;
 
 	const [month, setMonth] = useState(initialMonth);
 	const [list, setList] = useState([]);
@@ -40,7 +40,7 @@ export const useEmployeePayroll = () => {
 		page: initialPage,
 		limit: initialLimit,
 	});
-  	const [filters, setFilters] = useState({});
+	const [filters, setFilters] = useState({});
 
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
@@ -50,10 +50,18 @@ export const useEmployeePayroll = () => {
 			month,
 			year,
 			agency: agencyId || agencies[agencies]?._id,
-			...(filters.userId && { userId: filters.userId })
+			...(filters.userId && { userId: filters.userId }),
 		};
 		return cleanSearchParams(raw);
-	}, [pagination.page, pagination.limit, month, year, agencies, agencyId, filters]);
+	}, [
+		pagination.page,
+		pagination.limit,
+		month,
+		year,
+		agencies,
+		agencyId,
+		filters,
+	]);
 
 	// sync queryParams -> URL (loop proof)
 	useEffect(() => {
@@ -202,7 +210,7 @@ export const useEmployeePayroll = () => {
 		removeItem,
 
 		//Filters
-		filters, 
-		setFilters
+		filters,
+		setFilters,
 	};
 };

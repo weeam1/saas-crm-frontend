@@ -1,53 +1,152 @@
+// import { constant } from 'constant';
+// import { useState, useCallback } from 'react';
+
+// export function usePdfDownloader() {
+// 	const [loading, setLoading] = useState(false);
+// 	const [progress, setProgress] = useState(0);
+// 	const [error, setError] = useState(null);
+
+// 	const downloadPdf = useCallback(async (url, filename = 'document.pdf') => {
+// 		try {
+// 			setLoading(true);
+// 			setProgress(0);
+// 			setError(null);
+
+// 			const fullUrl = constant.baseUrl + url;
+
+// 			const response = await fetch(fullUrl);
+
+// 			if (!response.ok) throw new Error('Failed to download');
+
+// 			const contentLength = response.headers.get('content-length');
+
+// 			const reader = response.body.getReader();
+// 			let receivedLength = 0;
+// 			const chunks = [];
+
+// 			while (true) {
+// 				const { done, value } = await reader.read();
+// 				if (done) break;
+
+// 				chunks.push(value);
+// 				receivedLength += value.length;
+
+// 				if (contentLength) {
+// 					setProgress(Math.round((receivedLength / contentLength) * 100));
+// 				}
+// 			}
+
+// 			const blob = new Blob(chunks, { type: 'application/pdf' });
+// 			const link = document.createElement('a');
+// 			link.href = URL.createObjectURL(blob);
+// 			link.download = filename;
+// 			link.click();
+
+// 			URL.revokeObjectURL(link.href);
+// 			setLoading(false);
+// 			setProgress(100);
+// 		} catch (err) {
+// 			setError(err.message);
+// 			setLoading(false);
+// 		}
+// 	}, []);
+
+// 	return { downloadPdf, loading, progress, error };
+// }
+
 import { constant } from 'constant';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 export function usePdfDownloader() {
 	const [loading, setLoading] = useState(false);
 	const [progress, setProgress] = useState(0);
 	const [error, setError] = useState(null);
+	const abortRef = useRef(null);
+	const isMounted = useRef(true);
+
+	useEffect(() => {
+		return () => {
+			isMounted.current = false;
+			if (abortRef.current) abortRef.current.abort();
+		};
+	}, []);
 
 	const downloadPdf = useCallback(async (url, filename = 'document.pdf') => {
 		try {
-			setLoading(true);
-			setProgress(0);
-			setError(null);
+			// Abort previous downloads
+			if (abortRef.current) abortRef.current.abort();
+			abortRef.current = new AbortController();
 
-			const fullUrl = constant.baseUrl + url;
+			if (isMounted.current) {
+				setLoading(true);
+				setProgress(0);
+				setError(null);
+			}
 
-			const response = await fetch(fullUrl);
+			const response = await fetch(constant.baseUrl + url, {
+				signal: abortRef.current.signal,
+			});
 
-			if (!response.ok) throw new Error('Failed to download');
+			if (!response.ok) {
+				throw new Error(`Download failed with status: ${response.status}`);
+			}
 
-			const contentLength = response.headers.get('content-length');
-
+			const contentLength = Number(response.headers.get('content-length'));
 			const reader = response.body.getReader();
-			let receivedLength = 0;
+
 			const chunks = [];
+			let received = 0;
 
 			while (true) {
 				const { done, value } = await reader.read();
 				if (done) break;
 
 				chunks.push(value);
-				receivedLength += value.length;
+				received += value.length;
 
-				if (contentLength) {
-					setProgress(Math.round((receivedLength / contentLength) * 100));
+				// Progress handling
+				if (contentLength && isMounted.current) {
+					setProgress(
+						Math.min(100, Math.round((received / contentLength) * 100))
+					);
+				} else if (isMounted.current) {
+					// No content length header available
+					setProgress((prev) => (prev < 95 ? prev + 5 : 95));
 				}
 			}
 
-			const blob = new Blob(chunks, { type: 'application/pdf' });
-			const link = document.createElement('a');
-			link.href = URL.createObjectURL(blob);
-			link.download = filename;
-			link.click();
+			// Basic corruption check
+			if (contentLength && received !== contentLength) {
+				throw new Error('File corrupted during download');
+			}
 
-			URL.revokeObjectURL(link.href);
-			setLoading(false);
-			setProgress(100);
+			const blob = new Blob(chunks, { type: 'application/pdf' });
+			const fileUrl = URL.createObjectURL(blob);
+
+			// Download without browser UI
+			const a = document.createElement('a');
+			a.style.display = 'none';
+			a.href = fileUrl;
+			a.download = filename;
+
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+
+			// Allow browser to settle before cleanup
+			requestIdleCallback(() => URL.revokeObjectURL(fileUrl));
+
+			if (isMounted.current) {
+				setProgress(100);
+				setLoading(false);
+			}
 		} catch (err) {
-			setError(err.message);
-			setLoading(false);
+			if (err.name === 'AbortError') return;
+
+			if (isMounted.current) {
+				setError(err.message || 'Download error');
+				setLoading(false);
+			}
 		}
 	}, []);
 
