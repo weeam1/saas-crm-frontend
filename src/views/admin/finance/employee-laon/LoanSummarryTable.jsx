@@ -256,7 +256,7 @@ const LoanSummaryTable = ({
 											<Text>
 												{formatCurrency(
 													row[column.key],
-													row['user']?.agency?.currency || 'AED'
+													row?.agency?.currency || 'AED'
 												)}
 											</Text>
 										) : column.key === 'status' ? (

@@ -357,7 +357,8 @@ const TaskV2 = () => {
             icon={<FiRefreshCw />}
             aria-label="Refresh Analytics"
             onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
+            isLoading={isFetching}
+            isDisabled={isLoading}
             variant="outline"
             size="sm"
           />

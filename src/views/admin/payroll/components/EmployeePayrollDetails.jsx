@@ -36,10 +36,11 @@ import {
 	FiPhone,
 	FiChevronLeft,
 } from 'react-icons/fi';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { constant } from 'constant';
 import { FaBuilding } from 'react-icons/fa';
+import PayrollStatus from './PayrollStatus';
 
 // Custom components for better organization
 const StatCard = ({
@@ -119,7 +120,7 @@ const ProgressIndicator = ({ label, value, max, color = 'blue', currency }) => (
 		<Progress
 			value={(value / max) * 100}
 			colorScheme={color}
-			size='md'
+			size='lg'
 			w='100%'
 			borderRadius='full'
 			bg={useColorModeValue('gray.100', 'gray.700')}
@@ -134,9 +135,19 @@ const EmployeePayrollDetails = () => {
 	const { userId } = useParams();
 	const navigate = useNavigate();
 
+	const now = new Date();
+	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
+	const defaultYear = String(now.getFullYear());
+
+	const [searchParams] = useSearchParams();
+
+	const month = searchParams.get('month') || defaultMonth;
+	const year = searchParams.get('year') || defaultYear;
+
 	const { data: payrollData, isLoading: payrollLoading } = useFetchItemsQuery(
 		{
 			path: `/payroll/user/${userId}`,
+			params: { month, year },
 		},
 		{
 			refetchOnMountOrArgChange: true,
@@ -168,6 +179,8 @@ const EmployeePayrollDetails = () => {
 		profileImage,
 		agency,
 		username,
+		commission,
+		incentive,
 		salary,
 		salaryType,
 		evaluation,
@@ -176,7 +189,7 @@ const EmployeePayrollDetails = () => {
 		payrollSummary,
 		closeDeals,
 		payslip,
-	} = payrollData?.doc;
+	} = payrollData?.doc?.snapshots || payrollData?.doc;
 
 	const name = fullName || username || '';
 	const imgSrc = profileImage
@@ -184,15 +197,23 @@ const EmployeePayrollDetails = () => {
 		: undefined;
 
 	return (
-		<Box bg={bgColor} minH='100vh' py={8} px={2}>
-			<IconButton
-				aria-label='Go back'
-				icon={<FiChevronLeft />}
-				onClick={() => navigate(-1)}
-				// variant='ghost'
-				size='md'
-				isRound
-			/>
+		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
+			<HStack justify='space-between' mb='3'>
+				<IconButton
+					aria-label='Go back'
+					icon={<FiChevronLeft />}
+					onClick={() => navigate(-1)}
+					// variant='ghost'
+					size='md'
+					isRound
+				/>
+
+				<PayrollStatus
+					initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
+					payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
+				/>
+			</HStack>
+
 			<Container maxW='container.4xl'>
 				{/* Header Section */}
 				<VStack spacing={6} align='stretch' mb={8}>
@@ -225,7 +246,7 @@ const EmployeePayrollDetails = () => {
 					{/* Employee Profile Box */}
 					<Box
 						bg='white'
-						px={6}
+						px={{ base: 2, md: 4, lg: 6 }}
 						py={4}
 						rounded='md'
 						shadow='lg'
@@ -263,7 +284,7 @@ const EmployeePayrollDetails = () => {
 									>
 										{fullName}
 									</Text>
-									<HStack>
+									<HStack maxW={{ base: '200px', md: 'full' }} isTruncated>
 										<Icon as={FiMail} color='gray.500' />
 										<Text fontSize='sm' color='gray.600'>
 											{username}
@@ -351,23 +372,20 @@ const EmployeePayrollDetails = () => {
 									</Text>
 									<VStack spacing={3}>
 										<HStack w='100%' justify='space-between'>
-											<Box color='gray.600'>Attendance</Box>
+											<Box color='gray.600'>Basic</Box>
 											<Box fontWeight='semibold'>
-												{payrollSummary?.currency}{' '}
-												{payrollSummary?.attendanceEarnedSalary?.toLocaleString()}
+												{payrollSummary?.basicSalary?.toLocaleString()}
 											</Box>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Commission</Text>
+											<Text color='gray.600'>Commission ({commission}%)</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												+ {payrollSummary?.currency}{' '}
 												{payrollSummary?.commissionEarned?.toLocaleString()}
 											</Text>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Incentive</Text>
+											<Text color='gray.600'>Incentive ({incentive})</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												+ {payrollSummary?.currency}{' '}
 												{payrollSummary?.incentiveEarned?.toLocaleString()}
 											</Text>
 										</HStack>
@@ -376,8 +394,7 @@ const EmployeePayrollDetails = () => {
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Earnings</Text>
 										<Text color='green.600'>
-											{payrollSummary?.currency}{' '}
-											{payrollSummary?.totalEarnings?.toLocaleString()}
+											{payrollSummary?.grossSalary?.toLocaleString()}
 										</Text>
 									</HStack>
 								</VStack>
@@ -388,26 +405,42 @@ const EmployeePayrollDetails = () => {
 									</Text>
 									<VStack spacing={3}>
 										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Loan Installment</Text>
+											<Text color='gray.600'>
+												{loanSummary?.activeLoans} Loan Installment's
+											</Text>
 											<Text fontWeight='semibold' color='red.500'>
-												- {payrollSummary?.currency}{' '}
 												{payrollSummary?.loanDeduction?.toLocaleString()}
 											</Text>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Attendance</Text>
+											<Text color='gray.600'>Attendance Deduction</Text>
 											<Text fontWeight='semibold' color='red.500'>
-												- {payrollSummary?.currency}{' '}
 												{payrollSummary?.attendanceDeduction?.toLocaleString()}
 											</Text>
 										</HStack>
+										{/* <HStack w='100%' justify='space-between'>
+											<Text color='gray.600'>Attendance</Text>
+											<Text fontWeight='semibold' color='red.500'>
+												{(
+													attendanceSummary?.absentDeduction +
+													attendanceSummary?.unpaidLeaveDeduction
+												)?.toLocaleString()}
+											</Text>
+										</HStack>
+										{attendanceSummary?.remainingDaysDeduction > 0 && (
+											<HStack w='100%' justify='space-between'>
+												<Text color='gray.600'>Attendance Remaining</Text>
+												<Text fontWeight='semibold' color='red.500'>
+													{attendanceSummary?.remainingDaysDeduction?.toLocaleString()}
+												</Text>
+											</HStack>
+										)} */}
 									</VStack>
 									<Divider />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Deductions</Text>
 										<Text color='red.600'>
-											{payrollSummary?.currency}{' '}
-											{payrollSummary?.totalDeductions?.toLocaleString()}
+											-{payrollSummary?.totalDeductions?.toLocaleString()}
 										</Text>
 									</HStack>
 								</VStack>
@@ -450,7 +483,7 @@ const EmployeePayrollDetails = () => {
 									color='red'
 								/>
 							</SimpleGrid>
-							<SimpleGrid columns={2} spacing={4}>
+							<SimpleGrid columns={2} spacing={6}>
 								<HStack justify='space-between'>
 									<Text color='gray.600'>Working Days</Text>
 									<Text fontWeight='semibold'>
@@ -495,28 +528,31 @@ const EmployeePayrollDetails = () => {
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Total Borrowed</Text>
 										<Text fontWeight='semibold'>
-											{payrollSummary?.currency}{' '}
 											{loanSummary?.totalBorrowedAmount?.toLocaleString()}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Amount Paid</Text>
 										<Text fontWeight='semibold' color='green.600'>
-											{payrollSummary?.currency}{' '}
-											{loanSummary?.totalPaidAmount?.toLocaleString()}
+											{payrollData?.doc?.paymentStatus === 'paid'
+												? loanSummary?.monthlyInstallment?.toLocaleString()
+												: loanSummary?.totalPaidAmount?.toLocaleString()}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Remaining</Text>
 										<Text fontWeight='semibold' color='red.600'>
-											{payrollSummary?.currency}{' '}
-											{loanSummary?.totalRemainingAmount?.toLocaleString()}
+											{payrollData?.doc?.paymentStatus === 'paid'
+												? (
+														loanSummary?.totalRemainingAmount -
+														loanSummary?.monthlyInstallment
+													)?.toLocaleString()
+												: loanSummary?.totalRemainingAmount?.toLocaleString()}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Monthly Installment</Text>
 										<Text fontWeight='semibold'>
-											{payrollSummary?.currency}{' '}
 											{loanSummary?.monthlyInstallment?.toLocaleString()}
 										</Text>
 									</HStack>
@@ -554,7 +590,6 @@ const EmployeePayrollDetails = () => {
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Deal Value</Text>
 										<Text fontWeight='semibold'>
-											{closeDeals?.currency}{' '}
 											{closeDeals?.totalAmount?.toLocaleString() || 0}
 										</Text>
 									</HStack>
@@ -589,6 +624,12 @@ const EmployeePayrollDetails = () => {
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Payslip Version</Text>
 										<Text fontWeight='semibold'>v{payslip?.version || 1}</Text>
+									</HStack>
+									<HStack justify='space-between'>
+										<Text color='gray.600'>Generated By</Text>
+										<Text fontSize='sm'>
+											{payrollData?.doc?.generatedBy?.fullName || 'N/A'}
+										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Last Updated</Text>

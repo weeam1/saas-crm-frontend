@@ -1,5 +1,5 @@
 import NoData from 'components/Message/NoData';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
 	Box,
 	Input,
@@ -9,6 +9,7 @@ import {
 	InputGroup,
 	InputRightElement,
 	useColorModeValue,
+	Portal,
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 
@@ -16,7 +17,10 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 	const [search, setSearch] = useState('');
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [showDropdown, setShowDropdown] = useState(false);
+	const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
 	const containerRef = useRef();
+	const inputRef = useRef();
+	const dropdownRef = useRef();
 
 	useEffect(() => {
 		if (selectedUserId && users?.length > 0) {
@@ -24,6 +28,17 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 			setSelectedUser(user);
 		}
 	}, [selectedUserId, users]);
+
+	useEffect(() => {
+		if (showDropdown && inputRef.current) {
+			const rect = inputRef.current.getBoundingClientRect();
+			setDropdownPosition({
+				top: rect.bottom + window.scrollY,
+				left: rect.left + window.scrollX,
+				width: rect.width
+			});
+		}
+	}, [showDropdown, search, selectedUser]);
 
 	const handleSelect = (user) => {
 		setSelectedUser(user);
@@ -36,6 +51,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 		setSelectedUser(null);
 		setSearch('');
 		onSelectUser(null);
+		setShowDropdown(false);
 	};
 
 	// useEffect(() => {
@@ -56,11 +72,50 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 			: [];
 
 	const bg = useColorModeValue('gray.100', 'gray.700');
+	const dropdownBg = useColorModeValue('white', 'gray.800');
+	const borderColor = useColorModeValue('gray.200', 'gray.600');
+	const hoverBg = useColorModeValue('brand.100', 'brand.700');
+
+	useEffect(() => {
+		const handleClickOutside = (event) => {
+			if (
+				containerRef.current && 
+				!containerRef.current.contains(event.target) &&
+				dropdownRef.current && 
+				!dropdownRef.current.contains(event.target)
+			) {
+				setShowDropdown(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
+
+	const handleInputChange = (e) => {
+		setSearch(e.target.value);
+		setShowDropdown(true);
+	};
+
+	const handleInputFocus = () => {
+		if (!selectedUser) {
+			setShowDropdown(true);
+		}
+	};
+
+	const handleUserClick = (user) => {
+		setTimeout(() => {
+			handleSelect(user);
+		}, 0);
+	};
 
 	return (
 		<Box position='relative' ref={containerRef}>
 			<InputGroup>
 				<Input
+					ref={inputRef}
 					placeholder='Search users...'
 					bg='gray.100'
 					borderColor='gray.300'
@@ -73,15 +128,11 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 						boxShadow: '0 0 0 1px #D99A36',
 						outline: 'none',
 					}}
-					value={selectedUser ? (selectedUser.fullName || selectedUser.name): search}
-					onChange={(e) => {
-						setSearch(e.target.value);
-						setShowDropdown(true);
-					}}
+					value={selectedUser ? (selectedUser.fullName || selectedUser.name) : search}
+					onChange={handleInputChange}
 					isReadOnly={!!selectedUser}
-					onFocus={() => {
-						if (!selectedUser) setShowDropdown(true);
-					}}
+					onFocus={handleInputFocus}
+					onClick={handleInputFocus}
 				/>
 				{selectedUser && (
 					<InputRightElement>
@@ -98,52 +149,75 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 			</InputGroup>
 
 			{showDropdown && filteredUsers.length > 0 && (
-				<Box
-					position='absolute'
-					width='100%'
-					bg='white'
-					shadow='md'
-					borderRadius='md'
-					mt={2}
-					zIndex={50}
-					maxH='300px'
-					overflowY='auto'
-				>
-					{filteredUsers.map((user, index) => (
-						<Flex
-							key={`${index}-${user?._id}`}
-							p={3}
-							bg={bg}
-							rounded='md'
-							cursor='pointer'
-							_hover={{ bg: 'brand.100' }}
-							onClick={() => handleSelect(user)}
-							align='center'
-							justify='space-between'
-						>
-							<Box>
-								<Text fontSize='md'>{user.fullName || user.name}</Text>
-								<Text fontSize='sm' color='gray.500'>
-									{user.username}
-								</Text>
-							</Box>
-						</Flex>
-					))}
-				</Box>
+				<Portal>
+					<Box
+						ref={dropdownRef}
+						position="fixed"
+						top={`${dropdownPosition.top}px`}
+						left={`${dropdownPosition.left}px`}
+						width={`${dropdownPosition.width}px`}
+						bg={dropdownBg}
+						shadow='lg'
+						borderRadius='md'
+						border="1px solid"
+						borderColor={borderColor}
+						zIndex={9999}
+						maxH='300px'
+						overflowY='auto'
+						mt={1}
+					>
+						{filteredUsers.map((user, index) => (
+							<Flex
+								key={`${index}-${user?._id}`}
+								p={3}
+								bg="transparent"
+								rounded='md'
+								cursor='pointer'
+								_hover={{ bg: hoverBg }}
+								onClick={() => handleUserClick(user)}
+								align='center'
+								justify='space-between'
+								m={1}
+								borderBottom="1px solid"
+								borderColor={borderColor}
+								_last={{ borderBottom: 'none' }}
+							>
+								<Box>
+									<Text fontSize='md' fontWeight="medium">
+										{user.fullName || user.name}
+									</Text>
+									{user.username && (
+										<Text fontSize='sm' color='gray.500'>
+											{user.username}
+										</Text>
+									)}
+								</Box>
+							</Flex>
+						))}
+					</Box>
+				</Portal>
 			)}
 
 			{showDropdown && search && filteredUsers.length === 0 && (
-				<Box
-					position='absolute'
-					width='100%'
-					bg='white'
-					shadow='md'
-					borderRadius='md'
-					mt={2}
-					zIndex={50}
-				>
-					<NoData label='user' />
-				</Box>
+				<Portal>
+					<Box
+						ref={dropdownRef}
+						position="fixed"
+						top={`${dropdownPosition.top}px`}
+						left={`${dropdownPosition.left}px`}
+						width={`${dropdownPosition.width}px`}
+						bg={dropdownBg}
+						shadow='lg'
+						borderRadius='md'
+						border="1px solid"
+						borderColor={borderColor}
+						zIndex={9999}
+						mt={1}
+						p={3}
+					>
+						<NoData label='user' />
+					</Box>
+				</Portal>
 			)}
 		</Box>
 	);

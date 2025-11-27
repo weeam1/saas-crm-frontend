@@ -10,13 +10,18 @@ import {
 import { useMemo, useState } from 'react';
 import TopPagination from 'components/pagination/TopPagination';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { FiFilter } from 'react-icons/fi';
+import { FiFilter, FiRefreshCw } from 'react-icons/fi';
 import { buttonStyle } from 'utils/btn';
 import { BiX } from 'react-icons/bi';
 import { useEmployeePayroll } from './hooks/usePayroll';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import AgencyFilterModal from '../finance/components/AgencyFilterModal';
+import AgencyFilter from './components/AgencyFilter';
 import EmployeePayrollTable from './components/EmployeePayrollTable';
+import SearchBar from 'components/search/SearchBar';
+import AdvancedSearchModal from './components/AdvancedSearchModal';
+import { useFetchItemsQuery } from 'api/apiSlice';
+import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
+import SearchBox from './components/SearchBox';
 
 const Payroll = () => {
 	const {
@@ -35,6 +40,9 @@ const Payroll = () => {
 		handlePageChange,
 		handlePageSize,
 		onDateFilterChange,
+		filters,
+		setFilters,
+		refetch,
 	} = useEmployeePayroll();
 
 	const selectedAgency = useMemo(
@@ -43,12 +51,22 @@ const Payroll = () => {
 	);
 
 	const [clearFilters, setClearFilters] = useState(false);
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [filterChanged, setFilterChanged] = useState(false);
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const {
 		isOpen: agencyFilterIsOpen,
 		onOpen: agencyFilterOnOpen,
 		onClose: agencyFilterOnClose,
 	} = useDisclosure();
+
+	const agencyName = agencies.find((a) => a._id === agencyId);
+
+	const { data: usersData } = useFetchItemsQuery({
+		path: '/v2/user/search_users',
+		params: { agencyFilter: agencyName?.name || '' },
+	});
 
 	const handleAgencyFilter = (value) => {
 		setAgencyId(value);
@@ -63,21 +81,91 @@ const Payroll = () => {
 		setAgencyId(null);
 	};
 
+	const handleSearchTermChange = (searchQuery) => {
+		const trimmed = searchQuery?.trim() || '';
+
+		if (trimmed !== '') {
+			setFilters((prev) => ({
+				...prev,
+				search: trimmed,
+			}));
+			setClearFilters(true);
+		} else {
+			// remove search key from filters
+			setFilters((prev) => {
+				const updated = { ...prev };
+				delete updated.search;
+				return updated;
+			});
+			setClearFilters(false);
+		}
+	};
+
+	const handleApplyFilters = (newFilters) => {
+		const cleanedFilters = Object.fromEntries(
+			Object.entries(newFilters).filter(
+				([_, value]) => value !== '' && value !== undefined && value !== null
+			)
+		);
+
+		setFilters(cleanedFilters);
+		setFilterChanged(true);
+	};
+
+	console.log({ filters });
+
+	const handleClearFilters = (filterKey) => {
+		if (filterKey) {
+			const newFilters = { ...filters };
+			delete newFilters[filterKey];
+			setFilters(newFilters);
+		} else {
+			setFilters({});
+		}
+		setFilterChanged(true);
+		setSearchTerm('');
+	};
+
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex
 				flexDir={{ base: 'column', md: 'row' }}
 				justify='space-between'
-				align='center'
+				align={{ base: 'stretch', md: 'center' }}
+				gap={{ base: 3, md: 0 }}
 				mb={4}
+				w='100%'
 			>
-				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
+				<Flex
+					alignSelf={{ base: 'center', md: 'flex-start' }}
+					fontSize={{ base: 'md', md: 'lg' }}
+					fontWeight='bold'
+					gap='2'
+					textAlign={{ base: 'center', md: 'left' }}
+					order={{ base: 1, md: 1 }}
+				>
 					<Text>{selectedAgency?.name || 'All '} Employee Payroll</Text>
-
 					<CountUpComponent key={totalRecords} targetNumber={totalRecords} />
 				</Flex>
 
-				<HStack gap='2' alignItems='center'>
+				<HStack
+					gap={{ base: 1, sm: 2 }}
+					alignItems='center'
+					flexWrap='wrap'
+					justify={{ base: 'center', md: 'flex-end' }}
+					w={{ base: '100%', md: 'auto' }}
+					order={{ base: 2, md: 2 }}
+				>
+					{/* <IconButton
+						icon={<FiRefreshCw />}
+						aria-label='Refresh Analytics'
+						onClick={refetch}
+						isLoading={isFetching}
+						isDisabled={isLoading}
+						variant='outline'
+						size='sm'
+					/> */}
+
 					{isAgenciesAllowed && (
 						<IconButton
 							icon={<FiFilter />}
@@ -91,9 +179,30 @@ const Payroll = () => {
 						/>
 					)}
 
-					<DateFilter onFilterChange={onDateFilterChange} />
+					<Box w={{ base: '100%', sm: 'auto' }} flexShrink={1}>
+						<SearchBox
+							onSearchTermChange={handleSearchTermChange}
+							setSearchTerm={setSearchTerm}
+							searchTerm={searchTerm}
+						/>
+					</Box>
 
-					{clearFilters && (
+					<Button
+						colorScheme='brand'
+						size='sm'
+						borderRadius={'md'}
+						py={3}
+						px={6}
+						onClick={() => setIsFilterOpen(true)}
+					>
+						Advanced Search
+					</Button>
+
+					<Box w={{ base: '100%', sm: 'auto' }}>
+						<DateFilter onFilterChange={onDateFilterChange} />
+					</Box>
+
+					{/* {clearFilters && (
 						<Button
 							{...buttonStyle}
 							variant='solid'
@@ -112,11 +221,15 @@ const Payroll = () => {
 						>
 							Clear
 						</Button>
-					)}
+					)} */}
 				</HStack>
 			</Flex>
-
 			{/* <SummaryCards data={summary || {}} isLoading={summaryLoading} /> */}
+			<ActiveFiltersDisplay
+				filters={filters}
+				onClearFilters={handleClearFilters}
+				users={usersData}
+			/>
 
 			{!isLoading && (
 				<TopPagination
@@ -135,16 +248,27 @@ const Payroll = () => {
 			<EmployeePayrollTable
 				data={data || []}
 				isLoading={isLoading || isFetching}
+				month={month}
+				year={year}
 			/>
 
 			{agencyFilterIsOpen && (
-				<AgencyFilterModal
+				<AgencyFilter
 					isOpen={agencyFilterIsOpen}
 					onClose={agencyFilterOnClose}
 					handleFilter={handleAgencyFilter}
 					storeKey='payrollAgency'
 				/>
 			)}
+
+			<AdvancedSearchModal
+				isOpen={isFilterOpen}
+				onClose={() => setIsFilterOpen(false)}
+				onApplyFilters={handleApplyFilters}
+				initialFilters={filters}
+				clearFilter={filterChanged}
+				usersData={usersData}
+			/>
 		</Box>
 	);
 };

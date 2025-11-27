@@ -29,7 +29,7 @@ export const useEmployeePayroll = () => {
 		: user?.agency?._id;
 
 	const initialPage = Number(searchParams.get('page')) || 1;
-	const initialLimit = Number(searchParams.get('limit')) || 10;
+	const initialLimit = Number(searchParams.get('limit')) || 20;
 
 	const [month, setMonth] = useState(initialMonth);
 	const [list, setList] = useState([]);
@@ -40,6 +40,7 @@ export const useEmployeePayroll = () => {
 		page: initialPage,
 		limit: initialLimit,
 	});
+	const [filters, setFilters] = useState({});
 
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
@@ -49,9 +50,19 @@ export const useEmployeePayroll = () => {
 			month,
 			year,
 			agency: agencyId || agencies[agencies]?._id,
+			...(filters?.userId && { userId: filters.userId }),
+			...(filters?.search && { search: filters.search }),
 		};
 		return cleanSearchParams(raw);
-	}, [pagination.page, pagination.limit, month, year, agencies, agencyId]);
+	}, [
+		pagination.page,
+		pagination.limit,
+		month,
+		year,
+		agencies,
+		agencyId,
+		filters,
+	]);
 
 	// sync queryParams -> URL (loop proof)
 	useEffect(() => {
@@ -96,9 +107,9 @@ export const useEmployeePayroll = () => {
 		setYear(newYear);
 	};
 
-	const refetchSummary = useCallback(() => {
-		refetch();
-	}, [refetch]);
+	// const refetchSummary = useCallback(() => {
+	// 	refetch();
+	// }, [refetch]);
 
 	const updateData = (id, updated, type = 'update') => {
 		const updatedAgencyId = updated?.agency?._id;
@@ -167,8 +178,6 @@ export const useEmployeePayroll = () => {
 		agencies,
 		queryParams,
 
-		refetchSummary,
-
 		// data + meta
 		data: list ?? [],
 		setData: setList,
@@ -198,5 +207,9 @@ export const useEmployeePayroll = () => {
 		onDateFilterChange,
 		updateData,
 		removeItem,
+
+		//Filters
+		filters,
+		setFilters,
 	};
 };
