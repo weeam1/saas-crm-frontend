@@ -40,6 +40,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 		const dataObj = {
 			managerAssigned: managerAssignedValue || '',
 			agentAssigned: managerAssigned ? '' : undefined,
+			isFreshLead: managerAssigned ? false : true,
 		};
 
 		try {
@@ -116,10 +117,29 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 						leadId: lead?.intID || null,
 					},
 				});
+			} else {
+				const errorMessage =
+					res?.response?.data?.error || 'Failed to update the manager';
+				console.error(errorMessage);
+
+				toast.error(errorMessage);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'ASSIGN',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: res?.response?.status === 500 ? 'error' : 'fail',
+					message: errorMessage,
+				});
 			}
 		} catch (error) {
-			console.error('Failed to update the manager:', error);
-			toast.error('Failed to update the manager');
+			const errorMessage = error?.data?.error || 'Failed to update the manager';
+			console.error(errorMessage);
+
+			toast.error(errorMessage);
 
 			// update user activity log
 			createUserLog({
@@ -129,7 +149,7 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				enityType: 'Lead',
 				entityId: lead._id || null,
 				status: error?.response?.status === 500 ? 'error' : 'fail',
-				message: 'Failed to update the manager',
+				message: errorMessage,
 			});
 		} finally {
 			setLoading(false);
