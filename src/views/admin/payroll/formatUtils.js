@@ -1,3 +1,4 @@
+import { Badge } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { formatSalaryType } from 'utils/formatUtils';
 
@@ -13,6 +14,21 @@ export const formatValue = (key, value, row = {}) => {
 			return formatSalaryType(value);
 		case 'evaluationScore':
 			return `${row.evaluation?.finalPercentage || 0}%`;
+		case 'payslip.paymentStatus':
+			return (
+				<Badge
+					colorScheme={value === 'paid' ? 'whatsapp' : 'orange'}
+					variant='subtle'
+					fontSize='1em'
+					px={4}
+					py={2}
+					borderRadius='full'
+					textTransform='uppercase'
+				>
+					{value === 'paid' ? 'PAID' : 'UNPAID'}
+				</Badge>
+			);
+
 		default:
 			return value ?? '-';
 	}
@@ -47,5 +63,6 @@ export const PAYROLL_COLUMNS = [
 		width: '120px',
 	},
 	{ key: 'createdAt', label: 'Joining Date', width: '100px' },
+	{ key: 'payslip.paymentStatus', label: 'Status', width: '100px' },
 	{ key: 'actions', label: 'Actions', width: '100px' },
 ];

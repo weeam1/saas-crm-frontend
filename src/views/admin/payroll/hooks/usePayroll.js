@@ -51,6 +51,7 @@ export const useEmployeePayroll = () => {
 			year,
 			agency: agencyId || agencies[agencies]?._id,
 			...(filters.userId && { userId: filters.userId }),
+			...(filters.search && { search: filters.search }),
 		};
 		return cleanSearchParams(raw);
 	}, [
@@ -106,9 +107,9 @@ export const useEmployeePayroll = () => {
 		setYear(newYear);
 	};
 
-	const refetchSummary = useCallback(() => {
-		refetch();
-	}, [refetch]);
+	// const refetchSummary = useCallback(() => {
+	// 	refetch();
+	// }, [refetch]);
 
 	const updateData = (id, updated, type = 'update') => {
 		const updatedAgencyId = updated?.agency?._id;
@@ -176,8 +177,6 @@ export const useEmployeePayroll = () => {
 		isAgenciesAllowed,
 		agencies,
 		queryParams,
-
-		refetchSummary,
 
 		// data + meta
 		data: list ?? [],

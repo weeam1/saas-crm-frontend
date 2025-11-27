@@ -15,7 +15,7 @@ import { buttonStyle } from 'utils/btn';
 import { BiX } from 'react-icons/bi';
 import { useEmployeePayroll } from './hooks/usePayroll';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import AgencyFilterModal from '../finance/components/AgencyFilterModal';
+import AgencyFilter from './components/AgencyFilter';
 import EmployeePayrollTable from './components/EmployeePayrollTable';
 import SearchBar from 'components/search/SearchBar';
 import AdvancedSearchModal from './components/AdvancedSearchModal';
@@ -79,7 +79,26 @@ const Payroll = () => {
 		setAgencyId(null);
 	};
 
-	const handleSearchTermChange = () => {};
+	const handleSearchTermChange = (searchQuery) => {
+		const trimmed = searchQuery?.trim() || '';
+
+		if (trimmed !== '') {
+			setFilters((prev) => ({
+				...prev,
+				search: trimmed,
+			}));
+			setClearFilters(false);
+		} else {
+			// remove search key from filters
+			setFilters((prev) => {
+				const updated = { ...prev };
+				delete updated.search;
+				return updated;
+			});
+			setClearFilters(true);
+		}
+	};
+
 	const handleApplyFilters = (newFilters) => {
 		const cleanedFilters = Object.fromEntries(
 			Object.entries(newFilters).filter(
@@ -132,7 +151,7 @@ const Payroll = () => {
 					w={{ base: '100%', md: 'auto' }}
 					order={{ base: 2, md: 2 }}
 				>
-					<IconButton
+					{/* <IconButton
 						icon={<FiRefreshCw />}
 						aria-label='Refresh Analytics'
 						onClick={refetch}
@@ -140,7 +159,7 @@ const Payroll = () => {
 						isDisabled={isLoading}
 						variant='outline'
 						size='sm'
-					/>
+					/> */}
 
 					{isAgenciesAllowed && (
 						<IconButton
@@ -155,9 +174,9 @@ const Payroll = () => {
 						/>
 					)}
 
-					{/* <Box w={{ base: "100%", sm: "auto" }} flexShrink={1}>
-            <SearchBar onSearchTermChange={handleSearchTermChange} />
-          </Box> */}
+					<Box w={{ base: '100%', sm: 'auto' }} flexShrink={1}>
+						<SearchBar onSearchTermChange={handleSearchTermChange} />
+					</Box>
 
 					<Button
 						colorScheme='brand'
@@ -225,7 +244,7 @@ const Payroll = () => {
 			/>
 
 			{agencyFilterIsOpen && (
-				<AgencyFilterModal
+				<AgencyFilter
 					isOpen={agencyFilterIsOpen}
 					onClose={agencyFilterOnClose}
 					handleFilter={handleAgencyFilter}

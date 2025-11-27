@@ -485,6 +485,27 @@ export const sidebarRoutes = [
 		],
 	},
 
+	// ------- Evaluation ---------
+	{
+		moduleId: 'evaluation',
+		name: 'Evaluation',
+		path: '/evaluation',
+		icon: FaFileAlt,
+		color: '#86f17dff', // Gray
+		children: [
+			{
+				id: 'evaluation_users',
+				name: 'Evalute User',
+				path: '/evaluation/user-evaluation',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/evaluation/settings',
+			},
+		],
+	},
+
 	// ---------- Payroll -----------
 	{
 		moduleId: 'payroll',
@@ -651,27 +672,6 @@ export const sidebarRoutes = [
 		isNested: false,
 		icon: MdOutlineLaptopMac,
 		color: '#c03910ff', // Gray
-	},
-
-	// ------- Evaluation ---------
-	{
-		moduleId: 'evaluation',
-		name: 'Evaluation',
-		path: '/evaluation',
-		icon: FaFileAlt,
-		color: '#86f17dff', // Gray
-		children: [
-			{
-				id: 'evaluation_users',
-				name: 'Evalute User',
-				path: '/evaluation/user-evaluation',
-			},
-			{
-				id: 'settings',
-				name: 'Settings',
-				path: '/evaluation/settings',
-			},
-		],
 	},
 ];
 
