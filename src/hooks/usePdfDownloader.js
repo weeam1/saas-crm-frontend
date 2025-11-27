@@ -54,6 +54,7 @@
 // 	return { downloadPdf, loading, progress, error };
 // }
 
+import { setAuthHeader } from 'api';
 import { constant } from 'constant';
 import { useState, useCallback, useRef, useEffect } from 'react';
 
@@ -83,7 +84,12 @@ export function usePdfDownloader() {
 				setError(null);
 			}
 
+			const headers = {};
+			setAuthHeader(headers);
+
 			const response = await fetch(constant.baseUrl + url, {
+				method: 'GET',
+				headers: headers,
 				signal: abortRef.current.signal,
 			});
 
