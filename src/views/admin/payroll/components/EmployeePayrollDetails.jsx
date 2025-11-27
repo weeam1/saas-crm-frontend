@@ -246,7 +246,7 @@ const EmployeePayrollDetails = () => {
 					{/* Employee Profile Box */}
 					<Box
 						bg='white'
-						px={6}
+						px={{ base: 2, md: 4, lg: 6 }}
 						py={4}
 						rounded='md'
 						shadow='lg'
@@ -284,7 +284,7 @@ const EmployeePayrollDetails = () => {
 									>
 										{fullName}
 									</Text>
-									<HStack>
+									<HStack maxW={{ base: '200px', md: 'full' }} isTruncated>
 										<Icon as={FiMail} color='gray.500' />
 										<Text fontSize='sm' color='gray.600'>
 											{username}

@@ -21,6 +21,7 @@ import SearchBar from 'components/search/SearchBar';
 import AdvancedSearchModal from './components/AdvancedSearchModal';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
+import SearchBox from './components/SearchBox';
 
 const Payroll = () => {
 	const {
@@ -52,6 +53,7 @@ const Payroll = () => {
 	const [clearFilters, setClearFilters] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [filterChanged, setFilterChanged] = useState(false);
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const {
 		isOpen: agencyFilterIsOpen,
@@ -87,7 +89,7 @@ const Payroll = () => {
 				...prev,
 				search: trimmed,
 			}));
-			setClearFilters(false);
+			setClearFilters(true);
 		} else {
 			// remove search key from filters
 			setFilters((prev) => {
@@ -95,7 +97,7 @@ const Payroll = () => {
 				delete updated.search;
 				return updated;
 			});
-			setClearFilters(true);
+			setClearFilters(false);
 		}
 	};
 
@@ -110,6 +112,8 @@ const Payroll = () => {
 		setFilterChanged(true);
 	};
 
+	console.log({ filters });
+
 	const handleClearFilters = (filterKey) => {
 		if (filterKey) {
 			const newFilters = { ...filters };
@@ -119,6 +123,7 @@ const Payroll = () => {
 			setFilters({});
 		}
 		setFilterChanged(true);
+		setSearchTerm('');
 	};
 
 	return (
@@ -175,7 +180,11 @@ const Payroll = () => {
 					)}
 
 					<Box w={{ base: '100%', sm: 'auto' }} flexShrink={1}>
-						<SearchBar onSearchTermChange={handleSearchTermChange} />
+						<SearchBox
+							onSearchTermChange={handleSearchTermChange}
+							setSearchTerm={setSearchTerm}
+							searchTerm={searchTerm}
+						/>
 					</Box>
 
 					<Button
@@ -193,7 +202,7 @@ const Payroll = () => {
 						<DateFilter onFilterChange={onDateFilterChange} />
 					</Box>
 
-					{clearFilters && (
+					{/* {clearFilters && (
 						<Button
 							{...buttonStyle}
 							variant='solid'
@@ -212,7 +221,7 @@ const Payroll = () => {
 						>
 							Clear
 						</Button>
-					)}
+					)} */}
 				</HStack>
 			</Flex>
 			{/* <SummaryCards data={summary || {}} isLoading={summaryLoading} /> */}
