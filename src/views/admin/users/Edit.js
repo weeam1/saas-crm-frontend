@@ -44,6 +44,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useRoles } from 'hooks/user/userRoles';
 import Loader from 'components/loading/Loader';
 import { getSalaryType } from 'schema/userSchema';
+import ReplaceTeamLead from './components/ReplaceTeamLead';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -63,12 +64,19 @@ const Edit = (props) => {
 	} = useDisclosure();
 
 	const {
+		isOpen: replaceLeadIsOpen,
+		onOpen: replaceLeadOnOpen,
+		onClose: replaceLeadOnClose,
+	} = useDisclosure();
+
+	const {
 		isOpen: passwordIsOpen,
 		onOpen: passwordOnOpen,
 		onClose: passwordOnClose,
 	} = useDisclosure();
 
 	const [replacementManager, setReplacementManager] = useState('');
+	const [replacementTeamLead, setReplacementTeamLead] = useState('');
 	const [securityPassword, setSecurityPassword] = useState('');
 
 	const controller = new AbortController();
@@ -107,8 +115,6 @@ const Edit = (props) => {
 	const [filteredAgents, setFilteredAgents] = useState([]);
 
 	const managers = useMemo(() => tree?.data || [], [tree?.data]);
-
-	console.log({ tree, managers });
 
 	const handleManagerChange = (e) => {
 		const selectedManagerId = e.target.value;
@@ -168,6 +174,21 @@ const Edit = (props) => {
 			);
 
 			const valuesObj = { ...values };
+
+			console.log('update user');
+
+			// when team lead role change to other role
+			if (
+				data?.roles[0]?.roleName === 'Team Leader' &&
+				data?.roles[0]?.roleName !== role?.roleName &&
+				!replacementTeamLead &&
+				managerTeamLeaders?.length
+			) {
+				replaceLeadOnOpen();
+				return;
+			} else if (replacementTeamLead) {
+				valuesObj['replacementTeamLead'] = replacementTeamLead;
+			}
 
 			if (
 				data?.roles[0]?.roleName === 'Manager' &&
@@ -288,12 +309,13 @@ const Edit = (props) => {
 		}
 	};
 
-	const managerTeamLeaders = useMemo(
-		() =>
-			managers?.find((manager) => manager?.managerId === values?.parent)
-				?.teamLeaders,
-		[managers, values?.parent]
-	);
+	const managerTeamLeaders = useMemo(() => {
+		return (
+			managers
+				?.find((m) => m?.managerId === values?.parent)
+				?.teamLeaders?.filter((lead) => lead?._id !== props.selectedId) || []
+		);
+	}, [managers, values?.parent, props.selectedId]);
 
 	return (
 		<>
@@ -898,6 +920,20 @@ const Edit = (props) => {
 						EditData();
 					}}
 					setReplacementManager={setReplacementManager}
+				/>
+			)}
+
+			{replaceLeadIsOpen && (
+				<ReplaceTeamLead
+					isOpen={replaceLeadIsOpen}
+					onClose={replaceLeadOnClose}
+					teamLeaders={managerTeamLeaders}
+					replacementTeamLead={replacementTeamLead}
+					handleProceed={() => {
+						replaceLeadOnClose();
+						EditData();
+					}}
+					setReplacementTeamLead={setReplacementTeamLead}
 				/>
 			)}
 
