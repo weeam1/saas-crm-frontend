@@ -3,7 +3,7 @@ name: Deploy React Frontend
 on:
   push:
     branches:
-      - new-code  # Runs when pushing to the main branch
+      - new-code
 
 jobs:
   deploy:
@@ -29,13 +29,21 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /var/www/html/weeam-crm-frontend
+
+            echo "🔄 Resetting and pulling code..."
             git reset --hard
             git pull origin new-code
             
-            # Ensure NVM and Node.js are loaded
+            # Load NVM + Node
             export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             nvm use 22
             
+            echo "📦 Installing dependencies..."
             npm install --force
-            NODE_OPTIONS="--max-old-space-size=4096" npm run build
+
+            echo "🏗️ Building new version into build_new..."
+            BUILD_PATH=build_new npm run build
+
+            echo "🚀 Running zero downtime swap..."
+            bash deploy.sh
