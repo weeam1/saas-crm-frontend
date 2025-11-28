@@ -1,7 +1,7 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { cleanSearchParams } from 'utils';
@@ -69,7 +69,7 @@ export const useEmployeePayroll = () => {
 	useEffect(() => {
 		const nextString = new URLSearchParams(queryParams).toString();
 		if (nextString !== searchString) {
-			setSearchParams(queryParams, { replace: true });
+			setSearchParams(queryParams);
 		}
 	}, [queryParams, searchString, setSearchParams]);
 
@@ -78,8 +78,9 @@ export const useEmployeePayroll = () => {
 		{ path: '/payroll', params: queryParams },
 		{
 			skip: !agencyId || !month || !year,
-			refetchOnMountOrArgChange: true,
-			refetchOnReconnect: true,
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: false,
+			refetchOnReconnect: false,
 		}
 	);
 

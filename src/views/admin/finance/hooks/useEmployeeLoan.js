@@ -70,7 +70,7 @@ export const useEmployeeLoanSummary = () => {
 	// --- Fetching Data ---
 	const fetchResult = useFetchItemsQuery(
 		{ path: '/finance/loans/summary', params: queryParams },
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: false, refetchOnFocus: false }
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;
@@ -269,7 +269,8 @@ export const useEmployeeLoans = ({ userId }) => {
 		{ path: `/finance/loans/employee/${userId}`, params: queryParams },
 		{
 			skip: !userId,
-			refetchOnMountOrArgChange: true,
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: false,
 		}
 	);
 
@@ -291,6 +292,7 @@ export const useEmployeeLoans = ({ userId }) => {
 		{
 			skip: !userId,
 			refetchOnMountOrArgChange: true,
+			refetchOnFocus: false,
 		}
 	);
 

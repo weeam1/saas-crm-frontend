@@ -20,6 +20,7 @@ import ViewEvaluation from './components/ViewEvaluation';
 import AdvancedSearchModal from './components/AdvancedSearchModal';
 import ActiveFiltersDisplay from 'views/admin/payroll/components/ActiveFiltersDisplay';
 import useUserSession from 'hooks/useUserSession';
+import SearchBox from 'views/admin/payroll/components/SearchBox';
 
 const UserEvaluation = () => {
 	const {
@@ -56,6 +57,7 @@ const UserEvaluation = () => {
 	});
 
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const {
 		isOpen: agencyFilterIsOpen,
@@ -92,6 +94,26 @@ const UserEvaluation = () => {
 		setClearFilters(false);
 	};
 
+	const handleSearchTermChange = (searchQuery) => {
+		const trimmed = searchQuery?.trim() || '';
+
+		if (trimmed !== '') {
+			setFilters((prev) => ({
+				...prev,
+				search: trimmed,
+			}));
+			setClearFilters(true);
+		} else {
+			// remove search key from filters
+			setFilters((prev) => {
+				const updated = { ...prev };
+				delete updated.search;
+				return updated;
+			});
+			setClearFilters(false);
+		}
+	};
+
 	return (
 		<Box p={6} bg='white' minH='80vh' borderRadius='md' boxShadow='sm'>
 			<Flex
@@ -107,6 +129,14 @@ const UserEvaluation = () => {
 				</Flex>
 
 				<HStack gap='2' alignItems='center'>
+					<Box w={{ base: '100%', sm: 'auto' }} flexShrink={1}>
+						<SearchBox
+							onSearchTermChange={handleSearchTermChange}
+							setSearchTerm={setSearchTerm}
+							searchTerm={searchTerm}
+						/>
+					</Box>
+
 					{isAgenciesAllowed && (
 						<IconButton
 							icon={<FiFilter />}

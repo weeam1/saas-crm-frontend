@@ -41,7 +41,7 @@ export const useUserEvalution = () => {
 
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
-		const raw = {
+		return cleanSearchParams({
 			page: pagination.page,
 			limit: pagination.limit,
 			month,
@@ -52,8 +52,7 @@ export const useUserEvalution = () => {
 			...(filters?.userId && { userId: filters.userId }),
 			...(filters?.role && { role: filters.role }),
 			...(filters?.search && { search: filters.search }),
-		};
-		return cleanSearchParams(raw);
+		});
 	}, [
 		pagination.page,
 		pagination.limit,
@@ -69,19 +68,21 @@ export const useUserEvalution = () => {
 	useEffect(() => {
 		const nextString = new URLSearchParams(queryParams).toString();
 		if (nextString !== searchString) {
-			setSearchParams(queryParams, { replace: true });
+			setSearchParams(queryParams);
 		}
 	}, [queryParams, searchString, setSearchParams]);
 
 	// --- Fetching Data ---
 	const fetchResult = useFetchItemsQuery(
 		{ path: '/evaluation/users', params: queryParams },
-		{ refetchOnMountOrArgChange: true }
+		{
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: false,
+			refetchOnReconnect: false,
+		}
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;
-
-	console.log({ data });
 
 	useEffect(() => {
 		if (data?.doc) {
