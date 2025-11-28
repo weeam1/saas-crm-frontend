@@ -33,6 +33,7 @@ import {
 	Th,
 	Tbody,
 	Td,
+	IconButton,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -53,6 +54,7 @@ import {
 } from '@chakra-ui/icons';
 import ErrorMessageBox from './components/ErrorMessageBox';
 import ErrorMessage from './../../../../components/Message/ErrorMessage';
+import { FiChevronLeft } from 'react-icons/fi';
 
 const EvaluationForm = () => {
 	const { roleId, userId } = useParams();
@@ -316,6 +318,15 @@ const EvaluationForm = () => {
 			mx='auto'
 			p={8}
 		>
+			<IconButton
+				aria-label='Go back'
+				icon={<FiChevronLeft />}
+				onClick={() => navigate(-1)}
+				// variant='ghost'
+				size='md'
+				isRound
+			/>
+
 			{/* Header */}
 			<VStack spacing={4} align='stretch' mb={8}>
 				<Heading textTransform='capitalize' size='md' color='gray.700'>

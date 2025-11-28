@@ -112,8 +112,6 @@ const Payroll = () => {
 		setFilterChanged(true);
 	};
 
-	console.log({ filters });
-
 	const handleClearFilters = (filterKey) => {
 		if (filterKey) {
 			const newFilters = { ...filters };
@@ -261,14 +259,16 @@ const Payroll = () => {
 				/>
 			)}
 
-			<AdvancedSearchModal
-				isOpen={isFilterOpen}
-				onClose={() => setIsFilterOpen(false)}
-				onApplyFilters={handleApplyFilters}
-				initialFilters={filters}
-				clearFilter={filterChanged}
-				usersData={usersData}
-			/>
+			{isFilterOpen && (
+				<AdvancedSearchModal
+					isOpen={isFilterOpen}
+					onClose={() => setIsFilterOpen(false)}
+					onApplyFilters={handleApplyFilters}
+					initialFilters={filters}
+					clearFilter={filterChanged}
+					usersData={usersData}
+				/>
+			)}
 		</Box>
 	);
 };

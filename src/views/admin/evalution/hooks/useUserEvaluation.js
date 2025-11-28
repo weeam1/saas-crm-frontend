@@ -37,6 +37,8 @@ export const useUserEvalution = () => {
 		limit: initialLimit,
 	});
 
+	const [filters, setFilters] = useState({});
+
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
 		const raw = {
@@ -47,6 +49,9 @@ export const useUserEvalution = () => {
 			agency: isAgenciesAllowed
 				? agencyId || undefined
 				: user?.agency?._id || undefined,
+			...(filters?.userId && { userId: filters.userId }),
+			...(filters?.role && { role: filters.role }),
+			...(filters?.search && { search: filters.search }),
 		};
 		return cleanSearchParams(raw);
 	}, [
@@ -57,6 +62,7 @@ export const useUserEvalution = () => {
 		isAgenciesAllowed,
 		agencyId,
 		user?.agency?._id,
+		filters,
 	]);
 
 	// sync queryParams -> URL (loop proof)
@@ -186,6 +192,8 @@ export const useUserEvalution = () => {
 		setMonth,
 		setYear,
 		setAgencyId,
+		filters,
+		setFilters,
 
 		// pagination
 		pagination,

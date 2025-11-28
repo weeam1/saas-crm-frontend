@@ -284,10 +284,19 @@ const EmployeePayrollDetails = () => {
 									>
 										{fullName}
 									</Text>
-									<HStack maxW={{ base: '200px', md: 'full' }} isTruncated>
+									<HStack
+										maxW={{ base: '300px', md: 'full' }}
+										isTruncated={true}
+									>
 										<Icon as={FiMail} color='gray.500' />
 										<Text fontSize='sm' color='gray.600'>
 											{username}
+										</Text>
+									</HStack>
+									<HStack>
+										<Icon as={FaBuilding} color='gray.500' />
+										<Text fontSize='sm' color='gray.600'>
+											{agency?.name}
 										</Text>
 									</HStack>
 
@@ -300,7 +309,7 @@ const EmployeePayrollDetails = () => {
 										</HStack> */}
 									</HStack>
 								</VStack>
-								<VStack align='flex-end' spacing={1}>
+								{/* <VStack align='flex-end' spacing={1}>
 									<HStack>
 										<Icon as={FaBuilding} color='gray.500' />
 										<Text fontSize='sm' color='gray.600'>
@@ -308,13 +317,13 @@ const EmployeePayrollDetails = () => {
 										</Text>
 									</HStack>
 
-									{/* <Text fontSize='sm' color='gray.500'>
+									<Text fontSize='sm' color='gray.500'>
 										Employee ID
 									</Text>
 									<Text fontWeight='bold' fontSize='lg'>
 										{userId?.slice(-8).toUpperCase()}
-									</Text> */}
-								</VStack>
+									</Text>
+								</VStack> */}
 							</HStack>
 						</Box>
 					</Box>

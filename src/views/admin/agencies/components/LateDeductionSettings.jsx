@@ -18,6 +18,8 @@ import {
 	useDisclosure,
 	Select,
 	Badge,
+	AlertIcon,
+	Alert,
 } from '@chakra-ui/react';
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import moment from 'moment-timezone';
@@ -40,7 +42,11 @@ const LateDeductionRulesTable = ({
 	lateDeductionSettings,
 	setLateDeductionSettings,
 }) => {
-	const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclosure();
+	const {
+		isOpen: isModalOpen,
+		onOpen: onModalOpen,
+		onClose: onModalClose,
+	} = useDisclosure();
 	const [editingRuleIndex, setEditingRuleIndex] = useState(null);
 	const [formErrors, setFormErrors] = useState({});
 
@@ -122,7 +128,10 @@ const LateDeductionRulesTable = ({
 		if (!isValid) return;
 
 		if (ruleForm.from >= ruleForm.to) {
-			setFormErrors({ ...formErrors, time: '"From" time must be before "To" time' });
+			setFormErrors({
+				...formErrors,
+				time: '"From" time must be before "To" time',
+			});
 			return;
 		}
 
@@ -178,6 +187,65 @@ const LateDeductionRulesTable = ({
 		<Box>
 			<VStack spacing={6} align='stretch'>
 				<Box>
+					<Text fontSize='20px' fontWeight='bold' color='black' mb={4}>
+						Late Deduction Rules
+					</Text>
+
+					{/* Information Message */}
+					<Alert status='info' mb={4} borderRadius='md' fontSize='sm'>
+						<AlertIcon />
+						<Box>
+							<Text fontWeight='medium'>Important Day Notice</Text>
+							<Text fontSize='xs'>
+								Late deductions on important day are applied at double the rate.
+								For example: 50% deduction will become 100% on important days.
+							</Text>
+						</Box>
+					</Alert>
+
+					<Flex
+						justifyContent='space-between'
+						alignItems={{ base: 'stretch', md: 'center' }}
+						flexDir={{ base: 'column', md: 'row' }}
+						gap={4}
+					>
+						<FormControl maxW='300px'>
+							<FormLabel fontWeight='semibold' mb={2}>
+								Important Day
+							</FormLabel>
+							<Select
+								value={lateDeductionSettings.importantDay ?? 'null'}
+								onChange={(e) => handleImportantDayChange(e.target.value)}
+								bg='white'
+								borderColor='gray.200'
+								_focus={{
+									borderColor: 'brand.500',
+									boxShadow: '0 0 0 1px brand.500',
+								}}
+							>
+								{importantDaysOptions.map((day) => (
+									<option key={day.value} value={day.value}>
+										{day.label}
+									</option>
+								))}
+							</Select>
+						</FormControl>
+
+						<Box alignSelf={{ base: 'stretch', md: 'center' }}>
+							<Button
+								leftIcon={<AddIcon />}
+								colorScheme='brand'
+								onClick={handleOpenAddModal}
+								size='sm'
+								borderRadius='md'
+								width={{ base: '100%', md: 'auto' }}
+							>
+								Add New Rule
+							</Button>
+						</Box>
+					</Flex>
+				</Box>
+				{/* <Box>
 					<Text fontSize="20px" fontWeight="bold" color="black" mb={4}>
 						Late Deduction Rules
 					</Text>
@@ -220,40 +288,40 @@ const LateDeductionRulesTable = ({
 							</Button>
 						</Box>
 					</Flex>
-				</Box>
+				</Box> */}
 
-				<Box 
-					borderWidth='1px' 
-					borderRadius='lg' 
-					overflow='hidden' 
-					boxShadow="sm"
-					overflowX="auto"
+				<Box
+					borderWidth='1px'
+					borderRadius='lg'
+					overflow='hidden'
+					boxShadow='sm'
+					overflowX='auto'
 				>
-					<Table variant='simple' bg="white" minWidth="600px">
-						<Thead bg='brand.200' position="sticky" top={0} zIndex={2}>
+					<Table variant='simple' bg='white' minWidth='600px'>
+						<Thead bg='brand.200' position='sticky' top={0} zIndex={2}>
 							<Tr>
-								<Th whiteSpace="nowrap" py={4}>
-									<Text fontSize="14px" fontWeight="600" color="gray.700">
+								<Th whiteSpace='nowrap' py={4}>
+									<Text fontSize='14px' fontWeight='600' color='gray.700'>
 										Rule Name
 									</Text>
 								</Th>
-								<Th whiteSpace="nowrap" py={4}>
-									<Text fontSize="14px" fontWeight="600" color="gray.700">
+								<Th whiteSpace='nowrap' py={4}>
+									<Text fontSize='14px' fontWeight='600' color='gray.700'>
 										From Time
 									</Text>
 								</Th>
-								<Th whiteSpace="nowrap" py={4}>
-									<Text fontSize="14px" fontWeight="600" color="gray.700">
+								<Th whiteSpace='nowrap' py={4}>
+									<Text fontSize='14px' fontWeight='600' color='gray.700'>
 										To Time
 									</Text>
 								</Th>
-								<Th whiteSpace="nowrap" py={4}>
-									<Text fontSize="14px" fontWeight="600" color="gray.700">
+								<Th whiteSpace='nowrap' py={4}>
+									<Text fontSize='14px' fontWeight='600' color='gray.700'>
 										Deduction (%)
 									</Text>
 								</Th>
-								<Th width='120px' whiteSpace="nowrap" py={4}>
-									<Text fontSize="14px" fontWeight="600" color="gray.700">
+								<Th width='120px' whiteSpace='nowrap' py={4}>
+									<Text fontSize='14px' fontWeight='600' color='gray.700'>
 										Actions
 									</Text>
 								</Th>
@@ -270,43 +338,47 @@ const LateDeductionRulesTable = ({
 							) : (
 								lateDeductionSettings.lateDeductionRules.map((rule, index) => (
 									<Tr key={index} _hover={{ bg: 'gray.50' }}>
-										<Td fontWeight="medium" whiteSpace="nowrap">{rule.name}</Td>
-										<Td whiteSpace="nowrap">
-											<Badge 
-												colorScheme={getTimeBadgeColor(rule.from, 'from')} 
-												fontSize="sm" 
-												px={3} 
+										<Td fontWeight='medium' whiteSpace='nowrap'>
+											{rule.name}
+										</Td>
+										<Td whiteSpace='nowrap'>
+											<Badge
+												colorScheme={getTimeBadgeColor(rule.from, 'from')}
+												fontSize='sm'
+												px={3}
 												py={1}
 											>
 												{rule.from}
 											</Badge>
 										</Td>
-										<Td whiteSpace="nowrap">
-											<Badge 
-												colorScheme={getTimeBadgeColor(rule.to, 'to')} 
-												fontSize="sm" 
-												px={3} 
+										<Td whiteSpace='nowrap'>
+											<Badge
+												colorScheme={getTimeBadgeColor(rule.to, 'to')}
+												fontSize='sm'
+												px={3}
 												py={1}
 											>
 												{rule.to}
 											</Badge>
 										</Td>
-										<Td fontWeight="bold" whiteSpace="nowrap">{rule.deduction}%</Td>
-										<Td whiteSpace="nowrap">
+										<Td fontWeight='bold' whiteSpace='nowrap'>
+											{rule.deduction}%
+										</Td>
+										<Td whiteSpace='nowrap'>
 											<HStack spacing={2}>
 												<IconButton
 													icon={<EditIcon />}
-													colorScheme="teal"
-													variant="ghost"
-													size="sm"
+													colorScheme='teal'
+													variant='ghost'
+													size='sm'
 													onClick={() => handleOpenEditModal(index)}
 													aria-label='Edit rule'
 												/>
 												<IconButton
 													icon={<DeleteIcon />}
-													colorScheme="red"
-													variant="ghost"
-													size="sm"
+													colorScheme='red'
+													variant='ghost'
+													size='sm'
 													onClick={() => handleDeleteRule(index)}
 													aria-label='Delete rule'
 												/>
@@ -319,7 +391,7 @@ const LateDeductionRulesTable = ({
 					</Table>
 				</Box>
 
-				{lateDeductionSettings.lateDeductionRules.length > 0 && (
+				{/* {lateDeductionSettings.lateDeductionRules.length > 0 && (
 					<Box bg='blue.50' p={3} borderRadius='md'>
 						<Text fontSize='sm' fontWeight='medium'>
 							Total Rules: {lateDeductionSettings.lateDeductionRules.length} |
@@ -329,7 +401,7 @@ const LateDeductionRulesTable = ({
 							)?.label || 'None'}
 						</Text>
 					</Box>
-				)}
+				)} */}
 			</VStack>
 
 			<LateDeductionRuleModal

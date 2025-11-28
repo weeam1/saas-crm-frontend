@@ -51,6 +51,7 @@ export const useEmployeePayroll = () => {
 			year,
 			agency: agencyId || agencies[agencies]?._id,
 			...(filters?.userId && { userId: filters.userId }),
+			...(filters?.role && { role: filters.role }),
 			...(filters?.search && { search: filters.search }),
 		};
 		return cleanSearchParams(raw);

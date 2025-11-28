@@ -12,27 +12,19 @@ import {
 	Center,
 	Badge,
 } from '@chakra-ui/react';
-import { FiEdit2, FiEye, FiTrash2 } from 'react-icons/fi';
+import { FiEye } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
 import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState } from 'react';
-import { useDeleteItemMutation } from 'api/apiSlice';
 import { format } from 'date-fns';
-import ConfirmationModal from 'components/Message/ConfirmationModal';
 import CustomTooltip from 'components/shared/CustomTooltip';
-import { Link, useNavigate } from 'react-router-dom';
-import { getBadgeChakraColor, getBadgeColors } from 'utils/colorUtils';
+import { useNavigate } from 'react-router-dom';
+import { getBadgeColors } from 'utils/colorUtils';
 import UserProfileItem from 'components/table/UserProfileItem';
 import { FaPlus } from 'react-icons/fa6';
 import useUserSession from 'hooks/useUserSession';
 
-const UserEvaluationTable = ({
-	data = [],
-	isLoading,
-	handleOpenEdit,
-	removeItem,
-	setView,
-}) => {
+const UserEvaluationTable = ({ data = [], isLoading, setView }) => {
 	const columns = [
 		{ key: 'user', label: 'User', width: '250px' },
 		{ key: 'roles', label: 'Role', width: '150px' }, // could display role names
@@ -46,10 +38,6 @@ const UserEvaluationTable = ({
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
-	// const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-	// const [selectedId, setSelectedId] = useState(null);
-
-	// const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
 
 	const navigate = useNavigate();
 	const { user: loggedInUser } = useUserSession();
@@ -135,25 +123,6 @@ const UserEvaluationTable = ({
 		}
 	};
 
-	// const handleDelete = (id) => {
-	// 	setSelectedId(id);
-	// 	setDeleteModalOpen(true);
-	// };
-
-	// const handleConfirmRemove = async () => {
-	// 	try {
-	// 		await deleteItem({
-	// 			path: `finance/cash/incoming/${selectedId}`,
-	// 		}).unwrap();
-	// 		toast.success('Incoming balance deleted successfully');
-	// 		removeItem(selectedId);
-	// 	} catch (error) {
-	// 		toast.error(error?.data?.message || 'Failed to delete Incoming balance');
-	// 	} finally {
-	// 		setDeleteModalOpen(false);
-	// 	}
-	// };
-
 	return (
 		<Box
 			my='2'
@@ -200,9 +169,6 @@ const UserEvaluationTable = ({
 						</Tr>
 					) : (
 						data.map((row, index) => {
-							if (row?.username === 'testagent@gmail.com')
-								console.log({ evalue: row?.evaluation });
-
 							return (
 								<Tr
 									key={row._id || index}
@@ -226,7 +192,7 @@ const UserEvaluationTable = ({
 											color='gray.700'
 										>
 											{column.key === 'user' ? (
-												<UserProfileItem user={row} />
+												<UserProfileItem user={row} cursor={false} />
 											) : column.key === 'actions' ? (
 												<Flex align='center' justify='center' gap={3}>
 													{row?.hasEvaluated && (
@@ -301,20 +267,6 @@ const UserEvaluationTable = ({
 					)}
 				</Tbody>
 			</Table>
-
-			{/* Delete Confirmation Modal */}
-			{/* {isDeleteModalOpen && (
-        <ConfirmationModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          onConfirm={handleConfirmRemove}
-          title='Delete Cash'
-          message={`Are you sure you want to delete this Incoming balance?`}
-          confirmText='Yes, Delete'
-          cancelText='Cancel'
-          isLoading={isDeleting}
-        />
-      )} */}
 		</Box>
 	);
 };
