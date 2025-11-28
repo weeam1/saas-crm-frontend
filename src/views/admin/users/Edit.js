@@ -44,6 +44,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useRoles } from 'hooks/user/userRoles';
 import Loader from 'components/loading/Loader';
 import { getSalaryType } from 'schema/userSchema';
+import ReplaceTeamLead from './components/ReplaceTeamLead';
 
 const Edit = (props) => {
 	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
@@ -63,12 +64,19 @@ const Edit = (props) => {
 	} = useDisclosure();
 
 	const {
+		isOpen: replaceLeadIsOpen,
+		onOpen: replaceLeadOnOpen,
+		onClose: replaceLeadOnClose,
+	} = useDisclosure();
+
+	const {
 		isOpen: passwordIsOpen,
 		onOpen: passwordOnOpen,
 		onClose: passwordOnClose,
 	} = useDisclosure();
 
 	const [replacementManager, setReplacementManager] = useState('');
+	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
 	const [securityPassword, setSecurityPassword] = useState('');
 
 	const controller = new AbortController();
@@ -104,26 +112,24 @@ const Edit = (props) => {
 
 	const { user, isSuperAdmin } = useUserSession();
 
-	const [filteredAgents, setFilteredAgents] = useState([]);
+	// const [filteredAgents, setFilteredAgents] = useState([]);
 
 	const managers = useMemo(() => tree?.data || [], [tree?.data]);
 
-	console.log({ tree, managers });
+	// const handleManagerChange = (e) => {
+	// 	const selectedManagerId = e.target.value;
+	// 	handleChange(e); // Update form values
+	// 	if (selectedManagerId) {
+	// 		const agentsKey = `manager-${selectedManagerId}`;
+	// 		const agentsList = tree?.agents[agentsKey] || [];
 
-	const handleManagerChange = (e) => {
-		const selectedManagerId = e.target.value;
-		handleChange(e); // Update form values
-		if (selectedManagerId) {
-			const agentsKey = `manager-${selectedManagerId}`;
-			const agentsList = tree?.agents[agentsKey] || [];
-
-			// filter only agents they have teamLeader is null
-			const filtered = agentsList?.filter((agent) => !agent?.teamLeader);
-			setFilteredAgents(filtered);
-		} else {
-			setFilteredAgents([]);
-		}
-	};
+	// 		// filter only agents they have teamLeader is null
+	// 		const filtered = agentsList?.filter((agent) => !agent?.teamLeader);
+	// 		setFilteredAgents(filtered);
+	// 	} else {
+	// 		setFilteredAgents([]);
+	// 	}
+	// };
 
 	const formik = useFormik({
 		initialValues: initialValues,
@@ -162,12 +168,25 @@ const Edit = (props) => {
 
 	const EditData = async () => {
 		try {
-			const role = roles.find((role) => role?._id === values.role);
+			const role = roles?.find((role) => role?._id === values.role);
 			const isAgentOrTeamLeadRole = ['Team Leader', 'Agent'].includes(
 				role?.roleName
 			);
 
 			const valuesObj = { ...values };
+
+			// when team lead role change to other role
+			if (
+				data?.roles[0]?.roleName === 'Team Leader' &&
+				data?.roles[0]?.roleName !== role?.roleName &&
+				!replacementTeamLead &&
+				managerTeamLeaders?.length
+			) {
+				replaceLeadOnOpen();
+				return;
+			} else if (replacementTeamLead) {
+				valuesObj['replacementTeamLead'] = replacementTeamLead;
+			} else valuesObj['replacementTeamLead'] = null;
 
 			if (
 				data?.roles[0]?.roleName === 'Manager' &&
@@ -199,10 +218,9 @@ const Edit = (props) => {
 				delete valuesObj['parent'];
 			} else {
 				delete valuesObj['parent'];
-				delete valuesObj['teamLead'];
 			}
 
-			if (role?.roleName === 'Team Leader') {
+			if (role?.roleName !== 'Agent') {
 				delete valuesObj['teamLead'];
 			}
 
@@ -281,19 +299,20 @@ const Edit = (props) => {
 		} catch (e) {
 			console.log(e);
 			if (!controller.signal.aborted) {
-				toast.error(e?.data?.error || 'User is not updated!');
+				toast.error(e?.data?.message || 'User is not updated!');
 				setReplacementManager('');
 				setSecurityPassword('');
 			}
 		}
 	};
 
-	const managerTeamLeaders = useMemo(
-		() =>
-			managers?.find((manager) => manager?.managerId === values?.parent)
-				?.teamLeaders,
-		[managers, values?.parent]
-	);
+	const managerTeamLeaders = useMemo(() => {
+		return (
+			managers
+				?.find((m) => m?.managerId === values?.parent)
+				?.teamLeaders?.filter((lead) => lead?._id !== props.selectedId) || []
+		);
+	}, [managers, values?.parent, props.selectedId]);
 
 	return (
 		<>
@@ -898,6 +917,20 @@ const Edit = (props) => {
 						EditData();
 					}}
 					setReplacementManager={setReplacementManager}
+				/>
+			)}
+
+			{replaceLeadIsOpen && (
+				<ReplaceTeamLead
+					isOpen={replaceLeadIsOpen}
+					onClose={replaceLeadOnClose}
+					teamLeaders={managerTeamLeaders}
+					replacementTeamLead={replacementTeamLead}
+					handleProceed={() => {
+						replaceLeadOnClose();
+						EditData();
+					}}
+					setReplacementTeamLead={setReplacementTeamLead}
 				/>
 			)}
 
