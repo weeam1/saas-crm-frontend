@@ -80,7 +80,10 @@ export const useCashListing = ({ endpoint }) => {
 	// --- Fetching Data from dynamic endPoints---
 	const fetchResult = useFetchItemsQuery(
 		{ path: endpoint, params: queryParams },
-		{ refetchOnMountOrArgChange: false, refetchOnFocus: false }
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+		}
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;

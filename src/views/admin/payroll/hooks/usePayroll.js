@@ -79,8 +79,8 @@ export const useEmployeePayroll = () => {
 		{
 			skip: !agencyId || !month || !year,
 			refetchOnMountOrArgChange: false,
-			refetchOnFocus: false,
-			refetchOnReconnect: false,
+			refetchOnFocus: true,
+			refetchOnReconnect: true,
 		}
 	);
 

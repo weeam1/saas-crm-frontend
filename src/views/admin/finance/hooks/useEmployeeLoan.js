@@ -269,8 +269,8 @@ export const useEmployeeLoans = ({ userId }) => {
 		{ path: `/finance/loans/employee/${userId}`, params: queryParams },
 		{
 			skip: !userId,
-			refetchOnMountOrArgChange: false,
-			refetchOnFocus: false,
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
 		}
 	);
 
@@ -291,8 +291,8 @@ export const useEmployeeLoans = ({ userId }) => {
 		},
 		{
 			skip: !userId,
-			refetchOnMountOrArgChange: true,
-			refetchOnFocus: false,
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: true,
 		}
 	);
 

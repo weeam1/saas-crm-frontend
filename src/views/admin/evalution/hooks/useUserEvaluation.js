@@ -76,9 +76,9 @@ export const useUserEvalution = () => {
 	const fetchResult = useFetchItemsQuery(
 		{ path: '/evaluation/users', params: queryParams },
 		{
-			refetchOnMountOrArgChange: false,
-			refetchOnFocus: false,
-			refetchOnReconnect: false,
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+			refetchOnReconnect: true,
 		}
 	);
 
