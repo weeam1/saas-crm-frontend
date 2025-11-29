@@ -154,6 +154,7 @@ const EmployeePayrollDetails = () => {
 		},
 		{
 			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
 			refetchOnReconnect: true,
 			skip: !userId,
 		}

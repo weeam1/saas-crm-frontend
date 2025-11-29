@@ -31,7 +31,7 @@ const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 	const [selectedEmployeeForModal, setSelectedEmployeeForModal] =
 		useState(null);
 
-	const [modalLoading, setModalLoading] = useState(false);
+	console.log({ month, year });
 
 	useEffect(() => {
 		let timer;
@@ -97,7 +97,11 @@ const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 								size='sm'
 								colorScheme='blue'
 								variant='ghost'
-								onClick={() => navigate(`/payroll/payslip/${row._id}`)}
+								onClick={() =>
+									navigate(
+										`/payroll/payslip/${row._id}?month=${month}&year=${year}`
+									)
+								}
 							/>
 						</Tooltip>
 
@@ -142,7 +146,7 @@ const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 
 			return formatValue(column.key, value, row);
 		},
-		[navigate, handlePayslipGenerate, getNestedValue]
+		[navigate, month, year, handlePayslipGenerate, getNestedValue]
 	);
 
 	return (
