@@ -33,8 +33,6 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 		if (profileImage && typeof profileImage === 'string') {
 			const imageUrl = `${constant['baseUrl']}${profileImage}`;
 
-			console.log({ imageUrl });
-
 			const img = new window.Image();
 			img.src = imageUrl;
 
@@ -136,10 +134,6 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 						w='full'
 						h='full'
 						objectFit='cover'
-						// onError={(e) => {
-						// 	e.currentTarget.onerror = null; // prevent infinite loop
-						// 	e.currentTarget.src = DefaultUserImage;
-						// }}
 					/>
 				</Box>
 

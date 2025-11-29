@@ -1,10 +1,8 @@
-import React from 'react';
 import {
 	Box,
 	VStack,
 	HStack,
 	Grid,
-	GridItem,
 	Text,
 	Heading,
 	Badge,
@@ -16,7 +14,6 @@ import {
 	Skeleton,
 	Alert,
 	AlertIcon,
-	Flex,
 	Container,
 	Avatar,
 	IconButton,
@@ -31,9 +28,7 @@ import {
 	FiClock,
 	FiAward,
 	FiPieChart,
-	FiDownload,
 	FiMail,
-	FiPhone,
 	FiChevronLeft,
 } from 'react-icons/fi';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -244,88 +239,47 @@ const EmployeePayrollDetails = () => {
 					</HStack>
 
 					{/* Employee Profile Box */}
+
 					<Box
 						bg='white'
 						px={{ base: 2, md: 4, lg: 6 }}
 						py={4}
 						rounded='md'
-						shadow='lg'
+						shadow='md'
 						border='1px'
 						borderColor={borderColor}
 					>
-						<Box>
-							<HStack spacing={4} align='center'>
-								<Avatar size='lg' src={imgSrc} name={fullName} />
-								{/* <Box
-									w={20}
-									h={20}
-									borderRadius='full'
-									display='flex'
-									alignItems='center'
-									justifyContent='center'
-									bg={hasImage ? 'blue.100' : 'blue.200'}
-									color='white'
+						<HStack spacing={{ base: 2, md: 4 }} align='center'>
+							<Avatar size='lg' src={imgSrc} name={fullName} />
+
+							<VStack align='flex-start' spacing={1} flex={1}>
+								<Text
+									fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
 									fontWeight='bold'
-									fontSize='3xl'
-									border='4px solid'
-									borderColor='blue.300'
-									backgroundImage={
-										hasImage ? `${constant.baseUrl}${profileImage}` : 'none'
-									}
-									backgroundSize='cover'
-									backgroundPosition='center'
+									maxWidth={{ base: '350px', md: '100%' }}
+									isTruncated
 								>
-									{initial}
-								</Box> */}
-								<VStack align='flex-start' spacing={1} flex={1}>
+									{fullName}
+								</Text>
+								<HStack>
+									<Icon as={FiMail} color='gray.500' />
 									<Text
-										fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
-										fontWeight='bold'
+										maxWidth={{ base: '200px', md: '100%' }}
+										isTruncated
+										fontSize={{ base: 'xs', md: 'sm' }}
+										color='gray.600'
 									>
-										{fullName}
+										{username}
 									</Text>
-									<HStack
-										maxW={{ base: '300px', md: 'full' }}
-										isTruncated={true}
-									>
-										<Icon as={FiMail} color='gray.500' />
-										<Text fontSize='sm' color='gray.600'>
-											{username}
-										</Text>
-									</HStack>
-									<HStack>
-										<Icon as={FaBuilding} color='gray.500' />
-										<Text fontSize='sm' color='gray.600'>
-											{agency?.name}
-										</Text>
-									</HStack>
-
-									<HStack spacing={4} mt={2}>
-										{/* <HStack>
-											<Icon as={FiPhone} color='gray.500' />
-											<Text fontSize='sm' color='gray.600'>
-												{agency?.contactNumberPrimary}
-											</Text>
-										</HStack> */}
-									</HStack>
-								</VStack>
-								{/* <VStack align='flex-end' spacing={1}>
-									<HStack>
-										<Icon as={FaBuilding} color='gray.500' />
-										<Text fontSize='sm' color='gray.600'>
-											{agency?.name}
-										</Text>
-									</HStack>
-
-									<Text fontSize='sm' color='gray.500'>
-										Employee ID
+								</HStack>
+								<HStack>
+									<Icon as={FaBuilding} color='gray.500' />
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.600'>
+										{agency?.name}
 									</Text>
-									<Text fontWeight='bold' fontSize='lg'>
-										{userId?.slice(-8).toUpperCase()}
-									</Text>
-								</VStack> */}
-							</HStack>
-						</Box>
+								</HStack>
+							</VStack>
+						</HStack>
 					</Box>
 				</VStack>
 

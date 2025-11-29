@@ -21,11 +21,16 @@ import AdvancedSearchModal from './components/AdvancedSearchModal';
 import ActiveFiltersDisplay from 'views/admin/payroll/components/ActiveFiltersDisplay';
 import useUserSession from 'hooks/useUserSession';
 import SearchBox from 'views/admin/payroll/components/SearchBox';
+import { BsArrowRepeat } from 'react-icons/bs';
+import { MdRefresh } from 'react-icons/md';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const UserEvaluation = () => {
 	const {
 		month,
 		year,
+		refetchEvaluations,
 		isAgenciesAllowed,
 		agencies,
 		queryParams,
@@ -129,6 +134,13 @@ const UserEvaluation = () => {
 				</Flex>
 
 				<HStack gap='2' alignItems='center'>
+					<RefreshButton
+						aria-label='Refresh evaluations'
+						isLoading={isLoading}
+						isFetching={isFetching}
+						onClick={refetchEvaluations}
+					/>
+
 					<Box w={{ base: '100%', sm: 'auto' }} flexShrink={1}>
 						<SearchBox
 							onSearchTermChange={handleSearchTermChange}

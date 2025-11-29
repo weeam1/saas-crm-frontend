@@ -25,20 +25,17 @@ import {
 import Spinner from 'components/spinner/Spinner';
 import { useFormik } from 'formik';
 import { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { userSchema } from 'schema';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { jobTypes, salaryTypes } from 'utils/options';
+import { salaryTypes } from 'utils/options';
 import ImageUpload from './components/ImageUpload';
 import { useUpdateItemMutation } from 'api/apiSlice';
-import { getApi } from 'services/api';
 import ReplaceManager from './components/ReplaceManager';
 import { buttonStyle } from 'utils/btn';
 import PasswordPermission from './components/PasswordPermission';
-import { fetchActiveTree, fetchTree } from './userApis';
 import { currencyOptions } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
 import { useRoles } from 'hooks/user/userRoles';
@@ -47,7 +44,7 @@ import { getSalaryType } from 'schema/userSchema';
 import ReplaceTeamLead from './components/ReplaceTeamLead';
 
 const Edit = (props) => {
-	const { onClose, isOpen, fetchData, data, userData, setEdit } = props;
+	const { isOpen, fetchData, data, userData, setEdit } = props;
 
 	const { roles } = useRoles();
 
@@ -107,7 +104,7 @@ const Edit = (props) => {
 		roles: data?.roles ?? [],
 		role: data?.roles[0]?._id ?? '',
 		currency: data?.currency || 'AED',
-		teamLead: data?.teamLead || '',
+		teamLead: data?.teamLead || null,
 	};
 
 	const { user, isSuperAdmin } = useUserSession();
@@ -267,8 +264,6 @@ const Edit = (props) => {
 
 					dispatch(setUser(updatedUserData));
 				}
-
-				console.log({ bodyData, values });
 
 				if (user?._id === props.selectedId && bodyData?.password) {
 					console.warn('reeload the pagee');

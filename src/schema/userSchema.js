@@ -54,7 +54,6 @@ export const userSchema = yup.object({
 		.when('salaryType', (salaryType, schema) => {
 			const type = getSalaryType(salaryType[0]);
 
-			console.log({ salaryType, type });
 			if (type?.hasIncentive) {
 				return schema
 					.required('Incentive amount is required')

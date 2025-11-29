@@ -35,6 +35,7 @@ const EmployeesList = ({
 				>
 					{data?.doc?.map((emp, index) => (
 						<EmployeeCard
+							key={emp?._id}
 							index={index}
 							emp={emp}
 							tab={tab}

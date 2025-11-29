@@ -22,6 +22,7 @@ import AdvancedSearchModal from './components/AdvancedSearchModal';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
 import SearchBox from './components/SearchBox';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const Payroll = () => {
 	const {
@@ -154,15 +155,12 @@ const Payroll = () => {
 					w={{ base: '100%', md: 'auto' }}
 					order={{ base: 2, md: 2 }}
 				>
-					{/* <IconButton
-						icon={<FiRefreshCw />}
-						aria-label='Refresh Analytics'
+					<RefreshButton
+						aria-label='Refresh payroll'
+						isLoading={isLoading}
+						isFetching={isFetching}
 						onClick={refetch}
-						isLoading={isFetching}
-						isDisabled={isLoading}
-						variant='outline'
-						size='sm'
-					/> */}
+					/>
 
 					{isAgenciesAllowed && (
 						<IconButton

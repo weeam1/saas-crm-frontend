@@ -6,7 +6,6 @@ import {
 	FormLabel,
 	Input,
 	Button,
-	IconButton,
 	HStack,
 } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
@@ -16,7 +15,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup';
 import InterviewResult from '../../interviewedCandidates/InterviewResult';
-import { MdVisibility } from 'react-icons/md';
 
 const evaluationFields = [
 	'Appearance',

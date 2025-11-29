@@ -107,7 +107,7 @@ export const useUserEvalution = () => {
 		setYear(newYear);
 	};
 
-	const refetchSummary = useCallback(() => {
+	const refetchEvaluations = useCallback(() => {
 		refetch();
 	}, [refetch]);
 
@@ -178,7 +178,7 @@ export const useUserEvalution = () => {
 		agencies,
 		queryParams,
 
-		refetchSummary,
+		refetchEvaluations,
 
 		// data + meta
 		data: list ?? [],

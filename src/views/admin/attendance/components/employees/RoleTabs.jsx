@@ -22,7 +22,7 @@ function getValidRolesFromStorage() {
 	}
 }
 
-const RoleTabs = ({ updateFilters, key }) => {
+const RoleTabs = ({ updateFilters }) => {
 	const [searchParams] = useSearchParams();
 	const currentRole = searchParams.get('role') || 'All';
 	const [localRoles, setLocalRoles] = useState(null);
@@ -144,7 +144,7 @@ const RoleTabs = ({ updateFilters, key }) => {
 				maxWidth='100%'
 				css={{
 					'&::-webkit-scrollbar': { display: 'none' },
-					'-ms-overflow-style': 'none',
+					msOverflowStyle: 'none',
 					scrollbarWidth: 'none',
 				}}
 			>
