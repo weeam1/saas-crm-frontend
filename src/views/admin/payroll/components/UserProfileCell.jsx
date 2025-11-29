@@ -8,7 +8,7 @@ const UserProfileCell = ({ user }) => {
 
 	return (
 		<Flex align='center' gap={3}>
-			<Avatar size='sm' src={imgSrc} name={user.fullName} />
+			<Avatar size='md' src={imgSrc} name={user.fullName} />
 			<Box>
 				<Text fontWeight='semibold' color='gray.800' fontSize='sm'>
 					{user.fullName}
