@@ -12,6 +12,11 @@ export const mainLeadStatus = [
 	{ label: 'Change Agent', value: 'change-agent' },
 ];
 
+export const comissionTypes = [
+	{ label: 'Company Comission', value: 'company' },
+	{ label: 'Deal Amount', value: 'dealAmount' },
+];
+
 export const eventMainLeadStatus = [
 	'interested',
 	'not-interested',

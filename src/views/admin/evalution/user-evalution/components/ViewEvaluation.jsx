@@ -210,7 +210,13 @@ const EvaluationDetailModal = ({
 };
 
 // Main ViewEvaluation Modal
-const ViewEvaluation = ({ isOpen, onClose, data }) => {
+const ViewEvaluation = ({
+	isOpen,
+	onClose,
+	data,
+	selectedMonth,
+	selectedYear,
+}) => {
 	const [selectedEvaluation, setSelectedEvaluation] = useState(null);
 	const [isDetailOpen, setIsDetailOpen] = useState(false);
 
@@ -228,6 +234,7 @@ const ViewEvaluation = ({ isOpen, onClose, data }) => {
 		useFetchItemsQuery(
 			{
 				path: `/evaluation/users/user/${userId}`,
+				params: { month: selectedMonth, year: selectedYear },
 			},
 			{
 				skip: !userId,

@@ -63,6 +63,14 @@ export const formatCurrency = (amount, currency) => {
 	}).format(amount);
 };
 
+export const formatAmount = (amount) => {
+	return new Intl.NumberFormat('en-AE', {
+		style: 'decimal',
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 2,
+	}).format(amount);
+};
+
 export const toCapitalCase = (str) =>
 	str
 		.toLowerCase()

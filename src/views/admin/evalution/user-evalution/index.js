@@ -229,6 +229,8 @@ const UserEvaluation = () => {
 					isOpen={viewEvaluation?.modal}
 					onClose={() => setViewEvaluation({ modal: false, data: null })}
 					data={viewEvaluation?.data}
+					selectedMonth={month}
+					selectedYear={year}
 				/>
 			)}
 

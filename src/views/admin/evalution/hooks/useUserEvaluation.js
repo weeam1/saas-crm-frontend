@@ -23,6 +23,7 @@ export const useUserEvalution = () => {
 		Number(searchParams.get('month')) || new Date().getMonth() + 1;
 	const initialYear =
 		Number(searchParams.get('year')) || new Date().getFullYear();
+
 	const initialAgencyId = isAgenciesAllowed ? searchParams.get('agency') : null;
 	const initialPage = Number(searchParams.get('page')) || 1;
 	const initialLimit = Number(searchParams.get('limit')) || 10;

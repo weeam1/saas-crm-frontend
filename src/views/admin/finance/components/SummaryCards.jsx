@@ -10,14 +10,8 @@ import {
 	HStack,
 } from '@chakra-ui/react';
 import { FaFileInvoiceDollar, FaReceipt } from 'react-icons/fa';
-import {
-	FiTrendingUp,
-	FiTrendingDown,
-	FiDollarSign,
-	FiPercent,
-} from 'react-icons/fi';
-import { MdAttachMoney } from 'react-icons/md';
-import { formatCurrency } from 'utils/helpers';
+import { FiTrendingUp, FiTrendingDown, FiDollarSign } from 'react-icons/fi';
+import { formatAmount, formatCurrency } from 'utils/helpers';
 
 // const monthNames = [
 // 	'January',
@@ -182,7 +176,7 @@ const SummaryCard = ({
 						fontWeight='bold'
 						color={value >= 0 ? 'gray.800' : 'red.600'}
 					>
-						{formatCurrency(value)}
+						{formatAmount(value)}
 					</Text>
 					{percent && (
 						<Text fontSize='xs' color='gray.500'>
