@@ -30,7 +30,7 @@ import { userSchema } from 'schema';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../../redux/localSlice';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { salaryTypes } from 'utils/options';
+import { salaryTypes, userCommissionTypes } from 'utils/options';
 import ImageUpload from './components/ImageUpload';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import ReplaceManager from './components/ReplaceManager';
@@ -97,6 +97,7 @@ const Edit = (props) => {
 		commission: data?.commission ?? '',
 		incentive: data?.incentive ?? '',
 		salaryType: data?.salaryType ?? '',
+		commissionType: data?.commissionType ?? '',
 		phoneNumber: data?.phoneNumber ?? '',
 		profileImage: data?.profileImage ?? '',
 		parent: data?.parent ?? '',
@@ -568,36 +569,77 @@ const Edit = (props) => {
 										</GridItem>
 
 										{getSalaryType(values.salaryType)?.hasCommission && (
-											<GridItem colSpan={{ base: 6 }}>
-												<FormLabel
-													display='flex'
-													ms='4px'
-													fontSize='sm'
-													fontWeight='500'
-													mb='8px'
-												>
-													Commission
-												</FormLabel>
-												<Input
-													fontSize='sm'
-													type='number'
-													onChange={handleChange}
-													onBlur={handleBlur}
-													value={values.commission}
-													name='commission'
-													fontWeight='500'
-													borderColor={
-														errors.commission && touched.commission
-															? 'red.300'
-															: null
-													}
-												/>
-												<Text mb='10px' color={'red'}>
-													{errors.commission &&
-														touched.commission &&
-														errors.commission}
-												</Text>
-											</GridItem>
+											<>
+												<GridItem colSpan={{ base: 6 }}>
+													<FormLabel
+														display='flex'
+														ms='4px'
+														fontSize='sm'
+														fontWeight='500'
+														mb='8px'
+													>
+														Commission
+													</FormLabel>
+													<Input
+														fontSize='sm'
+														type='number'
+														onChange={handleChange}
+														onBlur={handleBlur}
+														value={values.commission}
+														name='commission'
+														fontWeight='500'
+														borderColor={
+															errors.commission && touched.commission
+																? 'red.300'
+																: null
+														}
+													/>
+													<Text mb='10px' color={'red'}>
+														{errors.commission &&
+															touched.commission &&
+															errors.commission}
+													</Text>
+												</GridItem>
+												<GridItem colSpan={{ base: 6 }}>
+													<FormLabel
+														display='flex'
+														ms='4px'
+														fontSize='sm'
+														fontWeight='500'
+														mb='8px'
+													>
+														Commission Type
+													</FormLabel>
+													<Select
+														name='commissionType'
+														value={values.commissionType}
+														onChange={handleChange}
+														onBlur={handleBlur}
+														// placeholder='Select Comission Type'
+														borderColor={
+															errors.commissionType && touched.role
+																? 'red.300'
+																: null
+														}
+														className={
+															errors.commissionType && touched.role
+																? 'isInvalid'
+																: null
+														}
+													>
+														{userCommissionTypes?.map((item) => (
+															<option key={item.value} value={item.value}>
+																{item.label}
+															</option>
+														))}
+													</Select>
+													{/* <Text mb='10px' color={'red'}>
+														{errors.commissionType &&
+															touched.commissionType &&
+															errors.commissionType}
+													</Text> */}
+												</GridItem>
+											</>
 										)}
 										{getSalaryType(values.salaryType)?.hasIncentive && (
 											<GridItem colSpan={{ base: 6 }}>

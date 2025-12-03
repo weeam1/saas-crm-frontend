@@ -12,9 +12,9 @@ export const mainLeadStatus = [
 	{ label: 'Change Agent', value: 'change-agent' },
 ];
 
-export const comissionTypes = [
-	{ label: 'Company Comission', value: 'company' },
-	{ label: 'Deal Amount', value: 'dealAmount' },
+export const userCommissionTypes = [
+	{ label: 'Deal Commision', value: 'DEAL_COMMISSION' },
+	{ label: 'Company Commission', value: 'COMPANY_COMMISSION' },
 ];
 
 export const eventMainLeadStatus = [

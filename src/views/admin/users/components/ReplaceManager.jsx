@@ -75,8 +75,8 @@ const ReplaceManager = ({
 						onChange={(e) => setReplacementManager(e.target.value)}
 					>
 						{managers.map((manager) => (
-							<option value={manager?._id} key={manager?._id}>
-								{manager?.firstName + ' ' + manager?.lastName}
+							<option value={manager?.managerId} key={manager?.managerId}>
+								{manager?.managerName}
 							</option>
 						))}
 					</Select>
