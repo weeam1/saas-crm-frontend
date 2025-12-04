@@ -89,6 +89,8 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 		shareUser,
 		sharedUsers,
 		sharePercent,
+		companyCommissionAmount,
+		companyCommissionPercent,
 	} = deal;
 
 	const PersonCard = ({ title, person, icon }) => {
@@ -493,6 +495,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 														({downpaymentPercent}%)
 													</Text>
 												</Box>
+
 												<Box>
 													<Text fontSize='xs' color='gray.500'>
 														Booking Amount
@@ -502,6 +505,17 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 													</Text>
 													<Text fontSize='xs' color='gray.500'>
 														({bookingPercent}%)
+													</Text>
+												</Box>
+												<Box>
+													<Text fontSize='xs' color='gray.500'>
+														Company Commission
+													</Text>
+													<Text fontWeight='medium'>
+														{formatCurrency(companyCommissionAmount, currency)}
+													</Text>
+													<Text fontSize='xs' color='gray.500'>
+														({companyCommissionPercent}%)
 													</Text>
 												</Box>
 											</SimpleGrid>
