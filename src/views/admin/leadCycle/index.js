@@ -104,7 +104,7 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
             py={4}
             w="100%"
           >
-            Lead Cycle Test 2
+            Lead Cycle
           </ModalHeader>
           <ModalCloseButton _focus={{ outline: "none" }} />
           <ModalBody overflow="hidden" width="100%">
