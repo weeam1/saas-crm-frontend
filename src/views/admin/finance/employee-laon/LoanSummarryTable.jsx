@@ -128,7 +128,7 @@ const LoanSummaryTable = ({
 							</Text>
 							{value?.username && (
 								<Text fontSize='xs' color='gray.500'>
-									@{value.username}
+									{value.username}
 								</Text>
 							)}
 						</Box>

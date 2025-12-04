@@ -44,6 +44,7 @@ const UserEvaluation = () => {
 		handlePageChange,
 		handlePageSize,
 		onDateFilterChange,
+		setPagination,
 		filters,
 		setFilters,
 	} = useUserEvalution();
@@ -85,6 +86,7 @@ const UserEvaluation = () => {
 			)
 		);
 
+		setPagination((prev) => ({ ...prev, page: 1 }));
 		setFilters(cleanedFilters);
 	};
 
@@ -93,8 +95,10 @@ const UserEvaluation = () => {
 			const newFilters = { ...filters };
 			delete newFilters[filterKey];
 			setFilters(newFilters);
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		} else {
 			setFilters({});
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		}
 		setClearFilters(false);
 	};
@@ -108,6 +112,7 @@ const UserEvaluation = () => {
 				search: trimmed,
 			}));
 			setClearFilters(true);
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		} else {
 			// remove search key from filters
 			setFilters((prev) => {

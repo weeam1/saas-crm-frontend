@@ -42,6 +42,7 @@ const Payroll = () => {
 		handlePageSize,
 		onDateFilterChange,
 		filters,
+		setPagination,
 		setFilters,
 		refetch,
 	} = useEmployeePayroll();
@@ -74,12 +75,14 @@ const Payroll = () => {
 
 		if (value) {
 			setClearFilters(true);
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		} else setClearFilters(false);
 	};
 
 	const handleClear = () => {
 		setClearFilters(false);
 		setAgencyId(null);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	const handleSearchTermChange = (searchQuery) => {
@@ -91,6 +94,7 @@ const Payroll = () => {
 				search: trimmed,
 			}));
 			setClearFilters(true);
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		} else {
 			// remove search key from filters
 			setFilters((prev) => {
@@ -98,6 +102,7 @@ const Payroll = () => {
 				delete updated.search;
 				return updated;
 			});
+			setPagination((prev) => ({ ...prev, page: 1 }));
 			setClearFilters(false);
 		}
 	};
@@ -111,6 +116,8 @@ const Payroll = () => {
 
 		setFilters(cleanedFilters);
 		setFilterChanged(true);
+		setSearchTerm('');
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	const handleClearFilters = (filterKey) => {
@@ -118,8 +125,10 @@ const Payroll = () => {
 			const newFilters = { ...filters };
 			delete newFilters[filterKey];
 			setFilters(newFilters);
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		} else {
 			setFilters({});
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		}
 		setFilterChanged(true);
 		setSearchTerm('');

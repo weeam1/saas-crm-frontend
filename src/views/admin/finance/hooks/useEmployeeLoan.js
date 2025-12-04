@@ -113,6 +113,7 @@ export const useEmployeeLoanSummary = () => {
 
 		setMonth(newMonth);
 		setYear(newYear);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	const refetchSummary = useCallback(() => {
@@ -225,17 +226,17 @@ export const useEmployeeLoans = ({ userId }) => {
 	const searchString = searchParams.toString();
 
 	// derive initial values from URL (stable on first render)
-	const initialMonth =
-		Number(searchParams.get('month')) || new Date().getMonth() + 1;
-	const initialYear =
-		Number(searchParams.get('year')) || new Date().getFullYear();
+	// const initialMonth =
+	// 	Number(searchParams.get('month')) || new Date().getMonth() + 1;
+	// const initialYear =
+	// 	Number(searchParams.get('year')) || new Date().getFullYear();
 	const initialPage = Number(searchParams.get('page')) || 1;
 	const initialLimit = Number(searchParams.get('limit')) || 10;
 
-	const [month, setMonth] = useState(initialMonth);
+	// const [month, setMonth] = useState(initialMonth);
+	// const [year, setYear] = useState(initialYear);
 	const [list, setList] = useState([]);
 	const [totalCount, setTotalCount] = useState(0);
-	const [year, setYear] = useState(initialYear);
 	const [pagination, setPagination] = useState({
 		page: initialPage,
 		limit: initialLimit,
@@ -250,11 +251,11 @@ export const useEmployeeLoans = ({ userId }) => {
 		const raw = {
 			page: pagination.page,
 			limit: pagination.limit,
-			month,
-			year,
+			// month,
+			// year,
 		};
 		return cleanSearchParams(raw);
-	}, [pagination.page, pagination.limit, month, year]);
+	}, [pagination.page, pagination.limit]);
 
 	// sync queryParams -> URL (loop proof)
 	useEffect(() => {
@@ -284,10 +285,10 @@ export const useEmployeeLoans = ({ userId }) => {
 	} = useFetchItemsQuery(
 		{
 			path: `finance/loans/summary/employee/${userId}`,
-			params: {
-				month,
-				year,
-			},
+			// params: {
+			// 	month,
+			// 	year,
+			// },
 		},
 		{
 			skip: !userId,
@@ -311,13 +312,13 @@ export const useEmployeeLoans = ({ userId }) => {
 		setPagination({ page: 1, limit: Number(limit) });
 	};
 
-	const onDateFilterChange = (value) => {
-		const newMonth = Number(value.month);
-		const newYear = Number(value.year);
+	// const onDateFilterChange = (value) => {
+	// 	const newMonth = Number(value.month);
+	// 	const newYear = Number(value.year);
 
-		setMonth(newMonth);
-		setYear(newYear);
-	};
+	// 	setMonth(newMonth);
+	// 	setYear(newYear);
+	// };
 
 	const updateData = (id, updated, type = 'update') => {
 		setList((prev) => {
@@ -378,10 +379,10 @@ export const useEmployeeLoans = ({ userId }) => {
 		totalRecords: totalCount ?? 0,
 
 		// filters
-		month,
-		year,
-		setMonth,
-		setYear,
+		// month,
+		// year,
+		// setMonth,
+		// setYear,
 
 		// pagination
 		pagination,
@@ -397,7 +398,7 @@ export const useEmployeeLoans = ({ userId }) => {
 		// helper functions
 		handlePageChange,
 		handlePageSize,
-		onDateFilterChange,
+		// onDateFilterChange,
 		updateData,
 		removeItem,
 	};

@@ -106,6 +106,7 @@ export const useUserEvalution = () => {
 
 		setMonth(newMonth);
 		setYear(newYear);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	const refetchEvaluations = useCallback(() => {

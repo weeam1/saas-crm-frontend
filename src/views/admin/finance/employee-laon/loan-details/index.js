@@ -29,9 +29,9 @@ const EmployeeLoans = () => {
 
 	const {
 		summary,
-		refetchSummary,
-		month,
-		year,
+		// refetchSummary,
+		// month,
+		// year,
 		queryParams,
 		data,
 		totalPages,
@@ -40,7 +40,7 @@ const EmployeeLoans = () => {
 		isFetching,
 		handlePageChange,
 		handlePageSize,
-		onDateFilterChange,
+		// onDateFilterChange,
 		updateData,
 		removeItem,
 	} = useEmployeeLoans({ userId });
@@ -96,7 +96,7 @@ const EmployeeLoans = () => {
 				</Flex>
 
 				<HStack gap='2' alignItems='center'>
-					<DateFilter onFilterChange={onDateFilterChange} />
+					{/* <DateFilter onFilterChange={onDateFilterChange} /> */}
 
 					<Button
 						alignSelf='flex-end'
@@ -173,8 +173,8 @@ const EmployeeLoans = () => {
 					initialData={editData}
 					// refetchSummary={refetchSummary}
 					updateData={updateData}
-					selectedMonth={month}
-					selectedYear={year}
+					// selectedMonth={month}
+					// selectedYear={year}
 				/>
 			)}
 		</Box>

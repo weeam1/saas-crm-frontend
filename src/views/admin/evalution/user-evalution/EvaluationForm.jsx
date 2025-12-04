@@ -9,30 +9,18 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
-	Input,
 	Textarea,
 	Slider,
 	SliderTrack,
 	SliderFilledTrack,
 	SliderThumb,
 	Tooltip,
-	Alert,
-	AlertIcon,
 	useColorModeValue,
 	Flex,
 	Spinner,
 	Divider,
 	Badge,
 	Icon,
-	useDisclosure,
-	Progress,
-	SimpleGrid,
-	Collapse,
-	Thead,
-	Tr,
-	Th,
-	Tbody,
-	Td,
 	IconButton,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
@@ -43,17 +31,7 @@ import useUserSession from 'hooks/useUserSession';
 import { toast } from 'react-toastify';
 import { getBadgeColors } from 'utils/colorUtils';
 
-import {
-	ChevronDownIcon,
-	ChevronUpIcon,
-	InfoOutlineIcon,
-	StarIcon,
-	TimeIcon,
-	ViewIcon,
-	WarningTwoIcon,
-} from '@chakra-ui/icons';
-import ErrorMessageBox from './components/ErrorMessageBox';
-import ErrorMessage from './../../../../components/Message/ErrorMessage';
+import { StarIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import { FiChevronLeft } from 'react-icons/fi';
 
 const EvaluationForm = () => {
@@ -133,7 +111,6 @@ const EvaluationForm = () => {
 		handleSubmit,
 		formState: { errors, isValid },
 		watch,
-		setValue,
 	} = useForm({
 		mode: 'onChange',
 		resolver: yupResolver(evaluationSchema),
@@ -218,7 +195,7 @@ const EvaluationForm = () => {
 				],
 			};
 
-			const res = await createEvaluation({
+			await createEvaluation({
 				path: '/evaluation/users',
 				body: payload,
 			}).unwrap();
@@ -274,8 +251,12 @@ const EvaluationForm = () => {
 						create one or pick a different role.
 					</Text>
 
-					<Button mt={6} colorScheme='brand' onClick={() => navigate(-1)}>
-						Go Back
+					<Button
+						mt={6}
+						colorScheme='brand'
+						onClick={() => navigate('/evaluation/settings')}
+					>
+						Add Template
 					</Button>
 				</Box>
 			</Box>
@@ -301,7 +282,11 @@ const EvaluationForm = () => {
 						{errorMessage?.message}
 					</Text>
 
-					<Button mt={6} colorScheme='brand' onClick={() => navigate(-1)}>
+					<Button
+						mt={6}
+						colorScheme='brand'
+						onClick={() => navigate('/evaluation/settings')}
+					>
 						Go Back
 					</Button>
 				</Box>

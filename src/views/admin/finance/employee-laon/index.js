@@ -39,6 +39,7 @@ const EmployeeLoan = () => {
 		handlePageChange,
 		handlePageSize,
 		onDateFilterChange,
+		setPagination,
 		updateData,
 		removeItem,
 	} = useEmployeeLoanSummary();
@@ -80,12 +81,14 @@ const EmployeeLoan = () => {
 
 		if (value) {
 			setClearFilters(true);
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		} else setClearFilters(false);
 	};
 
 	const handleClear = () => {
 		setClearFilters(false);
 		setAgencyId(null);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	return (

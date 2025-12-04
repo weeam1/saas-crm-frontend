@@ -18,6 +18,7 @@ import {
 	Avatar,
 	IconButton,
 	useDisclosure,
+	Flex,
 } from '@chakra-ui/react';
 import {
 	FiDollarSign,
@@ -63,11 +64,15 @@ const StatCard = ({
 					<Text fontSize='sm' color='gray.600' fontWeight='medium'>
 						{title}
 					</Text>
-					<Text fontSize='2xl' fontWeight='bold' color={`${color}.500`}>
+					<Text
+						fontSize={{ base: 'md', md: 'lg', lg: 'xl', xl: '2xl' }}
+						fontWeight='bold'
+						color={`${color}.500`}
+					>
 						{value}
 					</Text>
 					{subtitle && (
-						<Text fontSize='sm' color='gray.500'>
+						<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
 							{subtitle}
 						</Text>
 					)}
@@ -80,7 +85,13 @@ const StatCard = ({
 						</Badge>
 					)}
 				</Text>
-				<Icon as={icon} w={8} h={8} color={`${color}.500`} opacity={0.7} />
+				<Icon
+					as={icon}
+					w={{ base: 4, md: 6, lg: 8 }}
+					h={{ base: 4, md: 6, lg: 8 }}
+					color={`${color}.500`}
+					opacity={0.7}
+				/>
 			</HStack>
 		</Box>
 	</Box>
@@ -252,7 +263,6 @@ const EmployeePayrollDetails = () => {
 					</HStack>
 
 					{/* Employee Profile Box */}
-
 					<Box
 						bg='white'
 						px={{ base: 2, md: 4, lg: 6 }}
@@ -262,7 +272,11 @@ const EmployeePayrollDetails = () => {
 						border='1px'
 						borderColor={borderColor}
 					>
-						<HStack spacing={{ base: 2, md: 4 }} align='center'>
+						<Flex
+							flexDir={{ base: 'column', md: 'row' }}
+							gap={{ base: 2, md: 4 }}
+							align='center'
+						>
 							<Avatar
 								size='xl'
 								src={imgSrc}
@@ -271,7 +285,11 @@ const EmployeePayrollDetails = () => {
 								border='2px solid #dba554ff'
 							/>
 
-							<VStack align='flex-start' spacing={1} flex={1}>
+							<VStack
+								align={{ base: 'center', md: 'flex-start' }}
+								spacing={1}
+								flex={1}
+							>
 								<Text
 									fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
 									fontWeight='bold'
@@ -298,29 +316,29 @@ const EmployeePayrollDetails = () => {
 									</Text>
 								</HStack>
 							</VStack>
-						</HStack>
+						</Flex>
 					</Box>
 				</VStack>
 
 				{/* Key Metrics Grid */}
-				<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
+				<SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={6} mb={8}>
 					<StatCard
 						title='Net Salary'
-						value={formatCurrency(payrollSummary?.netSalary, currency)}
+						value={formatAmount(payrollSummary?.netSalary)}
 						subtitle='After all deductions'
 						icon={FiDollarSign}
 						color='green'
 					/>
 					<StatCard
 						title='Gross Salary'
-						value={formatCurrency(payrollSummary?.grossSalary, currency)}
+						value={formatAmount(payrollSummary?.grossSalary)}
 						subtitle='Before deductions'
 						icon={FiTrendingUp}
 						color='blue'
 					/>
 					<StatCard
 						title='Commission Earned'
-						value={formatCurrency(payrollSummary?.commissionEarned, currency)}
+						value={formatAmount(payrollSummary?.commissionEarned)}
 						subtitle='From closed deals'
 						icon={FiAward}
 						color='purple'
@@ -334,7 +352,10 @@ const EmployeePayrollDetails = () => {
 					/>
 				</SimpleGrid>
 
-				<Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
+				<Grid
+					templateColumns={{ base: '1fr', md: '1fr', xl: '2fr 1fr' }}
+					gap={8}
+				>
 					{/* Left Column - Main Details */}
 					<VStack
 						// flexDir={{ base: 'column', md: 'row' }}
