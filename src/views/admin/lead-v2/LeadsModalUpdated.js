@@ -51,6 +51,8 @@ import {
   useDeleteItemMutation,
   useUpdateItemMutation,
 } from "../../../api/apiSlice";
+import { usePermissions } from "hooks/usePermissions";
+import { useSearchParams } from "react-router-dom";
 
 const safeValue = (value) => {
   // treat these as "empty"
@@ -147,6 +149,7 @@ const LeadsModal = ({
   // Lead Details Logic
 
   const { user, userRoleName } = useUserSession();
+  const { hasPermission } = usePermissions();
   const countries = useSelector((state) => state.countries.countryNames);
   const { createUserLog } = useUserActivityLog();
 
@@ -206,6 +209,15 @@ const LeadsModal = ({
   }, []);
 
   // Lead Cycle Logic
+
+  const [searchParams] = useSearchParams();
+  let hideContact = false;
+
+  if (userRoleName === "superAdmin") {
+    hideContact = false;
+  } else if (searchParams.get("invite") && userRoleName !== "superAdmin") {
+    hideContact = user?._id !== data?.agentAssigned;
+  } else if (isInLeadPool) hideContact = true;
 
   const [leadCycledata, setLeadCycleData] = useState([]);
   const [leadName, setLeadName] = useState("");
@@ -296,6 +308,8 @@ const LeadsModal = ({
   const [isAdding, setIsAdding] = useState(false); // <-- loading state
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
+
+  const canManageNotes = userRoleName === "superAdmin";
 
   // Add new note handler
   const handleAddNote = async () => {
@@ -604,7 +618,6 @@ const LeadsModal = ({
           <Box
             display="flex"
             alignItems="center"
-            // gap="28px"
             flexDirection={{ base: "column", md: "row" }}
             gap={{ base: "18px", md: "28px" }}
             p={5}
@@ -627,35 +640,37 @@ const LeadsModal = ({
                 {data?.leadName}
               </Heading>
 
-              {/* Contact Info */}
-              <Box display="flex" gap="28px" flexWrap="wrap">
-                {/* Email */}
+              {hasPermission("leads", "contactDetails") && !hideContact && (
+                <>
+                  <Box display="flex" gap="28px" flexWrap="wrap">
+                    {/* Email */}
 
-                <Box display="flex" alignItems="center" gap="8px">
-                  <EmailIcon color="gray.500" boxSize={4} />
-                  <Text fontSize="sm" color="gray.700">
-                    {data?.leadEmail}
-                  </Text>
-                </Box>
+                    <Box display="flex" alignItems="center" gap="8px">
+                      <EmailIcon color="gray.500" boxSize={4} />
+                      <Text fontSize="sm" color="gray.700">
+                        {data?.leadEmail}
+                      </Text>
+                    </Box>
 
-                {/* Phone */}
-                <Box display="flex" alignItems="center" gap="8px">
-                  <FaPhoneAlt color="gray" size={15} />
-                  <Text fontSize="sm" color="gray.700">
-                    {/* 923041349020 */}
-                    {formatValue(data?.leadPhoneNumber)}
-                  </Text>
-                </Box>
+                    {/* Phone */}
+                    <Box display="flex" alignItems="center" gap="8px">
+                      <FaPhoneAlt color="gray" size={15} />
+                      <Text fontSize="sm" color="gray.700">
+                        {formatValue(data?.leadPhoneNumber)}
+                      </Text>
+                    </Box>
 
-                {/* WhatsApp */}
-                <Box display="flex" alignItems="center" gap="8px">
-                  <FaWhatsapp color="#25D366" size={17} />
-                  <Text fontSize="sm" color="gray.700">
-                    {/* +923041349020 */}
-                    {formatValue(data?.leadWhatsappNumber)}
-                  </Text>
-                </Box>
-              </Box>
+                    {/* WhatsApp */}
+                    <Box display="flex" alignItems="center" gap="8px">
+                      <FaWhatsapp color="#25D366" size={17} />
+                      <Text fontSize="sm" color="gray.700">
+                        {/* +923041349020 */}
+                        {formatValue(data?.leadWhatsappNumber)}
+                      </Text>
+                    </Box>
+                  </Box>
+                </>
+              )}
             </Box>
           </Box>
 
@@ -663,25 +678,28 @@ const LeadsModal = ({
           <Tabs variant="unstyled">
             {/* TAB LIST */}
             <TabList
+              position="sticky"
+              top="0px"
+              zIndex="20"
+              bg="white"
               borderBottom="1px solid"
               borderColor="gray.200"
               overflowX="auto"
               whiteSpace="nowrap"
               css={{
-                // ⭐ Smooth scrolling on mobile
                 scrollBehavior: "smooth",
 
-                // ⭐ Minimal custom scrollbar (Chrome, Safari, Edge)
+                /* Chrome, Safari, Edge */
                 "&::-webkit-scrollbar": {
-                  height: "2px", // ultra-thin
+                  height: "2px",
                 },
                 "&::-webkit-scrollbar-track": { background: "transparent" },
                 "&::-webkit-scrollbar-thumb": {
-                  background: "#d4d4d4", // light gray
+                  background: "#d4d4d4",
                   borderRadius: "2px",
                 },
 
-                // ⭐ Firefox scrollbar
+                /* Firefox */
                 scrollbarWidth: "thin",
                 scrollbarColor: "#d4d4d4 transparent",
               }}
@@ -700,25 +718,27 @@ const LeadsModal = ({
                 borderRadius="none"
                 _focus={{ boxShadow: "none" }}
               >
-                Additional Details
+                Basic Details
               </Tab>
 
               {/* 2️⃣ Lead Cycle */}
-              <Tab
-                _selected={{
-                  color: "#B79045",
-                  borderBottom: "2px solid",
-                  borderColor: "#B79045",
-                  fontWeight: "600",
-                }}
-                fontWeight="500"
-                px={4}
-                py={2}
-                borderRadius="none"
-                _focus={{ boxShadow: "none" }}
-              >
-                Lead Cycle
-              </Tab>
+              {hasPermission("leads", "viewLeadCycle") && (
+                <Tab
+                  _selected={{
+                    color: "#B79045",
+                    borderBottom: "2px solid",
+                    borderColor: "#B79045",
+                    fontWeight: "600",
+                  }}
+                  fontWeight="500"
+                  px={4}
+                  py={2}
+                  borderRadius="none"
+                  _focus={{ boxShadow: "none" }}
+                >
+                  Lead Cycle
+                </Tab>
+              )}
 
               {/* 3️⃣ Source & Tracking */}
               <Tab
@@ -795,231 +815,235 @@ const LeadsModal = ({
               </TabPanel>
 
               {/* 2️⃣ Lead Cycle */}
-              <TabPanel p={0}>
-                {leadCycledata?.map((item, index) => (
-                  <Flex
-                    key={index}
-                    pb={8}
-                    pl={8}
-                    py={2}
-                    borderLeft="2px solid"
-                    borderColor="gray.100"
-                    borderRadius="md"
-                    bg="gray.50"
-                    alignItems="flex-start"
-                    position="relative"
-                    transition="all 0.2s"
-                  >
-                    {/* Timeline dot */}
-                    <Box
-                      w={6}
-                      h={6}
-                      bg={getStatusColor(item.type)}
-                      borderRadius="full"
-                      position="absolute"
-                      top={2}
-                      left={0}
-                      transform="translateX(-50%)"
-                      border="3px solid white"
-                      boxShadow="md"
-                    />
-
-                    {/* Timeline content */}
-                    <Box flex={1} pr="2" py="1">
-                      <Flex
-                        flexDir={{ base: "column", md: "row" }}
-                        justify="space-between"
-                        align={{ base: "flex-start", md: "center" }}
-                        mb={2}
-                      >
-                        <Badge
-                          colorScheme={getBadgeColor(item.type)}
-                          variant="subtle"
-                          borderRadius="md"
-                          shadow="sm"
-                          px={2}
-                          py={1}
-                          fontSize={{ base: "xs", md: "sm", lg: "md" }}
-                          textTransform="uppercase"
-                        >
-                          {getTypeLabel(item.type)}
-                        </Badge>
-                        <Text
-                          fontSize={{ base: "10px", md: "sm" }}
-                          color="gray.500"
-                        >
-                          {formatPostDate(item?.updatedAt, "Asia/Dubai")}
-                        </Text>
-                      </Flex>
-
+              {hasPermission("leads", "viewLeadCycle") && (
+                <TabPanel p={0}>
+                  {leadCycledata?.map((item, index) => (
+                    <Flex
+                      key={index}
+                      pb={8}
+                      pl={8}
+                      py={2}
+                      borderLeft="2px solid"
+                      borderColor="gray.100"
+                      borderRadius="md"
+                      bg="gray.50"
+                      alignItems="flex-start"
+                      position="relative"
+                      transition="all 0.2s"
+                    >
+                      {/* Timeline dot */}
                       <Box
-                        bg="white"
-                        p={{ base: 2, md: 4 }}
-                        borderRadius="lg"
-                        boxShadow="sm"
-                      >
-                        {(item.type === "assignment-manager" ||
-                          item.type === "assignment-agent") && (
-                          <Box>
-                            <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                              {item.type === "assignment-manager" ? "👔" : "👤"}{" "}
-                              <Text
-                                as="span"
-                                color={getStatusColor(item.type)}
-                                fontWeight="600"
-                              >
-                                {item?.updatedData}
-                              </Text>
-                            </Text>
-                            <Text
-                              fontSize={{ base: "xs", md: "sm" }}
-                              color="gray.500"
-                            >
-                              By{" "}
-                              <Text as="span" color="brand.500">
-                                {item?.updatedBy}
-                              </Text>
-                            </Text>
-                          </Box>
-                        )}
-                        {(item.type === "unassigned-manager" ||
-                          item.type === "unassigned-agent") && (
-                          <Box>
-                            <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                              ♻️
-                              <Text
-                                as="span"
-                                color={getStatusColor(item.type)}
-                                fontWeight="600"
-                              >
-                                {item?.updatedData}
-                              </Text>
-                            </Text>
-                            <Text
-                              fontSize={{ base: "xs", md: "sm" }}
-                              color="gray.500"
-                            >
-                              By{" "}
-                              <Text as="span" color="brand.500">
-                                {item?.updatedBy}
-                              </Text>
-                            </Text>
-                          </Box>
-                        )}
+                        w={6}
+                        h={6}
+                        bg={getStatusColor(item.type)}
+                        borderRadius="full"
+                        position="absolute"
+                        top={2}
+                        left={0}
+                        transform="translateX(-50%)"
+                        border="3px solid white"
+                        boxShadow="md"
+                      />
 
-                        {item.type === "status" && (
-                          <Box>
-                            <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                              🔄
-                              <Text
-                                as="span"
-                                color={getStatusColor(item.type)}
-                                fontWeight="600"
-                              >
-                                {item?.updatedData}
-                              </Text>
-                            </Text>
-                            <Text
-                              fontSize={{ base: "xs", md: "sm" }}
-                              color="gray.500"
-                            >
-                              By{" "}
-                              <Text as="span" color="brand.500">
-                                {item?.updatedBy}
-                              </Text>
-                            </Text>
-                          </Box>
-                        )}
-
-                        {item.type === "mStatus" && (
-                          <Box>
-                            <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                              🔄
-                              <Text
-                                as="span"
-                                color={getStatusColor(item.type)}
-                                fontWeight="600"
-                              >
-                                {item?.updatedData}
-                              </Text>
-                            </Text>
-                            <Text
-                              fontSize={{ base: "xs", md: "sm" }}
-                              color="gray.500"
-                            >
-                              By{" "}
-                              <Text as="span" color="brand.500">
-                                {item?.updatedBy}
-                              </Text>
-                            </Text>
-                          </Box>
-                        )}
-
-                        {item.type === "lead-buy" && (
-                          <Box>
-                            <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                              💰
-                              <Text
-                                as="span"
-                                color={getStatusColor(item.type)}
-                                fontWeight="600"
-                              >
-                                {item?.updatedData}
-                              </Text>
-                            </Text>
-                            <Text
-                              fontSize={{ base: "xs", md: "sm" }}
-                              color="gray.500"
-                            >
-                              By{" "}
-                              <Text as="span" color="brand.500">
-                                {item?.updatedBy}
-                              </Text>
-                            </Text>
-                          </Box>
-                        )}
-                        {item.type === "release" && (
-                          <Box>
-                            <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                              🔓
-                              <Text
-                                as="span"
-                                color={getStatusColor(item.type)}
-                                fontWeight="600"
-                              >
-                                {`${item?.role} Release Lead`}
-                              </Text>
-                            </Text>
-                            <Text
-                              fontSize={{ base: "xs", md: "sm" }}
-                              color="gray.500"
-                            >
-                              By{" "}
-                              <Text as="span" color="brand.500">
-                                {item?.updatedBy}
-                              </Text>
-                            </Text>
-                          </Box>
-                        )}
-
-                        {/* Dynamic content based on type */}
-                        {item.type === "creation" && (
-                          <Text fontSize={{ base: "sm", md: "md" }}>
-                            🎯 <strong>Lead created</strong> by{" "}
-                            <Text
-                              as="span"
-                              color={getStatusColor(item.type)}
-                              fontWeight="600"
-                            >
-                              {item?.updatedBy}
-                            </Text>
+                      {/* Timeline content */}
+                      <Box flex={1} pr="2" py="1">
+                        <Flex
+                          flexDir={{ base: "column", md: "row" }}
+                          justify="space-between"
+                          align={{ base: "flex-start", md: "center" }}
+                          mb={2}
+                        >
+                          <Badge
+                            colorScheme={getBadgeColor(item.type)}
+                            variant="subtle"
+                            borderRadius="md"
+                            shadow="sm"
+                            px={2}
+                            py={1}
+                            fontSize={{ base: "xs", md: "sm", lg: "md" }}
+                            textTransform="uppercase"
+                          >
+                            {getTypeLabel(item.type)}
+                          </Badge>
+                          <Text
+                            fontSize={{ base: "10px", md: "sm" }}
+                            color="gray.500"
+                          >
+                            {formatPostDate(item?.updatedAt, "Asia/Dubai")}
                           </Text>
-                        )}
+                        </Flex>
+
+                        <Box
+                          bg="white"
+                          p={{ base: 2, md: 4 }}
+                          borderRadius="lg"
+                          boxShadow="sm"
+                        >
+                          {(item.type === "assignment-manager" ||
+                            item.type === "assignment-agent") && (
+                            <Box>
+                              <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
+                                {item.type === "assignment-manager"
+                                  ? "👔"
+                                  : "👤"}{" "}
+                                <Text
+                                  as="span"
+                                  color={getStatusColor(item.type)}
+                                  fontWeight="600"
+                                >
+                                  {item?.updatedData}
+                                </Text>
+                              </Text>
+                              <Text
+                                fontSize={{ base: "xs", md: "sm" }}
+                                color="gray.500"
+                              >
+                                By{" "}
+                                <Text as="span" color="brand.500">
+                                  {item?.updatedBy}
+                                </Text>
+                              </Text>
+                            </Box>
+                          )}
+                          {(item.type === "unassigned-manager" ||
+                            item.type === "unassigned-agent") && (
+                            <Box>
+                              <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
+                                ♻️
+                                <Text
+                                  as="span"
+                                  color={getStatusColor(item.type)}
+                                  fontWeight="600"
+                                >
+                                  {item?.updatedData}
+                                </Text>
+                              </Text>
+                              <Text
+                                fontSize={{ base: "xs", md: "sm" }}
+                                color="gray.500"
+                              >
+                                By{" "}
+                                <Text as="span" color="brand.500">
+                                  {item?.updatedBy}
+                                </Text>
+                              </Text>
+                            </Box>
+                          )}
+
+                          {item.type === "status" && (
+                            <Box>
+                              <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
+                                🔄
+                                <Text
+                                  as="span"
+                                  color={getStatusColor(item.type)}
+                                  fontWeight="600"
+                                >
+                                  {item?.updatedData}
+                                </Text>
+                              </Text>
+                              <Text
+                                fontSize={{ base: "xs", md: "sm" }}
+                                color="gray.500"
+                              >
+                                By{" "}
+                                <Text as="span" color="brand.500">
+                                  {item?.updatedBy}
+                                </Text>
+                              </Text>
+                            </Box>
+                          )}
+
+                          {item.type === "mStatus" && (
+                            <Box>
+                              <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
+                                🔄
+                                <Text
+                                  as="span"
+                                  color={getStatusColor(item.type)}
+                                  fontWeight="600"
+                                >
+                                  {item?.updatedData}
+                                </Text>
+                              </Text>
+                              <Text
+                                fontSize={{ base: "xs", md: "sm" }}
+                                color="gray.500"
+                              >
+                                By{" "}
+                                <Text as="span" color="brand.500">
+                                  {item?.updatedBy}
+                                </Text>
+                              </Text>
+                            </Box>
+                          )}
+
+                          {item.type === "lead-buy" && (
+                            <Box>
+                              <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
+                                💰
+                                <Text
+                                  as="span"
+                                  color={getStatusColor(item.type)}
+                                  fontWeight="600"
+                                >
+                                  {item?.updatedData}
+                                </Text>
+                              </Text>
+                              <Text
+                                fontSize={{ base: "xs", md: "sm" }}
+                                color="gray.500"
+                              >
+                                By{" "}
+                                <Text as="span" color="brand.500">
+                                  {item?.updatedBy}
+                                </Text>
+                              </Text>
+                            </Box>
+                          )}
+                          {item.type === "release" && (
+                            <Box>
+                              <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
+                                🔓
+                                <Text
+                                  as="span"
+                                  color={getStatusColor(item.type)}
+                                  fontWeight="600"
+                                >
+                                  {`${item?.role} Release Lead`}
+                                </Text>
+                              </Text>
+                              <Text
+                                fontSize={{ base: "xs", md: "sm" }}
+                                color="gray.500"
+                              >
+                                By{" "}
+                                <Text as="span" color="brand.500">
+                                  {item?.updatedBy}
+                                </Text>
+                              </Text>
+                            </Box>
+                          )}
+
+                          {/* Dynamic content based on type */}
+                          {item.type === "creation" && (
+                            <Text fontSize={{ base: "sm", md: "md" }}>
+                              🎯 <strong>Lead created</strong> by{" "}
+                              <Text
+                                as="span"
+                                color={getStatusColor(item.type)}
+                                fontWeight="600"
+                              >
+                                {item?.updatedBy}
+                              </Text>
+                            </Text>
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  </Flex>
-                ))}
-              </TabPanel>
+                    </Flex>
+                  ))}
+                </TabPanel>
+              )}
 
               {/* 3️⃣ Source & Tracking */}
               <TabPanel p={0}>
@@ -1113,8 +1137,6 @@ const LeadsModal = ({
 
                   {/* Notes List */}
                   <Box
-                    maxH="240px"
-                    overflowY="auto"
                     px={2}
                     py={1}
                     css={{
@@ -1131,6 +1153,18 @@ const LeadsModal = ({
                     flexDirection="column"
                     gap={3}
                   >
+                    {(!allNotes || allNotes.length === 0) && (
+                      <Text
+                        textAlign="center"
+                        color="gray.500"
+                        fontSize="sm"
+                        py={4}
+                        fontStyle="italic"
+                      >
+                        No notes have been added yet.
+                      </Text>
+                    )}
+
                     {allNotes?.map((note) => {
                       return (
                         <Flex
@@ -1171,121 +1205,117 @@ const LeadsModal = ({
                                   note.addedBy?.lastName}
                               </Text>
                               <Text fontSize="xs" color="gray.500">
-                                {new Date(note.createdAt).toLocaleString(
-                                  "en-GB",
-                                  {
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    second: "2-digit",
-                                    hour12: false,
-                                  }
-                                )}
+                                {formatPostDate(new Date(note?.createdAt))}
                               </Text>
                             </HStack>
 
-                            <HStack spacing={2}>
-                              {/* Edit Button */}
-                              <Tooltip
-                                label="Edit Note"
-                                placement="top"
-                                openDelay={300}
-                              >
-                                <IconButton
-                                  icon={<FaEdit />}
-                                  size="sm"
-                                  variant="ghost"
-                                  color="gray.600"
-                                  _hover={{
-                                    bg: "#B79045",
-                                    color: "white",
-                                    transform: "scale(1.1)",
-                                    transition: "0.2s",
-                                  }}
-                                  aria-label="Edit Note"
-                                  onClick={() => startEditing(note)}
-                                />
-                              </Tooltip>
-
-                              {/* Delete Button */}
-                              <Popover
-                                placement="top-end"
-                                isOpen={openPopoverId === note._id}
-                                onClose={() => setOpenPopoverId(null)}
-                                closeOnBlur={false} // important to prevent auto-close
-                              >
-                                <PopoverTrigger>
+                            {/* ⭐ SHOW ACTION BUTTONS ONLY IF SUPERADMIN */}
+                            {canManageNotes && (
+                              <HStack spacing={2}>
+                                {/* Edit Button */}
+                                <Tooltip
+                                  label="Edit Note"
+                                  placement="top"
+                                  openDelay={300}
+                                >
                                   <IconButton
-                                    icon={<FaTrash size={13} />}
+                                    icon={<FaEdit />}
                                     size="sm"
                                     variant="ghost"
-                                    aria-label="Delete Note"
                                     color="gray.600"
-                                    borderRadius="full"
                                     _hover={{
-                                      bg: "red.50",
-                                      color: "red.600",
-                                      transform: "scale(1.15)",
-                                      transition: "0.18s ease",
+                                      bg: "#B79045",
+                                      color: "white",
+                                      transform: "scale(1.1)",
+                                      transition: "0.2s",
                                     }}
-                                    onClick={() => setOpenPopoverId(note._id)} // open this popover
+                                    aria-label="Edit Note"
+                                    onClick={() => startEditing(note)}
                                   />
-                                </PopoverTrigger>
+                                </Tooltip>
 
-                                <PopoverContent
-                                  p={2}
-                                  borderRadius="xl"
-                                  boxShadow="lg"
-                                  border="1px solid"
-                                  borderColor="gray.200"
-                                  width="260px"
+                                {/* Delete Button */}
+                                <Popover
+                                  placement="top-end"
+                                  isOpen={openPopoverId === note._id}
+                                  onClose={() => setOpenPopoverId(null)}
+                                  closeOnBlur={false} // important to prevent auto-close
                                 >
-                                  <PopoverArrow />
+                                  <PopoverTrigger>
+                                    <IconButton
+                                      icon={<FaTrash size={13} />}
+                                      size="sm"
+                                      variant="ghost"
+                                      aria-label="Delete Note"
+                                      color="gray.600"
+                                      borderRadius="full"
+                                      _hover={{
+                                        bg: "red.50",
+                                        color: "red.600",
+                                        transform: "scale(1.15)",
+                                        transition: "0.18s ease",
+                                      }}
+                                      onClick={() => setOpenPopoverId(note._id)} // open this popover
+                                    />
+                                  </PopoverTrigger>
 
-                                  <PopoverHeader
-                                    fontWeight="600"
-                                    fontSize="md"
-                                    border="none"
-                                    pb={1}
-                                    color="gray.800"
+                                  <PopoverContent
+                                    p={2}
+                                    borderRadius="xl"
+                                    boxShadow="lg"
+                                    border="1px solid"
+                                    borderColor="gray.200"
+                                    width="260px"
                                   >
-                                    Delete Note?
-                                  </PopoverHeader>
+                                    <PopoverArrow />
 
-                                  <PopoverBody
-                                    fontSize="sm"
-                                    color="gray.600"
-                                    pt={0}
-                                  >
-                                    This action cannot be undone.
-                                    <Flex mt={4} justify="flex-end" gap={2}>
-                                      <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        color="gray.700"
-                                        _hover={{ bg: "gray.100" }}
-                                        onClick={() => setOpenPopoverId(null)} // cancel closes popover
-                                      >
-                                        Cancel
-                                      </Button>
+                                    <PopoverHeader
+                                      fontWeight="600"
+                                      fontSize="md"
+                                      border="none"
+                                      pb={1}
+                                      color="gray.800"
+                                    >
+                                      Delete Note?
+                                    </PopoverHeader>
 
-                                      <Button
-                                        size="sm"
-                                        bg="red.500"
-                                        color="white"
-                                        _hover={{ bg: "red.600" }}
-                                        onClick={() => confirmDelete(note._id)} // triggers API
-                                        isLoading={deletingNoteId === note._id} // optional loading state
-                                      >
-                                        Delete
-                                      </Button>
-                                    </Flex>
-                                  </PopoverBody>
-                                </PopoverContent>
-                              </Popover>
-                            </HStack>
+                                    <PopoverBody
+                                      fontSize="sm"
+                                      color="gray.600"
+                                      pt={0}
+                                    >
+                                      This action cannot be undone.
+                                      <Flex mt={4} justify="flex-end" gap={2}>
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          color="gray.700"
+                                          _hover={{ bg: "gray.100" }}
+                                          onClick={() => setOpenPopoverId(null)} // cancel closes popover
+                                        >
+                                          Cancel
+                                        </Button>
+
+                                        <Button
+                                          size="sm"
+                                          bg="red.500"
+                                          color="white"
+                                          _hover={{ bg: "red.600" }}
+                                          onClick={() =>
+                                            confirmDelete(note._id)
+                                          } // triggers API
+                                          isLoading={
+                                            deletingNoteId === note._id
+                                          } // optional loading state
+                                        >
+                                          Delete
+                                        </Button>
+                                      </Flex>
+                                    </PopoverBody>
+                                  </PopoverContent>
+                                </Popover>
+                              </HStack>
+                            )}
                           </Flex>
 
                           {/* Content or Editing Mode */}
