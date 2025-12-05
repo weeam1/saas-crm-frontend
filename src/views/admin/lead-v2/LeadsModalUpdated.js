@@ -679,7 +679,9 @@ const LeadsModal = ({
             {/* TAB LIST */}
             <TabList
               position="sticky"
-              top="0px"
+              top="-24px"
+              mx="-24px"
+              px="24px"
               zIndex="20"
               bg="white"
               borderBottom="1px solid"
