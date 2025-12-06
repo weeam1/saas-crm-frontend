@@ -1,11 +1,7 @@
 const keys = {
-  // nodeENV: process.env.REACT_APP_NODE_ENV,
-  // baseLocalUrl: process.env.REACT_APP_WEEAM_LOCAL_API,
-  // baseLiveUrl: process.env.REACT_APP_WEEAM_LIVE_API,
-
-  nodeENV: "development",
-  baseLocalUrl: "https://stageapi.weeam.info/",
-  baseLiveUrl: "http://127.0.0.1:5000/",
+  nodeENV: process.env.REACT_APP_NODE_ENV,
+  baseLocalUrl: process.env.REACT_APP_WEEAM_LOCAL_API,
+  baseLiveUrl: process.env.REACT_APP_WEEAM_LIVE_API,
   server2: process.env.REACT_APP_SERVER2,
   wssSocketUrl: process.env.REACT_APP_SOCKET_WSS_API,
   socketUrl: process.env.REACT_APP_SOCKET_API,

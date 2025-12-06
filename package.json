@@ -46,6 +46,7 @@
 		"jspdf": "^2.5.1",
 		"jwt-decode": "^3.1.2",
 		"libphonenumber-js": "^1.12.23",
+		"lucide-react": "^0.556.0",
 		"moment": "^2.29.4",
 		"moment-timezone": "^0.5.47",
 		"npm": "^11.2.0",
