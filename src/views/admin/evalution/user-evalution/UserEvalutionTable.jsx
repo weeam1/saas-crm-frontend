@@ -253,9 +253,15 @@ const UserEvaluationTable = ({ data = [], isLoading, setView }) => {
 											) : column.key === 'finalAvg' ? (
 												<Text>{row?.evaluation?.[0]?.finalAvg ?? 0}</Text>
 											) : column.key === 'finalPercentage' ? (
-												<Text>
-													{row?.evaluation?.[0]?.finalPercentage ?? 0}
-												</Text>
+												<Badge
+													colorScheme='green'
+													fontSize='.9em'
+													px={2}
+													py={2}
+													borderRadius='full'
+												>
+													{row?.evaluation?.[0]?.finalPercentage ?? 0}%
+												</Badge>
 											) : (
 												formatValue(column.key, row[column.key])
 											)}
