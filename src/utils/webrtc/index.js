@@ -15,6 +15,10 @@ export const formatPhoneNumber = (number) => {
 	return number;
 };
 
+	
+export const maskFormattedNumber = (formatted = "") =>
+			formatted.replace(/(\d{5})$/, "*****");
+
 export const openPhonePopup = () => {
 	return new Promise((resolve) => {
 		const runningPhoneWindowId = getWindowIdKey();

@@ -9,10 +9,10 @@ import {
 	Input,
 	Spacer,
 	Text,
+	Avatar,
 	Icon,
 	Tooltip,
 	VStack,
-	useToast,
 } from '@chakra-ui/react';
 import {
 	forwardRef,
@@ -32,8 +32,8 @@ import {
 	isSipClientRinging,
 } from 'utils/webrtc';
 
-import Avatar from 'assets/webrtc-imgs/icons/Avatar.svg';
-import GreenAvatar from 'assets/webrtc-imgs/icons/Avatar-Green.svg';
+// import Avatar from 'assets/webrtc-imgs/icons/Avatar.svg';
+// import GreenAvatar from 'assets/webrtc-imgs/icons/Avatar-Green.svg';
 import './styles.css';
 import {
 	deleteCurrentCall,
@@ -52,7 +52,6 @@ import {
 	getRegisteredUser,
 	getSelfRegisteredUser,
 } from 'api/webrtc';
-import { DEFAULT_TOAST_DURATION } from 'common/constants';
 
 import {
 	FaChevronDown,
@@ -63,13 +62,20 @@ import {
 	FaPeopleGroup,
 	FaPhoneSlash,
 	FaPlay,
+	FaPhone,
 	FaUserGroup,
 } from 'react-icons/fa6';
 import JoinConference from './conference';
 import AvailableAccounts from './availableAccounts';
 import { PhoneIcon } from '@chakra-ui/icons';
-import { toggleWebRTCModal } from './../../../redux/webrtc/webrtcSlice';
-import { useDispatch } from 'react-redux';
+import {
+	receiveIncomingCall,
+	resetAutoDailState,
+} from './../../../redux/webrtc/webrtcSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import useUserSession from 'hooks/useUserSession';
+import { constant } from 'constant';
 
 function transform(t1, t2) {
 	const diff = Math.abs(t1 - t2) / 1000;
@@ -107,6 +113,11 @@ const Phone = forwardRef((props, ref) => {
 
 	const dispatch = useDispatch();
 
+	const { user } = useUserSession();
+
+	const webrtc = useSelector((state) => state.webrtc);
+	const leadDetails = webrtc?.activeCall; 
+
 	const [inputNumber, setInputNumber] = useState('');
 	const [appName, setAppName] = useState('');
 	const [callStatus, setCallStatus] = useState(SipConstants.SESSION_ENDED);
@@ -141,7 +152,16 @@ const Phone = forwardRef((props, ref) => {
 	const secondsRef = useRef(seconds);
 	const accountsCardRef = useRef(null);
 
-	const toast = useToast();
+	// ####### 	SET INPUT NUMBER FROM LEAD MODULE TO AUTO CALL DIRECT ########## //
+
+	// 00CC format phone number for any country
+	useEffect(() => {
+		if (leadDetails?.phoneNumber && webrtc?.callType === 'outbound') {
+			setInputNumber(leadDetails?.leadName);
+			// direct goesh to call directly 
+			makeOutboundCall(leadDetails?.phoneNumber)
+		}
+	}, [leadDetails]);
 
 	useImperativeHandle(ref, () => ({
 		updateGoOffline(newState) {
@@ -216,12 +236,7 @@ const Phone = forwardRef((props, ref) => {
 
 		sipClient.on(SipConstants.UA_DISCONNECTED, (args) => {
 			if (unregisteredReasonRef.current) {
-				toast({
-					title: unregisteredReasonRef.current,
-					status: 'warning',
-					duration: DEFAULT_TOAST_DURATION,
-					isClosable: true,
-				});
+				// toast.warning(unregisteredReasonRef.current);
 				unregisteredReasonRef.current = '';
 			}
 			setStatus('disconnected');
@@ -230,14 +245,11 @@ const Phone = forwardRef((props, ref) => {
 			if (sipUA.current) sipUA.current.stop();
 
 			if (args.error) {
-				toast({
-					title: `Cannot connect to ${sipServerAddressRef.current}${
+				toast.warning(
+					`Cannot connect to ${sipServerAddressRef.current}${
 						args.reason ? `, ${args.reason}` : ''
-					}`,
-					status: 'warning',
-					duration: DEFAULT_TOAST_DURATION,
-					isClosable: true,
-				});
+					}`
+				);
 			} else if (isRestartRef.current) {
 				createSipClient();
 				isRestartRef.current = false;
@@ -256,7 +268,7 @@ const Phone = forwardRef((props, ref) => {
 				});
 
 				// **** OPEN CRM CALL MODAL **** //
-				dispatch(toggleWebRTCModal());
+				dispatch(receiveIncomingCall(args.session.user));
 			}
 			setCallStatus(SipConstants.SESSION_RINGING);
 			setSessionDirection(args.session.direction);
@@ -295,7 +307,6 @@ const Phone = forwardRef((props, ref) => {
 		setIsSwitchingUserStatus,
 		setStatus,
 		startCallDurationCounter,
-		toast,
 		setIsOnline,
 	]);
 
@@ -319,6 +330,9 @@ const Phone = forwardRef((props, ref) => {
 		if (isSipClientAnswered(callStatus)) {
 			sipUA.current?.dtmf(value);
 		}
+
+		// reset the redux lead phone number
+		dispatch(resetAutoDailState());
 	};
 
 	const handleCallButtion = () => makeOutboundCall(inputNumber);
@@ -525,6 +539,10 @@ const Phone = forwardRef((props, ref) => {
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, [showAccounts]);
 
+	const profileSrc = user?.profileImage
+		? `${constant.baseUrl}${user.profileImage}`
+		: user?.fullName || undefined;
+
 	return (
 		<Box flexDirection='column'>
 			{allSettings.length >= 1 ? (
@@ -548,14 +566,24 @@ const Phone = forwardRef((props, ref) => {
 							>
 								{sipUsername && sipDomain ? (
 									<>
-										<Image
+										{/* <Image
 											src={isStatusRegistered() ? GreenAvatar : Avatar}
 											boxSize='35px'
+										/> */}
+
+										<Avatar
+											size='sm'
+											src={profileSrc}
+											name={user?.fullName}
+											// border='2px solid'
+											// borderColor={
+											// 	isStatusRegistered() ? 'green.400' : 'gray.300'
+											// }
 										/>
 										<VStack alignItems='start' w='full' spacing={0}>
 											<HStack spacing={2} w='full'>
 												<Text fontWeight='bold' fontSize='13px'>
-													{sipDisplayName || sipUsername}
+													{user?.firstName || sipDisplayName || sipUsername}
 												</Text>
 												<Circle
 													size='8px'
@@ -789,7 +817,7 @@ const Phone = forwardRef((props, ref) => {
 						}}
 						// Only allow digits, *, #
 						onChange={(e) =>
-							setInputNumber(e.target.value.replace(/[^\d*#]/g, ''))
+							setInputNumber(e.target.value)
 						}
 					/>
 
@@ -818,9 +846,10 @@ const Phone = forwardRef((props, ref) => {
 							onClick={handleCallButtion}
 							isDisabled={!isStatusRegistered()}
 							colorScheme='green'
-							rounded='md'
+							// rounded='md'
 							size='lg'
 							mt='4'
+        borderRadius="full"
 							isLoading={isCallButtonLoading}
 							loadingText='Calling...'
 							_hover={{

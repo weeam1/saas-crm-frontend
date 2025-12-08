@@ -1,5 +1,4 @@
 import {
-	Box,
 	Tab,
 	TabList,
 	TabPanel,
@@ -12,10 +11,16 @@ import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_COLOR_SCHEME } from 'common/constants';
 import { getActiveSettings, getCallHistories, getSettings } from 'storage';
 
-import CallHistories from './history';
+// import CallHistories from './history';
 import Footer from './footer/footer';
 import Phone from './phone';
 import Settings from './settings';
+
+import {
+	resetAutoDailState,
+} from '../../redux/webrtc/webrtcSlice';
+
+import './index.css';
 
 const WebRTCApp = () => {
 	const [sipDomain, setSipDomain] = useState('');
@@ -23,7 +28,7 @@ const WebRTCApp = () => {
 	const [sipServerAddress, setSipServerAddress] = useState('');
 	const [sipPassword, setSipPassword] = useState('');
 	const [sipDisplayName, setSipDisplayName] = useState('');
-	const [callHistories, setCallHistories] = useState([]);
+	// const [callHistories, setCallHistories] = useState([]);
 	const [calledNumber, setCalledNumber] = useState('');
 	const [calledName, setCalledName] = useState('');
 	const [tabIndex, setTabIndex] = useState(0);
@@ -81,20 +86,20 @@ const WebRTCApp = () => {
 				/>
 			),
 		},
-		{
-			title: 'Calls',
-			content: (
-				<CallHistories
-					calls={callHistories}
-					onDataChange={() => setCallHistories(getCallHistories(sipUsername))}
-					onCallNumber={(number, name) => {
-						setCalledNumber(number);
-						setCalledName(name || '');
-						setTabIndex(0);
-					}}
-				/>
-			),
-		},
+		// {
+		// 	title: 'Calls',
+		// 	content: (
+		// 		<CallHistories
+		// 			calls={callHistories}
+		// 			onDataChange={() => setCallHistories(getCallHistories(sipUsername))}
+		// 			onCallNumber={(number, name) => {
+		// 				setCalledNumber(number);
+		// 				setCalledName(name || '');
+		// 				setTabIndex(0);
+		// 			}}
+		// 		/>
+		// 	),
+		// },
 		{
 			title: 'Settings',
 			content: <Settings />,
@@ -108,7 +113,9 @@ const WebRTCApp = () => {
 	const onTabsChange = (i) => {
 		loadSettings();
 		setTabIndex(i);
-		setCallHistories(getCallHistories(sipUsername));
+		// reset lead details
+		resetAutoDailState()
+		// setCallHistories(getCallHistories(sipUsername));
 	};
 
 	return (
@@ -134,9 +141,10 @@ const WebRTCApp = () => {
 				<TabList gap={1}>
 					{tabsSettings.map((s, i) => (
 						<Tab
-							_selected={{ color: 'white', bg: 'greenish.600' }}
+							_selected={{ color: 'white', bg: 'greenish.500' }}
 							bg='grey.500'
 							key={i}
+							rounded={0}
 							flex='1'
 							minW={0}
 						>

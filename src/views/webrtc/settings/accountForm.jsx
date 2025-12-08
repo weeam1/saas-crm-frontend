@@ -12,7 +12,6 @@ import {
 	VStack,
 } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { DEFAULT_TOAST_DURATION } from 'common/constants';
 import PasswordInput from 'components/password-input';
 import { deleteSettings, editSettings, saveSettings } from 'storage';
 import { FaCheckCircle } from 'react-icons/fa';
@@ -22,6 +21,7 @@ import { getAdvancedValidation } from 'api/webrtc';
 import Switch from 'assets/webrtc-imgs/icons/Switch.svg';
 import Trash from 'assets/webrtc-imgs/icons/Trash.svg';
 import invalid from 'assets/webrtc-imgs/icons/invalid.svg';
+import { toast } from 'react-toastify';
 
 function AccountForm({ closeForm, formData, handleClose, inputUniqueId }) {
 	const [showAdvanced, setShowAdvanced] = useState(false);
@@ -97,13 +97,7 @@ function AccountForm({ closeForm, formData, handleClose, inputUniqueId }) {
 			checkCredential(settings.apiServer || '', settings.accountSid || '');
 		}
 
-		// toast({
-		// 	title: 'Settings saved successfully',
-		// 	status: 'success',
-		// 	duration: DEFAULT_TOAST_DURATION,
-		// 	isClosable: true,
-		// 	colorScheme: 'jambonz',
-		// });
+		toast.success('Settings saved successfully');
 
 		if (formData) {
 			handleClose && handleClose();
@@ -296,7 +290,7 @@ function AccountForm({ closeForm, formData, handleClose, inputUniqueId }) {
 							alignItems={'center'}
 							onClick={() => setShowAdvanced((prev) => !prev)}
 						>
-							<Text textColor={'brand.500'}>
+							<Text textColor={'greenish.500'}>
 								{' '}
 								{showAdvanced ? 'Hide' : 'Show'} Advanced Settings
 							</Text>
@@ -314,7 +308,7 @@ function AccountForm({ closeForm, formData, handleClose, inputUniqueId }) {
 					<HStack>
 						<Button
 							fontWeight={'semibold'}
-							colorScheme='brand'
+							colorScheme='greenish'
 							type='submit'
 							size='sm'
 							w='full'
@@ -323,7 +317,7 @@ function AccountForm({ closeForm, formData, handleClose, inputUniqueId }) {
 						</Button>
 						<Button
 							variant={'ghost'}
-							colorScheme='brand'
+							colorScheme='greenish'
 							type='reset'
 							size='sm'
 							fontWeight={'semibold'}

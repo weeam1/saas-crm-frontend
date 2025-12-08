@@ -72,15 +72,15 @@ export const CallHistoryItem = ({
 			)}
 
 			<VStack align='start'>
-				<Text fontSize='14px' fontWeight='500'>
+				<Text fontSize='12px' fontWeight='500'>
 					{call.name || formatPhoneNumber(call.number)}
 				</Text>
-				<Text fontSize='12px'>{call.duration}</Text>
+				<Text fontSize='10px'>{call.duration}</Text>
 			</VStack>
 
 			<Spacer />
 			<VStack align='start'>
-				<Text fontSize='12px'>
+				<Text fontSize='11px'>
 					{dayjs(call.timeStamp).format('MMM D, hh:mm A')}
 				</Text>
 			</VStack>
@@ -107,7 +107,7 @@ export const CallHistoryItem = ({
 					}}
 					variant='unstyled'
 					size='sm'
-					color={call.isSaved ? 'brand.500' : ''}
+					color={call.isSaved ? 'greenish.500' : ''}
 				/>
 			</Tooltip>
 		</HStack>

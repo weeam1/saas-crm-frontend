@@ -8,12 +8,10 @@ import {
 	Radio,
 	RadioGroup,
 	Text,
-	useToast,
 	VStack,
 } from '@chakra-ui/react';
 import { FormEvent, useEffect, useState } from 'react';
 import { updateConferenceParticipantAction } from 'api/webrtc';
-import { DEFAULT_TOAST_DURATION } from 'common/constants';
 import OutlineBox from 'components/outline-box';
 import { SipConstants } from 'lib/webrtc';
 import {
@@ -21,6 +19,7 @@ import {
 	getConferenceSettings,
 	saveConferenceSettings,
 } from 'storage';
+import { toast } from 'react-toastify';
 
 const JoinConference = ({
 	conferenceId,
@@ -30,7 +29,6 @@ const JoinConference = ({
 	handleCancel,
 	call,
 }) => {
-	const toast = useToast();
 	const [conferenceName, setConferenceName] = useState(conferenceId || '');
 	const [appTitle, setAppTitle] = useState(
 		conferenceId ? 'Joining Conference' : 'Start Conference'
@@ -62,21 +60,11 @@ const JoinConference = ({
 							action: mode === 'coach' ? 'coach' : 'uncoach',
 							tag: confSettings.speakOnlyTo,
 						}).catch((error) => {
-							toast({
-								title: error.msg,
-								status: 'error',
-								duration: DEFAULT_TOAST_DURATION,
-								isClosable: true,
-							});
+							toast.error(error?.msg || 'Something went wrong');
 						});
 					})
 					.catch((error) => {
-						toast({
-							title: error.msg,
-							status: 'error',
-							duration: DEFAULT_TOAST_DURATION,
-							isClosable: true,
-						});
+						toast.error(error?.msg || 'Something went wrong');
 					});
 			}
 
@@ -85,12 +73,7 @@ const JoinConference = ({
 					action: tags ? 'tag' : 'untag',
 					tag: tags,
 				}).catch((error) => {
-					toast({
-						title: error.msg,
-						status: 'error',
-						duration: DEFAULT_TOAST_DURATION,
-						isClosable: true,
-					});
+					toast.error(error?.msg || 'Something went wrong');
 				});
 			}
 		}

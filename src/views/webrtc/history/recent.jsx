@@ -37,7 +37,8 @@ export const Recents = ({
 			{callHistories.length > 0 ? (
 				<UnorderedList
 					w='full'
-					maxH='calc(100vh - 21em)'
+					maxH='calc(100vh - 34em)'
+					scrollBehavior='smooth'
 					overflowY='auto'
 					spacing={2}
 					mt={2}

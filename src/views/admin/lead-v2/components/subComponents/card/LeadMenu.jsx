@@ -17,13 +17,14 @@ import { AiFillInfoCircle } from 'react-icons/ai';
 import { useDispatch, useSelector } from 'react-redux';
 import { generateRoomId } from 'views/admin/whatsapp/components/helpers';
 
-import { setActiveChat } from '../../../../../../redux/whatsappSlice';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import { FiMoreVertical } from 'react-icons/fi';
-import { normalizePhone } from 'utils/phoneValidation';
+import { normalizePhone, formatWebRTCPhone } from 'utils/phoneValidation';
 import { FaMessage } from 'react-icons/fa6';
 import DirectWhatsappMessage from '../../whatsapp-message/DirectWhatsappMessage';
+import { setActiveChat } from '../../../../../../redux/whatsappSlice';
+import { setAutoDialLead } from '../../../../../../redux/webrtc/webrtcSlice';
 
 const LeadMenu = ({
 	lead,
@@ -109,6 +110,21 @@ const LeadMenu = ({
 		navigate(redirectUrl);
 	};
 
+	const handleDirectCall = () => {
+		const validNum = formatWebRTCPhone(phoneNumber);
+
+		if (validNum) {
+			dispatch(setAutoDialLead({
+				phoneNumber: validNum,
+				leadName: lead?.leadName,
+				id: lead?.leadId
+			}));
+		} else
+			toast.warning(
+				'Lead phone number is invalid for calling. Please check the format.'
+			);
+	};
+
 	const handleDirectMessage = () => {
 		setDirectMessageModal(true);
 	};
@@ -153,6 +169,16 @@ const LeadMenu = ({
 							refreshData={refreshData}
 						/>
 					)}
+
+					{hasPermission("leads", 'call_dialer') && 
+					<MenuItem
+					onClick={handleDirectCall}
+					icon={<PhoneIcon fontSize={15} />}
+					>
+						Direct Call
+					</MenuItem>
+					}
+					
 					{/* {callAccess?.create && (
 					<MenuItem
 					

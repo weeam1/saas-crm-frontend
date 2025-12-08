@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
-import { DEFAULT_COLOR_SCHEME } from 'common/constants';
 import Recents from './recent';
 import { FaSearch } from 'react-icons/fa';
 import { FaSliders } from 'react-icons/fa6';
@@ -23,7 +22,7 @@ export const CallHistories = ({ calls, onDataChange, onCallNumber }) => {
 	const [searchText, setSearchText] = useState('');
 
 	return (
-		<Tabs isFitted colorScheme={DEFAULT_COLOR_SCHEME}>
+		<Tabs isFitted colorScheme='greenish'>
 			<TabList mb='1em' gap={1}>
 				<Tab>Recent</Tab>
 				<Tab>Saved</Tab>

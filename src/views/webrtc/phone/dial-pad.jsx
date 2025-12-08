@@ -149,7 +149,8 @@ export const DialPad = ({ handleDigitPress }) => {
 								bg='gray.100'
 								fontSize='xl'
 								fontWeight='bold'
-								rounded='md'
+								// rounded='md'
+borderRadius='lg'
 								shadow='sm'
 								_hover={{
 									bg: 'gray.200',

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import weeamLogo from 'assets/logo-crm.png';
 import SIPSwitch from 'components/switch';
 import './styles.css';
+import { useDispatch } from 'react-redux';
+import { updateSipStatus } from './../../../redux/webrtc/webrtcSlice';
 
 function Footer({
 	status,
@@ -20,13 +22,16 @@ function Footer({
 	onHandleGoOffline,
 }) {
 	const [isConfigured, setIsConfigured] = useState(false);
+	const dispatch = useDispatch();
 
+	// **** Add user status in redux store **** //
 	useEffect(() => {
 		if (status === 'registered' || status === 'disconnected') {
 			setIsSwitchingUserStatus(false);
 			setIsOnline(status === 'registered');
+			dispatch(updateSipStatus(status));
 		}
-	}, [status, setIsSwitchingUserStatus, setIsOnline]);
+	}, [status, setIsSwitchingUserStatus, setIsOnline, dispatch]);
 
 	useEffect(() => {
 		if (sipDomain && sipUsername && sipPassword && sipServerAddress) {

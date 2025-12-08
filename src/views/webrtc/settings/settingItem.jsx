@@ -8,7 +8,7 @@ function SettingItem({ data, onToggleAcc }) {
 			marginY={'1.5'}
 			border={'1px'}
 			bg='gray.100'
-			borderColor={'brand.200'}
+			borderColor={'greenish.200'}
 			justifyContent={'start'}
 			borderRadius={'6px'}
 			paddingTop={'7px'}

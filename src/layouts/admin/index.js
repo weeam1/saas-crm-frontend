@@ -363,7 +363,10 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			/>
 
 			{/* WEB RTC APP */}
+			{hasPermission("leads", 'call_dialer')
+				&& 
 			<WebRTCModal />
+			}
 
 			<Flex>
 				{/* Sidebar (desktop fixed, mobile Drawer) */}

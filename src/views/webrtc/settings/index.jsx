@@ -55,9 +55,10 @@ export const Settings = () => {
 			{!showForm && !showFormInAccordion && (
 				<Button
 					marginY='3'
-					colorScheme='brand'
+					colorScheme='greenish'
 					w='full'
 					size='sm'
+					rounded='md'
 					onClick={handleOpenForm}
 					isDisabled={btnIsDisabled}
 				>

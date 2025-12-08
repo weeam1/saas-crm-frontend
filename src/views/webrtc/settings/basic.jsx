@@ -7,13 +7,12 @@ import {
 	Input,
 	Text,
 	VStack,
-	useToast,
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import PasswordInput from 'components/password-input';
 import { getSettings, saveSettings } from 'storage';
 import ResetIcon from 'assets/webrtc-imgs/icons/Reset.svg';
-import { DEFAULT_TOAST_DURATION } from 'common/constants';
+import { toast } from 'react-toastify';
 
 export const BasicSettings = () => {
 	const [sipDomain, setSipDomain] = useState('');
@@ -21,8 +20,6 @@ export const BasicSettings = () => {
 	const [sipUsername, setSipUsername] = useState('');
 	const [sipPassword, setSipPassword] = useState('');
 	const [sipDisplayName, setSipDisplayName] = useState('');
-
-	const toast = useToast();
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -36,13 +33,7 @@ export const BasicSettings = () => {
 		};
 
 		saveSettings(settings);
-		toast({
-			title: 'Settings saved successfully',
-			status: 'success',
-			duration: DEFAULT_TOAST_DURATION,
-			isClosable: true,
-			colorScheme: 'jambonz',
-		});
+		toast.success('Settings saved successfully');
 	};
 
 	const resetSetting = () => {
