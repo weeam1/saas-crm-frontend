@@ -16,8 +16,25 @@ export const formatPhoneNumber = (number) => {
 };
 
 	
-export const maskFormattedNumber = (formatted = "") =>
-			formatted.replace(/(\d{5})$/, "*****");
+export const maskPhoneNumber = (number = "", maskPercent = 70) => {
+  if (!number) return "";
+
+  const digits = number.replace(/\D/g, ""); // remove non-digit chars
+  const len = digits.length;
+
+  if (len === 0) return number;
+
+  const maskCount = Math.ceil((maskPercent / 100) * len);
+  const visibleCount = len - maskCount;
+
+  // show first `visibleCount` digits, mask the rest
+  const visible = digits.slice(0, visibleCount);
+  const masked = "*".repeat(maskCount);
+
+  // preserve original formatting if needed (simple version ignores non-digits)
+  return visible + masked;
+};
+
 
 export const openPhonePopup = () => {
 	return new Promise((resolve) => {

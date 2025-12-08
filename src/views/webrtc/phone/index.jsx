@@ -30,6 +30,7 @@ import {
 	isSipClientAnswered,
 	isSipClientIdle,
 	isSipClientRinging,
+	maskPhoneNumber,
 } from 'utils/webrtc';
 
 // import Avatar from 'assets/webrtc-imgs/icons/Avatar.svg';
@@ -116,7 +117,7 @@ const Phone = forwardRef((props, ref) => {
 	const { user } = useUserSession();
 
 	const webrtc = useSelector((state) => state.webrtc);
-	const leadDetails = webrtc?.activeCall; 
+	const leadDetails = webrtc?.activeCall;
 
 	const [inputNumber, setInputNumber] = useState('');
 	const [appName, setAppName] = useState('');
@@ -157,9 +158,10 @@ const Phone = forwardRef((props, ref) => {
 	// 00CC format phone number for any country
 	useEffect(() => {
 		if (leadDetails?.phoneNumber && webrtc?.callType === 'outbound') {
+			// direct goesh to call directly
+			makeOutboundCall(leadDetails?.phoneNumber);
+		} else if (leadDetails?.leadName) {
 			setInputNumber(leadDetails?.leadName);
-			// direct goesh to call directly 
-			makeOutboundCall(leadDetails?.phoneNumber)
 		}
 	}, [leadDetails]);
 
@@ -291,6 +293,7 @@ const Phone = forwardRef((props, ref) => {
 			setCallStatus(SipConstants.SESSION_ENDED);
 			setSessionDirection('');
 			stopCallDurationCounter();
+			setInputNumber(''); // extra add for clear the input number
 		});
 
 		sipClient.on(SipConstants.SESSION_FAILED, () => {
@@ -298,6 +301,7 @@ const Phone = forwardRef((props, ref) => {
 			setCallStatus(SipConstants.SESSION_FAILED);
 			setSessionDirection('');
 			stopCallDurationCounter();
+			setInputNumber(''); // extra add for clear the input number
 		});
 
 		sipClient.start();
@@ -781,7 +785,11 @@ const Phone = forwardRef((props, ref) => {
 						isReadOnly={!isSipClientIdle(callStatus)}
 					/> */}
 					<Input
-						value={inputNumber}
+						value={
+							!isSipClientIdle(callStatus) && seconds >= 0
+								? maskPhoneNumber(inputNumber)
+								: inputNumber
+						}
 						variant='unstyled'
 						textAlign='center'
 						fontWeight='semibold'
@@ -816,9 +824,7 @@ const Phone = forwardRef((props, ref) => {
 							isInputNumberFocusRef.current = false;
 						}}
 						// Only allow digits, *, #
-						onChange={(e) =>
-							setInputNumber(e.target.value)
-						}
+						onChange={(e) => setInputNumber(e.target.value)}
 					/>
 
 					{!isSipClientIdle(callStatus) && seconds >= 0 && (
@@ -849,7 +855,7 @@ const Phone = forwardRef((props, ref) => {
 							// rounded='md'
 							size='lg'
 							mt='4'
-        borderRadius="full"
+							borderRadius='full'
 							isLoading={isCallButtonLoading}
 							loadingText='Calling...'
 							_hover={{
@@ -864,7 +870,7 @@ const Phone = forwardRef((props, ref) => {
 							</HStack>
 						</Button>
 					) : (
-						<HStack w='full'>
+						<HStack align='center' gap={4} justify='space-evenly'>
 							<Tooltip
 								label={sipUA.current?.isHolded(undefined) ? 'UnHold' : 'Hold'}
 							>
@@ -877,8 +883,11 @@ const Phone = forwardRef((props, ref) => {
 											<FaPause />
 										)
 									}
-									w='33%'
-									variant='unstyled'
+									// w='33%'
+									variant='ghost'
+									borderRadius='full'
+									size='md'
+									colorScheme='blue'
 									display='flex'
 									alignItems='center'
 									justifyContent='center'
@@ -890,10 +899,10 @@ const Phone = forwardRef((props, ref) => {
 							<IconButton
 								aria-label='Hangup'
 								icon={<FaPhoneSlash />}
-								w='70px'
-								h='70px'
+								w='60px'
+								h='60px'
 								borderRadius='100%'
-								colorScheme='brand'
+								colorScheme='red'
 								onClick={handleHangup}
 							/>
 							<Spacer />
@@ -909,11 +918,14 @@ const Phone = forwardRef((props, ref) => {
 											<FaMicrophoneSlash />
 										)
 									}
-									w='33%'
-									variant='unstyled'
+									// w='33%'
+									size='md'
+									variant='ghost'
+									borderRadius='full'
 									display='flex'
 									alignItems='center'
 									justifyContent='center'
+									colorScheme='blue'
 									onClick={handleCallMute}
 								/>
 							</Tooltip>
