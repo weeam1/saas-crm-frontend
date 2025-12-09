@@ -6,20 +6,40 @@ import { motion, AnimatePresence } from 'framer-motion';
 import WebRTCApp from './WebRTCApp';
 import { toggleDialerModal } from '../../redux/webrtc/webrtcSlice';
 import { PhoneIcon } from '@chakra-ui/icons';
+import useUserSession from 'hooks/useUserSession';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
 const MotionBox = motion(Box);
 
-
 const WebRTCModal = () => {
+	const bg = useColorModeValue('white', 'gray.800');
+	const borderColor = useColorModeValue('gray.200', 'gray.700');
+
 	const dispatch = useDispatch();
 	const webrtc = useSelector((state) => state.webrtc);
-	const isOpen = webrtc.isModalOpen;
 	const sipStatus = webrtc.sipStatus;
 
-	const handleToggle = () => dispatch(toggleDialerModal());
-	const bg = useColorModeValue('white', 'gray.800');
+	const { user } = useUserSession();
 
-	const borderColor = useColorModeValue('gray.200', 'gray.700');
+	const { data, isLoading } = useFetchItemsQuery(
+		{
+			path: `/sipSetting/user/${user?._id}`,
+		},
+		{
+			skip: !user?._id,
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: true,
+		}
+	);
+
+	const isOpen = webrtc.isModalOpen;
+
+	const userWSSStatus = data?.doc?.status?.wss || false;
+
+	if (!userWSSStatus) return null;
+	console.log({ userWSSStatus });
+
+	const handleToggle = () => dispatch(toggleDialerModal());
 
 	return (
 		<>
@@ -101,7 +121,7 @@ const WebRTCModal = () => {
 						<HStack spacing={2} align='center'>
 							<PhoneIcon w={5} h={5} />
 							<Text fontWeight='bold' fontSize='sm'>
-							Weeam Dialer
+								Weeam Dialer
 							</Text>
 							<Badge
 								colorScheme={sipStatus === 'registered' ? 'green' : 'red'}
@@ -114,7 +134,7 @@ const WebRTCModal = () => {
 							</Badge>
 						</HStack>
 
-				<FaChevronDown />
+						<FaChevronDown />
 					</MotionBox>
 
 					{/* Content */}
@@ -126,6 +146,5 @@ const WebRTCModal = () => {
 		</>
 	);
 };
-
 
 export default WebRTCModal;

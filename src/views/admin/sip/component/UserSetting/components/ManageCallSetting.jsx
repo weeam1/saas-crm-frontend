@@ -298,7 +298,13 @@ const ManageCallSetting = ({
 	};
 
 	return (
-		<Modal isOpen={isOpen} size='lg' isCentered>
+		<Modal
+			isOpen={isOpen}
+			onClose={handleClose}
+			size='lg'
+			isCentered
+			closeOnOverlayClick={false}
+		>
 			<ModalOverlay />
 			<ModalContent
 				bg={bgColor}
@@ -323,14 +329,13 @@ const ManageCallSetting = ({
 						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 							Add Call Setting
 						</Text>
-						{/* <ModalCloseButton
+						<ModalCloseButton
 							position='absolute'
 							right='12px'
 							top='10px'
-							onClick={handleClose}
 							color={headerText}
 							_hover={{ bg: 'whiteAlpha.200' }}
-						/> */}
+						/>
 					</Flex>
 				</ModalHeader>
 
