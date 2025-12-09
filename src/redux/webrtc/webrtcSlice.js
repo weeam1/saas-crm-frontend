@@ -66,8 +66,6 @@ const webrtcSlice = createSlice({
 		receiveIncomingCall: (state, action) => {
 			if (!state.isModalOpen) state.isModalOpen = true;
 
-			console.log({ call_payload: action.payload });
-
 			state.incomingCaller = action.payload;
 			state.activeCall = {
 				phoneNumber: action.payload,

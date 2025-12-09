@@ -119,6 +119,10 @@ const Phone = forwardRef((props, ref) => {
 	const webrtc = useSelector((state) => state.webrtc);
 	const leadDetails = webrtc?.activeCall;
 
+	// is mask number ?
+	const isMaskNumber =
+		webrtc.dialMode === 'auto' || webrtc.callType === 'inbound';
+
 	const [inputNumber, setInputNumber] = useState('');
 	const [appName, setAppName] = useState('');
 	const [callStatus, setCallStatus] = useState(SipConstants.SESSION_ENDED);
@@ -785,11 +789,7 @@ const Phone = forwardRef((props, ref) => {
 						isReadOnly={!isSipClientIdle(callStatus)}
 					/> */}
 					<Input
-						value={
-							!isSipClientIdle(callStatus) && seconds >= 0
-								? maskPhoneNumber(inputNumber)
-								: inputNumber
-						}
+						value={isMaskNumber ? maskPhoneNumber(inputNumber) : inputNumber}
 						variant='unstyled'
 						textAlign='center'
 						fontWeight='semibold'

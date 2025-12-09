@@ -45,15 +45,17 @@ import CallAvatar from './CallAvatar';
 // };
 
 export const OutGoingCall = ({ number, cancelCall }) => {
-	const leadDetails = useSelector((state) => state.webrtc.activeCall);
+	const webrtc = useSelector((state) => state.webrtc);
+
+	const leadDetails = webrtc.activeCall;
 
 	const formattedNumber = formatPhoneNumber(number);
 
 	const displayContact = leadDetails?.leadName
 		? leadDetails.leadName
-		: number
+		: webrtc.dialMode === 'auto'
 			? maskPhoneNumber(formattedNumber)
-			: 'Unknown';
+			: formattedNumber || 'Unknown';
 
 	const iconBg = useColorModeValue('green.100', 'green.900');
 	const textColor = useColorModeValue('gray.700', 'gray.200');
