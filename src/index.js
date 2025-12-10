@@ -53,11 +53,6 @@ function App() {
 
 	registerWhatsappSocket(store);
 
-	// console.log(
-	// 	'check : 92000003495580124: ',
-	// 	normalizePhone('92000003495580124')
-	// );
-
 	useEffect(() => {
 		getSmartTimezone();
 		// register whatsapp socket
