@@ -602,7 +602,7 @@ export const sidebarRoutes = [
 				name: 'User Analytics',
 				path: '/sip/user-analytics',
 			},
-			{ id: 'user_settings', name: 'User Settings', path: '/sip/settings' },
+			{ id: 'user_settings', name: 'Call Settings', path: '/sip/settings' },
 			{
 				id: 'shared_recordings',
 				name: 'Shared Recording',
