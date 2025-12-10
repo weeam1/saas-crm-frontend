@@ -7,6 +7,7 @@ import {
 	Grid,
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 
 import { DEFAULT_COLOR_SCHEME } from 'common/constants';
 import { getActiveSettings, getCallHistories, getSettings } from 'storage';
@@ -15,12 +16,11 @@ import { getActiveSettings, getCallHistories, getSettings } from 'storage';
 import Footer from './footer/footer';
 import Phone from './phone';
 import Settings from './settings';
-
-import {
-	resetAutoDailState,
-} from '../../redux/webrtc/webrtcSlice';
+import { resetAutoDailState } from '../../redux/webrtc/webrtcSlice';
 
 import './index.css';
+import DialerSettings from './dialer_settings';
+import { usePermissions } from 'hooks/usePermissions';
 
 const WebRTCApp = () => {
 	const [sipDomain, setSipDomain] = useState('');
@@ -39,6 +39,16 @@ const WebRTCApp = () => {
 	const [isOnline, setIsOnline] = useState(false);
 	const phoneSipAschildRef = useRef(null);
 
+	const { hasPermission } = usePermissions();
+
+	// check dialer settiings permision
+	const isDialerSettingsAllowed = hasPermission('sip', 'edit_dialer_settings');
+
+	// get user settings from redux store
+	const userActiveSettings = useSelector(
+		(state) => state.webrtc.userSettings?.modes?.wss || {}
+	);
+
 	const handleGoOffline = (s) => {
 		if (s === status) return;
 
@@ -51,18 +61,34 @@ const WebRTCApp = () => {
 		}
 	};
 
-	const loadSettings = () => {
-		const settings = getSettings();
-		const activeSettings = settings.find((el) => el.active);
+	// console.log({ userActiveSettings });
 
-		setAllSettings(getSettings());
+	const loadSettings = () => {
+		// const settings = getSettings();
+		// const activeSettings = settings.find((el) => el.active);
+
+		// Settings pulled from Redux; already fetched from the DB
+		setAllSettings([userActiveSettings]);
+		setSipDomain(userActiveSettings?.domain || '');
+		setSipServerAddress(userActiveSettings?.url || '');
+		setSipUsername(userActiveSettings?.username || '');
+		setSipPassword(userActiveSettings?.password || '');
+		setSipDisplayName(userActiveSettings?.cid || '');
+
 		setAdvancedSettings(getActiveSettings());
-		setSipDomain(activeSettings?.decoded.sipDomain || '');
-		setSipServerAddress(activeSettings?.decoded.sipServerAddress || '');
-		setSipUsername(activeSettings?.decoded.sipUsername || '');
-		setSipPassword(activeSettings?.decoded.sipPassword || '');
-		setSipDisplayName(activeSettings?.decoded.sipDisplayName || '');
 	};
+	// const loadSettings = () => {
+	// 	const settings = getSettings();
+	// 	const activeSettings = settings.find((el) => el.active);
+
+	// 	setAllSettings(getSettings());
+	// 	setAdvancedSettings(getActiveSettings());
+	// 	setSipDomain(activeSettings?.decoded.sipDomain || '');
+	// 	setSipServerAddress(activeSettings?.decoded.sipServerAddress || '');
+	// 	setSipUsername(activeSettings?.decoded.sipUsername || '');
+	// 	setSipPassword(activeSettings?.decoded.sipPassword || '');
+	// 	setSipDisplayName(activeSettings?.decoded.sipDisplayName || '');
+	// };
 
 	const tabsSettings = [
 		{
@@ -102,19 +128,22 @@ const WebRTCApp = () => {
 		// },
 		{
 			title: 'Settings',
-			content: <Settings />,
+			content: <DialerSettings />,
+			// content: <Settings />,
 		},
 	];
 
 	useEffect(() => {
-		loadSettings();
-	}, []);
+		if (userActiveSettings && Object.keys(userActiveSettings).length > 0) {
+			loadSettings();
+		}
+	}, [userActiveSettings]);
 
 	const onTabsChange = (i) => {
 		loadSettings();
 		setTabIndex(i);
 		// reset lead details
-		resetAutoDailState()
+		resetAutoDailState();
 		// setCallHistories(getCallHistories(sipUsername));
 	};
 
@@ -133,25 +162,28 @@ const WebRTCApp = () => {
 				colorScheme={DEFAULT_COLOR_SCHEME}
 				onChange={onTabsChange}
 				index={tabIndex}
-				size='md'
+				size='sm'
 				gap={1}
 				w='100%'
 				overflow='hidden'
 			>
-				<TabList gap={1}>
-					{tabsSettings.map((s, i) => (
-						<Tab
-							_selected={{ color: 'white', bg: 'greenish.500' }}
-							bg='grey.500'
-							key={i}
-							rounded={0}
-							flex='1'
-							minW={0}
-						>
-							{s.title}
-						</Tab>
-					))}
-				</TabList>
+				{isDialerSettingsAllowed && (
+					<TabList gap={1}>
+						{tabsSettings.map((s, i) => (
+							<Tab
+								_selected={{ color: 'white', bg: 'greenish.500' }}
+								bg='grey.500'
+								key={i}
+								rounded={0}
+								fontSize='md'
+								flex='1'
+								minW={0}
+							>
+								{s.title}
+							</Tab>
+						))}
+					</TabList>
+				)}
 
 				<TabPanels>
 					{tabsSettings.map((s, i) => (

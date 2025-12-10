@@ -1,51 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { maskPhoneNumber } from 'utils/webrtc';
 
-// const webrtcSlice = createSlice({
-// 	name: 'webrtc',
-// 	initialState: {
-// 		modal: false,
-// 		lead: null,
-// 		incomingNumber: '',
-// 		callingMode: 'manual',
-// 		userStatus: 'disconnected',
-// 	},
-// 	reducers: {
-// 		setLeadDetails: (state, action) => {
-// 			state.lead = {
-// 				phoneNumber: action.payload.phoneNumber,
-// 				leadName: action.payload.leadName,
-// 			};
-// 			state.callingMode = 'auto';
-// 			if (!state.modal) state.modal = true;
-// 		},
-// 		setIncomingCall: (state, action) => {
-// 			state.incomingNumber = action.payload;
-// 			state.modal = true;
-// 		},
-// 		resetLeadDetails: (state) => {
-// 			state.lead = null;
-// 			state.callingMode = 'manual';
-// 		},
-// 		toggleWebRTCModal: (state) => {
-// 			state.modal = !state.modal;
-// 		},
-// 		setSipUserStatus: (state, action) => {
-// 			state.userStatus = action.payload;
-// 		},
-// 	},
-// });
-
 const webrtcSlice = createSlice({
 	name: 'webrtc',
 	initialState: {
 		isModalOpen: false,
+		userSettings: {},
 
 		activeCall: null,
 		incomingCaller: '',
 		dialMode: 'manual',
 		callType: 'outbound',
-		// Connection Status
+
 		sipStatus: 'disconnected',
 	},
 	reducers: {
@@ -75,6 +41,12 @@ const webrtcSlice = createSlice({
 			state.callType = 'inbound';
 		},
 
+		saveUserDialerSettings: (state, action) => {
+			state.userSettings = action.payload;
+
+			console.log('User setting saved!');
+		},
+
 		// Modal Control
 		toggleDialerModal: (state) => {
 			state.isModalOpen = !state.isModalOpen;
@@ -92,16 +64,20 @@ const webrtcSlice = createSlice({
 			state.dialMode = 'manual';
 			state.callType = 'outbound';
 		},
+
+		resetSettings: (state) => {
+			state.isModalOpen = false;
+			state.userSettings = {};
+
+			state.activeCall = null;
+			state.incomingCaller = '';
+			state.dialMode = 'manual';
+			state.callType = 'outbound';
+
+			state.sipStatus = 'disconnected';
+		},
 	},
 });
-
-// export const {
-// 	setLeadPhoneNumber,
-// 	setIncomingCall,
-// 	resetLeadDetails,
-// 	toggleWebRTCModal,
-// 	setSipUserStatus,
-// } = webrtcSlice.actions;
 
 export const {
 	setAutoDialLead,
@@ -109,6 +85,8 @@ export const {
 	receiveIncomingCall,
 	toggleDialerModal,
 	updateSipStatus,
+	resetSettings,
+	saveUserDialerSettings,
 } = webrtcSlice.actions;
 
 export default webrtcSlice.reducer;

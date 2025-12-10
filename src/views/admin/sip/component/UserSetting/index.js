@@ -14,10 +14,12 @@ import {
 	useDisclosure,
 	useBreakpointValue,
 } from '@chakra-ui/react';
+import { useDispatch } from 'react-redux';
+
 import { FiSearch, FiRefreshCw } from 'react-icons/fi';
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import AddSipSettingModal from './components/AddSipSettingModal';
-import EditSipSettingModal from './components/EditSipSettingModal';
+// import AddSipSettingModal from './components/AddSipSettingModal';
+// import EditSipSettingModal from './components/EditSipSettingModal';
 import { useFetchItemsQuery, useDeleteItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import TopPagination from 'components/pagination/TopPagination';
@@ -27,9 +29,9 @@ import AdvancedSearchModal from './components/AdvancedSearchModal';
 import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
-import AddCallSetting from './components/ManageCallSetting';
 import ManageCallSetting from './components/ManageCallSetting';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
+import { resetSettings } from '../../../../../redux/webrtc/webrtcSlice';
 
 const UserSetting = () => {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -48,6 +50,7 @@ const UserSetting = () => {
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const dispatch = useDispatch();
 
 	const {
 		isOpen: isEditOpen,
@@ -138,6 +141,11 @@ const UserSetting = () => {
 				message: `${user?.fullName} deleted the call setting.`,
 			});
 			refetch();
+
+			// if current user settings deleted update in redux store
+			if (user?._id === selectedSip?.user?._id) {
+				dispatch(resetSettings());
+			}
 		} catch (error) {
 			const errorMsg =
 				error?.data?.message ||

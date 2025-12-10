@@ -46,6 +46,8 @@ function AccountForm({ closeForm, formData, handleClose, inputUniqueId }) {
 				setSipUsername(formData.decoded.sipUsername);
 				setSipPassword(formData.decoded.sipPassword);
 
+				console.log({ data: formData.decoded });
+
 				setAccountSid(formData.decoded.accountSid);
 				setApiKey(formData.decoded.apiKey || '');
 				setApiServer(formData.decoded.apiServer);
@@ -80,14 +82,15 @@ function AccountForm({ closeForm, formData, handleClose, inputUniqueId }) {
 		e.preventDefault();
 
 		const settings = {
+			sipDisplayName,
+			sipUsername,
 			sipDomain,
 			sipServerAddress,
-			sipUsername,
 			sipPassword,
-			sipDisplayName,
+
+			apiServer: apiServer ? normalizeUrl(apiServer) : '',
 			accountSid,
 			apiKey,
-			apiServer: apiServer ? normalizeUrl(apiServer) : '',
 		};
 
 		formData ? editSettings(settings, formData.id) : saveSettings(settings);

@@ -4,10 +4,15 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import WebRTCApp from './WebRTCApp';
-import { toggleDialerModal } from '../../redux/webrtc/webrtcSlice';
+import {
+	toggleDialerModal,
+	saveUserDialerSettings,
+	resetSettings,
+} from '../../redux/webrtc/webrtcSlice';
 import { PhoneIcon } from '@chakra-ui/icons';
 import useUserSession from 'hooks/useUserSession';
 import { useFetchItemsQuery } from 'api/apiSlice';
+import { useEffect, useState } from 'react';
 
 const MotionBox = motion(Box);
 
@@ -16,12 +21,21 @@ const WebRTCModal = () => {
 	const borderColor = useColorModeValue('gray.200', 'gray.700');
 
 	const dispatch = useDispatch();
+
 	const webrtc = useSelector((state) => state.webrtc);
 	const sipStatus = webrtc.sipStatus;
+	const isOpen = webrtc.isModalOpen;
+	const userSettings = webrtc?.userSettings;
+
+	const isWssEnabled = Boolean(
+		userSettings?.status?.wss || userSettings?.modes?.wss?.cid
+	);
+
+	// console.log({ userSettings, isWssEnabled });
 
 	const { user } = useUserSession();
 
-	const { data, isLoading } = useFetchItemsQuery(
+	const { data } = useFetchItemsQuery(
 		{
 			path: `/sipSetting/user/${user?._id}`,
 		},
@@ -32,12 +46,15 @@ const WebRTCModal = () => {
 		}
 	);
 
-	const isOpen = webrtc.isModalOpen;
+	// Sync API → Redux
+	useEffect(() => {
+		if (data?.doc) {
+			dispatch(saveUserDialerSettings(data.doc));
+		}
+	}, [data?.doc]);
 
-	const userWSSStatus = data?.doc?.status?.wss || false;
-
-	if (!userWSSStatus) return null;
-	console.log({ userWSSStatus });
+	// If WSS not enabled, UI shouldn't render
+	if (!isWssEnabled) return null;
 
 	const handleToggle = () => dispatch(toggleDialerModal());
 

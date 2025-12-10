@@ -30,9 +30,11 @@ import {
 	IconButton,
 } from '@chakra-ui/react';
 import { useFormik } from 'formik';
+import { useDispatch } from 'react-redux';
 import * as Yup from 'yup';
 import { useCreateItemMutation, useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
+
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
@@ -43,6 +45,7 @@ import {
 	useModeForms,
 	isModeConfigured,
 } from './useModeForms';
+import { saveUserDialerSettings } from './../../../../../../redux/webrtc/webrtcSlice';
 
 // Validation schema for base form (user and SIM number)
 const baseValidationSchema = Yup.object().shape({
@@ -62,8 +65,11 @@ const ManageCallSetting = ({
 }) => {
 	const [createSetting, { isLoading: isCreating }] = useCreateItemMutation();
 	const [updateSetting, { isLoading: isUpdating }] = useUpdateItemMutation();
+
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const dispatch = useDispatch();
+
 	const [showPassword, setShowPassword] = useState(false);
 	const [configuredModes, setConfiguredModes] = useState({});
 	const [activeTab, setActiveTab] = useState(0);
@@ -207,7 +213,7 @@ const ManageCallSetting = ({
 
 		const payload = {
 			user: baseFormik.values.user,
-			simNumber: baseFormik.values.simNumber || undefined,
+			simNumber: baseFormik.values.simNumber || null,
 			// modes: cachedFormData.current.modes,
 			modes: buildModesPayload(modeForms),
 		};
@@ -232,7 +238,7 @@ const ManageCallSetting = ({
 				userId: user?._id,
 				action: modeType === 'edit' ? 'UPDATE' : 'CREATE',
 				entity: 'Call_Logs',
-				entityId: response._id,
+				entityId: response?._id || null,
 				entityType: 'SipSetting',
 				status: 'success',
 				message: `${user?.fullName} ${modeType === 'edit' ? 'updated' : 'created'} Call setting with modes: ${Object.keys(configuredModes).join(', ')}`,
@@ -244,6 +250,12 @@ const ManageCallSetting = ({
 			resetAllForms();
 			onSuccess();
 			onClose();
+
+			// if current user setting update or added direct reflect the phone dialer
+			console.log({ response });
+			if (user?._id === payload.user) {
+				dispatch(saveUserDialerSettings(response));
+			}
 		} catch (error) {
 			toast.error(
 				error.data?.message ||

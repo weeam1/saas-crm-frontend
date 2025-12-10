@@ -74,8 +74,6 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 				)
 			: users || [];
 
-	console.log({ filteredUsers });
-
 	const bg = useColorModeValue('gray.100', 'gray.700');
 	const dropdownBg = useColorModeValue('white', 'gray.800');
 	const borderColor = useColorModeValue('gray.200', 'gray.600');
