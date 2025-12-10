@@ -43,8 +43,6 @@ const webrtcSlice = createSlice({
 
 		saveUserDialerSettings: (state, action) => {
 			state.userSettings = action.payload;
-
-			console.log('User setting saved!');
 		},
 
 		// Modal Control

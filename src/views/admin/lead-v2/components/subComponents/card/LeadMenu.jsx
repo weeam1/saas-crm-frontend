@@ -114,11 +114,13 @@ const LeadMenu = ({
 		const validNum = formatWebRTCPhone(phoneNumber);
 
 		if (validNum) {
-			dispatch(setAutoDialLead({
-				phoneNumber: validNum,
-				leadName: lead?.leadName,
-				id: lead?.leadId
-			}));
+			dispatch(
+				setAutoDialLead({
+					phoneNumber: validNum,
+					leadName: lead?.leadName,
+					id: lead?.leadId,
+				})
+			);
 		} else
 			toast.warning(
 				'Lead phone number is invalid for calling. Please check the format.'
@@ -170,15 +172,15 @@ const LeadMenu = ({
 						/>
 					)}
 
-					{hasPermission("leads", 'call_dialer') && 
-					<MenuItem
-					onClick={handleDirectCall}
-					icon={<PhoneIcon fontSize={15} />}
-					>
-						Direct Call
-					</MenuItem>
-					}
-					
+					{hasPermission('call_dialer') && (
+						<MenuItem
+							onClick={handleDirectCall}
+							icon={<PhoneIcon fontSize={15} />}
+						>
+							Direct Call
+						</MenuItem>
+					)}
+
 					{/* {callAccess?.create && (
 					<MenuItem
 					

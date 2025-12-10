@@ -42,12 +42,12 @@ const WebRTCApp = () => {
 	const { hasPermission } = usePermissions();
 
 	// check dialer settiings permision
-	const isDialerSettingsAllowed = hasPermission('sip', 'edit_dialer_settings');
+	const isDialerSettingsAllowed = hasPermission('call_dialer', 'edit_settings');
 
 	// get user settings from redux store
-	const userActiveSettings = useSelector(
-		(state) => state.webrtc.userSettings?.modes?.wss || {}
-	);
+	const webrtc = useSelector((state) => state.webrtc);
+
+	const userActiveSettings = webrtc?.userSettings?.modes?.wss || {};
 
 	const handleGoOffline = (s) => {
 		if (s === status) return;
@@ -142,10 +142,16 @@ const WebRTCApp = () => {
 	const onTabsChange = (i) => {
 		loadSettings();
 		setTabIndex(i);
-		// reset lead details
 		resetAutoDailState();
-		// setCallHistories(getCallHistories(sipUsername));
 	};
+
+	// const onTabsChange = (i) => {
+	// 	loadSettings();
+	// 	setTabIndex(i);
+	// 	// reset lead details
+	// 	resetAutoDailState();
+	// 	// setCallHistories(getCallHistories(sipUsername));
+	// };
 
 	return (
 		<Grid

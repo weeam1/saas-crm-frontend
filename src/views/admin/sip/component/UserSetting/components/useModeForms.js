@@ -1,7 +1,7 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-export const MODES = ['udp', 'tls', 'wss'];
+export const MODES = ['wss', 'tls', 'udp'];
 
 // Validation schema for each mode
 const modeValidationSchema = Yup.object().shape({
