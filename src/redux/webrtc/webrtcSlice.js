@@ -30,7 +30,7 @@ const webrtcSlice = createSlice({
 
 		// Inbound Call Actions
 		receiveIncomingCall: (state, action) => {
-			if (!state.isModalOpen) state.isModalOpen = true;
+			state.isModalOpen = true;
 
 			state.incomingCaller = action.payload;
 			state.activeCall = {
