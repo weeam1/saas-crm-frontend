@@ -26,6 +26,7 @@ export const leadLabels = {
 	isReleased: 'Rleased Lead',
 	endDate: 'End Date',
 	startDate: 'Start Date',
+	mainStatusSort: 'MStatus Sort',
 };
 
 export const hiringLabels = {
