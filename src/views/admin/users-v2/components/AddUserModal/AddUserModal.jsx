@@ -163,7 +163,7 @@ export default function AddUserModal({ isOpen, onClose }) {
         shadow="2xl"
         overflow="hidden"
         w={{ base: "95vw", md: "1024px" }}
-        maxH={{ base: "80vh", md: "90vh" }} // limit modal height
+        maxH={{ base: "80vh", md: "90vh" }}
         display="flex"
         flexDirection="column"
       >
@@ -923,16 +923,20 @@ export default function AddUserModal({ isOpen, onClose }) {
 
           {/* Save Button */}
           <Button
-            bg="teal.500"
+            bg="#B79045"
             color="white"
-            border="1px solid #D0D5DD"
+            border="1px solid #B79045" // match border to bg
             size="md"
             borderRadius="12px"
             fontWeight="600"
             px={5}
-            _hover={{ bg: "teal.600" }}
-            boxShadow="0px 1px 3px rgba(0,0,0,0.08)"
             minW={{ base: "100%", md: "120px" }}
+            boxShadow="0px 1px 3px rgba(0,0,0,0.08)"
+            _hover={{
+              bg: "#A87F3B", // slightly darker for hover
+              borderColor: "#A87F3B",
+              boxShadow: "0px 2px 6px rgba(0,0,0,0.12)",
+            }}
             onClick={handleSubmit}
           >
             Save
