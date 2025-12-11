@@ -13,11 +13,15 @@ import {
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
 
-const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
+const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 	const [search, setSearch] = useState('');
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [showDropdown, setShowDropdown] = useState(false);
-	const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+	const [dropdownPosition, setDropdownPosition] = useState({
+		top: 0,
+		left: 0,
+		width: 0,
+	});
 	const containerRef = useRef();
 	const inputRef = useRef();
 	const dropdownRef = useRef();
@@ -35,7 +39,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 			setDropdownPosition({
 				top: rect.bottom + window.scrollY,
 				left: rect.left + window.scrollX,
-				width: rect.width
+				width: rect.width,
 			});
 		}
 	}, [showDropdown, search, selectedUser]);
@@ -63,13 +67,12 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 
 	const filteredUsers =
 		search && !selectedUser
-			? users.filter(
+			? users?.filter(
 					(user) =>
 						user.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-						user.username?.toLowerCase().includes(search.toLowerCase()) || 
-						user.name?.toLowerCase().includes(search.toLowerCase()) 
+						user.username?.toLowerCase().includes(search.toLowerCase())
 				)
-			: [];
+			: users || [];
 
 	const bg = useColorModeValue('gray.100', 'gray.700');
 	const dropdownBg = useColorModeValue('white', 'gray.800');
@@ -79,9 +82,9 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 	useEffect(() => {
 		const handleClickOutside = (event) => {
 			if (
-				containerRef.current && 
+				containerRef.current &&
 				!containerRef.current.contains(event.target) &&
-				dropdownRef.current && 
+				dropdownRef.current &&
 				!dropdownRef.current.contains(event.target)
 			) {
 				setShowDropdown(false);
@@ -121,14 +124,16 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 					borderColor='gray.300'
 					fontSize='sm'
 					py={1}
-					{...(size === "sm" ? { size: "sm" } : {})}
+					{...(size === 'sm' ? { size: 'sm' } : {})}
 					borderRadius='md'
 					_focus={{
 						borderColor: '#D99A36',
 						boxShadow: '0 0 0 1px #D99A36',
 						outline: 'none',
 					}}
-					value={selectedUser ? (selectedUser.fullName || selectedUser.name) : search}
+					value={
+						selectedUser ? selectedUser.fullName || selectedUser.name : search
+					}
 					onChange={handleInputChange}
 					isReadOnly={!!selectedUser}
 					onFocus={handleInputFocus}
@@ -142,7 +147,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 							size='sm'
 							onClick={handleClear}
 							aria-label='Clear selection'
-							top={size === "sm" ? "-4px" : "0px"}
+							top={size === 'sm' ? '-4px' : '0px'}
 						/>
 					</InputRightElement>
 				)}
@@ -152,14 +157,14 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 				<Portal>
 					<Box
 						ref={dropdownRef}
-						position="fixed"
+						position='fixed'
 						top={`${dropdownPosition.top}px`}
 						left={`${dropdownPosition.left}px`}
 						width={`${dropdownPosition.width}px`}
 						bg={dropdownBg}
 						shadow='lg'
 						borderRadius='md'
-						border="1px solid"
+						border='1px solid'
 						borderColor={borderColor}
 						zIndex={9999}
 						maxH='300px'
@@ -170,7 +175,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 							<Flex
 								key={`${index}-${user?._id}`}
 								p={3}
-								bg="transparent"
+								bg='transparent'
 								rounded='md'
 								cursor='pointer'
 								_hover={{ bg: hoverBg }}
@@ -178,12 +183,12 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 								align='center'
 								justify='space-between'
 								m={1}
-								borderBottom="1px solid"
+								borderBottom='1px solid'
 								borderColor={borderColor}
 								_last={{ borderBottom: 'none' }}
 							>
 								<Box>
-									<Text fontSize='md' fontWeight="medium">
+									<Text fontSize='md' fontWeight='medium'>
 										{user.fullName || user.name}
 									</Text>
 									{user.username && (
@@ -202,14 +207,14 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser ,size= "md" }) => {
 				<Portal>
 					<Box
 						ref={dropdownRef}
-						position="fixed"
+						position='fixed'
 						top={`${dropdownPosition.top}px`}
 						left={`${dropdownPosition.left}px`}
 						width={`${dropdownPosition.width}px`}
 						bg={dropdownBg}
 						shadow='lg'
 						borderRadius='md'
-						border="1px solid"
+						border='1px solid'
 						borderColor={borderColor}
 						zIndex={9999}
 						mt={1}

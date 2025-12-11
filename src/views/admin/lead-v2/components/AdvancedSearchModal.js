@@ -61,6 +61,8 @@ const AdvancedSearchModal = ({
 		leadCampaign: '',
 		leadSourceDetails: '',
 		leadSourceMedium: '',
+		leadSourceChannel: '',
+		adset: '',
 		pageUrl: '',
 		r_u_in_uae: '',
 		timetocall: '',
@@ -70,6 +72,7 @@ const AdvancedSearchModal = ({
 		isReleased: '',
 		from: '', // start date
 		to: '', // end date
+		mainStatusSort: '',
 	};
 
 	const formik = useFormik({

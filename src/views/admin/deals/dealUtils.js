@@ -71,6 +71,35 @@ export const dealSchema = Yup.object().shape({
 		})
 		.required('Booking amount is required'),
 
+	companyCommissionAmount: Yup.number()
+		.typeError('Company commission must be a number')
+		// .nullable()
+		.min(0, 'Cannot be negative')
+		.when('unitPrice', (unitPriceArr, schema) => {
+			const unitPrice = Array.isArray(unitPriceArr)
+				? unitPriceArr[0]
+				: unitPriceArr;
+
+			return schema.test(
+				'valid-companyCommissionAmount',
+				unitPrice
+					? `Company commission must be between 0 and ${unitPrice}`
+					: 'Please enter Unit Price first',
+				(value) => {
+					if (!unitPrice || isNaN(unitPrice)) return false;
+					return value == null || (value >= 0 && value <= unitPrice);
+				}
+			);
+		}),
+	// .required('Company commission is required'),
+
+	companyCommissionPercent: Yup.number()
+		.typeError('Company commission % must be a number')
+		// .nullable()
+		.min(0, 'Cannot be negative')
+		.max(100, 'Company commission max value is 100%'),
+	// .required('Company commission % is required'),
+
 	// bookingAmountPaid: Yup.number()
 	// 	.typeError('Booking amount must be a number')
 	// 	.min(0, 'Cannot be negative')

@@ -18,6 +18,7 @@ import {
 	Avatar,
 	IconButton,
 	useDisclosure,
+	Flex,
 } from '@chakra-ui/react';
 import {
 	FiDollarSign,
@@ -38,6 +39,7 @@ import { constant } from 'constant';
 import { FaBuilding } from 'react-icons/fa';
 import PayrollStatus from './PayrollStatus';
 import { ImageModal } from './ImageModal';
+import { formatAmount, formatCurrency } from 'utils/helpers';
 
 // Custom components for better organization
 const StatCard = ({
@@ -62,11 +64,15 @@ const StatCard = ({
 					<Text fontSize='sm' color='gray.600' fontWeight='medium'>
 						{title}
 					</Text>
-					<Text fontSize='2xl' fontWeight='bold' color={`${color}.500`}>
+					<Text
+						fontSize={{ base: 'md', md: 'lg', lg: 'xl', xl: '2xl' }}
+						fontWeight='bold'
+						color={`${color}.500`}
+					>
 						{value}
 					</Text>
 					{subtitle && (
-						<Text fontSize='sm' color='gray.500'>
+						<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
 							{subtitle}
 						</Text>
 					)}
@@ -79,7 +85,13 @@ const StatCard = ({
 						</Badge>
 					)}
 				</Text>
-				<Icon as={icon} w={8} h={8} color={`${color}.500`} opacity={0.7} />
+				<Icon
+					as={icon}
+					w={{ base: 4, md: 6, lg: 8 }}
+					h={{ base: 4, md: 6, lg: 8 }}
+					color={`${color}.500`}
+					opacity={0.7}
+				/>
 			</HStack>
 		</Box>
 	</Box>
@@ -192,6 +204,7 @@ const EmployeePayrollDetails = () => {
 		attendanceSummary,
 		payrollSummary,
 		closeDeals,
+		sharedDeals,
 		payslip,
 	} = payrollData?.doc?.snapshots || payrollData?.doc;
 
@@ -199,6 +212,8 @@ const EmployeePayrollDetails = () => {
 	const imgSrc = profileImage
 		? `${constant.baseUrl}${profileImage}`
 		: undefined;
+
+	const currency = payrollSummary?.currency || 'AED';
 
 	return (
 		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
@@ -248,7 +263,6 @@ const EmployeePayrollDetails = () => {
 					</HStack>
 
 					{/* Employee Profile Box */}
-
 					<Box
 						bg='white'
 						px={{ base: 2, md: 4, lg: 6 }}
@@ -258,7 +272,11 @@ const EmployeePayrollDetails = () => {
 						border='1px'
 						borderColor={borderColor}
 					>
-						<HStack spacing={{ base: 2, md: 4 }} align='center'>
+						<Flex
+							flexDir={{ base: 'column', md: 'row' }}
+							gap={{ base: 2, md: 4 }}
+							align='center'
+						>
 							<Avatar
 								size='xl'
 								src={imgSrc}
@@ -267,7 +285,11 @@ const EmployeePayrollDetails = () => {
 								border='2px solid #dba554ff'
 							/>
 
-							<VStack align='flex-start' spacing={1} flex={1}>
+							<VStack
+								align={{ base: 'center', md: 'flex-start' }}
+								spacing={1}
+								flex={1}
+							>
 								<Text
 									fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
 									fontWeight='bold'
@@ -294,29 +316,29 @@ const EmployeePayrollDetails = () => {
 									</Text>
 								</HStack>
 							</VStack>
-						</HStack>
+						</Flex>
 					</Box>
 				</VStack>
 
 				{/* Key Metrics Grid */}
-				<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
+				<SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={6} mb={8}>
 					<StatCard
 						title='Net Salary'
-						value={`${payrollSummary?.currency} ${payrollSummary?.netSalary?.toLocaleString()}`}
+						value={formatAmount(payrollSummary?.netSalary)}
 						subtitle='After all deductions'
 						icon={FiDollarSign}
 						color='green'
 					/>
 					<StatCard
 						title='Gross Salary'
-						value={`${payrollSummary?.currency} ${payrollSummary?.grossSalary?.toLocaleString()}`}
+						value={formatAmount(payrollSummary?.grossSalary)}
 						subtitle='Before deductions'
 						icon={FiTrendingUp}
 						color='blue'
 					/>
 					<StatCard
 						title='Commission Earned'
-						value={`${payrollSummary?.currency} ${payrollSummary?.commissionEarned?.toLocaleString()}`}
+						value={formatAmount(payrollSummary?.commissionEarned)}
 						subtitle='From closed deals'
 						icon={FiAward}
 						color='purple'
@@ -330,7 +352,10 @@ const EmployeePayrollDetails = () => {
 					/>
 				</SimpleGrid>
 
-				<Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
+				<Grid
+					templateColumns={{ base: '1fr', md: '1fr', xl: '2fr 1fr' }}
+					gap={8}
+				>
 					{/* Left Column - Main Details */}
 					<VStack
 						// flexDir={{ base: 'column', md: 'row' }}
@@ -352,19 +377,36 @@ const EmployeePayrollDetails = () => {
 										<HStack w='100%' justify='space-between'>
 											<Box color='gray.600'>Basic</Box>
 											<Box fontWeight='semibold'>
-												{payrollSummary?.basicSalary?.toLocaleString()}
+												{formatCurrency(payrollSummary?.basicSalary, currency)}
 											</Box>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Commission ({commission}%)</Text>
+											<Text color='gray.600'>
+												Deal Commission ({commission}%)
+											</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												{payrollSummary?.commissionEarned?.toLocaleString()}
+												{formatCurrency(
+													payrollSummary?.closeDealCommission,
+													currency
+												)}
+											</Text>
+										</HStack>
+										<HStack w='100%' justify='space-between'>
+											<Text color='gray.600'>Shared Commission</Text>
+											<Text fontWeight='semibold' color='green.500'>
+												{formatCurrency(
+													payrollSummary?.sharedDealCommission,
+													currency
+												)}
 											</Text>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
 											<Text color='gray.600'>Incentive ({incentive})</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												{payrollSummary?.incentiveEarned?.toLocaleString()}
+												{formatCurrency(
+													payrollSummary?.incentiveEarned,
+													currency
+												)}
 											</Text>
 										</HStack>
 									</VStack>
@@ -372,7 +414,7 @@ const EmployeePayrollDetails = () => {
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Earnings</Text>
 										<Text color='green.600'>
-											{payrollSummary?.grossSalary?.toLocaleString()}
+											{formatCurrency(payrollSummary?.grossSalary, currency)}
 										</Text>
 									</HStack>
 								</VStack>
@@ -387,13 +429,19 @@ const EmployeePayrollDetails = () => {
 												{loanSummary?.activeLoans} Loan Installment's
 											</Text>
 											<Text fontWeight='semibold' color='red.500'>
-												{payrollSummary?.loanDeduction?.toLocaleString()}
+												{formatCurrency(
+													payrollSummary?.loanDeduction,
+													currency
+												)}
 											</Text>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
 											<Text color='gray.600'>Attendance Deduction</Text>
 											<Text fontWeight='semibold' color='red.500'>
-												{payrollSummary?.attendanceDeduction?.toLocaleString()}
+												{formatCurrency(
+													payrollSummary?.attendanceDeduction,
+													currency
+												)}
 											</Text>
 										</HStack>
 										{/* <HStack w='100%' justify='space-between'>
@@ -418,7 +466,11 @@ const EmployeePayrollDetails = () => {
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Deductions</Text>
 										<Text color='red.600'>
-											-{payrollSummary?.totalDeductions?.toLocaleString()}
+											-
+											{formatCurrency(
+												payrollSummary?.totalDeductions,
+												currency
+											)}
 										</Text>
 									</HStack>
 								</VStack>
@@ -437,8 +489,10 @@ const EmployeePayrollDetails = () => {
 											</Text>
 										</VStack>
 										<Text fontSize='2xl' fontWeight='bold' color='green.600'>
-											{payrollSummary?.currency}{' '}
-											{payrollSummary?.netSalary?.toLocaleString()}
+											{formatCurrency(
+												payrollSummary?.netSalary,
+												payrollSummary?.currency
+											)}
 										</Text>
 									</HStack>
 								</Box>
@@ -506,32 +560,32 @@ const EmployeePayrollDetails = () => {
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Total Borrowed</Text>
 										<Text fontWeight='semibold'>
-											{loanSummary?.totalBorrowedAmount?.toLocaleString()}
+											{formatAmount(loanSummary?.totalBorrowedAmount)}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Amount Paid</Text>
 										<Text fontWeight='semibold' color='green.600'>
 											{payrollData?.doc?.paymentStatus === 'paid'
-												? loanSummary?.monthlyInstallment?.toLocaleString()
-												: loanSummary?.totalPaidAmount?.toLocaleString()}
+												? formatAmount(loanSummary?.monthlyInstallment)
+												: formatAmount(loanSummary?.totalPaidAmount)}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Remaining</Text>
 										<Text fontWeight='semibold' color='red.600'>
 											{payrollData?.doc?.paymentStatus === 'paid'
-												? (
+												? formatAmount(
 														loanSummary?.totalRemainingAmount -
-														loanSummary?.monthlyInstallment
-													)?.toLocaleString()
-												: loanSummary?.totalRemainingAmount?.toLocaleString()}
+															loanSummary?.monthlyInstallment
+													)
+												: formatAmount(loanSummary?.totalRemainingAmount)}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Monthly Installment</Text>
 										<Text fontWeight='semibold'>
-											{loanSummary?.monthlyInstallment?.toLocaleString()}
+											{formatAmount(loanSummary?.monthlyInstallment)}
 										</Text>
 									</HStack>
 								</SimpleGrid>
@@ -563,6 +617,12 @@ const EmployeePayrollDetails = () => {
 										<Text color='gray.600'>Closed Deals</Text>
 										<Text fontWeight='semibold'>
 											{closeDeals?.dealsCount || 0}
+										</Text>
+									</HStack>
+									<HStack justify='space-between'>
+										<Text color='gray.600'>Shared Deals</Text>
+										<Text fontWeight='semibold'>
+											{sharedDeals?.dealsCount || 0}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>

@@ -126,6 +126,7 @@ export const useCashListing = ({ endpoint }) => {
 
 		setMonth(newMonth);
 		setYear(newYear);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	// const updateData = (id, updated, type = 'update') => {

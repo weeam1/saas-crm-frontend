@@ -36,9 +36,11 @@ import {
 import { FormSelect } from 'components/fields/FormFields';
 import { FiUploadCloud } from 'react-icons/fi';
 import useUserSession from 'hooks/useUserSession';
-import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
+import SearchUsers from './SearchUsers';
 import { InfoIcon } from '@chakra-ui/icons';
 import { currencies } from 'constants/currencies';
+import { getSharedUsersData } from './dealUtils';
+import CommissionSummary from './CommissionSummary';
 
 const CloseDealModal = React.memo(
 	({
@@ -49,9 +51,26 @@ const CloseDealModal = React.memo(
 		onSuccess,
 		mode = 'add', // 'add' or 'edit'
 	}) => {
-		const { _id: leadId, leadName, leadPhoneNumber, leadWhatsappNumber } = lead;
+		const {
+			_id: leadId,
+			leadName,
+			leadPhoneNumber,
+			leadWhatsappNumber,
+			agentDetails,
+			managerDetails,
+		} = lead;
 
 		const { user, userRoleName, isSuperAdmin, isAdmin } = useUserSession();
+
+		const [selectedType, setSelectedType] = useState('amount');
+
+		// Fetch users data
+		const { data: usersData } = useFetchItemsQuery(
+			{
+				path: '/v2/user/search_users',
+			},
+			{ refetchOnMountOrArgChange: true }
+		);
 
 		const phoneNumber =
 			typeof leadPhoneNumber === 'object'
@@ -67,8 +86,8 @@ const CloseDealModal = React.memo(
 				clientName: leadName || '',
 				clientNumber: phoneNumber || '',
 				clientWhatsapp: whatsappNumber || '',
-				agentName: lead?.agentDetails?.fullName || 'Unassigned',
-				managerName: lead?.managerDetails?.fullName || 'Unassigned',
+				agentName: agentDetails?.fullName || 'Unassigned',
+				managerName: managerDetails?.fullName || 'Unassigned',
 				closedBy: user?.fullName || '',
 
 				developer: '',
@@ -79,6 +98,8 @@ const CloseDealModal = React.memo(
 				unitPrice: '',
 				downpaymentPaid: 0,
 				downpaymentPercent: 0,
+				companyCommissionAmount: 0,
+				companyCommissionPercent: 0,
 				bookingAmountPaid: '',
 				bookingPercent: '',
 				spaDone: false,
@@ -89,7 +110,14 @@ const CloseDealModal = React.memo(
 				shareUser: null,
 				sharePercent: '',
 			}),
-			[lead]
+			[
+				agentDetails?.fullName,
+				managerDetails?.fullName,
+				leadName,
+				phoneNumber,
+				user?.fullName,
+				whatsappNumber,
+			]
 		);
 
 		const {
@@ -105,13 +133,48 @@ const CloseDealModal = React.memo(
 			resolver: yupResolver(dealSchema),
 			defaultValues,
 			mode: 'onChange',
+			reValidateMode: 'onChange',
 		});
+
+		// inside component
+		const handleCommissionTypeChange = (e) => {
+			const value = e.target.value;
+			setSelectedType(value);
+
+			if (value === 'percent') {
+				setValue('companyCommissionAmount', 0);
+			}
+
+			if (value === 'amount') {
+				setValue('companyCommissionPercent', 0);
+			}
+		};
 
 		// Calculate derived values
 		const unitPrice = watch('unitPrice');
 		const downpaymentPaid = useWatch({ control, name: 'downpaymentPaid' });
 		const bookingAmountPaid = useWatch({ control, name: 'bookingAmountPaid' });
+		const companyCommissionAmount = useWatch({
+			control,
+			name: 'companyCommissionAmount',
+		});
+		const companyCommissionPercent = useWatch({
+			control,
+			name: 'companyCommissionPercent',
+		});
 		const shareUser = useWatch({ control, name: 'shareUser' });
+		const sharePercent = useWatch({ control, name: 'sharePercent' });
+
+		const sharedUsers = getSharedUsersData({
+			lead,
+			user,
+			unitPrice,
+			companyCommissionAmount,
+			companyCommissionPercent,
+			shareUserId: shareUser,
+			sharePercent,
+			users: usersData?.doc || [],
+		});
 
 		const downpaymentPercent = unitPrice
 			? roundTo2(((parseFloat(downpaymentPaid) || 0) / unitPrice) * 100)
@@ -122,14 +185,6 @@ const CloseDealModal = React.memo(
 			: 0;
 
 		const [createDeal, { isLoading: isCreating }] = useCreateItemMutation();
-
-		// Fetch users data
-		const { data: usersData } = useFetchItemsQuery(
-			{
-				path: '/v2/user/search_users',
-			},
-			{ refetchOnMountOrArgChange: true }
-		);
 
 		// Handle modal close
 		const handleClose = () => {
@@ -178,6 +233,14 @@ const CloseDealModal = React.memo(
 			formData.append('invoiceSent', data.invoiceSent);
 			formData.append('commissionStatus', data.commissionStatus);
 			formData.append('downpaymentPercent', downpaymentPercent);
+			formData.append(
+				'companyCommissionPercent',
+				data.companyCommissionPercent || 0
+			);
+			formData.append(
+				'companyCommissionAmount',
+				data.companyCommissionAmount || 0
+			);
 			formData.append('bookingPercent', bookingPercent);
 			formData.append('manager', lead?.managerAssigned || '');
 			formData.append('agent', lead?.agentAssigned || '');
@@ -187,6 +250,7 @@ const CloseDealModal = React.memo(
 			if (data.shareUser) {
 				formData.append('shareUser', data.shareUser);
 				formData.append('sharePercent', data.sharePercent);
+				formData.append('sharedUsers', JSON.stringify(sharedUsers));
 			}
 
 			// Optional file
@@ -207,6 +271,24 @@ const CloseDealModal = React.memo(
 
 		const fileInputRef = useRef(null);
 		const [fileName, setFileName] = useState('');
+
+		const filteredSearchUsers = (usersData?.doc || []).filter((u) => {
+			const role = u?.roles?.[0]?.roleName;
+
+			if (!role) return false;
+
+			// Only allow these roles
+			const allowedRoles = ['Manager', 'Agent'];
+
+			// Exclude self and assigned users
+			const excludedIds = new Set([
+				user._id,
+				lead?.agentAssigned,
+				lead?.managerAssigned,
+			]);
+
+			return allowedRoles.includes(role) && !excludedIds.has(u._id);
+		});
 
 		const handleFileSelect = (event) => {
 			const file = event.target.files[0];
@@ -252,7 +334,7 @@ const CloseDealModal = React.memo(
 					<ModalBody
 						py={4}
 						overflowY='auto'
-						maxH={{ base: '50vh', md: '60vh' }}
+						maxH={{ base: '50vh', md: '70vh' }}
 					>
 						<VStack spacing={6} align='stretch'>
 							{/* Lead Information */}
@@ -297,66 +379,17 @@ const CloseDealModal = React.memo(
 										isDisabled
 										isRequired
 									/>
-									<FormInput
+									{/* <FormInput
 										label='Closed By'
 										name='closedBy'
 										register={register}
 										errors={errors}
 										isDisabled
 										isRequired
-									/>
+									/> */}
 								</SimpleGrid>
 							</Box>
-							{/* Shared Deal Section */}
-							<Box>
-								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
-									Shared Deal With
-								</Text>
-								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-									<Box>
-										<FormLabel
-											fontSize='sm'
-											fontWeight='semibold'
-											color='gray.600'
-										>
-											Share With User
-										</FormLabel>
-										<SearchUsers
-											selectedUserId={shareUser}
-											users={(usersData?.doc || []).filter((u) => {
-												const roleName = Array.isArray(u?.roles)
-													? u.roles[0]?.roleName
-													: null;
 
-												return (
-													(roleName === 'Manager' || roleName === 'Agent') &&
-													u._id !== user._id &&
-													u._id !== lead?.agentAssigned &&
-													u._id !== lead?.managerAssigned &&
-													roleName !== 'superAdmin' &&
-													roleName !== 'Admin'
-												);
-											})}
-											onSelectUser={handleSelectUser}
-											isMobile={false}
-											size='sm'
-										/>
-									</Box>
-									{shareUser && (
-										<FormInput
-											label='Share Percentage'
-											name='sharePercent'
-											register={register}
-											errors={errors}
-											type='number'
-											step='0.01'
-											min='0.01'
-											max='100.00'
-											isRequired
-										/>
-									)}
-								</SimpleGrid>
-							</Box>
 							{/* Property Information */}
 							<Box>
 								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
@@ -427,6 +460,103 @@ const CloseDealModal = React.memo(
 								</Text>
 							</HStack>
 
+							{/* Commission Details */}
+							<Box>
+								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+									Commission Details
+								</Text>
+								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+									{/* 1. Commission Type */}
+									<FormSelect
+										label='Commission Type'
+										name='commissionType'
+										value={selectedType}
+										isRequired
+										options={[
+											{ label: 'Percent', value: 'percent' },
+											{ label: 'Flat Amount', value: 'amount' },
+										]}
+										onChange={handleCommissionTypeChange}
+									/>
+
+									{/* 2. Percent input, shown only if percent */}
+									{selectedType === 'percent' && (
+										<FormInput
+											label='Company Commission (%)'
+											name='companyCommissionPercent'
+											register={register}
+											errors={errors}
+											type='number'
+											step='0.01'
+											isRequired
+										/>
+									)}
+
+									{/* 3. Amount input, shown only if amount */}
+									{selectedType === 'amount' && (
+										<FormInput
+											label='Company Commission'
+											name='companyCommissionAmount'
+											register={register}
+											errors={errors}
+											type='number'
+											step='0.01'
+											isRequired
+										/>
+									)}
+
+									<FormSelect
+										label='Commission Status'
+										name='commissionStatus'
+										register={register}
+										errors={errors}
+										// isRequired={}
+										options={commissionStatuses}
+										placeholder='Select status'
+									/>
+								</SimpleGrid>
+							</Box>
+
+							{/* Shared Deal Section */}
+							<Box>
+								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+									Is Shared Deal ?
+								</Text>
+								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+									<Box>
+										<FormLabel
+											fontSize='sm'
+											fontWeight='semibold'
+											color='gray.600'
+										>
+											Share With User
+										</FormLabel>
+										<SearchUsers
+											selectedUserId={shareUser}
+											users={filteredSearchUsers}
+											onSelectUser={handleSelectUser}
+											isMobile={false}
+											size='sm'
+										/>
+									</Box>
+									{shareUser && (
+										<FormInput
+											label='Share Percentage'
+											name='sharePercent'
+											register={register}
+											errors={errors}
+											type='number'
+											step='0.01'
+											min='0.01'
+											max='100.00'
+											isRequired
+										/>
+									)}
+								</SimpleGrid>
+							</Box>
+
+							<CommissionSummary sharedUsers={sharedUsers} />
+
 							{/* Payment Details */}
 							<Box>
 								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
@@ -478,15 +608,6 @@ const CloseDealModal = React.memo(
 										isDisabled
 										isRequired
 										options={currencies}
-									/>
-									<FormSelect
-										label='Commission Status'
-										name='commissionStatus'
-										register={register}
-										errors={errors}
-										// isRequired={}
-										options={commissionStatuses}
-										placeholder='Select status'
 									/>
 								</SimpleGrid>
 

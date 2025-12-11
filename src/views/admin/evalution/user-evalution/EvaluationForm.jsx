@@ -9,31 +9,20 @@ import {
 	Button,
 	FormControl,
 	FormLabel,
-	Input,
 	Textarea,
 	Slider,
 	SliderTrack,
 	SliderFilledTrack,
 	SliderThumb,
 	Tooltip,
-	Alert,
-	AlertIcon,
 	useColorModeValue,
 	Flex,
 	Spinner,
 	Divider,
 	Badge,
 	Icon,
-	useDisclosure,
-	Progress,
-	SimpleGrid,
-	Collapse,
-	Thead,
-	Tr,
-	Th,
-	Tbody,
-	Td,
 	IconButton,
+	Input,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -43,17 +32,7 @@ import useUserSession from 'hooks/useUserSession';
 import { toast } from 'react-toastify';
 import { getBadgeColors } from 'utils/colorUtils';
 
-import {
-	ChevronDownIcon,
-	ChevronUpIcon,
-	InfoOutlineIcon,
-	StarIcon,
-	TimeIcon,
-	ViewIcon,
-	WarningTwoIcon,
-} from '@chakra-ui/icons';
-import ErrorMessageBox from './components/ErrorMessageBox';
-import ErrorMessage from './../../../../components/Message/ErrorMessage';
+import { AddIcon, MinusIcon, StarIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import { FiChevronLeft } from 'react-icons/fi';
 
 const EvaluationForm = () => {
@@ -133,7 +112,6 @@ const EvaluationForm = () => {
 		handleSubmit,
 		formState: { errors, isValid },
 		watch,
-		setValue,
 	} = useForm({
 		mode: 'onChange',
 		resolver: yupResolver(evaluationSchema),
@@ -173,17 +151,24 @@ const EvaluationForm = () => {
 
 	// Calculate total score
 	const calculateTotalScore = () => {
-		return Object.values(scores).reduce((total, score) => total + score, 0);
+		return Object.values(scores).reduce(
+			(total, score) => Number(total) + Number(score),
+			0
+		);
 	};
 
 	// Calculate maximum possible score
 	const calculateMaxScore = () => {
 		if (!template?.attributes) return 0;
 		return template.attributes.reduce(
-			(total, attr) => total + attr.maxScore,
+			(total, attr) => Number(total) + Number(attr.maxScore),
 			0
 		);
 	};
+
+	const totalPercentage = Number(
+		((calculateTotalScore() / calculateMaxScore()) * 100).toFixed(2)
+	);
 
 	// Submit handler
 	const submitHandler = async (formData) => {
@@ -202,7 +187,7 @@ const EvaluationForm = () => {
 			const year = now.getFullYear();
 
 			// Get evaluator ID (assuming from auth context)
-			const evaluatorId = loggedInUser?._id || '676e5a6a44f974166590fe6a'; // This should come from your auth context
+			const evaluatorId = loggedInUser?._id;
 
 			const payload = {
 				userId: userId,
@@ -218,7 +203,7 @@ const EvaluationForm = () => {
 				],
 			};
 
-			const res = await createEvaluation({
+			await createEvaluation({
 				path: '/evaluation/users',
 				body: payload,
 			}).unwrap();
@@ -274,8 +259,12 @@ const EvaluationForm = () => {
 						create one or pick a different role.
 					</Text>
 
-					<Button mt={6} colorScheme='brand' onClick={() => navigate(-1)}>
-						Go Back
+					<Button
+						mt={6}
+						colorScheme='brand'
+						onClick={() => navigate('/evaluation/settings')}
+					>
+						Add Template
 					</Button>
 				</Box>
 			</Box>
@@ -301,7 +290,11 @@ const EvaluationForm = () => {
 						{errorMessage?.message}
 					</Text>
 
-					<Button mt={6} colorScheme='brand' onClick={() => navigate(-1)}>
+					<Button
+						mt={6}
+						colorScheme='brand'
+						onClick={() => navigate('/evaluation/settings')}
+					>
 						Go Back
 					</Button>
 				</Box>
@@ -371,153 +364,138 @@ const EvaluationForm = () => {
 										{index > 0 && <Divider my={3} />}
 
 										<FormControl>
-											<HStack justify='space-between'>
+											<HStack justify='space-between' mb={3}>
 												<FormLabel
 													fontWeight='600'
 													fontSize='lg'
-													color='gray.700'
-													mb={1}
+													color='gray.800'
+													mb={0}
 												>
 													{attribute.name}
 												</FormLabel>
-												<Badge colorScheme='green' fontSize='sm'>
-													Score: {scores[attribute.name] || 0}/
-													{attribute.maxScore}
-												</Badge>
+												<Box
+													bg='green.50'
+													border='1px solid'
+													borderColor='green.200'
+													borderRadius='full'
+													px={3}
+													py={1}
+												>
+													<Text
+														fontSize='sm'
+														fontWeight='600'
+														color='green.700'
+													>
+														{scores[attribute.name] || 0}/{attribute.maxScore}
+													</Text>
+												</Box>
 											</HStack>
 
 											<Text
-												color='gray.400'
+												color='gray.600'
 												mb={4}
 												fontSize='sm'
-												display='flex'
-												alignItems='flex-start'
-												gap={2}
+												lineHeight='tall'
 											>
-												{/* <Icon
-													as={InfoIcon}
-													color='blue.500'
-													mt={0.5}
-													boxSize={3}
-												/> */}
 												{attribute.description}
 											</Text>
 
-											<Box px={2}>
-												<Slider
-													value={scores[attribute.name] || 0}
-													min={0}
-													max={attribute.maxScore}
-													step={1}
-													onChange={(val) =>
-														handleScoreChange(attribute.name, val)
-													}
-													onMouseEnter={() =>
-														setShowTooltip((prev) => ({
-															...prev,
-															[attribute.name]: true,
-														}))
-													}
-													onMouseLeave={() =>
-														setShowTooltip((prev) => ({
-															...prev,
-															[attribute.name]: false,
-														}))
-													}
-													colorScheme='brand'
+											{/* Custom Input Section */}
+											<Box>
+												{/* Visual Feedback Bar */}
+												<Box
+													position='relative'
+													h='8px'
+													bg='gray.100'
+													borderRadius='full'
+													mb={4}
+													overflow='hidden'
 												>
-													<SliderTrack
-														bg='gray.200'
-														h='10px'
+													<Box
+														position='absolute'
+														top='0'
+														left='0'
+														h='100%'
+														width={`${((scores[attribute.name] || 0) / attribute.maxScore) * 100}%`}
+														bgGradient='linear(to-r, green.400, green.500)'
 														borderRadius='full'
-														transition='all 0.3s ease'
-														shadow='sm'
-													>
-														<SliderFilledTrack
-															bg='brand.500'
-															transition='width 0.25s ease'
-														/>
-													</SliderTrack>
+														transition='width 0.3s ease'
+													/>
 
-													<Tooltip
-														hasArrow
-														bg='brand.600'
-														color='white'
-														placement='top'
-														isOpen={showTooltip[attribute.name]}
-														label={`${scores[attribute.name] || 0}`}
+													{/* Tick Marks */}
+													<HStack
+														position='absolute'
+														top='0'
+														left='0'
+														width='100%'
+														height='100%'
+														justify='space-between'
+														px='2px'
 													>
-														<SliderThumb
-															boxSize={6}
-															bg='white'
-															border='3px solid'
-															borderColor='brand.500'
-															shadow='md'
-															transition='all 0.2s ease'
-															_hover={{
-																// transform: 'scale(1.15)',
-																shadow: 'lg',
-																borderColor: 'brand.600',
-															}}
-															_focus={{
-																boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.15)',
-															}}
-														/>
-													</Tooltip>
-												</Slider>
+														{[...Array(attribute.maxScore + 1)].map(
+															(_, index) => (
+																<Box
+																	key={index}
+																	w='2px'
+																	h='100%'
+																	bg={
+																		index <= (scores[attribute.name] || 0)
+																			? 'white'
+																			: 'gray.300'
+																	}
+																	opacity={
+																		index <= (scores[attribute.name] || 0)
+																			? 0.8
+																			: 0.6
+																	}
+																/>
+															)
+														)}
+													</HStack>
+												</Box>
+
+												{/* Number Display */}
+												{/* <Box flex={1} position='relative'>
+													<Input
+														value={scores[attribute.name] || 0}
+														onChange={(e) => {
+															const value = parseInt(e.target.value);
+															if (
+																!isNaN(value) &&
+																value >= 0 &&
+																value <= attribute.maxScore
+															) {
+																handleScoreChange(attribute.name, value);
+															}
+														}}
+														textAlign='center'
+														fontWeight='bold'
+														fontSize='xl'
+														height='60px'
+														border='2px solid'
+														borderColor='gray.200'
+														borderRadius='xl'
+														bg='white'
+														_hover={{
+															borderColor: 'blue.300',
+														}}
+														_focus={{
+															borderColor: 'blue.500',
+															boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.15)',
+														}}
+														// _disabled={{
+														// 	bg: 'gray.50',
+														// 	cursor: 'not-allowed',
+														// }}
+													/>
+												</Box> */}
+
+												<ScoreInput
+													attribute={attribute}
+													scores={scores}
+													handleScoreChange={handleScoreChange}
+												/>
 											</Box>
-
-											{/* <Box px={2}>
-												<Slider
-													value={scores[attribute.name] || 0}
-													min={0}
-													max={attribute.maxScore}
-													step={1}
-													onChange={(val) =>
-														handleScoreChange(attribute.name, val)
-													}
-													onMouseEnter={() =>
-														setShowTooltip((prev) => ({
-															...prev,
-															[attribute.name]: true,
-														}))
-													}
-													onMouseLeave={() =>
-														setShowTooltip((prev) => ({
-															...prev,
-															[attribute.name]: false,
-														}))
-													}
-													colorScheme='brand'
-												>
-													<SliderTrack bg='gray.200' shadow='sm'>
-														<SliderFilledTrack />
-													</SliderTrack>
-													<Tooltip
-														hasArrow
-														bg='brand.500'
-														color='white'
-														placement='top'
-														isOpen={showTooltip[attribute.name]}
-														label={`${scores[attribute.name] || 0}`}
-													>
-														<SliderThumb
-															boxSize={6}
-															color='gray.100'
-															shadow='sm'
-														/>
-													</Tooltip>
-												</Slider>
-											</Box> */}
-
-											<HStack justify='space-between' mt={1}>
-												<Text fontSize='xs' color='gray.500'>
-													0
-												</Text>
-												<Text fontSize='xs' color='gray.500'>
-													Max: {attribute.maxScore}
-												</Text>
-											</HStack>
 										</FormControl>
 									</Box>
 								))}
@@ -539,6 +517,18 @@ const EvaluationForm = () => {
 											{calculateTotalScore()} / {calculateMaxScore()}
 										</Badge>
 									</HStack>
+
+									{/* Percentage */}
+									<HStack justify='space-between' mt={3}>
+										<Text fontWeight='600' color='gray.700'>
+											Total Percentage
+										</Text>
+
+										<Badge colorScheme='green' fontSize='md' px={3} py={1}>
+											{totalPercentage}%
+										</Badge>
+									</HStack>
+
 									<Text fontSize='sm' color='gray.600' mt={2}>
 										Overall performance rating based on all criteria
 									</Text>
@@ -628,3 +618,161 @@ const EvaluationForm = () => {
 };
 
 export default EvaluationForm;
+
+const ScoreInput = ({ attribute, scores, handleScoreChange }) => {
+	const max = attribute.maxScore;
+	const value = scores[attribute.name] ?? '';
+
+	const handleChange = (e) => {
+		const val = e.target.value;
+
+		// Allow empty
+		if (val === '') {
+			handleScoreChange(attribute.name, '');
+			return;
+		}
+
+		// Digits only
+		if (!/^\d+$/.test(val)) return;
+
+		const num = parseInt(val, 10);
+
+		// DYNAMIC RULE:
+		// Allow typing only if it does not exceed maxScore
+		if (num > max) return;
+
+		handleScoreChange(attribute.name, val);
+	};
+
+	const handleBlur = () => {
+		if (value === '') return;
+
+		let num = parseInt(value, 10);
+
+		if (isNaN(num)) num = 0;
+		if (num < 0) num = 0;
+		if (num > max) num = max;
+
+		handleScoreChange(attribute.name, num);
+	};
+
+	return (
+		<Input
+			value={value}
+			onChange={handleChange}
+			onBlur={handleBlur}
+			inputMode='numeric'
+			textAlign='center'
+			fontWeight='bold'
+			fontSize='md'
+			height='40px'
+			border='2px solid'
+			borderColor='gray.200'
+			borderRadius='xl'
+			bg='white'
+			onFocus={(e) => e.target.select()}
+			_hover={{ borderColor: 'brand.300' }}
+			_focus={{
+				borderColor: 'brand.500',
+				boxShadow: '0 0 0 3px rgba(216, 201, 114, 0.15)',
+			}}
+			aria-label={`${attribute.name} score (0 - ${max})`}
+		/>
+	);
+};
+
+// <FormControl>
+// 	<HStack justify='space-between'>
+// 		<FormLabel fontWeight='600' fontSize='lg' color='gray.700' mb={1}>
+// 			{attribute.name}
+// 		</FormLabel>
+// 		<Badge colorScheme='green' fontSize='sm'>
+// 			Score: {scores[attribute.name] || 0}/{attribute.maxScore}
+// 		</Badge>
+// 	</HStack>
+
+// 	<Text
+// 		color='gray.400'
+// 		mb={4}
+// 		fontSize='sm'
+// 		display='flex'
+// 		alignItems='flex-start'
+// 		gap={2}
+// 	>
+// 		{/* <Icon
+// 												as={InfoIcon}
+// 												color='blue.500'
+// 												mt={0.5}
+// 												boxSize={3}
+// 											/> */}
+// 		{attribute.description}
+// 	</Text>
+
+// 	<Box px={2}>
+// 		<Slider
+// 			value={scores[attribute.name] || 0}
+// 			min={0}
+// 			max={attribute.maxScore}
+// 			step={1}
+// 			onChange={(val) => handleScoreChange(attribute.name, val)}
+// 			onMouseEnter={() =>
+// 				setShowTooltip((prev) => ({
+// 					...prev,
+// 					[attribute.name]: true,
+// 				}))
+// 			}
+// 			onMouseLeave={() =>
+// 				setShowTooltip((prev) => ({
+// 					...prev,
+// 					[attribute.name]: false,
+// 				}))
+// 			}
+// 			colorScheme='brand'
+// 		>
+// 			<SliderTrack
+// 				bg='gray.200'
+// 				h='10px'
+// 				borderRadius='full'
+// 				transition='all 0.3s ease'
+// 				shadow='sm'
+// 			>
+// 				<SliderFilledTrack bg='brand.500' transition='width 0.25s ease' />
+// 			</SliderTrack>
+
+// 			<Tooltip
+// 				hasArrow
+// 				bg='brand.600'
+// 				color='white'
+// 				placement='top'
+// 				isOpen={showTooltip[attribute.name]}
+// 				label={`${scores[attribute.name] || 0}`}
+// 			>
+// 				<SliderThumb
+// 					boxSize={6}
+// 					bg='white'
+// 					border='3px solid'
+// 					borderColor='brand.500'
+// 					shadow='md'
+// 					transition='all 0.2s ease'
+// 					_hover={{
+// 						// transform: 'scale(1.15)',
+// 						shadow: 'lg',
+// 						borderColor: 'brand.600',
+// 					}}
+// 					_focus={{
+// 						boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.15)',
+// 					}}
+// 				/>
+// 			</Tooltip>
+// 		</Slider>
+// 	</Box>
+
+// 	<HStack justify='space-between' mt={1}>
+// 		<Text fontSize='xs' color='gray.500'>
+// 			0
+// 		</Text>
+// 		<Text fontSize='xs' color='gray.500'>
+// 			Max: {attribute.maxScore}
+// 		</Text>
+// 	</HStack>
+// </FormControl>;

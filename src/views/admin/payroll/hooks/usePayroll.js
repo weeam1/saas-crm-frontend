@@ -107,6 +107,7 @@ export const useEmployeePayroll = () => {
 
 		setMonth(newMonth);
 		setYear(newYear);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	// const refetchSummary = useCallback(() => {

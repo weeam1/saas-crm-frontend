@@ -41,6 +41,7 @@ const OutgoingExpense = () => {
 		handlePageChange,
 		handlePageSize,
 		onDateFilterChange,
+		setPagination,
 		updateData,
 		removeItem,
 	} = useCashListing({ endpoint: 'finance/cash/outgoing' });
@@ -82,12 +83,14 @@ const OutgoingExpense = () => {
 
 		if (value) {
 			setClearFilters(true);
+			setPagination((prev) => ({ ...prev, page: 1 }));
 		} else setClearFilters(false);
 	};
 
 	const handleClear = () => {
 		setClearFilters(false);
 		setAgencyId(null);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	return (
