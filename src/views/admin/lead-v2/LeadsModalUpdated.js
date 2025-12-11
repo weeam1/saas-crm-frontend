@@ -1055,17 +1055,22 @@ const LeadsModal = ({
 										{ label: 'Source', value: safeValue(data?.leadSource) },
 										{
 											label: 'Channel',
-											value: safeValue(
-												data?.leadSourceChannel || data?.leadSourceMedium
-											),
+											value: safeValue(data?.leadSourceChannel),
 										},
-										{ label: 'Campaign', value: safeValue(data?.leadCampaign) },
+										{
+											label: 'Medium',
+											value: safeValue(data?.leadSourceMedium),
+										},
+										{
+											label: 'Lead Campaign',
+											value: safeValue(data?.leadCampaign),
+										},
 										{ label: 'Adset', value: safeValue(data?.adset) },
 										{
-											label: 'Source Content',
+											label: 'Ad Name',
 											value: safeValue(data?.leadSourceDetails),
 										},
-										{ label: 'Page URL', value: safeValue(data?.pageUrl) },
+										{ label: 'Campaign URL', value: safeValue(data?.pageUrl) },
 									]}
 								/>
 							</TabPanel>
