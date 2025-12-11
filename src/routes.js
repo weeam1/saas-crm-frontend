@@ -1187,7 +1187,7 @@ const routes = [
 		moduleId: 'admin_settings',
 		name: 'User Permission',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/user-permission/:id/:roleName',
+		path: '/user-permission/:id',
 		under: 'role',
 		component: UserPermission,
 	},
