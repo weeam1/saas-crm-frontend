@@ -66,6 +66,7 @@ const AdvancedSearchForm = (props) => {
 				label: 'Country Source',
 				placeholder: 'Search by Country Source',
 			},
+
 			{
 				name: 'attendanceDay',
 				label: 'Attendance Day',
@@ -83,13 +84,24 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: 'leadSourceDetails',
-				label: 'Source Content',
-				placeholder: 'Search by Source Content',
+				// label: 'Source Content',
+				label: 'Ad Name',
+				placeholder: 'Search by Ad Name',
 			},
 			{
 				name: 'leadSourceMedium',
 				label: 'Source Medium',
 				placeholder: 'Search by Source Medium',
+			},
+			{
+				name: 'leadSourceChannel',
+				label: 'Source Channel',
+				placeholder: 'Search by Source Channel',
+			},
+			{
+				name: 'adset',
+				label: 'Adset',
+				placeholder: 'Search by Adset',
 			},
 			{
 				name: 'pageUrl',
@@ -281,6 +293,33 @@ const AdvancedSearchForm = (props) => {
 				<Text mb='10px' color='red'>
 					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
 				</Text>
+			</GridItem>
+
+			{/* M Status Sort Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Sort Main Status
+				</FormLabel>
+
+				<Select
+					value={values?.mainStatusSort}
+					name='mainStatusSort'
+					onChange={handleChange}
+					fontSize='sm'
+					fontWeight='500'
+					placeholder='Select Main Status Order'
+				>
+					<option value='-1'>Latest to Oldest</option>
+					<option value='1'>Oldest to Latest</option>
+				</Select>
 			</GridItem>
 
 			{/* Extra Status Field */}

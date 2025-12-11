@@ -11,7 +11,8 @@ export const leadLabels = {
 	attendanceDay: 'Attendance Day',
 	leadAddress: 'Lead Address',
 	leadCampaign: 'Lead Campaign',
-	leadSourceDetails: 'Source Content',
+	// leadSourceDetails: 'Source Content',
+	leadSourceDetails: 'Ad Name',
 	leadSourceMedium: 'Source Medium',
 	pageUrl: 'Campaign URL',
 	r_u_in_uae: 'In UAE',
@@ -26,6 +27,7 @@ export const leadLabels = {
 	isReleased: 'Rleased Lead',
 	endDate: 'End Date',
 	startDate: 'Start Date',
+	mainStatusSort: 'MStatus Sort',
 };
 
 export const hiringLabels = {

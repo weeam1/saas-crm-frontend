@@ -336,6 +336,18 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 
 			if (key === 'startDate') displayValue = filters.startDate;
 			if (key === 'endDate') displayValue = filters.endDate;
+			if (key === 'mainStatusSort') {
+				switch (value) {
+					case '-1':
+						displayValue = 'Latest to Oldest';
+						break;
+					case '1':
+						displayValue = 'Oldest to Latest';
+						break;
+					default:
+						displayValue = '';
+				}
+			}
 
 			// if (key === 'intID') key = 'Lead ID';
 
