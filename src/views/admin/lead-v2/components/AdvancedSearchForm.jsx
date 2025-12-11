@@ -61,12 +61,11 @@ const AdvancedSearchForm = (props) => {
 				label: 'Nationality',
 				placeholder: 'Search by Nationality',
 			},
-			{
-				name: 'ip',
-				label: 'Country Source',
-				placeholder: 'Search by Country Source',
-			},
-
+			// {
+			// 	name: 'ip',
+			// 	label: 'Country Source',
+			// 	placeholder: 'Search by Country Source',
+			// },
 			{
 				name: 'attendanceDay',
 				label: 'Attendance Day',

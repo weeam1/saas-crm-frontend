@@ -28,6 +28,8 @@ export const leadLabels = {
 	endDate: 'End Date',
 	startDate: 'Start Date',
 	mainStatusSort: 'MStatus Sort',
+	adset: 'Adset',
+	leadSourceChannel: 'Source Channel',
 };
 
 export const hiringLabels = {
