@@ -123,6 +123,7 @@ const TeamLeaders = ({ lead }) => {
 					entity: 'Lead',
 					enityType: 'Lead',
 					entityId: _id || null,
+					leadTeamLead: teamLeadAssignedValue || null,
 					status: 'success',
 					message,
 					rawPayload: {
@@ -135,8 +136,6 @@ const TeamLeaders = ({ lead }) => {
 				const errorMessage =
 					res?.response?.data?.message || 'Failed to update the team lead';
 				console.error(errorMessage);
-
-				console.log({ res });
 
 				toast.error(errorMessage);
 

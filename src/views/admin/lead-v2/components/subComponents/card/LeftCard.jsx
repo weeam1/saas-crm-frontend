@@ -150,22 +150,14 @@ const LeftCard = ({
 				{QR_CHANGE_MANAGER_AGENT_PERMISSION && (
 					<>
 						<GridItem colSpan={1}>
-							<Managers
-								managerAssigned={lead?.managerAssigned}
-								lead={lead}
-								refreshLeads={refreshLeads}
-								role={role}
-								queryParams={queryParams}
-							/>
+							<Managers lead={lead} />
+						</GridItem>
+						<GridItem colSpan={1}>
+							<TeamLeaders lead={lead} />
 						</GridItem>
 
-						<GridItem colSpan={1}>
-							<Agents
-								agentAssigned={lead?.agentAssigned}
-								managerAssigned={lead?.managerAssigned}
-								lead={lead}
-								refreshLeads={refreshLeads}
-							/>
+						<GridItem colSpan={2}>
+							<Agents lead={lead} />
 						</GridItem>
 					</>
 				)}
@@ -176,11 +168,11 @@ const LeftCard = ({
 						// colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
 					>
 						<Managers
-							managerAssigned={lead?.managerAssigned}
+							// managerAssigned={lead?.managerAssigned}
 							lead={lead}
-							refreshLeads={refreshLeads}
-							role={role}
-							queryParams={queryParams}
+							// refreshLeads={refreshLeads}
+							// role={role}
+							// queryParams={queryParams}
 						/>
 					</GridItem>
 				)}

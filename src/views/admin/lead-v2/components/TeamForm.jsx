@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useMemo } from 'react';
-import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { GridItem, FormLabel, Text, Select, Box } from '@chakra-ui/react';
 
-import { removeDisableUser } from 'utils/helpers';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import useUserSession from 'hooks/useUserSession';
-import { usePermissions } from 'hooks/usePermissions';
-const { GridItem, FormLabel, Text, Select, Box } = require('@chakra-ui/react');
 
 const TeamForm = ({
 	// user,
