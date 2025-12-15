@@ -212,7 +212,7 @@ const AddUser = (props) => {
 	const managerTeamLeaders = useMemo(() => {
 		return (
 			managers
-				?.find((m) => m?.managerId === values?.parent)
+				?.find((m) => m?._id === values?.parent)
 				?.teamLeaders?.filter((lead) => lead?._id !== props.selectedId) || []
 		);
 	}, [managers, values?.parent, props.selectedId]);
@@ -463,11 +463,8 @@ const AddUser = (props) => {
 										placeholder='Select Manager'
 									>
 										{managers?.map((manager) => (
-											<option
-												key={manager?.managerId}
-												value={manager?.managerId}
-											>
-												{manager?.managerName}
+											<option key={manager?._id} value={manager?._id}>
+												{manager?.fullName}
 											</option>
 										))}
 									</Select>

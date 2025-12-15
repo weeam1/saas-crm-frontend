@@ -203,6 +203,12 @@ import {
 // 	);
 // };
 
+const UNASSIGN_LEADS_LABELS = {
+	managerAssigned: 'Manager',
+	agentAssigned: 'Agent',
+	teamLeadAssigned: 'Team Lead',
+};
+
 const SelectInput = ({
 	label,
 	name,
@@ -277,10 +283,23 @@ const SelectInput = ({
 						</option>
 
 						{/* "Unassigned" option */}
-						{['managerAssigned', 'agentAssigned'].includes(name) && (
+						{/* {['managerAssigned', 'agentAssigned', 'teamLeadAssigned'].includes(
+							name
+						) && (
 							<option value=''>
-								Unassigned {name === 'managerAssigned' ? 'Manager' : 'Agent'}
+								Unassigned{' '}
+								{name === 'managerAssigned'
+									? 'Manager'
+									: name === 'agentAssigned'
+										? 'Agent'
+										: teamLeadAssigned
+											? 'Team Lead'
+											: ''}
 							</option>
+						)} */}
+
+						{UNASSIGN_LEADS_LABELS[name] && (
+							<option value=''>Unassigned {UNASSIGN_LEADS_LABELS[name]}</option>
 						)}
 
 						{/* Dynamic options */}
@@ -295,9 +314,7 @@ const SelectInput = ({
 									color: opt?.isActive === false ? disabledColor : undefined,
 								}}
 							>
-								{type === 'dynamic'
-									? `${opt?.firstName} ${opt?.lastName}`
-									: opt.label}
+								{type === 'dynamic' ? `${opt?.fullName}` : opt.label}
 							</option>
 						))}
 					</>
