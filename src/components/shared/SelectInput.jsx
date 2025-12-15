@@ -299,7 +299,16 @@ const SelectInput = ({
 						)} */}
 
 						{UNASSIGN_LEADS_LABELS[name] && (
-							<option value=''>Unassigned {UNASSIGN_LEADS_LABELS[name]}</option>
+							<option
+								value=''
+								disabled={!selectedValue}
+								style={{
+									backgroundColor: !selectedValue ? disabledBg : undefined,
+									color: !selectedValue ? disabledColor : undefined,
+								}}
+							>
+								Unassigned {UNASSIGN_LEADS_LABELS[name]}
+							</option>
 						)}
 
 						{/* Dynamic options */}
