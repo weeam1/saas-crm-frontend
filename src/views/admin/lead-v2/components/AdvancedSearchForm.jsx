@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import ManagerAgentForm from './ManagerAgentForm';
+import TeamForm from './TeamForm';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import CustomDatePicker from 'components/datetime/CustomDatePicker';
@@ -28,7 +28,7 @@ const AdvancedSearchForm = (props) => {
 		setFieldValue,
 	} = props;
 
-	const [openCalendar, setOpenCalendar] = useState(null); // Track which calendar is open
+	const [openCalendar, setOpenCalendar] = useState(null);
 	const allCountries = useSelector((state) => state.countries.countryNames);
 
 	const toggleCalendar = (calendar) => {
@@ -383,9 +383,9 @@ const AdvancedSearchForm = (props) => {
 				</GridItem>
 			)}
 
-			<ManagerAgentForm
-				user={user}
-				tree={tree}
+			<TeamForm
+				// user={user}
+				// tree={tree}
 				handleChange={handleChange}
 				values={values}
 				errors={errors}

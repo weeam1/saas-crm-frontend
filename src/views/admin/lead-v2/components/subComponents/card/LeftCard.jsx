@@ -14,7 +14,7 @@ import Status from '../Status';
 import Agents from '../Agents';
 import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
-import { leadlabelFontSize, leadValueFontSize } from '../../constants';
+import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
 import { usePermissions } from 'hooks/usePermissions';
@@ -49,6 +49,11 @@ const LeftCard = ({
 		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
 		hasPermission('leads', 'agentAssign') &&
 		!hiddenFields.includes('agentAssigned');
+
+	const TEAM_LEAD_ASSIGNED_PERMISSION =
+		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
+		hasPermission('leads', 'teamLeadAssign') &&
+		!hiddenFields.includes('teamLeadAssigned');
 
 	// const hideContact =
 	// 	role === 'Manager'
@@ -181,10 +186,8 @@ const LeftCard = ({
 				)}
 
 				{/* Team lead assigned */}
-				{!hiddenFields.includes('teamLeadAssigned') && (
-					<GridItem
-						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
-					>
+				{TEAM_LEAD_ASSIGNED_PERMISSION && (
+					<GridItem colSpan={AGENT_ASSIGNED_PERMISSION ? '1' : '2'}>
 						<TeamLeaders lead={lead} />
 					</GridItem>
 				)}
@@ -192,7 +195,7 @@ const LeftCard = ({
 				{/* Agent assigned*/}
 				{AGENT_ASSIGNED_PERMISSION && (
 					<GridItem
-						colSpan={hiddenFields.includes('teamLeadAssigned') ? '2' : '1'}
+						colSpan={TEAM_LEAD_ASSIGNED_PERMISSION ? '1' : '2'}
 						// colSpan={
 						// 	role === 'Manager' || hiddenFields.includes('agentAssigned')
 						// 		? '2'

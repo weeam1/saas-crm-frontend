@@ -43,7 +43,7 @@ const Agents = ({ lead }) => {
 		try {
 			setLoading(true);
 
-			const agentAssignedValue = e.target.value;
+			const agentAssignedValue = e.target.value || null;
 
 			const data = {
 				agentAssigned: agentAssignedValue,
@@ -97,7 +97,7 @@ const Agents = ({ lead }) => {
 
 				let message;
 
-				if (agentAssignedValue === '') {
+				if (agentAssignedValue === null) {
 					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
 				} else {
 					const agent = agents?.find(

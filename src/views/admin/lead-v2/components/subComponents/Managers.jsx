@@ -38,11 +38,11 @@ const Managers = ({ lead }) => {
 	const dispatch = useDispatch();
 
 	const handleChangeManager = async (e) => {
-		const managerAssignedValue = e.target.value;
+		const managerAssignedValue = e.target.value || null;
 
 		const dataObj = {
 			// agentAssigned: managerAssigned ? '' : undefined,
-			managerAssigned: managerAssignedValue || null,
+			managerAssigned: managerAssignedValue,
 			isFreshLead: managerAssigned ? false : true,
 		};
 
@@ -105,7 +105,7 @@ const Managers = ({ lead }) => {
 					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
 				} else {
 					const manager = team?.find(
-						(manager) => manager._id === managerAssignedValue
+						(manager) => manager?._id === managerAssignedValue
 					);
 
 					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;

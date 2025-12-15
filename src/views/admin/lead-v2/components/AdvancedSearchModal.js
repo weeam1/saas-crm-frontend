@@ -53,6 +53,7 @@ const AdvancedSearchModal = ({
 		leadEmail: '',
 		leadPhoneNumber: '',
 		managerAssigned: '',
+		teamLeadAssigned: '',
 		agentAssigned: '',
 		leadWhatsappNumber: '',
 		nationality: '',

@@ -32,6 +32,7 @@ import MainStatus from '../../components/subComponents/MainStatus';
 import { format } from 'date-fns';
 import { extractLocationData } from 'utils/helpers';
 import LeadTypeBadge from '../../components/subComponents/LeadTypeBadge';
+import TeamLeaders from '../../components/subComponents/TeamLeaders';
 
 const LeadTableView = memo((props) => {
 	const {
@@ -74,19 +75,38 @@ const LeadTableView = memo((props) => {
 		}
 	}, [leadsRefetching, refetchLoading, setRefetchLoading]);
 
+	const QR_CHANGE_MANAGER_AGENT_PERMISSION =
+		queryParams?.invite && hasPermission('leads', 'qr_change_manager_agent');
+
+	const MANAGER_ASSIGNED_PERMISSION =
+		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
+		hasPermission('leads', 'managerAssign') &&
+		!hiddenFields.includes('managerAssigned');
+
+	const AGENT_ASSIGNED_PERMISSION =
+		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
+		hasPermission('leads', 'agentAssign') &&
+		!hiddenFields.includes('agentAssigned');
+
+	const TEAM_LEAD_ASSIGNED_PERMISSION =
+		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
+		hasPermission('leads', 'teamLeadAssign') &&
+		!hiddenFields.includes('teamLeadAssigned');
+
 	// Dynamically filter columns by permission
 	const tableColumns = useMemo(() => {
 		const baseCols = [
 			{ Header: 'ID', accessor: 'intID', width: 10 },
 			{ Header: 'Name', accessor: 'leadName', width: 200 },
+			{ Header: 'Budget', accessor: 'budget', width: 120 },
+			{ Header: 'City', accessor: 'city', width: 100 },
+			{ Header: 'Country', accessor: 'country', width: 150 },
 			{ Header: 'Timetocall', accessor: 'timetocall', width: 100 },
-			{ Header: 'Budget', accessor: 'budget', width: 100 },
 			{ Header: 'Date & Time', accessor: 'createdDate', width: 150 },
 			{ Header: 'Nationality', accessor: 'nationality', width: 100 },
 			{ Header: 'Language', accessor: 'leadLang', width: 100 },
 			{ Header: 'Last Note', accessor: 'lastNote', width: 200 },
-			{ Header: 'City', accessor: 'city', width: 100 },
-			{ Header: 'Country', accessor: 'country', width: 150 },
+
 			{ Header: 'Source Content', accessor: 'leadSourceDetails', width: 200 },
 			{ Header: 'Campaign', accessor: 'leadCampaign', width: 200 },
 			{ Header: 'Campaign URL', accessor: 'pageUrl', width: 200 },
@@ -96,29 +116,36 @@ const LeadTableView = memo((props) => {
 			{ Header: 'In UAE?', accessor: 'r_u_in_uae', width: 40 },
 		];
 
-		if (hasPermission('leads', 'managerAssign')) {
+		if (MANAGER_ASSIGNED_PERMISSION) {
 			baseCols.splice(2, 0, {
 				Header: 'Manager',
 				accessor: 'managerAssigned',
 				width: 200,
 			});
 		}
-		if (hasPermission('leads', 'agentAssign')) {
+		if (TEAM_LEAD_ASSIGNED_PERMISSION) {
 			baseCols.splice(3, 0, {
+				Header: 'Team Lead',
+				accessor: 'teamLeadAssigned',
+				width: 200,
+			});
+		}
+		if (AGENT_ASSIGNED_PERMISSION) {
+			baseCols.splice(4, 0, {
 				Header: 'Agent',
 				accessor: 'agentAssigned',
 				width: 200,
 			});
 		}
 		if (hasPermission('leads', 'mainStatus')) {
-			baseCols.splice(4, 0, {
+			baseCols.splice(5, 0, {
 				Header: 'M Status',
 				accessor: 'eLeadStatus',
 				width: 190,
 			});
 		}
 		if (hasPermission('leads', 'leadStatus')) {
-			baseCols.splice(5, 0, {
+			baseCols.splice(6, 0, {
 				Header: 'Status',
 				accessor: 'leadStatus',
 				width: 200,
@@ -313,12 +340,19 @@ const LeadTableView = memo((props) => {
 											return (
 												<Td key={col.accessor} minW='200px' textAlign='center'>
 													<Managers
-														managerAssigned={lead?.managerAssigned}
+														// managerAssigned={lead?.managerAssigned}
 														lead={lead}
-														refreshLeads={refreshLeads}
-														role={userRoleName}
-														queryParams={queryParams}
+														// refreshLeads={refreshLeads}
+														// role={userRoleName}
+														// queryParams={queryParams}
 													/>
+												</Td>
+											);
+										}
+										if (col.Header === 'Team Lead') {
+											return (
+												<Td key={col.accessor} minW='200px' textAlign='center'>
+													<TeamLeaders lead={lead} />
 												</Td>
 											);
 										}
@@ -326,10 +360,10 @@ const LeadTableView = memo((props) => {
 											return (
 												<Td key={col.accessor} minW='200px' textAlign='center'>
 													<Agents
-														agentAssigned={lead?.agentAssigned}
-														managerAssigned={lead?.managerAssigned}
+														// agentAssigned={lead?.agentAssigned}
+														// managerAssigned={lead?.managerAssigned}
 														lead={lead}
-														refreshLeads={refreshLeads}
+														// refreshLeads={refreshLeads}
 													/>
 												</Td>
 											);
