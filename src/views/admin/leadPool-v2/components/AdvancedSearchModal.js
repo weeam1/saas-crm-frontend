@@ -57,6 +57,8 @@ const AdvancedSearchModal = ({
 		leadCampaign: '',
 		leadSourceDetails: '',
 		leadSourceMedium: '',
+		leadSourceChannel: '',
+		adset: '',
 		pageUrl: '',
 		r_u_in_uae: '',
 		timetocall: '',

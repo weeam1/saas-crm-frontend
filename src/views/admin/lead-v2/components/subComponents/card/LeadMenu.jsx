@@ -48,6 +48,13 @@ const LeadMenu = ({
 
 	const [directMessageModal, setDirectMessageModal] = useState(false);
 
+	const webrtc = useSelector((state) => state.webrtc);
+	const userSettings = webrtc?.userSettings;
+
+	const isWssEnabled = Boolean(
+		userSettings?.status?.wss || userSettings?.modes?.wss?.cid
+	);
+
 	// const user = useSelector((state) => state.user.user);
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
@@ -172,7 +179,7 @@ const LeadMenu = ({
 						/>
 					)}
 
-					{hasPermission('call_dialer') && (
+					{hasPermission('call_dialer') && isWssEnabled && (
 						<MenuItem
 							onClick={handleDirectCall}
 							icon={<PhoneIcon fontSize={15} />}
