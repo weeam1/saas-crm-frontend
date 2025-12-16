@@ -37,6 +37,7 @@ import ImageUpload from './components/ImageUpload';
 import { buttonStyle } from 'utils/btn';
 import { useRoles } from 'hooks/user/userRoles';
 import Loader from 'components/loading/Loader';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
 const userValidationSchema = Yup.object().shape({
 	firstName: Yup.string().required('First name is required'),
@@ -68,15 +69,14 @@ const AddUser = (props) => {
 	const { onClose, isOpen, setAction } = props;
 	const [uploadImage, setUploadImage] = useState(false);
 
-	const { data: tree, isLoading: teamLoading } = useFetchItemsQuery({
-		path: '/v2/user/team-structure',
-	});
-
 	const { roles } = useRoles();
+	const {
+		team: managers,
+		getTeamLeadsByManager,
+		refreshTeam,
+	} = useTeamStructure();
 
-	const managers = useMemo(() => tree?.data || [], [tree?.data]);
-
-	console.log({ managers });
+	// const managers = useMemo(() => tree?.data || [], [tree?.data]);
 
 	const { data: agencies } = useFetchItemsQuery({
 		path: '/agencies',
@@ -200,6 +200,8 @@ const AddUser = (props) => {
 				resetForm();
 				setAction((pre) => !pre);
 				toast.success('User created successfully.');
+				// refresh the team strcuture
+				refreshTeam();
 			} else {
 				toast.error(response.error?.data?.message || 'User not added.');
 			}
@@ -210,12 +212,10 @@ const AddUser = (props) => {
 	};
 
 	const managerTeamLeaders = useMemo(() => {
-		return (
-			managers
-				?.find((m) => m?._id === values?.parent)
-				?.teamLeaders?.filter((lead) => lead?._id !== props.selectedId) || []
+		return getTeamLeadsByManager(values.parent)?.filter(
+			(tl) => tl?._id !== props.selectedId
 		);
-	}, [managers, values?.parent, props.selectedId]);
+	}, [values?.parent, props.selectedId]);
 
 	return (
 		<Modal
@@ -269,105 +269,140 @@ const AddUser = (props) => {
 					borderBottom='1px solid'
 					borderColor={borderColor}
 				>
-					{teamLoading ? (
-						<Loader />
-					) : (
-						<Grid
-							h={'60vh'}
-							overflow={'scroll'}
-							templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2,1fr)' }}
-							gap={3}
-							p={4}
-						>
-							<GridItem colSpan={{ base: 1, md: 2 }}>
-								<ImageUpload
-									profileImage={values?.profileImage}
-									formik={formik}
-									setUploadImage={setUploadImage}
+					<Grid
+						h={'60vh'}
+						overflow={'scroll'}
+						templateColumns={{ base: 'repeat(1, 1fr)', md: 'repeat(2,1fr)' }}
+						gap={3}
+						p={4}
+					>
+						<GridItem colSpan={{ base: 1, md: 2 }}>
+							<ImageUpload
+								profileImage={values?.profileImage}
+								formik={formik}
+								setUploadImage={setUploadImage}
+							/>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								First Name
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.firstName}
+								name='firstName'
+								placeholder='firstName'
+								fontWeight='500'
+								borderColor={
+									errors.firstName && touched.firstName ? 'red.300' : null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.firstName && touched.firstName && errors.firstName}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Last Name
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.lastName}
+								name='lastName'
+								placeholder='Last Name'
+								fontWeight='500'
+								borderColor={
+									errors.lastName && touched.lastName ? 'red.300' : null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{' '}
+								{errors.lastName && touched.lastName && errors.lastName}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Email
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								type='email'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.username}
+								name='username'
+								autoComplete='off'
+								placeholder='Email Address'
+								fontWeight='500'
+								borderColor={
+									errors.username && touched.username ? 'red.300' : null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{' '}
+								{errors.username && touched.username && errors.username}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Phone Number<Text color={'red'}>*</Text>
+							</FormLabel>
+							<InputGroup>
+								<InputLeftElement
+									pointerEvents='none'
+									children={<PhoneIcon color='gray.300' borderRadius='16px' />}
 								/>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									First Name
-								</FormLabel>
 								<Input
+									type='text'
 									fontSize='sm'
 									onChange={handleChange}
 									onBlur={handleBlur}
-									value={values.firstName}
-									name='firstName'
-									placeholder='firstName'
-									fontWeight='500'
-									borderColor={
-										errors.firstName && touched.firstName ? 'red.300' : null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.firstName && touched.firstName && errors.firstName}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Last Name
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.lastName}
-									name='lastName'
-									placeholder='Last Name'
-									fontWeight='500'
-									borderColor={
-										errors.lastName && touched.lastName ? 'red.300' : null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{' '}
-									{errors.lastName && touched.lastName && errors.lastName}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Email
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									type='email'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.username}
-									name='username'
+									value={values.phoneNumber}
 									autoComplete='off'
-									placeholder='Email Address'
+									name='phoneNumber'
 									fontWeight='500'
 									borderColor={
-										errors.username && touched.username ? 'red.300' : null
+										errors.phoneNumber && touched.phoneNumber ? 'red.300' : null
 									}
+									placeholder='Phone number'
+									borderRadius='16px'
 								/>
-								<Text mb='10px' color={'red'}>
-									{' '}
-									{errors.username && touched.username && errors.username}
-								</Text>
-							</GridItem>
+							</InputGroup>
+							<Text mb='10px' color={'red'}>
+								{errors.phoneNumber &&
+									touched.phoneNumber &&
+									errors.phoneNumber}
+							</Text>
+						</GridItem>
+						{user?.roles[0]?.roleName !== 'Manager' && (
 							<GridItem>
 								<FormLabel
 									display='flex'
@@ -376,216 +411,62 @@ const AddUser = (props) => {
 									fontWeight='500'
 									mb='8px'
 								>
-									Phone Number<Text color={'red'}>*</Text>
-								</FormLabel>
-								<InputGroup>
-									<InputLeftElement
-										pointerEvents='none'
-										children={
-											<PhoneIcon color='gray.300' borderRadius='16px' />
-										}
-									/>
-									<Input
-										type='text'
-										fontSize='sm'
-										onChange={handleChange}
-										onBlur={handleBlur}
-										value={values.phoneNumber}
-										autoComplete='off'
-										name='phoneNumber'
-										fontWeight='500'
-										borderColor={
-											errors.phoneNumber && touched.phoneNumber
-												? 'red.300'
-												: null
-										}
-										placeholder='Phone number'
-										borderRadius='16px'
-									/>
-								</InputGroup>
-								<Text mb='10px' color={'red'}>
-									{errors.phoneNumber &&
-										touched.phoneNumber &&
-										errors.phoneNumber}
-								</Text>
-							</GridItem>
-							{user?.roles[0]?.roleName !== 'Manager' && (
-								<GridItem>
-									<FormLabel
-										display='flex'
-										ms='4px'
-										fontSize='sm'
-										fontWeight='500'
-										mb='8px'
-									>
-										Select Role <Text color={'red'}>*</Text>
-									</FormLabel>
-									<Select
-										name='role'
-										value={values.role}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										placeholder='Select Role'
-										borderColor={errors.role && touched.role ? 'red.300' : null}
-										className={errors.role && touched.role ? 'isInvalid' : null}
-									>
-										{roles
-											?.filter((role) => role.roleName !== 'sadmin')
-											?.map((role) => (
-												<option key={role?._id} value={role?._id}>
-													{role?.roleName}
-												</option>
-											))}
-									</Select>
-									<Text mb='10px' color='red'>
-										{errors.role && touched.role && errors.role}
-									</Text>
-								</GridItem>
-							)}
-							{['Team Leader', 'Agent'].includes(
-								roles?.find((role) => role?._id === values.role)?.roleName
-							) && (
-								<GridItem>
-									<FormLabel
-										display='flex'
-										ms='4px'
-										fontSize='sm'
-										fontWeight='500'
-										mb='8px'
-									>
-										Select Manager <Text color={'red'}>*</Text>
-									</FormLabel>
-									<Select
-										name='parent'
-										value={values.parent}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										placeholder='Select Manager'
-									>
-										{managers?.map((manager) => (
-											<option key={manager?._id} value={manager?._id}>
-												{manager?.fullName}
-											</option>
-										))}
-									</Select>
-								</GridItem>
-							)}
-
-							{['Agent']?.includes(
-								roles?.find((role) => role?._id === values.role)?.roleName
-							) && (
-								<GridItem>
-									<FormLabel
-										display='flex'
-										ms='4px'
-										fontSize='sm'
-										fontWeight='500'
-										mb='8px'
-									>
-										Team Leader
-									</FormLabel>
-									<Select
-										name='teamLead'
-										value={values.teamLead}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										placeholder='Select Team Leader'
-									>
-										{managerTeamLeaders?.length ? (
-											managerTeamLeaders?.map((tl) => (
-												<option key={tl._id} value={tl._id}>
-													{tl.fullName}
-												</option>
-											))
-										) : (
-											<option value='' disabled>
-												Team leaders not available
-											</option>
-										)}
-									</Select>
-								</GridItem>
-							)}
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Password
-								</FormLabel>
-								<InputGroup size='md'>
-									<Input
-										isRequired={true}
-										fontSize='sm'
-										placeholder='Enter Your Password'
-										name='password'
-										size='lg'
-										variant='auth'
-										autoComplete='new-password'
-										type={show ? 'text' : 'password'}
-										value={values.password}
-										onChange={handleChange}
-										onBlur={handleBlur}
-										borderColor={
-											errors.password && touched.password ? 'red.300' : null
-										}
-										className={
-											errors.password && touched.password ? 'isInvalid' : null
-										}
-									/>
-									<InputRightElement
-										display='flex'
-										alignItems='center'
-										mt='4px'
-									>
-										<Icon
-											color={'gray.400'}
-											_hover={{ cursor: 'pointer' }}
-											as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
-											onClick={showPass}
-										/>
-									</InputRightElement>
-								</InputGroup>
-								<Text mb='10px' color={'red'}>
-									{' '}
-									{errors.password && touched.password && errors.password}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Select agency <Text color={'red'}>*</Text>
+									Select Role <Text color={'red'}>*</Text>
 								</FormLabel>
 								<Select
-									name='agency'
-									value={values.agency}
+									name='role'
+									value={values.role}
 									onChange={handleChange}
 									onBlur={handleBlur}
-									placeholder='Select agency'
-									borderColor={
-										errors.agency && touched.agency ? 'red.300' : null
-									}
-									className={
-										errors.agency && touched.agency ? 'isInvalid' : null
-									}
+									placeholder='Select Role'
+									borderColor={errors.role && touched.role ? 'red.300' : null}
+									className={errors.role && touched.role ? 'isInvalid' : null}
 								>
-									{agencies?.doc?.map((agency) => (
-										<option key={agency._id} value={agency._id}>
-											{agency.name}
+									{roles
+										?.filter((role) => role.roleName !== 'sadmin')
+										?.map((role) => (
+											<option key={role?._id} value={role?._id}>
+												{role?.roleName}
+											</option>
+										))}
+								</Select>
+								<Text mb='10px' color='red'>
+									{errors.role && touched.role && errors.role}
+								</Text>
+							</GridItem>
+						)}
+						{['Team Leader', 'Agent'].includes(
+							roles?.find((role) => role?._id === values.role)?.roleName
+						) && (
+							<GridItem>
+								<FormLabel
+									display='flex'
+									ms='4px'
+									fontSize='sm'
+									fontWeight='500'
+									mb='8px'
+								>
+									Select Manager <Text color={'red'}>*</Text>
+								</FormLabel>
+								<Select
+									name='parent'
+									value={values.parent}
+									onChange={handleChange}
+									onBlur={handleBlur}
+									placeholder='Select Manager'
+								>
+									{managers?.map((manager) => (
+										<option key={manager?._id} value={manager?._id}>
+											{manager?.fullName}
 										</option>
 									))}
 								</Select>
-								<Text mb='10px' color={'red'}>
-									{errors.agency && touched.agency && errors.agency}
-								</Text>
 							</GridItem>
+						)}
+
+						{['Agent']?.includes(
+							roles?.find((role) => role?._id === values.role)?.roleName
+						) && (
 							<GridItem>
 								<FormLabel
 									display='flex'
@@ -594,109 +475,213 @@ const AddUser = (props) => {
 									fontWeight='500'
 									mb='8px'
 								>
-									Nationality
+									Team Leader
 								</FormLabel>
-								<Input
-									fontSize='sm'
+								<Select
+									name='teamLead'
+									value={values.teamLead}
 									onChange={handleChange}
 									onBlur={handleBlur}
-									value={values.nationality}
-									name='nationality'
-									placeholder='Nationality'
-									fontWeight='500'
+									placeholder='Select Team Leader'
+								>
+									{managerTeamLeaders?.length ? (
+										managerTeamLeaders?.map((tl) => (
+											<option key={tl._id} value={tl._id}>
+												{tl.fullName}
+											</option>
+										))
+									) : (
+										<option value='' disabled>
+											Team leaders not available
+										</option>
+									)}
+								</Select>
+							</GridItem>
+						)}
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Password
+							</FormLabel>
+							<InputGroup size='md'>
+								<Input
+									isRequired={true}
+									fontSize='sm'
+									placeholder='Enter Your Password'
+									name='password'
+									size='lg'
+									variant='auth'
+									autoComplete='new-password'
+									type={show ? 'text' : 'password'}
+									value={values.password}
+									onChange={handleChange}
+									onBlur={handleBlur}
 									borderColor={
-										errors.nationality && touched.nationality ? 'red.300' : null
+										errors.password && touched.password ? 'red.300' : null
+									}
+									className={
+										errors.password && touched.password ? 'isInvalid' : null
 									}
 								/>
-								<Text mb='10px' color={'red'}>
-									{errors.nationality &&
-										touched.nationality &&
-										errors.nationality}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Date of Birth
-								</FormLabel>
-								<Input
-									type='date'
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.dob}
-									name='dob'
-									fontWeight='500'
-									borderColor={errors.dob && touched.dob ? 'red.300' : null}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.dob && touched.dob && errors.dob}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Education Degree
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.educationDegree}
-									name='educationDegree'
-									placeholder='Education Degree'
-									fontWeight='500'
-									borderColor={
-										errors.educationDegree && touched.educationDegree
-											? 'red.300'
-											: null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.educationDegree &&
-										touched.educationDegree &&
-										errors.educationDegree}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									PASSPORT NUM
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.passportNum}
-									name='passportNum'
-									placeholder='PASSPORT NUM'
-									fontWeight='500'
-									borderColor={
-										errors.passportNum && touched.passportNum ? 'red.300' : null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.passportNum &&
-										touched.passportNum &&
-										errors.passportNum}
-								</Text>
-							</GridItem>
-							{/* <GridItem >
+								<InputRightElement display='flex' alignItems='center' mt='4px'>
+									<Icon
+										color={'gray.400'}
+										_hover={{ cursor: 'pointer' }}
+										as={show ? RiEyeCloseLine : MdOutlineRemoveRedEye}
+										onClick={showPass}
+									/>
+								</InputRightElement>
+							</InputGroup>
+							<Text mb='10px' color={'red'}>
+								{' '}
+								{errors.password && touched.password && errors.password}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Select agency <Text color={'red'}>*</Text>
+							</FormLabel>
+							<Select
+								name='agency'
+								value={values.agency}
+								onChange={handleChange}
+								onBlur={handleBlur}
+								placeholder='Select agency'
+								borderColor={errors.agency && touched.agency ? 'red.300' : null}
+								className={errors.agency && touched.agency ? 'isInvalid' : null}
+							>
+								{agencies?.doc?.map((agency) => (
+									<option key={agency._id} value={agency._id}>
+										{agency.name}
+									</option>
+								))}
+							</Select>
+							<Text mb='10px' color={'red'}>
+								{errors.agency && touched.agency && errors.agency}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Nationality
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.nationality}
+								name='nationality'
+								placeholder='Nationality'
+								fontWeight='500'
+								borderColor={
+									errors.nationality && touched.nationality ? 'red.300' : null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.nationality &&
+									touched.nationality &&
+									errors.nationality}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Date of Birth
+							</FormLabel>
+							<Input
+								type='date'
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.dob}
+								name='dob'
+								fontWeight='500'
+								borderColor={errors.dob && touched.dob ? 'red.300' : null}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.dob && touched.dob && errors.dob}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Education Degree
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.educationDegree}
+								name='educationDegree'
+								placeholder='Education Degree'
+								fontWeight='500'
+								borderColor={
+									errors.educationDegree && touched.educationDegree
+										? 'red.300'
+										: null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.educationDegree &&
+									touched.educationDegree &&
+									errors.educationDegree}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								PASSPORT NUM
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.passportNum}
+								name='passportNum'
+								placeholder='PASSPORT NUM'
+								fontWeight='500'
+								borderColor={
+									errors.passportNum && touched.passportNum ? 'red.300' : null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.passportNum &&
+									touched.passportNum &&
+									errors.passportNum}
+							</Text>
+						</GridItem>
+						{/* <GridItem >
     <FormLabel display="flex" ms="4px" fontSize="sm" fontWeight="500" mb="8px">
       PASSPORT PHOTO
     </FormLabel>
@@ -712,33 +697,33 @@ const AddUser = (props) => {
       {errors.passportPhoto && touched.passportPhoto && errors.passportPhoto}
     </Text>
   </GridItem> */}
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									UAE ID NUM
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.uaeIdNum}
-									name='uaeIdNum'
-									placeholder='UAE ID NUM'
-									fontWeight='500'
-									borderColor={
-										errors.uaeIdNum && touched.uaeIdNum ? 'red.300' : null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.uaeIdNum && touched.uaeIdNum && errors.uaeIdNum}
-								</Text>
-							</GridItem>
-							{/* <GridItem >
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								UAE ID NUM
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.uaeIdNum}
+								name='uaeIdNum'
+								placeholder='UAE ID NUM'
+								fontWeight='500'
+								borderColor={
+									errors.uaeIdNum && touched.uaeIdNum ? 'red.300' : null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.uaeIdNum && touched.uaeIdNum && errors.uaeIdNum}
+							</Text>
+						</GridItem>
+						{/* <GridItem >
     <FormLabel display="flex" ms="4px" fontSize="sm" fontWeight="500" mb="8px">
       UEA ID PHOTO
     </FormLabel>
@@ -755,129 +740,128 @@ const AddUser = (props) => {
     </Text>
   </GridItem> */}
 
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									DUBAI HOME Address
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.dubaiHomeAddress}
-									name='dubaiHomeAddress'
-									placeholder='Dubai Home Address'
-									fontWeight='500'
-									borderColor={
-										errors.dubaiHomeAddress && touched.dubaiHomeAddress
-											? 'red.300'
-											: null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.dubaiHomeAddress &&
-										touched.dubaiHomeAddress &&
-										errors.dubaiHomeAddress}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Driving license
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.drivingLicense}
-									name='drivingLicense'
-									placeholder='Driving license'
-									fontWeight='500'
-									borderColor={
-										errors.drivingLicense && touched.drivingLicense
-											? 'red.300'
-											: null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.drivingLicense &&
-										touched.drivingLicense &&
-										errors.drivingLicense}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									Country home address
-								</FormLabel>
-								<Input
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.countryHomeAddress}
-									name='countryHomeAddress'
-									placeholder='Country Home Address'
-									fontWeight='500'
-									borderColor={
-										errors.countryHomeAddress && touched.countryHomeAddress
-											? 'red.300'
-											: null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.countryHomeAddress &&
-										touched.countryHomeAddress &&
-										errors.countryHomeAddress}
-								</Text>
-							</GridItem>
-							<GridItem>
-								<FormLabel
-									display='flex'
-									ms='4px'
-									fontSize='sm'
-									fontWeight='500'
-									mb='8px'
-								>
-									COUNTRY PHONE NUM
-								</FormLabel>
-								<Input
-									type='tel'
-									fontSize='sm'
-									onChange={handleChange}
-									onBlur={handleBlur}
-									value={values.countryPhoneNum}
-									name='countryPhoneNum'
-									placeholder='Country Phone Number'
-									fontWeight='500'
-									borderColor={
-										errors.countryPhoneNum && touched.countryPhoneNum
-											? 'red.300'
-											: null
-									}
-								/>
-								<Text mb='10px' color={'red'}>
-									{errors.countryPhoneNum &&
-										touched.countryPhoneNum &&
-										errors.countryPhoneNum}
-								</Text>
-							</GridItem>
-						</Grid>
-					)}
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								DUBAI HOME Address
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.dubaiHomeAddress}
+								name='dubaiHomeAddress'
+								placeholder='Dubai Home Address'
+								fontWeight='500'
+								borderColor={
+									errors.dubaiHomeAddress && touched.dubaiHomeAddress
+										? 'red.300'
+										: null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.dubaiHomeAddress &&
+									touched.dubaiHomeAddress &&
+									errors.dubaiHomeAddress}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Driving license
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.drivingLicense}
+								name='drivingLicense'
+								placeholder='Driving license'
+								fontWeight='500'
+								borderColor={
+									errors.drivingLicense && touched.drivingLicense
+										? 'red.300'
+										: null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.drivingLicense &&
+									touched.drivingLicense &&
+									errors.drivingLicense}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								Country home address
+							</FormLabel>
+							<Input
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.countryHomeAddress}
+								name='countryHomeAddress'
+								placeholder='Country Home Address'
+								fontWeight='500'
+								borderColor={
+									errors.countryHomeAddress && touched.countryHomeAddress
+										? 'red.300'
+										: null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.countryHomeAddress &&
+									touched.countryHomeAddress &&
+									errors.countryHomeAddress}
+							</Text>
+						</GridItem>
+						<GridItem>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='500'
+								mb='8px'
+							>
+								COUNTRY PHONE NUM
+							</FormLabel>
+							<Input
+								type='tel'
+								fontSize='sm'
+								onChange={handleChange}
+								onBlur={handleBlur}
+								value={values.countryPhoneNum}
+								name='countryPhoneNum'
+								placeholder='Country Phone Number'
+								fontWeight='500'
+								borderColor={
+									errors.countryPhoneNum && touched.countryPhoneNum
+										? 'red.300'
+										: null
+								}
+							/>
+							<Text mb='10px' color={'red'}>
+								{errors.countryPhoneNum &&
+									touched.countryPhoneNum &&
+									errors.countryPhoneNum}
+							</Text>
+						</GridItem>
+					</Grid>
 				</ModalBody>
 				<ModalFooter
 					position='sticky'
