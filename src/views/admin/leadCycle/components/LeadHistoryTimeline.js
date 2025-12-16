@@ -1,5 +1,5 @@
-import { Badge, Box, Flex, Text } from "@chakra-ui/react";
-import { formatPostDate } from "utils/helpers";
+import { Badge, Box, Flex, Text } from '@chakra-ui/react';
+import { formatPostDate } from 'utils/helpers';
 
 // function formatDateTime(date) {
 // 	const options = {
@@ -17,9 +17,11 @@ import { formatPostDate } from "utils/helpers";
 // }
 
 export default function LeadHistoryTimeline({ timelineData }) {
-  return (
-    <>
-      {/* {timelineData.map((item) => {
+	console.log({ timelineData });
+
+	return (
+		<>
+			{/* {timelineData.map((item) => {
 				return (
 					<Flex
 						pb={8}
@@ -115,254 +117,263 @@ export default function LeadHistoryTimeline({ timelineData }) {
 				);
 			})} */}
 
-      {timelineData.map((item, index) => (
-        <Flex
-          key={index}
-          pb={8}
-          pl={8}
-          py={2}
-          borderLeft="2px solid"
-          borderColor="gray.200"
-          alignItems="flex-start"
-          position="relative"
-          bg="whitesmoke"
-          // _hover={{ bg: 'gray.100' }}
-          transition="all 0.2s"
-        >
-          {/* Timeline dot */}
-          <Box
-            w={6}
-            h={6}
-            bg={getStatusColor(item.type)}
-            borderRadius="full"
-            position="absolute"
-            top={2}
-            left={0}
-            transform="translateX(-50%)"
-            border="3px solid white"
-            boxShadow="md"
-          />
+			{timelineData.map((item, index) => (
+				<Flex
+					key={index}
+					pb={8}
+					pl={8}
+					py={2}
+					borderLeft='2px solid'
+					borderColor='gray.200'
+					alignItems='flex-start'
+					position='relative'
+					bg='whitesmoke'
+					// _hover={{ bg: 'gray.100' }}
+					transition='all 0.2s'
+				>
+					{/* Timeline dot */}
+					<Box
+						w={6}
+						h={6}
+						bg={getStatusColor(item.type)}
+						borderRadius='full'
+						position='absolute'
+						top={2}
+						left={0}
+						transform='translateX(-50%)'
+						border='3px solid white'
+						boxShadow='md'
+					/>
 
-          {/* Timeline content */}
-          <Box flex={1} pr="2" py="1">
-            <Flex
-              flexDir={{ base: "column", md: "row" }}
-              justify="space-between"
-              align={{ base: "flex-start", md: "center" }}
-              mb={2}
-            >
-              <Badge
-                colorScheme={getBadgeColor(item.type)}
-                variant="subtle"
-                borderRadius="md"
-                shadow="sm"
-                px={2}
-                py={1}
-                fontSize={{ base: "xs", md: "sm", lg: "md" }}
-                textTransform="uppercase"
-              >
-                {getTypeLabel(item.type)}
-              </Badge>
-              <Text fontSize={{ base: "10px", md: "sm" }} color="gray.500">
-                {formatPostDate(item?.updatedAt, "Asia/Dubai")}
-              </Text>
-            </Flex>
+					{/* Timeline content */}
+					<Box flex={1} pr='2' py='1'>
+						<Flex
+							flexDir={{ base: 'column', md: 'row' }}
+							justify='space-between'
+							align={{ base: 'flex-start', md: 'center' }}
+							mb={2}
+						>
+							<Badge
+								colorScheme={getBadgeColor(item.type)}
+								variant='subtle'
+								borderRadius='md'
+								shadow='sm'
+								px={2}
+								py={1}
+								fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
+								textTransform='uppercase'
+							>
+								{getTypeLabel(item.type)}
+							</Badge>
+							<Text fontSize={{ base: '10px', md: 'sm' }} color='gray.500'>
+								{formatPostDate(item?.updatedAt, 'Asia/Dubai')}
+							</Text>
+						</Flex>
 
-            <Box
-              bg="white"
-              p={{ base: 2, md: 4 }}
-              borderRadius="lg"
-              boxShadow="sm"
-            >
-              {(item.type === "assignment-manager" ||
-                item.type === "assignment-agent") && (
-                <Box>
-                  <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                    {item.type === "assignment-manager" ? "👔" : "👤"}{" "}
-                    <Text
-                      as="span"
-                      color={getStatusColor(item.type)}
-                      fontWeight="600"
-                    >
-                      {item?.updatedData}
-                    </Text>
-                  </Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
-                    By{" "}
-                    <Text as="span" color="brand.500">
-                      {item?.updatedBy}
-                    </Text>
-                  </Text>
-                </Box>
-              )}
-              {(item.type === "unassigned-manager" ||
-                item.type === "unassigned-agent") && (
-                <Box>
-                  <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                    ♻️
-                    <Text
-                      as="span"
-                      color={getStatusColor(item.type)}
-                      fontWeight="600"
-                    >
-                      {item?.updatedData}
-                    </Text>
-                  </Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
-                    By{" "}
-                    <Text as="span" color="brand.500">
-                      {item?.updatedBy}
-                    </Text>
-                  </Text>
-                </Box>
-              )}
+						<Box
+							bg='white'
+							p={{ base: 2, md: 4 }}
+							borderRadius='lg'
+							boxShadow='sm'
+						>
+							{[
+								'assignment-manager',
+								'assignment-team-lead',
+								'assignment-agent',
+							].includes(item.type) && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										{item.type === 'assignment-manager' ? '👔' : '👤'}{' '}
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{item?.updatedData || 'N/A'}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+							{[
+								'unassigned-manager',
+								'unassigned-team-lead',
+								'unassigned-agent',
+							].includes(item.type) && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										♻️
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
 
-              {item.type === "status" && (
-                <Box>
-                  <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                    🔄
-                    <Text
-                      as="span"
-                      color={getStatusColor(item.type)}
-                      fontWeight="600"
-                    >
-                      {item?.updatedData}
-                    </Text>
-                  </Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
-                    By{" "}
-                    <Text as="span" color="brand.500">
-                      {item?.updatedBy}
-                    </Text>
-                  </Text>
-                </Box>
-              )}
+							{item.type === 'status' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔄
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
 
-              {item.type === "mStatus" && (
-                <Box>
-                  <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                    🔄
-                    <Text
-                      as="span"
-                      color={getStatusColor(item.type)}
-                      fontWeight="600"
-                    >
-                      {item?.updatedData}
-                    </Text>
-                  </Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
-                    By{" "}
-                    <Text as="span" color="brand.500">
-                      {item?.updatedBy}
-                    </Text>
-                  </Text>
-                </Box>
-              )}
+							{item.type === 'mStatus' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔄
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
 
-              {item.type === "lead-buy" && (
-                <Box>
-                  <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                    💰
-                    <Text
-                      as="span"
-                      color={getStatusColor(item.type)}
-                      fontWeight="600"
-                    >
-                      {item?.updatedData}
-                    </Text>
-                  </Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
-                    By{" "}
-                    <Text as="span" color="brand.500">
-                      {item?.updatedBy}
-                    </Text>
-                  </Text>
-                </Box>
-              )}
-              {item.type === "release" && (
-                <Box>
-                  <Text fontSize={{ base: "sm", md: "md" }} mb={1}>
-                    🔓
-                    <Text
-                      as="span"
-                      color={getStatusColor(item.type)}
-                      fontWeight="600"
-                    >
-                      {`${item?.role} Release Lead`}
-                    </Text>
-                  </Text>
-                  <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
-                    By{" "}
-                    <Text as="span" color="brand.500">
-                      {item?.updatedBy}
-                    </Text>
-                  </Text>
-                </Box>
-              )}
+							{item.type === 'lead-buy' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										💰
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{item?.updatedData}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
+							{item.type === 'release' && (
+								<Box>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+										🔓
+										<Text
+											as='span'
+											color={getStatusColor(item.type)}
+											fontWeight='600'
+										>
+											{`${item?.role} Release Lead`}
+										</Text>
+									</Text>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+										By{' '}
+										<Text as='span' color='brand.500'>
+											{item?.updatedBy}
+										</Text>
+									</Text>
+								</Box>
+							)}
 
-              {/* Dynamic content based on type */}
-              {item.type === "creation" && (
-                <Text fontSize={{ base: "sm", md: "md" }}>
-                  🎯 <strong>Lead created</strong> by{" "}
-                  <Text
-                    as="span"
-                    color={getStatusColor(item.type)}
-                    fontWeight="600"
-                  >
-                    {item?.updatedBy}
-                  </Text>
-                </Text>
-              )}
-            </Box>
-          </Box>
-        </Flex>
-      ))}
-    </>
-  );
+							{/* Dynamic content based on type */}
+							{item.type === 'creation' && (
+								<Text fontSize={{ base: 'sm', md: 'md' }}>
+									🎯 <strong>Lead created</strong> by{' '}
+									<Text
+										as='span'
+										color={getStatusColor(item.type)}
+										fontWeight='600'
+									>
+										{item?.updatedBy}
+									</Text>
+								</Text>
+							)}
+						</Box>
+					</Box>
+				</Flex>
+			))}
+		</>
+	);
 }
 
 // Helper functions
 const getStatusColor = (type) => {
-  const colors = {
-    creation: "blue.500",
-    "assignment-manager": "teal.500",
-    "assignment-agent": "cyan.500",
-    "unassigned-manager": "gray.500",
-    "unassigned-agent": "gray.500",
-    status: "purple.500",
-    mStatus: "brand.500",
-    "lead-buy": "green.500",
-    release: "red.500",
-  };
-  return colors[type] || "gray.500";
+	const colors = {
+		creation: 'blue.500',
+		'assignment-manager': 'teal.500',
+		'assignment-team-lead': 'pink.500',
+		'assignment-agent': 'cyan.500',
+		status: 'purple.500',
+		mStatus: 'brand.500',
+		'lead-buy': 'green.500',
+		release: 'red.500',
+	};
+	return colors[type] || 'gray.500';
 };
 
 const getBadgeColor = (type) => {
-  const colors = {
-    creation: "blue",
-    "assignment-manager": "teal",
-    "assignment-agent": "cyan",
-    "unassigned-manager": "gray",
-    "unassigned-agent": "gray",
-    status: "purple",
-    mStatus: "brand",
-    "lead-buy": "green",
-    release: "red",
-  };
-  return colors[type] || "gray";
+	const colors = {
+		creation: 'blue',
+		'assignment-manager': 'teal',
+		'assignment-team-lead': 'pink',
+		'assignment-agent': 'cyan',
+		// 'unassigned-manager': 'gray',
+		// 'unassigned-team-leader': 'gray',
+		// 'unassigned-agent': 'gray',
+		status: 'purple',
+		mStatus: 'brand',
+		'lead-buy': 'green',
+		release: 'red',
+	};
+	return colors[type] || 'gray';
 };
 
 const getTypeLabel = (type) => {
-  const labels = {
-    creation: "Created",
-    release: "Release",
-    "assignment-manager": "Manager Assigned",
-    "assignment-agent": "Agent Assigned",
-    "unassigned-manager": "Unassigned Manager",
-    "unassigned-agent": "Unassigned Agent",
-    status: "Status Changed",
-    mStatus: "M Status Changed",
-    "lead-buy": "Purchased",
-  };
-  return labels[type] || type;
+	const labels = {
+		creation: 'Created',
+		release: 'Release',
+		'assignment-manager': 'Manager Assigned',
+		'unassigned-manager': 'Unassigned Manager',
+		'assignment-team-lead': 'Team Lead Assigned',
+		'unassigned-team-lead': 'Unassigned Team Lead',
+		'assignment-agent': 'Agent Assigned',
+		'unassigned-agent': 'Unassigned Agent',
+		status: 'Status Changed',
+		mStatus: 'M Status Changed',
+		'lead-buy': 'Purchased',
+	};
+	return labels[type] || type;
 };

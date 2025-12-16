@@ -13,14 +13,21 @@ import { putApi } from 'services/api';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
 import { sendLeadNotification } from 'api';
-import { mergeSort, removeDisableUser } from 'utils/helpers';
+import { mergeSort } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
-const Managers = ({ lead }) => {
-	const { managerAssigned } = lead;
+const TeamLeaders = ({ lead }) => {
+	const {
+		_id,
+		intID,
+		leadName,
+		managerAssigned,
+		teamLeadAssigned,
+		teamLeadAssignedDate,
+	} = lead;
 
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('');
@@ -32,58 +39,56 @@ const Managers = ({ lead }) => {
 	const { createUserLog } = useUserActivityLog();
 
 	useEffect(() => {
-		setSelected(managerAssigned);
-	}, [managerAssigned]);
+		setSelected(teamLeadAssigned);
+	}, [teamLeadAssigned]);
 
 	const dispatch = useDispatch();
 
-	const handleChangeManager = async (e) => {
-		const managerAssignedValue = e.target.value || null;
+	// Filter agents related to the assigned manager + team lead
+	const teamLeaders = useMemo(() => {
+		const manager = team?.find((manager) => manager?._id === managerAssigned);
+
+		return mergeSort(manager?.teamLeaders || []);
+	}, [managerAssigned, team]);
+
+	const handleChangeTeamLead = async (e) => {
+		const teamLeadAssignedValue = e.target.value || null;
 
 		const dataObj = {
-			// agentAssigned: managerAssigned ? '' : undefined,
-			managerAssigned: managerAssignedValue,
-			isFreshLead: managerAssigned ? false : true,
+			teamLeadAssigned: teamLeadAssignedValue,
 		};
 
 		try {
 			setLoading(true);
-			const res = await putApi(`api/lead/v2/edit/${lead._id}`, dataObj);
+			const res = await putApi(`api/lead/v2/edit/${_id}`, dataObj);
 
 			if (res.status === 200) {
-				setSelected(managerAssigned);
+				setSelected(teamLeadAssignedValue);
 
 				dispatch(
 					updateLeadFields({
-						id: lead?._id,
+						id: _id,
 						updates: [
-							{ key: 'managerAssigned', value: managerAssignedValue },
+							{ key: 'teamLeadAssigned', value: teamLeadAssignedValue },
 							{
-								key: 'managerDetails',
-								value: res?.data?.managerDetails || null,
+								key: 'teamLeadDetails',
+								value: res?.data?.teamLeadDetails || null,
 							},
 
 							// if manager is unassigned then null agent also
-							...(managerAssignedValue === null
-								? [
-										{ key: 'teamLeadDetails', value: null },
-										{ key: 'agentDetails', value: null },
-									]
+							...(teamLeadAssignedValue === null
+								? [{ key: 'agentDetails', value: null }]
 								: []),
 
 							{
-								key: 'managerAssignedDate',
+								key: 'teamLeadAssignedDate',
 								value:
-									managerAssignedValue !== '' ? new Date().toISOString() : null,
+									teamLeadAssignedValue !== null
+										? new Date().toISOString()
+										: null,
 							},
-							{ key: 'teamLeadAssigned', value: null },
 							{ key: 'agentAssigned', value: null },
-							{ key: 'teamLeadAssignedDate', value: null },
 							{ key: 'agentAssignedDate', value: null },
-							// {
-							// 	key: 'leadType',
-							// 	value: res?.data?.leadType || null,
-							// },
 							{
 								key: 'isReleased',
 								value: res?.data?.isReleased,
@@ -92,23 +97,23 @@ const Managers = ({ lead }) => {
 					})
 				);
 
-				toast.success('Manager updated successfully');
+				toast.success('Team Lead updated successfully');
 
 				// send lead notification
-				if (managerAssignedValue) {
-					sendLeadNotification(user?._id, managerAssignedValue, lead);
+				if (teamLeadAssignedValue) {
+					sendLeadNotification(user?._id, teamLeadAssignedValue, lead);
 				}
 
 				let message;
 
-				if (managerAssignedValue === null) {
-					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
+				if (teamLeadAssignedValue === null) {
+					message = `Lead '${leadName || ''}' unassigned from Team lead by ${user?.fullName}.`;
 				} else {
-					const manager = team?.find(
-						(manager) => manager?._id === managerAssignedValue
+					const teamLeader = teamLeaders?.find(
+						(teamLead) => teamLead?._id === teamLeadAssignedValue
 					);
 
-					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;
+					message = `Lead '${leadName || ''}' assigned to Team lead ${teamLeader?.fullName} by ${user?.fullName}.`;
 				}
 
 				// update user activity log
@@ -117,19 +122,20 @@ const Managers = ({ lead }) => {
 					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
-					entityId: lead?._id || null,
-					leadManager: managerAssignedValue || null,
+					entityId: _id || null,
+					leadTeamLead: teamLeadAssignedValue || null,
 					status: 'success',
 					message,
 					rawPayload: {
-						previousManager: lead?.managerAssigned || null,
-						newManager: managerAssignedValue || null,
-						leadId: lead?.intID || null,
+						previousTeamLead: teamLeadAssigned || null,
+						newTeamLead: teamLeadAssignedValue || null,
+						leadId: intID || null,
 					},
 				});
 			} else {
 				const errorMessage =
-					res?.response?.data?.message || 'Failed to update the manager';
+					res?.response?.data?.message || 'Failed to update the team lead';
+				console.error(errorMessage);
 
 				toast.error(errorMessage);
 
@@ -139,15 +145,14 @@ const Managers = ({ lead }) => {
 					action: 'ASSIGN',
 					entity: 'Lead',
 					enityType: 'Lead',
-					entityId: lead._id || null,
-					status: res?.response?.statusCode === 500 ? 'error' : 'fail',
+					entityId: _id || null,
+					status: res?.response?.status === 500 ? 'error' : 'fail',
 					message: errorMessage,
 				});
 			}
 		} catch (error) {
 			const errorMessage =
-				error?.data?.message || 'Failed to update the manager';
-			console.error(errorMessage);
+				error?.data?.message || 'Failed to update the team lead';
 
 			toast.error(errorMessage);
 
@@ -157,26 +162,14 @@ const Managers = ({ lead }) => {
 				action: 'ASSIGN',
 				entity: 'Lead',
 				enityType: 'Lead',
-				entityId: lead._id || null,
-				status: errorMessage?.statusCode === 500 ? 'error' : 'fail',
+				entityId: _id || null,
+				status: error?.response?.status === 500 ? 'error' : 'fail',
 				message: errorMessage,
 			});
 		} finally {
 			setLoading(false);
 		}
 	};
-
-	// const { managerName } = useMemo(() => {
-	// 	if (!['Manager', 'Agent'].includes(role)) return { managerName: 'N/A' };
-
-	// 	// Create a lookup map for fast access
-	// 	const managerMap = new Map(
-	// 		tree?.managers?.map((m) => [m._id, m.fullName]) || []
-	// 	);
-	// 	const managerName = managerMap.get(selected) || 'N/A';
-
-	// 	return { managerName };
-	// }, [tree?.managers, role, selected, lead]);
 
 	return (
 		<>
@@ -188,21 +181,18 @@ const Managers = ({ lead }) => {
 					color='softGray.200'
 					mr={2}
 				>
-					Manger
+					Team Lead
 				</Text>
 
 				{/* Info Icon with Tooltip */}
 				{/* <Tooltip hasArrow whiteSpace='pre-line'>
-					<Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
-				</Tooltip> */}
+          <Icon as={InfoIcon} boxSize={leadIconSize} color='blue.300' />
+        </Tooltip> */}
 
 				<CustomTooltip
 					label={`Assign Date:\n${
-						lead?.managerAssignedDate
-							? format(
-									new Date(lead?.managerAssignedDate),
-									'MMM d, yyyy h:mm a'
-								)
+						teamLeadAssignedDate
+							? format(new Date(teamLeadAssignedDate), 'MMM d, yyyy h:mm a')
 							: 'N/A'
 					}`}
 				>
@@ -216,18 +206,17 @@ const Managers = ({ lead }) => {
 			</Flex>
 
 			<SelectInput
-				name='managerAssigned'
+				name='teamLeadAssigned'
 				placeholder='Select'
-				// options={mergeSort(removeDisableUser(tree?.managers || []))}
-				options={mergeSort(team || [])}
+				options={teamLeaders}
 				selectedValue={selected}
 				type='dynamic'
 				size={leadSelectInputSize}
 				loading={loading}
-				onChange={handleChangeManager}
+				onChange={handleChangeTeamLead}
 			/>
 		</>
 	);
 };
 
-export default Managers;
+export default TeamLeaders;

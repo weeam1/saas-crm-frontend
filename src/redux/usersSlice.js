@@ -5,8 +5,12 @@ const usersSlice = createSlice({
 	initialState: {
 		list: [],
 		allUsers: [],
+		team: [],
 	},
 	reducers: {
+		setTeamStructure: (state, action) => {
+			state.team = action.payload;
+		},
 		setUsers: (state, action) => {
 			state.list = action.payload;
 		},
@@ -27,5 +31,6 @@ const usersSlice = createSlice({
 	},
 });
 
-export const { setUsers, setAllUsers, updateAllUsers } = usersSlice.actions;
+export const { setUsers, setAllUsers, setTeamStructure, updateAllUsers } =
+	usersSlice.actions;
 export default usersSlice.reducer;

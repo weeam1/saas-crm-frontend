@@ -21,6 +21,7 @@ export const leadLabels = {
 	budget: 'Budget',
 	timetocall: 'Time To Call',
 	managerAssigned: 'Manager',
+	teamLeadAssigned: 'Team Lead',
 	agentAssigned: 'Agent',
 	leadStatus: 'Status',
 	eLeadStatus: 'Main Status',

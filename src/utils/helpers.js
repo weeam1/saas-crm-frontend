@@ -300,7 +300,10 @@ const merge = (left, right) => {
 		j = 0;
 
 	while (i < left.length && j < right.length) {
-		if (left[i].firstName.localeCompare(right[j].firstName) <= 0) {
+		if (
+			left[i]?.fullName?.localeCompare(right[i]?.fullName) <= 0 ||
+			left[i]?.firstName?.localeCompare(right[j]?.firstName) <= 0
+		) {
 			sortedArr.push(left[i]);
 			i++;
 		} else {

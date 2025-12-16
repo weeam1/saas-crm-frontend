@@ -29,6 +29,7 @@ import Loader from 'components/loading/Loader';
 import TopPagination from 'components/pagination/TopPagination';
 import { useSearchParams } from 'react-router-dom';
 
+
 const LeadTableView = lazy(() => import('./table'));
 const LeadGridView = lazy(() => import('./grid'));
 
@@ -78,6 +79,7 @@ const LeadsLayout = memo(
 			setRefetchLoading,
 		} = useFilteredQueryParams();
 
+	
 		// const leads = useSelector(
 		// 	(state) => state.leads,
 		// 	(prev, next) => prev === next

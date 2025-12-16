@@ -41,6 +41,11 @@ const Index = () => {
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
 
+	const bulkAssingPermissionAllowed =
+		hasPermission('leads', 'bulkAssign_all') ||
+		hasPermission('leads', 'bulkAssign_team') ||
+		hasPermission('leads', 'bulkAssign_agents');
+
 	const [view, setView] = useState(() => {
 		return localStorage.getItem('leadView') || 'grid';
 	});
@@ -276,8 +281,7 @@ const Index = () => {
 							</Button> // count added
 						)}
 
-						{(hasPermission('leads', 'bulkAssign_all') ||
-							hasPermission('leads', 'bulkAssign_agents')) && (
+						{bulkAssingPermissionAllowed && (
 							<Button
 								{...buttonStyle}
 								onClick={() => setBulkAssign(true)}
@@ -301,7 +305,7 @@ const Index = () => {
 								bg='brand.500'
 								py='2'
 								px='5'
-								leftIcon={<FaPlus active={ { bg: 'brand.600' }}/>}
+								leftIcon={<FaPlus active={{ bg: 'brand.600' }} />}
 								aria-label='New lead'
 								onClick={() => setAddLead(true)}
 							>
