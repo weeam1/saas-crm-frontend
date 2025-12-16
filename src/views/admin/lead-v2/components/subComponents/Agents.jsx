@@ -37,6 +37,8 @@ const Agents = ({ lead }) => {
 		setSelected(agentAssigned);
 	}, [agentAssigned]);
 
+	console.log({ managerAssigned, teamLeadAssigned, agentAssigned });
+
 	const dispatch = useDispatch();
 
 	const handleChangeAgent = async (e) => {

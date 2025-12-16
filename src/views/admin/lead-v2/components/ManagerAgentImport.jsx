@@ -62,6 +62,7 @@ const ManagerAgentImport = ({
 		handleChange(e); // Update form values
 		if (selectedTeamLeadId) {
 			const agents = getAgentsByManagerAndTL(managerId, selectedTeamLeadId);
+			console.log({ agents });
 			setFilteredAgents(agents || []);
 			setTeamLeadId(selectedTeamLeadId);
 		} else {
@@ -81,7 +82,7 @@ const ManagerAgentImport = ({
 			const agents = getAgentsByManager(_managerId);
 
 			setFilteredTeamLeaders(teamLeads || []);
-			setFilteredAgents(agents || []);
+			// setFilteredAgents(agents || []);
 			setMangerId(_managerId);
 		} else if (userRoleName === 'Team Leader' && user?.parent) {
 			const _TLId = user?._id;
@@ -118,171 +119,327 @@ const ManagerAgentImport = ({
 	// 	? tree?.agents[`manager-${user._id}`] || []
 	// 	: filteredAgents;
 
-	return (
-		<>
-			{/* Manager Selection (Super Admin Only) */}
-			{hasPermission('leads', 'bulkAssign_all') ? (
-				<>
-					<GridItem colSpan={{ base: 12, md: 6 }}>
-						<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
-							Select Manager
-						</FormLabel>
-						<Box>
-							<Select
-								name='managerAssigned'
-								// placeholder='Select Manager'
-								onChange={handleManagerChange}
-								value={values['managerAssigned'] || ''}
-							>
-								<option value=''>No manager</option>
-								{managers?.map((manager) => (
-									<option key={manager._id} value={manager._id}>
-										{manager.fullName}
-									</option>
-								))}
-							</Select>
-						</Box>
-						<Text mb='10px' color='red'>
-							{errors.managerAssigned &&
-								touched.managerAssigned &&
-								errors.managerAssigned}
-						</Text>
-					</GridItem>
-
-					<GridItem colSpan={{ base: 12, md: 6 }}>
-						<FormLabel
-							display='flex'
-							ms='4px'
-							fontSize='sm'
-							fontWeight='600'
-							color='#000'
-							mb='0'
-							mt={2}
-						>
-							Team Lead
-						</FormLabel>
-						<Box>
-							<Select
-								name='teamLeadAssigned'
-								onChange={handleTeamLeaderChange}
-								value={values['teamLeadAssigned']}
-							>
-								<option value=''>Select team lead</option>
-								<option value={-1}>No Team Lead</option>
-
-								{managerId &&
-									filteredTeamLeaders?.length &&
-									filteredTeamLeaders?.map((tl) => (
-										<option key={tl._id} value={tl._id}>
-											{tl.fullName}
-										</option>
-									))}
-							</Select>
-						</Box>
-						<Text mb='10px' color='red'>
-							{errors.teamLeadAssigned &&
-								touched.teamLeadAssigned &&
-								errors.teamLeadAssigned}
-						</Text>
-					</GridItem>
-
-					<GridItem colSpan={{ base: 12, md: 6 }}>
-						<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
-							Select Agent
-						</FormLabel>
-						<Box>
-							<Select
-								name='agentAssigned'
-								onChange={handleChange}
-								value={values['agentAssigned'] || ''}
-								// placeholder='Select Agent'
-							>
-								<option value=''>No agent</option>
-
-								{filteredAgents?.map((agent) => (
-									<option key={agent._id} value={agent._id}>
-										{agent.fullName}
-									</option>
-								))}
-							</Select>
-						</Box>
-						<Text mb='10px' color='red'>
-							{errors.agentAssigned &&
-								touched.agentAssigned &&
-								errors.agentAssigned}
-						</Text>
-					</GridItem>
-				</>
-			) : (
-				hasPermission('leads', 'bulkAssign_agents') && (
-					<>
-						<GridItem colSpan={{ base: 12, md: 6 }}>
-							<FormLabel
-								display='flex'
-								ms='4px'
-								fontSize='sm'
-								fontWeight='600'
-								color='#000'
-								mb='0'
-								mt={2}
-							>
-								Team Lead
-							</FormLabel>
-							<Box>
-								<Select
-									name='teamLeadAssigned'
-									onChange={handleTeamLeaderChange}
-									value={values['teamLeadAssigned']}
-								>
-									<option value=''>Select team lead</option>
-									<option value={-1}>No Team Lead</option>
-
-									{managerId &&
-										filteredTeamLeaders?.length &&
-										filteredTeamLeaders?.map((tl) => (
-											<option key={tl._id} value={tl._id}>
-												{tl.fullName}
-											</option>
-										))}
-								</Select>
-							</Box>
-							<Text mb='10px' color='red'>
-								{errors.teamLeadAssigned &&
-									touched.teamLeadAssigned &&
-									errors.teamLeadAssigned}
-							</Text>
-						</GridItem>
-						<GridItem colSpan={{ base: 12, md: 6 }}>
-							<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
-								Select Agent
-							</FormLabel>
-							<Box>
-								<Select
-									name='agentAssigned'
-									onChange={handleManagerChange}
-									value={values['agentAssigned'] || ''}
-									// placeholder='Select Agent'
-								>
-									<option value=''>No agent</option>
-
-									{filteredAgents?.length &&
-										filteredAgents?.map((agent) => (
-											<option key={agent._id} value={agent._id}>
-												{agent.fullName}
-											</option>
-										))}
-								</Select>
-							</Box>
-							<Text mb='10px' color='red'>
-								{errors.agentAssigned &&
-									touched.agentAssigned &&
-									errors.agentAssigned}
-							</Text>
-						</GridItem>
-					</>
-				)
+	// Create a reusable SelectField component
+	const SelectField = ({
+		label,
+		name,
+		options = [],
+		defaultValue = { value: '', label: 'Select...' },
+		onChange,
+		error,
+		touched,
+		labelProps = {},
+	}) => (
+		<GridItem colSpan={{ base: 12, md: 6 }}>
+			<FormLabel
+				fontSize='sm'
+				fontWeight='600'
+				color='#000'
+				mt={2}
+				{...labelProps}
+			>
+				{label}
+			</FormLabel>
+			<Box>
+				<Select name={name} onChange={onChange} value={values[name] || ''}>
+					<option value={defaultValue.value}>{defaultValue.label}</option>
+					{options.map((option) => (
+						<option key={option.value} value={option.value}>
+							{option.label}
+						</option>
+					))}
+				</Select>
+			</Box>
+			{error && touched && (
+				<Text mb='10px' color='red'>
+					{error}
+				</Text>
 			)}
-		</>
+		</GridItem>
+	);
+
+	return (
+		// <>
+		// 	{/* Manager Selection (Super Admin Only) */}
+		// 	{hasPermission('leads', 'bulkAssign_all') ? (
+		// 		<>
+		// 			<GridItem colSpan={{ base: 12, md: 6 }}>
+		// 				<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+		// 					Select Manager
+		// 				</FormLabel>
+		// 				<Box>
+		// 					<Select
+		// 						name='managerAssigned'
+		// 						// placeholder='Select Manager'
+		// 						onChange={handleManagerChange}
+		// 						value={values['managerAssigned'] || ''}
+		// 					>
+		// 						<option value=''>No manager</option>
+		// 						{managers?.map((manager) => (
+		// 							<option key={manager._id} value={manager._id}>
+		// 								{manager.fullName}
+		// 							</option>
+		// 						))}
+		// 					</Select>
+		// 				</Box>
+		// 				<Text mb='10px' color='red'>
+		// 					{errors.managerAssigned &&
+		// 						touched.managerAssigned &&
+		// 						errors.managerAssigned}
+		// 				</Text>
+		// 			</GridItem>
+
+		// 			<GridItem colSpan={{ base: 12, md: 6 }}>
+		// 				<FormLabel
+		// 					display='flex'
+		// 					ms='4px'
+		// 					fontSize='sm'
+		// 					fontWeight='600'
+		// 					color='#000'
+		// 					mb='0'
+		// 					mt={2}
+		// 				>
+		// 					Team Lead
+		// 				</FormLabel>
+		// 				<Box>
+		// 					<Select
+		// 						name='teamLeadAssigned'
+		// 						onChange={handleTeamLeaderChange}
+		// 						value={values['teamLeadAssigned']}
+		// 					>
+		// 						{/* <option value=''>Select team lead</option> */}
+		// 						<option value=''>No Team Lead</option>
+
+		// 						{managerId &&
+		// 							filteredTeamLeaders?.length &&
+		// 							filteredTeamLeaders?.map((tl) => (
+		// 								<option key={tl._id} value={tl._id}>
+		// 									{tl.fullName}
+		// 								</option>
+		// 							))}
+		// 					</Select>
+		// 				</Box>
+		// 				<Text mb='10px' color='red'>
+		// 					{errors.teamLeadAssigned &&
+		// 						touched.teamLeadAssigned &&
+		// 						errors.teamLeadAssigned}
+		// 				</Text>
+		// 			</GridItem>
+
+		// 			<GridItem colSpan={{ base: 12, md: 6 }}>
+		// 				<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+		// 					Select Agent
+		// 				</FormLabel>
+		// 				<Box>
+		// 					<Select
+		// 						name='agentAssigned'
+		// 						onChange={handleChange}
+		// 						value={values['agentAssigned'] || ''}
+		// 						// placeholder='Select Agent'
+		// 					>
+		// 						<option value=''>No agent</option>
+
+		// 						{filteredAgents?.map((agent) => (
+		// 							<option key={agent._id} value={agent._id}>
+		// 								{agent.fullName}
+		// 							</option>
+		// 						))}
+		// 					</Select>
+		// 				</Box>
+		// 				<Text mb='10px' color='red'>
+		// 					{errors.agentAssigned &&
+		// 						touched.agentAssigned &&
+		// 						errors.agentAssigned}
+		// 				</Text>
+		// 			</GridItem>
+		// 		</>
+		// 	) : hasPermission('leads', 'bulkAssign_teamLead') ? (
+		// 		<>
+		// 			<GridItem colSpan={{ base: 12, md: 6 }}>
+		// 				<FormLabel
+		// 					display='flex'
+		// 					ms='4px'
+		// 					fontSize='sm'
+		// 					fontWeight='600'
+		// 					color='#000'
+		// 					mb='0'
+		// 					mt={2}
+		// 				>
+		// 					Team Lead
+		// 				</FormLabel>
+		// 				<Box>
+		// 					<Select
+		// 						name='teamLeadAssigned'
+		// 						onChange={handleTeamLeaderChange}
+		// 						value={values['teamLeadAssigned']}
+		// 					>
+		// 						<option value=''>No Team Lead</option>
+
+		// 						{managerId &&
+		// 							filteredTeamLeaders?.length &&
+		// 							filteredTeamLeaders?.map((tl) => (
+		// 								<option key={tl._id} value={tl._id}>
+		// 									{tl.fullName}
+		// 								</option>
+		// 							))}
+		// 					</Select>
+		// 				</Box>
+		// 				<Text mb='10px' color='red'>
+		// 					{errors.teamLeadAssigned &&
+		// 						touched.teamLeadAssigned &&
+		// 						errors.teamLeadAssigned}
+		// 				</Text>
+		// 			</GridItem>
+		// 			<GridItem colSpan={{ base: 12, md: 6 }}>
+		// 				<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+		// 					Select Agent
+		// 				</FormLabel>
+		// 				<Box>
+		// 					<Select
+		// 						name='agentAssigned'
+		// 						onChange={handleManagerChange}
+		// 						value={values['agentAssigned'] || ''}
+		// 						// placeholder='Select Agent'
+		// 					>
+		// 						<option value=''>No agent</option>
+
+		// 						{filteredAgents?.length &&
+		// 							filteredAgents?.map((agent) => (
+		// 								<option key={agent._id} value={agent._id}>
+		// 									{agent.fullName}
+		// 								</option>
+		// 							))}
+		// 					</Select>
+		// 				</Box>
+		// 				<Text mb='10px' color='red'>
+		// 					{errors.agentAssigned &&
+		// 						touched.agentAssigned &&
+		// 						errors.agentAssigned}
+		// 				</Text>
+		// 			</GridItem>
+		// 		</>
+		// 	) : (
+		// 		hasPermission('leads', 'bulkAssign_agents') && (
+		// 			<>
+		// 				<GridItem colSpan={{ base: 12, md: 6 }}>
+		// 					<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+		// 						Select Agent
+		// 					</FormLabel>
+		// 					<Box>
+		// 						<Select
+		// 							name='agentAssigned'
+		// 							onChange={handleManagerChange}
+		// 							value={values['agentAssigned'] || ''}
+		// 							// placeholder='Select Agent'
+		// 						>
+		// 							<option value=''>No agent</option>
+
+		// 							{filteredAgents?.length &&
+		// 								filteredAgents?.map((agent) => (
+		// 									<option key={agent._id} value={agent._id}>
+		// 										{agent.fullName}
+		// 									</option>
+		// 								))}
+		// 						</Select>
+		// 					</Box>
+		// 					<Text mb='10px' color='red'>
+		// 						{errors.agentAssigned &&
+		// 							touched.agentAssigned &&
+		// 							errors.agentAssigned}
+		// 					</Text>
+		// 				</GridItem>
+		// 			</>
+		// 		)
+		// 	)}
+		// </>
+		// Then in your JSX:
+		hasPermission('leads', 'bulkAssign_all') ? (
+			<>
+				<SelectField
+					label='Select Manager'
+					name='managerAssigned'
+					options={managers?.map((m) => ({ value: m._id, label: m.fullName }))}
+					defaultValue={{ value: '', label: 'No manager' }}
+					onChange={handleManagerChange}
+					error={errors.managerAssigned}
+					touched={touched.managerAssigned}
+				/>
+				<SelectField
+					label='Team Lead'
+					name='teamLeadAssigned'
+					options={
+						managerId && filteredTeamLeaders?.length
+							? filteredTeamLeaders.map((tl) => ({
+									value: tl._id,
+									label: tl.fullName,
+								}))
+							: []
+					}
+					defaultValue={{ value: '', label: 'No Team Lead' }}
+					onChange={handleTeamLeaderChange}
+					error={errors.teamLeadAssigned}
+					touched={touched.teamLeadAssigned}
+					labelProps={{ display: 'flex', ms: '4px', mb: '0' }}
+				/>
+				<SelectField
+					label='Select Agent'
+					name='agentAssigned'
+					options={filteredAgents?.map((a) => ({
+						value: a._id,
+						label: a.fullName,
+					}))}
+					defaultValue={{ value: '', label: 'No agent' }}
+					onChange={handleChange}
+					error={errors.agentAssigned}
+					touched={touched.agentAssigned}
+				/>
+			</>
+		) : hasPermission('leads', 'bulkAssign_team') ? (
+			<>
+				<SelectField
+					label='Team Lead'
+					name='teamLeadAssigned'
+					options={
+						managerId && filteredTeamLeaders?.length
+							? filteredTeamLeaders.map((tl) => ({
+									value: tl._id,
+									label: tl.fullName,
+								}))
+							: []
+					}
+					defaultValue={{ value: '', label: 'No Team Lead' }}
+					onChange={handleTeamLeaderChange}
+					error={errors.teamLeadAssigned}
+					touched={touched.teamLeadAssigned}
+					labelProps={{ display: 'flex', ms: '4px', mb: '0' }}
+				/>
+				<SelectField
+					label='Select Agent'
+					name='agentAssigned'
+					options={filteredAgents?.map((a) => ({
+						value: a._id,
+						label: a.fullName,
+					}))}
+					defaultValue={{ value: '', label: 'No agent' }}
+					onChange={handleChange}
+					error={errors.agentAssigned}
+					touched={touched.agentAssigned}
+				/>
+			</>
+		) : hasPermission('leads', 'bulkAssign_agents') ? (
+			<SelectField
+				label='Select Agent'
+				name='agentAssigned'
+				options={filteredAgents?.map((a) => ({
+					value: a._id,
+					label: a.fullName,
+				}))}
+				defaultValue={{ value: '', label: 'No agent' }}
+				onChange={handleChange}
+				error={errors.agentAssigned}
+				touched={touched.agentAssigned}
+			/>
+		) : null
 	);
 };
 

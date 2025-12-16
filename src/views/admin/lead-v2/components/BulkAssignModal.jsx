@@ -10,6 +10,10 @@ import { sendBulkLeadNotification } from 'api';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useModalColors } from 'hooks/useModalColors';
+import { ASSIGNMENT_BY_PERMISSION, formatList } from './constants';
+
+import { usePermissions } from 'hooks/usePermissions';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
 const {
 	Modal,
@@ -87,8 +91,31 @@ const BulkAssignModal = (props) => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const { user } = useUserSession();
+	const { hasPermission } = usePermissions();
 	const { createUserLog } = useUserActivityLog();
+	const { team: managers, allAgents, allTeamLeaders } = useTeamStructure();
+
 	const tree = useSelector((state) => state.user.activeTree);
+
+	const resolvePermission = () => {
+		if (hasPermission('leads', 'bulkAssign_all')) return 'bulkAssign_all';
+		if (hasPermission('leads', 'bulkAssign_team')) return 'bulkAssign_teamLead';
+		if (hasPermission('leads', 'bulkAssign_agents')) return 'bulkAssign_agents';
+		return null;
+	};
+
+	const filterAssignmentValues = (values) => {
+		const permission = resolvePermission();
+
+		// If user has no assignment permission → send nothing
+		if (!permission) return {};
+
+		const allowedFields = ASSIGNMENT_BY_PERMISSION[permission];
+
+		return Object.fromEntries(
+			Object.entries(values).filter(([key]) => allowedFields.includes(key))
+		);
+	};
 
 	const closeHandler = () => {
 		setBulkAssign(false);
@@ -105,9 +132,10 @@ const BulkAssignModal = (props) => {
 	const handleFormSubmit = async (values) => {
 		try {
 			// Collect selected leads and form data
+			const finalValues = filterAssignmentValues(values);
 			const payload = {
 				selectedLeads: selectedValues,
-				formData: values,
+				formData: finalValues,
 			};
 
 			setIsLoading(true);
@@ -115,24 +143,25 @@ const BulkAssignModal = (props) => {
 			let managerDetails = null;
 			let teamLeadDetails = null;
 			let agentDetails = null;
-			let managerTeam = null;
+			// let managerTeam = null;
 
-			if (values?.managerAssigned) {
-				managerDetails = tree?.managers?.find(
+			if (finalValues?.managerAssigned) {
+				managerDetails = managers?.find(
 					(user) =>
 						user?._id?.toString() === values?.managerAssigned?.toString()
 				);
 			}
 
-			if (values.teamLeadAssigned) {
-				managerTeam = tree?.agents[`manager-${values?.managerAssigned}`] || [];
+			if (finalValues.teamLeadAssigned) {
+				// managerTeam = tree?.agents[`manager-${values?.managerAssigned}`] || [];
 
-				teamLeadDetails = managerTeam?.find(
-					(user) => user?._id?.toString() === values?.agentAssigned?.toString()
+				teamLeadDetails = allTeamLeaders?.find(
+					(user) =>
+						user?._id?.toString() === values?.teamLeadAssigned?.toString()
 				);
 			}
 
-			if (values?.agentAssigned) {
+			if (finalValues?.agentAssigned) {
 				const stats = await fetchAgentLeadsSats(
 					values.agentAssigned,
 					'bulk',
@@ -146,7 +175,9 @@ const BulkAssignModal = (props) => {
 					return;
 				}
 
-				agentDetails = managerTeam?.find(
+				// managerTeam = tree?.agents[`manager-${values?.managerAssigned}`] || [];
+
+				agentDetails = allAgents?.find(
 					(user) => user?._id?.toString() === values?.agentAssigned?.toString()
 				);
 			}
@@ -155,7 +186,9 @@ const BulkAssignModal = (props) => {
 
 			if (res.status === 200) {
 				// refreshData();
-				const updates = createUpdates(selectedValues, values);
+				const updates = createUpdates(selectedValues, finalValues);
+
+				console.log({ updates });
 
 				dispatch(
 					updateMultipleLeadFields({
@@ -163,7 +196,7 @@ const BulkAssignModal = (props) => {
 					})
 				);
 
-				sendBulkLeadNotification(user?._id, values, selectedLeads);
+				sendBulkLeadNotification(user?._id, finalValues, selectedLeads);
 				toast.success('Leads updated successfully');
 
 				formikResetForm();
@@ -173,15 +206,40 @@ const BulkAssignModal = (props) => {
 
 				let message;
 
-				if (managerDetails?.fullName && agentDetails?.fullName) {
-					message = `Bulk leads assigned by ${user?.fullName} to Manager ${managerDetails.fullName} and Agent ${agentDetails.fullName}.`;
+				// const ASSIGNMENT_FLOW = [
+				// 	{ key: 'manager', label: 'Manager', value: managerDetails },
+				// 	{ key: 'teamLead', label: 'Team Lead', value: teamLeadDetails },
+				// 	{ key: 'agent', label: 'Agent', value: agentDetails },
+				// ];
+
+				// const assignedRoles = ASSIGNMENT_FLOW.filter(
+				// 	(r) => r.value?.fullName
+				// ).map((r) => `${r.label} ${r.value.fullName}`);
+
+				// const message = assignedRoles.length
+				// 	? `Bulk leads assigned by ${user?.fullName} to ${formatList(assignedRoles)}.`
+				// 	: `Bulk leads assigned by ${user?.fullName}, but no Manager, Team Lead, or Agent was assigned.`;
+
+				if (
+					managerDetails?.fullName &&
+					agentDetails?.fullName &&
+					teamLeadDetails?.fullName
+				) {
+					message = `Bulk leads assigned by ${user?.fullName} to Manager ${managerDetails.fullName}, Team Lead ${teamLeadDetails?.fullName}, and Agent ${agentDetails.fullName}.`;
+				} else if (agentDetails?.fullName && teamLeadDetails?.fullName) {
+					message = `Bulk leads assigned by ${user?.fullName} to Team Lead ${teamLeadDetails?.fullName}, and Agent ${agentDetails.fullName}.`;
 				} else if (managerDetails?.fullName) {
 					message = `Bulk leads assigned by ${user?.fullName} to Manager ${managerDetails.fullName}.`;
+				} else if (teamLeadDetails?.fullName) {
+					message = `Bulk leads assigned by ${user?.fullName} to Team Lead ${teamLeadDetails.fullName}.`;
 				} else if (agentDetails?.fullName) {
 					message = `Bulk leads assigned by ${user?.fullName} to Agent ${agentDetails.fullName}.`;
-				} else {
-					message = `Bulk leads assigned by ${user?.fullName}, but remain unassigned to any manager or agent.`;
-				}
+				} else if (finalValues?.teamLeadAssigned === '') {
+					message = `Bulk leads assigned by ${user?.fullName}, but remain unassigned to team lead or agent.`;
+				} else if (finalValues.agentAssigned === '') {
+					message = `Bulk leads assigned by ${user?.fullName}, but remain unassigned to no agent.`;
+				} else
+					message = `Bulk leads assigned by ${user?.fullName}, but remain unassigned to no manager, team lead or agent.`;
 
 				const leadIds = selectedLeads.map((lead) => lead.intID);
 
@@ -254,8 +312,6 @@ const BulkAssignModal = (props) => {
 		dirty,
 		setFieldValue,
 	} = formik;
-
-	console.log({ values });
 
 	return (
 		<>
