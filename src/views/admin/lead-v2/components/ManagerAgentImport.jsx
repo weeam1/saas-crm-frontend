@@ -1,179 +1,110 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { usePermissions } from 'hooks/usePermissions';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import useUserSession from 'hooks/useUserSession';
 import React, { useState, useEffect } from 'react';
 
 const { GridItem, FormLabel, Text, Select, Box } = require('@chakra-ui/react');
 
-// const ManagerAgentImport = ({
-// 	user,
-// 	tree,
-// 	handleChange,
-// 	values,
-// 	errors,
-// 	touched,
-// }) => {
-// 	const [filteredAgents, setFilteredAgents] = useState([]);
-
-// 	const handleManagerChange = (e) => {
-// 		const selectedManagerId = e.target.value;
-// 		handleChange(e); // Update form values
-// 		if (selectedManagerId) {
-// 			const agentsKey = `manager-${selectedManagerId}`;
-// 			const agentsList = tree?.agents[agentsKey] || [];
-// 			setFilteredAgents(agentsList);
-// 		} else {
-// 			setFilteredAgents([]); // Clear agents if no manager selected
-// 		}
-// 	};
-
-// 	useEffect(() => {
-// 		// Ensure filteredAgents updates if the initial value of manager changes
-// 		const initialManagerId = values['managerAssigned'];
-// 		if (initialManagerId) {
-// 			const agentsKey = `manager-${initialManagerId}`;
-// 			setFilteredAgents(tree?.agents[agentsKey] || []);
-// 		}
-// 	}, [values['managerAssigned'], tree]);
-
-// 	return (
-// 		<>
-// 			{user?.role === 'superAdmin' && (
-// 				<GridItem colSpan={{ base: 12, md: 6 }}>
-// 					<FormLabel
-// 						display='flex'
-// 						ms='4px'
-// 						fontSize='sm'
-// 						fontWeight='600'
-// 						color='#000'
-// 						mb='0'
-// 						mt={2}
-// 					>
-// 						Manager
-// 					</FormLabel>
-// 					<Box>
-// 						<Select
-// 							name='managerAssigned'
-// 							placeholder='Select Manager'
-// 							onChange={handleManagerChange}
-// 							value={values['managerAssigned']}
-// 						>
-// 							<option value=''>No manager</option>
-// 							{tree?.managers?.map((manager) => (
-// 								<option key={manager._id} value={manager._id}>
-// 									{manager.firstName} {manager.lastName}
-// 								</option>
-// 							))}
-// 						</Select>
-// 					</Box>
-// 					<Text mb='10px' color='red'>
-// 						{errors.managerAssigned &&
-// 							touched.managerAssigned &&
-// 							errors.managerAssigned}
-// 					</Text>
-// 				</GridItem>
-// 			)}
-
-// 			{user?.role === 'superAdmin' && (
-// 				<GridItem colSpan={{ base: 12, md: 6 }}>
-// 					<FormLabel
-// 						display='flex'
-// 						ms='4px'
-// 						fontSize='sm'
-// 						fontWeight='600'
-// 						color='#000'
-// 						mb='0'
-// 						mt={2}
-// 					>
-// 						Agent
-// 					</FormLabel>
-// 					<Box>
-// 						<Select
-// 							name='agentAssigned'
-// 							onChange={handleChange}
-// 							value={values['agentAssigned'] || ''}
-// 							placeholder='Select Agent'
-// 							// isDisabled={!isManagerSelected}
-// 						>
-// 							<option value=''>No agent</option>
-// 							{filteredAgents.map((agent) => (
-// 								<option key={agent._id} value={agent._id}>
-// 									{agent.firstName} {agent.lastName}
-// 								</option>
-// 							))}
-// 						</Select>
-// 					</Box>
-// 					<Text mb='10px' color='red'>
-// 						{errors.agentAssigned &&
-// 							touched.agentAssigned &&
-// 							errors.agentAssigned}
-// 					</Text>
-// 				</GridItem>
-// 			)}
-
-// 			{user?.roles?.[0]?.roleName === 'Manager' && (
-// 				<GridItem colSpan={{ base: 12, md: 6 }}>
-// 					<FormLabel
-// 						display='flex'
-// 						ms='4px'
-// 						fontSize='sm'
-// 						fontWeight='600'
-// 						color='#000'
-// 						mb='0'
-// 						mt={2}
-// 					>
-// 						Agent
-// 					</FormLabel>
-// 					<Box>
-// 						<Select
-// 							name='agentAssigned'
-// 							onChange={handleChange}
-// 							value={values['agentAssigned']}
-// 						>
-// 							<option value=''>Select agent</option>
-// 							{tree?.agents[`manager-${user._id}`]?.map((agent) => (
-// 								<option key={agent._id} value={agent._id}>
-// 									{agent.firstName} {agent.lastName}
-// 								</option>
-// 							))}
-// 						</Select>
-// 					</Box>
-// 					<Text mb='10px' color='red'>
-// 						{errors.agentAssigned &&
-// 							touched.agentAssigned &&
-// 							errors.agentAssigned}
-// 					</Text>
-// 				</GridItem>
-// 			)}
-// 		</>
-// 	);
-// };
-
 const ManagerAgentImport = ({
-	user,
+	// user,
 	tree,
 	handleChange,
 	values,
 	errors,
 	touched,
+	setFieldValue,
 }) => {
 	const [filteredAgents, setFilteredAgents] = useState([]);
-	const isSuperAdmin = user?.role === 'superAdmin';
-	const isManager = user?.roles?.[0]?.roleName === 'Manager';
+	const [filteredTeamLeaders, setFilteredTeamLeaders] = useState([]);
+	const [managerId, setMangerId] = useState(null);
+	const [teamLeadId, setTeamLeadId] = useState(null);
+	// const isSuperAdmin = user?.role === 'superAdmin';
 
 	const { hasPermission } = usePermissions();
 
-	// Update filtered agents when manager selection changes
-	useEffect(() => {
-		const selectedManagerId = values['managerAssigned'];
+	const {
+		team: managers,
+		getAgentsByManager,
+		getAgentsByManagerAndTL,
+		getTeamLeadsByManager,
+	} = useTeamStructure();
 
-		if (!selectedManagerId) {
-			// If no manager selected, show all agents
-			setFilteredAgents([]);
+	const { user, userRoleName } = useUserSession();
+	const isManager = user?.roles?.[0]?.roleName === 'Manager';
+
+	const handleManagerChange = (e) => {
+		const selectedManagerId = e.target.value;
+		handleChange(e); // Update form values
+		if (selectedManagerId) {
+			// const agentsKey = `manager-${selectedManagerId}`;
+			// const agentsList = tree?.agents[agentsKey] || [];
+			const teamLeads = getTeamLeadsByManager(selectedManagerId);
+			const agents = getAgentsByManager(selectedManagerId);
+
+			console.log({ teamLeads, agents });
+
+			setFilteredTeamLeaders(teamLeads || []);
+			// setFilteredAgents(agents || []);
+			setMangerId(selectedManagerId);
 		} else {
-			// Show only the agents assigned to the selected manager
-			setFilteredAgents(tree?.agents[`manager-${selectedManagerId}`] || []);
+			setFilteredAgents([]);
+			setFilteredTeamLeaders([]);
+			setMangerId(null);
 		}
-	}, [values['managerAssigned'], tree]);
+
+		setFieldValue('agentAssigned', '');
+		setFieldValue('teamLeadAssigned', '');
+	};
+
+	const handleTeamLeaderChange = (e) => {
+		const selectedTeamLeadId = e.target.value;
+		handleChange(e); // Update form values
+		if (selectedTeamLeadId) {
+			const agents = getAgentsByManagerAndTL(managerId, selectedTeamLeadId);
+			setFilteredAgents(agents || []);
+			setTeamLeadId(selectedTeamLeadId);
+		} else {
+			setFilteredAgents([]);
+			setTeamLeadId(null);
+		}
+
+		setFieldValue('agentAssigned', '');
+	};
+
+	// console.log({ filteredTeamLeaders, filteredAgents });
+
+	useEffect(() => {
+		if (userRoleName === 'Manager') {
+			const _managerId = user?._id;
+			const teamLeads = getTeamLeadsByManager(_managerId);
+			const agents = getAgentsByManager(_managerId);
+
+			setFilteredTeamLeaders(teamLeads || []);
+			setFilteredAgents(agents || []);
+			setMangerId(_managerId);
+		} else if (userRoleName === 'Team Leader' && user?.parent) {
+			const _TLId = user?._id;
+			const agents = getAgentsByManagerAndTL(user?.parent, _TLId);
+
+			setFilteredAgents(agents || []);
+			setMangerId(user?.parent);
+			setTeamLeadId(_TLId);
+		}
+	}, [userRoleName, user]);
+
+	// Update filtered agents when manager selection changes
+	// useEffect(() => {
+	// 	const selectedManagerId = values['managerAssigned'];
+
+	// 	if (!selectedManagerId) {
+	// 		// If no manager selected, show all agents
+	// 		setFilteredAgents([]);
+	// 	} else {
+	// 		// Show only the agents assigned to the selected manager
+	// 		setFilteredAgents(tree?.agents[`manager-${selectedManagerId}`] || []);
+	// 	}
+	// }, [values['managerAssigned'], tree]);
 
 	// Filter Managers when no agent is selected (for Super Admin)
 	// const filteredManagers = isSuperAdmin
@@ -183,11 +114,9 @@ const ManagerAgentImport = ({
 	// 	: [];
 
 	// Get the list of agents for a manager (if user is a manager)
-	const managerAgents = isManager
-		? tree?.agents[`manager-${user._id}`] || []
-		: filteredAgents;
-
-	console.log({ managerAgents });
+	// const managerAgents = isManager
+	// 	? tree?.agents[`manager-${user._id}`] || []
+	// 	: filteredAgents;
 
 	return (
 		<>
@@ -202,13 +131,13 @@ const ManagerAgentImport = ({
 							<Select
 								name='managerAssigned'
 								// placeholder='Select Manager'
-								onChange={handleChange}
+								onChange={handleManagerChange}
 								value={values['managerAssigned'] || ''}
 							>
 								<option value=''>No manager</option>
-								{tree?.managers?.map((manager) => (
+								{managers?.map((manager) => (
 									<option key={manager._id} value={manager._id}>
-										{manager.firstName} {manager.lastName}
+										{manager.fullName}
 									</option>
 								))}
 							</Select>
@@ -219,6 +148,44 @@ const ManagerAgentImport = ({
 								errors.managerAssigned}
 						</Text>
 					</GridItem>
+
+					<GridItem colSpan={{ base: 12, md: 6 }}>
+						<FormLabel
+							display='flex'
+							ms='4px'
+							fontSize='sm'
+							fontWeight='600'
+							color='#000'
+							mb='0'
+							mt={2}
+						>
+							Team Lead
+						</FormLabel>
+						<Box>
+							<Select
+								name='teamLeadAssigned'
+								onChange={handleTeamLeaderChange}
+								value={values['teamLeadAssigned']}
+							>
+								<option value=''>Select team lead</option>
+								<option value={-1}>No Team Lead</option>
+
+								{managerId &&
+									filteredTeamLeaders?.length &&
+									filteredTeamLeaders?.map((tl) => (
+										<option key={tl._id} value={tl._id}>
+											{tl.fullName}
+										</option>
+									))}
+							</Select>
+						</Box>
+						<Text mb='10px' color='red'>
+							{errors.teamLeadAssigned &&
+								touched.teamLeadAssigned &&
+								errors.teamLeadAssigned}
+						</Text>
+					</GridItem>
+
 					<GridItem colSpan={{ base: 12, md: 6 }}>
 						<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
 							Select Agent
@@ -232,9 +199,9 @@ const ManagerAgentImport = ({
 							>
 								<option value=''>No agent</option>
 
-								{managerAgents.map((agent) => (
+								{filteredAgents?.map((agent) => (
 									<option key={agent._id} value={agent._id}>
-										{agent.firstName} {agent.lastName}
+										{agent.fullName}
 									</option>
 								))}
 							</Select>
@@ -248,32 +215,71 @@ const ManagerAgentImport = ({
 				</>
 			) : (
 				hasPermission('leads', 'bulkAssign_agents') && (
-					<GridItem colSpan={{ base: 12, md: 6 }}>
-						<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
-							Select Agent
-						</FormLabel>
-						<Box>
-							<Select
-								name='agentAssigned'
-								onChange={handleChange}
-								value={values['agentAssigned'] || ''}
-								// placeholder='Select Agent'
+					<>
+						<GridItem colSpan={{ base: 12, md: 6 }}>
+							<FormLabel
+								display='flex'
+								ms='4px'
+								fontSize='sm'
+								fontWeight='600'
+								color='#000'
+								mb='0'
+								mt={2}
 							>
-								<option value=''>No agent</option>
+								Team Lead
+							</FormLabel>
+							<Box>
+								<Select
+									name='teamLeadAssigned'
+									onChange={handleTeamLeaderChange}
+									value={values['teamLeadAssigned']}
+								>
+									<option value=''>Select team lead</option>
+									<option value={-1}>No Team Lead</option>
 
-								{managerAgents.map((agent) => (
-									<option key={agent._id} value={agent._id}>
-										{agent.firstName} {agent.lastName}
-									</option>
-								))}
-							</Select>
-						</Box>
-						<Text mb='10px' color='red'>
-							{errors.agentAssigned &&
-								touched.agentAssigned &&
-								errors.agentAssigned}
-						</Text>
-					</GridItem>
+									{managerId &&
+										filteredTeamLeaders?.length &&
+										filteredTeamLeaders?.map((tl) => (
+											<option key={tl._id} value={tl._id}>
+												{tl.fullName}
+											</option>
+										))}
+								</Select>
+							</Box>
+							<Text mb='10px' color='red'>
+								{errors.teamLeadAssigned &&
+									touched.teamLeadAssigned &&
+									errors.teamLeadAssigned}
+							</Text>
+						</GridItem>
+						<GridItem colSpan={{ base: 12, md: 6 }}>
+							<FormLabel fontSize='sm' fontWeight='600' color='#000' mt={2}>
+								Select Agent
+							</FormLabel>
+							<Box>
+								<Select
+									name='agentAssigned'
+									onChange={handleManagerChange}
+									value={values['agentAssigned'] || ''}
+									// placeholder='Select Agent'
+								>
+									<option value=''>No agent</option>
+
+									{filteredAgents?.length &&
+										filteredAgents?.map((agent) => (
+											<option key={agent._id} value={agent._id}>
+												{agent.fullName}
+											</option>
+										))}
+								</Select>
+							</Box>
+							<Text mb='10px' color='red'>
+								{errors.agentAssigned &&
+									touched.agentAssigned &&
+									errors.agentAssigned}
+							</Text>
+						</GridItem>
+					</>
 				)
 			)}
 		</>

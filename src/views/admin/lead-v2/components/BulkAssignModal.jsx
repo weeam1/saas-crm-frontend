@@ -46,7 +46,9 @@ const createUpdates = (selectedValues, values) => {
 			updateObj[key] = value;
 
 			// Set date for managerAssignedDate or agentAssignedDate
-			if (key === 'managerAssigned' || key === 'agentAssigned') {
+			if (
+				['teamLeadAssigned', 'managerAssigned', 'agentAssigned'].includes(key)
+			) {
 				updateObj[`${key}Date`] =
 					value === null || value === '' ? null : new Date().toISOString();
 
@@ -94,6 +96,7 @@ const BulkAssignModal = (props) => {
 
 	const initialValues = {
 		managerAssigned: '',
+		teamLeadAssigned: '',
 		agentAssigned: '',
 	};
 
@@ -110,12 +113,22 @@ const BulkAssignModal = (props) => {
 			setIsLoading(true);
 
 			let managerDetails = null;
+			let teamLeadDetails = null;
 			let agentDetails = null;
+			let managerTeam = null;
 
 			if (values?.managerAssigned) {
 				managerDetails = tree?.managers?.find(
 					(user) =>
 						user?._id?.toString() === values?.managerAssigned?.toString()
+				);
+			}
+
+			if (values.teamLeadAssigned) {
+				managerTeam = tree?.agents[`manager-${values?.managerAssigned}`] || [];
+
+				teamLeadDetails = managerTeam?.find(
+					(user) => user?._id?.toString() === values?.agentAssigned?.toString()
 				);
 			}
 
@@ -133,9 +146,7 @@ const BulkAssignModal = (props) => {
 					return;
 				}
 
-				const managerAgents =
-					tree?.agents[`manager-${values?.managerAssigned}`] || [];
-				agentDetails = managerAgents?.find(
+				agentDetails = managerTeam?.find(
 					(user) => user?._id?.toString() === values?.agentAssigned?.toString()
 				);
 			}
@@ -241,7 +252,10 @@ const BulkAssignModal = (props) => {
 		handleSubmit,
 		resetForm: formikResetForm,
 		dirty,
+		setFieldValue,
 	} = formik;
+
+	console.log({ values });
 
 	return (
 		<>
@@ -273,6 +287,7 @@ const BulkAssignModal = (props) => {
 							errors={errors}
 							touched={touched}
 							handleChange={handleChange}
+							setFieldValue={setFieldValue}
 							user={user}
 							tree={tree}
 						/>
