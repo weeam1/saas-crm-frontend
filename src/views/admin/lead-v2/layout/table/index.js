@@ -107,7 +107,7 @@ const LeadTableView = memo((props) => {
 			{ Header: 'Language', accessor: 'leadLang', width: 100 },
 			{ Header: 'Last Note', accessor: 'lastNote', width: 200 },
 
-			{ Header: 'Source Content', accessor: 'leadSourceDetails', width: 200 },
+			{ Header: 'Ad Name', accessor: 'leadSourceDetails', width: 200 },
 			{ Header: 'Campaign', accessor: 'leadCampaign', width: 200 },
 			{ Header: 'Campaign URL', accessor: 'pageUrl', width: 200 },
 			{ Header: 'Address', accessor: 'leadAddress', width: 150 },

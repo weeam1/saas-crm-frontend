@@ -120,7 +120,8 @@ const LeftCard = ({
 				<GridItem colSpan={2} display='flex' justifyContent='space-between'>
 					{!hiddenFields.includes('leadSourceDetails') && (
 						<EntityField
-							label='Source Content'
+							// label='Source Content'
+							label='Ad Name'
 							value={safeValue(lead?.leadSourceDetails)}
 							valueProps={{ color: '#FFBB00' }}
 							isInfo={true}
