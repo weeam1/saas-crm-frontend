@@ -19,6 +19,18 @@ export const leadSelectInputSize = 'xs'; // md, lg, sm
 // export const leadSelectInputFontSize =
 // 	'clamp(0.625rem, min(1.2vw, 0.625rem), 0.875rem)';
 
+export function formatList(items) {
+	if (items.length === 1) return items[0];
+	if (items.length === 2) return `${items[0]} and ${items[1]}`;
+	return `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
+}
+
+export const ASSIGNMENT_BY_PERMISSION = {
+	bulkAssign_all: ['managerAssigned', 'teamLeadAssigned', 'agentAssigned'],
+	bulkAssign_teamLead: ['teamLeadAssigned', 'agentAssigned'],
+	bulkAssign_agents: ['agentAssigned'],
+};
+
 export const leadlabelFontSize =
 	'clamp(0.625rem, min(1vw, 0.625rem), 0.875rem)';
 // 10px (large screens) → scales down on mid-sized → increases to 14px on XL screens

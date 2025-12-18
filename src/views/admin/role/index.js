@@ -182,9 +182,7 @@ const Index = () => {
 														borderRadius={'md'}
 														colorScheme='brand'
 														onClick={() =>
-															navigate(
-																`/user-permission/${role?._id}/${role.roleName}`
-															)
+															navigate(`/user-permission/${role?._id}`)
 														}
 													>
 														View Permission

@@ -18,6 +18,7 @@ const columnList = [
 	{ accessor: 'intID', name: '#' },
 	{ accessor: 'leadName', name: 'Name' },
 	{ accessor: 'managerAssigned', name: 'Manager' },
+	{ accessor: 'teamLeadAssigned', name: 'Team Lead' },
 	{ accessor: 'agentAssigned', name: 'Agent' },
 	{ accessor: 'eLeadStatus', name: 'M.Status' },
 	{ accessor: 'leadStatus', name: 'Status' },
