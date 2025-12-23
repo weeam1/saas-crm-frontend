@@ -63,7 +63,7 @@ const InfoItem = ({
 					maxW={maxW}
 					textTransform={label === 'Email' ? 'lowercase' : 'capitalize'}
 				>
-					{value || '-'}
+					{value || 'N/A'}
 				</Text>
 			</Box>
 		</HStack>
