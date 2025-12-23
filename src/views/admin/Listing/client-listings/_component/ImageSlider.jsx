@@ -189,6 +189,12 @@ const ImageSlider = ({
 									animate={{ opacity: 1, scale: 1 }}
 									exit={{ opacity: 0, scale: 1.03 }}
 									transition={{ duration: 0.35 }}
+									onError={(e) => {
+										// prevent infinite loop
+										if (e.currentTarget.src !== FALLBACK_IMAGE) {
+											e.currentTarget.src = FALLBACK_IMAGE;
+										}
+									}}
 								/>
 							</AnimatePresence>
 

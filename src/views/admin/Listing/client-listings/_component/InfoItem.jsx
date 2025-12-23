@@ -10,6 +10,7 @@ const InfoItem = ({
 	maxW = '120px',
 	labelFontSize = '10px',
 	valueFontSize = '12px',
+	valueCase = undefined,
 	...props
 }) => {
 	const isLong = value && value.length > 16;
@@ -60,7 +61,7 @@ const InfoItem = ({
 					color={color}
 					isTruncated
 					maxW={maxW}
-					textTransform='capitalize'
+					textTransform={label === 'Email' ? 'lowercase' : 'capitalize'}
 				>
 					{value || '-'}
 				</Text>

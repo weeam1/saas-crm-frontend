@@ -41,7 +41,6 @@ const PropertyCard = ({ property }) => {
 	const textColor = useColorModeValue('gray.600', 'gray.300');
 	const hoverShadow = useColorModeValue('xl', 'dark-lg');
 
-	// In the PropertyCard component, add:
 	const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
 	return (
