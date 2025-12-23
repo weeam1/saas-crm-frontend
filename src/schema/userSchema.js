@@ -73,6 +73,17 @@ export const userSchema = yup.object({
 			}
 			return schema.optional().nullable();
 		}),
+
+	nationality: yup.string().optional(),
+	dob: yup.date().optional().max(new Date(), 'Date cannot be in future'),
+	passportId: yup.string().optional(),
+	uaeId: yup.string().optional(),
+	drivingLicense: yup.string().optional(),
+	education: yup.string().optional(),
+	uaeAddress: yup.string().optional(),
+	homeCountry: yup.string().optional(),
+	homeCountryAddress: yup.string().optional(),
+	intlPhone: yup.string().optional(),
 });
 
 // phoneNumber: yup

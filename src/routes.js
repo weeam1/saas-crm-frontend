@@ -148,6 +148,15 @@ const ProjectScreen = React.lazy(
 
 // Listing
 const Listing = React.lazy(() => import('views/admin/Listing'));
+const ClientListings = React.lazy(
+	() => import('views/admin/Listing/client-listings')
+);
+const PropertyView = React.lazy(
+	() =>
+		import(
+			'views/admin/Listing/client-listings/_component/details/PropertyView'
+		)
+);
 const AddListing = React.lazy(
 	() => import('views/admin/Listing/Component/AddListing')
 );
@@ -922,6 +931,24 @@ const routes = [
 		under: 'listing',
 		parentName: 'Listing',
 		component: AllListing,
+	},
+	{
+		// moduleId: 'listing',
+		name: 'Client Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/client-listings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ClientListings,
+	},
+	{
+		// moduleId: 'listing',
+		name: 'View Client Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/client-listings/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: PropertyView,
 	},
 	{
 		moduleId: 'listing',

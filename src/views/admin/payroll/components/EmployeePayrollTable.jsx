@@ -31,8 +31,6 @@ const EmployeePayrollTable = ({ data = [], isLoading, month, year }) => {
 	const [selectedEmployeeForModal, setSelectedEmployeeForModal] =
 		useState(null);
 
-	console.log({ month, year });
-
 	useEffect(() => {
 		let timer;
 		if (isLoading) {
