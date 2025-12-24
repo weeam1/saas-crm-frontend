@@ -14,11 +14,12 @@ import Status from '../Status';
 import Agents from '../Agents';
 import Managers from '../Managers';
 import { IoMdEye } from 'react-icons/io';
-import { leadlabelFontSize, leadValueFontSize } from '../../constants';
+import { leadlabelFontSize } from '../../constants';
 import LeadTypeBadge from '../LeadTypeBadge';
 import { useMemo } from 'react';
 import { usePermissions } from 'hooks/usePermissions';
 import { safeValue } from 'utils';
+import TeamLeaders from '../TeamLeaders';
 
 const LeftCard = ({
 	lead,
@@ -48,6 +49,11 @@ const LeftCard = ({
 		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
 		hasPermission('leads', 'agentAssign') &&
 		!hiddenFields.includes('agentAssigned');
+
+	const TEAM_LEAD_ASSIGNED_PERMISSION =
+		!QR_CHANGE_MANAGER_AGENT_PERMISSION &&
+		hasPermission('leads', 'teamLeadAssign') &&
+		!hiddenFields.includes('teamLeadAssigned');
 
 	// const hideContact =
 	// 	role === 'Manager'
@@ -114,7 +120,8 @@ const LeftCard = ({
 				<GridItem colSpan={2} display='flex' justifyContent='space-between'>
 					{!hiddenFields.includes('leadSourceDetails') && (
 						<EntityField
-							label='Source Content'
+							// label='Source Content'
+							label='Ad Name'
 							value={safeValue(lead?.leadSourceDetails)}
 							valueProps={{ color: '#FFBB00' }}
 							isInfo={true}
@@ -144,60 +151,53 @@ const LeftCard = ({
 				{QR_CHANGE_MANAGER_AGENT_PERMISSION && (
 					<>
 						<GridItem colSpan={1}>
-							<Managers
-								managerAssigned={lead?.managerAssigned}
-								lead={lead}
-								refreshLeads={refreshLeads}
-								role={role}
-								queryParams={queryParams}
-							/>
+							<Managers lead={lead} />
+						</GridItem>
+						<GridItem colSpan={1}>
+							<TeamLeaders lead={lead} />
 						</GridItem>
 
-						<GridItem colSpan={1}>
-							<Agents
-								agentAssigned={lead?.agentAssigned}
-								managerAssigned={lead?.managerAssigned}
-								lead={lead}
-								refreshLeads={refreshLeads}
-							/>
+						<GridItem colSpan={2}>
+							<Agents lead={lead} />
 						</GridItem>
 					</>
 				)}
-
 				{/* Manager assigned */}
 				{MANAGER_ASSIGNED_PERMISSION && (
 					<GridItem
-						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+						colSpan={2}
+						// colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
 					>
 						<Managers
-							managerAssigned={lead?.managerAssigned}
+							// managerAssigned={lead?.managerAssigned}
 							lead={lead}
-							refreshLeads={refreshLeads}
-							role={role}
-							queryParams={queryParams}
+							// refreshLeads={refreshLeads}
+							// role={role}
+							// queryParams={queryParams}
 						/>
+					</GridItem>
+				)}
+
+				{/* Team lead assigned */}
+				{TEAM_LEAD_ASSIGNED_PERMISSION && (
+					<GridItem colSpan={AGENT_ASSIGNED_PERMISSION ? '1' : '2'}>
+						<TeamLeaders lead={lead} />
 					</GridItem>
 				)}
 
 				{/* Agent assigned*/}
 				{AGENT_ASSIGNED_PERMISSION && (
 					<GridItem
-						colSpan={hiddenFields.includes('agentAssigned') ? '2' : '1'}
+						colSpan={TEAM_LEAD_ASSIGNED_PERMISSION ? '1' : '2'}
 						// colSpan={
 						// 	role === 'Manager' || hiddenFields.includes('agentAssigned')
 						// 		? '2'
 						// 		: '1'
 						// }
 					>
-						<Agents
-							agentAssigned={lead?.agentAssigned}
-							managerAssigned={lead?.managerAssigned}
-							lead={lead}
-							refreshLeads={refreshLeads}
-						/>
+						<Agents lead={lead} refreshLeads={refreshLeads} />
 					</GridItem>
 				)}
-
 				{/* Main lead status */}
 				{hasPermission('leads', 'leadStatus') &&
 					!hiddenFields.includes('eLeadStatus') && (
@@ -205,7 +205,6 @@ const LeftCard = ({
 							<MainStatus lead={lead} refreshLeads={refreshLeads} role={role} />
 						</GridItem>
 					)}
-
 				{/* Lead status */}
 				{hasPermission('leads', 'mainStatus') &&
 					!hiddenFields.includes('leadStatus') && (
@@ -215,7 +214,6 @@ const LeftCard = ({
 							<Status lead={lead} refreshLeads={refreshLeads} />
 						</GridItem>
 					)}
-
 				{hasPermission('leads', 'contactDetails') && (
 					<GridItem colSpan={2} display='flex' justifyContent='space-between'>
 						{/* Phone */}
@@ -247,7 +245,6 @@ const LeftCard = ({
 						)}
 					</GridItem>
 				)}
-
 				{/* Last Note (occupy full width) */}
 				{!hiddenFields.includes('lastNote') && (
 					<GridItem colSpan={{ base: 1, md: 2 }}>

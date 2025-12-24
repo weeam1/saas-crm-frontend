@@ -3,6 +3,18 @@ import { mode } from '@chakra-ui/theme-tools';
 
 export const globalStyles = extendTheme({
 	colors: {
+		greenish: {
+			50: '#E6F7F6', // Very light background / card
+			100: '#BFEFE9', // Lighter backgrounds, hover states
+			200: '#99E7DC', // Soft borders / secondary buttons
+			300: '#66DCCF', // Info highlights, badges
+			400: '#33D1C2', // Buttons, icons hover
+			500: '#158477', // Primary modal background, main buttons
+			600: '#12665E', // Active states, borders
+			700: '#0F534B', // Dark modal header/footer
+			800: '#0C3F38', // Floating action button shadow, overlay
+			900: '#07221C', // Text shadow, deepest accents
+		},
 		brand: {
 			50: '#FAF7E7',
 			100: '#F5ECCB',

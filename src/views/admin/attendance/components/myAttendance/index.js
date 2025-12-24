@@ -56,7 +56,7 @@ const Attendance = ({ userId }) => {
 
 	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{
-			path: '/attendance/employee-record-per-month',
+			path: '/attendance/v2/employee-record-per-month',
 			params: { employeeId: employeeId, month, year },
 		},
 		{

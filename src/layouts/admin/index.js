@@ -34,6 +34,7 @@ import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
 import { setAgenciesData } from '../../redux/utilSlice';
 import { useDispatch } from 'react-redux';
+import WebRTCModal from 'views/webrtc';
 // import AppLoader from 'components/loading/AppLoader';
 // import { filterRoutes } from 'components/sidebar/sidebarHelpers';
 
@@ -360,6 +361,9 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 				setOpenSidebar={setOpenSidebar}
 				onOpenMobile={onOpen}
 			/>
+
+			{/* WEB RTC APP */}
+			{hasPermission('call_dialer') && <WebRTCModal />}
 
 			<Flex>
 				{/* Sidebar (desktop fixed, mobile Drawer) */}

@@ -8,23 +8,29 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
-import { FaPlus } from 'react-icons/fa';
 import { FiFilter } from 'react-icons/fi';
-import { BiX } from 'react-icons/bi';
 
 import TopPagination from 'components/pagination/TopPagination';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { buttonStyle } from 'utils/btn';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import AgencyFilterModal from '../components/AgencyFilterModal';
 import UserEvaluationTable from './UserEvalutionTable';
 import { useUserEvalution } from '../hooks/useUserEvaluation';
 import ViewEvaluation from './components/ViewEvaluation';
+import AdvancedSearchModal from './components/AdvancedSearchModal';
+import ActiveFiltersDisplay from 'views/admin/payroll/components/ActiveFiltersDisplay';
+import useUserSession from 'hooks/useUserSession';
+import SearchBox from 'views/admin/payroll/components/SearchBox';
+import { BsArrowRepeat } from 'react-icons/bs';
+import { MdRefresh } from 'react-icons/md';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const UserEvaluation = () => {
 	const {
 		month,
 		year,
+		refetchEvaluations,
 		isAgenciesAllowed,
 		agencies,
 		queryParams,
@@ -38,9 +44,12 @@ const UserEvaluation = () => {
 		handlePageChange,
 		handlePageSize,
 		onDateFilterChange,
-		updateData,
-		removeItem,
+		setPagination,
+		filters,
+		setFilters,
 	} = useUserEvalution();
+
+	const { userRoleName } = useUserSession();
 
 	const selectedAgency = useMemo(
 		() => agencies.find((a) => a._id === agencyId) || null,
@@ -53,41 +62,66 @@ const UserEvaluation = () => {
 		data: null,
 	});
 
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState('');
+
 	const {
 		isOpen: agencyFilterIsOpen,
 		onOpen: agencyFilterOnOpen,
 		onClose: agencyFilterOnClose,
 	} = useDisclosure();
 
-	const {
-		isOpen: evaluationIsOpen,
-		onClose: evaluationOnClose,
-		onOpen: evaluationOpen,
-	} = useDisclosure();
-
-	const [evaluationData, setEvaluationData] = useState(null);
-
-	const handleOpenAdd = () => {
-		setEvaluationData(null);
-		evaluationOpen();
-	};
-
-	const handleOpenEdit = (evaluation) => {
-		setEvaluationData(evaluation);
-		evaluationOpen();
-	};
-
 	const handleAgencyFilter = (value) => {
 		setAgencyId(value);
 
-		if (value) {
-			setClearFilters(true);
-		} else setClearFilters(false);
+		// if (value) {
+		// 	setClearFilters(true);
+		// } else setClearFilters(false);
 	};
 
-	const handleClear = () => {
+	const handleApplyFilters = (newFilters) => {
+		const cleanedFilters = Object.fromEntries(
+			Object.entries(newFilters).filter(
+				([_, value]) => value !== '' && value !== undefined && value !== null
+			)
+		);
+
+		setPagination((prev) => ({ ...prev, page: 1 }));
+		setFilters(cleanedFilters);
+	};
+
+	const handleClearFilters = (filterKey) => {
+		if (filterKey) {
+			const newFilters = { ...filters };
+			delete newFilters[filterKey];
+			setFilters(newFilters);
+			setPagination((prev) => ({ ...prev, page: 1 }));
+		} else {
+			setFilters({});
+			setPagination((prev) => ({ ...prev, page: 1 }));
+		}
 		setClearFilters(false);
-		setAgencyId(null);
+	};
+
+	const handleSearchTermChange = (searchQuery) => {
+		const trimmed = searchQuery?.trim() || '';
+
+		if (trimmed !== '') {
+			setFilters((prev) => ({
+				...prev,
+				search: trimmed,
+			}));
+			setClearFilters(true);
+			setPagination((prev) => ({ ...prev, page: 1 }));
+		} else {
+			// remove search key from filters
+			setFilters((prev) => {
+				const updated = { ...prev };
+				delete updated.search;
+				return updated;
+			});
+			setClearFilters(false);
+		}
 	};
 
 	return (
@@ -105,6 +139,21 @@ const UserEvaluation = () => {
 				</Flex>
 
 				<HStack gap='2' alignItems='center'>
+					<RefreshButton
+						aria-label='Refresh evaluations'
+						isLoading={isLoading}
+						isFetching={isFetching}
+						onClick={refetchEvaluations}
+					/>
+
+					<Box w={{ base: '100%', sm: 'auto' }} flexShrink={1}>
+						<SearchBox
+							onSearchTermChange={handleSearchTermChange}
+							setSearchTerm={setSearchTerm}
+							searchTerm={searchTerm}
+						/>
+					</Box>
+
 					{isAgenciesAllowed && (
 						<IconButton
 							icon={<FiFilter />}
@@ -120,20 +169,20 @@ const UserEvaluation = () => {
 
 					<DateFilter onFilterChange={onDateFilterChange} />
 
-					{/* <Button
-						alignSelf='flex-end'
-						leftIcon={<FaPlus size='1em' />}
-						colorScheme='brand'
-						size='sm'
-						rounded='md'
-						px={4}
-						shadow='md'
-						onClick={handleOpenAdd}
-					>
-						Add Loan
-					</Button> */}
+					{!['Team Leader', 'Agent'].includes(userRoleName) && (
+						<Button
+							colorScheme='brand'
+							size='sm'
+							borderRadius={'md'}
+							py={4}
+							px={6}
+							onClick={() => setIsFilterOpen(true)}
+						>
+							Advanced Search
+						</Button>
+					)}
 
-					{clearFilters && (
+					{/* {clearFilters && (
 						<Button
 							{...buttonStyle}
 							variant='solid'
@@ -152,11 +201,14 @@ const UserEvaluation = () => {
 						>
 							Clear
 						</Button>
-					)}
+					)} */}
 				</HStack>
 			</Flex>
 
-			{/* <SummaryCards data={summary || {}} isLoading={} /> */}
+			<ActiveFiltersDisplay
+				filters={filters}
+				onClearFilters={handleClearFilters}
+			/>
 
 			{!isLoading && (
 				<TopPagination
@@ -173,39 +225,17 @@ const UserEvaluation = () => {
 
 			<UserEvaluationTable
 				data={data || []}
-				updateData={updateData}
-				removeItem={removeItem}
-				handleOpenEdit={handleOpenEdit}
 				isLoading={isLoading || isFetching}
 				setView={setViewEvaluation}
 			/>
-
-			{/* {viewBalance?.modal && (
-        <ViewLoanDetails
-          data={viewBalance.data}
-          isOpen={viewBalance.modal}
-          onClose={() => setViewBalance({ modal: false, data: null })}
-        />
-      )} */}
-
-			{/* {evaluationIsOpen && (
-				<UpsertLoan
-					isOpen={evaluationIsOpen}
-					onClose={evaluationOnClose}
-					initialData={editData}
-					refetchSummary={refetchSummary}
-					isEmployeeLoans={true}
-					selectedMonth={month}
-					selectedYear={year}
-					isAgenciesAllowed={isAgenciesAllowed}
-				/>
-			)} */}
 
 			{viewEvaluation?.modal && (
 				<ViewEvaluation
 					isOpen={viewEvaluation?.modal}
 					onClose={() => setViewEvaluation({ modal: false, data: null })}
 					data={viewEvaluation?.data}
+					selectedMonth={month}
+					selectedYear={year}
 				/>
 			)}
 
@@ -214,6 +244,15 @@ const UserEvaluation = () => {
 					isOpen={agencyFilterIsOpen}
 					onClose={agencyFilterOnClose}
 					handleFilter={handleAgencyFilter}
+				/>
+			)}
+
+			{isFilterOpen && (
+				<AdvancedSearchModal
+					isOpen={isFilterOpen}
+					onClose={() => setIsFilterOpen(false)}
+					onApplyFilters={handleApplyFilters}
+					initialFilters={filters}
 				/>
 			)}
 		</Box>

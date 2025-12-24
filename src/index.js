@@ -41,6 +41,7 @@ import socketService from 'services/socketService';
 import useUserSession from 'hooks/useUserSession';
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 // import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
@@ -53,15 +54,14 @@ function App() {
 
 	registerWhatsappSocket(store);
 
-	// console.log(
-	// 	'check : 92000003495580124: ',
-	// 	normalizePhone('92000003495580124')
-	// );
-
 	useEffect(() => {
 		getSmartTimezone();
+
 		// register whatsapp socket
 	}, []);
+
+	// initilzed the team Structure
+	useTeamStructure();
 
 	const token = localStorage.getItem('token') || null;
 

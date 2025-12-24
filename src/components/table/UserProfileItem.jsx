@@ -3,7 +3,7 @@ import { constant } from 'constant';
 import { Link } from 'react-router-dom';
 import { getAvatarColor, getInitials } from 'utils/colorUtils';
 
-const UserProfileItem = ({ user, onClick, linkTo }) => {
+const UserProfileItem = ({ user, onClick, linkTo, cursor = true }) => {
 	const Wrapper = linkTo ? Link : Box;
 
 	const name = user?.fullName || user?.username || '';
@@ -16,7 +16,7 @@ const UserProfileItem = ({ user, onClick, linkTo }) => {
 			<Box
 				display='flex'
 				alignItems='center'
-				cursor='pointer'
+				cursor={cursor ? 'pointer' : undefined}
 				_hover={{ bg: 'gray.100', transition: '0.2s' }}
 				p={1}
 				borderRadius='md'
@@ -43,7 +43,7 @@ const UserProfileItem = ({ user, onClick, linkTo }) => {
 
 					{user?.username && (
 						<Text fontSize='xs' color='gray.500'>
-							@{user.username}
+							{user.username}
 						</Text>
 					)}
 				</Box>

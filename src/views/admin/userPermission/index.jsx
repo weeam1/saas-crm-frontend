@@ -106,7 +106,7 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 }
 
 const Permission = () => {
-	const { id, roleName } = useParams();
+	const { id } = useParams();
 	const borderColor = useColorModeValue('brand.300', 'brand.500');
 	const cardBg = useColorModeValue('white', 'gray.800');
 	const disabledBorderColor = useColorModeValue('gray.300', 'gray.600');
@@ -280,6 +280,12 @@ const Permission = () => {
 		m.moduleId.toLowerCase().includes('leadpool')
 	);
 
+	const role = UserRolePermission?.doc?.roleName;
+	const formattedRole =
+		role?.toLowerCase() === 'superadmin'
+			? 'Super Admin'
+			: role?.replace(/([A-Z])/g, ' $1')?.trim() || '';
+
 	// const filteredModules = modules.filter((m) =>
 	// 	m.moduleName.toLowerCase().includes(searchTerm.toLowerCase())
 	// );
@@ -299,8 +305,7 @@ const Permission = () => {
 			<Box borderRadius='xl' boxShadow='lg' bg={cardBg} p={6}>
 				{/* Header */}
 				<Heading mb={6} size='md' color='brand.600'>
-					{roleName === 'superAdmin' ? 'Super Admin' : roleName} Role
-					Permissions
+					{`${formattedRole} Role Permissions`}
 				</Heading>
 				{/* Search Section */}
 				{/* <Box mb={4}>
@@ -371,7 +376,6 @@ const Permission = () => {
 													handleModuleToggle={handleModuleToggle}
 													handleSelectAll={handleSelectAll}
 													handleActionToggle={handleActionToggle}
-													roleName={roleName}
 												/>
 
 												{/* Render LeadpoolSelector after the leads module */}
@@ -407,7 +411,6 @@ const Permission = () => {
 													handleModuleToggle={handleModuleToggle}
 													handleSelectAll={handleSelectAll}
 													handleActionToggle={handleActionToggle}
-													roleName={roleName}
 												/>
 												{isLeadsModule && (
 													<LeadpoolSelector

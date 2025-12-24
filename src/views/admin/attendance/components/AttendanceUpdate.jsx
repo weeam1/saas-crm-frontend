@@ -22,7 +22,6 @@ import NoteModal from './myAttendance/NoteModal';
 
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
-import { buttonStyle } from '../constants';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
@@ -52,7 +51,7 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 
 	const today = new Date().toISOString().split('T')[0];
 	const isToday = data?.date === today;
-	const showCheckout = isToday ? data?.checkout : true;
+	const showCheckout = isToday ? data?.checkout || false : true;
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();

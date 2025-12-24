@@ -48,13 +48,24 @@ export const userSchema = yup.object({
 			return schema.optional().nullable();
 		}),
 
+	// commissionType: yup
+	// 	.number()
+	// 	.transform((v) => (isNaN(v) ? undefined : v))
+	// 	.when('salaryType', (salaryType, schema) => {
+	// 		const type = getSalaryType(salaryType[0]);
+
+	// 		if (type?.hasCommission) {
+	// 			return schema.required('Commission type is required');
+	// 		}
+	// 		return schema.optional().nullable();
+	// 	}),
+
 	incentive: yup
 		.number()
 		.transform((v) => (isNaN(v) ? undefined : v))
 		.when('salaryType', (salaryType, schema) => {
 			const type = getSalaryType(salaryType[0]);
 
-			console.log({ salaryType, type });
 			if (type?.hasIncentive) {
 				return schema
 					.required('Incentive amount is required')

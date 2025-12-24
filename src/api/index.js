@@ -61,6 +61,15 @@ export const fetchAllUsers = async () => {
 	}
 };
 
+export const fetchTeamStructure = async () => {
+	const headers = {};
+	setAuthHeader(headers);
+
+	return axios.get(`${constant[server]}api/v2/user/team-structure`, {
+		headers,
+	});
+};
+
 export const getApplications = async (
 	page,
 	pageSize,

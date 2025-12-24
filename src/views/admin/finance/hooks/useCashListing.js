@@ -80,7 +80,10 @@ export const useCashListing = ({ endpoint }) => {
 	// --- Fetching Data from dynamic endPoints---
 	const fetchResult = useFetchItemsQuery(
 		{ path: endpoint, params: queryParams },
-		{ refetchOnMountOrArgChange: true }
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+		}
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;
@@ -106,8 +109,6 @@ export const useCashListing = ({ endpoint }) => {
 		if (data?.doc) {
 			setList(data?.doc || []);
 			setTotalCount(data?.totalRecords || 0);
-
-			console.log('update list and total');
 		}
 	}, [data?.doc, data?.totalRecords]);
 
@@ -125,6 +126,7 @@ export const useCashListing = ({ endpoint }) => {
 
 		setMonth(newMonth);
 		setYear(newYear);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	// const updateData = (id, updated, type = 'update') => {
@@ -194,6 +196,7 @@ export const useCashListing = ({ endpoint }) => {
 				// Otherwise, update it in place
 				const next = [...prev];
 				next[index] = { ...next[index], ...updated };
+
 				return next;
 			}
 

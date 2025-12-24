@@ -12,6 +12,11 @@ export const mainLeadStatus = [
 	{ label: 'Change Agent', value: 'change-agent' },
 ];
 
+export const userCommissionTypes = [
+	{ label: 'Deal Commision', value: 'DEAL_COMMISSION' },
+	{ label: 'Company Commission', value: 'COMPANY_COMMISSION' },
+];
+
 export const eventMainLeadStatus = [
 	'interested',
 	'not-interested',
@@ -279,7 +284,7 @@ export const salaryTypes = [
 	},
 	{
 		value: 'SALARY_COMMISSION',
-		label: 'Salary + Commission',
+		label: 'Salary / Commission',
 		description: 'Fixed salary plus commission on sales',
 		hasBaseSalary: true,
 		hasCommission: true,
@@ -287,7 +292,7 @@ export const salaryTypes = [
 	},
 	{
 		value: 'SALARY_INCENTIVE',
-		label: 'Salary + Incentive',
+		label: 'Salary / Incentive',
 		description: 'Fixed salary plus performance incentives',
 		hasBaseSalary: true,
 		hasCommission: false,
@@ -295,7 +300,7 @@ export const salaryTypes = [
 	},
 	{
 		value: 'SALARY_COMMISSION_INCENTIVE',
-		label: 'Salary + Commission + Incentive',
+		label: 'Salary / Commission / Incentive',
 		description: 'Base salary, commission on sales, and performance incentives',
 		hasBaseSalary: true,
 		hasCommission: true,

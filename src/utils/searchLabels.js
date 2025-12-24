@@ -11,7 +11,8 @@ export const leadLabels = {
 	attendanceDay: 'Attendance Day',
 	leadAddress: 'Lead Address',
 	leadCampaign: 'Lead Campaign',
-	leadSourceDetails: 'Source Content',
+	// leadSourceDetails: 'Source Content',
+	leadSourceDetails: 'Ad Name',
 	leadSourceMedium: 'Source Medium',
 	pageUrl: 'Campaign URL',
 	r_u_in_uae: 'In UAE',
@@ -20,12 +21,16 @@ export const leadLabels = {
 	budget: 'Budget',
 	timetocall: 'Time To Call',
 	managerAssigned: 'Manager',
+	teamLeadAssigned: 'Team Lead',
 	agentAssigned: 'Agent',
 	leadStatus: 'Status',
 	eLeadStatus: 'Main Status',
 	isReleased: 'Rleased Lead',
 	endDate: 'End Date',
 	startDate: 'Start Date',
+	mainStatusSort: 'MStatus Sort',
+	adset: 'Adset',
+	leadSourceChannel: 'Source Channel',
 };
 
 export const hiringLabels = {

@@ -16,20 +16,35 @@ import useUserSession from 'hooks/useUserSession';
 const Employees = () => {
 	const PAGE_SIZE = 20;
 	const [searchParams, setSearchParams] = useSearchParams();
+
+	const searchQuery = searchParams.get('search') || '';
+
 	const [searchClear, setSearchClear] = useState(false);
 	const [view, setView] = useState(() => {
 		return localStorage.getItem('employeesView') || 'grid';
 	});
 	const [initialLoad, setInitialLoad] = useState(true);
 
-	const { user, userRoleName } = useUserSession();
+	const { userRoleName } = useUserSession();
 
 	const [viewLoading, setViewLoading] = useState(false);
 
-	const navigate = useNavigate();
-	const searchTermRef = useRef('');
-	const hasTabParam = searchParams.has('tab');
+	const searchTermRef = useRef();
+	// const hasTabParam = searchParams.has('tab');
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	useEffect(() => {
+		if (searchParams.get('search') || searchParams.get('role') !== 'All') {
+			setSearchClear(true);
+
+			searchTermRef.current = searchParams.get('search') || '';
+
+			console.log({
+				query: searchParams.get('search'),
+				search: searchTermRef.current,
+			});
+		}
+	}, [searchParams]);
 
 	// Only set initial params if they don't exist
 	useEffect(() => {
@@ -74,7 +89,11 @@ const Employees = () => {
 		refetch: usersRefetch,
 	} = useFetchItemsQuery(
 		{ path: '/v2/user/employees', params: queryParams },
-		{ refetchOnMountOrArgChange: true }
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+			refetchOnReconnect: true,
+		}
 	);
 
 	const updateFilters = useCallback(
@@ -121,7 +140,9 @@ const Employees = () => {
 		if (!term) return;
 
 		updateFilters({ search: term, page: 1, role: 'All' });
-		setSearchClear(true);
+		// setSearchClear(true);
+
+		console.log({ searchClear });
 	};
 
 	const handleClear = () => {

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import ManagerAgentForm from './ManagerAgentForm';
+import TeamForm from './TeamForm';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import CustomDatePicker from 'components/datetime/CustomDatePicker';
@@ -28,7 +28,7 @@ const AdvancedSearchForm = (props) => {
 		setFieldValue,
 	} = props;
 
-	const [openCalendar, setOpenCalendar] = useState(null); // Track which calendar is open
+	const [openCalendar, setOpenCalendar] = useState(null);
 	const allCountries = useSelector((state) => state.countries.countryNames);
 
 	const toggleCalendar = (calendar) => {
@@ -61,11 +61,11 @@ const AdvancedSearchForm = (props) => {
 				label: 'Nationality',
 				placeholder: 'Search by Nationality',
 			},
-			{
-				name: 'ip',
-				label: 'Country Source',
-				placeholder: 'Search by Country Source',
-			},
+			// {
+			// 	name: 'ip',
+			// 	label: 'Country Source',
+			// 	placeholder: 'Search by Country Source',
+			// },
 			{
 				name: 'attendanceDay',
 				label: 'Attendance Day',
@@ -83,13 +83,24 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: 'leadSourceDetails',
-				label: 'Source Content',
-				placeholder: 'Search by Source Content',
+				// label: 'Source Content',
+				label: 'Ad Name',
+				placeholder: 'Search by Ad Name',
 			},
 			{
 				name: 'leadSourceMedium',
 				label: 'Source Medium',
 				placeholder: 'Search by Source Medium',
+			},
+			{
+				name: 'leadSourceChannel',
+				label: 'Source Channel',
+				placeholder: 'Search by Source Channel',
+			},
+			{
+				name: 'adset',
+				label: 'Adset',
+				placeholder: 'Search by Adset',
 			},
 			{
 				name: 'pageUrl',
@@ -283,6 +294,33 @@ const AdvancedSearchForm = (props) => {
 				</Text>
 			</GridItem>
 
+			{/* M Status Sort Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Sort Main Status
+				</FormLabel>
+
+				<Select
+					value={values?.mainStatusSort}
+					name='mainStatusSort'
+					onChange={handleChange}
+					fontSize='sm'
+					fontWeight='500'
+					placeholder='Select Main Status Order'
+				>
+					<option value='-1'>Latest to Oldest</option>
+					<option value='1'>Oldest to Latest</option>
+				</Select>
+			</GridItem>
+
 			{/* Extra Status Field */}
 			<GridItem colSpan={{ base: 12, md: 6 }}>
 				<FormLabel
@@ -345,9 +383,9 @@ const AdvancedSearchForm = (props) => {
 				</GridItem>
 			)}
 
-			<ManagerAgentForm
-				user={user}
-				tree={tree}
+			<TeamForm
+				// user={user}
+				// tree={tree}
 				handleChange={handleChange}
 				values={values}
 				errors={errors}

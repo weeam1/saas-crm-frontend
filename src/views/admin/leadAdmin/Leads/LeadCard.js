@@ -136,7 +136,7 @@ const LeadCard = ({
 
 		try {
 			await approveChangeHandler(action, leadId, agentId, _id, tab);
-			setLocalApprovalStatus(action === 'accept' ? 'accepted' : 'rejected');
+			// setLocalApprovalStatus(action === 'accept' ? 'accepted' : 'rejected');
 		} catch (error) {
 			console.error('Approval change failed:', error);
 			// Revert dates if the API call fails

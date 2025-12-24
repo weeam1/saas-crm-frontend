@@ -34,7 +34,7 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
               px="1"
               mt="5"
             >
-              <Text> Lead Details</Text>
+              <Text> Lead Detailss</Text>
             </HStack>
             <Button
               {...buttonStyle}

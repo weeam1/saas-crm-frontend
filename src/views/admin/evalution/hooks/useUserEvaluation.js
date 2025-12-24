@@ -23,6 +23,7 @@ export const useUserEvalution = () => {
 		Number(searchParams.get('month')) || new Date().getMonth() + 1;
 	const initialYear =
 		Number(searchParams.get('year')) || new Date().getFullYear();
+
 	const initialAgencyId = isAgenciesAllowed ? searchParams.get('agency') : null;
 	const initialPage = Number(searchParams.get('page')) || 1;
 	const initialLimit = Number(searchParams.get('limit')) || 10;
@@ -37,9 +38,11 @@ export const useUserEvalution = () => {
 		limit: initialLimit,
 	});
 
+	const [filters, setFilters] = useState({});
+
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
-		const raw = {
+		return cleanSearchParams({
 			page: pagination.page,
 			limit: pagination.limit,
 			month,
@@ -47,8 +50,10 @@ export const useUserEvalution = () => {
 			agency: isAgenciesAllowed
 				? agencyId || undefined
 				: user?.agency?._id || undefined,
-		};
-		return cleanSearchParams(raw);
+			...(filters?.userId && { userId: filters.userId }),
+			...(filters?.role && { role: filters.role }),
+			...(filters?.search && { search: filters.search }),
+		});
 	}, [
 		pagination.page,
 		pagination.limit,
@@ -57,25 +62,28 @@ export const useUserEvalution = () => {
 		isAgenciesAllowed,
 		agencyId,
 		user?.agency?._id,
+		filters,
 	]);
 
 	// sync queryParams -> URL (loop proof)
 	useEffect(() => {
 		const nextString = new URLSearchParams(queryParams).toString();
 		if (nextString !== searchString) {
-			setSearchParams(queryParams, { replace: true });
+			setSearchParams(queryParams);
 		}
 	}, [queryParams, searchString, setSearchParams]);
 
 	// --- Fetching Data ---
 	const fetchResult = useFetchItemsQuery(
 		{ path: '/evaluation/users', params: queryParams },
-		{ refetchOnMountOrArgChange: true }
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+			refetchOnReconnect: true,
+		}
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;
-
-	console.log({ data });
 
 	useEffect(() => {
 		if (data?.doc) {
@@ -98,9 +106,10 @@ export const useUserEvalution = () => {
 
 		setMonth(newMonth);
 		setYear(newYear);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
-	const refetchSummary = useCallback(() => {
+	const refetchEvaluations = useCallback(() => {
 		refetch();
 	}, [refetch]);
 
@@ -171,7 +180,7 @@ export const useUserEvalution = () => {
 		agencies,
 		queryParams,
 
-		refetchSummary,
+		refetchEvaluations,
 
 		// data + meta
 		data: list ?? [],
@@ -186,6 +195,8 @@ export const useUserEvalution = () => {
 		setMonth,
 		setYear,
 		setAgencyId,
+		filters,
+		setFilters,
 
 		// pagination
 		pagination,

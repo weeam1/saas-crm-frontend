@@ -1,7 +1,7 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { cleanSearchParams } from 'utils';
@@ -29,7 +29,7 @@ export const useEmployeePayroll = () => {
 		: user?.agency?._id;
 
 	const initialPage = Number(searchParams.get('page')) || 1;
-	const initialLimit = Number(searchParams.get('limit')) || 10;
+	const initialLimit = Number(searchParams.get('limit')) || 20;
 
 	const [month, setMonth] = useState(initialMonth);
 	const [list, setList] = useState([]);
@@ -40,7 +40,7 @@ export const useEmployeePayroll = () => {
 		page: initialPage,
 		limit: initialLimit,
 	});
-  	const [filters, setFilters] = useState({});
+	const [filters, setFilters] = useState({});
 
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
@@ -50,16 +50,26 @@ export const useEmployeePayroll = () => {
 			month,
 			year,
 			agency: agencyId || agencies[agencies]?._id,
-			...(filters.userId && { userId: filters.userId })
+			...(filters?.userId && { userId: filters.userId }),
+			...(filters?.role && { role: filters.role }),
+			...(filters?.search && { search: filters.search }),
 		};
 		return cleanSearchParams(raw);
-	}, [pagination.page, pagination.limit, month, year, agencies, agencyId, filters]);
+	}, [
+		pagination.page,
+		pagination.limit,
+		month,
+		year,
+		agencies,
+		agencyId,
+		filters,
+	]);
 
 	// sync queryParams -> URL (loop proof)
 	useEffect(() => {
 		const nextString = new URLSearchParams(queryParams).toString();
 		if (nextString !== searchString) {
-			setSearchParams(queryParams, { replace: true });
+			setSearchParams(queryParams);
 		}
 	}, [queryParams, searchString, setSearchParams]);
 
@@ -68,7 +78,8 @@ export const useEmployeePayroll = () => {
 		{ path: '/payroll', params: queryParams },
 		{
 			skip: !agencyId || !month || !year,
-			refetchOnMountOrArgChange: true,
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: true,
 			refetchOnReconnect: true,
 		}
 	);
@@ -96,11 +107,12 @@ export const useEmployeePayroll = () => {
 
 		setMonth(newMonth);
 		setYear(newYear);
+		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
-	const refetchSummary = useCallback(() => {
-		refetch();
-	}, [refetch]);
+	// const refetchSummary = useCallback(() => {
+	// 	refetch();
+	// }, [refetch]);
 
 	const updateData = (id, updated, type = 'update') => {
 		const updatedAgencyId = updated?.agency?._id;
@@ -169,8 +181,6 @@ export const useEmployeePayroll = () => {
 		agencies,
 		queryParams,
 
-		refetchSummary,
-
 		// data + meta
 		data: list ?? [],
 		setData: setList,
@@ -202,7 +212,7 @@ export const useEmployeePayroll = () => {
 		removeItem,
 
 		//Filters
-		filters, 
-		setFilters
+		filters,
+		setFilters,
 	};
 };

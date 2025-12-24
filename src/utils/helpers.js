@@ -63,6 +63,14 @@ export const formatCurrency = (amount, currency) => {
 	}).format(amount);
 };
 
+export const formatAmount = (amount) => {
+	return new Intl.NumberFormat('en-AE', {
+		style: 'decimal',
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 2,
+	}).format(amount);
+};
+
 export const toCapitalCase = (str) =>
 	str
 		.toLowerCase()
@@ -292,7 +300,10 @@ const merge = (left, right) => {
 		j = 0;
 
 	while (i < left.length && j < right.length) {
-		if (left[i].firstName.localeCompare(right[j].firstName) <= 0) {
+		if (
+			left[i]?.fullName?.localeCompare(right[i]?.fullName) <= 0 ||
+			left[i]?.firstName?.localeCompare(right[j]?.firstName) <= 0
+		) {
 			sortedArr.push(left[i]);
 			i++;
 		} else {

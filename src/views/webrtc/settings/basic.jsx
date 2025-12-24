@@ -1,0 +1,151 @@
+import {
+	Button,
+	FormControl,
+	FormLabel,
+	HStack,
+	Image,
+	Input,
+	Text,
+	VStack,
+} from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import PasswordInput from 'components/password-input';
+import { getSettings, saveSettings } from 'storage';
+import ResetIcon from 'assets/webrtc-imgs/icons/Reset.svg';
+import { toast } from 'react-toastify';
+
+export const BasicSettings = () => {
+	const [sipDomain, setSipDomain] = useState('');
+	const [sipServerAddress, setSipServerAddress] = useState('');
+	const [sipUsername, setSipUsername] = useState('');
+	const [sipPassword, setSipPassword] = useState('');
+	const [sipDisplayName, setSipDisplayName] = useState('');
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+
+		const settings = {
+			sipDomain,
+			sipServerAddress: sipServerAddress,
+			sipUsername,
+			sipPassword,
+			sipDisplayName,
+		};
+
+		saveSettings(settings);
+		toast.success('Settings saved successfully');
+	};
+
+	const resetSetting = () => {
+		saveSettings({});
+		setSipDomain('');
+		setSipServerAddress('');
+		setSipUsername('');
+		setSipPassword('');
+		setSipDisplayName('');
+	};
+
+	useEffect(() => {
+		const settings = getSettings();
+		const activeSettings = settings.find((el) => el.active);
+
+		if (activeSettings?.decoded.sipDomain) {
+			setSipDomain(activeSettings?.decoded.sipDomain);
+		}
+		if (activeSettings?.decoded.sipServerAddress) {
+			setSipServerAddress(activeSettings?.decoded.sipServerAddress);
+		}
+		if (activeSettings?.decoded.sipUsername) {
+			setSipUsername(activeSettings?.decoded.sipUsername);
+		}
+		if (activeSettings?.decoded.sipPassword) {
+			setSipPassword(activeSettings?.decoded.sipPassword);
+		}
+		if (activeSettings?.decoded.sipDisplayName) {
+			setSipDisplayName(activeSettings?.decoded.sipDisplayName);
+		}
+	}, []);
+	return (
+		<form onSubmit={handleSubmit}>
+			<VStack spacing={2} w='full' p={0}>
+				<VStack
+					spacing={2}
+					maxH='calc(100vh - 25em)'
+					overflowY='auto'
+					w='full'
+					p={0}
+				>
+					<FormControl id='jambonz_sip_domain'>
+						<FormLabel>jambonz SIP Domain</FormLabel>
+						<Input
+							type='text'
+							placeholder='Domain'
+							isRequired
+							value={sipDomain}
+							onChange={(e) => setSipDomain(e.target.value)}
+						/>
+					</FormControl>
+
+					<FormControl id='jambonz_server_address'>
+						<FormLabel>jambonz Server Address</FormLabel>
+						<Input
+							type='text'
+							placeholder='wss://sip.jambonz.cloud:8443/'
+							isRequired
+							value={sipServerAddress}
+							onChange={(e) => setSipServerAddress(e.target.value)}
+						/>
+					</FormControl>
+
+					<FormControl id='username'>
+						<FormLabel>SIP Username</FormLabel>
+						<Input
+							type='text'
+							placeholder='Username'
+							isRequired
+							value={sipUsername}
+							onChange={(e) => setSipUsername(e.target.value)}
+						/>
+					</FormControl>
+
+					<FormControl id='password'>
+						<FormLabel fontWeight=''>SIP Password</FormLabel>
+						<PasswordInput
+							password={[sipPassword, setSipPassword]}
+							placeHolder='Enter your password'
+						/>
+					</FormControl>
+
+					<FormControl id='sip_display_name'>
+						<FormLabel>SIP Display Name (Optional)</FormLabel>
+						<Input
+							type='text'
+							placeholder='Display name'
+							value={sipDisplayName}
+							onChange={(e) => setSipDisplayName(e.target.value)}
+						/>
+					</FormControl>
+				</VStack>
+				<Button colorScheme='brand' type='submit' w='full'>
+					Save
+				</Button>
+				<VStack w='full' alignItems='center' mt={2}>
+					{/* <HStack spacing={1}>
+            <Image src={InfoIcon} w="30px" h="30px" />
+            <Text fontSize="14px">Get help</Text>
+          </HStack> */}
+
+					{/* <Spacer /> */}
+					<HStack spacing={1}>
+						<Image src={ResetIcon} w='30px' h='30px' />
+						<Text fontSize='14px' onClick={resetSetting} cursor='pointer'>
+							Reset settings
+						</Text>
+					</HStack>
+				</VStack>
+			</VStack>
+		</form>
+	);
+};
+
+export default BasicSettings;

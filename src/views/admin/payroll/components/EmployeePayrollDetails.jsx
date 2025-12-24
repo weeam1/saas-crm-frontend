@@ -1,10 +1,8 @@
-import React from 'react';
 import {
 	Box,
 	VStack,
 	HStack,
 	Grid,
-	GridItem,
 	Text,
 	Heading,
 	Badge,
@@ -16,10 +14,11 @@ import {
 	Skeleton,
 	Alert,
 	AlertIcon,
-	Flex,
 	Container,
 	Avatar,
 	IconButton,
+	useDisclosure,
+	Flex,
 } from '@chakra-ui/react';
 import {
 	FiDollarSign,
@@ -31,15 +30,16 @@ import {
 	FiClock,
 	FiAward,
 	FiPieChart,
-	FiDownload,
 	FiMail,
-	FiPhone,
 	FiChevronLeft,
 } from 'react-icons/fi';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { constant } from 'constant';
 import { FaBuilding } from 'react-icons/fa';
+import PayrollStatus from './PayrollStatus';
+import { ImageModal } from './ImageModal';
+import { formatAmount, formatCurrency } from 'utils/helpers';
 
 // Custom components for better organization
 const StatCard = ({
@@ -64,11 +64,15 @@ const StatCard = ({
 					<Text fontSize='sm' color='gray.600' fontWeight='medium'>
 						{title}
 					</Text>
-					<Text fontSize='2xl' fontWeight='bold' color={`${color}.500`}>
+					<Text
+						fontSize={{ base: 'md', md: 'lg', lg: 'xl', xl: '2xl' }}
+						fontWeight='bold'
+						color={`${color}.500`}
+					>
 						{value}
 					</Text>
 					{subtitle && (
-						<Text fontSize='sm' color='gray.500'>
+						<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
 							{subtitle}
 						</Text>
 					)}
@@ -81,7 +85,13 @@ const StatCard = ({
 						</Badge>
 					)}
 				</Text>
-				<Icon as={icon} w={8} h={8} color={`${color}.500`} opacity={0.7} />
+				<Icon
+					as={icon}
+					w={{ base: 4, md: 6, lg: 8 }}
+					h={{ base: 4, md: 6, lg: 8 }}
+					color={`${color}.500`}
+					opacity={0.7}
+				/>
 			</HStack>
 		</Box>
 	</Box>
@@ -119,7 +129,7 @@ const ProgressIndicator = ({ label, value, max, color = 'blue', currency }) => (
 		<Progress
 			value={(value / max) * 100}
 			colorScheme={color}
-			size='md'
+			size='lg'
 			w='100%'
 			borderRadius='full'
 			bg={useColorModeValue('gray.100', 'gray.700')}
@@ -140,6 +150,12 @@ const EmployeePayrollDetails = () => {
 
 	const [searchParams] = useSearchParams();
 
+	const {
+		isOpen: profileIsOpen,
+		onOpen: profileOnOpen,
+		onClose: profileOnClose,
+	} = useDisclosure();
+
 	const month = searchParams.get('month') || defaultMonth;
 	const year = searchParams.get('year') || defaultYear;
 
@@ -150,6 +166,7 @@ const EmployeePayrollDetails = () => {
 		},
 		{
 			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
 			refetchOnReconnect: true,
 			skip: !userId,
 		}
@@ -187,24 +204,35 @@ const EmployeePayrollDetails = () => {
 		attendanceSummary,
 		payrollSummary,
 		closeDeals,
+		sharedDeals,
 		payslip,
-	} = payrollData?.doc;
+	} = payrollData?.doc?.snapshots || payrollData?.doc;
 
 	const name = fullName || username || '';
 	const imgSrc = profileImage
 		? `${constant.baseUrl}${profileImage}`
 		: undefined;
 
+	const currency = payrollSummary?.currency || 'AED';
+
 	return (
-		<Box bg={bgColor} minH='100vh' py={8} px={2}>
-			<IconButton
-				aria-label='Go back'
-				icon={<FiChevronLeft />}
-				onClick={() => navigate(-1)}
-				// variant='ghost'
-				size='md'
-				isRound
-			/>
+		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
+			<HStack justify='space-between' mb='3'>
+				<IconButton
+					aria-label='Go back'
+					icon={<FiChevronLeft />}
+					onClick={() => navigate(-1)}
+					// variant='ghost'
+					size='md'
+					isRound
+				/>
+
+				<PayrollStatus
+					initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
+					payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
+				/>
+			</HStack>
+
 			<Container maxW='container.4xl'>
 				{/* Header Section */}
 				<VStack spacing={6} align='stretch' mb={8}>
@@ -237,99 +265,80 @@ const EmployeePayrollDetails = () => {
 					{/* Employee Profile Box */}
 					<Box
 						bg='white'
-						px={6}
+						px={{ base: 2, md: 4, lg: 6 }}
 						py={4}
 						rounded='md'
-						shadow='lg'
+						shadow='md'
 						border='1px'
 						borderColor={borderColor}
 					>
-						<Box>
-							<HStack spacing={4} align='center'>
-								<Avatar size='lg' src={imgSrc} name={fullName} />
-								{/* <Box
-									w={20}
-									h={20}
-									borderRadius='full'
-									display='flex'
-									alignItems='center'
-									justifyContent='center'
-									bg={hasImage ? 'blue.100' : 'blue.200'}
-									color='white'
+						<Flex
+							flexDir={{ base: 'column', md: 'row' }}
+							gap={{ base: 2, md: 4 }}
+							align='center'
+						>
+							<Avatar
+								size='xl'
+								src={imgSrc}
+								onClick={imgSrc ? profileOnOpen : undefined}
+								name={fullName}
+								border='2px solid #dba554ff'
+							/>
+
+							<VStack
+								align={{ base: 'center', md: 'flex-start' }}
+								spacing={1}
+								flex={1}
+							>
+								<Text
+									fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
 									fontWeight='bold'
-									fontSize='3xl'
-									border='4px solid'
-									borderColor='blue.300'
-									backgroundImage={
-										hasImage ? `${constant.baseUrl}${profileImage}` : 'none'
-									}
-									backgroundSize='cover'
-									backgroundPosition='center'
+									maxWidth={{ base: '350px', md: '100%' }}
+									isTruncated
 								>
-									{initial}
-								</Box> */}
-								<VStack align='flex-start' spacing={1} flex={1}>
+									{fullName}
+								</Text>
+								<HStack>
+									<Icon as={FiMail} color='gray.500' />
 									<Text
-										fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
-										fontWeight='bold'
+										maxWidth={{ base: '200px', md: '100%' }}
+										isTruncated
+										fontSize={{ base: 'xs', md: 'sm' }}
+										color='gray.600'
 									>
-										{fullName}
+										{username}
 									</Text>
-									<HStack>
-										<Icon as={FiMail} color='gray.500' />
-										<Text fontSize='sm' color='gray.600'>
-											{username}
-										</Text>
-									</HStack>
-
-									<HStack spacing={4} mt={2}>
-										{/* <HStack>
-											<Icon as={FiPhone} color='gray.500' />
-											<Text fontSize='sm' color='gray.600'>
-												{agency?.contactNumberPrimary}
-											</Text>
-										</HStack> */}
-									</HStack>
-								</VStack>
-								<VStack align='flex-end' spacing={1}>
-									<HStack>
-										<Icon as={FaBuilding} color='gray.500' />
-										<Text fontSize='sm' color='gray.600'>
-											{agency?.name}
-										</Text>
-									</HStack>
-
-									{/* <Text fontSize='sm' color='gray.500'>
-										Employee ID
+								</HStack>
+								<HStack>
+									<Icon as={FaBuilding} color='gray.500' />
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.600'>
+										{agency?.name}
 									</Text>
-									<Text fontWeight='bold' fontSize='lg'>
-										{userId?.slice(-8).toUpperCase()}
-									</Text> */}
-								</VStack>
-							</HStack>
-						</Box>
+								</HStack>
+							</VStack>
+						</Flex>
 					</Box>
 				</VStack>
 
 				{/* Key Metrics Grid */}
-				<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
+				<SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={6} mb={8}>
 					<StatCard
 						title='Net Salary'
-						value={`${payrollSummary?.currency} ${payrollSummary?.netSalary?.toLocaleString()}`}
+						value={formatAmount(payrollSummary?.netSalary)}
 						subtitle='After all deductions'
 						icon={FiDollarSign}
 						color='green'
 					/>
 					<StatCard
 						title='Gross Salary'
-						value={`${payrollSummary?.currency} ${payrollSummary?.grossSalary?.toLocaleString()}`}
+						value={formatAmount(payrollSummary?.grossSalary)}
 						subtitle='Before deductions'
 						icon={FiTrendingUp}
 						color='blue'
 					/>
 					<StatCard
 						title='Commission Earned'
-						value={`${payrollSummary?.currency} ${payrollSummary?.commissionEarned?.toLocaleString()}`}
+						value={formatAmount(payrollSummary?.commissionEarned)}
 						subtitle='From closed deals'
 						icon={FiAward}
 						color='purple'
@@ -343,7 +352,10 @@ const EmployeePayrollDetails = () => {
 					/>
 				</SimpleGrid>
 
-				<Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
+				<Grid
+					templateColumns={{ base: '1fr', md: '1fr', xl: '2fr 1fr' }}
+					gap={8}
+				>
 					{/* Left Column - Main Details */}
 					<VStack
 						// flexDir={{ base: 'column', md: 'row' }}
@@ -365,19 +377,36 @@ const EmployeePayrollDetails = () => {
 										<HStack w='100%' justify='space-between'>
 											<Box color='gray.600'>Basic</Box>
 											<Box fontWeight='semibold'>
-												{payrollSummary?.basicSalary?.toLocaleString()}
+												{formatCurrency(payrollSummary?.basicSalary, currency)}
 											</Box>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Commission ({commission}%)</Text>
+											<Text color='gray.600'>
+												Deal Commission ({commission}%)
+											</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												{payrollSummary?.commissionEarned?.toLocaleString()}
+												{formatCurrency(
+													payrollSummary?.closeDealCommission,
+													currency
+												)}
+											</Text>
+										</HStack>
+										<HStack w='100%' justify='space-between'>
+											<Text color='gray.600'>Shared Commission</Text>
+											<Text fontWeight='semibold' color='green.500'>
+												{formatCurrency(
+													payrollSummary?.sharedDealCommission,
+													currency
+												)}
 											</Text>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
 											<Text color='gray.600'>Incentive ({incentive})</Text>
 											<Text fontWeight='semibold' color='green.500'>
-												{payrollSummary?.incentiveEarned?.toLocaleString()}
+												{formatCurrency(
+													payrollSummary?.incentiveEarned,
+													currency
+												)}
 											</Text>
 										</HStack>
 									</VStack>
@@ -385,7 +414,7 @@ const EmployeePayrollDetails = () => {
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Earnings</Text>
 										<Text color='green.600'>
-											{payrollSummary?.grossSalary?.toLocaleString()}
+											{formatCurrency(payrollSummary?.grossSalary, currency)}
 										</Text>
 									</HStack>
 								</VStack>
@@ -400,10 +429,22 @@ const EmployeePayrollDetails = () => {
 												{loanSummary?.activeLoans} Loan Installment's
 											</Text>
 											<Text fontWeight='semibold' color='red.500'>
-												{payrollSummary?.loanDeduction?.toLocaleString()}
+												{formatCurrency(
+													payrollSummary?.loanDeduction,
+													currency
+												)}
 											</Text>
 										</HStack>
 										<HStack w='100%' justify='space-between'>
+											<Text color='gray.600'>Attendance Deduction</Text>
+											<Text fontWeight='semibold' color='red.500'>
+												{formatCurrency(
+													payrollSummary?.attendanceDeduction,
+													currency
+												)}
+											</Text>
+										</HStack>
+										{/* <HStack w='100%' justify='space-between'>
 											<Text color='gray.600'>Attendance</Text>
 											<Text fontWeight='semibold' color='red.500'>
 												{(
@@ -419,13 +460,17 @@ const EmployeePayrollDetails = () => {
 													{attendanceSummary?.remainingDaysDeduction?.toLocaleString()}
 												</Text>
 											</HStack>
-										)}
+										)} */}
 									</VStack>
 									<Divider />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Deductions</Text>
 										<Text color='red.600'>
-											-{payrollSummary?.totalDeductions?.toLocaleString()}
+											-
+											{formatCurrency(
+												payrollSummary?.totalDeductions,
+												currency
+											)}
 										</Text>
 									</HStack>
 								</VStack>
@@ -444,8 +489,10 @@ const EmployeePayrollDetails = () => {
 											</Text>
 										</VStack>
 										<Text fontSize='2xl' fontWeight='bold' color='green.600'>
-											{payrollSummary?.currency}{' '}
-											{payrollSummary?.netSalary?.toLocaleString()}
+											{formatCurrency(
+												payrollSummary?.netSalary,
+												payrollSummary?.currency
+											)}
 										</Text>
 									</HStack>
 								</Box>
@@ -468,7 +515,7 @@ const EmployeePayrollDetails = () => {
 									color='red'
 								/>
 							</SimpleGrid>
-							<SimpleGrid columns={2} spacing={4}>
+							<SimpleGrid columns={2} spacing={6}>
 								<HStack justify='space-between'>
 									<Text color='gray.600'>Working Days</Text>
 									<Text fontWeight='semibold'>
@@ -513,25 +560,32 @@ const EmployeePayrollDetails = () => {
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Total Borrowed</Text>
 										<Text fontWeight='semibold'>
-											{loanSummary?.totalBorrowedAmount?.toLocaleString()}
+											{formatAmount(loanSummary?.totalBorrowedAmount)}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Amount Paid</Text>
 										<Text fontWeight='semibold' color='green.600'>
-											{loanSummary?.totalPaidAmount?.toLocaleString()}
+											{payrollData?.doc?.paymentStatus === 'paid'
+												? formatAmount(loanSummary?.monthlyInstallment)
+												: formatAmount(loanSummary?.totalPaidAmount)}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Remaining</Text>
 										<Text fontWeight='semibold' color='red.600'>
-											{loanSummary?.totalRemainingAmount?.toLocaleString()}
+											{payrollData?.doc?.paymentStatus === 'paid'
+												? formatAmount(
+														loanSummary?.totalRemainingAmount -
+															loanSummary?.monthlyInstallment
+													)
+												: formatAmount(loanSummary?.totalRemainingAmount)}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Monthly Installment</Text>
 										<Text fontWeight='semibold'>
-											{loanSummary?.monthlyInstallment?.toLocaleString()}
+											{formatAmount(loanSummary?.monthlyInstallment)}
 										</Text>
 									</HStack>
 								</SimpleGrid>
@@ -566,9 +620,14 @@ const EmployeePayrollDetails = () => {
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
+										<Text color='gray.600'>Shared Deals</Text>
+										<Text fontWeight='semibold'>
+											{sharedDeals?.dealsCount || 0}
+										</Text>
+									</HStack>
+									<HStack justify='space-between'>
 										<Text color='gray.600'>Deal Value</Text>
 										<Text fontWeight='semibold'>
-											{closeDeals?.currency}{' '}
 											{closeDeals?.totalAmount?.toLocaleString() || 0}
 										</Text>
 									</HStack>
@@ -590,19 +649,25 @@ const EmployeePayrollDetails = () => {
 										<Text color='gray.600'>Status</Text>
 										<Badge
 											colorScheme={
-												payslip?.status === 'paid'
+												payslip?.paymentStatus === 'paid'
 													? 'green'
-													: payslip?.status === 'pending'
+													: payslip?.paymentStatus === 'pending'
 														? 'orange'
 														: 'gray'
 											}
 										>
-											{payslip?.status?.toUpperCase() || 'N/A'}
+											{payslip?.paymentStatus?.toUpperCase() || 'N/A'}
 										</Badge>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Payslip Version</Text>
 										<Text fontWeight='semibold'>v{payslip?.version || 1}</Text>
+									</HStack>
+									<HStack justify='space-between'>
+										<Text color='gray.600'>Generated By</Text>
+										<Text fontSize='sm'>
+											{payslip?.generatedBy?.fullName || 'N/A'}
+										</Text>
 									</HStack>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Last Updated</Text>
@@ -616,6 +681,16 @@ const EmployeePayrollDetails = () => {
 					</VStack>
 				</Grid>
 			</Container>
+
+			{/* Image Modal */}
+			{profileIsOpen && (
+				<ImageModal
+					isOpen={profileIsOpen}
+					onClose={profileOnClose}
+					imageSrc={imgSrc}
+					alt={fullName}
+				/>
+			)}
 		</Box>
 	);
 };
