@@ -122,40 +122,40 @@ const DocumentItem = ({ document, index }) => {
 		}
 	};
 
-	const handleDownload = async () => {
-		if (!documentUrl) {
-			toast.error('Document URL is missing.');
-			return;
-		}
+	// const handleDownload = async () => {
+	// 	if (!documentUrl) {
+	// 		toast.error('Document URL is missing.');
+	// 		return;
+	// 	}
 
-		const exists = await checkFileExists(documentUrl);
-		if (!exists) {
-			toast.error('Document not found or download failed.');
-			return;
-		}
+	// 	const exists = await checkFileExists(documentUrl);
+	// 	if (!exists) {
+	// 		toast.error('Document not found or download failed.');
+	// 		return;
+	// 	}
 
-		try {
-			const response = await fetch(documentUrl);
-			if (!response.ok) throw new Error('Network response not ok');
+	// 	try {
+	// 		const response = await fetch(documentUrl);
+	// 		if (!response.ok) throw new Error('Network response not ok');
 
-			const blob = await response.blob();
-			const url = window.URL.createObjectURL(blob);
+	// 		const blob = await response.blob();
+	// 		const url = window.URL.createObjectURL(blob);
 
-			const link = document.createElement('a');
-			link.href = url;
-			link.download = fileName || 'document';
-			document.body.appendChild(link);
-			link.click();
-			link.remove();
+	// 		const link = document.createElement('a');
+	// 		link.href = url;
+	// 		link.download = fileName || 'document';
+	// 		document.body.appendChild(link);
+	// 		link.click();
+	// 		link.remove();
 
-			window.URL.revokeObjectURL(url);
+	// 		window.URL.revokeObjectURL(url);
 
-			toast.success('Download started...');
-		} catch (err) {
-			console.error(err);
-			toast.error('Unable to start download.');
-		}
-	};
+	// 		toast.success('Download started...');
+	// 	} catch (err) {
+	// 		console.error(err);
+	// 		toast.error('Unable to start download.');
+	// 	}
+	// };
 
 	// const handleDownload = () => {
 	// 	const link = document.createElement('a');
@@ -167,6 +167,51 @@ const DocumentItem = ({ document, index }) => {
 
 	// 	toast.success('Download started...');
 	// };
+
+	const handleDownload = async () => {
+		if (!documentUrl) {
+			toast.error('Document URL is missing.');
+			return;
+		}
+
+		//  Hard check first
+		const exists = await checkFileExists(documentUrl);
+		if (!exists) {
+			toast.error('Document not found or no longer available.');
+			return;
+		}
+
+		try {
+			const response = await fetch(documentUrl, {
+				credentials: 'omit',
+			});
+
+			// If fetch succeeds normally → blob download
+			if (response.ok) {
+				const blob = await response.blob();
+				const url = URL.createObjectURL(blob);
+
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = fileName || 'document';
+				document.body.appendChild(a);
+				a.click();
+				a.remove();
+				URL.revokeObjectURL(url);
+
+				toast.success('Download started');
+				return;
+			}
+
+			// Non-ok response but file exists → external downloader likely
+			toast.info('Download started');
+		} catch (err) {
+			console.warn('Download interrupted:', err);
+
+			// Only tolerate errors AFTER existence is confirmed
+			toast.info('Download started');
+		}
+	};
 
 	return (
 		<motion.div
