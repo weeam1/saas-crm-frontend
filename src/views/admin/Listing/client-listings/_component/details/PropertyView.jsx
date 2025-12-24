@@ -78,6 +78,8 @@ const DocumentItem = ({ document, index }) => {
 	const fileExtension = fileName?.split('.').pop().toLowerCase();
 	const IconComponent = FaIcons[getDocumentIcon(fileName)] || FaFileAlt;
 
+	console.log({ documentUrl });
+
 	// const handleCopyLink = () => {
 	// 	navigator.clipboard
 	// 		.writeText(documentUrl)
@@ -127,23 +129,30 @@ const DocumentItem = ({ document, index }) => {
 		}
 
 		const exists = await checkFileExists(documentUrl);
-
 		if (!exists) {
 			toast.error('Document not found or download failed.');
 			return;
 		}
 
 		try {
+			const response = await fetch(documentUrl);
+			if (!response.ok) throw new Error('Network response not ok');
+
+			const blob = await response.blob();
+			const url = window.URL.createObjectURL(blob);
+
 			const link = document.createElement('a');
-			link.href = documentUrl;
+			link.href = url;
 			link.download = fileName || 'document';
-			link.rel = 'noopener';
 			document.body.appendChild(link);
 			link.click();
-			document.body.removeChild(link);
+			link.remove();
+
+			window.URL.revokeObjectURL(url);
 
 			toast.success('Download started...');
-		} catch {
+		} catch (err) {
+			console.error(err);
 			toast.error('Unable to start download.');
 		}
 	};

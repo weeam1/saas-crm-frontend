@@ -54,6 +54,13 @@ export const formattedDate = (_date) => {
 	return formattedDate;
 };
 
+export const capitalizeWords = (str = '') =>
+	str
+		.toLowerCase()
+		.split(' ')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+
 export const formatCurrency = (amount, currency) => {
 	return new Intl.NumberFormat('en-AE', {
 		style: 'currency',

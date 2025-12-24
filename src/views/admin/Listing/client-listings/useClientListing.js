@@ -8,7 +8,7 @@ export const useClientListing = () => {
 	const searchString = searchParams.toString();
 
 	const initialPage = Number(searchParams.get('page')) || 1;
-	const initialLimit = Number(searchParams.get('limit')) || 10;
+	const initialLimit = Number(searchParams.get('limit')) || 20;
 
 	const [list, setList] = useState([]);
 	const [totalCount, setTotalCount] = useState(0);
@@ -21,11 +21,13 @@ export const useClientListing = () => {
 
 	// stable queryParams (memoized)
 	const queryParams = useMemo(() => {
+		console.log({ filters });
 		return cleanSearchParams({
 			page: pagination.page,
 			limit: pagination.limit,
-			...(filters?.userId && { userId: filters.userId }),
-			...(filters?.search && { search: filters.search }),
+			...(filters && { ...filters }),
+			// ...(filters?.userId && { userId: filters.userId }),
+			// ...(filters?.search && { search: filters.search }),
 		});
 	}, [pagination.page, pagination.limit, filters]);
 
@@ -46,6 +48,22 @@ export const useClientListing = () => {
 			refetchOnReconnect: true,
 		}
 	);
+	const { data: listingTypeData } = useFetchItemsQuery(
+		{ path: '/listing/secondary/types/all' },
+		{
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: true,
+			refetchOnReconnect: false,
+		}
+	);
+	const { data: unitTypeData } = useFetchItemsQuery(
+		{ path: '/listing/secondary/unit-types/sub-types' },
+		{
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: true,
+			refetchOnReconnect: false,
+		}
+	);
 
 	const { data, isLoading, isFetching, refetch, error, isError } = fetchResult;
 
@@ -56,13 +74,13 @@ export const useClientListing = () => {
 		}
 	}, [data?.doc, data?.pagination?.total]);
 
-	const handlePageChange = (page) => {
+	const handlePageChange = useCallback((page) => {
 		setPagination((prev) => ({ ...prev, page: Number(page) }));
-	};
+	}, []);
 
-	const handlePageSize = (limit) => {
+	const handlePageSize = useCallback((limit) => {
 		setPagination({ page: 1, limit: Number(limit) });
-	};
+	}, []);
 
 	const onDateFilterChange = (value) => {
 		const newMonth = Number(value.month);
@@ -71,11 +89,11 @@ export const useClientListing = () => {
 		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
-	const refetchEvaluations = useCallback(() => {
+	const refreshData = useCallback(() => {
 		refetch();
 	}, [refetch]);
 
-	const updateData = (id, updated, type = 'update') => {
+	const updateData = useCallback((id, updated, type = 'update') => {
 		const violatesFilter = false;
 
 		setList((prev) => {
@@ -126,46 +144,109 @@ export const useClientListing = () => {
 		if (type === 'add' && !violatesFilter) {
 			setTotalCount((prev) => prev + 1);
 		}
-	};
+	}, []);
 
-	const removeItem = (id) => {
+	const removeItem = useCallback((id) => {
 		setList((prev) => prev.filter((item) => item._id !== id));
 
 		setTotalCount((prev) => prev - 1);
-	};
+	}, []);
 
-	return {
-		// raw
-		queryParams,
+	const result = useMemo(
+		() => ({
+			// raw
+			queryParams,
+			refreshData,
 
-		refetchEvaluations,
+			// data
+			data: list ?? [],
+			listingTypes: listingTypeData?.doc ?? [],
+			unitTypes: unitTypeData?.doc ?? [],
+			setData: setList,
+			totalPages: data?.pagination?.totalPages ?? 0,
+			totalRecords: totalCount ?? 0,
+			error,
+			isError,
 
-		// data + meta
-		data: list ?? [],
-		setData: setList,
-		totalPages: data?.pagination?.totalPages ?? 0,
-		totalRecords: totalCount ?? 0,
-		error,
-		isError,
+			// filters
+			filters,
+			setFilters,
 
-		// filters
-		filters,
-		setFilters,
+			// pagination
+			pagination,
+			setPagination,
 
-		// pagination
-		pagination,
-		setPagination,
+			// fetch
+			isLoading,
+			isFetching,
+			refetch,
 
-		// fetch
-		isLoading,
-		isFetching,
-		refetch,
+			// helpers
+			handlePageChange,
+			handlePageSize,
+			onDateFilterChange,
+			updateData,
+			removeItem,
+		}),
+		[
+			queryParams,
+			refreshData,
+			list,
+			listingTypeData,
+			unitTypeData,
+			data,
+			totalCount,
+			error,
+			isError,
+			filters,
+			pagination,
+			isLoading,
+			isFetching,
+			refetch,
+			handlePageChange,
+			handlePageSize,
+			onDateFilterChange,
+			updateData,
+			removeItem,
+		]
+	);
 
-		// helper functions
-		handlePageChange,
-		handlePageSize,
-		onDateFilterChange,
-		updateData,
-		removeItem,
-	};
+	return result;
+
+	// return {
+	// 	// raw
+	// 	queryParams,
+
+	// 	refetchEvaluations,
+
+	// 	// data + meta
+	// 	data: list ?? [],
+	// 	listingTypes: listingTypeData?.doc ?? [],
+	// 	unitTypes: unitTypeData?.doc ?? [],
+	// 	setData: setList,
+	// 	totalPages: data?.pagination?.totalPages ?? 0,
+	// 	totalRecords: totalCount ?? 0,
+	// 	error,
+	// 	isError,
+
+	// 	// filters
+	// 	filters,
+	// 	setFilters,
+
+	// 	// pagination
+	// 	pagination,
+	// 	setPagination,
+
+	// 	// fetch
+	// 	isLoading,
+	// 	isFetching,
+	// 	refetch,
+
+	// 	// helper functions
+	// 	handlePageChange,
+	// 	handlePageSize,
+	// 	onDateFilterChange,
+	// 	updateData,
+	// 	removeItem,
+	// };
 };
