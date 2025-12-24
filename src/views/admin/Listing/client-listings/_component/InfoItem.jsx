@@ -9,7 +9,7 @@ const InfoItem = ({
 	color = 'gray.400',
 	maxW = '120px',
 	labelFontSize = '10px',
-	valueFontSize = '12px',
+	valueFontSize = '13px',
 	valueCase = undefined,
 	...props
 }) => {
@@ -20,7 +20,7 @@ const InfoItem = ({
 			<Icon
 				as={icon}
 				color={color}
-				boxSize={3}
+				boxSize={4}
 				transform={icon === FaPhone ? 'scaleX(-1)' : undefined}
 			/>
 

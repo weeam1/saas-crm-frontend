@@ -23,7 +23,7 @@ import {
 	FaEye,
 	FaUser,
 } from 'react-icons/fa';
-import { MdMeetingRoom, MdLandscape } from 'react-icons/md';
+import { MdMeetingRoom, MdLandscape, MdOutlineNumbers } from 'react-icons/md';
 import { formatCurrency } from '../propertyUtils';
 import { safeValue } from 'utils';
 import CustomTooltip from 'components/shared/CustomTooltip';
@@ -189,6 +189,13 @@ const PropertyCard = ({ property }) => {
 					{/* Property details */}
 					<Grid templateColumns='repeat(2, 1fr)' gap={1} mb={2}>
 						<InfoItem
+							icon={MdOutlineNumbers}
+							label='Unit'
+							value={property.unitNumber}
+							color='brand.500'
+						/>
+
+						<InfoItem
 							icon={FaHome}
 							label='Unit Type'
 							value={property.unitType?.name}
@@ -202,12 +209,12 @@ const PropertyCard = ({ property }) => {
 							color='green.500'
 						/>
 
-						<InfoItem
+						{/* <InfoItem
 							icon={FaTag}
 							label='Listing Type'
 							value={property.listingType?.name}
 							color='purple.500'
-						/>
+						/> */}
 
 						<InfoItem
 							icon={FaRulerCombined}
@@ -219,7 +226,7 @@ const PropertyCard = ({ property }) => {
 						<InfoItem
 							icon={FaCalendarAlt}
 							label='Building Age'
-							value={property.buildingAge}
+							value={`${property?.buildingAge ? `${property?.buildingAge} Years` : 'N/A'}`}
 							color='teal.500'
 							maxW='140px'
 						/>

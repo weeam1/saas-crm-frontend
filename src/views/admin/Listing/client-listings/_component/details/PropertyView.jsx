@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
 	Box,
 	Flex,
@@ -11,16 +11,10 @@ import {
 	VStack,
 	Grid,
 	GridItem,
-	Button,
-	Divider,
 	useColorModeValue,
-	Link,
 	Image,
-	Alert,
-	AlertIcon,
 	IconButton,
 	Tooltip,
-	Progress,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -39,14 +33,13 @@ import {
 	FaDownload,
 	FaEye,
 	FaClock,
-	FaEdit,
-	FaTimes,
 } from 'react-icons/fa';
 import {
 	MdDescription,
 	MdApartment,
 	MdLandscape,
 	MdDateRange,
+	MdOutlineNumbers,
 } from 'react-icons/md';
 import { GiModernCity } from 'react-icons/gi';
 import {
@@ -519,6 +512,12 @@ const PropertyView = () => {
 
 									<Grid templateColumns='repeat(2, 1fr)' gap={6}>
 										<DetailItem
+											icon={MdOutlineNumbers}
+											label='Unit'
+											value={property?.unitNumber}
+											color='brand'
+										/>
+										<DetailItem
 											icon={FaHome}
 											label='Unit Type'
 											value={property?.unitType?.name}
@@ -539,7 +538,7 @@ const PropertyView = () => {
 										<DetailItem
 											icon={FaCalendarAlt}
 											label='Building Age'
-											value={property?.buildingAge}
+											value={`${property?.buildingAge ? `${property?.buildingAge} Years` : 'N/A'}`}
 											color='purple'
 										/>
 										<DetailItem
@@ -652,7 +651,13 @@ const PropertyView = () => {
 										border='1px solid'
 										borderColor='gray.200'
 									>
-										<Text color='gray.700' whiteSpace='pre-wrap'>
+										<Text
+											color='gray.700'
+											lineHeight={2}
+											fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+											fontWeight='semibold'
+											whiteSpace='pre-wrap'
+										>
 											{property.description || 'No description provided.'}
 										</Text>
 									</Box>
