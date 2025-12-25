@@ -93,14 +93,14 @@ const DocumentItem = ({ document, index }) => {
 	// 		});
 	// };
 
-	const handleViewDocument = () => {
-		if (fileExtension === 'pdf') {
-			window.open(documentUrl, '_blank');
-		} else {
-			// For non-PDF files, download instead
-			handleDownload();
-		}
-	};
+	// const handleViewDocument = () => {
+	// 	if (fileExtension === 'pdf') {
+	// 		window.open(documentUrl, '_blank');
+	// 	} else {
+	// 		// For non-PDF files, download instead
+	// 		handleDownload();
+	// 	}
+	// };
 
 	// const handleViewDocument = async () => {
 	// 	if (!documentUrl) {
@@ -157,16 +157,89 @@ const DocumentItem = ({ document, index }) => {
 	// 	}
 	// };
 
-	const handleDownload = () => {
-		const link = document.createElement('a');
-		link.href = f;
-		link.download = fileName;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
+	const handleDownload = async () => {
+		if (!documentUrl) {
+			toast.error('Document URL is missing.');
+			return;
+		}
 
-		toast.success('Download started...');
+		// Check browser environment
+		if (typeof window === 'undefined' || typeof document === 'undefined') {
+			toast.error('Please use a web browser to download files.');
+			return;
+		}
+
+		try {
+			// Method 1: Direct download link (works for most browsers)
+			const link = document.createElement('a');
+			link.href = documentUrl;
+			link.download = fileName || 'document';
+			link.target = '_blank'; // Open in new tab as fallback
+
+			// Add to document
+			link.style.display = 'none';
+			document.body.appendChild(link);
+
+			// Trigger click
+			const clickEvent = new MouseEvent('click', {
+				view: window,
+				bubbles: true,
+				cancelable: false,
+			});
+			link.dispatchEvent(clickEvent);
+
+			// Cleanup
+			setTimeout(() => {
+				document.body.removeChild(link);
+			}, 100);
+
+			toast.success('Download started...');
+		} catch (err) {
+			console.error('Download error:', err);
+
+			// Fallback: Open in new tab
+			try {
+				window.open(documentUrl, '_blank');
+				toast.success('Opening document...');
+			} catch (fallbackErr) {
+				toast.error('Unable to download or open the file.');
+			}
+		}
 	};
+
+	// const handleDownload = () => {
+	// 	const link = document.createElement('a');
+	// 	link.href = f;
+	// 	link.download = fileName;
+	// 	document.body.appendChild(link);
+	// 	link.click();
+	// 	document.body.removeChild(link);
+
+	// 	toast.success('Download started...');
+	// };
+
+	// const handleDownload = async () => {
+	// 	try {
+	// 		const res = await fetch(f);
+	// 		if (!res.ok) throw new Error('Download failed');
+
+	// 		const blob = await res.blob();
+	// 		const url = window.URL.createObjectURL(blob);
+
+	// 		const link = document.createElement('a');
+	// 		link.href = url;
+	// 		link.download = fileName;
+	// 		document.body.appendChild(link);
+	// 		link.click();
+
+	// 		link.remove();
+	// 		URL.revokeObjectURL(url);
+
+	// 		toast.success('Download started...');
+	// 	} catch (err) {
+	// 		toast.error('Failed to download file');
+	// 	}
+	// };
 
 	// const handleDownload = async () => {
 	// 	if (!documentUrl) {
@@ -282,7 +355,7 @@ const DocumentItem = ({ document, index }) => {
 								size='sm'
 								colorScheme='green'
 								variant='ghost'
-								onClick={handleViewDocument}
+								onClick={handleDownload}
 								aria-label='Download document'
 							/>
 						</Tooltip>
