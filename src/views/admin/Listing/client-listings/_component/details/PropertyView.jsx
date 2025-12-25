@@ -65,6 +65,7 @@ import Loader from 'components/loading/Loader';
 import ImageSlider from '../ImageSlider';
 import { FiChevronLeft } from 'react-icons/fi';
 import { checkFileExists } from 'utils/file';
+import { downloadFile } from 'api/fileApis';
 
 const MotionBox = motion(Box);
 
@@ -157,61 +158,54 @@ const DocumentItem = ({ document, index }) => {
 	// 	}
 	// };
 
-	// const handleDownload = () => {
-	// 	const link = document.createElement('a');
-	// 	link.href = f;
-	// 	link.download = fileName;
-	// 	document.body.appendChild(link);
-	// 	link.click();
-	// 	document.body.removeChild(link);
-
-	// 	toast.success('Download started...');
-	// };
-
 	const handleDownload = async () => {
-		if (!documentUrl) {
-			toast.error('Document URL is missing.');
-			return;
-		}
-
-		//  Hard check first
-		const exists = await checkFileExists(documentUrl);
-		if (!exists) {
-			toast.error('Document not found or no longer available.');
-			return;
-		}
-
-		try {
-			const response = await fetch(documentUrl, {
-				credentials: 'omit',
-			});
-
-			// If fetch succeeds normally → blob download
-			if (response.ok) {
-				const blob = await response.blob();
-				const url = URL.createObjectURL(blob);
-
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = fileName || 'document';
-				document.body.appendChild(a);
-				a.click();
-				a.remove();
-				URL.revokeObjectURL(url);
-
-				toast.success('Download started');
-				return;
-			}
-
-			// Non-ok response but file exists → external downloader likely
-			toast.info('Download started');
-		} catch (err) {
-			console.warn('Download interrupted:', err);
-
-			// Only tolerate errors AFTER existence is confirmed
-			toast.info('Download started');
-		}
+		await downloadFile(document);
 	};
+
+	// const handleDownload = async () => {
+	// 	if (!documentUrl) {
+	// 		toast.error('Document URL is missing.');
+	// 		return;
+	// 	}
+
+	// 	//  Hard check first
+	// 	const exists = await checkFileExists(documentUrl);
+	// 	if (!exists) {
+	// 		toast.error('Document not found or no longer available.');
+	// 		return;
+	// 	}
+
+	// 	try {
+	// 		const response = await fetch(documentUrl, {
+	// 			credentials: 'omit',
+	// 		});
+
+	// 		// If fetch succeeds normally → blob download
+	// 		if (response.ok) {
+	// 			const blob = await response.blob();
+	// 			const url = URL.createObjectURL(blob);
+
+	// 			const a = document.createElement('a');
+	// 			a.href = url;
+	// 			a.download = fileName || 'document';
+	// 			document.body.appendChild(a);
+	// 			a.click();
+	// 			a.remove();
+	// 			URL.revokeObjectURL(url);
+
+	// 			toast.success('Download started');
+	// 			return;
+	// 		}
+
+	// 		// Non-ok response but file exists → external downloader likely
+	// 		toast.info('Download started');
+	// 	} catch (err) {
+	// 		console.warn('Download interrupted:', err);
+
+	// 		// Only tolerate errors AFTER existence is confirmed
+	// 		toast.info('Download started');
+	// 	}
+	// };
 
 	return (
 		<motion.div
