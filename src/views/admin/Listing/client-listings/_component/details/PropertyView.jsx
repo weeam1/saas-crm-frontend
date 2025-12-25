@@ -65,7 +65,6 @@ import Loader from 'components/loading/Loader';
 import ImageSlider from '../ImageSlider';
 import { FiChevronLeft } from 'react-icons/fi';
 import { checkFileExists } from 'utils/file';
-import { downloadFile } from 'api/fileApis';
 
 const MotionBox = motion(Box);
 
@@ -94,34 +93,34 @@ const DocumentItem = ({ document, index }) => {
 	// 		});
 	// };
 
-	// const handleViewDocument = () => {
-	// 	if (fileExtension === 'pdf') {
-	// 		window.open(documentUrl, '_blank');
-	// 	} else {
-	// 		// For non-PDF files, download instead
-	// 		handleDownload();
-	// 	}
-	// };
-
-	const handleViewDocument = async () => {
-		if (!documentUrl) {
-			toast.error('Document URL is missing.');
-			return;
-		}
-
-		const exists = await checkFileExists(documentUrl);
-
-		if (!exists) {
-			toast.error('Document not found or no longer available.');
-			return;
-		}
-
+	const handleViewDocument = () => {
 		if (fileExtension === 'pdf') {
-			window.open(documentUrl, '_blank', 'noopener,noreferrer');
+			window.open(documentUrl, '_blank');
 		} else {
-			handleDownload(); // reuse logic
+			// For non-PDF files, download instead
+			handleDownload();
 		}
 	};
+
+	// const handleViewDocument = async () => {
+	// 	if (!documentUrl) {
+	// 		toast.error('Document URL is missing.');
+	// 		return;
+	// 	}
+
+	// 	const exists = await checkFileExists(documentUrl);
+
+	// 	if (!exists) {
+	// 		toast.error('Document not found or no longer available.');
+	// 		return;
+	// 	}
+
+	// 	if (fileExtension === 'pdf') {
+	// 		window.open(documentUrl, '_blank', 'noopener,noreferrer');
+	// 	} else {
+	// 		handleDownload(); // reuse logic
+	// 	}
+	// };
 
 	// const handleDownload = async () => {
 	// 	if (!documentUrl) {
@@ -158,8 +157,15 @@ const DocumentItem = ({ document, index }) => {
 	// 	}
 	// };
 
-	const handleDownload = async () => {
-		await downloadFile(document);
+	const handleDownload = () => {
+		const link = document.createElement('a');
+		link.href = f;
+		link.download = fileName;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+
+		toast.success('Download started...');
 	};
 
 	// const handleDownload = async () => {
@@ -259,7 +265,7 @@ const DocumentItem = ({ document, index }) => {
 					</HStack>
 
 					<HStack spacing={2}>
-						<Tooltip label='View document'>
+						{/* <Tooltip label='View document'>
 							<IconButton
 								icon={<FaEye />}
 								size='sm'
@@ -268,7 +274,7 @@ const DocumentItem = ({ document, index }) => {
 								onClick={handleViewDocument}
 								aria-label='View document'
 							/>
-						</Tooltip>
+						</Tooltip> */}
 
 						<Tooltip label='Download'>
 							<IconButton
@@ -276,7 +282,7 @@ const DocumentItem = ({ document, index }) => {
 								size='sm'
 								colorScheme='green'
 								variant='ghost'
-								onClick={handleDownload}
+								onClick={handleViewDocument}
 								aria-label='Download document'
 							/>
 						</Tooltip>
