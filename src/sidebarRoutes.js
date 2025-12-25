@@ -538,7 +538,7 @@ export const sidebarRoutes = [
 		color: '#64748B', // Slate
 		children: [
 			{
-				// id: "all_listing",
+				id: 'client_listing',
 				name: 'Client Listings',
 				path: '/listing/client-listings',
 			},

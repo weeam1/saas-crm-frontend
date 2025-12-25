@@ -933,7 +933,8 @@ const routes = [
 		component: AllListing,
 	},
 	{
-		// moduleId: 'listing',
+		childId: 'client_listing',
+		parent: 'listing',
 		name: 'Client Listings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/listing/client-listings',
