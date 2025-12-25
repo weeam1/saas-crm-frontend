@@ -163,6 +163,13 @@ const DocumentItem = ({ document, index }) => {
 			return;
 		}
 
+		const exists = await checkFileExists(documentUrl);
+
+		if (!exists) {
+			toast.error('Document not found or no longer available.');
+			return;
+		}
+
 		// Check browser environment
 		if (typeof window === 'undefined' || typeof document === 'undefined') {
 			toast.error('Please use a web browser to download files.');
