@@ -23,7 +23,11 @@ const OnlineUsersCard = () => {
 
 	const { data, isLoading } = useFetchItemsQuery(
 		{ path: '/v2/user/online-users' },
-		{ refetchOnMountOrArgChange: true }
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnReconnect: true,
+			refetchOnFocus: true,
+		}
 	);
 
 	useEffect(() => {

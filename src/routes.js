@@ -148,6 +148,15 @@ const ProjectScreen = React.lazy(
 
 // Listing
 const Listing = React.lazy(() => import('views/admin/Listing'));
+const ClientListings = React.lazy(
+	() => import('views/admin/Listing/client-listings')
+);
+const PropertyView = React.lazy(
+	() =>
+		import(
+			'views/admin/Listing/client-listings/_component/details/PropertyView'
+		)
+);
 const AddListing = React.lazy(
 	() => import('views/admin/Listing/Component/AddListing')
 );
@@ -285,6 +294,9 @@ const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
 const User = React.lazy(() => import('views/admin/users'));
 const EditUser = React.lazy(() => import('views/admin/users/EditUser'));
 const UserView = React.lazy(() => import('views/admin/users/View'));
+
+// Users V2 (By Arslan)
+const UserV2 = React.lazy(() => import('views/admin/users-v2'));
 
 // Auth
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -921,6 +933,24 @@ const routes = [
 		component: AllListing,
 	},
 	{
+		// moduleId: 'listing',
+		name: 'Client Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/client-listings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ClientListings,
+	},
+	{
+		// moduleId: 'listing',
+		name: 'View Client Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/client-listings/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: PropertyView,
+	},
+	{
 		moduleId: 'listing',
 		name: 'My Listings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -1281,6 +1311,121 @@ const routes = [
 		),
 		component: SystemLog,
 	},
+	// ------------- Roles Routes ------------------------
+	{
+		moduleId: 'admin_settings',
+		name: 'Roles',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/role',
+		under: 'role',
+		icon: (
+			<Icon
+				as={FaCreativeCommonsBy}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Role,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'User Permission',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/user-permission/:id/:roleName',
+		under: 'role',
+		component: UserPermission,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Custom Fields',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/custom-Fields',
+		under: 'customField',
+		icon: <Icon as={FaWpforms} width='20px' height='20px' color='inherit' />,
+		component: CustomField,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Change Images',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/change-images',
+		under: 'image',
+		icon: (
+			<Icon
+				as={FaCreativeCommonsBy}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: ChangeImage,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Validation',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/validations',
+		under: 'Validation',
+		icon: (
+			<Icon
+				as={FaCreativeCommonsBy}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Validation,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Table Fields',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/table-field',
+		under: 'tableField',
+		icon: <Icon as={FaWpforms} width='20px' height='20px' color='inherit' />,
+		component: TableField,
+	},
+	// // ------------- Text message Routes ------------------------
+	{
+		moduleId: 'reports',
+		name: 'Reports',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics',
+		icon: (
+			<Icon
+				as={MdInsertChartOutlined}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Report,
+	},
+	{
+		moduleId: 'reports',
+		name: 'Team Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics/team-details/:id',
+		parent: 'Reports',
+		under: 'Reports',
+		component: TeamDetailsScreen,
+	},
+	{
+		moduleId: 'system_log',
+		name: 'System Log',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/system-log',
+		icon: (
+			<Icon
+				as={MdOutlineLaptopMac}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: SystemLog,
+	},
 
 	// ------------- user Routes ------------------------
 	{
@@ -1316,6 +1461,17 @@ const routes = [
 		under: 'user',
 		path: '/users/edit/:id',
 		component: EditUser,
+	},
+
+	// ------------- user v2 Routes ------------------------
+	{
+		moduleId: 'users',
+		name: 'Users V2',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/users-v2',
+		under: 'user',
+		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+		component: UserV2,
 	},
 
 	{
