@@ -168,7 +168,7 @@ const LeadMenu = ({
 							Edit
 						</MenuItem>
 					) : null}
-					{['Manager', 'Agent'].includes(userRoleName) && (
+					{['Manager', 'Agent', 'Team Leader'].includes(userRoleName) && (
 						<ReleaseLead
 							isReleased={lead?.isReleased}
 							role={userRoleName}

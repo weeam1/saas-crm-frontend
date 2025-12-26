@@ -15,8 +15,16 @@ const ReleaseLead = ({
 	as: Component = Button,
 	refreshData,
 }) => {
+	const isManager = role === 'Manager';
+	const isTeamLeader = role === 'Team Leader';
+	const isAgent = role === 'Agent';
+
 	const shouldRenderButton =
-		(isReleased && role === 'Manager') || role === 'Agent';
+		(isReleased && !lead?.teamLeadAssigned && isManager) ||
+		(isReleased && isTeamLeader) ||
+		isAgent;
+
+	// (isReleased && role === 'Manager') || role === 'Agent';
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
