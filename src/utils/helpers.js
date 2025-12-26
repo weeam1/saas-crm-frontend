@@ -328,6 +328,8 @@ export const createCountryFinder = (countries = []) => {
 	return (value) => {
 		if (!value) return null;
 
+		value = value?.replace(/^the\s+/i, '');
+
 		if (cache.has(value)) {
 			return cache.get(value);
 		}
