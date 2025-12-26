@@ -23,7 +23,7 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const EditLead = ({ isOpen, onClose, leadData, refreshData, size }) => {
 	const countries = useSelector((state) => state.countries.countryNames);
-	const { ip, city, country } = extractLocationData(leadData?.ip, countries);
+	const { ip, city, country } = extractLocationData(leadData?.ip);
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();

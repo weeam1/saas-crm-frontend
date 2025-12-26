@@ -313,7 +313,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 				return hasPermission(route.moduleId);
 			}
 
-			// routes without permission binding always allowed
+			// routes without permission binding always alluowed
 			return true;
 		});
 

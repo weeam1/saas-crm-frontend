@@ -233,57 +233,98 @@ export const formatDNS = (dateStr) => {
 	});
 };
 
-export const extractLocationData = (ipString, countryNames) => {
-	const countryList = new Set(countryNames);
+// export const extractLocationData = (ipString, countryNames) => {
+// 	const countryList = new Set(countryNames);
 
-	if (ipString === null) {
-		return { ip: null, country: null, city: null };
+// 	if (ipString === null) {
+// 		return { ip: null, country: null, city: null };
+// 	}
+
+// 	const parts = ipString?.split('-').map((part) => part.trim());
+
+// 	let ip = null,
+// 		city = null,
+// 		country = null;
+
+// 	const isValidIPv4 = (str) => {
+// 		const octets = str.split('.');
+// 		return (
+// 			octets.length === 4 &&
+// 			octets.every(
+// 				(octet) =>
+// 					/^\d+$/.test(octet) && Number(octet) >= 0 && Number(octet) <= 255
+// 			)
+// 		);
+// 	};
+
+// 	// If first part is a valid IPv4 address or a pure number, set it as IP
+// 	if (isValidIPv4(parts[0]) || /^\d*$/.test(parts[0])) {
+// 		ip = parts.shift(); // Remove IP so remaining parts are city & country
+// 	}
+
+// 	if (parts.length === 2) {
+// 		const firstPartLower = parts[0].toLowerCase();
+// 		const secondPartLower = parts[1].toLowerCase();
+
+// 		if (countryList.has(secondPartLower)) {
+// 			city = parts[0];
+// 			country = parts[1];
+// 		} else if (countryList.has(firstPartLower)) {
+// 			country = parts[0];
+// 			city = parts[1]; // Handle misplaced country
+// 		} else {
+// 			city = parts[0];
+// 			country = null;
+// 		}
+// 	} else if (parts.length === 1) {
+// 		const partLower = parts[0].toLowerCase();
+// 		country = countryList.has(partLower) ? parts[0] : null;
+// 		city = country ? null : parts[0];
+// 	}
+
+// 	return { ip, city, country };
+// };
+
+export const extractLocationData = (ipString) => {
+	if (!ipString) {
+		return { ip: null, city: null, country: null };
 	}
 
-	const parts = ipString?.split('-').map((part) => part.trim());
-
-	let ip = null,
-		city = null,
-		country = null;
+	const parts = ipString.split('-').map((p) => p.trim());
 
 	const isValidIPv4 = (str) => {
 		const octets = str.split('.');
 		return (
 			octets.length === 4 &&
-			octets.every(
-				(octet) =>
-					/^\d+$/.test(octet) && Number(octet) >= 0 && Number(octet) <= 255
-			)
+			octets.every((o) => /^\d+$/.test(o) && Number(o) >= 0 && Number(o) <= 255)
 		);
 	};
 
-	// If first part is a valid IPv4 address or a pure number, set it as IP
-	if (isValidIPv4(parts[0]) || /^\d*$/.test(parts[0])) {
-		ip = parts.shift(); // Remove IP so remaining parts are city & country
+	let ip = null;
+	let city = null;
+	let country = null;
+
+	// first part is IP
+	if (isValidIPv4(parts[0])) {
+		ip = parts.shift();
 	}
 
-	if (parts.length === 2) {
-		const firstPartLower = parts[0].toLowerCase();
-		const secondPartLower = parts[1].toLowerCase();
+	// last part is country
+	if (parts.length > 0) {
+		country = parts.pop();
+	}
 
-		if (countryList.has(secondPartLower)) {
-			city = parts[0];
-			country = parts[1];
-		} else if (countryList.has(firstPartLower)) {
-			country = parts[0];
-			city = parts[1]; // Handle misplaced country
-		} else {
-			city = parts[0];
-			country = null;
-		}
-	} else if (parts.length === 1) {
-		const partLower = parts[0].toLowerCase();
-		country = countryList.has(partLower) ? parts[0] : null;
-		city = country ? null : parts[0];
+	// everything left is city (join back with hyphen)
+	if (parts.length > 0) {
+		city = parts.join('-');
 	}
 
 	return { ip, city, country };
 };
+
+// console.log(
+// 	extractLocationData('202.3.76.21-Mazar-e-sdflk Sharif-Afghanistan')
+// );
 
 export const renderValue = (value) => {
 	if (!value) return 'No data';
