@@ -355,18 +355,12 @@ const LeadCard = ({
 					</Text>
 					<HStack spacing={4} w='100%' alignItems='flex-start'>
 						<VStack align='start' spacing={1} flex='1' minW={0}>
-							<Text
-								fontSize='10px'
-								color='#BEBEBE'
-								fontFamily='DM Sans'
-								lineHeight='1.2'
-							>
+							<Text fontSize='10px' color='#BEBEBE' lineHeight='1.2'>
 								Ad Name
 							</Text>
 							<Text
 								fontSize='10px'
 								color='#FFBB00'
-								fontFamily='DM Sans'
 								isTruncated
 								lineHeight='1.2'
 							>

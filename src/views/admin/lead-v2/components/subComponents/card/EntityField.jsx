@@ -148,7 +148,7 @@ const EntityField = ({
 						fontSize={leadValueFontSize}
 						fontWeight='medium'
 						color={valueColor}
-						textTransform='capitalize'
+						// textTransform='capitalize'
 						isTruncated={isInfo || isCopy}
 						{...valueProps}
 					>
