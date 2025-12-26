@@ -40,7 +40,7 @@ const LeadCard = ({
 	leadName,
 	nationality,
 	city,
-	sourceContent,
+	leadSourceDetails,
 	timeToCall,
 	eLeadStatus: mStatus,
 	leadStatus: leadStatusValue,
@@ -361,7 +361,7 @@ const LeadCard = ({
 								fontFamily='DM Sans'
 								lineHeight='1.2'
 							>
-								Source Content
+								Ad Name
 							</Text>
 							<Text
 								fontSize='10px'
@@ -370,7 +370,7 @@ const LeadCard = ({
 								isTruncated
 								lineHeight='1.2'
 							>
-								{sourceContent || 'N/A'}
+								{leadSourceDetails || 'N/A'}
 							</Text>
 						</VStack>
 						<VStack align='start' spacing={1} flex='1' minW={0}>

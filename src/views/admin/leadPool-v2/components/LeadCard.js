@@ -41,7 +41,7 @@ const LeadCard = ({
 	leadName,
 	city,
 	nationality,
-	sourceContent,
+	leadSourceDetails,
 	timetocall,
 	eLeadStatus: mStatus,
 	r_u_in_uae,
@@ -222,15 +222,10 @@ const LeadCard = ({
 					<HStack spacing={2} w='100%' flexWrap='wrap'>
 						<VStack align='start' spacing={0} flex='1' minW={0}>
 							<Text fontSize='xs' color='#C0C0C0' fontFamily='DM Sans'>
-								Source Content
+								Ad Name
 							</Text>
-							<Text
-								fontSize='10px'
-								color='#FFBB00'
-								fontWeight='bold'
-								fontFamily='DM Sans'
-							>
-								{renderValue(sourceContent)}
+							<Text fontSize='10px' color='#FFBB00' fontWeight='bold'>
+								{renderValue(leadSourceDetails)}
 							</Text>
 						</VStack>
 						<VStack align='start' spacing={0} flex='1' minW={0}>
