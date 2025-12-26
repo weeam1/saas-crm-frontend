@@ -322,6 +322,23 @@ export const extractLocationData = (ipString) => {
 	return { ip, city, country };
 };
 
+export const createCountryFinder = (countries = []) => {
+	const cache = new Map();
+
+	return (value) => {
+		if (!value) return null;
+
+		if (cache.has(value)) {
+			return cache.get(value);
+		}
+
+		const country = countries.find((c) => c.name === value) || null;
+		cache.set(value, country);
+
+		return country;
+	};
+};
+
 // console.log(
 // 	extractLocationData('202.3.76.21-Mazar-e-sdflk Sharif-Afghanistan')
 // );

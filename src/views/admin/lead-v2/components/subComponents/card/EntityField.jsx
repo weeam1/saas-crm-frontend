@@ -7,6 +7,8 @@ import {
 	HStack,
 	Icon,
 	Button,
+	Image,
+	Flex,
 } from '@chakra-ui/react';
 import { CopyIcon, InfoIcon } from '@chakra-ui/icons';
 import {
@@ -16,6 +18,7 @@ import {
 } from '../../constants';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { Link } from 'react-router-dom';
+import { createCountryFinder } from 'utils/helpers';
 
 const EntityField = ({
 	label,
@@ -25,6 +28,7 @@ const EntityField = ({
 	labelProps = {},
 	valueProps = {},
 	iconProps = {},
+	countries = [],
 	...boxProps
 }) => {
 	const { hasCopied, onCopy } = useClipboard(value || '');
@@ -35,6 +39,8 @@ const EntityField = ({
 	const isPhoneNumber = label === 'Phone';
 	const isWhatsapp = label === 'WhatsApp';
 
+	let country = null;
+
 	const onEntityClick = () => {
 		if (!value || (!isPhoneNumber && !isWhatsapp)) return null;
 
@@ -44,6 +50,12 @@ const EntityField = ({
 		// Whatsapp redirect
 		else window.open(`https://wa.me/${value}`);
 	};
+
+	if (countries?.length > 0) {
+		const findCountry = createCountryFinder(countries);
+
+		country = findCountry(value);
+	}
 
 	return (
 		<Box
@@ -119,16 +131,30 @@ const EntityField = ({
 					</Text>
 				</Button>
 			) : (
-				<Text
-					fontSize={leadValueFontSize}
-					fontWeight='medium'
-					color={valueColor}
-					textTransform='capitalize'
-					isTruncated={isInfo || isCopy}
-					{...valueProps}
-				>
-					{value || 'N/A'}
-				</Text>
+				<Flex align='center' gap='1'>
+					{country?.flags?.svg && (
+						<Image
+							src={country.flags?.svg || country.flags?.png}
+							alt={value}
+							w='16px'
+							h='10px'
+							objectFit='cover'
+							borderRadius='sm'
+							shadow='md'
+						/>
+					)}
+
+					<Text
+						fontSize={leadValueFontSize}
+						fontWeight='medium'
+						color={valueColor}
+						textTransform='capitalize'
+						isTruncated={isInfo || isCopy}
+						{...valueProps}
+					>
+						{value || 'N/A'}
+					</Text>
+				</Flex>
 			)}
 		</Box>
 	);
