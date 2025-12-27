@@ -60,6 +60,7 @@ const AdvancedSearchModal = ({
 		ip: '',
 		leadAddress: '',
 		leadCampaign: '',
+		leadSource: '',
 		leadSourceDetails: '',
 		leadSourceMedium: '',
 		leadSourceChannel: '',

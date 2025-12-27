@@ -12,9 +12,14 @@ const InfoSection = ({ lead }) => {
 		{ key: 'budget', label: 'Budget', value: lead?.budget },
 		// { key: 'adset', label: 'Adset', value: lead?.adset },
 		{ key: 'timetocall', label: 'Time to call', value: lead?.timetocall },
-		{ key: 'leadCampaign', label: 'Campaign', value: lead?.leadCampaign },
+		{ key: 'leadCampaign', label: 'Campaign Name', value: lead?.leadCampaign },
 		{ key: 'pageUrl', label: 'Campaign Url', value: lead?.pageUrl },
-		{ key: 'leadSourceMedium', label: 'Medium', value: lead?.leadSourceMedium },
+		{
+			key: 'leadSourceMedium',
+			label: 'Placement',
+			value: lead?.leadSourceMedium,
+		},
+		// { key: 'leadSourceMedium', label: 'Medium', value: lead?.leadSourceMedium },
 		{
 			key: 'attendanceDay',
 			label: 'Attendance Day',

@@ -39,11 +39,11 @@ const AdvancedSearchForm = (props) => {
 				label: 'Nationality',
 				placeholder: 'Search by Nationality',
 			},
-			{
-				name: 'ip',
-				label: 'Country Source',
-				placeholder: 'Search by Country Source',
-			},
+			// {
+			// 	name: 'ip',
+			// 	label: 'Country Source',
+			// 	placeholder: 'Search by Country Source',
+			// },
 			{
 				name: 'leadAddress',
 				label: 'Lead Address',
@@ -51,7 +51,7 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: 'leadCampaign',
-				label: 'Lead Campaign',
+				label: 'Campaign Name',
 				placeholder: 'Search by Campaign',
 			},
 			{
@@ -62,8 +62,9 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: 'leadSourceMedium',
-				label: 'Source Medium',
-				placeholder: 'Search by Source Medium',
+				// label: 'Source Medium',
+				label: 'Placement',
+				placeholder: 'Search by Placement',
 			},
 			{
 				name: 'leadSourceChannel',

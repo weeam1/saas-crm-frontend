@@ -22,6 +22,7 @@ import {
 	FaHome,
 	FaEye,
 	FaUser,
+	FaBuilding,
 } from 'react-icons/fa';
 import { MdMeetingRoom, MdLandscape, MdOutlineNumbers } from 'react-icons/md';
 import { formatCurrency } from '../propertyUtils';
@@ -32,6 +33,7 @@ import { formatPostDate } from 'utils/helpers';
 import ImageSlider from './ImageSlider';
 import PropertyViewModal from './PropertyViewModal';
 import { GiModernCity } from 'react-icons/gi';
+import { FaBuildingShield } from 'react-icons/fa6';
 
 const MotionBox = motion(Box);
 
@@ -177,6 +179,13 @@ const PropertyCard = ({ property }) => {
 							{property.location || 'N/A'}
 						</Text>
 					</HStack>
+
+					<InfoItem
+						icon={FaBuildingShield}
+						label='City'
+						value={property?.city}
+						color='blue.500'
+					/>
 
 					{/* <InfoItem
 					icon={FaMapMarkerAlt}

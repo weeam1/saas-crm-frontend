@@ -51,6 +51,7 @@ const LeadCard = ({
 	pageUrl,
 	budget,
 	approvalStatus,
+	adset,
 	createdDate,
 	lastNote,
 	sendRequest,
@@ -239,7 +240,7 @@ const LeadCard = ({
 						</VStack>
 						<VStack align='start' spacing={0} flex='1' minW={0}>
 							<Text fontSize='xs' color='#BEBEBE' fontFamily='DM Sans'>
-								Time To Call
+								Adset
 							</Text>
 							<Text
 								fontSize={timeToCallFontSize}
@@ -248,7 +249,7 @@ const LeadCard = ({
 								fontFamily='DM Sans'
 								wordBreak='break-word'
 							>
-								{renderValue(timetocall)}
+								{renderValue(adset)}
 							</Text>
 						</VStack>
 					</HStack>
@@ -396,9 +397,10 @@ const LeadCard = ({
 						</Text>
 						{[
 							{ label: 'Budget', value: renderValue(budget) },
-							{ label: 'Campaign', value: renderValue(leadCampaign) },
+							{ label: 'Campaign Name', value: renderValue(leadCampaign) },
 							{ label: 'Campaign Url', value: pageUrl },
-							{ label: 'Medium', value: renderValue(leadSourceMedium) },
+							// { label: 'Medium', value: renderValue(leadSourceMedium) },
+							{ label: 'Placement', value: renderValue(leadSourceMedium) },
 							{ label: 'In UAE?', value: renderValue(r_u_in_uae) },
 						].map((item) => (
 							<HStack

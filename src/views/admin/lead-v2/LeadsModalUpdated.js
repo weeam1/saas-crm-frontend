@@ -1121,17 +1121,17 @@ const LeadsModal = ({
 							<TabPanel p={2}>
 								<DefaultTabContent
 									data={[
-										{ label: 'Source', value: safeValue(data?.leadSource) },
+										{ label: 'Platform', value: safeValue(data?.leadSource) },
 										{
 											label: 'Channel',
 											value: safeValue(data?.leadSourceChannel),
 										},
 										{
-											label: 'Medium',
+											label: 'Placement',
 											value: safeValue(data?.leadSourceMedium),
 										},
 										{
-											label: 'Lead Campaign',
+											label: 'Campaign Name',
 											value: safeValue(data?.leadCampaign),
 										},
 										{ label: 'Adset', value: safeValue(data?.adset) },

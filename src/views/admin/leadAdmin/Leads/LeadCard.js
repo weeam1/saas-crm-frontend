@@ -385,7 +385,7 @@ const LeadCard = ({
 								fontFamily='DM Sans'
 								lineHeight='1.2'
 							>
-								Time To Call
+								Adset
 							</Text>
 							<Text
 								fontSize='10px'
@@ -394,7 +394,7 @@ const LeadCard = ({
 								isTruncated
 								lineHeight='1.2'
 							>
-								{safeValue(leadData?.timetocall) || 'N/A'}
+								{safeValue(leadData?.adset) || 'N/A'}
 							</Text>
 						</VStack>
 					</HStack>
@@ -471,9 +471,10 @@ const LeadCard = ({
 						</Text>
 						{[
 							{ label: 'Budget', value: leadData?.budget },
-							{ label: 'Campaign', value: leadData?.leadCampaign },
+							{ label: 'Campaign Name', value: leadData?.leadCampaign },
 							{ label: 'Campaign Url', value: pageUrl },
-							{ label: 'Medium', value: leadData?.leadSourceMedium },
+							// { label: 'Medium', value: leadData?.leadSourceMedium },
+							{ label: 'Placement', value: leadData?.leadSourceMedium },
 							{ label: 'In UAE?', value: leadData?.r_u_in_uae },
 						].map((item) => (
 							<Flex

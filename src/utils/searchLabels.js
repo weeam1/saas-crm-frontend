@@ -10,10 +10,15 @@ export const leadLabels = {
 	country: 'Country',
 	attendanceDay: 'Attendance Day',
 	leadAddress: 'Lead Address',
-	leadCampaign: 'Lead Campaign',
+	// leadCampaign: 'Lead Campaign',
+	leadCampaign: 'Campaign Name',
 	// leadSourceDetails: 'Source Content',
+	// leadSource: 'Source',
+	leadSource: 'Platform',
 	leadSourceDetails: 'Ad Name',
-	leadSourceMedium: 'Source Medium',
+	// leadSourceMedium: 'Source Medium',
+	leadSourceMedium: 'Placement',
+	leadSourceChannel: 'Source Channel',
 	pageUrl: 'Campaign URL',
 	r_u_in_uae: 'In UAE',
 	leadLang: 'Lead Language',
@@ -30,7 +35,6 @@ export const leadLabels = {
 	startDate: 'Start Date',
 	mainStatusSort: 'MStatus Sort',
 	adset: 'Adset',
-	leadSourceChannel: 'Source Channel',
 };
 
 export const hiringLabels = {

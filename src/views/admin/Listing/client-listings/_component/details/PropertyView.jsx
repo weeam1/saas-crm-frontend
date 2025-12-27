@@ -214,85 +214,6 @@ const DocumentItem = ({ document, index }) => {
 		}
 	};
 
-	// const handleDownload = () => {
-	// 	const link = document.createElement('a');
-	// 	link.href = f;
-	// 	link.download = fileName;
-	// 	document.body.appendChild(link);
-	// 	link.click();
-	// 	document.body.removeChild(link);
-
-	// 	toast.success('Download started...');
-	// };
-
-	// const handleDownload = async () => {
-	// 	try {
-	// 		const res = await fetch(f);
-	// 		if (!res.ok) throw new Error('Download failed');
-
-	// 		const blob = await res.blob();
-	// 		const url = window.URL.createObjectURL(blob);
-
-	// 		const link = document.createElement('a');
-	// 		link.href = url;
-	// 		link.download = fileName;
-	// 		document.body.appendChild(link);
-	// 		link.click();
-
-	// 		link.remove();
-	// 		URL.revokeObjectURL(url);
-
-	// 		toast.success('Download started...');
-	// 	} catch (err) {
-	// 		toast.error('Failed to download file');
-	// 	}
-	// };
-
-	// const handleDownload = async () => {
-	// 	if (!documentUrl) {
-	// 		toast.error('Document URL is missing.');
-	// 		return;
-	// 	}
-
-	// 	//  Hard check first
-	// 	const exists = await checkFileExists(documentUrl);
-	// 	if (!exists) {
-	// 		toast.error('Document not found or no longer available.');
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		const response = await fetch(documentUrl, {
-	// 			credentials: 'omit',
-	// 		});
-
-	// 		// If fetch succeeds normally → blob download
-	// 		if (response.ok) {
-	// 			const blob = await response.blob();
-	// 			const url = URL.createObjectURL(blob);
-
-	// 			const a = document.createElement('a');
-	// 			a.href = url;
-	// 			a.download = fileName || 'document';
-	// 			document.body.appendChild(a);
-	// 			a.click();
-	// 			a.remove();
-	// 			URL.revokeObjectURL(url);
-
-	// 			toast.success('Download started');
-	// 			return;
-	// 		}
-
-	// 		// Non-ok response but file exists → external downloader likely
-	// 		toast.info('Download started');
-	// 	} catch (err) {
-	// 		console.warn('Download interrupted:', err);
-
-	// 		// Only tolerate errors AFTER existence is confirmed
-	// 		toast.info('Download started');
-	// 	}
-	// };
-
 	return (
 		<motion.div
 			initial={{ opacity: 0, x: -20 }}
@@ -693,7 +614,7 @@ const PropertyView = () => {
 
 							<GridItem>
 								{/* Location Card */}
-								<Box
+								{/* <Box
 									p={6}
 									borderRadius='xl'
 									bg={cardBg}
@@ -719,6 +640,20 @@ const PropertyView = () => {
 										>
 											{property?.location}
 										</Text>
+										<HStack w='full' justifyContent='space-between'>
+											<Text
+												fontSize={{ base: 'sm', md: 'md' }}
+												fontWeight='medium'
+											>
+												City
+											</Text>
+											<Text
+												fontSize={{ base: 'sm', md: 'md' }}
+												fontWeight='medium'
+											>
+												{property?.city}
+											</Text>
+										</HStack>
 
 										{property?.country && (
 											<HStack
@@ -747,14 +682,74 @@ const PropertyView = () => {
 													<Text fontSize='sm' fontWeight='medium'>
 														{property?.country.name}
 													</Text>
-													{/* <Text fontSize='xs' color={textSecondary}>
-											{property?.country.code}
-										</Text> */}
 												</VStack>
 											</HStack>
 										)}
 									</VStack>
-								</Box>
+								</Box> */}
+
+								<VStack
+									p={6}
+									borderRadius='xl'
+									bg={cardBg}
+									border='1px solid'
+									borderColor='gray.200'
+									align='start'
+									spacing={5}
+								>
+									<HStack mb={4}>
+										<Icon as={FaMapMarkerAlt} color='red.500' boxSize={5} />
+										<Heading
+											size='md'
+											color='gray.700'
+											_dark={{ color: 'white' }}
+										>
+											Unit Area Location
+										</Heading>
+									</HStack>
+									{/* Location */}
+									<VStack align='start' spacing={2}>
+										<Text fontSize='md' fontWeight='medium'>
+											{property?.location || 'N/A'}
+										</Text>
+									</VStack>
+									{/* City */}
+									<VStack align='start' spacing={2}>
+										<Text fontSize='sm' color='gray.500'>
+											City
+										</Text>
+										<HStack spacing={3}>
+											<Text fontSize='md' fontWeight='medium'>
+												{property?.city || 'N/A'}
+											</Text>
+										</HStack>
+									</VStack>
+									{/* Country */}
+									<VStack align='start' spacing={2}>
+										<Text fontSize='sm' color='gray.500'>
+											Country
+										</Text>
+										<HStack spacing={3}>
+											{property?.country.flags && (
+												<Image
+													src={
+														property?.country.flags?.svg ||
+														property?.country.flags?.png
+													}
+													alt={property?.country.name}
+													// boxSize='30px'
+													w='30px'
+													h='20px'
+													objectFit='cover'
+													borderRadius='sm'
+												/>
+											)}
+											<Text fontSize='md' fontWeight='medium'>
+												{property?.country?.name || 'N/A'}
+											</Text>
+										</HStack>
+									</VStack>
+								</VStack>
 							</GridItem>
 
 							{/* Description Card */}

@@ -78,8 +78,8 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: 'leadCampaign',
-				label: 'Lead Campaign',
-				placeholder: 'Search by Campaign',
+				label: 'Campaign Name',
+				placeholder: 'Search by Campaign Name',
 			},
 			{
 				name: 'leadSourceDetails',
@@ -88,14 +88,21 @@ const AdvancedSearchForm = (props) => {
 				placeholder: 'Search by Ad Name',
 			},
 			{
+				name: 'leadSource',
+				// label: 'Source',
+				label: 'Platform',
+				placeholder: 'Search by Platform',
+			},
+			{
 				name: 'leadSourceMedium',
-				label: 'Source Medium',
-				placeholder: 'Search by Source Medium',
+				// label: 'Source Medium',
+				label: 'Placement',
+				placeholder: 'Search by Placement',
 			},
 			{
 				name: 'leadSourceChannel',
 				label: 'Source Channel',
-				placeholder: 'Search by Source Channel',
+				placeholder: 'Search by source channel',
 			},
 			{
 				name: 'adset',
