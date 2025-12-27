@@ -25,7 +25,7 @@ const UserProfileItem = ({ user, onClick, linkTo, cursor = true }) => {
 					src={imgSrc}
 					name={name}
 					bg={getAvatarColor(name)}
-					boxSize='40px'
+					boxSize={{ base: '30px', md: '40px', lg: '45px' }}
 					mr={3}
 				>
 					{/* Only show initials when no profile image AND no fullName */}

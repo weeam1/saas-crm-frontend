@@ -17,6 +17,15 @@ const InfoItem = ({
 	const labelColor = useColorModeValue('gray.800', 'gray.300');
 	const iconBg = useColorModeValue('blue.100', 'blue.700');
 
+	let displayText = safeValue(value) || 'N/A';
+
+	try {
+		const url = new URL(value);
+		displayText = `${url.hostname}${url.pathname}`;
+	} catch (e) {
+		// not a valid URL, leave displayText as-is
+	}
+
 	return (
 		<Flex alignItems='center' justifyContent='space-between' {...rest}>
 			{/* Label */}
@@ -31,7 +40,7 @@ const InfoItem = ({
 			</Text>
 
 			{/* Info Icon with Tooltip */}
-			<CustomTooltip label={safeValue(value) || 'N/A'} persistent={true}>
+			<CustomTooltip label={displayText} persistent={true}>
 				<Icon
 					as={InfoIcon}
 					boxSize={leadIconSize}

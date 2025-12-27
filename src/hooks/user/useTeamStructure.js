@@ -47,8 +47,6 @@ export const useTeamStructure = () => {
 		[dispatch]
 	);
 
-	console.log({ teamData });
-
 	/* ================================
 	   Initial fetch
 	================================ */

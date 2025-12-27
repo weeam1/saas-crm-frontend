@@ -26,6 +26,7 @@ import {
 	PopoverHeader,
 	PopoverBody,
 	Badge,
+	Link,
 } from '@chakra-ui/react';
 import {
 	FaEdit,
@@ -34,7 +35,7 @@ import {
 	FaTrash,
 	FaWhatsapp,
 } from 'react-icons/fa';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { EmailIcon } from '@chakra-ui/icons';
 import { getApi, postApi } from 'services/api';
 import { extractLocationData, formatPostDate } from 'utils/helpers';
@@ -156,7 +157,6 @@ const LeadsModal = ({
 
 	const [data, setData] = useState();
 	const [leadIp, setLeadIp] = useState({ ip: '', city: '', country: '' });
-	const [isLoading, setIsLoading] = useState(false);
 
 	const dispatch = useDispatch();
 
@@ -164,7 +164,6 @@ const LeadsModal = ({
 
 	const fetchData = async () => {
 		try {
-			setIsLoading(true);
 			const response = await getApi('api/lead/view/', leadId);
 			setData(response?.data?.lead);
 
@@ -200,7 +199,6 @@ const LeadsModal = ({
 				message: errorMsg,
 			});
 		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -221,31 +219,28 @@ const LeadsModal = ({
 	} else if (isInLeadPool) hideContact = true;
 
 	const [leadCycledata, setLeadCycleData] = useState([]);
-	const [leadName, setLeadName] = useState('');
-	const [loading, setLoading] = useState(false);
 
-	const fetchLeadCycleData = async () => {
+	const fetchLeadCycleData = useCallback(async () => {
 		try {
-			setLoading(true);
 			const data = await getApi(`api/lead/cycle/${leadId}`);
 			console.log('fetching lead cycle data in preview popup', data);
+
 			const response = data?.data;
-			setLeadName(response.lead.leadName);
 
 			let timelineData = [];
-			let createdByName = 'Web';
-			if (response.lead?.createBy?.fullName) {
-				createdByName = response.lead.createBy.fullName;
-			}
+			let createdByName = response.lead?.createBy?.fullName || 'Web';
+
 			const leadCreatedItem = new TimelineItem(
 				'creation',
 				new Date(response.lead.createdDate)?.toUTCString(),
 				createdByName,
 				''
 			);
+
 			timelineData.push(leadCreatedItem);
+
 			if (response?.data?.length) {
-				const newItems = response?.data?.map(
+				const newItems = response.data.map(
 					(updated) =>
 						new TimelineItem(
 							updated.type,
@@ -265,32 +260,27 @@ const LeadsModal = ({
 		} catch (error) {
 			console.log(error);
 			toast.error('Something went wrong!');
-		} finally {
-			setLoading(false);
 		}
-	};
+	}, [leadId]); // include dependencies
 
 	useEffect(() => {
 		if (user && user?._id) {
 			fetchLeadCycleData();
 		}
-	}, []);
+	}, [fetchLeadCycleData, user]);
 
 	// Notes Logic
 
 	const addNoteRef = useRef(null);
 
-	const [notesLoading, setNotesLoading] = useState(true);
 	const [allNotes, setAllNotes] = useState([]);
 
 	const fetchLeadNotes = async (lid) => {
 		console.log(lid, 'Checking the Idssssss');
 		try {
-			setNotesLoading(true);
 			const leadNotes = await getApi('api/leadnote/' + lid);
 
 			setAllNotes(leadNotes.data || []);
-			setNotesLoading(false);
 		} catch (err) {
 			console.log(err);
 			toast.error("Couldn't fetch lead notes");
@@ -521,6 +511,7 @@ const LeadsModal = ({
 			minH='150px'
 			px={4}
 			py={4}
+			overflowY='auto'
 			css={{
 				'&::-webkit-scrollbar': { width: '6px' },
 				'&::-webkit-scrollbar-thumb': {
@@ -530,25 +521,103 @@ const LeadsModal = ({
 			}}
 		>
 			<Flex direction='column' gap={4}>
-				{data.map((item) => (
-					<Flex
-						key={item.label}
-						justify='space-between'
-						p={3}
-						border='1px solid'
-						borderColor='gray.100'
-						borderRadius='md'
-						bg='gray.50'
-						align='center'
-					>
-						<Text fontWeight='500' color='gray.600'>
-							{item.label}
-						</Text>
-						<Text fontWeight='600' color='gray.800'>
-							{item?.value || 'N/A'}
-						</Text>
-					</Flex>
-				))}
+				{data.map((item) => {
+					let isUrl = false;
+					let displayText = item?.value || 'N/A';
+
+					try {
+						const url = new URL(item.value);
+						isUrl = true;
+						displayText = `${url.hostname}${url.pathname}`;
+					} catch (e) {
+						// not a valid URL, leave displayText as-is
+					}
+
+					return (
+						<Flex
+							key={item.label}
+							direction={{ base: 'column', md: 'row' }}
+							gap={2}
+							justify='space-between'
+							p={3}
+							border='1px solid'
+							borderColor='gray.100'
+							borderRadius='md'
+							bg='gray.50'
+							align={{ base: 'flex-start' }}
+							w='100%'
+						>
+							{/* LABEL */}
+							<Text
+								fontWeight='500'
+								fontSize={{ base: 'xs', md: 'sm' }}
+								color='gray.600'
+								flexShrink={0}
+							>
+								{item.label}
+							</Text>
+
+							{/* VALUE */}
+							{isUrl ? (
+								<Link
+									href={item.value}
+									color='blue.600'
+									fontWeight='600'
+									isExternal
+									fontSize={{ base: 'xs', md: 'sm' }}
+									wordBreak='break-word'
+									whiteSpace='pre-wrap'
+									textAlign={{ base: 'left', sm: 'right' }}
+								>
+									{displayText} 🔗
+								</Link>
+							) : (
+								<Text
+									fontWeight='600'
+									color='gray.800'
+									fontSize={{ base: 'xs', md: 'sm' }}
+									wordBreak='break-word'
+									whiteSpace='pre-wrap'
+									textAlign={{ base: 'left', sm: 'right' }}
+									w={{ base: '100%', sm: 'auto' }}
+								>
+									{displayText}
+								</Text>
+							)}
+						</Flex>
+					);
+				})}
+
+				{/* {data.map((item) => (
+          <Flex
+            key={item.label}
+            direction={{ base: "column", sm: "row" }} // mobile stack
+            gap={2}
+            justify="space-between"
+            p={3}
+            border="1px solid"
+            borderColor="gray.100"
+            borderRadius="md"
+            bg="gray.50"
+            align={{ base: "flex-start", sm: "center" }} // better mobile alignment
+            w="100%"
+          >
+            <Text fontWeight="500" color="gray.600" flexShrink={0}>
+              {item.label}
+            </Text>
+
+            <Text
+              fontWeight="600"
+              color="gray.800"
+              wordBreak="break-word" // important for long URLs
+              whiteSpace="pre-wrap" // allow multi-line
+              textAlign={{ base: "left", sm: "right" }}
+              w={{ base: "100%", sm: "auto" }}
+            >
+              {item?.value || "N/A"}
+            </Text>
+          </Flex>
+        ))} */}
 			</Flex>
 		</Box>
 	);
@@ -819,7 +888,7 @@ const LeadsModal = ({
 
 							{/* 2️⃣ Lead Cycle */}
 							{hasPermission('leads', 'viewLeadCycle') && (
-								<TabPanel p={0}>
+								<TabPanel py={6}>
 									{leadCycledata?.map((item, index) => (
 										<Flex
 											key={index}
@@ -1049,7 +1118,7 @@ const LeadsModal = ({
 							)}
 
 							{/* 3️⃣ Source & Tracking */}
-							<TabPanel p={0}>
+							<TabPanel p={2}>
 								<DefaultTabContent
 									data={[
 										{ label: 'Source', value: safeValue(data?.leadSource) },
@@ -1076,7 +1145,7 @@ const LeadsModal = ({
 							</TabPanel>
 
 							{/* 4️⃣ Lead Status */}
-							<TabPanel p={0}>
+							<TabPanel p={2}>
 								<DefaultTabContent
 									data={[
 										{
@@ -1109,7 +1178,7 @@ const LeadsModal = ({
 							</TabPanel>
 
 							{/* 4️⃣ Notes */}
-							<TabPanel p={0}>
+							<TabPanel py={4}>
 								{/* Notes */}
 								<Box
 									mt={6} // spacing from tabs
@@ -1244,7 +1313,7 @@ const LeadsModal = ({
 
 																{/* Delete Button */}
 																<Popover
-																	placement='top-end'
+																	placement='bottom-end'
 																	isOpen={openPopoverId === note._id}
 																	onClose={() => setOpenPopoverId(null)}
 																	closeOnBlur={false} // important to prevent auto-close
@@ -1277,7 +1346,7 @@ const LeadsModal = ({
 																	>
 																		<PopoverArrow />
 
-																		<PopoverHeader
+																		{/* <PopoverHeader
 																			fontWeight='600'
 																			fontSize='md'
 																			border='none'
@@ -1285,7 +1354,7 @@ const LeadsModal = ({
 																			color='gray.800'
 																		>
 																			Delete Note?
-																		</PopoverHeader>
+																		</PopoverHeader> */}
 
 																		<PopoverBody
 																			fontSize='sm'

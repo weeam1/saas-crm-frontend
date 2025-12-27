@@ -216,6 +216,7 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 									}}
 									gap={5}
 								>
+									<RenderFields fields={fields} />
 									<PhoneField
 										name='leadWhatsappNumber'
 										label='WhatsApp'
@@ -236,7 +237,6 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 										onChange={(val) => setFieldValue('leadPhoneNumber', val)}
 										onBlur={handleBlur}
 									/>
-									<RenderFields fields={fields} />
 								</Grid>
 							</ModalBody>
 

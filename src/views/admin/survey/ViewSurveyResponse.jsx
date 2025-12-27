@@ -92,7 +92,7 @@ const ViewSurveyResponse = () => {
 
   const filteredUsers = invitedUsers
     .filter((userData) =>
-      userData.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+      userData.user?.fullName?.toLowerCase()?.includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       if (a.status === "completed" && b.status !== "completed") return -1;
@@ -383,11 +383,11 @@ const ViewSurveyResponse = () => {
             >
               <Avatar
                 size="sm"
-                name={userData.user.fullName}
-                src={userData.user.profileImage}
+                name={userData?.user?.fullName}
+                src={userData?.user?.profileImage}
               />
               <Box flex="1">
-                <Text fontWeight="medium">{userData.user.fullName}</Text>
+                <Text fontWeight="medium">{userData?.user?.fullName || 'N/A'}</Text>
                 <Text fontSize="sm" color="gray.500">
                   {userData.user.roles[0]?.roleName || "User"}
                 </Text>

@@ -67,7 +67,7 @@ const SearchBox = ({
 					icon={<CloseIcon boxSize={2.5} />}
 					onClick={clearSearch}
 					position='absolute'
-					right='5.5rem'
+					right='3.5rem'
 					top='50%'
 					transform='translateY(-50%)'
 					bg='transparent'
@@ -93,7 +93,7 @@ const SearchBox = ({
 				height='100%'
 			>
 				<Flex align='center' h='2.5rem'>
-					Search <SearchIcon fontSize='sm' color='brand.500' ml={1} />
+					<SearchIcon fontSize='sm' color='brand.500' ml={1} />
 				</Flex>
 			</Button>
 		</InputGroup>

@@ -538,6 +538,11 @@ export const sidebarRoutes = [
 		color: '#64748B', // Slate
 		children: [
 			{
+				id: 'client_listing',
+				name: 'Client Listings',
+				path: '/listing/client-listings',
+			},
+			{
 				id: 'all_listing',
 				name: 'All Listings',
 				path: '/listing/all-listings',
@@ -663,6 +668,16 @@ export const sidebarRoutes = [
 		icon: HiUsers,
 		color: '#8B5CF6', // Violet
 	},
+
+	// -------- Users V2 --------
+	// {
+	// 	moduleId: 'users',
+	// 	name: 'Users V2',
+	// 	isNested: false,
+	// 	path: '/users-v2',
+	// 	icon: HiUsers,
+	// 	color: '#8B5CF6', // Violet
+	// },
 
 	// -------- System Log --------
 	{

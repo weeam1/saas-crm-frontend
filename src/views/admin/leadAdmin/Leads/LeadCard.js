@@ -23,12 +23,14 @@ import { CiMenuKebab } from 'react-icons/ci';
 import { FaEye, FaHistory } from 'react-icons/fa';
 import { handleCopy } from '../utils/utils';
 import { getUserNameById } from 'utils';
-import { formattedDate } from 'utils/helpers';
+import { extractLocationData, formattedDate } from 'utils/helpers';
 import LeadCycleModal from '../components/LeadCard/LeadCycleModal';
 import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { mainLeadStatus } from 'utils/options';
 import LeadsModal from 'views/admin/lead-v2/LeadsModal';
+import { safeValue } from './../../../../utils/index';
+import { leadlabelFontSize } from '../components/constants';
 
 const getLabelByValue = (value) => {
 	const status = leadStatus.find((status) => status.value === value);
@@ -37,11 +39,9 @@ const getLabelByValue = (value) => {
 
 const LeadCard = ({
 	leadId,
+	leadData,
 	leadName,
 	nationality,
-	city,
-	sourceContent,
-	timeToCall,
 	eLeadStatus: mStatus,
 	leadStatus: leadStatusValue,
 	approvalStatus: initialApprovalStatus,
@@ -55,7 +55,9 @@ const LeadCard = ({
 	_id,
 	refreshData,
 }) => {
-	const formattedCreatedDate = formattedDate(createdDate);
+	const formattedCreatedDate = formattedDate(leadData?.createdDate);
+
+	const { ip, country, city } = extractLocationData(leadData?.ip);
 
 	const users = useSelector((state) => state.user?.users) || [];
 	const agentName = getUserNameById(agentId, users);
@@ -312,6 +314,15 @@ const LeadCard = ({
 		lg: '25%', // Three cards per row on larger screens
 	});
 
+	let pageUrl = safeValue(leadData?.pageUrl);
+
+	if (pageUrl) {
+		try {
+			const url = new URL(pageUrl);
+			pageUrl = `${url.hostname}${url.pathname}`;
+		} catch (e) {}
+	}
+
 	return (
 		<Box
 			borderRadius='lg'
@@ -329,7 +340,7 @@ const LeadCard = ({
 			}}
 		>
 			<CardHeader
-				id={leadId}
+				id={leadData?.intID}
 				onViewLeadCycle={handleViewLeadCycle}
 				onViewLead={handleLeadsModal}
 				leadId={leadId || _id}
@@ -355,22 +366,16 @@ const LeadCard = ({
 					</Text>
 					<HStack spacing={4} w='100%' alignItems='flex-start'>
 						<VStack align='start' spacing={1} flex='1' minW={0}>
-							<Text
-								fontSize='10px'
-								color='#BEBEBE'
-								fontFamily='DM Sans'
-								lineHeight='1.2'
-							>
-								Source Content
+							<Text fontSize='10px' color='#BEBEBE' lineHeight='1.2'>
+								Ad Name
 							</Text>
 							<Text
 								fontSize='10px'
 								color='#FFBB00'
-								fontFamily='DM Sans'
 								isTruncated
 								lineHeight='1.2'
 							>
-								{sourceContent || 'N/A'}
+								{safeValue(leadData?.leadSourceDetails) || 'N/A'}
 							</Text>
 						</VStack>
 						<VStack align='start' spacing={1} flex='1' minW={0}>
@@ -389,7 +394,7 @@ const LeadCard = ({
 								isTruncated
 								lineHeight='1.2'
 							>
-								{timeToCall || 'N/A'}
+								{safeValue(leadData?.timetocall) || 'N/A'}
 							</Text>
 						</VStack>
 					</HStack>
@@ -455,7 +460,7 @@ const LeadCard = ({
 									whiteSpace='normal'
 									maxW='100%'
 								>
-									{nationality || 'N/A'}
+									{country || 'N/A'}
 								</Text>
 							}
 						/>
@@ -465,11 +470,11 @@ const LeadCard = ({
 							Info
 						</Text>
 						{[
-							{ label: 'Budget', value: 'N/A' },
-							{ label: 'Campaign', value: 'N/A' },
-							{ label: 'Campaign Url', value: 'N/A' },
-							{ label: 'Medium', value: 'N/A' },
-							{ label: 'In UAE?', value: 'Yes' },
+							{ label: 'Budget', value: leadData?.budget },
+							{ label: 'Campaign', value: leadData?.leadCampaign },
+							{ label: 'Campaign Url', value: pageUrl },
+							{ label: 'Medium', value: leadData?.leadSourceMedium },
+							{ label: 'In UAE?', value: leadData?.r_u_in_uae },
 						].map((item) => (
 							<Flex
 								key={item.label}
@@ -491,7 +496,7 @@ const LeadCard = ({
                   />
                 </Tooltip> */}
 
-								<CustomTooltip label={item.value}>
+								<CustomTooltip label={safeValue(item?.value) || 'N/A'}>
 									<Icon as={InfoIcon} boxSize={3.5} color='blue.300' />
 								</CustomTooltip>
 							</Flex>
@@ -537,6 +542,9 @@ const CardHeader = ({ id, onViewLeadCycle, onViewLead, leadId }) => (
 				onClick={() => onViewLead(leadId)}
 				_hover={{ color: 'blue.500' }}
 			/>
+			<Text fontSize={leadlabelFontSize} color='softGray.200'>
+				{id || 'N/A'}
+			</Text>
 		</HStack>
 		<Menu>
 			<MenuButton>

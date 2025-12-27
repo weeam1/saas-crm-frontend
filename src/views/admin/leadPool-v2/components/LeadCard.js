@@ -41,12 +41,14 @@ const LeadCard = ({
 	leadName,
 	city,
 	nationality,
-	sourceContent,
+	leadSourceDetails,
 	timetocall,
 	eLeadStatus: mStatus,
 	r_u_in_uae,
 	leadCampaign,
 	leadStatus: leadStatusValue,
+	leadSourceMedium,
+	pageUrl,
 	budget,
 	approvalStatus,
 	createdDate,
@@ -61,6 +63,13 @@ const LeadCard = ({
 	const formattedCreatedDate = formattedDate(createdDate);
 	const user = JSON.parse(localStorage.getItem('user') || '{}');
 	const userId = user?._id;
+
+	if (pageUrl) {
+		try {
+			const url = new URL(pageUrl);
+			pageUrl = `${url.hostname}${url.pathname}`;
+		} catch (e) {}
+	}
 
 	const [cancelLoading, setCancelLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -222,15 +231,10 @@ const LeadCard = ({
 					<HStack spacing={2} w='100%' flexWrap='wrap'>
 						<VStack align='start' spacing={0} flex='1' minW={0}>
 							<Text fontSize='xs' color='#C0C0C0' fontFamily='DM Sans'>
-								Source Content
+								Ad Name
 							</Text>
-							<Text
-								fontSize='10px'
-								color='#FFBB00'
-								fontWeight='bold'
-								fontFamily='DM Sans'
-							>
-								{renderValue(sourceContent)}
+							<Text fontSize='10px' color='#FFBB00' fontWeight='bold'>
+								{renderValue(leadSourceDetails)}
 							</Text>
 						</VStack>
 						<VStack align='start' spacing={0} flex='1' minW={0}>
@@ -267,25 +271,14 @@ const LeadCard = ({
 						/>
 					</HStack>
 					<VStack align='start' spacing={0} width='100%'>
-						<HStack>
+						{/* <HStack>
 							<Text fontSize='xs' color='#C1C1C1' fontFamily='DM Sans'>
 								Lead Note
 							</Text>
-							{/* <Tooltip label={renderValue(lastNote)} placement='top' hasArrow>
-								<span>
-									<Icon
-										as={InfoIcon}
-										boxSize={3}
-										color='#63B3ED'
-										cursor='pointer'
-									/>
-								</span>
-							</Tooltip> */}
-
 							<CustomTooltip label={renderValue(lastNote)}>
 								<Icon as={InfoIcon} boxSize={3.5} color='blue.300' />
 							</CustomTooltip>
-						</HStack>
+						</HStack> */}
 						<Text
 							fontSize={lastNote?.length > 100 ? 'xx-small' : 'xs'}
 							color='gray.500'
@@ -404,8 +397,8 @@ const LeadCard = ({
 						{[
 							{ label: 'Budget', value: renderValue(budget) },
 							{ label: 'Campaign', value: renderValue(leadCampaign) },
-							{ label: 'Campaign Url', value: 'N/A' },
-							{ label: 'Medium', value: 'N/A' },
+							{ label: 'Campaign Url', value: pageUrl },
+							{ label: 'Medium', value: renderValue(leadSourceMedium) },
 							{ label: 'In UAE?', value: renderValue(r_u_in_uae) },
 						].map((item) => (
 							<HStack
