@@ -47,6 +47,8 @@ const LeadCard = ({
 	r_u_in_uae,
 	leadCampaign,
 	leadStatus: leadStatusValue,
+	leadSourceMedium,
+	pageUrl,
 	budget,
 	approvalStatus,
 	createdDate,
@@ -61,6 +63,13 @@ const LeadCard = ({
 	const formattedCreatedDate = formattedDate(createdDate);
 	const user = JSON.parse(localStorage.getItem('user') || '{}');
 	const userId = user?._id;
+
+	if (pageUrl) {
+		try {
+			const url = new URL(pageUrl);
+			pageUrl = `${url.hostname}${url.pathname}`;
+		} catch (e) {}
+	}
 
 	const [cancelLoading, setCancelLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -399,8 +408,8 @@ const LeadCard = ({
 						{[
 							{ label: 'Budget', value: renderValue(budget) },
 							{ label: 'Campaign', value: renderValue(leadCampaign) },
-							{ label: 'Campaign Url', value: 'N/A' },
-							{ label: 'Medium', value: 'N/A' },
+							{ label: 'Campaign Url', value: pageUrl },
+							{ label: 'Medium', value: renderValue(leadSourceMedium) },
 							{ label: 'In UAE?', value: renderValue(r_u_in_uae) },
 						].map((item) => (
 							<HStack
