@@ -181,12 +181,9 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 							flex='1'
 						>
 							<DetailGrid>
-								<DetailItem label='Source' value={data?.leadSource} />
-								<DetailItem
-									label='Channel'
-									value={data?.leadSourceChannel || data?.leadSourceMedium}
-								/>
-								<DetailItem label='Campaign' value={data?.leadCampaign} />
+								<DetailItem label='Platform' value={data?.leadSource} />
+								<DetailItem label='Channel' value={data?.leadSourceChannel} />
+								<DetailItem label='Campaign Name' value={data?.leadCampaign} />
 								<DetailItem label='Adset' value={data?.adset} />
 								<DetailItem label='Ad Name' value={data?.leadSourceDetails} />
 								<DetailItem label='Page URL' value={data?.pageUrl} isLink />
