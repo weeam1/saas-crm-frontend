@@ -55,10 +55,17 @@ const EmployeePayrollCards = ({ data = [], isLoading, month, year }) => {
     <>
       <Box my={4}>
         {delayedLoading ? (
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={5}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Box key={i} bg="white" p={6} rounded="2xl" boxShadow="md">
-                <Skeleton height="40px" mb={4} />
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={2}>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <Box
+                minH="240px"
+                key={i}
+                bg="white"
+                p={6}
+                rounded="2xl"
+                boxShadow="md"
+              >
+                <Skeleton height="60px" mb={4} />
                 <SkeletonText noOfLines={5} spacing={3} />
               </Box>
             ))}

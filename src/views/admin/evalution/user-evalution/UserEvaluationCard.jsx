@@ -25,17 +25,59 @@ import useUserSession from "hooks/useUserSession";
 const CardSkeleton = () => (
   <Box
     bg="white"
-    p={4}
     rounded="2xl"
+    border="1px solid"
+    borderColor="gray.200"
+    p={4} // same padding as real cards
+    overflow="hidden"
     boxShadow="md"
-    display="flex"
-    flexDirection="column"
-    alignItems="center"
     position="relative"
+    minH="240px" // ensures same height as real card
   >
-    <Skeleton circle size="60px" mb={3} />
-    <Skeleton height="16px" width="70%" mb={2} />
-    <Skeleton height="12px" width="50%" />
+    {/* Top performance bar */}
+    <Skeleton height="4px" borderTopRadius="2xl" mb={4} />
+
+    {/* Glow placeholder */}
+    <Box
+      position="absolute"
+      top="4px"
+      right={0}
+      w="140px"
+      h="140px"
+      bg="gray.100"
+      opacity={0.3}
+      borderRadius="0 0 0 100%"
+    />
+
+    {/* Header: Avatar + Name + Badges + Actions */}
+    <Flex justify="space-between" align="flex-start" mb={4}>
+      <Flex gap={3}>
+        <Skeleton circle size="64px" /> {/* match Avatar size="lg" */}
+        <Stack spacing={2}>
+          <Skeleton height="18px" width="140px" /> {/* Name */}
+          <Skeleton height="16px" width="90px" /> {/* Role Badge */}
+          <Skeleton height="16px" width="110px" /> {/* Agency Badge */}
+        </Stack>
+      </Flex>
+
+      {/* Actions */}
+      <Stack spacing={3}>
+        <Skeleton height="32px" width="32px" />
+        <Skeleton height="32px" width="32px" />
+      </Stack>
+    </Flex>
+
+    {/* Stats + Circular Progress */}
+    <Flex gap={6} align="center">
+      <Stack spacing={2} flexShrink={0}>
+        <Skeleton height="16px" width="90px" /> {/* Evaluators */}
+        <Skeleton height="16px" width="90px" /> {/* Average */}
+        <Skeleton height="20px" width="110px" /> {/* Evaluated/Not evaluated */}
+      </Stack>
+
+      {/* Circular Progress */}
+      <Skeleton circle size="90px" />
+    </Flex>
   </Box>
 );
 
@@ -54,8 +96,11 @@ const UserEvaluationCards = ({ data = [], isLoading, setView }) => {
   return (
     <Box my={4}>
       {delayedLoading ? (
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
-          {Array.from({ length: 6 }).map((_, i) => (
+        <SimpleGrid
+          columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
+          spacing={4}
+        >
+          {Array.from({ length: 10 }).map((_, i) => (
             <CardSkeleton key={i} />
           ))}
         </SimpleGrid>
