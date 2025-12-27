@@ -271,25 +271,14 @@ const LeadCard = ({
 						/>
 					</HStack>
 					<VStack align='start' spacing={0} width='100%'>
-						<HStack>
+						{/* <HStack>
 							<Text fontSize='xs' color='#C1C1C1' fontFamily='DM Sans'>
 								Lead Note
 							</Text>
-							{/* <Tooltip label={renderValue(lastNote)} placement='top' hasArrow>
-								<span>
-									<Icon
-										as={InfoIcon}
-										boxSize={3}
-										color='#63B3ED'
-										cursor='pointer'
-									/>
-								</span>
-							</Tooltip> */}
-
 							<CustomTooltip label={renderValue(lastNote)}>
 								<Icon as={InfoIcon} boxSize={3.5} color='blue.300' />
 							</CustomTooltip>
-						</HStack>
+						</HStack> */}
 						<Text
 							fontSize={lastNote?.length > 100 ? 'xx-small' : 'xs'}
 							color='gray.500'
