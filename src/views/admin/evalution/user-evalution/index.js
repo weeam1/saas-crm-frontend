@@ -284,21 +284,21 @@ const UserEvaluation = () => {
       boxShadow="sm"
     >
       {/* Header */}
-      <Flex
+      {/* <Flex
         flexDir={{ base: "column", md: "row" }}
         justify={{ base: "center", md: "space-between" }}
         align={{ base: "center", md: "center" }}
         mb={4}
         gap={{ base: 3, md: 0 }}
       >
-        {/* Title + Count */}
+
         <Flex
           align="center"
           fontSize={{ base: "md", md: "lg" }}
           fontWeight="bold"
           gap={2}
           flexWrap="wrap"
-          justify={{ base: "center", md: "flex-start" }} // center on mobile
+          justify={{ base: "center", md: "flex-start" }}
           w={{ base: "100%", md: "auto" }}
         >
           <Text textAlign={{ base: "center", md: "left" }}>
@@ -307,7 +307,7 @@ const UserEvaluation = () => {
           <CountUpComponent key={totalRecords} targetNumber={totalRecords} />
         </Flex>
 
-        {/* Actions */}
+
         <HStack
           spacing={{ base: 2, md: 4 }}
           align="center"
@@ -322,6 +322,104 @@ const UserEvaluation = () => {
             isFetching={isFetching}
             onClick={refetchEvaluations}
           />
+
+          <Box w={{ base: "100%", sm: "auto" }} flexShrink={1}>
+            <SearchBox
+              onSearchTermChange={handleSearchTermChange}
+              setSearchTerm={setSearchTerm}
+              searchTerm={searchTerm}
+            />
+          </Box>
+
+          {isAgenciesAllowed && (
+            <IconButton
+              icon={<FiFilter />}
+              onClick={agencyFilterOnOpen}
+              aria-label="Filter agency"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          )}
+
+          <DateFilter onFilterChange={onDateFilterChange} />
+
+          {!["Team Leader", "Agent"].includes(userRoleName) && (
+            <Button
+              colorScheme="brand"
+              size="sm"
+              borderRadius="md"
+              py={2}
+              px={4}
+              flexShrink={0}
+              w={{ base: "100%", md: "auto" }}
+              onClick={() => setIsFilterOpen(true)}
+            >
+              Advanced Search
+            </Button>
+          )}
+
+          <ViewToggle
+            moduleView="evalView"
+            view={view}
+            handleView={handleViewChange}
+          />
+        </HStack>
+      </Flex> */}
+      <Flex
+        flexDir={{ base: "column", md: "row" }}
+        justify={{ base: "center", md: "space-between" }}
+        align={{ base: "center", md: "center" }}
+        mb={4}
+        gap={{ base: 3, md: 0 }}
+      >
+        {/* Title + Count + Refresh button on mobile */}
+        <Flex
+          align="center"
+          fontSize={{ base: "md", md: "lg" }}
+          fontWeight="bold"
+          gap={2}
+          flexWrap="wrap"
+          justify={{ base: "center", md: "flex-start" }}
+          w={{ base: "100%", md: "auto" }}
+        >
+          <Text textAlign={{ base: "center", md: "left" }}>
+            {selectedAgency?.name} User Evaluations
+          </Text>
+          <CountUpComponent key={totalRecords} targetNumber={totalRecords} />
+
+          {/* Show refresh button next to text only on mobile */}
+          <Box display={{ base: "inline-block", md: "none" }}>
+            <RefreshButton
+              aria-label="Refresh evaluations"
+              isLoading={isLoading}
+              isFetching={isFetching}
+              onClick={refetchEvaluations}
+            />
+          </Box>
+        </Flex>
+
+        {/* Actions */}
+        <HStack
+          spacing={{ base: 2, md: 4 }}
+          align="center"
+          flexWrap="wrap"
+          justify={{ base: "center", md: "flex-end" }}
+          w={{ base: "100%", md: "auto" }}
+          mt={{ base: 1, md: 0 }}
+          gap={2}
+        >
+          {/* Hide refresh button here on mobile */}
+          <Box display={{ base: "none", md: "inline-block" }}>
+            <RefreshButton
+              aria-label="Refresh evaluations"
+              isLoading={isLoading}
+              isFetching={isFetching}
+              onClick={refetchEvaluations}
+            />
+          </Box>
 
           <Box w={{ base: "100%", sm: "auto" }} flexShrink={1}>
             <SearchBox
