@@ -59,7 +59,7 @@ const Payroll = () => {
   const [filterChanged, setFilterChanged] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [view, setView] = useState(() => {
-    return localStorage.getItem("dealsView") || "table";
+    return localStorage.getItem("payrollView") || "table";
   });
   const {
     isOpen: agencyFilterIsOpen,
@@ -139,12 +139,9 @@ const Payroll = () => {
   };
   const handleViewChange = (newView) => {
     setView(newView);
-    // setViewLoading(true);
-
-    // setTimeout(() => {
-    // 	setViewLoading(false);
-    // }, 1000);
+    localStorage.setItem("payrollView", newView); // persist selection
   };
+
   return (
     <Box p={6} bg="white" borderRadius="md" boxShadow="sm">
       <Flex
@@ -214,7 +211,11 @@ const Payroll = () => {
             Advanced Search
           </Button>
 
-          <Box w={{ base: "100%", sm: "auto" }}>
+          <Box
+            w={{ base: "100%", sm: "auto" }}
+            display="flex"
+            justifyContent={{ base: "center", md: "flex-end" }}
+          >
             <DateFilter onFilterChange={onDateFilterChange} />
           </Box>
           <ViewToggle

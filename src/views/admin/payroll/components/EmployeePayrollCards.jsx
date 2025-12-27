@@ -17,13 +17,13 @@ import {
   HStack,
   Progress,
 } from "@chakra-ui/react";
+import { constant } from "constant";
 import { FiEye, FiPrinter } from "react-icons/fi";
 import NoData from "components/Message/NoData";
 import { useEffect, useState, useCallback } from "react";
 import { formatCurrency } from "utils/helpers";
 import PayslipDownloadModal from "./PayslipDownloadModal";
 import { useNavigate } from "react-router-dom";
-import UserProfileCell from "./UserProfileCell";
 
 const EmployeePayrollCards = ({ data = [], isLoading, month, year }) => {
   const monthName = new Date(year, month - 1).toLocaleString("en-US", {
@@ -70,6 +70,9 @@ const EmployeePayrollCards = ({ data = [], isLoading, month, year }) => {
         ) : (
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={2}>
             {data.map((row, index) => {
+              const imgSrc = row?.profileImage
+                ? `${constant.baseUrl}${row.profileImage}`
+                : undefined;
               return (
                 <Box
                   key={row._id || index}
@@ -89,7 +92,7 @@ const EmployeePayrollCards = ({ data = [], isLoading, month, year }) => {
                       <Flex align="center" gap={3}>
                         <Avatar
                           size="md"
-                          src={row?.profileImage}
+                          src={imgSrc}
                           name={row?.fullName}
                           borderWidth="3px"
                         />
