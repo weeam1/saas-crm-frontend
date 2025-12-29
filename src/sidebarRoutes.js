@@ -670,14 +670,14 @@ export const sidebarRoutes = [
 	},
 
 	// -------- Users V2 --------
-	// {
-	// 	moduleId: 'users',
-	// 	name: 'Users V2',
-	// 	isNested: false,
-	// 	path: '/users-v2',
-	// 	icon: HiUsers,
-	// 	color: '#8B5CF6', // Violet
-	// },
+	{
+		moduleId: 'users',
+		name: 'Users V2',
+		isNested: false,
+		path: '/users-v2',
+		icon: HiUsers,
+		color: '#8B5CF6', // Violet
+	},
 
 	// -------- System Log --------
 	{
