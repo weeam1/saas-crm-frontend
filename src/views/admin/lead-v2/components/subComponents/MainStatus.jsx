@@ -31,7 +31,7 @@ const MainStatus = ({ lead, role }) => {
 
 	const layoutView = localStorage.getItem('leadView') || 'grid';
 
-	const countries = useSelector((state) => state.countries.countryNames);
+	// const countries = useSelector((state) => state.countries.countryNames);
 
 	const dispatch = useDispatch();
 
@@ -89,10 +89,7 @@ const MainStatus = ({ lead, role }) => {
 							? lead?.leadPhoneNumber?.result
 							: lead?.leadPhoneNumber;
 
-					const { ip, city, country } = extractLocationData(
-						lead?.ip,
-						countries
-					);
+					const { ip, city, country } = extractLocationData(lead?.ip);
 
 					sendLeadFeedback({
 						email: leadEmail,
