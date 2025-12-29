@@ -73,6 +73,7 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 		country: safeValue(country) || '',
 		leadLang: safeValue(leadData?.leadLang) || '',
 		timetocall: safeValue(leadData?.timetocall) || '',
+		leadSource: safeValue(leadData?.leadSource) || '',
 		leadSourceDetails: safeValue(leadData?.leadSourceDetails) || '',
 		leadSourceChannel: safeValue(leadData?.leadSourceChannel) || '',
 		leadCampaign: safeValue(leadData?.leadCampaign) || '',
@@ -128,21 +129,29 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 		{ name: 'leadLang', label: 'Language', type: 'text', icon: MdLanguage },
 		{
 			name: 'leadSourceDetails',
-			label: 'Source Content',
+			label: 'Ad Name',
 			type: 'text',
 			icon: MdNoteAlt,
 		},
 		{
 			name: 'leadSourceChannel',
-			label: 'Lead Source Channel',
+			label: 'Channel',
 			type: 'text',
 			icon: MdCampaign,
 		},
-		{ name: 'leadCampaign', label: 'Campaign', type: 'text', icon: MdCampaign },
+
+		{ name: 'leadSource', label: 'Platform', type: 'text', MdCampaign },
+
+		{
+			name: 'leadCampaign',
+			label: 'Campaign Name',
+			type: 'text',
+			icon: MdCampaign,
+		},
 		{ name: 'pageUrl', label: 'Page URL', type: 'url', icon: MdOutlineWeb },
 		{
 			name: 'leadSourceMedium',
-			label: 'Source Medium',
+			label: 'Placement',
 			type: 'text',
 			icon: MdCampaign,
 		},

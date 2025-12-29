@@ -30,6 +30,7 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { FaClockRotateLeft } from 'react-icons/fa6';
 import CandidateStatusHistory from '../../_components/CandidateStatusHistory';
 import { useModalColors } from 'hooks/useModalColors';
+import { sendHiringMetaFeedback } from 'api';
 
 const CandidateView = ({
 	isOpen,
@@ -77,6 +78,9 @@ const CandidateView = ({
 				status: 'success',
 				message: `${user?.fullName} changed the candidate’s application status to "${newStatus}".`,
 			});
+
+			// send hiring meta feedback converstion api
+			sendHiringMetaFeedback({ ...candidate, status: newStatus });
 		} catch (error) {
 			const errorMsg = error?.data?.message || 'Application status not updated';
 			toast.error(errorMsg);
