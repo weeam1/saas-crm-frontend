@@ -23,6 +23,7 @@ import { getBadgeColors } from 'utils/colorUtils';
 import { salaryTypes, userCommissionTypes } from 'utils/options';
 import UserCoinsView from './UserCoinsView';
 import UserAvatarWithStatus from 'components/table/UserAvatarWithStatus';
+import { useNavigate } from 'react-router-dom';
 
 const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 	const columns = [
@@ -39,6 +40,8 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
 	const [selectedId, setSelectedId] = useState(null);
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		let timer;
@@ -242,6 +245,7 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 														size='sm'
 														colorScheme='teal'
 														variant='ghost'
+														onClick={() => navigate(`/users-v2/${row?._id}`)}
 														// onClick={() => setView({ modal: true, data: row })}
 													/>
 												</CustomTooltip>

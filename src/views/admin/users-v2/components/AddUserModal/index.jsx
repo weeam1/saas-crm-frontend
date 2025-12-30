@@ -33,6 +33,7 @@ import ReplaceTeamLead from 'views/admin/users/components/ReplaceTeamLead';
 import SecurityPasswordPermission from 'views/admin/users/components/PasswordPermission';
 import { useRoles } from 'hooks/user/userRoles';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { useSelector } from 'react-redux';
 
 const getInitialValues = (userData = {}) => ({
 	firstName: userData?.firstName ?? '',
@@ -67,17 +68,14 @@ const UserModal = ({
 	onClose,
 	mode = 'add',
 	userData = null,
-	agencies,
 	updateData,
+	refetchUser,
 }) => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [profileImage, setProfileImage] = useState(
-		userData?.profileImage || ''
-	);
 
-	console.log({ userData, inital: getInitialValues(userData) });
+	const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
 
-	const [replacementManager, setReplacementManager] = useState('');
+	const [replacementManager, setReplacementManager] = useState(null);
 	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
 	const [securityPassword, setSecurityPassword] = useState('');
 
@@ -101,8 +99,6 @@ const UserModal = ({
 		onOpen: passwordOnOpen,
 		onClose: passwordOnClose,
 	} = useDisclosure();
-
-	const [profileFile, setProfileFile] = useState(null);
 
 	const formik = useFormik({
 		initialValues: getInitialValues(userData),
@@ -154,8 +150,6 @@ const UserModal = ({
 			);
 
 			const valuesObj = { ...values };
-
-			console.log({ replacementTeamLead });
 
 			// when team lead role change to other role
 			if (
@@ -237,19 +231,17 @@ const UserModal = ({
 
 			toast.success(msg);
 
-			console.log({ res });
-
 			// update data list
-			if (res?.doc) {
+			if (res?.doc && updateData) {
 				let modeValue = mode === 'edit' ? 'update' : 'add';
 
 				updateData(res?.doc?._id, res?.doc, modeValue);
-			}
+			} else refetchUser();
 
-			onClose();
 			setReplacementManager(null);
 			setReplacementTeamLead(null);
 			setSecurityPassword('');
+			onClose();
 		} catch (error) {
 			toast.error(
 				error?.data?.message || 'Failed to save user. Please try again.'
@@ -257,16 +249,6 @@ const UserModal = ({
 		} finally {
 			setIsSubmitting(false);
 		}
-	};
-
-	const handleImageUpload = (file) => {
-		setProfileFile(file);
-		setProfileImage(URL.createObjectURL(file));
-	};
-
-	const handleImageRemove = () => {
-		setProfileFile(null);
-		setProfileImage('');
 	};
 
 	const managerTeamLeaders = useMemo(() => {
@@ -317,21 +299,6 @@ const UserModal = ({
 							<Flex direction={{ base: 'column', lg: 'row' }} gap={6} p={6}>
 								{/* Left Column - Avatar & Basic Info */}
 								<Box flex='1'>
-									{/* Avatar Upload Section */}
-									{/* <Box mb={6}> */}
-									{/* <AvatarUpload
-											image={profileImage}
-											onUpload={handleImageUpload}
-											onRemove={handleImageRemove}
-											name={`${formik.values.firstName} ${formik.values.lastName}`}
-										/> */}
-									{/* 
-										<AvatarUpload
-											profileImage={formik.values?.profileImage}
-											formik={formik}
-										/> */}
-									{/* </Box> */}
-
 									{/* Personal Information */}
 									<Box bg='gray.50' borderRadius='lg' p={5} mb={6}>
 										<Flex align='center' gap={2} mb={4}>

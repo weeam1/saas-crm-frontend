@@ -9,8 +9,6 @@ import {
 import { useMemo, useState } from 'react';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
-import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { FiFilter } from 'react-icons/fi';
 import { buttonStyle } from 'utils/btn';
 import { BiX } from 'react-icons/bi';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
@@ -39,8 +37,6 @@ const User = () => {
 		setFilters,
 		setPagination,
 	} = useFetchUsers();
-
-	console.log({ user: data?.[5] });
 
 	const selectedAgency = useMemo(
 		() => agencies.find((a) => a._id === agencyId) || null,
@@ -71,7 +67,6 @@ const User = () => {
 	};
 
 	const handleEditUser = (user) => {
-		console.log({ user });
 		setModalMode('edit');
 		setSelectedUser(user);
 		userOpen();
