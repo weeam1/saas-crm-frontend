@@ -15,7 +15,6 @@ import {
 	Heading,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useSelector } from 'react-redux';
 import { FaUser, FaDollarSign, FaPercent, FaAward } from 'react-icons/fa';
 import { MdEmail, MdPhone, MdLocationOn } from 'react-icons/md';
 import { HiOfficeBuilding, HiIdentification } from 'react-icons/hi';
@@ -26,7 +25,6 @@ import { toast } from 'react-toastify';
 // Import reusable components
 import { useCreateItemMutation, useUpdateItemMutation } from 'api/apiSlice';
 import { userSchema } from 'schema';
-import AvatarUpload from './AvatarUpload';
 import FormField from './FormField';
 import SalarySection from './SalarySection';
 import RoleStructureSection from './RoleStructureSection';
@@ -41,10 +39,10 @@ const getInitialValues = (userData = {}) => ({
 	lastName: userData?.lastName ?? '',
 	password: '',
 	username: userData?.username ?? '',
-	profileImage: userData?.profileImage ?? '',
+	// profileImage: userData?.profileImage ?? '',
 	phoneNumber: userData?.phoneNumber ?? '',
 	nationality: userData?.nationality ?? '',
-	dob: userData?.dob ?? '',
+	dob: userData?.dob ? new Date(userData.dob).toISOString().split('T')[0] : '',
 	passportNum: userData?.passportNum ?? '',
 	uaeIdNum: userData?.uaeIdNum ?? '',
 	drivingLicense: userData?.drivingLicense ?? '',
@@ -70,11 +68,15 @@ const UserModal = ({
 	mode = 'add',
 	userData = null,
 	agencies,
+	updateData,
 }) => {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [profileImage, setProfileImage] = useState(
 		userData?.profileImage || ''
 	);
+
+	console.log({ userData, inital: getInitialValues(userData) });
+
 	const [replacementManager, setReplacementManager] = useState('');
 	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
 	const [securityPassword, setSecurityPassword] = useState('');
@@ -109,6 +111,19 @@ const UserModal = ({
 		validate: (values) => {
 			const errors = {};
 
+			const newRole = allRoles?.find((role) => role?._id === values?.roles);
+
+			if (
+				!values.parent &&
+				['Team Leader', 'Agent'].includes(newRole?.roleName)
+			) {
+				errors.parent = 'Manager is requried';
+			}
+
+			if (!values.teamLead && newRole?.roleName === 'Agent') {
+				errors.teamLead = 'Team Leader is requried';
+			}
+
 			// Only trigger in non-edit mode
 			if (mode !== 'edit') {
 				if (!values.password || values.password.length < 6) {
@@ -139,6 +154,8 @@ const UserModal = ({
 			);
 
 			const valuesObj = { ...values };
+
+			console.log({ replacementTeamLead });
 
 			// when team lead role change to other role
 			if (
@@ -181,7 +198,6 @@ const UserModal = ({
 				!securityPassword &&
 				(userRole?._id !== newRole?._id || valuesObj?.password)
 			) {
-				console.log('password modal open');
 				passwordOnOpen();
 				return;
 			}
@@ -203,12 +219,16 @@ const UserModal = ({
 							)
 						);
 
+			let res = null;
+
 			if (mode === 'edit') {
-				await updateUser({
+				res = await updateUser({
 					path: `/v3/users/${userData._id}`,
 					body: formData,
 				}).unwrap();
-			} else await createUser({ path: '/v3/users', body: formData }).unwrap();
+			} else {
+				res = await createUser({ path: '/v3/users', body: formData }).unwrap();
+			}
 
 			const msg =
 				mode === 'add'
@@ -217,16 +237,25 @@ const UserModal = ({
 
 			toast.success(msg);
 
+			console.log({ res });
+
+			// update data list
+			if (res?.doc) {
+				let modeValue = mode === 'edit' ? 'update' : 'add';
+
+				updateData(res?.doc?._id, res?.doc, modeValue);
+			}
+
 			onClose();
+			setReplacementManager(null);
+			setReplacementTeamLead(null);
+			setSecurityPassword('');
 		} catch (error) {
 			toast.error(
 				error?.data?.message || 'Failed to save user. Please try again.'
 			);
 		} finally {
 			setIsSubmitting(false);
-			setReplacementManager(null);
-			setReplacementTeamLead(null);
-			setSecurityPassword('');
 		}
 	};
 
@@ -289,14 +318,19 @@ const UserModal = ({
 								{/* Left Column - Avatar & Basic Info */}
 								<Box flex='1'>
 									{/* Avatar Upload Section */}
-									<Box mb={6}>
-										<AvatarUpload
+									{/* <Box mb={6}> */}
+									{/* <AvatarUpload
 											image={profileImage}
 											onUpload={handleImageUpload}
 											onRemove={handleImageRemove}
 											name={`${formik.values.firstName} ${formik.values.lastName}`}
-										/>
-									</Box>
+										/> */}
+									{/* 
+										<AvatarUpload
+											profileImage={formik.values?.profileImage}
+											formik={formik}
+										/> */}
+									{/* </Box> */}
 
 									{/* Personal Information */}
 									<Box bg='gray.50' borderRadius='lg' p={5} mb={6}>
@@ -434,7 +468,7 @@ const UserModal = ({
 											</Heading>
 										</Flex>
 
-										<SimpleGrid columns={1} spacing={4}>
+										<SimpleGrid columns={2} spacing={4}>
 											<FormField
 												label='UAE Address'
 												name='dubaiHomeAddress'
@@ -443,7 +477,6 @@ const UserModal = ({
 												as='textarea'
 												rows={1}
 											/>
-
 											<FormField
 												label='Home Country Address'
 												name='countryHomeAddress'
@@ -452,7 +485,6 @@ const UserModal = ({
 												as='textarea'
 												rows={1}
 											/>
-
 											<FormField
 												label='International Phone'
 												name='countryPhoneNum'

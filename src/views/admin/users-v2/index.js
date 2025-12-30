@@ -40,6 +40,8 @@ const User = () => {
 		setPagination,
 	} = useFetchUsers();
 
+	console.log({ user: data?.[5] });
+
 	const selectedAgency = useMemo(
 		() => agencies.find((a) => a._id === agencyId) || null,
 		[agencies, agencyId]
@@ -69,6 +71,7 @@ const User = () => {
 	};
 
 	const handleEditUser = (user) => {
+		console.log({ user });
 		setModalMode('edit');
 		setSelectedUser(user);
 		userOpen();
@@ -250,6 +253,7 @@ const User = () => {
 					mode={modalMode}
 					userData={selectedUser}
 					agencies={agencies}
+					updateData={updateData}
 				/>
 			)}
 

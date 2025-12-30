@@ -72,7 +72,7 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 			// }
 
 			case 'roles': {
-				const roleName = value?.roleName.replace(/^./, (c) => c.toUpperCase());
+				const roleName = value?.roleName?.replace(/^./, (c) => c.toUpperCase());
 				// ?.replace(/([A-Z])/g, ' $1')
 
 				const { bg, text } = getBadgeColors(roleName);

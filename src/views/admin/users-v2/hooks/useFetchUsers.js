@@ -101,6 +101,8 @@ export const useFetchUsers = () => {
 			// Find index once instead of mapping multiple times
 			const index = prev.findIndex((item) => item._id === id);
 
+			console.log({ index });
+
 			// --- UPDATE logic ---
 			if (type === 'update') {
 				// If item doesn't exist, do nothing
