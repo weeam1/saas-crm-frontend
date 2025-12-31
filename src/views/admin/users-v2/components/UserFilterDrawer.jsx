@@ -218,12 +218,12 @@ const UserFilterDrawer = ({
 											handleChange('phoneNumber', e.target.value)
 										}
 									/>
-									<Input
+									{/* <Input
 										size='sm'
 										placeholder='Location'
 										value={localFilters.location}
 										onChange={(e) => handleChange('location', e.target.value)}
-									/>
+									/> */}
 								</VStack>
 							</FilterSection>
 
