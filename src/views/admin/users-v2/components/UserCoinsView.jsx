@@ -12,12 +12,39 @@ import {
 	PopoverBody,
 	Portal,
 } from '@chakra-ui/react';
+import { useUpdateItemMutation } from 'api/apiSlice';
 import { useState } from 'react';
 import { FaCoins, FaPencil } from 'react-icons/fa6';
+import { toast } from 'react-toastify';
 
-const UserCoinsView = ({ user }) => {
+const UserCoinsView = ({ user, updateData }) => {
 	const [mode, setMode] = useState('add');
-	const [amount, setAmount] = useState(0);
+	const [newCoins, setNewCoins] = useState('');
+
+	const [isOpen, setIsOpen] = useState(false);
+
+	const [updateUser, { isLoading: isUpdating }] = useUpdateItemMutation();
+
+	const handleSaveCoins = async () => {
+		const coinsDiff = mode === 'add' ? newCoins : -newCoins;
+		try {
+			const res = await updateUser({
+				path: `/v3/users/${user?._id}`,
+				body: {
+					coins: Number(coinsDiff),
+				},
+			}).unwrap();
+
+			toast.success('Coins have been updated!');
+
+			setMode('add');
+			setNewCoins('');
+			setIsOpen(false);
+			updateData(user?._id, res?.doc, 'update');
+		} catch (error) {
+			toast.error(error?.data?.message || 'Failed to update coins!');
+		}
+	};
 
 	return (
 		<Flex align='center' justify='center' textAlign='center' gap={2} w='full'>
@@ -30,12 +57,18 @@ const UserCoinsView = ({ user }) => {
 					color='gray.800'
 					fontFamily='mono'
 				>
-					{user?.coins || 450}
+					{user?.coins || 0}
 				</Text>
 			</Flex>
 
 			{/* Minimal Edit Trigger */}
-			<Popover placement='bottom-end' isLazy>
+			<Popover
+				placement='bottom-end'
+				isLazy
+				closeOnBlur={!isUpdating}
+				isOpen={isOpen}
+				onClose={() => setIsOpen(false)}
+			>
 				<PopoverTrigger>
 					<IconButton
 						aria-label='Edit Coins'
@@ -43,6 +76,7 @@ const UserCoinsView = ({ user }) => {
 						variant='ghost'
 						size='xs'
 						opacity={0.6}
+						onClick={() => setIsOpen(true)}
 						_hover={{
 							opacity: 1,
 							bg: 'gray.100',
@@ -108,11 +142,11 @@ const UserCoinsView = ({ user }) => {
 								{/* Minimal Input */}
 								<Input
 									variant='flushed'
-									placeholder='Enter amount'
+									placeholder='Enter coins'
 									type='number'
 									min={1}
-									value={amount}
-									onChange={(e) => setAmount(e.target.value)}
+									value={newCoins}
+									onChange={(e) => setNewCoins(e.target.value)}
 									fontSize='sm'
 									_focus={{ borderColor: 'gray.400' }}
 								/>
@@ -127,7 +161,9 @@ const UserCoinsView = ({ user }) => {
 									_hover={{
 										bg: mode === 'add' ? 'green.600' : 'red.600',
 									}}
-									onClick={() => {}}
+									onClick={handleSaveCoins}
+									isLoading={isUpdating}
+									isDisabled={isUpdating}
 								>
 									Apply
 								</Button>

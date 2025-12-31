@@ -228,11 +228,10 @@ const UserTable = ({
 												linkTo={`/users-v2/${row?._id}`}
 											/>
 										) : column.key === 'coins' ? (
-											<UserCoinsView user={row} />
+											<UserCoinsView user={row} updateData={updateData} />
 										) : column.key === 'isActive' ? (
 											<UserStatusToggle
 												user={row}
-												updateData={updateData}
 												refetchUsers={refetchUsers}
 											/>
 										) : column.key === 'actions' ? (

@@ -17,7 +17,7 @@ import ReplaceTeamLead from 'views/admin/users/components/ReplaceTeamLead';
 import SecurityPasswordPermission from 'views/admin/users/components/PasswordPermission';
 import InfoModal from 'views/admin/users/components/InfoModal';
 
-const UserStatusToggle = ({ user, updateData, refetchUsers }) => {
+const UserStatusToggle = ({ user, refetchUsers }) => {
 	const [isActive, setIsActive] = useState(user?.isActive || false);
 	const [isAllowed, setIsAllowed] = useState(false);
 
@@ -98,7 +98,7 @@ const UserStatusToggle = ({ user, updateData, refetchUsers }) => {
 
 			if (!securityPassword) return passwordOnOpen();
 
-			const res = await updateItemMutation({
+			await updateItemMutation({
 				path: `/v2/user/status/${user._id}`,
 				body: bodyData,
 			}).unwrap();
@@ -106,7 +106,6 @@ const UserStatusToggle = ({ user, updateData, refetchUsers }) => {
 			setIsActive(newStatus);
 			toast.success(`User ${newStatus ? 'enabled' : 'disabled'} successfully`);
 
-			// updateData(user._id, { ...user, isActive: newStatus }, 'update');
 			refetchUsers();
 			resetStates();
 			refreshTeam();
