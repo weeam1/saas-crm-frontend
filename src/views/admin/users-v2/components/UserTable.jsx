@@ -20,12 +20,19 @@ import { format } from 'date-fns';
 import { formatCurrency } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { getBadgeColors } from 'utils/colorUtils';
-import { salaryTypes, userCommissionTypes } from 'utils/options';
+import { salaryTypes } from 'utils/options';
 import UserCoinsView from './UserCoinsView';
 import UserAvatarWithStatus from 'components/table/UserAvatarWithStatus';
 import { useNavigate } from 'react-router-dom';
+import UserStatusToggle from './UserStatusToogle';
 
-const UserTable = ({ data = [], isLoading, handleEditUser }) => {
+const UserTable = ({
+	data = [],
+	isLoading,
+	handleEditUser,
+	updateData,
+	refetchUsers,
+}) => {
 	const columns = [
 		{ key: 'user', label: 'User', width: '200px' },
 		{ key: 'roles', label: 'Role', width: '150px' },
@@ -39,7 +46,6 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
-	const [selectedId, setSelectedId] = useState(null);
 
 	const navigate = useNavigate();
 
@@ -57,23 +63,6 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 
 	const formatValue = (key, value) => {
 		switch (key) {
-			// case 'paymentMethod': {
-			// 	const color = paymentColors[value] || 'gray';
-			// 	return (
-			// 		<Badge
-			// 			colorScheme={color}
-			// 			variant='subtle'
-			// 			fontSize='.9em'
-			// 			px={4}
-			// 			py={2}
-			// 			borderRadius='full'
-			// 			textTransform='capitalize'
-			// 		>
-			// 			{value || 'N/A'}
-			// 		</Badge>
-			// 	);
-			// }
-
 			case 'roles': {
 				const roleName = value?.roleName?.replace(/^./, (c) => c.toUpperCase());
 				// ?.replace(/([A-Z])/g, ' $1')
@@ -114,21 +103,22 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 					</Badge>
 				);
 			}
-			case 'isActive': {
-				return (
-					<Badge
-						colorScheme={value ? 'green' : 'red'}
-						variant='subtle'
-						fontSize='.9em'
-						px={4}
-						py={2}
-						borderRadius='full'
-						textTransform='capitalize'
-					>
-						{value ? 'Active' : 'Inactive'}
-					</Badge>
-				);
-			}
+			// case 'isActive': {
+			// 	return <UserStatusToggle />
+			// 	// return (
+			// 	// 	<Badge
+			// 	// 		colorScheme={value ? 'green' : 'red'}
+			// 	// 		variant='subtle'
+			// 	// 		fontSize='.9em'
+			// 	// 		px={4}
+			// 	// 		py={2}
+			// 	// 		borderRadius='full'
+			// 	// 		textTransform='capitalize'
+			// 	// 	>
+			// 	// 		{value ? 'Active' : 'Inactive'}
+			// 	// 	</Badge>
+			// 	// );
+			// }
 
 			case 'salaryType':
 				const type = salaryTypes?.find((item) => item.value === value)?.label;
@@ -239,6 +229,12 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 											/>
 										) : column.key === 'coins' ? (
 											<UserCoinsView user={row} />
+										) : column.key === 'isActive' ? (
+											<UserStatusToggle
+												user={row}
+												updateData={updateData}
+												refetchUsers={refetchUsers}
+											/>
 										) : column.key === 'actions' ? (
 											<Flex align='center' justify='center' gap={3}>
 												<CustomTooltip label='View'>
@@ -249,7 +245,6 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 														colorScheme='teal'
 														variant='ghost'
 														onClick={() => navigate(`/users-v2/${row?._id}`)}
-														// onClick={() => setView({ modal: true, data: row })}
 													/>
 												</CustomTooltip>
 												<CustomTooltip label='Edit'>

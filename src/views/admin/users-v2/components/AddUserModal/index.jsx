@@ -380,7 +380,7 @@ const UserModal = ({
 											</Heading>
 										</Flex>
 
-										<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+										<SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
 											<FormField
 												label='Agency'
 												name='agency'
@@ -436,7 +436,7 @@ const UserModal = ({
 											</Heading>
 										</Flex>
 
-										<SimpleGrid columns={2} spacing={4}>
+										<SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
 											<FormField
 												label='UAE Address'
 												name='dubaiHomeAddress'

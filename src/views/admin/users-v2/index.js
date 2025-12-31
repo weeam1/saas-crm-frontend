@@ -23,6 +23,7 @@ const User = () => {
 		agencies,
 		queryParams,
 		data,
+		refetch: refetchUsers,
 		totalPages,
 		totalRecords,
 		agencyId,
@@ -228,9 +229,10 @@ const User = () => {
 
 			<UserTable
 				data={data || []}
-				updateData={updateData}
 				handleEditUser={handleEditUser}
 				isLoading={isLoading || isFetching}
+				updateData={updateData}
+				refetchUsers={refetchUsers}
 			/>
 
 			{/* {viewBalance?.modal && (
