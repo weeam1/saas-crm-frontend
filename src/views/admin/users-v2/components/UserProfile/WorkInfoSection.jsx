@@ -32,7 +32,7 @@ const WorkInfoSection = ({ user }) => {
 	];
 
 	return (
-		<Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={8}>
+		<Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={8}>
 			<GridItem bg='gray.50' p={2} borderRadius='md'>
 				<VStack align='start' spacing={4}>
 					<Text fontSize='lg' fontWeight='semibold' color='gray.700'>

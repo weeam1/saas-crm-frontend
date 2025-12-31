@@ -233,7 +233,10 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 										color='gray.700'
 									>
 										{column.key === 'user' ? (
-											<UserAvatarWithStatus user={row} />
+											<UserAvatarWithStatus
+												user={row}
+												linkTo={`/users-v2/${row?._id}`}
+											/>
 										) : column.key === 'coins' ? (
 											<UserCoinsView user={row} />
 										) : column.key === 'actions' ? (

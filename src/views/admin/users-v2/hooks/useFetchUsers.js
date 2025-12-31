@@ -2,8 +2,9 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
+import { setOnlineUsers } from '../../../../redux/onlineUsersSlice';
 import { cleanSearchParams } from 'utils';
 
 export const useFetchUsers = () => {
@@ -13,7 +14,8 @@ export const useFetchUsers = () => {
 	const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
 
 	const { hasPermission } = usePermissions();
-	const { user } = useUserSession();
+
+	const dispatch = useDispatch();
 
 	// check  all agencies permission
 	const isAgenciesAllowed = hasPermission('users', 'all_agencies') || true;
@@ -65,6 +67,21 @@ export const useFetchUsers = () => {
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;
+
+	const { data: onlineUsers } = useFetchItemsQuery(
+		{ path: '/v2/user/online-users' },
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnReconnect: true,
+			refetchOnFocus: true,
+		}
+	);
+
+	useEffect(() => {
+		if (onlineUsers) {
+			dispatch(setOnlineUsers(onlineUsers));
+		}
+	}, [onlineUsers, dispatch]);
 
 	useEffect(() => {
 		if (data?.doc) {

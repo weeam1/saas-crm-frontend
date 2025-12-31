@@ -6,28 +6,26 @@ import {
 	Text,
 	Badge,
 	HStack,
-	VStack,
-	useBreakpointValue,
-	Tooltip,
 	Image,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	Input,
+	ModalFooter,
+	Button,
+	Spinner,
+	ModalBody,
 } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
-import PropTypes from 'prop-types';
-import { getImageUrl } from 'views/admin/Listing/client-listings/propertyUtils';
-import { useSelector } from 'react-redux';
+import { FiUploadCloud, FiUser } from 'react-icons/fi';
 
-// import {
-// 	Box,
-// 	Flex,
-// 	Avatar,
-// 	Text,
-// 	Badge,
-// 	IconButton,
-// 	VStack,
-// 	HStack,
-// 	useBreakpointValue,
-// } from '@chakra-ui/react';
-// import { EditIcon } from '@chakra-ui/icons';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { useEffect, useState } from 'react';
+import { useCreateItemMutation } from 'api/apiSlice';
+import { compressImage, resolveInitialImage } from '../../utils/imageUtils';
 
 const LG_IMAGE_BOX_SIZE = '250px';
 const SM_IMAGE_BOX_SIZE = '200px';
@@ -77,12 +75,23 @@ const StatusBadge = ({ isOnline }) => {
 	);
 };
 
-const AvatarSection = ({ user, onEdit }) => {
+const AvatarSection = ({ user, refetchUser }) => {
+	const [isOpen, setIsOpen] = useState(false);
+
+	const [previewUrl, setPreviewUrl] = useState(null);
+
 	const hasImage = Boolean(user?.profileImage);
 
 	const onlineUsers = useSelector((state) => state.onlineUsers);
 
 	const isOnline = onlineUsers?.users?.includes(user?._id?.toString());
+
+	useEffect(() => {
+		(async () => {
+			const url = await resolveInitialImage(user);
+			setPreviewUrl(url || null);
+		})();
+	}, [user]);
 
 	return (
 		<Box w='100%' position='relative'>
@@ -112,14 +121,14 @@ const AvatarSection = ({ user, onEdit }) => {
 						size='sm'
 						colorScheme='gray'
 						borderRadius='full'
-						onClick={onEdit}
+						onClick={() => setIsOpen(true)}
 						shadow='md'
 						aria-label='Edit profile'
 					/>
 
 					{hasImage ? (
 						<Image
-							src={getImageUrl(user.profileImage)}
+							src={previewUrl}
 							alt={user.fullName}
 							w='100%'
 							h='100%'
@@ -177,95 +186,244 @@ const AvatarSection = ({ user, onEdit }) => {
 					</Badge>
 
 					<StatusBadge isOnline={isOnline} />
-					{/* 
-					<Text fontSize='sm' color='gray.500'>
-						Member since: {new Date(user?.createdAt).toLocaleDateString()}
-					</Text> */}
 				</Flex>
 			</Flex>
+
+			{isOpen && (
+				<EditAvatarModal
+					isOpen={isOpen}
+					onClose={() => setIsOpen(false)}
+					user={user}
+					refetchUser={refetchUser}
+					previewUrl={previewUrl}
+				/>
+			)}
 		</Box>
 	);
 };
 
-// const AvatarSection = ({ user, onEdit }) => {
-// 	const statusColor = user.isActive ? 'green' : 'red';
-// 	const onlineColor = user.isOnline ? 'green.400' : 'gray.400';
+const EditAvatarModal = ({
+	isOpen,
+	onClose,
+	user,
+	previewUrl,
+	refetchUser,
+}) => {
+	const [selectedFile, setSelectedFile] = useState(null);
+	const [localPreviewUrl, setLocalPreviewUrl] = useState(previewUrl || null);
+	const [isUploading, setIsUploading] = useState(false);
 
-// 	return (
-// 		<Box position='relative'>
-// 			<Flex direction='column' align='center' position='relative'>
-// 				{/* Edit Button */}
-// 				<IconButton
-// 					icon={<EditIcon />}
-// 					position='absolute'
-// 					top={2}
-// 					right={2}
-// 					zIndex={2}
-// 					size='sm'
-// 					colorScheme='green'
-// 					borderRadius='full'
-// 					onClick={onEdit}
-// 					aria-label='Edit profile'
-// 				/>
+	const [createItemMutation] = useCreateItemMutation();
 
-// 				{/* Avatar */}
-// 				<Box position='relative' mb={4}>
-// 					<Avatar
-// 						size='2xl'
-// 						name={`${user.firstName} ${user.lastName}`}
-// 						src={getImageUrl(user?.profileImage)}
-// 						bg='blue.500'
-// 						color='white'
-// 						fontSize='3xl'
-// 					/>
-// 					{/* Online Status Indicator */}
-// 					<Box
-// 						position='absolute'
-// 						bottom={2}
-// 						right={2}
-// 						w={4}
-// 						h={4}
-// 						borderRadius='full'
-// 						bg={onlineColor}
-// 						border='2px solid white'
-// 					/>
-// 				</Box>
+	/** cleanup object URLs */
+	// useEffect(() => {
+	// 	return () => {
+	// 		if (selectedFile && previewUrl?.startsWith('blob:')) {
+	// 			URL.revokeObjectURL(previewUrl);
+	// 		}
+	// 	};
+	// }, [selectedFile, previewUrl]);
 
-// 				{/* User Info */}
-// 				<Text
-// 					fontSize={{ base: 'lg', lg: 'xl', xl: '2xl' }}
-// 					fontWeight='bold'
-// 					color='gray.800'
-// 				>
-// 					{user.fullName}
-// 				</Text>
+	const handleSelect = (e) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
 
-// 				{/* Badges */}
-// 				<Flex flexDir='column' gap={2} mb={3} align='center' justify='center'>
-// 					<Badge
-// 						colorScheme='blue'
-// 						fontSize={{ base: 'xs', md: 'sm' }}
-// 						px={3}
-// 						py={1}
-// 						borderRadius='full'
-// 						w='fit-content'
-// 					>
-// 						{user.roles?.[0]?.roleName || 'User'}
-// 					</Badge>
-// 				</Flex>
+		if (!['image/png', 'image/jpeg'].includes(file.type)) {
+			toast.error('Only PNG or JPEG allowed');
+			return;
+		}
 
-// 				{/* Member Since */}
-// 				<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
-// 					Member since: {new Date(user.createdAt).toLocaleDateString()}
-// 				</Text>
-// 			</Flex>
-// 		</Box>
-// 	);
-// };
+		const objectUrl = URL.createObjectURL(file);
+
+		setSelectedFile(file);
+		setLocalPreviewUrl(objectUrl);
+
+		e.target.value = null;
+	};
+
+	const handleSave = async () => {
+		if (!selectedFile) return;
+
+		try {
+			setIsUploading(true);
+
+			const compressedBlob = await compressImage(selectedFile);
+			const compressedFile = new File([compressedBlob], selectedFile.name, {
+				type: selectedFile.type,
+			});
+
+			const formData = new FormData();
+			formData.append('userId', user._id);
+			formData.append('profileImage', compressedFile);
+
+			await createItemMutation({
+				path: '/v3/users/upload/profile-image',
+				body: formData,
+				formData: true,
+			}).unwrap();
+
+			toast.success('Profile image updated');
+			refetchUser();
+			onClose();
+		} catch (e) {
+			console.log(e);
+			toast.error('Upload failed');
+		} finally {
+			setIsUploading(false);
+		}
+	};
+
+	const hasImage = Boolean(localPreviewUrl);
+
+	return (
+		<Modal isOpen={isOpen} onClose={onClose} isCentered size='lg'>
+			<ModalOverlay backdropFilter='blur(6px)' />
+			<ModalContent mx='2' borderRadius='xl' overflow='hidden'>
+				<ModalHeader>Update Profile Photo</ModalHeader>
+
+				<ModalBody>
+					<Flex direction='column' align='center' gap={6}>
+						{/* IMAGE PREVIEW */}
+						<Box
+							position='relative'
+							w='220px'
+							h='220px'
+							borderRadius='xl'
+							overflow='hidden'
+							bg='gray.100'
+							boxShadow='lg'
+						>
+							{hasImage ? (
+								<Image
+									src={localPreviewUrl}
+									alt={user.fullName}
+									w='100%'
+									h='100%'
+									objectFit='cover'
+									fallback={
+										<Flex
+											w='100%'
+											h='100%'
+											align='center'
+											justify='center'
+											color='gray.400'
+										>
+											<FiUser size={72} />
+										</Flex>
+									}
+								/>
+							) : (
+								<Flex
+									w='100%'
+									h='100%'
+									align='center'
+									justify='center'
+									color='gray.400'
+								>
+									<FiUser size={72} />
+								</Flex>
+							)}
+
+							{isUploading && (
+								<Flex
+									position='absolute'
+									inset={0}
+									bg='blackAlpha.600'
+									align='center'
+									justify='center'
+								>
+									<Spinner color='white' size='xl' thickness='3px' />
+								</Flex>
+							)}
+						</Box>
+
+						<Button
+							as='label'
+							htmlFor='avatar-upload'
+							leftIcon={<FiUploadCloud />}
+							bg='blue.50'
+							color='blue.600'
+							border='1px solid'
+							borderColor='blue.100'
+							cursor='pointer'
+							_hover={{
+								bg: 'blue.100',
+								borderColor: 'blue.200',
+							}}
+							_active={{
+								bg: 'blue.200',
+							}}
+							_focusVisible={{
+								boxShadow: '0 0 0 2px rgba(66,153,225,0.6)',
+							}}
+							px={6}
+							py={5}
+							borderRadius='lg'
+							fontWeight='semibold'
+						>
+							Upload photo
+						</Button>
+
+						<Text fontSize='sm' color='gray.500'>
+							PNG or JPEG · Max optimized automatically
+						</Text>
+
+						<Input
+							id='avatar-upload'
+							type='file'
+							accept='image/png,image/jpeg'
+							onChange={handleSelect}
+							display='none'
+						/>
+					</Flex>
+				</ModalBody>
+
+				<ModalFooter>
+					<Button
+						variant='ghost'
+						color='gray.600'
+						_hover={{ bg: 'gray.100', color: 'gray.800' }}
+						_active={{ bg: 'gray.200' }}
+						px={5}
+						borderRadius='lg'
+						onClick={onClose}
+					>
+						Cancel
+					</Button>
+
+					<Button
+						ml={3}
+						bg='brand.400'
+						color='gray.100'
+						px={6}
+						borderRadius='lg'
+						fontWeight='semibold'
+						onClick={handleSave}
+						isLoading={isUploading}
+						isDisabled={!selectedFile}
+						_hover={{ bg: 'brand.500' }}
+						_disabled={{
+							bg: 'brand.200',
+							cursor: 'not-allowed',
+							_hover: {
+								bg: 'brand.200',
+							},
+							_active: {
+								bg: 'brand.200',
+							},
+						}}
+					>
+						Save changes
+					</Button>
+				</ModalFooter>
+			</ModalContent>
+		</Modal>
+	);
+};
 
 AvatarSection.propTypes = {
 	user: PropTypes.object.isRequired,
-	onEdit: PropTypes.func.isRequired,
+	refetchUser: PropTypes.func.isRequired,
 };
 
 export default AvatarSection;

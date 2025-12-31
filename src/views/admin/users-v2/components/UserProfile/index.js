@@ -1,4 +1,3 @@
-// src/pages/UserDetailsPage.jsx
 import {
 	Container,
 	Grid,
@@ -33,12 +32,14 @@ import UserModal from '../AddUserModal';
 const UserDetailsPage = () => {
 	const { id: userId } = useParams();
 
+	const [showSkeleton, setShowSkeleton] = useState(true);
 	const [user, setUser] = useState(null);
 	const navigate = useNavigate();
 
 	const {
 		data,
 		isLoading,
+		isFetching,
 		error,
 		refetch: refetchUser,
 	} = useFetchItemsQuery(
@@ -66,13 +67,27 @@ const UserDetailsPage = () => {
 		userOpen();
 	};
 
-	if (isLoading) {
+	useEffect(() => {
+		if (isLoading || isFetching) {
+			setShowSkeleton(true);
+			return;
+		}
+
+		const timer = setTimeout(() => {
+			setShowSkeleton(false);
+		}, 500); // 1s minimum
+
+		return () => clearTimeout(timer);
+	}, [isLoading, isFetching]);
+
+	if (showSkeleton) {
 		return (
 			<Box py={8}>
-				<Skeleton height='40px' mb={6} />
-				<Grid templateColumns={{ base: '1fr', lg: '300px 1fr' }} gap={6}>
+				<Grid templateColumns={{ base: '1fr' }} gap={6}>
+					<Skeleton height='100px' />
+					<Skeleton height='250px' />
 					<Skeleton height='400px' />
-					<Skeleton height='800px' />
+					<Skeleton height='200px' />
 				</Grid>
 			</Box>
 		);
@@ -101,7 +116,7 @@ const UserDetailsPage = () => {
 	}
 
 	return (
-		<Box p={8}>
+		<Box>
 			<IconButton
 				aria-label='Go back'
 				icon={<FiChevronLeft />}
@@ -155,7 +170,7 @@ const UserDetailsPage = () => {
 				{/* Left Column - Avatar */}
 				<GridItem>
 					<SectionCard>
-						<AvatarSection user={user} onEdit={handleEditProfile} />
+						<AvatarSection user={user} refetchUser={refetchUser} />
 					</SectionCard>
 				</GridItem>
 

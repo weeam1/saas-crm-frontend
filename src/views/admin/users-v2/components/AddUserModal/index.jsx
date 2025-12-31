@@ -34,6 +34,7 @@ import SecurityPasswordPermission from 'views/admin/users/components/PasswordPer
 import { useRoles } from 'hooks/user/userRoles';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import { useSelector } from 'react-redux';
+import { salaryTypes } from 'utils/options';
 
 const getInitialValues = (userData = {}) => ({
 	firstName: userData?.firstName ?? '',
@@ -51,7 +52,7 @@ const getInitialValues = (userData = {}) => ({
 	dubaiHomeAddress: userData?.dubaiHomeAddress ?? '',
 	countryHomeAddress: userData?.countryHomeAddress ?? '',
 	countryPhoneNum: userData?.countryPhoneNum ?? '',
-	salaryType: userData?.salaryType ?? '',
+	salaryType: userData?.salaryType ?? salaryTypes?.[0]?.value ?? '',
 	salary: userData?.salary ?? '',
 	commission: userData?.commission ?? '',
 	incentive: userData?.incentive ?? '',
@@ -490,6 +491,7 @@ const UserModal = ({
 								_hover={{ bg: '#A87F3B' }}
 								onClick={() => formik.handleSubmit()}
 								isLoading={isSubmitting || isCreating || isUpdating}
+								isDisabled={!formik.dirty}
 								loadingText='Saving...'
 								flex='1'
 								maxW='150px'
