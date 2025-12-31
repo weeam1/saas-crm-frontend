@@ -18,16 +18,16 @@ export const useFetchUsers = () => {
 	const dispatch = useDispatch();
 
 	// check  all agencies permission
-	const isAgenciesAllowed = hasPermission('users', 'all_agencies') || true;
+	// const isAgenciesAllowed = hasPermission('users', 'all_agencies') || true;
 
-	const initialAgencyId = isAgenciesAllowed ? searchParams.get('agency') : null;
+	// const initialAgencyId = isAgenciesAllowed ? searchParams.get('agency') : null;
 
 	const initialPage = Number(searchParams.get('page')) || 1;
 	const initialLimit = Number(searchParams.get('limit')) || 20;
 
 	const [list, setList] = useState([]);
 	const [totalCount, setTotalCount] = useState(0);
-	const [agencyId, setAgencyId] = useState(initialAgencyId);
+	// const [agencyId, setAgencyId] = useState(initialAgencyId);
 	const [pagination, setPagination] = useState({
 		page: initialPage,
 		limit: initialLimit,
@@ -40,13 +40,10 @@ export const useFetchUsers = () => {
 		const raw = {
 			page: pagination.page,
 			limit: pagination.limit,
-			agency: agencyId || agencies[agencies]?._id,
-			...(filters?.userId && { userId: filters.userId }),
-			...(filters?.role && { role: filters.role }),
-			...(filters?.search && { search: filters.search }),
+			...(filters && { ...filters }),
 		};
 		return cleanSearchParams(raw);
-	}, [pagination.page, pagination.limit, agencies, agencyId, filters]);
+	}, [pagination.page, pagination.limit, filters]);
 
 	// sync queryParams -> URL (loop proof)
 	useEffect(() => {
@@ -111,8 +108,8 @@ export const useFetchUsers = () => {
 
 	const updateData = (id, updated, type = 'update') => {
 		const updatedAgencyId = updated?.agency?._id;
-		const filterActive = Boolean(agencyId);
-		const violatesFilter = filterActive && updatedAgencyId !== agencyId;
+		const filterActive = Boolean(filters?.agency);
+		const violatesFilter = filterActive && updatedAgencyId !== filters?.agency;
 
 		setList((prev) => {
 			// Find index once instead of mapping multiple times
@@ -174,7 +171,6 @@ export const useFetchUsers = () => {
 
 	return {
 		// raw
-		isAgenciesAllowed,
 		agencies,
 		queryParams,
 
@@ -185,8 +181,8 @@ export const useFetchUsers = () => {
 		totalRecords: totalCount ?? 0,
 
 		// filters
-		agencyId,
-		setAgencyId,
+		// agencyId,
+		// setAgencyId,
 
 		// pagination
 		pagination,

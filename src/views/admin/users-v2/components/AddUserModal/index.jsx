@@ -61,7 +61,7 @@ const getInitialValues = (userData = {}) => ({
 	agency: userData?.agency?._id ?? '',
 	parent: userData?.parent ?? null,
 	teamLead: userData?.teamLead ?? null,
-	target: userData?.target ?? null,
+	target: userData?.target ?? '',
 });
 
 const UserModal = ({

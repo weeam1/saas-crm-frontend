@@ -103,23 +103,6 @@ const UserTable = ({
 					</Badge>
 				);
 			}
-			// case 'isActive': {
-			// 	return <UserStatusToggle />
-			// 	// return (
-			// 	// 	<Badge
-			// 	// 		colorScheme={value ? 'green' : 'red'}
-			// 	// 		variant='subtle'
-			// 	// 		fontSize='.9em'
-			// 	// 		px={4}
-			// 	// 		py={2}
-			// 	// 		borderRadius='full'
-			// 	// 		textTransform='capitalize'
-			// 	// 	>
-			// 	// 		{value ? 'Active' : 'Inactive'}
-			// 	// 	</Badge>
-			// 	// );
-			// }
-
 			case 'salaryType':
 				const type = salaryTypes?.find((item) => item.value === value)?.label;
 				const { bg, text } = getBadgeColors(type);
@@ -151,7 +134,7 @@ const UserTable = ({
 			my='2'
 			overflowX='auto'
 			overflowY='auto'
-			maxH='calc(100vh - 200px)'
+			maxH='calc(100vh - 100px)'
 			borderWidth='1px'
 			borderColor='gray.200'
 			rounded='xl'
@@ -189,7 +172,7 @@ const UserTable = ({
 
 				<Tbody>
 					{isLoading || delayedLoading ? (
-						<TableLoading columns={columns} length={10} py='4' />
+						<TableLoading columns={columns} length={20} py='4' />
 					) : data.length === 0 ? (
 						<Tr>
 							<Td colSpan={columns.length} py={10}>
@@ -199,7 +182,7 @@ const UserTable = ({
 							</Td>
 						</Tr>
 					) : (
-						data.map((row, index) => (
+						data?.map((row, index) => (
 							<Tr
 								key={row._id || index}
 								_hover={{ bg: 'gray.50' }}

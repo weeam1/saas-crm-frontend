@@ -6,7 +6,7 @@ import {
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
 import { buttonStyle } from 'utils/btn';
@@ -16,44 +16,32 @@ import { useFetchUsers } from './hooks/useFetchUsers';
 import UserTable from './components/UserTable';
 import SearchBox from '../payroll/components/SearchBox';
 import UserModal from './components/AddUserModal';
+import UserFilterDrawer from './components/UserFilterDrawer';
+import ActiveFilters from '../Listing/client-listings/_component/ActiveFilters';
 
 const User = () => {
 	const {
-		isAgenciesAllowed,
 		agencies,
 		queryParams,
 		data,
 		refetch: refetchUsers,
 		totalPages,
 		totalRecords,
-		agencyId,
-		setAgencyId,
 		isLoading,
 		isFetching,
 		handlePageChange,
 		handlePageSize,
-		onDateFilterChange,
 		updateData,
 		filters,
 		setFilters,
 		setPagination,
 	} = useFetchUsers();
 
-	const selectedAgency = useMemo(
-		() => agencies.find((a) => a._id === agencyId) || null,
-		[agencies, agencyId]
-	);
-
 	const [clearFilters, setClearFilters] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [modalMode, setModalMode] = useState('add');
-
-	const {
-		isOpen: agencyFilterIsOpen,
-		onOpen: agencyFilterOnOpen,
-		onClose: agencyFilterOnClose,
-	} = useDisclosure();
+	const [activeFilters, setActiveFilters] = useState({});
 
 	const {
 		isOpen: userIsOpen,
@@ -71,21 +59,6 @@ const User = () => {
 		setModalMode('edit');
 		setSelectedUser(user);
 		userOpen();
-	};
-
-	const handleAgencyFilter = (value) => {
-		setAgencyId(value);
-
-		if (value) {
-			setClearFilters(true);
-			setPagination((prev) => ({ ...prev, page: 1 }));
-		} else setClearFilters(false);
-	};
-
-	const handleClear = () => {
-		setClearFilters(false);
-		setAgencyId(null);
-		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	const handleSearchTermChange = (searchQuery) => {
@@ -110,6 +83,19 @@ const User = () => {
 		}
 	};
 
+	const handleApplyFilters = useCallback((newFilters) => {
+		setFilters(newFilters);
+		setSearchTerm('');
+		setPagination((prev) => ({ ...prev, page: 1 }));
+	}, []);
+
+	const handleReset = () => {
+		setFilters({});
+		setActiveFilters({});
+		setPagination((prev) => ({ ...prev, page: 1 }));
+		setSearchTerm('');
+	};
+
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
 			<Flex
@@ -119,7 +105,7 @@ const User = () => {
 				mb={4}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>{selectedAgency?.name || 'All '} Users</Text>
+					<Text>Users</Text>
 
 					<CountUpComponent key={totalRecords} targetNumber={totalRecords} />
 				</Flex>
@@ -151,6 +137,14 @@ const User = () => {
 							onSearchTermChange={handleSearchTermChange}
 							setSearchTerm={setSearchTerm}
 							searchTerm={searchTerm}
+						/>
+
+						<UserFilterDrawer
+							onApply={handleApplyFilters}
+							agencies={agencies}
+							filters={filters}
+							setActiveFilters={setActiveFilters}
+							onReset={handleReset}
 						/>
 
 						<Button
@@ -191,7 +185,7 @@ const User = () => {
 						</Button> */}
 					</Flex>
 
-					{clearFilters && (
+					{/* {clearFilters && (
 						<Button
 							{...buttonStyle}
 							variant='solid'
@@ -210,7 +204,7 @@ const User = () => {
 						>
 							Clear
 						</Button>
-					)}
+					)} */}
 				</HStack>
 			</Flex>
 
@@ -226,6 +220,8 @@ const User = () => {
 					handlePageSize={handlePageSize}
 				/>
 			)}
+
+			<ActiveFilters activeFilters={activeFilters} handleReset={handleReset} />
 
 			<UserTable
 				data={data || []}
