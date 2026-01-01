@@ -165,9 +165,7 @@ const UserTable = ({
 					) : data.length === 0 ? (
 						<Tr>
 							<Td colSpan={columns.length} py={10}>
-								<Center>
-									<NoData label='user' />
-								</Center>
+								<NoData label='user' />
 							</Td>
 						</Tr>
 					) : (

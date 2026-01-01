@@ -1,7 +1,6 @@
-import { Box, Avatar, Text, Tooltip } from '@chakra-ui/react';
+import { Box, Avatar, Text, Tooltip, Link } from '@chakra-ui/react';
 import { constant } from 'constant';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { getAvatarColor, getInitials } from 'utils/colorUtils';
 
 const UserAvatarWithStatus = ({ user, onClick, linkTo, cursor = true }) => {
