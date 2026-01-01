@@ -47,7 +47,13 @@ const UserCoinsView = ({ user, updateData }) => {
 	};
 
 	return (
-		<Flex align='center' justify='center' textAlign='center' gap={2} w='full'>
+		<Flex
+			align='center'
+			justify='flex-start'
+			textAlign='center'
+			gap={2}
+			w='full'
+		>
 			{/* Coins Display */}
 			<Flex align='center' gap={2}>
 				<FaCoins size={16} strokeWidth={1.5} color='#e2a814ff' />

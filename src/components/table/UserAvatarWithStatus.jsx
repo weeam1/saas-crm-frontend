@@ -1,10 +1,13 @@
 import { Box, Avatar, Text, Tooltip, Link } from '@chakra-ui/react';
 import { constant } from 'constant';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { getAvatarColor, getInitials } from 'utils/colorUtils';
 
 const UserAvatarWithStatus = ({ user, onClick, linkTo, cursor = true }) => {
 	const Wrapper = linkTo ? Link : Box;
+
+	const navigate = useNavigate();
 
 	const onlineUsers = useSelector((state) => state.onlineUsers);
 
@@ -44,7 +47,9 @@ const UserAvatarWithStatus = ({ user, onClick, linkTo, cursor = true }) => {
 
 		if (linkTo) {
 			// Navigate to user profile page
-			window.location.href = linkTo;
+			// window.location.href = linkTo;
+
+			navigate(linkTo);
 		}
 
 		if (onClick) {

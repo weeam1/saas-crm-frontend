@@ -148,7 +148,9 @@ const UserTable = ({
 								textTransform='capitalize'
 								fontSize='md'
 								py='4'
-								textAlign={['user'].includes(column.key) ? 'left' : 'center'}
+								textAlign={
+									['user', 'coins'].includes(column.key) ? 'left' : 'center'
+								}
 								fontWeight='semibold'
 								color='gray.700'
 								minW={column.width}
@@ -187,7 +189,9 @@ const UserTable = ({
 										minW={column.width}
 										maxW='400px'
 										textAlign={
-											['name', 'user'].includes(column.key) ? 'left' : 'center'
+											['name', 'user', 'coins'].includes(column.key)
+												? 'left'
+												: 'center'
 										}
 										fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
 										color='gray.700'
