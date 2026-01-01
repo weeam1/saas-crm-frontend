@@ -660,19 +660,19 @@ export const sidebarRoutes = [
 	},
 
 	// -------- Users --------
-	{
-		moduleId: 'users',
-		name: 'Users',
-		isNested: false,
-		path: '/users',
-		icon: HiUsers,
-		color: '#8B5CF6', // Violet
-	},
+	// {
+	// 	moduleId: 'users',
+	// 	name: 'Users',
+	// 	isNested: false,
+	// 	path: '/users',
+	// 	icon: HiUsers,
+	// 	color: '#8B5CF6', // Violet
+	// },
 
 	// -------- Users V2 --------
 	{
 		moduleId: 'users',
-		name: 'Users V2',
+		name: 'Users',
 		isNested: false,
 		path: '/users-v2',
 		icon: HiUsers,
