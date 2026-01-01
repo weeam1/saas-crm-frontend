@@ -77,14 +77,12 @@ const UserModal = ({
 
 	const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
 
-	console.log({ initial: getInitialValues(userData) });
-
 	const [replacementManager, setReplacementManager] = useState(null);
 	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
 	const [securityPassword, setSecurityPassword] = useState('');
 
 	const { roles: allRoles } = useRoles();
-	const { isSuperAdmin } = useUserSession();
+	const { isSuperAdmin, userRoleName } = useUserSession();
 	const { team: managers, getTeamLeadsByManager } = useTeamStructure();
 
 	const {

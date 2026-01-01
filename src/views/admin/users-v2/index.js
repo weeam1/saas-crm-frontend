@@ -3,10 +3,11 @@ import {
 	Button,
 	Flex,
 	HStack,
+	IconButton,
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
 import { buttonStyle } from 'utils/btn';
@@ -19,6 +20,8 @@ import UserModal from './components/AddUserModal';
 import UserFilterDrawer from './components/UserFilterDrawer';
 import ActiveFilters from '../Listing/client-listings/_component/ActiveFilters';
 import { usePermissions } from 'hooks/usePermissions';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { FiChevronLeft } from 'react-icons/fi';
 
 const User = () => {
 	const {
@@ -45,6 +48,15 @@ const User = () => {
 	const [activeFilters, setActiveFilters] = useState({});
 
 	const { hasPermission } = usePermissions();
+
+	const navigate = useNavigate();
+	const location = useLocation();
+	const pathname = location?.pathname;
+
+	useEffect(() => {
+		if (!hasPermission('users')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const {
 		isOpen: userIsOpen,
@@ -101,6 +113,17 @@ const User = () => {
 
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
+			{pathname.includes('admin-setting') && (
+				<IconButton
+					aria-label='Go back'
+					icon={<FiChevronLeft />}
+					onClick={() => navigate('/admin-setting')}
+					// variant='ghost'
+					size='md'
+					isRound
+				/>
+			)}
+
 			<Flex
 				flexDir={{ base: 'column', md: 'row' }}
 				justify='space-between'

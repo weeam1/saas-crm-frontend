@@ -356,9 +356,10 @@ export default function HeaderLinks(props) {
 								<Text
 									fontSize='sm'
 									onClick={() =>
-										navigate(
-											`/users/${JSON.parse(localStorage.getItem('user'))?._id}`
-										)
+										// navigate(
+										// 	`/users/${JSON.parse(localStorage.getItem('user'))?._id}`
+										// )
+										navigate(`/users-v2/${user?._id}`)
 									}
 								>
 									Profile Settings

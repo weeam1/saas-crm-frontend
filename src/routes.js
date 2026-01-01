@@ -1448,7 +1448,8 @@ const routes = [
 		path: '/admin-setting/users',
 		under: 'user',
 		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
-		component: User,
+		// component: User,
+		component: UserV2,
 	},
 	{
 		name: 'User View',
