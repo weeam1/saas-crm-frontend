@@ -9,6 +9,10 @@ const UserAvatarWithStatus = ({ user, onClick, linkTo, cursor = true }) => {
 
 	const onlineUsers = useSelector((state) => state.onlineUsers);
 
+	const status = onlineUsers?.users?.includes(user?._id?.toString())
+		? 'online'
+		: 'offline';
+
 	const name = user?.fullName || user?.username || '';
 	const imgSrc = user?.profileImage
 		? `${constant.baseUrl}${user.profileImage}`
@@ -32,9 +36,6 @@ const UserAvatarWithStatus = ({ user, onClick, linkTo, cursor = true }) => {
 		return statusMap[status] || statusMap.offline;
 	};
 
-	const status = onlineUsers?.users?.includes(user?._id?.toString())
-		? 'online'
-		: 'offline';
 	const statusConfig = getStatusConfig(status);
 
 	// Handle avatar click

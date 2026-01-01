@@ -3,14 +3,13 @@ import {
 	Button,
 	Flex,
 	HStack,
+	IconButton,
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
-import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { FiFilter } from 'react-icons/fi';
 import { buttonStyle } from 'utils/btn';
 import { BiX } from 'react-icons/bi';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
@@ -18,43 +17,46 @@ import { useFetchUsers } from './hooks/useFetchUsers';
 import UserTable from './components/UserTable';
 import SearchBox from '../payroll/components/SearchBox';
 import UserModal from './components/AddUserModal';
+import UserFilterDrawer from './components/UserFilterDrawer';
+import ActiveFilters from '../Listing/client-listings/_component/ActiveFilters';
+import { usePermissions } from 'hooks/usePermissions';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { FiChevronLeft } from 'react-icons/fi';
 
 const User = () => {
 	const {
-		isAgenciesAllowed,
 		agencies,
 		queryParams,
 		data,
+		refetch: refetchUsers,
 		totalPages,
 		totalRecords,
-		agencyId,
-		setAgencyId,
 		isLoading,
 		isFetching,
 		handlePageChange,
 		handlePageSize,
-		onDateFilterChange,
 		updateData,
 		filters,
 		setFilters,
 		setPagination,
 	} = useFetchUsers();
 
-	const selectedAgency = useMemo(
-		() => agencies.find((a) => a._id === agencyId) || null,
-		[agencies, agencyId]
-	);
-
 	const [clearFilters, setClearFilters] = useState(false);
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [modalMode, setModalMode] = useState('add');
+	const [activeFilters, setActiveFilters] = useState({});
 
-	const {
-		isOpen: agencyFilterIsOpen,
-		onOpen: agencyFilterOnOpen,
-		onClose: agencyFilterOnClose,
-	} = useDisclosure();
+	const { hasPermission } = usePermissions();
+
+	const navigate = useNavigate();
+	const location = useLocation();
+	const pathname = location?.pathname;
+
+	useEffect(() => {
+		if (!hasPermission('users')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const {
 		isOpen: userIsOpen,
@@ -72,21 +74,6 @@ const User = () => {
 		setModalMode('edit');
 		setSelectedUser(user);
 		userOpen();
-	};
-
-	const handleAgencyFilter = (value) => {
-		setAgencyId(value);
-
-		if (value) {
-			setClearFilters(true);
-			setPagination((prev) => ({ ...prev, page: 1 }));
-		} else setClearFilters(false);
-	};
-
-	const handleClear = () => {
-		setClearFilters(false);
-		setAgencyId(null);
-		setPagination((prev) => ({ ...prev, page: 1 }));
 	};
 
 	const handleSearchTermChange = (searchQuery) => {
@@ -111,16 +98,40 @@ const User = () => {
 		}
 	};
 
+	const handleApplyFilters = useCallback((newFilters) => {
+		setFilters(newFilters);
+		setSearchTerm('');
+		setPagination((prev) => ({ ...prev, page: 1 }));
+	}, []);
+
+	const handleReset = () => {
+		setFilters({});
+		setActiveFilters({});
+		setPagination((prev) => ({ ...prev, page: 1 }));
+		setSearchTerm('');
+	};
+
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
+			{pathname.includes('admin-setting') && (
+				<IconButton
+					aria-label='Go back'
+					icon={<FiChevronLeft />}
+					onClick={() => navigate('/admin-setting')}
+					// variant='ghost'
+					size='md'
+					isRound
+				/>
+			)}
+
 			<Flex
 				flexDir={{ base: 'column', md: 'row' }}
 				justify='space-between'
 				align='center'
-				mb={4}
+				mb={2}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>{selectedAgency?.name || 'All '} Users</Text>
+					<Text>Users</Text>
 
 					<CountUpComponent key={totalRecords} targetNumber={totalRecords} />
 				</Flex>
@@ -154,22 +165,33 @@ const User = () => {
 							searchTerm={searchTerm}
 						/>
 
-						<Button
-							leftIcon={<FaPlus size={14} />}
-							bg='gray.50'
-							color='gray.800'
-							border='1px solid #D0D5DD'
-							size='md'
-							borderRadius='12px'
-							fontWeight='600'
-							px={5}
-							mt={{ base: 2, md: 0 }} // spacing on mobile
-							_hover={{ bg: 'gray.100' }}
-							boxShadow='0px 1px 3px rgba(0,0,0,0.08)'
-							onClick={handleAddUser}
-						>
-							New User
-						</Button>
+						<UserFilterDrawer
+							onApply={handleApplyFilters}
+							agencies={agencies}
+							filters={filters}
+							setActiveFilters={setActiveFilters}
+							onReset={handleReset}
+						/>
+
+						{hasPermission('users', 'create') && (
+							<Button
+								leftIcon={<FaPlus size={14} />}
+								bg='gray.50'
+								color='gray.800'
+								border='1px solid #D0D5DD'
+								size='md'
+								borderRadius='12px'
+								fontWeight='600'
+								px={5}
+								mt={{ base: 2, md: 0 }} // spacing on mobile
+								_hover={{ bg: 'gray.100' }}
+								boxShadow='0px 1px 3px rgba(0,0,0,0.08)'
+								onClick={handleAddUser}
+							>
+								New User
+							</Button>
+						)}
+
 						{/* Filter Toggle Button */}
 						{/* <Button
 							leftIcon={<FiFilter />}
@@ -192,7 +214,7 @@ const User = () => {
 						</Button> */}
 					</Flex>
 
-					{clearFilters && (
+					{/* {clearFilters && (
 						<Button
 							{...buttonStyle}
 							variant='solid'
@@ -211,7 +233,7 @@ const User = () => {
 						>
 							Clear
 						</Button>
-					)}
+					)} */}
 				</HStack>
 			</Flex>
 
@@ -228,11 +250,14 @@ const User = () => {
 				/>
 			)}
 
+			<ActiveFilters activeFilters={activeFilters} handleReset={handleReset} />
+
 			<UserTable
 				data={data || []}
-				updateData={updateData}
 				handleEditUser={handleEditUser}
 				isLoading={isLoading || isFetching}
+				updateData={updateData}
+				refetchUsers={refetchUsers}
 			/>
 
 			{/* {viewBalance?.modal && (
@@ -250,6 +275,7 @@ const User = () => {
 					mode={modalMode}
 					userData={selectedUser}
 					agencies={agencies}
+					updateData={updateData}
 				/>
 			)}
 

@@ -20,25 +20,37 @@ import { format } from 'date-fns';
 import { formatCurrency } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { getBadgeColors } from 'utils/colorUtils';
-import { salaryTypes, userCommissionTypes } from 'utils/options';
+import { salaryTypes } from 'utils/options';
 import UserCoinsView from './UserCoinsView';
 import UserAvatarWithStatus from 'components/table/UserAvatarWithStatus';
+import { useNavigate } from 'react-router-dom';
+import UserStatusToggle from './UserStatusToogle';
+import { usePermissions } from 'hooks/usePermissions';
 
-const UserTable = ({ data = [], isLoading, handleEditUser }) => {
+const UserTable = ({
+	data = [],
+	isLoading,
+	handleEditUser,
+	updateData,
+	refetchUsers,
+}) => {
 	const columns = [
 		{ key: 'user', label: 'User', width: '200px' },
 		{ key: 'roles', label: 'Role', width: '150px' },
 		{ key: 'phoneNumber', label: 'Phone', width: '150px' },
 		{ key: 'agency', label: 'Agency', width: '200px' },
 		{ key: 'coins', label: 'Coins', width: '180px' },
-		{ key: 'isActive', label: 'Status', width: '100px' },
+		{ key: 'salaryType', label: 'Salary Type', width: '180px' },
 		{ key: 'createdAt', label: 'Joining Date', width: '100px' },
-		// { key: 'salaryType', label: 'Salary Type', width: '180px' },
+		{ key: 'isActive', label: 'Status', width: '100px' },
 		{ key: 'actions', label: 'Actions', width: '120px' },
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
-	const [selectedId, setSelectedId] = useState(null);
+
+	const { hasPermission } = usePermissions();
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		let timer;
@@ -54,25 +66,8 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 
 	const formatValue = (key, value) => {
 		switch (key) {
-			// case 'paymentMethod': {
-			// 	const color = paymentColors[value] || 'gray';
-			// 	return (
-			// 		<Badge
-			// 			colorScheme={color}
-			// 			variant='subtle'
-			// 			fontSize='.9em'
-			// 			px={4}
-			// 			py={2}
-			// 			borderRadius='full'
-			// 			textTransform='capitalize'
-			// 		>
-			// 			{value || 'N/A'}
-			// 		</Badge>
-			// 	);
-			// }
-
 			case 'roles': {
-				const roleName = value?.roleName.replace(/^./, (c) => c.toUpperCase());
+				const roleName = value?.roleName?.replace(/^./, (c) => c.toUpperCase());
 				// ?.replace(/([A-Z])/g, ' $1')
 
 				const { bg, text } = getBadgeColors(roleName);
@@ -82,7 +77,7 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 						bg={bg}
 						color={text}
 						variant='subtle'
-						fontSize='.9em'
+						fontSize='.8em'
 						px={4}
 						py={2}
 						borderRadius='full'
@@ -94,57 +89,28 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 			}
 
 			case 'agency': {
-				const { bg, text } = getBadgeColors(value?.name);
+				// const { bg, text } = getBadgeColors(value?.name);
 
-				return (
-					<Badge
-						bg={bg}
-						color={text}
-						variant='subtle'
-						fontSize='.9em'
-						px={4}
-						py={2}
-						borderRadius='full'
-						textTransform='capitalize'
-					>
-						{value?.name}
-					</Badge>
-				);
-			}
-			case 'isActive': {
-				return (
-					<Badge
-						colorScheme={value ? 'green' : 'red'}
-						variant='subtle'
-						fontSize='.9em'
-						px={4}
-						py={2}
-						borderRadius='full'
-						textTransform='capitalize'
-					>
-						{value ? 'Active' : 'Inactive'}
-					</Badge>
-				);
-			}
+				return value?.name ?? 'No Agency';
 
+				// return (
+				// 	<Badge
+				// 		bg={bg}
+				// 		color={text}
+				// 		variant='subtle'
+				// 		fontSize='.9em'
+				// 		px={4}
+				// 		py={2}
+				// 		borderRadius='full'
+				// 		textTransform='capitalize'
+				// 	>
+				// 		{value?.name}
+				// 	</Badge>
+				// );
+			}
 			case 'salaryType':
 				const type = salaryTypes?.find((item) => item.value === value)?.label;
-				const { bg, text } = getBadgeColors(type);
-
-				return (
-					<Badge
-						bg={bg}
-						color={text}
-						variant='subtle'
-						fontSize='.9em'
-						px={4}
-						py={2}
-						borderRadius='full'
-						textTransform='capitalize'
-					>
-						{type}
-					</Badge>
-				);
+				return type ?? 'N/A';
 
 			case 'createdAt':
 				return value ? format(new Date(value), 'MMM d, yyyy') : 'N/A';
@@ -155,10 +121,9 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 
 	return (
 		<Box
-			my='2'
 			overflowX='auto'
 			overflowY='auto'
-			maxH='calc(100vh - 200px)'
+			maxH='calc(100vh - 100px)'
 			borderWidth='1px'
 			borderColor='gray.200'
 			rounded='xl'
@@ -196,7 +161,7 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 
 				<Tbody>
 					{isLoading || delayedLoading ? (
-						<TableLoading columns={columns} length={10} py='4' />
+						<TableLoading columns={columns} length={20} py='4' />
 					) : data.length === 0 ? (
 						<Tr>
 							<Td colSpan={columns.length} py={10}>
@@ -206,7 +171,7 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 							</Td>
 						</Tr>
 					) : (
-						data.map((row, index) => (
+						data?.map((row, index) => (
 							<Tr
 								key={row._id || index}
 								_hover={{ bg: 'gray.50' }}
@@ -230,9 +195,17 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 										color='gray.700'
 									>
 										{column.key === 'user' ? (
-											<UserAvatarWithStatus user={row} />
+											<UserAvatarWithStatus
+												user={row}
+												linkTo={`/users-v2/${row?._id}`}
+											/>
 										) : column.key === 'coins' ? (
-											<UserCoinsView user={row} />
+											<UserCoinsView user={row} updateData={updateData} />
+										) : column.key === 'isActive' ? (
+											<UserStatusToggle
+												user={row}
+												refetchUsers={refetchUsers}
+											/>
 										) : column.key === 'actions' ? (
 											<Flex align='center' justify='center' gap={3}>
 												<CustomTooltip label='View'>
@@ -242,19 +215,22 @@ const UserTable = ({ data = [], isLoading, handleEditUser }) => {
 														size='sm'
 														colorScheme='teal'
 														variant='ghost'
-														// onClick={() => setView({ modal: true, data: row })}
+														onClick={() => navigate(`/users-v2/${row?._id}`)}
 													/>
 												</CustomTooltip>
-												<CustomTooltip label='Edit'>
-													<IconButton
-														aria-label='Edit'
-														icon={<FiEdit2 />}
-														size='sm'
-														colorScheme='blue'
-														variant='ghost'
-														onClick={() => handleEditUser(row)}
-													/>
-												</CustomTooltip>
+
+												{hasPermission('users', 'edit') && (
+													<CustomTooltip label='Edit'>
+														<IconButton
+															aria-label='Edit'
+															icon={<FiEdit2 />}
+															size='sm'
+															colorScheme='blue'
+															variant='ghost'
+															onClick={() => handleEditUser(row)}
+														/>
+													</CustomTooltip>
+												)}
 											</Flex>
 										) : ['amount', 'totalAmount'].includes(column.key) ? (
 											<Text>

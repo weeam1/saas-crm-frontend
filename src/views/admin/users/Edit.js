@@ -304,7 +304,8 @@ const Edit = (props) => {
 			console.log(e);
 			if (!controller.signal.aborted) {
 				toast.error(e?.data?.message || 'User is not updated!');
-				setReplacementManager('');
+				setReplacementManager(null);
+				setReplacementTeamLead(null);
 				setSecurityPassword('');
 			}
 		}

@@ -91,9 +91,7 @@ const SalarySection = ({ formik }) => {
 						placeholder='0.00'
 					/>
 				)}
-			</SimpleGrid>
 
-			<Box mt={4}>
 				<FormField
 					label='Commission Type'
 					name='commissionType'
@@ -101,7 +99,16 @@ const SalarySection = ({ formik }) => {
 					as='select'
 					options={userCommissionTypes}
 				/>
-			</Box>
+
+				<FormField
+					label='Target'
+					name='target'
+					type='number'
+					icon={<FaAward size={14} />}
+					formik={formik}
+					placeholder='Set user target'
+				/>
+			</SimpleGrid>
 		</Box>
 	);
 };

@@ -14,7 +14,7 @@ import {
 import { InfoIcon } from '@chakra-ui/icons';
 import { buttonStyle } from 'utils/btn';
 
-const securityPasswordPermission = ({
+const SecurityPasswordPermission = ({
 	isOpen,
 	onClose,
 	securityPassword,
@@ -82,4 +82,4 @@ const securityPasswordPermission = ({
 	);
 };
 
-export default securityPasswordPermission;
+export default SecurityPasswordPermission;

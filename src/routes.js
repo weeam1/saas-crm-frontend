@@ -47,6 +47,9 @@ const CloseDealScreen = React.lazy(
 const LeadAnalytics = React.lazy(
 	() => import('views/admin/lead-v2/leadAnalytics')
 );
+const UserProfileDetails = React.lazy(
+	() => import('views/admin/users-v2/components/UserProfile')
+);
 
 // Hiring
 const Hiring = React.lazy(() => import('views/admin/hiring'));
@@ -1445,7 +1448,8 @@ const routes = [
 		path: '/admin-setting/users',
 		under: 'user',
 		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
-		component: User,
+		// component: User,
+		component: UserV2,
 	},
 	{
 		name: 'User View',
@@ -1473,6 +1477,15 @@ const routes = [
 		under: 'user',
 		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
 		component: UserV2,
+	},
+	{
+		// moduleId: 'users',
+		name: 'Users V2',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/users-v2/:id',
+		under: 'user',
+		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+		component: UserProfileDetails,
 	},
 
 	{

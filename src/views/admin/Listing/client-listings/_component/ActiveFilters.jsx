@@ -43,14 +43,14 @@ const ActiveFilters = ({ activeFilters, handleReset }) => {
 											key={key}
 											colorScheme='brand'
 											px={3}
-											py={1}
-											borderRadius='full'
+											py={2}
+											borderRadius='md'
 											initial={{ scale: 0 }}
 											animate={{ scale: 1 }}
 											exit={{ scale: 0 }}
 											textTransform='none'
 										>
-											<HStack fontSize='sm' spacing={1}>
+											<HStack fontSize={{ base: 'xs', md: 'sm' }} spacing={1}>
 												<Text textTransform='capitalize'>
 													{key.replace(/([A-Z])/g, ' $1').toLowerCase()}:
 												</Text>

@@ -27,23 +27,23 @@ const RoleStructureSection = ({ formik }) => {
 				</Heading>
 			</Flex>
 
-			<FormField
-				label='Role'
-				name='roles'
-				icon={<FaDollarSign size={14} />}
-				formik={formik}
-				isRequired
-				placeholder='Select Role'
-				as='select'
-				options={roles?.map((role) => {
-					return {
-						label: role?.roleName,
-						value: role?._id,
-					};
-				})}
-			/>
+			<SimpleGrid mt={4} columns={{ base: 1, lg: 2 }} spacing={4}>
+				<FormField
+					label='Role'
+					name='roles'
+					icon={<FaDollarSign size={14} />}
+					formik={formik}
+					isRequired
+					placeholder='Select Role'
+					as='select'
+					options={roles?.map((role) => {
+						return {
+							label: role?.roleName,
+							value: role?._id,
+						};
+					})}
+				/>
 
-			<SimpleGrid mt={4} columns={{ base: 1, md: 2 }} spacing={4}>
 				{['Agent', 'Team Leader'].includes(role?.roleName) && (
 					<FormField
 						label='Manager'
