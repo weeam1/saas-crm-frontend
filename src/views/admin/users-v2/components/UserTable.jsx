@@ -39,9 +39,9 @@ const UserTable = ({
 		{ key: 'phoneNumber', label: 'Phone', width: '150px' },
 		{ key: 'agency', label: 'Agency', width: '200px' },
 		{ key: 'coins', label: 'Coins', width: '180px' },
-		{ key: 'isActive', label: 'Status', width: '100px' },
+		{ key: 'salaryType', label: 'Salary Type', width: '180px' },
 		{ key: 'createdAt', label: 'Joining Date', width: '100px' },
-		// { key: 'salaryType', label: 'Salary Type', width: '180px' },
+		{ key: 'isActive', label: 'Status', width: '100px' },
 		{ key: 'actions', label: 'Actions', width: '120px' },
 	];
 
@@ -74,7 +74,7 @@ const UserTable = ({
 						bg={bg}
 						color={text}
 						variant='subtle'
-						fontSize='.9em'
+						fontSize='.8em'
 						px={4}
 						py={2}
 						borderRadius='full'
@@ -87,6 +87,8 @@ const UserTable = ({
 
 			case 'agency': {
 				const { bg, text } = getBadgeColors(value?.name);
+
+				return value?.name ?? 'No Agency';
 
 				return (
 					<Badge
@@ -106,6 +108,8 @@ const UserTable = ({
 			case 'salaryType':
 				const type = salaryTypes?.find((item) => item.value === value)?.label;
 				const { bg, text } = getBadgeColors(type);
+
+				return type ?? 'N/A';
 
 				return (
 					<Badge
