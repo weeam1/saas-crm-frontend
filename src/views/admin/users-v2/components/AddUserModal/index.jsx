@@ -1,566 +1,555 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useFormik } from 'formik';
+import React, { useState, useEffect, useMemo } from "react";
+import { useFormik } from "formik";
 import {
-	Modal,
-	ModalOverlay,
-	ModalContent,
-	ModalHeader,
-	ModalCloseButton,
-	ModalBody,
-	ModalFooter,
-	Box,
-	Flex,
-	Button,
-	SimpleGrid,
-	Heading,
-	useDisclosure,
-} from '@chakra-ui/react';
-import { FaUser, FaDollarSign, FaPercent, FaAward } from 'react-icons/fa';
-import { MdEmail, MdPhone, MdLocationOn } from 'react-icons/md';
-import { HiOfficeBuilding, HiIdentification } from 'react-icons/hi';
-import { AiOutlineFieldNumber } from 'react-icons/ai';
-import { BsCalendarDate } from 'react-icons/bs';
-import { toast } from 'react-toastify';
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Box,
+  Flex,
+  Button,
+  SimpleGrid,
+  Heading,
+  useDisclosure,
+  Text,
+  Progress,
+} from "@chakra-ui/react";
+import { FaUser, FaDollarSign, FaPercent, FaAward } from "react-icons/fa";
+import { MdEmail, MdPhone, MdLocationOn } from "react-icons/md";
+import { HiOfficeBuilding, HiIdentification } from "react-icons/hi";
+import { AiOutlineFieldNumber } from "react-icons/ai";
+import { BsCalendarDate } from "react-icons/bs";
+import { toast } from "react-toastify";
 
 // Import reusable components
-import { useCreateItemMutation, useUpdateItemMutation } from 'api/apiSlice';
-import { userSchema } from 'schema';
-import FormField from './FormField';
-import SalarySection from './SalarySection';
-import RoleStructureSection from './RoleStructureSection';
-import ReplaceManager from 'views/admin/users/components/ReplaceManager';
-import ReplaceTeamLead from 'views/admin/users/components/ReplaceTeamLead';
-import SecurityPasswordPermission from 'views/admin/users/components/PasswordPermission';
-import { useRoles } from 'hooks/user/userRoles';
-import { useTeamStructure } from 'hooks/user/useTeamStructure';
-import { useSelector } from 'react-redux';
-import { salaryTypes } from 'utils/options';
-import useUserSession from 'hooks/useUserSession';
-import ProfilePictureModal from './ProfilePicModal';
+import { useCreateItemMutation, useUpdateItemMutation } from "api/apiSlice";
+import { userSchema } from "schema";
+import FormField from "./FormField";
+import SalarySection from "./SalarySection";
+import RoleStructureSection from "./RoleStructureSection";
+import ReplaceManager from "views/admin/users/components/ReplaceManager";
+import ReplaceTeamLead from "views/admin/users/components/ReplaceTeamLead";
+import SecurityPasswordPermission from "views/admin/users/components/PasswordPermission";
+import { useRoles } from "hooks/user/userRoles";
+import { useTeamStructure } from "hooks/user/useTeamStructure";
+import { useSelector } from "react-redux";
+import { salaryTypes } from "utils/options";
+import useUserSession from "hooks/useUserSession";
+import ProfilePictureModal from "./ProfilePicModal";
 
 const getInitialValues = (userData = {}) => ({
-	firstName: userData?.firstName ?? '',
-	lastName: userData?.lastName ?? '',
-	password: '',
-	username: userData?.username ?? '',
-	// profileImage: userData?.profileImage ?? '',
-	phoneNumber: userData?.phoneNumber ?? '',
-	nationality: userData?.nationality ?? '',
-	dob: userData?.dob ? new Date(userData.dob).toISOString().split('T')[0] : '',
-	passportNum: userData?.passportNum ?? '',
-	uaeIdNum: userData?.uaeIdNum ?? '',
-	drivingLicense: userData?.drivingLicense ?? '',
-	educationDegree: userData?.educationDegree ?? '',
-	dubaiHomeAddress: userData?.dubaiHomeAddress ?? '',
-	countryHomeAddress: userData?.countryHomeAddress ?? '',
-	countryPhoneNum: userData?.countryPhoneNum ?? '',
-	salaryType: userData?.salaryType ?? salaryTypes?.[0]?.value ?? '',
-	salary: userData?.salary ?? '',
-	commission: userData?.commission ?? '',
-	incentive: userData?.incentive ?? '',
+  firstName: userData?.firstName ?? "",
+  lastName: userData?.lastName ?? "",
+  password: "",
+  username: userData?.username ?? "",
+  // profileImage: userData?.profileImage ?? '',
+  phoneNumber: userData?.phoneNumber ?? "",
+  nationality: userData?.nationality ?? "",
+  dob: userData?.dob ? new Date(userData.dob).toISOString().split("T")[0] : "",
+  passportNum: userData?.passportNum ?? "",
+  uaeIdNum: userData?.uaeIdNum ?? "",
+  drivingLicense: userData?.drivingLicense ?? "",
+  educationDegree: userData?.educationDegree ?? "",
+  dubaiHomeAddress: userData?.dubaiHomeAddress ?? "",
+  countryHomeAddress: userData?.countryHomeAddress ?? "",
+  countryPhoneNum: userData?.countryPhoneNum ?? "",
+  salaryType: userData?.salaryType ?? salaryTypes?.[0]?.value ?? "",
+  salary: userData?.salary ?? "",
+  commission: userData?.commission ?? "",
+  incentive: userData?.incentive ?? "",
 
-	roles: userData?.roles?._id || userData?.roles?.[0]?._id || '',
-	agency: userData?.agency?._id ?? '',
-	parent: userData?.parent?._id || userData?.parent || null,
-	teamLead: userData?.teamLead?._id || userData?.teamLead || null,
-	target: userData?.target ?? '',
+  roles: userData?.roles?._id || userData?.roles?.[0]?._id || "",
+  agency: userData?.agency?._id ?? "",
+  parent: userData?.parent?._id || userData?.parent || null,
+  teamLead: userData?.teamLead?._id || userData?.teamLead || null,
+  target: userData?.target ?? "",
 });
 
 const UserModal = ({
-	isOpen,
-	onClose,
-	mode = 'add',
-	userData = null,
-	updateData,
-	refetchUser,
+  isOpen,
+  onClose,
+  mode = "add",
+  userData = null,
+  updateData,
+  refetchUser,
 }) => {
-	const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
+  const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
 
-	const [replacementManager, setReplacementManager] = useState(null);
-	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
-	const [securityPassword, setSecurityPassword] = useState('');
-	const [isSuccess, setIsSuccess] = useState(false);
-const [currentUser, setCurrentUser] = useState(null);
+  const [replacementManager, setReplacementManager] = useState(null);
+  const [replacementTeamLead, setReplacementTeamLead] = useState(null);
+  const [securityPassword, setSecurityPassword] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
+  const { roles: allRoles } = useRoles();
+  const { isSuperAdmin, userRoleName } = useUserSession();
+  const {
+    team: managers,
+    getTeamLeadsByManager,
+    refreshTeam,
+  } = useTeamStructure();
 
-	const { roles: allRoles } = useRoles();
-	const { isSuperAdmin, userRoleName } = useUserSession();
-	const {
-		team: managers,
-		getTeamLeadsByManager,
-		refreshTeam,
-	} = useTeamStructure();
+  const {
+    isOpen: replaceIsOpen,
+    onOpen: replaceOnOpen,
+    onClose: replaceOnClose,
+  } = useDisclosure();
 
-	const {
-		isOpen: replaceIsOpen,
-		onOpen: replaceOnOpen,
-		onClose: replaceOnClose,
-	} = useDisclosure();
+  const {
+    isOpen: replaceLeadIsOpen,
+    onOpen: replaceLeadOnOpen,
+    onClose: replaceLeadOnClose,
+  } = useDisclosure();
 
-	const {
-		isOpen: replaceLeadIsOpen,
-		onOpen: replaceLeadOnOpen,
-		onClose: replaceLeadOnClose,
-	} = useDisclosure();
+  const {
+    isOpen: passwordIsOpen,
+    onOpen: passwordOnOpen,
+    onClose: passwordOnClose,
+  } = useDisclosure();
 
-	const {
-		isOpen: passwordIsOpen,
-		onOpen: passwordOnOpen,
-		onClose: passwordOnClose,
-	} = useDisclosure();
+  const formik = useFormik({
+    initialValues: getInitialValues(userData),
+    enableReinitialize: true,
+    validationSchema: userSchema,
+    validate: (values) => {
+      const errors = {};
 
-	const formik = useFormik({
-		initialValues: getInitialValues(userData),
-		enableReinitialize: true,
-		validationSchema: userSchema,
-		validate: (values) => {
-			const errors = {};
+      const newRole = allRoles?.find((role) => role?._id === values?.roles);
+      if (!values.roles) {
+        errors.roles = "Role is required";
+      }
+      if (!values.password && mode !== "edit") {
+        errors.password = "Password is required";
+      }
 
-			const newRole = allRoles?.find((role) => role?._id === values?.roles);
-if (!values.roles) {
-			errors.roles = 'Role is required';
-		}
-if (!values.password) {
-			errors.password = 'Password is required';
-		}
+      if (
+        !values.parent &&
+        ["Team Leader", "Agent"].includes(newRole?.roleName)
+      ) {
+        errors.parent = "Manager is requried";
+      }
 
-			if (
-				!values.parent &&
-				['Team Leader', 'Agent'].includes(newRole?.roleName)
-			) {
-				errors.parent = 'Manager is requried';
-			}
+      if (!values.teamLead && newRole?.roleName === "Agent") {
+        errors.teamLead = "Team Leader is requried";
+      }
 
-			if (!values.teamLead && newRole?.roleName === 'Agent') {
-				errors.teamLead = 'Team Leader is requried';
-			}
+      return errors; // Formik will merge with schema validation
+    },
+    onSubmit: async (values) => {
+      setIsSubmitting(true);
+      // final submit tthe form
+      handleSubmitUser(values);
+    },
+  });
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-		
+  const [createUser, { isLoading: isCreating }] = useCreateItemMutation();
+  const [updateUser, { isLoading: isUpdating }] = useUpdateItemMutation();
 
-			return errors; // Formik will merge with schema validation
-		},
-		onSubmit: async (values) => {
-			setIsSubmitting(true);
-			// final submit tthe form
-			handleSubmitUser(values);
-		},
-	});
-const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const handleSubmitUser = async (values) => {
+    try {
+      const userRole = userData?.roles ?? null;
+      const newRole = allRoles?.find((role) => role?._id === values?.roles);
 
-	const [createUser, { isLoading: isCreating }] = useCreateItemMutation();
-	const [updateUser, { isLoading: isUpdating }] = useUpdateItemMutation();
+      const isAgentOrTeamLeadRole = ["Team Leader", "Agent"].includes(
+        newRole?.roleName
+      );
 
-	const handleSubmitUser = async (values) => {
-		try {
-			const userRole = userData?.roles ?? null;
-			const newRole = allRoles?.find((role) => role?._id === values?.roles);
+      const valuesObj = { ...values };
 
-			const isAgentOrTeamLeadRole = ['Team Leader', 'Agent'].includes(
-				newRole?.roleName
-			);
+      // when team lead role change to other role
+      if (
+        userRole?.roleName === "Team Leader" &&
+        userRole?._id !== newRole._id &&
+        !replacementTeamLead &&
+        managerTeamLeaders?.length
+      ) {
+        replaceLeadOnOpen();
+        return;
+      } else if (replacementTeamLead) {
+        valuesObj["replacementTeamLead"] = replacementTeamLead;
+      } else valuesObj["replacementTeamLead"] = null;
 
-			const valuesObj = { ...values };
+      if (
+        userRole?.roleName === "Manager" &&
+        userRole?._id !== newRole?._id &&
+        !replacementManager &&
+        newRole?.roleName !== "Agent"
+      ) {
+        replaceOnOpen();
+        return;
+      } else if (replacementManager) {
+        valuesObj["replacementManager"] = replacementManager;
+      }
 
-			// when team lead role change to other role
-			if (
-				userRole?.roleName === 'Team Leader' &&
-				userRole?._id !== newRole._id &&
-				!replacementTeamLead &&
-				managerTeamLeaders?.length
-			) {
-				replaceLeadOnOpen();
-				return;
-			} else if (replacementTeamLead) {
-				valuesObj['replacementTeamLead'] = replacementTeamLead;
-			} else valuesObj['replacementTeamLead'] = null;
+      if (isAgentOrTeamLeadRole) {
+        if (!valuesObj?.parent) {
+          toast.error("Please select a manager.");
+          return;
+        }
 
-			if (
-				userRole?.roleName === 'Manager' &&
-				userRole?._id !== newRole?._id &&
-				!replacementManager &&
-				newRole?.roleName !== 'Agent'
-			) {
-				replaceOnOpen();
-				return;
-			} else if (replacementManager) {
-				valuesObj['replacementManager'] = replacementManager;
-			}
+        valuesObj["parent"] = values.parent;
+        valuesObj["replacementManager"] = values.parent;
 
-			if (isAgentOrTeamLeadRole) {
-				if (!valuesObj?.parent) {
-					toast.error('Please select a manager.');
-					return;
-				}
+        setReplacementManager(values.parent);
+      }
 
-				valuesObj['parent'] = values.parent;
-				valuesObj['replacementManager'] = values.parent;
+      if (
+        !securityPassword &&
+        (userRole?._id !== newRole?._id || valuesObj?.password)
+      ) {
+        passwordOnOpen();
+        return;
+      }
 
-				setReplacementManager(values.parent);
-			}
+      if (securityPassword)
+        valuesObj["securityPassword"] = securityPassword?.trim();
 
-			if (
-				!securityPassword &&
-				(userRole?._id !== newRole?._id || valuesObj?.password)
-			) {
-				passwordOnOpen();
-				return;
-			}
+      const formData =
+        mode === "edit"
+          ? Object.keys(valuesObj).reduce((acc, key) => {
+              if (valuesObj[key] !== formik.initialValues[key]) {
+                acc[key] = valuesObj[key];
+              }
+              return acc;
+            }, {})
+          : Object.fromEntries(
+              Object.entries(valuesObj).filter(
+                ([_, value]) => value != null && value !== ""
+              )
+            );
 
-			if (securityPassword)
-				valuesObj['securityPassword'] = securityPassword?.trim();
+      let res = null;
 
-			const formData =
-				mode === 'edit'
-					? Object.keys(valuesObj).reduce((acc, key) => {
-							if (valuesObj[key] !== formik.initialValues[key]) {
-								acc[key] = valuesObj[key];
-							}
-							return acc;
-						}, {})
-					: Object.fromEntries(
-							Object.entries(valuesObj).filter(
-								([_, value]) => value != null && value !== ''
-							)
-						);
+      if (mode === "edit") {
+        res = await updateUser({
+          path: `/v3/users/${userData._id}`,
+          body: formData,
+        }).unwrap();
+      } else {
+        res = await createUser({ path: "/v3/users", body: formData }).unwrap();
+      }
 
-			let res = null;
+      const msg =
+        mode === "add"
+          ? "User has been successfully created."
+          : "User details have been updated.";
 
-			if (mode === 'edit') {
-				res = await updateUser({
-					path: `/v3/users/${userData._id}`,
-					body: formData,
-				}).unwrap();
-			} else {
-				res = await createUser({ path: '/v3/users', body: formData }).unwrap();
-			}
+      toast.success(msg);
 
-			const msg =
-				mode === 'add'
-					? 'User has been successfully created.'
-					: 'User details have been updated.';
+      // update data list
+      if (res?.doc && updateData) {
+        let modeValue = mode === "edit" ? "update" : "add";
 
-			toast.success(msg);
+        updateData(res?.doc?._id, res?.doc, modeValue);
+      } else refetchUser();
 
-			// update data list
-			if (res?.doc && updateData) {
-				let modeValue = mode === 'edit' ? 'update' : 'add';
+      setReplacementManager(null);
+      setReplacementTeamLead(null);
+      setSecurityPassword("");
+      // refresh the team strcuture
+      refreshTeam();
+      if (res?.doc) {
+        setCurrentUser({ ...res.doc });
+        setIsSuccess(true); // optional, if you still want it
+        setIsProfileModalOpen(true); // <-- open profile picture modal
+      } else if (userData) {
+        setCurrentUser({ ...userData });
+        setIsSuccess(true);
+        setIsProfileModalOpen(true); // <-- open profile picture modal
+      }
 
-				updateData(res?.doc?._id, res?.doc, modeValue);
-			} else refetchUser();
+      // Don't call onClose()
+    } catch (error) {
+      toast.error(
+        error?.data?.message || "Failed to save user. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-			setReplacementManager(null);
-			setReplacementTeamLead(null);
-			setSecurityPassword('');
-			// refresh the team strcuture
-			refreshTeam();
-		if (res?.doc) {
-  setCurrentUser({ ...res.doc });
-  setIsSuccess(true); // optional, if you still want it
-  setIsProfileModalOpen(true); // <-- open profile picture modal
-} else if (userData) {
-  setCurrentUser({ ...userData });
-  setIsSuccess(true);
-  setIsProfileModalOpen(true); // <-- open profile picture modal
-}
+  const managerTeamLeaders = useMemo(() => {
+    return getTeamLeadsByManager(formik.values.parent)?.filter(
+      (tl) => tl?._id !== userData?._id
+    );
+  }, [formik.values?.parent, userData?._id]);
 
+  const isFieldsAllowed = isSuperAdmin ? true : mode === "add";
+  const [step, setStep] = useState(1);
+  const totalSteps = 3;
 
-// Don't call onClose()
+  return (
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        scrollBehavior="inside"
+        closeOnOverlayClick={false}
+      >
+        <Box px={6} pt={4}>
+          <Flex justify="space-between" mt={2}>
+            <Heading size="xs" color="gray.600">
+              Step {step} of {totalSteps}
+            </Heading>
 
-		} catch (error) {
-			toast.error(
-				error?.data?.message || 'Failed to save user. Please try again.'
-			);
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
+            <Heading size="xs" color="gray.700">
+              {step === 1 && "Personal Information"}
+              {step === 2 && "Identification & Address"}
+              {step === 3 && "Salary & Role Structure"}
+            </Heading>
+          </Flex>
+        </Box>
 
-	const managerTeamLeaders = useMemo(() => {
-		return getTeamLeadsByManager(formik.values.parent)?.filter(
-			(tl) => tl?._id !== userData?._id
-		);
-	}, [formik.values?.parent, userData?._id]);
+        <ModalOverlay backdropFilter="blur(2px)" />
+        <ModalContent
+          maxW={{ base: "95%", md: "900px" }} // optional bigger max width
+          w="100%" // fill parent
+          borderRadius="xl"
+          boxShadow="xl"
+          overflow="hidden"
+          m={{ base: 2, md: 6, lg: 10 }}
+        >
+          <ModalHeader
+            bg="brand.300"
+            borderTopRadius="xl"
+            py={3}
+            fontSize="md"
+            fontWeight="bold"
+            color="brand.700"
+            borderBottom="1px"
+            borderColor="gray.100"
+          >
+            <Flex align="center" justify="space-between">
+              <Heading size="md" color="gray.800">
+                {mode === "add" ? "Add New User" : "Edit User"}
+              </Heading>
+              <ModalCloseButton
+                position="static"
+                isDisabled={isSubmitting || isCreating || isUpdating}
+              />
+            </Flex>
+          </ModalHeader>
 
-	const isFieldsAllowed = isSuperAdmin ? true : mode === 'add';
-const [step, setStep] = useState(1);
-const totalSteps = 3;
+          <Progress
+            value={(step / totalSteps) * 100} // this controls progress!
+            max={100} // optional
+            colorScheme="green"
+            height="6px"
+            borderRadius="full"
+            hasStripe
+            isAnimated
+            mt={2} // optional margin-bottom
+            width="100%"
+          />
 
-	return (
-		<>
-			<Modal
-				isOpen={isOpen}
-				onClose={onClose}
-				scrollBehavior='inside'
-				closeOnOverlayClick={false}
-			>
-				<Box px={6} pt={4}>
- 
+          <ModalBody p={0}>
+            <form onSubmit={formik.handleSubmit}>
+              <Flex direction={{ base: "column", lg: "row" }} gap={6} p={6}>
+                {/* Left Column - Avatar & Basic Info */}
 
-  <Flex justify="space-between" mt={2}>
-    <Heading size="xs" color="gray.600">
-      Step {step} of {totalSteps}
-    </Heading>
+                {/* Personal Information */}
+                {step === 1 && (
+                  <Box bg="gray.50" borderRadius="lg" p={5} mb={6} w="100%">
+                    <Flex align="center" gap={2} mb={4}>
+                      <FaUser color="#B79045" />
+                      <Heading size="sm" color="gray.700">
+                        Personal Information
+                      </Heading>
+                    </Flex>
 
-<Heading size="xs" color="gray.700">
-  {step === 1 && "Personal Information"}
-  {step === 2 && "Identification & Address"} 
-  {step === 3 && "Salary & Role Structure"} 
-</Heading>
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+                      <FormField
+                        label="First Name"
+                        name="firstName"
+                        icon={<FaUser size={14} />}
+                        formik={formik}
+                        isRequired
+                      />
 
+                      <FormField
+                        label="Last Name"
+                        name="lastName"
+                        icon={<FaUser size={14} />}
+                        formik={formik}
+                      />
 
-  </Flex>
-</Box>
+                      <FormField
+                        label="Email"
+                        name="username"
+                        type="email"
+                        icon={<MdEmail size={14} />}
+                        formik={formik}
+                        isRequired
+                      />
 
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent
-  maxW={{ base: "95%", md: "900px" }} // optional bigger max width
-  w="100%"                           // fill parent
-  borderRadius="xl"
-  boxShadow="xl"
-  overflow="hidden"
-  m={{ base: 2, md: 6, lg: 10 }}
->
+                      <FormField
+                        label="Phone"
+                        name="phoneNumber"
+                        type="tel"
+                        icon={<MdPhone size={14} />}
+                        formik={formik}
+                      />
 
-					<ModalHeader
-						bg='brand.300'
-						borderTopRadius='xl'
-						py={3}
-						fontSize='md'
-						fontWeight='bold'
-						color='brand.700'
-						borderBottom='1px'
-						borderColor='gray.100'
-					>
-						<Flex align='center' justify='space-between'>
-							<Heading size='md' color='gray.800'>
-								{mode === 'add' ? 'Add New User' : 'Edit User'}
-							</Heading>
-							<ModalCloseButton
-								position='static'
-								isDisabled={isSubmitting || isCreating || isUpdating}
-							/>
-						</Flex>
-					</ModalHeader>
- <Box h="6px" bg="gray.200" borderRadius="full">
-    <Box
-      h="6px"
-      bg="#B79045"
-      borderRadius="full"
-      width={`${(step / totalSteps) * 100}%`}
-      transition="0.3s"
-    />
-  </Box>
-					<ModalBody p={0}>
-						<form onSubmit={formik.handleSubmit}>
-							<Flex direction={{ base: 'column', lg: 'row' }} gap={6} p={6}>
-								{/* Left Column - Avatar & Basic Info */}
-								
-									{/* Personal Information */}
-									{step === 1 && (
-									<Box bg='gray.50' borderRadius='lg' p={5} mb={6} w="100%">
-										<Flex align='center' gap={2} mb={4}>
-											<FaUser color='#B79045' />
-											<Heading size='sm' color='gray.700'>
-												Personal Information
-											</Heading>
-										</Flex>
+                      <FormField
+                        label="Nationality"
+                        name="nationality"
+                        formik={formik}
+                      />
 
-										<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-											<FormField
-												label='First Name'
-												name='firstName'
-												icon={<FaUser size={14} />}
-												formik={formik}
-												isRequired
-											/>
+                      <FormField
+                        label="Date of Birth"
+                        name="dob"
+                        type="date"
+                        icon={<BsCalendarDate size={14} />}
+                        formik={formik}
+                      />
+                      <FormField
+                        flex="1"
+                        label="Password"
+                        name="password"
+                        isRequired={mode !== "edit"}
+                        formik={formik}
+                      />
+                    </SimpleGrid>
+                  </Box>
+                )}
 
-											<FormField
-												label='Last Name'
-												name='lastName'
-												icon={<FaUser size={14} />}
-												formik={formik}
-											/>
+                {/* Salary Section */}
 
-											<FormField
-												label='Email'
-												name='username'
-												type='email'
-												icon={<MdEmail size={14} />}
-												formik={formik}
-												isRequired
-											/>
+                {/* Right Column - Detailed Info */}
 
-											<FormField
-												label='Phone'
-												name='phoneNumber'
-												type='tel'
-												icon={<MdPhone size={14} />}
-												formik={formik}
-											/>
+                {/* Identification */}
 
-											<FormField
-												label='Nationality'
-												name='nationality'
-												formik={formik}
-											/>
+                {step === 2 && (
+                  <Flex direction={"column"} w="100%">
+                    <Box bg="gray.50" borderRadius="lg" p={5} mb={6} w="100%">
+                      <Flex align="center" gap={2} mb={4}>
+                        <HiIdentification color="#B79045" />
+                        <Heading size="sm" color="gray.700">
+                          Identification
+                        </Heading>
+                      </Flex>
 
-											<FormField
-												label='Date of Birth'
-												name='dob'
-												type='date'
-												icon={<BsCalendarDate size={14} />}
-												formik={formik}
-											/>
-												<FormField
-										flex="1"
-											label='Password'
-											name='password'
-											isRequired
-											formik={formik}
-										/>
-										</SimpleGrid>
-									
-									</Box>)}
+                      <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
+                        {isFieldsAllowed && (
+                          <FormField
+                            label="Agency"
+                            name="agency"
+                            icon={<HiOfficeBuilding size={14} />}
+                            formik={formik}
+                            isRequired
+                            as="select"
+                            placeholder="Select agency"
+                            options={agencies?.map((item) => {
+                              return {
+                                label: item?.name,
+                                value: item?._id,
+                              };
+                            })}
+                          />
+                        )}
 
-									{/* Salary Section */}
+                        <FormField
+                          label="Passport ID"
+                          name="passportNum"
+                          icon={<AiOutlineFieldNumber size={14} />}
+                          formik={formik}
+                        />
 
-								{/* Right Column - Detailed Info */}
-								
+                        <FormField
+                          label="UAE ID"
+                          name="uaeIdNum"
+                          icon={<AiOutlineFieldNumber size={14} />}
+                          formik={formik}
+                        />
 
+                        <FormField
+                          label="Driving License"
+                          name="drivingLicense"
+                          icon={<AiOutlineFieldNumber size={14} />}
+                          formik={formik}
+                        />
 
-									{/* Identification */}
-								
-									{step === 2 && (
-									
-										<Flex direction={"column"} w="100%">
-											<Box bg='gray.50' borderRadius='lg' p={5} mb={6} w="100%">
-										<Flex align='center' gap={2} mb={4}>
-											<HiIdentification color='#B79045' />
-											<Heading size='sm' color='gray.700'>
-												Identification
-											</Heading>
-										</Flex>
+                        <FormField
+                          label="Education"
+                          name="educationDegree"
+                          icon={<FaUser size={14} />}
+                          formik={formik}
+                        />
+                      </SimpleGrid>
+                    </Box>
+                    <Box bg="gray.50" borderRadius="lg" p={5} w="100%">
+                      <Flex align="center" gap={2} mb={4}>
+                        <MdLocationOn color="#B79045" />
+                        <Heading size="sm" color="gray.700">
+                          Address & Contact
+                        </Heading>
+                      </Flex>
 
-										<SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
-											{isFieldsAllowed && (
-												<FormField
-													label='Agency'
-													name='agency'
-													icon={<HiOfficeBuilding size={14} />}
-													formik={formik}
-													isRequired
-													as='select'
-													placeholder='Select agency'
-													options={agencies?.map((item) => {
-														return {
-															label: item?.name,
-															value: item?._id,
-														};
-													})}
-												/>
-											)}
+                      <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
+                        <FormField
+                          label="UAE Address"
+                          name="dubaiHomeAddress"
+                          icon={<MdLocationOn size={14} />}
+                          formik={formik}
+                          as="textarea"
+                          rows={1}
+                        />
+                        <FormField
+                          label="Home Country Address"
+                          name="countryHomeAddress"
+                          icon={<MdLocationOn size={14} />}
+                          formik={formik}
+                          as="textarea"
+                          rows={1}
+                        />
+                        <FormField
+                          label="International Phone"
+                          name="countryPhoneNum"
+                          type="tel"
+                          icon={<MdPhone size={14} />}
+                          formik={formik}
+                        />
+                      </SimpleGrid>
+                    </Box>
+                  </Flex>
+                )}
 
-											<FormField
-												label='Passport ID'
-												name='passportNum'
-												icon={<AiOutlineFieldNumber size={14} />}
-												formik={formik}
-											/>
+                {step === 3 && isFieldsAllowed && (
+                  <Flex direction={"column"} w={"100%"}>
+                    <SalarySection formik={formik} />
+                    <RoleStructureSection formik={formik} />
+                  </Flex>
+                )}
 
-											<FormField
-												label='UAE ID'
-												name='uaeIdNum'
-												icon={<AiOutlineFieldNumber size={14} />}
-												formik={formik}
-											/>
+                {/* Address & Contact */}
+              </Flex>
+            </form>
+          </ModalBody>
 
-											<FormField
-												label='Driving License'
-												name='drivingLicense'
-												icon={<AiOutlineFieldNumber size={14} />}
-												formik={formik}
-											/>
-
-											<FormField
-												label='Education'
-												name='educationDegree'
-												icon={<FaUser size={14} />}
-												formik={formik}
-											/>
-										</SimpleGrid>
-									</Box>
-									<Box bg='gray.50' borderRadius='lg' p={5} w="100%">
-										<Flex align='center' gap={2} mb={4}>
-											<MdLocationOn color='#B79045' />
-											<Heading size='sm' color='gray.700'>
-												Address & Contact
-											</Heading>
-										</Flex>
-
-										<SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
-											<FormField
-												label='UAE Address'
-												name='dubaiHomeAddress'
-												icon={<MdLocationOn size={14} />}
-												formik={formik}
-												as='textarea'
-												rows={1}
-											/>
-											<FormField
-												label='Home Country Address'
-												name='countryHomeAddress'
-												icon={<MdLocationOn size={14} />}
-												formik={formik}
-												as='textarea'
-												rows={1}
-											/>
-											<FormField
-												label='International Phone'
-												name='countryPhoneNum'
-												type='tel'
-												icon={<MdPhone size={14} />}
-												formik={formik}
-											/>
-										</SimpleGrid>
-									</Box>
-										</Flex>
-
-								)}
-		
-									{step === 3 && isFieldsAllowed && (
-  <Flex direction={"column"} w={"100%"}>
-	<SalarySection formik={formik} />
-  <RoleStructureSection formik={formik} />
-  
-  </Flex>
-)}
-						
-									{/* Address & Contact */}
-								
-
-							</Flex>
-						</form>
-					</ModalBody>
-
-				<ModalFooter
-  borderTop='1px'
-  borderColor='gray.200'
-  bg='gray.100'
-  py={4}
-  flexDirection="column"
-  gap={2}
->
-  {/* Buttons */}
-  <Flex w="full" justify="space-between" gap={3}>
-    <Button
-      variant="outline"
-      onClick={() => (step === 1 ? onClose() : setStep(step - 1))}
-    >
-      {step === 1 ? "Cancel" : "Back"}
-    </Button>
- <Flex align="center" mt={1} gap={2}>
+          <ModalFooter
+            borderTop="1px"
+            borderColor="gray.200"
+            bg="gray.100"
+            py={4}
+            flexDirection="column"
+            gap={2}
+          >
+            {/* Buttons */}
+            <Flex w="full" justify="space-between" gap={3}>
+              <Button
+                variant="outline"
+                onClick={() => (step === 1 ? onClose() : setStep(step - 1))}
+              >
+                {step === 1 ? "Cancel" : "Back"}
+              </Button>
+              {/* <Flex align="center" mt={1} gap={2}>
     {Array.from({ length: totalSteps }, (_, i) => (
       <Box
         key={i}
@@ -570,124 +559,155 @@ const totalSteps = 3;
         bg={step === i + 1 ? "#B79045" : "gray.300"}
       />
     ))}
-  </Flex>
-    {step < totalSteps ? (
-      <Button
-        bg="#B79045"
-        color="white"
-        _hover={{ bg: "#A87F3B" }}
-        onClick={async () => {
-          const errors = await formik.validateForm();
+  </Flex> */}
+              <Flex align="center" mt={1} gap={2}>
+                {Array.from({ length: totalSteps }, (_, i) => (
+                  <Box
+                    key={i}
+                    w={4} // keep small
+                    h={4}
+                    borderRadius="full"
+                    bg={step === i + 1 ? "#B79045" : "gray.300"}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text fontSize="xx-small" color="white" fontWeight="bold">
+                      {i + 1}
+                    </Text>
+                  </Box>
+                ))}
+              </Flex>
+              {step < totalSteps ? (
+                <Button
+                  bg="#B79045"
+                  color="white"
+                  _hover={{ bg: "#A87F3B" }}
+                  onClick={async () => {
+                    const errors = await formik.validateForm();
 
-          const stepFields = {
-            1: ["firstName", "username", "password"], // Personal Info
-            2: ["agency", "passportNum", "dubaiHomeAddress", "countryHomeAddress", "countryPhoneNum"], // Identification & Address
-            3: ["salaryType", "salary", "roles", "parent", "teamLead"], // Salary + Role Structure
-          };
+                    const stepFields = {
+                      1: ["firstName", "username", "password"], // Personal Info
+                      2: [
+                        "agency",
+                        "passportNum",
+                        "dubaiHomeAddress",
+                        "countryHomeAddress",
+                        "countryPhoneNum",
+                      ], // Identification & Address
+                      3: [
+                        "salaryType",
+                        "salary",
+                        "roles",
+                        "parent",
+                        "teamLead",
+                      ], // Salary + Role Structure
+                    };
 
-          const hasErrors = Object.keys(errors).some((key) =>
-            stepFields[step]?.includes(key)
-          );
+                    const hasErrors = Object.keys(errors).some((key) =>
+                      stepFields[step]?.includes(key)
+                    );
 
-          if (hasErrors) {
-            formik.setTouched(
-              stepFields[step].reduce((acc, cur) => ({ ...acc, [cur]: true }), {}),
-              true
-            );
-            return;
-          }
+                    if (hasErrors) {
+                      formik.setTouched(
+                        stepFields[step].reduce(
+                          (acc, cur) => ({ ...acc, [cur]: true }),
+                          {}
+                        ),
+                        true
+                      );
+                      return;
+                    }
 
-          setStep(step + 1);
-        }}
-      >
-        Next
-      </Button>
-    ) : (
-      <Button
-        bg="#B79045"
-        color="white"
-        _hover={{ bg: "#A87F3B" }}
-        onClick={formik.handleSubmit}
-        isLoading={isSubmitting || isCreating || isUpdating}
-      >
-        {mode === "add" ? "Create User" : "Save Changes"}
-      </Button>
-    )}
-  </Flex>
+                    setStep(step + 1);
+                  }}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button
+                  bg="#B79045"
+                  color="white"
+                  _hover={{ bg: "#A87F3B" }}
+                  onClick={formik.handleSubmit}
+                  isLoading={isSubmitting || isCreating || isUpdating}
+                >
+                  {mode === "add" ? "Create User" : "Save Changes"}
+                </Button>
+              )}
+            </Flex>
 
-  {/* Step count text */}
-  {/* <Box textAlign="center" mt={2} color="gray.600" fontSize="sm">
+            {/* Step count text */}
+            {/* <Box textAlign="center" mt={2} color="gray.600" fontSize="sm">
     Step {step} of {totalSteps}
   </Box> */}
 
-  {/* Step indicators */}
- 
-</ModalFooter>
+            {/* Step indicators */}
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      {currentUser && (
+        <ProfilePictureModal
+          isOpen={isProfileModalOpen}
+          onClose={() => {
+            setIsProfileModalOpen(false);
+            onClose(); // close the main UserModal as well
+          }}
+          user={currentUser}
+          previewUrl={currentUser?.profileImage || null}
+          refetchUser={refetchUser}
+          mode={mode === "add" ? "add" : "edit"}
+        />
+      )}
 
-				</ModalContent>
-			</Modal>
-{currentUser && (
-  <ProfilePictureModal
-    isOpen={isProfileModalOpen}
-	 onClose={() => {
-    setIsProfileModalOpen(false);
-    onClose(); // close the main UserModal as well
-  }}
-    user={currentUser}
-    previewUrl={currentUser?.profileImage || null}
-    refetchUser={refetchUser}
-    mode={mode === 'add' ? 'add' : 'edit'}
-  />
-)}
+      {replaceIsOpen && (
+        <ReplaceManager
+          isOpen={replaceIsOpen}
+          onClose={() => {
+            replaceOnClose();
+            setSecurityPassword("");
+          }}
+          managers={managers}
+          replacementManager={replacementManager}
+          handleProceed={() => {
+            replaceOnClose();
+            handleSubmitUser(formik.values);
+          }}
+          setReplacementManager={setReplacementManager}
+        />
+      )}
 
-			{replaceIsOpen && (
-				<ReplaceManager
-					isOpen={replaceIsOpen}
-					onClose={() => {
-						replaceOnClose();
-						setSecurityPassword('');
-					}}
-					managers={managers}
-					replacementManager={replacementManager}
-					handleProceed={() => {
-						replaceOnClose();
-						handleSubmitUser(formik.values);
-					}}
-					setReplacementManager={setReplacementManager}
-				/>
-			)}
+      {replaceLeadIsOpen && (
+        <ReplaceTeamLead
+          isOpen={replaceLeadIsOpen}
+          onClose={() => {
+            replaceLeadOnClose();
+            setSecurityPassword("");
+          }}
+          teamLeaders={managerTeamLeaders}
+          replacementTeamLead={replacementTeamLead}
+          handleProceed={() => {
+            replaceLeadOnClose();
+            handleSubmitUser(formik.values);
+          }}
+          setReplacementTeamLead={setReplacementTeamLead}
+        />
+      )}
 
-			{replaceLeadIsOpen && (
-				<ReplaceTeamLead
-					isOpen={replaceLeadIsOpen}
-					onClose={() => {
-						replaceLeadOnClose();
-						setSecurityPassword('');
-					}}
-					teamLeaders={managerTeamLeaders}
-					replacementTeamLead={replacementTeamLead}
-					handleProceed={() => {
-						replaceLeadOnClose();
-						handleSubmitUser(formik.values);
-					}}
-					setReplacementTeamLead={setReplacementTeamLead}
-				/>
-			)}
-
-			{passwordIsOpen && (
-				<SecurityPasswordPermission
-					isOpen={passwordIsOpen}
-					onClose={passwordOnClose}
-					securityPassword={securityPassword}
-					setSecurityPassword={setSecurityPassword}
-					handleProceed={() => {
-						passwordOnClose();
-						handleSubmitUser(formik.values);
-					}}
-				/>
-			)}
-		</>
-	);
+      {passwordIsOpen && (
+        <SecurityPasswordPermission
+          isOpen={passwordIsOpen}
+          onClose={passwordOnClose}
+          securityPassword={securityPassword}
+          setSecurityPassword={setSecurityPassword}
+          handleProceed={() => {
+            passwordOnClose();
+            handleSubmitUser(formik.values);
+          }}
+        />
+      )}
+    </>
+  );
 };
 
 export default UserModal;
