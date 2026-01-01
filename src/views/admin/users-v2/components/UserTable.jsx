@@ -25,6 +25,7 @@ import UserCoinsView from './UserCoinsView';
 import UserAvatarWithStatus from 'components/table/UserAvatarWithStatus';
 import { useNavigate } from 'react-router-dom';
 import UserStatusToggle from './UserStatusToogle';
+import { usePermissions } from 'hooks/usePermissions';
 
 const UserTable = ({
 	data = [],
@@ -46,6 +47,8 @@ const UserTable = ({
 	];
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
+
+	const { hasPermission } = usePermissions();
 
 	const navigate = useNavigate();
 
@@ -86,45 +89,28 @@ const UserTable = ({
 			}
 
 			case 'agency': {
-				const { bg, text } = getBadgeColors(value?.name);
+				// const { bg, text } = getBadgeColors(value?.name);
 
 				return value?.name ?? 'No Agency';
 
-				return (
-					<Badge
-						bg={bg}
-						color={text}
-						variant='subtle'
-						fontSize='.9em'
-						px={4}
-						py={2}
-						borderRadius='full'
-						textTransform='capitalize'
-					>
-						{value?.name}
-					</Badge>
-				);
+				// return (
+				// 	<Badge
+				// 		bg={bg}
+				// 		color={text}
+				// 		variant='subtle'
+				// 		fontSize='.9em'
+				// 		px={4}
+				// 		py={2}
+				// 		borderRadius='full'
+				// 		textTransform='capitalize'
+				// 	>
+				// 		{value?.name}
+				// 	</Badge>
+				// );
 			}
 			case 'salaryType':
 				const type = salaryTypes?.find((item) => item.value === value)?.label;
-				const { bg, text } = getBadgeColors(type);
-
 				return type ?? 'N/A';
-
-				return (
-					<Badge
-						bg={bg}
-						color={text}
-						variant='subtle'
-						fontSize='.9em'
-						px={4}
-						py={2}
-						borderRadius='full'
-						textTransform='capitalize'
-					>
-						{type}
-					</Badge>
-				);
 
 			case 'createdAt':
 				return value ? format(new Date(value), 'MMM d, yyyy') : 'N/A';
@@ -135,7 +121,6 @@ const UserTable = ({
 
 	return (
 		<Box
-			my='2'
 			overflowX='auto'
 			overflowY='auto'
 			maxH='calc(100vh - 100px)'
@@ -233,16 +218,19 @@ const UserTable = ({
 														onClick={() => navigate(`/users-v2/${row?._id}`)}
 													/>
 												</CustomTooltip>
-												<CustomTooltip label='Edit'>
-													<IconButton
-														aria-label='Edit'
-														icon={<FiEdit2 />}
-														size='sm'
-														colorScheme='blue'
-														variant='ghost'
-														onClick={() => handleEditUser(row)}
-													/>
-												</CustomTooltip>
+
+												{hasPermission('users', 'edit') && (
+													<CustomTooltip label='Edit'>
+														<IconButton
+															aria-label='Edit'
+															icon={<FiEdit2 />}
+															size='sm'
+															colorScheme='blue'
+															variant='ghost'
+															onClick={() => handleEditUser(row)}
+														/>
+													</CustomTooltip>
+												)}
 											</Flex>
 										) : ['amount', 'totalAmount'].includes(column.key) ? (
 											<Text>

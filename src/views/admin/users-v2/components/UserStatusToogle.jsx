@@ -64,15 +64,8 @@ const UserStatusToggle = ({ user, refetchUsers }) => {
 		try {
 			const newStatus = !isActive;
 
-			if (!newStatus && !isAllowed) {
-				infoOnOpen();
-				return;
-			}
-
-			let bodyData = { isActive: newStatus };
-
 			if (
-				user?.roles[0]?.roleName === 'Manager' &&
+				user?.roles?.roleName === 'Manager' &&
 				isActive &&
 				!replacementManager
 			) {
@@ -84,12 +77,19 @@ const UserStatusToggle = ({ user, refetchUsers }) => {
 
 				// }
 			} else if (
-				user?.roles[0]?.roleName === 'Team Leader' &&
+				user?.roles?.roleName === 'Team Leader' &&
 				isActive &&
 				!replacementTeamLead
 			) {
 				return replaceLeadOnOpen();
 			}
+
+			if (!newStatus && !isAllowed) {
+				infoOnOpen();
+				return;
+			}
+
+			let bodyData = { isActive: newStatus };
 
 			if (securityPassword) bodyData.securityPassword = securityPassword;
 			if (replacementManager) bodyData.replacementManager = replacementManager;
@@ -137,7 +137,7 @@ const UserStatusToggle = ({ user, refetchUsers }) => {
 	}, [user?.isActive]);
 
 	const managerTeamLeaders = useMemo(() => {
-		if (!user?.parent || user?.roles[0]?.roleName !== 'Team Leader') return [];
+		if (!user?.parent || user?.roles?.roleName !== 'Team Leader') return [];
 
 		return getTeamLeadsByManager(user.parent)?.filter(
 			(tl) => tl?._id !== user?._id

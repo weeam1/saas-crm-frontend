@@ -35,6 +35,7 @@ import { useRoles } from 'hooks/user/userRoles';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import { useSelector } from 'react-redux';
 import { salaryTypes } from 'utils/options';
+import useUserSession from 'hooks/useUserSession';
 
 const getInitialValues = (userData = {}) => ({
 	firstName: userData?.firstName ?? '',
@@ -57,10 +58,10 @@ const getInitialValues = (userData = {}) => ({
 	commission: userData?.commission ?? '',
 	incentive: userData?.incentive ?? '',
 
-	roles: userData?.roles?._id ?? '',
+	roles: userData?.roles?._id || userData?.roles?.[0]?._id || '',
 	agency: userData?.agency?._id ?? '',
-	parent: userData?.parent ?? null,
-	teamLead: userData?.teamLead ?? null,
+	parent: userData?.parent?._id || userData?.parent || null,
+	teamLead: userData?.teamLead?._id || userData?.teamLead || null,
 	target: userData?.target ?? '',
 });
 
@@ -76,11 +77,14 @@ const UserModal = ({
 
 	const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
 
+	console.log({ initial: getInitialValues(userData) });
+
 	const [replacementManager, setReplacementManager] = useState(null);
 	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
 	const [securityPassword, setSecurityPassword] = useState('');
 
 	const { roles: allRoles } = useRoles();
+	const { isSuperAdmin } = useUserSession();
 	const { team: managers, getTeamLeadsByManager } = useTeamStructure();
 
 	const {
@@ -258,6 +262,8 @@ const UserModal = ({
 		);
 	}, [formik.values?.parent, userData?._id]);
 
+	const isFieldsAllowed = isSuperAdmin ? true : mode === 'add';
+
 	return (
 		<>
 			<Modal
@@ -364,12 +370,12 @@ const UserModal = ({
 									</Box>
 
 									{/* Salary Section */}
-									<SalarySection formik={formik} />
+									{isFieldsAllowed && <SalarySection formik={formik} />}
 								</Box>
 
 								{/* Right Column - Detailed Info */}
 								<Box flex='1'>
-									<RoleStructureSection formik={formik} />
+									{isFieldsAllowed && <RoleStructureSection formik={formik} />}
 
 									{/* Identification */}
 									<Box bg='gray.50' borderRadius='lg' p={5} mb={6}>
@@ -381,21 +387,23 @@ const UserModal = ({
 										</Flex>
 
 										<SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
-											<FormField
-												label='Agency'
-												name='agency'
-												icon={<HiOfficeBuilding size={14} />}
-												formik={formik}
-												isRequired
-												as='select'
-												placeholder='Select agency'
-												options={agencies?.map((item) => {
-													return {
-														label: item?.name,
-														value: item?._id,
-													};
-												})}
-											/>
+											{isFieldsAllowed && (
+												<FormField
+													label='Agency'
+													name='agency'
+													icon={<HiOfficeBuilding size={14} />}
+													formik={formik}
+													isRequired
+													as='select'
+													placeholder='Select agency'
+													options={agencies?.map((item) => {
+														return {
+															label: item?.name,
+															value: item?._id,
+														};
+													})}
+												/>
+											)}
 
 											<FormField
 												label='Passport ID'

@@ -18,6 +18,7 @@ import SearchBox from '../payroll/components/SearchBox';
 import UserModal from './components/AddUserModal';
 import UserFilterDrawer from './components/UserFilterDrawer';
 import ActiveFilters from '../Listing/client-listings/_component/ActiveFilters';
+import { usePermissions } from 'hooks/usePermissions';
 
 const User = () => {
 	const {
@@ -42,6 +43,8 @@ const User = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [modalMode, setModalMode] = useState('add');
 	const [activeFilters, setActiveFilters] = useState({});
+
+	const { hasPermission } = usePermissions();
 
 	const {
 		isOpen: userIsOpen,
@@ -102,7 +105,7 @@ const User = () => {
 				flexDir={{ base: 'column', md: 'row' }}
 				justify='space-between'
 				align='center'
-				mb={4}
+				mb={2}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
 					<Text>Users</Text>
@@ -147,22 +150,25 @@ const User = () => {
 							onReset={handleReset}
 						/>
 
-						<Button
-							leftIcon={<FaPlus size={14} />}
-							bg='gray.50'
-							color='gray.800'
-							border='1px solid #D0D5DD'
-							size='md'
-							borderRadius='12px'
-							fontWeight='600'
-							px={5}
-							mt={{ base: 2, md: 0 }} // spacing on mobile
-							_hover={{ bg: 'gray.100' }}
-							boxShadow='0px 1px 3px rgba(0,0,0,0.08)'
-							onClick={handleAddUser}
-						>
-							New User
-						</Button>
+						{hasPermission('users', 'create') && (
+							<Button
+								leftIcon={<FaPlus size={14} />}
+								bg='gray.50'
+								color='gray.800'
+								border='1px solid #D0D5DD'
+								size='md'
+								borderRadius='12px'
+								fontWeight='600'
+								px={5}
+								mt={{ base: 2, md: 0 }} // spacing on mobile
+								_hover={{ bg: 'gray.100' }}
+								boxShadow='0px 1px 3px rgba(0,0,0,0.08)'
+								onClick={handleAddUser}
+							>
+								New User
+							</Button>
+						)}
+
 						{/* Filter Toggle Button */}
 						{/* <Button
 							leftIcon={<FiFilter />}
