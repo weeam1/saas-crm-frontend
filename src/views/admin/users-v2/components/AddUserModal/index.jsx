@@ -83,7 +83,11 @@ const UserModal = ({
 
 	const { roles: allRoles } = useRoles();
 	const { isSuperAdmin, userRoleName } = useUserSession();
-	const { team: managers, getTeamLeadsByManager } = useTeamStructure();
+	const {
+		team: managers,
+		getTeamLeadsByManager,
+		refreshTeam,
+	} = useTeamStructure();
 
 	const {
 		isOpen: replaceIsOpen,
@@ -244,6 +248,8 @@ const UserModal = ({
 			setReplacementManager(null);
 			setReplacementTeamLead(null);
 			setSecurityPassword('');
+			// refresh the team strcuture
+			refreshTeam();
 			onClose();
 		} catch (error) {
 			toast.error(

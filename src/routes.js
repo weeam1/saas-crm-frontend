@@ -1479,7 +1479,7 @@ const routes = [
 		component: UserV2,
 	},
 	{
-		moduleId: 'users',
+		// moduleId: 'users',
 		name: 'Users V2',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/users-v2/:id',

@@ -28,6 +28,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { FiChevronLeft } from 'react-icons/fi';
 import UserModal from '../AddUserModal';
+import { usePermissions } from 'hooks/usePermissions';
 
 const UserDetailsPage = () => {
 	const { id: userId } = useParams();
@@ -35,6 +36,8 @@ const UserDetailsPage = () => {
 	const [showSkeleton, setShowSkeleton] = useState(true);
 	const [user, setUser] = useState(null);
 	const navigate = useNavigate();
+
+	const { hasPermission } = usePermissions();
 
 	const {
 		data,
@@ -117,14 +120,16 @@ const UserDetailsPage = () => {
 
 	return (
 		<Box>
-			<IconButton
-				aria-label='Go back'
-				icon={<FiChevronLeft />}
-				onClick={() => navigate(-1)}
-				// variant='ghost'
-				size='md'
-				isRound
-			/>
+			{hasPermission('users') && (
+				<IconButton
+					aria-label='Go back'
+					icon={<FiChevronLeft />}
+					onClick={() => navigate(-1)}
+					// variant='ghost'
+					size='md'
+					isRound
+				/>
+			)}
 
 			{/* Header */}
 			<Flex
