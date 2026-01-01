@@ -117,27 +117,33 @@ const UserFilterDrawer = ({
 			)
 		);
 
+		onClose();
 		onApply(cleaned);
 
-		const uiActiveFilters = {
-			...cleaned,
+		const { isActive, ...rest } = cleaned;
 
-			...(cleaned.salaryType && {
-				salaryType: salaryTypes?.find((i) => i.value === cleaned.salaryType)
+		const uiActiveFilters = {
+			...rest,
+
+			...(rest.salaryType && {
+				salaryType: salaryTypes?.find((i) => i.value === rest.salaryType)
 					?.label,
 			}),
 
-			...(cleaned.agency && {
-				agency: getNameById(agencies, cleaned.agency),
+			...(rest.agency && {
+				agency: getNameById(agencies, rest.agency),
 			}),
 
-			...(cleaned.role && {
-				role: getNameById(allRoles, cleaned.role, 'roleName'),
+			...(rest.role && {
+				role: getNameById(allRoles, rest.role, 'roleName'),
+			}),
+
+			...(isActive && {
+				'Account Status': isActive === 'true' ? 'Active' : 'Inactive',
 			}),
 		};
 
 		setActiveFilters(uiActiveFilters);
-		onClose();
 	};
 
 	// const handleReset = () => {

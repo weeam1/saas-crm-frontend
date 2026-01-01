@@ -182,7 +182,7 @@ const AvatarSection = ({ user, refetchUser }) => {
 						py={1}
 						borderRadius='full'
 					>
-						{user?.isActive ? 'Active' : 'Disabled'}
+						{user?.isActive ? 'Active' : 'Inactive'}
 					</Badge>
 
 					<StatusBadge isOnline={isOnline} />

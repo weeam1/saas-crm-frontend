@@ -151,7 +151,6 @@ const UserStatusToggle = ({ user, refetchUsers }) => {
 				fontSize='sm'
 				fontWeight='700'
 				textAlign='center'
-				fontFamily="'DM Sans', sans-serif"
 			>
 				{isUpdating ? (
 					<Spinner
@@ -165,7 +164,7 @@ const UserStatusToggle = ({ user, refetchUsers }) => {
 				) : (
 					<>
 						<Flex gap={1}>
-							{isActive ? 'Enable' : 'Disable'}
+							{isActive ? 'Active' : 'Inactive'}
 							{isSuperAdmin && (
 								<Switch
 									ml={2}
