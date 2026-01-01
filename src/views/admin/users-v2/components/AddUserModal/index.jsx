@@ -36,6 +36,7 @@ import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import { useSelector } from 'react-redux';
 import { salaryTypes } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
+import ProfilePictureModal from './ProfilePicModal';
 
 const getInitialValues = (userData = {}) => ({
 	firstName: userData?.firstName ?? '',
@@ -80,6 +81,9 @@ const UserModal = ({
 	const [replacementManager, setReplacementManager] = useState(null);
 	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
 	const [securityPassword, setSecurityPassword] = useState('');
+	const [isSuccess, setIsSuccess] = useState(false);
+const [currentUser, setCurrentUser] = useState(null);
+
 
 	const { roles: allRoles } = useRoles();
 	const { isSuperAdmin, userRoleName } = useUserSession();
@@ -115,6 +119,12 @@ const UserModal = ({
 			const errors = {};
 
 			const newRole = allRoles?.find((role) => role?._id === values?.roles);
+if (!values.roles) {
+			errors.roles = 'Role is required';
+		}
+if (!values.password) {
+			errors.password = 'Password is required';
+		}
 
 			if (
 				!values.parent &&
@@ -127,13 +137,7 @@ const UserModal = ({
 				errors.teamLead = 'Team Leader is requried';
 			}
 
-			// Only trigger in non-edit mode
-			if (mode !== 'edit') {
-				if (!values.password || values.password.length < 6) {
-					errors.password =
-						'Password is required and must be at least 6 characters';
-				}
-			}
+		
 
 			return errors; // Formik will merge with schema validation
 		},
@@ -143,6 +147,7 @@ const UserModal = ({
 			handleSubmitUser(values);
 		},
 	});
+const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
 	const [createUser, { isLoading: isCreating }] = useCreateItemMutation();
 	const [updateUser, { isLoading: isUpdating }] = useUpdateItemMutation();
@@ -250,7 +255,19 @@ const UserModal = ({
 			setSecurityPassword('');
 			// refresh the team strcuture
 			refreshTeam();
-			onClose();
+		if (res?.doc) {
+  setCurrentUser({ ...res.doc });
+  setIsSuccess(true); // optional, if you still want it
+  setIsProfileModalOpen(true); // <-- open profile picture modal
+} else if (userData) {
+  setCurrentUser({ ...userData });
+  setIsSuccess(true);
+  setIsProfileModalOpen(true); // <-- open profile picture modal
+}
+
+
+// Don't call onClose()
+
 		} catch (error) {
 			toast.error(
 				error?.data?.message || 'Failed to save user. Please try again.'
@@ -267,23 +284,45 @@ const UserModal = ({
 	}, [formik.values?.parent, userData?._id]);
 
 	const isFieldsAllowed = isSuperAdmin ? true : mode === 'add';
+const [step, setStep] = useState(1);
+const totalSteps = 3;
 
 	return (
 		<>
 			<Modal
 				isOpen={isOpen}
 				onClose={onClose}
-				size={{ base: 'full', md: '4xl', lg: '3xl' }}
 				scrollBehavior='inside'
 				closeOnOverlayClick={false}
 			>
+				<Box px={6} pt={4}>
+ 
+
+  <Flex justify="space-between" mt={2}>
+    <Heading size="xs" color="gray.600">
+      Step {step} of {totalSteps}
+    </Heading>
+
+<Heading size="xs" color="gray.700">
+  {step === 1 && "Personal Information"}
+  {step === 2 && "Identification & Address"} 
+  {step === 3 && "Salary & Role Structure"} 
+</Heading>
+
+
+  </Flex>
+</Box>
+
 				<ModalOverlay backdropFilter='blur(2px)' />
 				<ModalContent
-					borderRadius='xl'
-					boxShadow='xl'
-					overflow='hidden'
-					m={{ base: 2, md: 6, lg: 10 }}
-				>
+  maxW={{ base: "95%", md: "900px" }} // optional bigger max width
+  w="100%"                           // fill parent
+  borderRadius="xl"
+  boxShadow="xl"
+  overflow="hidden"
+  m={{ base: 2, md: 6, lg: 10 }}
+>
+
 					<ModalHeader
 						bg='brand.300'
 						borderTopRadius='xl'
@@ -304,14 +343,23 @@ const UserModal = ({
 							/>
 						</Flex>
 					</ModalHeader>
-
+ <Box h="6px" bg="gray.200" borderRadius="full">
+    <Box
+      h="6px"
+      bg="#B79045"
+      borderRadius="full"
+      width={`${(step / totalSteps) * 100}%`}
+      transition="0.3s"
+    />
+  </Box>
 					<ModalBody p={0}>
 						<form onSubmit={formik.handleSubmit}>
 							<Flex direction={{ base: 'column', lg: 'row' }} gap={6} p={6}>
 								{/* Left Column - Avatar & Basic Info */}
-								<Box flex='1'>
+								
 									{/* Personal Information */}
-									<Box bg='gray.50' borderRadius='lg' p={5} mb={6}>
+									{step === 1 && (
+									<Box bg='gray.50' borderRadius='lg' p={5} mb={6} w="100%">
 										<Flex align='center' gap={2} mb={4}>
 											<FaUser color='#B79045' />
 											<Heading size='sm' color='gray.700'>
@@ -365,24 +413,29 @@ const UserModal = ({
 												icon={<BsCalendarDate size={14} />}
 												formik={formik}
 											/>
-										</SimpleGrid>
-										<FormField
+												<FormField
+										flex="1"
 											label='Password'
 											name='password'
+											isRequired
 											formik={formik}
 										/>
-									</Box>
+										</SimpleGrid>
+									
+									</Box>)}
 
 									{/* Salary Section */}
-									{isFieldsAllowed && <SalarySection formik={formik} />}
-								</Box>
 
 								{/* Right Column - Detailed Info */}
-								<Box flex='1'>
-									{isFieldsAllowed && <RoleStructureSection formik={formik} />}
+								
+
 
 									{/* Identification */}
-									<Box bg='gray.50' borderRadius='lg' p={5} mb={6}>
+								
+									{step === 2 && (
+									
+										<Flex direction={"column"} w="100%">
+											<Box bg='gray.50' borderRadius='lg' p={5} mb={6} w="100%">
 										<Flex align='center' gap={2} mb={4}>
 											<HiIdentification color='#B79045' />
 											<Heading size='sm' color='gray.700'>
@@ -438,9 +491,7 @@ const UserModal = ({
 											/>
 										</SimpleGrid>
 									</Box>
-
-									{/* Address & Contact */}
-									<Box bg='gray.50' borderRadius='lg' p={5}>
+									<Box bg='gray.50' borderRadius='lg' p={5} w="100%">
 										<Flex align='center' gap={2} mb={4}>
 											<MdLocationOn color='#B79045' />
 											<Heading size='sm' color='gray.700'>
@@ -474,46 +525,120 @@ const UserModal = ({
 											/>
 										</SimpleGrid>
 									</Box>
-								</Box>
+										</Flex>
+
+								)}
+		
+									{step === 3 && isFieldsAllowed && (
+  <Flex direction={"column"} w={"100%"}>
+	<SalarySection formik={formik} />
+  <RoleStructureSection formik={formik} />
+  
+  </Flex>
+)}
+						
+									{/* Address & Contact */}
+								
+
 							</Flex>
 						</form>
 					</ModalBody>
 
-					<ModalFooter
-						borderTop='1px'
-						borderColor='gray.200'
-						bg='gray.100'
-						py={4}
-					>
-						<Flex w='full' justify='space-between' gap={3}>
-							<Button
-								variant='outline'
-								colorScheme='gray'
-								onClick={onClose}
-								isDisabled={isSubmitting || isCreating || isUpdating}
-								flex='1'
-								maxW='150px'
-							>
-								Cancel
-							</Button>
+				<ModalFooter
+  borderTop='1px'
+  borderColor='gray.200'
+  bg='gray.100'
+  py={4}
+  flexDirection="column"
+  gap={2}
+>
+  {/* Buttons */}
+  <Flex w="full" justify="space-between" gap={3}>
+    <Button
+      variant="outline"
+      onClick={() => (step === 1 ? onClose() : setStep(step - 1))}
+    >
+      {step === 1 ? "Cancel" : "Back"}
+    </Button>
+ <Flex align="center" mt={1} gap={2}>
+    {Array.from({ length: totalSteps }, (_, i) => (
+      <Box
+        key={i}
+        w={4}
+        h={4}
+        borderRadius="full"
+        bg={step === i + 1 ? "#B79045" : "gray.300"}
+      />
+    ))}
+  </Flex>
+    {step < totalSteps ? (
+      <Button
+        bg="#B79045"
+        color="white"
+        _hover={{ bg: "#A87F3B" }}
+        onClick={async () => {
+          const errors = await formik.validateForm();
 
-							<Button
-								bg='#B79045'
-								color='white'
-								_hover={{ bg: '#A87F3B' }}
-								onClick={() => formik.handleSubmit()}
-								isLoading={isSubmitting || isCreating || isUpdating}
-								isDisabled={!formik.dirty}
-								loadingText='Saving...'
-								flex='1'
-								maxW='150px'
-							>
-								{mode === 'add' ? 'Create User' : 'Save Changes'}
-							</Button>
-						</Flex>
-					</ModalFooter>
+          const stepFields = {
+            1: ["firstName", "username", "password"], // Personal Info
+            2: ["agency", "passportNum", "dubaiHomeAddress", "countryHomeAddress", "countryPhoneNum"], // Identification & Address
+            3: ["salaryType", "salary", "roles", "parent", "teamLead"], // Salary + Role Structure
+          };
+
+          const hasErrors = Object.keys(errors).some((key) =>
+            stepFields[step]?.includes(key)
+          );
+
+          if (hasErrors) {
+            formik.setTouched(
+              stepFields[step].reduce((acc, cur) => ({ ...acc, [cur]: true }), {}),
+              true
+            );
+            return;
+          }
+
+          setStep(step + 1);
+        }}
+      >
+        Next
+      </Button>
+    ) : (
+      <Button
+        bg="#B79045"
+        color="white"
+        _hover={{ bg: "#A87F3B" }}
+        onClick={formik.handleSubmit}
+        isLoading={isSubmitting || isCreating || isUpdating}
+      >
+        {mode === "add" ? "Create User" : "Save Changes"}
+      </Button>
+    )}
+  </Flex>
+
+  {/* Step count text */}
+  {/* <Box textAlign="center" mt={2} color="gray.600" fontSize="sm">
+    Step {step} of {totalSteps}
+  </Box> */}
+
+  {/* Step indicators */}
+ 
+</ModalFooter>
+
 				</ModalContent>
 			</Modal>
+{currentUser && (
+  <ProfilePictureModal
+    isOpen={isProfileModalOpen}
+	 onClose={() => {
+    setIsProfileModalOpen(false);
+    onClose(); // close the main UserModal as well
+  }}
+    user={currentUser}
+    previewUrl={currentUser?.profileImage || null}
+    refetchUser={refetchUser}
+    mode={mode === 'add' ? 'add' : 'edit'}
+  />
+)}
 
 			{replaceIsOpen && (
 				<ReplaceManager
