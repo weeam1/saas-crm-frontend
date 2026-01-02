@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -14,20 +14,20 @@ import {
   Flex,
   useColorModeValue,
   Text,
-} from '@chakra-ui/react';
-import { buttonStyle } from 'utils/btn';
-import { useCreateItemMutation } from 'api/apiSlice';
-import { toast } from 'react-toastify';
+} from "@chakra-ui/react";
+import { buttonStyle } from "utils/btn";
+import { useCreateItemMutation } from "api/apiSlice";
+import { toast } from "react-toastify";
 
-const AddShortListedNote = ({ applicationId, isOpen, onClose }) => {
-  const [note, setNote] = useState('');
+const AddShortListedNote = ({ applicationId, isOpen, onClose, refetch }) => {
+  const [note, setNote] = useState("");
   const [createNote, { isLoading }] = useCreateItemMutation();
 
-  const headerBg = useColorModeValue('brand.300', 'brand.100');
-  const headerText = useColorModeValue('brand.700', 'brand.900');
-  const footerBg = useColorModeValue('gray.50', 'gray.700');
-  const bodyBg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.600');
+  const headerBg = useColorModeValue("brand.300", "brand.100");
+  const headerText = useColorModeValue("brand.700", "brand.900");
+  const footerBg = useColorModeValue("gray.50", "gray.700");
+  const bodyBg = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const handleSubmit = async () => {
     try {
@@ -35,13 +35,15 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose }) => {
         path: `/applications/short-listed/notes/${applicationId}`,
         body: { note },
       }).unwrap();
-
-      toast.success('Feedback note added successfully.');
-      setNote('');
+      refetch();
+      toast.success("Feedback note added successfully.");
+      setNote("");
       onClose();
     } catch (error) {
-      console.error('Error adding note:', error);
-      toast.error(error?.data?.message || 'Failed to add note. Please try again.');
+      console.error("Error adding note:", error);
+      toast.error(
+        error?.data?.message || "Failed to add note. Please try again."
+      );
     }
   };
 
@@ -75,7 +77,7 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose }) => {
             zIndex="10"
             boxShadow="md"
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold">
+            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
               Candidate Feedback Note
             </Text>
             <ModalCloseButton
@@ -83,7 +85,7 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose }) => {
               right="12px"
               top="10px"
               color={headerText}
-              _hover={{ bg: 'whiteAlpha.200' }}
+              _hover={{ bg: "whiteAlpha.200" }}
             />
           </Flex>
         </ModalHeader>
@@ -117,10 +119,10 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose }) => {
             {...buttonStyle}
             bg="softGray.100"
             color="gray.700"
-            _active={{ bg: 'gray.200' }}
+            _active={{ bg: "gray.200" }}
             mr={3}
             onClick={onClose}
-			variant='outline'
+            variant="outline"
             borderRadius="md"
           >
             Cancel
@@ -130,10 +132,10 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose }) => {
             colorScheme="brand"
             isLoading={isLoading}
             onClick={handleSubmit}
-            disabled={note.trim() === ''}
+            disabled={note.trim() === ""}
             borderRadius="md"
           >
-            {isLoading ? 'Loading...' : 'Add'}
+            {isLoading ? "Loading..." : "Add"}
           </Button>
         </ModalFooter>
       </ModalContent>
