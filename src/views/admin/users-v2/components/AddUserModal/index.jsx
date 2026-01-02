@@ -247,7 +247,8 @@ const UserModal = ({
         let modeValue = mode === "edit" ? "update" : "add";
 
         updateData(res?.doc?._id, res?.doc, modeValue);
-      } else refetchUser();
+      }
+      // else refetchUser();
 
       setReplacementManager(null);
       setReplacementTeamLead(null);
