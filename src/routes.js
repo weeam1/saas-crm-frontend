@@ -274,7 +274,7 @@ const SipDashboard = React.lazy(
 	() => import('views/admin/sip/component/Dashboard')
 );
 const SipHistory = React.lazy(
-	() => import('views/admin/sip/component/History/index')
+	() => import('views/admin/sip/component/RecordingHistory/index')
 );
 const SipSettings = React.lazy(
 	() => import('views/admin/sip/component/UserSetting/index')
