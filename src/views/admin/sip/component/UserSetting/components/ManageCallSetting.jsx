@@ -28,6 +28,7 @@ import {
 	InputGroup,
 	InputRightElement,
 	IconButton,
+	Switch,
 } from '@chakra-ui/react';
 import { useFormik } from 'formik';
 import { useDispatch } from 'react-redux';
@@ -37,7 +38,13 @@ import { toast } from 'react-toastify';
 
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import {
+	CheckCircleIcon,
+	InfoOutlineIcon,
+	ViewIcon,
+	ViewOffIcon,
+	WarningIcon,
+} from '@chakra-ui/icons';
 import useUserSession from 'hooks/useUserSession';
 import {
 	buildModesPayload,
@@ -46,10 +53,12 @@ import {
 	isModeConfigured,
 } from './useModeForms';
 import { saveUserDialerSettings } from './../../../../../../redux/webrtc/webrtcSlice';
+import CustomTooltip from 'components/shared/CustomTooltip';
 
 // Validation schema for base form (user and SIM number)
 const baseValidationSchema = Yup.object().shape({
 	user: Yup.string().required('User is required'),
+	isFeedback: Yup.boolean(),
 	simNumber: Yup.string()
 		.matches(/^[A-Z0-9]*$/, 'SIM number can only contain letters and numbers')
 		.max(20, 'SIM number cannot exceed 20 characters'),
@@ -76,6 +85,7 @@ const ManageCallSetting = ({
 	const cachedFormData = useRef({
 		user: '',
 		simNumber: '',
+		isFeedback: false,
 		modes: { udp: null, tls: null, wss: null },
 	});
 
@@ -91,6 +101,7 @@ const ManageCallSetting = ({
 		initialValues: {
 			user: initialData?.user?._id || '',
 			simNumber: initialData?.simNumber || '',
+			isFeedback: initialData?.isFeedback || false,
 		},
 		validationSchema: baseValidationSchema,
 		onSubmit: () => {},
@@ -107,6 +118,7 @@ const ManageCallSetting = ({
 			cachedFormData.current = {
 				user: initialData.user._id,
 				simNumber: initialData.simNumber,
+				isFeedback: initialData.isFeedback,
 				modes: initialData.modes,
 			};
 		}
@@ -214,6 +226,7 @@ const ManageCallSetting = ({
 		const payload = {
 			user: baseFormik.values.user,
 			simNumber: baseFormik.values.simNumber || null,
+			isFeedback: baseFormik.values.isFeedback || false,
 			// modes: cachedFormData.current.modes,
 			modes: buildModesPayload(modeForms),
 		};
@@ -294,6 +307,7 @@ const ManageCallSetting = ({
 		cachedFormData.current = {
 			user: '',
 			simNumber: '',
+			isFeedback: false,
 			modes: { udp: null, tls: null, wss: null },
 		};
 		setActiveTab(0);
@@ -306,7 +320,7 @@ const ManageCallSetting = ({
 
 	// Check if Save button should be enabled for final submission
 	const isFinalSaveEnabled = () => {
-		return baseFormik.values.user && isConfigMode;
+		return baseFormik.values.user && isConfigMode && baseFormik.touched;
 	};
 
 	return (
@@ -397,6 +411,57 @@ const ManageCallSetting = ({
 								<FormErrorMessage>
 									{baseFormik.errors.simNumber}
 								</FormErrorMessage>
+							</FormControl>
+
+							<FormControl py={4}>
+								<Flex align='center' justify='space-between'>
+									<FormLabel fontWeight='semibold'>Call Feedback</FormLabel>
+
+									<HStack spacing={2}>
+										<CustomTooltip label='If enabled, this user can submit call quality feedbacks.'>
+											<Box color='gray.400' cursor='pointer'>
+												<InfoOutlineIcon fontSize='14px' />
+											</Box>
+										</CustomTooltip>
+
+										<Switch
+											name='isFeedback'
+											colorScheme='green'
+											isChecked={baseFormik.values.isFeedback}
+											onChange={(e) =>
+												baseFormik.setFieldValue('isFeedback', e.target.checked)
+											}
+										/>
+									</HStack>
+								</Flex>
+
+								<HStack
+									mt={1}
+									p={2}
+									rounded='md'
+									spacing={2}
+									bg={baseFormik.values.isFeedback ? 'green.100' : 'orange.100'}
+								>
+									{baseFormik.values.isFeedback ? (
+										<>
+											<CheckCircleIcon color='green.500' boxSize='14px' />
+											<Text fontSize='sm' color='green.700' fontWeight='medium'>
+												Call feedback enabled for this user
+											</Text>
+										</>
+									) : (
+										<>
+											<WarningIcon color='orange.500' boxSize='14px' />
+											<Text
+												fontSize='sm'
+												color='orange.600'
+												fontWeight='medium'
+											>
+												Call feedback is disabled for this user
+											</Text>
+										</>
+									)}
+								</HStack>
 							</FormControl>
 						</Box>
 

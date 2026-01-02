@@ -13,6 +13,7 @@ import {
 	IconButton,
 	useDisclosure,
 	useBreakpointValue,
+	Badge,
 } from '@chakra-ui/react';
 import { useDispatch } from 'react-redux';
 
@@ -90,7 +91,14 @@ const UserSetting = () => {
 
 	const [deleteSipSetting, { isLoading: isDeleting }] = useDeleteItemMutation();
 
-	const columns = ['SR.No', 'User', 'Agency', 'SIM Number', 'Actions'];
+	const columns = [
+		'S.No',
+		'User',
+		'Agency',
+		'SIM Number',
+		'Feedback',
+		'Actions',
+	];
 
 	const handlePageChange = (newPage) => {
 		setCurrentPage(newPage);
@@ -269,6 +277,7 @@ const UserSetting = () => {
 									whiteSpace='nowrap'
 									py={4}
 									textAlign='center'
+									textTransform='capitalize'
 								>
 									<Text
 										fontSize={{ base: '12px', md: '14px' }}
@@ -315,6 +324,19 @@ const UserSetting = () => {
 											textAlign={'center'}
 										>
 											{sip.simNumber || 'N/A'}
+										</Td>
+
+										<Td py={4} minWidth='100px' textAlign={'center'}>
+											<Badge
+												colorScheme={sip.isFeedback ? 'green' : 'red'}
+												variant='subtle'
+												px={2}
+												py={1}
+												borderRadius='full'
+												fontSize={{ base: 'xs' }}
+											>
+												{sip?.isFeedback ? 'Enabled' : 'Disabled'}
+											</Badge>
 										</Td>
 										<Td textAlign='center'>
 											<Flex justifyContent='center' gap={2}>

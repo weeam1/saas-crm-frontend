@@ -12,12 +12,20 @@ import { useState } from 'react';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { Textarea } from '@chakra-ui/react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateMultipleLeadFields } from '../../../../../redux/leadsSlice';
 import { buttonStyle } from 'utils/btn';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { useModalColors } from 'hooks/useModalColors';
+import CallFeedbackModal from './CallFeedbackModal';
+import { useCreateItemMutation } from 'api/apiSlice';
+
+const getUsernameByPriority = (modes = {}) => {
+	return (
+		modes?.udp?.username ?? modes?.wss?.username ?? modes?.tls?.username ?? null
+	);
+};
 
 const AddNewNote = ({
 	setNoteAdded,
@@ -28,14 +36,27 @@ const AddNewNote = ({
 }) => {
 	const [noteValue, setNoteValue] = useState('');
 	const [isLoding, setIsLoding] = useState(false);
+	const [callFeedbackOpen, setCallFeedbackOpen] = useState(false);
+
+	const webrtc = useSelector((state) => state.webrtc);
+	const userSettings = webrtc?.userSettings;
+	const isFeedbackStatus = Boolean(userSettings?.isFeedback || false);
+
+	const userExtensionId = userSettings
+		? getUsernameByPriority(userSettings?.modes)
+		: null;
+
+	console.log({ isFeedbackStatus, userExtensionId });
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 	const { headerBg, headerText } = useModalColors();
 
+	const [createItemMutation] = useCreateItemMutation();
+
 	const dispatch = useDispatch();
 
-	const handleAddNote = async () => {
+	const handleSubmitNote = async () => {
 		if (noteValue.trim()) {
 			try {
 				setIsLoding(true);
@@ -92,6 +113,39 @@ const AddNewNote = ({
 		}
 	};
 
+	const handleAddNote = () => {
+		if (isFeedbackStatus) {
+			setCallFeedbackOpen(true);
+		} else handleSubmitNote();
+	};
+
+	const handleSubmitFeedback = async (data) => {
+		try {
+			if (!userExtensionId) {
+				return toast.error('User extension id is must required to procced!');
+			}
+
+			const payload = {
+				...data,
+				leadId: paramId,
+				userExtensionId,
+			};
+
+			await createItemMutation({
+				path: '/sipSetting/feedback',
+				body: payload,
+			}).unwrap();
+
+			toast.success('Feedback submitted successfully');
+
+			handleSubmitNote();
+		} catch (error) {
+			toast.error(error?.data?.message || 'Feedback submittion failed!');
+		} finally {
+			setCallFeedbackOpen(false);
+		}
+	};
+
 	return (
 		<div>
 			<Modal size='3xl' onClose={onClose} isOpen={isOpen} isCentered>
@@ -107,7 +161,7 @@ const AddNewNote = ({
 						alignItems='center'
 						w='100%'
 					>
-						Add a new note
+						Add Note
 					</ModalHeader>
 					<ModalCloseButton _focus={{ outline: 'none' }} />
 					<ModalBody>
@@ -159,6 +213,14 @@ const AddNewNote = ({
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
+
+			{callFeedbackOpen && (
+				<CallFeedbackModal
+					isOpen={callFeedbackOpen}
+					onClose={() => setCallFeedbackOpen(false)}
+					onSubmit={handleSubmitFeedback}
+				/>
+			)}
 		</div>
 	);
 };
