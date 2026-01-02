@@ -87,7 +87,7 @@ const UserModal = ({
   const [currentUser, setCurrentUser] = useState(null);
 
   const { roles: allRoles } = useRoles();
-  const { isSuperAdmin, userRoleName } = useUserSession();
+  const { isSuperAdmin, isAdmin, userRoleName } = useUserSession();
   const {
     team: managers,
     getTeamLeadsByManager,
@@ -280,9 +280,12 @@ const UserModal = ({
     );
   }, [formik.values?.parent, userData?._id]);
 
-  const isFieldsAllowed = isSuperAdmin ? true : mode === "add";
+  const isFieldsAllowed = isSuperAdmin || isAdmin ? true : mode === "add";
+  // Step 3 should only appear for Super Admin
+  const showStep3 = isSuperAdmin || isAdmin;
+
   const [step, setStep] = useState(1);
-  const totalSteps = 3;
+  const totalSteps = showStep3 ? 3 : 2;
 
   return (
     <>
@@ -521,7 +524,7 @@ const UserModal = ({
                   </Flex>
                 )}
 
-                {step === 3 && isFieldsAllowed && (
+                {showStep3 && step === 3 && isFieldsAllowed && (
                   <Flex direction={"column"} w={"100%"}>
                     <SalarySection formik={formik} />
                     <RoleStructureSection formik={formik} />
@@ -587,22 +590,26 @@ const UserModal = ({
                     const errors = await formik.validateForm();
 
                     const stepFields = {
-                      1: ["firstName", "username", "password"], // Personal Info
+                      1: ["firstName", "username", "password"],
+
                       2: [
                         "agency",
                         "passportNum",
                         "dubaiHomeAddress",
                         "countryHomeAddress",
                         "countryPhoneNum",
-                      ], // Identification & Address
-                      3: [
+                      ],
+                    };
+
+                    if (showStep3) {
+                      stepFields[3] = [
                         "salaryType",
                         "salary",
                         "roles",
                         "parent",
                         "teamLead",
-                      ], // Salary + Role Structure
-                    };
+                      ];
+                    }
 
                     const hasErrors = Object.keys(errors).some((key) =>
                       stepFields[step]?.includes(key)
