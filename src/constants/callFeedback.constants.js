@@ -17,7 +17,7 @@ export const CALL_MEDIUM_OPTIONS = [
 		color: 'orange',
 	},
 	{ value: 'whatsapp', label: 'WhatsApp', icon: FaWhatsapp, color: 'green' },
-	{ value: 'dailer', label: 'Dialer', icon: FiPhone, color: 'blue' },
+	{ value: 'dialer', label: 'Dialer', icon: FiPhone, color: 'blue' },
 ];
 
 export const QUALITY_STARS = [
