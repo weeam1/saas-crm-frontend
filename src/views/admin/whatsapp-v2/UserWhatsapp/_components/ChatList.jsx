@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import useUserSession from 'hooks/useUserSession';
 import { useSelector } from 'react-redux';
 import { getMessageLabel } from '../../utils/helpers';
+import { maskPhoneNumber } from 'utils/webrtc';
 
 // const formatTime = (timestamp) => {
 // 	if (!timestamp) return '';
@@ -259,7 +260,7 @@ const ChatListItem = ({
 								// userSelect='none'
 								// onCopy={(e) => e.preventDefault()}
 							>
-								{chat?.name || '***********'}
+								{maskPhoneNumber(chat?.name) || '***********'}
 								{/* ************** */}
 							</Text>
 

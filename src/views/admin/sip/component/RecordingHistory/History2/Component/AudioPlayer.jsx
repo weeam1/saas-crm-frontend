@@ -213,7 +213,7 @@ const AudioPlayer = ({
 			{hasPermission('sip', 'download_recording') && (
 				<IconButton
 					as='a'
-					href={url}
+					href={`${keys.sipApiUrl2}/file/${url}`}
 					download
 					aria-label='Download Audio'
 					icon={<FaArrowDown />}

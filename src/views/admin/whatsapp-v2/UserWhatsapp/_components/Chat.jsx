@@ -18,6 +18,7 @@ import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import ChatMessage from './ChatMessage';
 import { AttachmentIcon } from '@chakra-ui/icons';
 import MediaAttachment from './_shared/MediaAttachment';
+import { maskPhoneNumber } from 'utils/webrtc';
 
 const Chat = ({ chatId, sessionId }) => {
 	const [message, setMessage] = useState('');
@@ -96,7 +97,7 @@ const Chat = ({ chatId, sessionId }) => {
 						fontWeight='bold'
 						fontSize={{ base: 'sm', md: 'md' }}
 					>
-						{activeChat?.name || '***********'}
+						{maskPhoneNumber(activeChat?.name) || '***********'}
 					</Text>
 					{/* <Text fontSize='sm' color='gray.500'>
 							{chat?.phoneNumber || '***********'}

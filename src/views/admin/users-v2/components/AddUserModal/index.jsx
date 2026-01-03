@@ -115,7 +115,10 @@ const UserModal = ({
   const formik = useFormik({
     initialValues: getInitialValues(userData),
     enableReinitialize: true,
-    validationSchema: userSchema,
+    validationSchema: userSchema({
+      isAdmin,
+      isSuperAdmin,
+    }),
     validate: (values) => {
       const errors = {};
 
@@ -270,6 +273,9 @@ const UserModal = ({
       toast.error(
         error?.data?.message || "Failed to save user. Please try again."
       );
+      if (error?.data?.message.toLowerCase().includes("password")) {
+        passwordOnOpen();
+      }
     } finally {
       setIsSubmitting(false);
     }
