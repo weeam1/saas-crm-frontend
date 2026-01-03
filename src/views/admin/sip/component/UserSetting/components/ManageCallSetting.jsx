@@ -413,7 +413,7 @@ const ManageCallSetting = ({
 								</FormErrorMessage>
 							</FormControl>
 
-							{/* <FormControl py={4}>
+							<FormControl py={4}>
 								<Flex align='center' justify='space-between'>
 									<FormLabel fontWeight='semibold'>Call Feedback</FormLabel>
 
@@ -462,7 +462,7 @@ const ManageCallSetting = ({
 										</>
 									)}
 								</HStack>
-							</FormControl> */}
+							</FormControl>
 						</Box>
 
 						{/* Mode Configuration Tabs */}
