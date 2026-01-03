@@ -207,10 +207,10 @@ export const sendHiringMetaFeedback = async (pixelData) => {
 		const url = `${keys.fbPixelAPI}/${keys.fbPixelId}/events?access_token=${keys.fbPixelToken}`;
 
 		const eventNameMap = {
-			'Not Eligible': 'Unqualified',
-			Eligible: 'Qualified',
+			'Not Eligible': 'not_qualified_candidates',
+			Eligible: 'qualified_candidates',
 		};
-
+		
 		const event_name = eventNameMap[status];
 
 		const user_data = {};
