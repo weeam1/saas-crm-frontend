@@ -17,12 +17,17 @@ import LeadDetails from './LeadDetails';
 import LeadNotesModal from './components/lead-note/LeadNotesModal';
 import { useState } from 'react';
 import { buttonStyle } from 'utils/btn';
+import useUserSession from 'hooks/useUserSession';
 
 const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 	const [leadNotes, setLeadNotes] = useState(false);
 
 	const headerBg = useColorModeValue('brand.300', 'brand.100');
 	const headerText = useColorModeValue('brand.700', 'brand.900');
+
+	const { userRoleName } = useUserSession();
+
+	const isNotesAllowed = isInLeadPool ? userRoleName !== 'Agent' : true;
 
 	return (
 		<Modal onClose={onClose} isOpen={leadsModal.isOpen} size='6xl' isCentered>
@@ -45,24 +50,26 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 								noOfLines={1}
 								maxW={{ base: '200px', sm: 'none' }}
 							>
-								Lead Details
+								Lead Detail
 							</Text>
 						</HStack>
 
 						<HStack spacing={2} align='center' justify='flex-end'>
-							<Button
-								{...buttonStyle}
-								bg='whiteAlpha.200'
-								color='white'
-								_hover={{ bg: 'whiteAlpha.300' }}
-								size='sm'
-								leftIcon={<FaPen />}
-								onClick={() => setLeadNotes(true)}
-								aria-label='lead notes'
-								whiteSpace='nowrap'
-							>
-								Lead Notes
-							</Button>
+							{isNotesAllowed && (
+								<Button
+									{...buttonStyle}
+									bg='whiteAlpha.200'
+									color='white'
+									_hover={{ bg: 'whiteAlpha.300' }}
+									size='sm'
+									leftIcon={<FaPen />}
+									onClick={() => setLeadNotes(true)}
+									aria-label='lead notes'
+									whiteSpace='nowrap'
+								>
+									Lead Notes
+								</Button>
+							)}
 							<ModalCloseButton
 								position='relative'
 								color='white'
@@ -79,7 +86,7 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 					color='gray.800'
 					p={5}
 					borderTopRadius='2xl'
-					maxH='85vh'
+					maxH={{ base: '50vh', md: '70vh' }}
 					overflowY='auto'
 					scrollBehavior='smooth'
 				>

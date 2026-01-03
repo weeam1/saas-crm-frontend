@@ -13,6 +13,7 @@ const AccountsView = ({
   onUpdate,
   onDelete,
   skeletonCount,
+  isFetching
 }) => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
   const { createUserLog } = useUserActivityLog();
@@ -138,7 +139,7 @@ const AccountsView = ({
 
   return (
     <Box p={6} fontFamily="DM Sans">
-      {isGetting || !isDataReady ? (
+      {isGetting || !isDataReady || isFetching ? (
         <SimpleGrid
           columns={{ base: 1, sm: 1, md: 2, lg: 2, xl: 3 }}
           spacing={{ base: 2 }}

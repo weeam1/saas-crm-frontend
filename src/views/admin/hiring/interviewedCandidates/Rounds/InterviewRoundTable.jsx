@@ -1,338 +1,378 @@
 import {
-	Table,
-	Thead,
-	Tbody,
-	Tr,
-	Th,
-	Td,
-	TableContainer,
-	IconButton,
-	Box,
-	Flex,
-	Text,
-	Button,
-	HStack,
-} from '@chakra-ui/react';
-import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-import TableLoading from 'components/loading/TableLoading';
-import FlagBadge from '../../_components/FlagBadge';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import { useCreateItemMutation } from 'api/apiSlice';
-import { useUpdateItemMutation } from 'api/apiSlice';
-import { useState } from 'react';
-import { toUTCString } from 'utils/helpers';
-import ArrangeInterview from '../../shortListedCandidates/components/ArrangeInterview';
-import MailIcon from '../../shortListedCandidates/components/MailIcon';
-import useUserSession from 'hooks/useUserSession';
-import { useUserActivityLog } from 'hooks/useUserActivityLog';
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+  IconButton,
+  Box,
+  Flex,
+  Text,
+  Button,
+  HStack,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { TriangleDownIcon, TriangleUpIcon } from "@chakra-ui/icons";
+import TableLoading from "components/loading/TableLoading";
+import FlagBadge from "../../_components/FlagBadge";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useCreateItemMutation } from "api/apiSlice";
+import { useUpdateItemMutation } from "api/apiSlice";
+import { useState } from "react";
+import { toUTCString } from "utils/helpers";
+import ArrangeInterview from "../../shortListedCandidates/components/ArrangeInterview";
+import MailIcon from "../../shortListedCandidates/components/MailIcon";
+import useUserSession from "hooks/useUserSession";
+import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { FaClockRotateLeft } from "react-icons/fa6";
+import CandidateStatusHistory from "../../_components/CandidateStatusHistory";
 
 const InterviewedRoundTable = ({
-	headers,
-	data,
-	loading,
-	handleSort,
-	sortConfig,
-	handleViewCandidate,
-	handleViewResult,
-	refetch,
+  headers,
+  data,
+  loading,
+  handleSort,
+  sortConfig,
+  handleViewCandidate,
+  handleViewResult,
+  refetch,
+  isFetching,
 }) => {
-	const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
-	const [candidate, setCandidate] = useState(null);
+  const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
+  const [candidate, setCandidate] = useState(null);
 
-	const [selectedDate, setSelectedDate] = useState(null);
-	const [selectedTime, setSelectedTime] = useState('');
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState("");
 
-	// const user = JSON.parse(localStorage.getItem('user'));
-	const navigate = useNavigate();
+  // const user = JSON.parse(localStorage.getItem('user'));
+  const navigate = useNavigate();
 
-	const [createItemMutation, { isLoading: startingInterview }] =
-		useCreateItemMutation();
+  const [createItemMutation, { isLoading: startingInterview }] =
+    useCreateItemMutation();
 
-	const { user } = useUserSession();
-	const { createUserLog } = useUserActivityLog();
+  const { user } = useUserSession();
+  const { createUserLog } = useUserActivityLog();
 
-	const [updateItemMutation, { isLoading: isInviting }] =
-		useUpdateItemMutation();
+  const [updateItemMutation, { isLoading: isInviting }] =
+    useUpdateItemMutation();
 
-	const handleStartInterview = async (interview) => {
-		try {
-			const data = await createItemMutation({
-				path: `/interviews/start-next-round`,
-				body: {
-					candidateId: interview?.candidate?._id,
-					interviewId: interview?._id,
-				},
-			}).unwrap();
+  const handleStartInterview = async (interview) => {
+    try {
+      const data = await createItemMutation({
+        path: `/interviews/start-next-round`,
+        body: {
+          candidateId: interview?.candidate?._id,
+          interviewId: interview?._id,
+        },
+      }).unwrap();
 
-			if (data?.status === 'success' && data?.doc?._id) {
-				// navigate(`/hiring/interview/${data.doc._id}`);
+      if (data?.status === "success" && data?.doc?._id) {
+        // navigate(`/hiring/interview/${data.doc._id}`);
 
-				window.location.href = `/hiring/interview/${data.doc._id}`;
-				toast.success('Interview started...');
+        window.location.href = `/hiring/interview/${data.doc._id}`;
+        toast.success("Interview started...");
 
-				createUserLog({
-					userId: user?._id,
-					action: 'UPDATE',
-					entity: 'Hiring',
-					entityId: interview?.candidate?._id,
-					status: 'success',
-					message: `${user?.fullName} started the interview with ${interview?.candidate?.name}.`,
-				});
-			} else {
-				toast.error('Invalid response from server.');
-			}
-		} catch (error) {
-			console.log(error);
+        createUserLog({
+          userId: user?._id,
+          action: "UPDATE",
+          entity: "Hiring",
+          entityId: interview?.candidate?._id,
+          status: "success",
+          message: `${user?.fullName} started the interview with ${interview?.candidate?.name}.`,
+        });
+      } else {
+        toast.error("Invalid response from server.");
+      }
+    } catch (error) {
+      console.log(error);
 
-			const errorMsg =
-				error?.data?.message || 'Interview not started, please try again.';
-			toast.error(errorMsg);
+      const errorMsg =
+        error?.data?.message || "Interview not started, please try again.";
+      toast.error(errorMsg);
 
-			createUserLog({
-				userId: user?._id,
-				action: 'UPDATE',
-				entity: 'Hiring',
-				entityId: interview?.candidate?._id,
-				status: error?.status === '500' ? 'error' : 'fail',
-				message: errorMsg,
-			});
-		}
-	};
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Hiring",
+        entityId: interview?.candidate?._id,
+        status: error?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
+    }
+  };
 
-	const handleScheduleInterview = async () => {
-		try {
-			await updateItemMutation({
-				path: `/applications/schedule-interview/${candidate?._id}`,
-				body: {
-					interviewDate: toUTCString(selectedDate),
-					interviewTime: selectedTime,
-				},
-			}).unwrap();
+  const handleScheduleInterview = async () => {
+    try {
+      await updateItemMutation({
+        path: `/applications/schedule-interview/${candidate?._id}`,
+        body: {
+          interviewDate: toUTCString(selectedDate),
+          interviewTime: selectedTime,
+        },
+      }).unwrap();
 
-			toast.success('Invite succesfully sended');
-			refetch();
-			createUserLog({
-				userId: user?._id,
-				action: 'UPDATE',
-				entity: 'Hiring',
-				entityType: 'Application',
-				entityId: candidate._id,
-				status: 'success',
-				message: `Interview invitation sent to ${candidate.name} by ${user?.fullName}.`,
-			});
-		} catch (err) {
-			console.log(err);
-			const errorMsg =
-				err?.data?.message || 'Interview is not arranged, please try again.';
-			toast.error(errorMsg);
-			createUserLog({
-				userId: user?._id,
-				action: 'UPDATE',
-				entity: 'Hiring',
-				entityType: 'Application',
-				entityId: candidate._id,
-				status: err?.status === '500' ? 'error' : 'fail',
-				message: errorMsg,
-			});
-		} finally {
-			setArrangeInterviewOpen(false);
-		}
-	};
+      toast.success("Invite succesfully sended");
+      refetch();
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Hiring",
+        entityType: "Application",
+        entityId: candidate._id,
+        status: "success",
+        message: `Interview invitation sent to ${candidate.name} by ${user?.fullName}.`,
+      });
+    } catch (err) {
+      console.log(err);
+      const errorMsg =
+        err?.data?.message || "Interview is not arranged, please try again.";
+      toast.error(errorMsg);
+      createUserLog({
+        userId: user?._id,
+        action: "UPDATE",
+        entity: "Hiring",
+        entityType: "Application",
+        entityId: candidate._id,
+        status: err?.status === "500" ? "error" : "fail",
+        message: errorMsg,
+      });
+    } finally {
+      setArrangeInterviewOpen(false);
+    }
+  };
 
-	const handleArrangeInterview = async (candidate) => {
-		setCandidate(candidate);
-		setArrangeInterviewOpen(true);
-	};
+  const handleArrangeInterview = async (candidate) => {
+    setCandidate(candidate);
+    setArrangeInterviewOpen(true);
+  };
+  const {
+    isOpen: isHistoryOpen,
+    onOpen: onHistoryOpen,
+    onClose: onHistoryClose,
+  } = useDisclosure();
 
-	return (
-		<>
-			{/* Box:  transform='translate(-10px, -10px)' */}
-			<Box rounded='md' overflow='hidden'>
-				<TableContainer
-					maxHeight='700px' // Set a custom height for the container
-					overflowY='auto' // Enable vertical scrolling
-					overflowX='auto' // Optional: Enable horizontal scrolling
-				>
-					<Table variant='striped' size='md'>
-						<Thead position='sticky' top={0} bg='brand.200' zIndex={1} p='4'>
-							<Tr>
-								{headers?.map((header) => (
-									<Th
-										key={header.key}
-										textAlign='center'
-										color='gray.800'
-										width={header.width || '150px'}
-									>
-										<Flex align='center' justify='space-evenly' gap='4'>
-											<Text textTransform='capitalize'>{header.label}</Text>
-											{header.key !== 'action' && (
-												<IconButton
-													aria-label='Sort'
-													size='xs'
-													icon={
-														sortConfig.key === header.key &&
-														sortConfig.direction === 'asc' ? (
-															<TriangleUpIcon />
-														) : (
-															<TriangleDownIcon />
-														)
-													}
-													onClick={() => handleSort(header.key)}
-													variant='ghost'
-												/>
-											)}
-										</Flex>
-									</Th>
-								))}
-							</Tr>
-						</Thead>
-						<Tbody>
-							{loading ? (
-								<TableLoading columns={headers} length={8} />
-							) : data && data?.length ? (
-								data?.map((item, index) => (
-									<Tr key={index} fontSize='sm'>
-										<Td minWidth='300px'>
-											<HStack gap='1'>
-												<span>{item.candidate.name}</span>
-												<FlagBadge item={item.candidate} />
-											</HStack>
-										</Td>
-										<Td minWidth='250px'>{item.candidate.email}</Td>
-										<Td>{item?.agency?.name ?? 'N/A'}</Td>
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
 
-										<Td>{item.position}</Td>
-										<Td>{item.candidate.phone}</Td>
-										<Td>{item.candidate.whatsApp}</Td>
-										<Td>{item.jobType}</Td>
-										<Td>
-											{!item.remarks ? 'No Result' : `${item.percentageScore}%`}
-										</Td>
-										<Td>
-											<HStack alignItems='center'>
-												<Button
-													bg='#EDC270'
-													color='gray.800'
-													h='6'
-													py='2'
-													px='4'
-													fontSize='xs'
-													fontWeight='normal'
-													shadow='sm'
-													rounded='md'
-													_hover={{ bg: '#E0B960' }}
-													_active={{ bg: '#D4AC50' }}
-													onClick={() =>
-														handleViewCandidate(item.candidate._id)
-													}
-												>
-													View
-												</Button>
+  return (
+    <>
+      {/* Box:  transform='translate(-10px, -10px)' */}
+      <Box rounded="md" overflow="hidden">
+        <TableContainer
+          maxHeight="700px" // Set a custom height for the container
+          overflowY="auto" // Enable vertical scrolling
+          overflowX="auto" // Optional: Enable horizontal scrolling
+        >
+          <Table variant="striped" size="md">
+            <Thead position="sticky" top={0} bg="brand.200" zIndex={1} p="4">
+              <Tr>
+                {headers?.map((header) => (
+                  <Th
+                    key={header.key}
+                    textAlign="center"
+                    color="gray.800"
+                    width={header.width || "150px"}
+                  >
+                    <Flex align="center" justify="space-evenly" gap="4">
+                      <Text textTransform="capitalize">{header.label}</Text>
+                      {header.key !== "action" && (
+                        <IconButton
+                          aria-label="Sort"
+                          size="xs"
+                          icon={
+                            sortConfig.key === header.key &&
+                            sortConfig.direction === "asc" ? (
+                              <TriangleUpIcon />
+                            ) : (
+                              <TriangleDownIcon />
+                            )
+                          }
+                          onClick={() => handleSort(header.key)}
+                          variant="ghost"
+                        />
+                      )}
+                    </Flex>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {loading || isFetching ? (
+                <TableLoading columns={headers} length={8} />
+              ) : data && data?.length ? (
+                data?.map((item, index) => (
+                  <Tr key={index} fontSize="sm">
+                    <Td minWidth="300px">
+                      <HStack gap="1">
+                        <span>{item.candidate.name}</span>
+                        <FlagBadge item={item.candidate} />
+                      </HStack>
+                    </Td>
+                    <Td minWidth="250px">{item.candidate.email}</Td>
+                    <Td>{item?.agency?.name ?? "N/A"}</Td>
 
-												<Button
-													bg='#EDC270'
-													color='gray.800'
-													h='6'
-													py='2'
-													px='4'
-													flex={1}
-													fontSize='xs'
-													fontWeight='normal'
-													shadow='sm'
-													rounded='md'
-													_hover={{ bg: '#E0B960' }}
-													_active={{ bg: '#D4AC50' }}
-													onClick={() => handleViewResult(item)}
-												>
-													{item?.remarks ? 'Previous Result' : 'Submit Result'}
-												</Button>
+                    <Td>{item.position}</Td>
+                    <Td>{item.candidate.phone}</Td>
+                    <Td>{item.candidate.whatsApp}</Td>
+                    <Td>{item.jobType}</Td>
+                    <Td>
+                      {!item.remarks ? "No Result" : `${item.percentageScore}%`}
+                    </Td>
+                    <Td>
+                      <HStack alignItems="center">
+                        <Button
+                          bg="#EDC270"
+                          color="gray.800"
+                          h="6"
+                          py="2"
+                          px="4"
+                          fontSize="xs"
+                          fontWeight="normal"
+                          shadow="sm"
+                          rounded="md"
+                          _hover={{ bg: "#E0B960" }}
+                          _active={{ bg: "#D4AC50" }}
+                          onClick={() => {
+                            setSelectedCandidate(item.candidate);
+                            onHistoryOpen();
+                          }}
+                        >
+                          <FaClockRotateLeft />
+                        </Button>
+                        <Button
+                          bg="#EDC270"
+                          color="gray.800"
+                          h="6"
+                          py="2"
+                          px="4"
+                          fontSize="xs"
+                          fontWeight="normal"
+                          shadow="sm"
+                          rounded="md"
+                          _hover={{ bg: "#E0B960" }}
+                          _active={{ bg: "#D4AC50" }}
+                          onClick={() =>
+                            handleViewCandidate(item.candidate._id)
+                          }
+                        >
+                          View
+                        </Button>
 
-												{item?.remarks && (
-													<Button
-														bg='#EDC270'
-														color='gray.800'
-														h='6'
-														py='2'
-														px='4'
-														fontSize='xs'
-														fontWeight='normal'
-														shadow='sm'
-														rounded='md'
-														_hover={{ bg: '#E0B960' }}
-														_active={{ bg: '#D4AC50' }}
-														onClick={() =>
-															handleArrangeInterview(item.candidate)
-														}
-													>
-														{item?.candidate?.invited
-															? 'Reschedule'
-															: 'Arrange Interview'}
-													</Button>
-												)}
+                        <Button
+                          bg="#EDC270"
+                          color="gray.800"
+                          h="6"
+                          py="2"
+                          px="4"
+                          flex={1}
+                          fontSize="xs"
+                          fontWeight="normal"
+                          shadow="sm"
+                          rounded="md"
+                          _hover={{ bg: "#E0B960" }}
+                          _active={{ bg: "#D4AC50" }}
+                          onClick={() => handleViewResult(item)}
+                        >
+                          {item?.remarks ? "Previous Result" : "Submit Result"}
+                        </Button>
 
-												{item?.remarks && item?.candidate?.invited && (
-													<Button
-														bg='#EDC270'
-														color='gray.800'
-														h='6'
-														py='2'
-														px='4'
-														flex={1}
-														fontSize='xs'
-														fontWeight='normal'
-														shadow='sm'
-														rounded='md'
-														_hover={{ bg: '#E0B960' }}
-														_active={{ bg: '#D4AC50' }}
-														onClick={() => handleStartInterview(item)}
-													>
-														Start Interview
-													</Button>
-												)}
+                        {item?.remarks && (
+                          <Button
+                            bg="#EDC270"
+                            color="gray.800"
+                            h="6"
+                            py="2"
+                            px="4"
+                            fontSize="xs"
+                            fontWeight="normal"
+                            shadow="sm"
+                            rounded="md"
+                            _hover={{ bg: "#E0B960" }}
+                            _active={{ bg: "#D4AC50" }}
+                            onClick={() =>
+                              handleArrangeInterview(item.candidate)
+                            }
+                          >
+                            {item?.candidate?.invited
+                              ? "Reschedule"
+                              : "Arrange Interview"}
+                          </Button>
+                        )}
 
-												{/* Mail Icon for accepting interview intive */}
-												{item?.candidate?.invited && (
-													<MailIcon isRead={item?.candidate?.inviteAccepted} />
-												)}
-											</HStack>
-										</Td>
-									</Tr>
-								))
-							) : (
-								<Tr>
-									<Td colSpan={headers.length}>
-										<Text
-											textAlign={'center'}
-											width='100%'
-											color='gray.500'
-											fontSize='sm'
-											fontWeight='600'
-										>
-											No data found
-										</Text>
-									</Td>
-								</Tr>
-							)}
-						</Tbody>
-					</Table>
-				</TableContainer>
-			</Box>
+                        {item?.remarks && item?.candidate?.invited && (
+                          <Button
+                            bg="#EDC270"
+                            color="gray.800"
+                            h="6"
+                            py="2"
+                            px="4"
+                            flex={1}
+                            fontSize="xs"
+                            fontWeight="normal"
+                            shadow="sm"
+                            rounded="md"
+                            _hover={{ bg: "#E0B960" }}
+                            _active={{ bg: "#D4AC50" }}
+                            onClick={() => handleStartInterview(item)}
+                          >
+                            Start Interview
+                          </Button>
+                        )}
 
-			{arrangeInterviewOpen && (
-				<ArrangeInterview
-					isOpen={arrangeInterviewOpen}
-					onClose={() => setArrangeInterviewOpen(false)}
-					selectedDate={selectedDate}
-					setSelectedDate={setSelectedDate}
-					selectedTime={selectedTime}
-					setSelectedTime={setSelectedTime}
-					isLoading={isInviting}
-					handleScheduleInterview={handleScheduleInterview}
-				/>
-			)}
-		</>
-	);
+                        {/* Mail Icon for accepting interview intive */}
+                        {item?.candidate?.invited && (
+                          <MailIcon isRead={item?.candidate?.inviteAccepted} />
+                        )}
+                      </HStack>
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr>
+                  <Td colSpan={headers.length}>
+                    <Text
+                      textAlign={"center"}
+                      width="100%"
+                      color="gray.500"
+                      fontSize="sm"
+                      fontWeight="600"
+                    >
+                      No data found
+                    </Text>
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          </Table>
+        </TableContainer>
+      </Box>
+
+      {arrangeInterviewOpen && (
+        <ArrangeInterview
+          isOpen={arrangeInterviewOpen}
+          onClose={() => setArrangeInterviewOpen(false)}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          selectedTime={selectedTime}
+          setSelectedTime={setSelectedTime}
+          isLoading={isInviting}
+          handleScheduleInterview={handleScheduleInterview}
+        />
+      )}
+      {isHistoryOpen && selectedCandidate && (
+        <CandidateStatusHistory
+          isOpen={isHistoryOpen}
+          onClose={() => {
+            onHistoryClose();
+            setSelectedCandidate(null);
+          }}
+          candidate={selectedCandidate}
+        />
+      )}
+    </>
+  );
 };
 
 export default InterviewedRoundTable;

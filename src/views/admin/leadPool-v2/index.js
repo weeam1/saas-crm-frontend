@@ -13,7 +13,6 @@ import { usePermissions } from 'hooks/usePermissions';
 
 const Index = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
-
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 

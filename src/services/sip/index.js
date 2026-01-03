@@ -5,8 +5,18 @@ const BASE_URL = `${keys.sipApiUrl}/search`;
 
 export const fetchCallHistoryData = async (filters) => {
 	try {
-		console.log({ fetch: filters });
 		const response = await axios.get(BASE_URL, {
+			params: filters,
+		});
+		return response.data;
+	} catch (error) {
+		console.error('Failed to fetch call data', error);
+		throw error;
+	}
+};
+export const fetchCallHistoryServer2Data = async (filters) => {
+	try {
+		const response = await axios.get(`${keys.sipApiUrl2}/search`, {
 			params: filters,
 		});
 		return response.data;

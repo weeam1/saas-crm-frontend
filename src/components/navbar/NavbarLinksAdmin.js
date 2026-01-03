@@ -36,6 +36,7 @@ import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import { setUser } from '../../redux/localSlice';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+import { resetSettings } from '../../redux/webrtc/webrtcSlice';
 
 export default function HeaderLinks(props) {
 	const { secondary, setOpenSidebar, openSidebar, routes } = props;
@@ -124,6 +125,9 @@ export default function HeaderLinks(props) {
 		// disconnect the web sockets
 		webSocketService.disconnect();
 		socketService.disconnect();
+
+		// clear the phone dialer settings
+		dispatch(resetSettings());
 
 		navigate('/auth');
 		if (message) {
@@ -352,9 +356,10 @@ export default function HeaderLinks(props) {
 								<Text
 									fontSize='sm'
 									onClick={() =>
-										navigate(
-											`/userView/${JSON.parse(localStorage.getItem('user'))?._id}`
-										)
+										// navigate(
+										// 	`/users/${JSON.parse(localStorage.getItem('user'))?._id}`
+										// )
+										navigate(`/users-v2/${user?._id}`)
 									}
 								>
 									Profile Settings

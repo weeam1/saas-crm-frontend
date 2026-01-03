@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { formattedDate } from './../../../utils/helpers';
 import { leadLabels } from 'utils/searchLabels';
 import { mainLeadStatusLabels, leadStatusLabels } from 'utils/searchLabels';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 40;
@@ -89,6 +90,7 @@ export const useFilteredQueryParams = () => {
 	const [refetchLoading, setRefetchLoading] = useState(false);
 
 	const leads = useSelector((state) => state.leads, shallowEqual);
+	const { team: managers, allAgents, allTeamLeaders } = useTeamStructure();
 
 	const tree = useSelector((state) => state.user.tree);
 
@@ -136,7 +138,15 @@ export const useFilteredQueryParams = () => {
 			const parsedData = safeJSONParse(dataParam);
 			if (parsedData) {
 				updatedParams.data = dataParam;
-				setSearchTags(generateSearchTags(parsedData, searchTags, tree));
+				setSearchTags(
+					generateSearchTags(
+						parsedData,
+						searchTags,
+						managers,
+						allTeamLeaders,
+						allAgents
+					)
+				);
 				setSearchClear(true);
 			} else {
 				searchParams.delete('data');
@@ -284,14 +294,20 @@ export const useFilteredQueryParams = () => {
 	};
 };
 
-export const generateSearchTags = (filters, prevTags = [], tree) => {
+export const generateSearchTags = (
+	filters,
+	prevTags = [],
+	managers,
+	teamLeaders,
+	agents
+) => {
 	const tags = [];
 
 	if (filters.search) tags.push(`Search: ${filters.search}`);
 	if (filters.from) tags.push(`Start Date: ${formattedDate(filters.from)}`);
 	if (filters.to) tags.push(`End Date: ${formattedDate(filters.to)}`);
 
-	if (tree) {
+	if (managers) {
 		Object.entries(filters).forEach(([key, value]) => {
 			let displayValue = value;
 
@@ -311,31 +327,50 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 					value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
 			}
 			if (key === 'agentAssigned') {
-				const agentsArray = Object.values(tree.agents).flatMap(
-					(managerArray) => managerArray
-				);
-				const assignedAgent = agentsArray.find(
+				const assignedAgent = agents?.find(
 					(agent) => agent?._id?.toString() === value
 				);
 				displayValue = assignedAgent
-					? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+					? `${assignedAgent.fullName}`
 					: value === '-1'
 						? 'No Agent'
 						: value;
 			}
 			if (key === 'managerAssigned') {
-				const assignedManager = tree.managers.find(
+				const assignedManager = managers?.find(
 					(user) => user?._id?.toString() === value
 				);
 				displayValue = assignedManager
-					? `${assignedManager.firstName} ${assignedManager.lastName}`
+					? `${assignedManager.fullName}`
 					: value === '-1'
 						? 'No Manager'
+						: value;
+			}
+			if (key === 'teamLeadAssigned') {
+				const assignedTeamLead = teamLeaders?.find(
+					(user) => user?._id?.toString() === value
+				);
+				displayValue = assignedTeamLead
+					? `${assignedTeamLead.fullName}`
+					: value === '-1'
+						? 'No Team Lead'
 						: value;
 			}
 
 			if (key === 'startDate') displayValue = filters.startDate;
 			if (key === 'endDate') displayValue = filters.endDate;
+			if (key === 'mainStatusSort') {
+				switch (value) {
+					case '-1':
+						displayValue = 'Latest to Oldest';
+						break;
+					case '1':
+						displayValue = 'Oldest to Latest';
+						break;
+					default:
+						displayValue = '';
+				}
+			}
 
 			// if (key === 'intID') key = 'Lead ID';
 
@@ -345,5 +380,78 @@ export const generateSearchTags = (filters, prevTags = [], tree) => {
 
 	return tags;
 };
+// export const generateSearchTags = (filters, prevTags = [], tree) => {
+// 	const tags = [];
+
+// 	if (filters.search) tags.push(`Search: ${filters.search}`);
+// 	if (filters.from) tags.push(`Start Date: ${formattedDate(filters.from)}`);
+// 	if (filters.to) tags.push(`End Date: ${formattedDate(filters.to)}`);
+
+// 	if (tree) {
+// 		Object.entries(filters).forEach(([key, value]) => {
+// 			let displayValue = value;
+
+// 			if (key === 'fromLeadScore' || key === 'toLeadScore') {
+// 				displayValue = `${filters.fromLeadScore || 0}-${filters.toLeadScore || 'max'}`;
+// 			}
+// 			if (key === 'leadStatus') {
+// 				displayValue =
+// 					value === 'active'
+// 						? 'Interested'
+// 						: value === 'pending'
+// 							? 'Not Interested'
+// 							: leadStatusLabels[value];
+// 			}
+// 			if (key === 'eLeadStatus') {
+// 				displayValue =
+// 					value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
+// 			}
+// 			if (key === 'agentAssigned') {
+// 				const agentsArray = Object.values(tree.agents).flatMap(
+// 					(managerArray) => managerArray
+// 				);
+// 				const assignedAgent = agentsArray.find(
+// 					(agent) => agent?._id?.toString() === value
+// 				);
+// 				displayValue = assignedAgent
+// 					? `${assignedAgent.firstName} ${assignedAgent.lastName}`
+// 					: value === '-1'
+// 						? 'No Agent'
+// 						: value;
+// 			}
+// 			if (key === 'managerAssigned') {
+// 				const assignedManager = tree.managers.find(
+// 					(user) => user?._id?.toString() === value
+// 				);
+// 				displayValue = assignedManager
+// 					? `${assignedManager.firstName} ${assignedManager.lastName}`
+// 					: value === '-1'
+// 						? 'No Manager'
+// 						: value;
+// 			}
+
+// 			if (key === 'startDate') displayValue = filters.startDate;
+// 			if (key === 'endDate') displayValue = filters.endDate;
+// 			if (key === 'mainStatusSort') {
+// 				switch (value) {
+// 					case '-1':
+// 						displayValue = 'Latest to Oldest';
+// 						break;
+// 					case '1':
+// 						displayValue = 'Oldest to Latest';
+// 						break;
+// 					default:
+// 						displayValue = '';
+// 				}
+// 			}
+
+// 			// if (key === 'intID') key = 'Lead ID';
+
+// 			tags.push(`${leadLabels[key]}: ${displayValue}`);
+// 		});
+// 	}
+
+// 	return tags;
+// };
 
 export default useFilteredQueryParams;

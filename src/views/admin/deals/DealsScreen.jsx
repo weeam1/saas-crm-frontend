@@ -6,6 +6,7 @@ import {
   HStack,
   Text,
   useDisclosure,
+  IconButton,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery } from "api/apiSlice";
 
@@ -25,6 +26,7 @@ import { format } from "date-fns";
 import ViewToggle from "components/toggle/ViewToggle";
 import { usePermissions } from "hooks/usePermissions";
 import { useNavigate } from "react-router-dom";
+import { FiRefreshCw } from "react-icons/fi";
 
 const LIMIT = 20;
 
@@ -267,6 +269,14 @@ const DealsScreen = () => {
           flexDir={{ base: "column", sm: "column", md: "row" }}
           align="center"
         >
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
           <DateFilterButton onClick={dateTimeOnOpen} />
           <Button
             onClick={() => setIsFilterOpen(true)}

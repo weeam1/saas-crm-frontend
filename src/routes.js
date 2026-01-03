@@ -20,6 +20,7 @@ import {
 	FaPhone,
 	FaWhatsapp,
 	FaHandshake,
+	FaFileAlt,
 } from 'react-icons/fa';
 import { FaCreativeCommonsBy } from 'react-icons/fa';
 import { MdCampaign } from 'react-icons/md';
@@ -45,6 +46,9 @@ const CloseDealScreen = React.lazy(
 );
 const LeadAnalytics = React.lazy(
 	() => import('views/admin/lead-v2/leadAnalytics')
+);
+const UserProfileDetails = React.lazy(
+	() => import('views/admin/users-v2/components/UserProfile')
 );
 
 // Hiring
@@ -96,14 +100,38 @@ const DeveloperInvoices = React.lazy(
 );
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
-
-const Expenses = React.lazy(() => import('views/admin/expenses'));
-const ExpensesV1 = React.lazy(() => import('views/admin/expensesV1/index'));
-const ExpenseBalanceScreen = React.lazy(
-	() => import('views/admin/expensesV1/ExpenseBalanceScreen')
+const Payroll = React.lazy(() => import('views/admin/payroll/index'));
+const Payslip = React.lazy(
+	() => import('views/admin/payroll/components/EmployeePayrollDetails')
 );
-const OutgoingCashScreen = React.lazy(
-	() => import('views/admin/expensesV1/OutgoingCashScreen')
+
+//Evalution
+// const Evalution = React.lazy(() => imporviews/admin/evalution/user-evalution/indexdex'));
+const UserEvalution = React.lazy(
+	() => import('views/admin/evalution/user-evalution/index')
+);
+const EvaluationForm = React.lazy(
+	() => import('views/admin/evalution/user-evalution/EvaluationForm')
+);
+const EvaluateSettings = React.lazy(
+	() => import('views/admin/evalution/settings/index')
+);
+
+// Finance
+const IncomingCash = React.lazy(
+	() => import('views/admin/finance/incoming-balance/index')
+);
+const OutgoingCash = React.lazy(
+	() => import('views/admin/finance/outgoing-expense/index')
+);
+const FinanceSettings = React.lazy(
+	() => import('views/admin/finance/settings/index')
+);
+const EmployeeLoans = React.lazy(
+	() => import('views/admin/finance/employee-laon/index')
+);
+const EmployeeLoanDetails = React.lazy(
+	() => import('views/admin/finance/employee-laon/loan-details/index')
 );
 
 const DeveloperDetails = React.lazy(
@@ -123,6 +151,15 @@ const ProjectScreen = React.lazy(
 
 // Listing
 const Listing = React.lazy(() => import('views/admin/Listing'));
+const ClientListings = React.lazy(
+	() => import('views/admin/Listing/client-listings')
+);
+const PropertyView = React.lazy(
+	() =>
+		import(
+			'views/admin/Listing/client-listings/_component/details/PropertyView'
+		)
+);
 const AddListing = React.lazy(
 	() => import('views/admin/Listing/Component/AddListing')
 );
@@ -237,7 +274,7 @@ const SipDashboard = React.lazy(
 	() => import('views/admin/sip/component/Dashboard')
 );
 const SipHistory = React.lazy(
-	() => import('views/admin/sip/component/History/index')
+	() => import('views/admin/sip/component/RecordingHistory/index')
 );
 const SipSettings = React.lazy(
 	() => import('views/admin/sip/component/UserSetting/index')
@@ -258,7 +295,11 @@ const AnnouncementHistory = React.lazy(
 
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
 const User = React.lazy(() => import('views/admin/users'));
+const EditUser = React.lazy(() => import('views/admin/users/EditUser'));
 const UserView = React.lazy(() => import('views/admin/users/View'));
+
+// Users V2 (By Arslan)
+const UserV2 = React.lazy(() => import('views/admin/users-v2'));
 
 // Auth
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
@@ -499,31 +540,133 @@ const routes = [
 		component: ProjectScreen,
 	},
 	{
-		moduleId: 'expense',
-		name: 'Expenses',
+		moduleId: 'invoice',
+		name: 'Developer Invoices',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/expenses',
-		icon: <Icon as={FaRegCopy} width='20px' height='20px' color='inherit' />,
-		component: ExpensesV1,
+		under: 'developer-invoices',
+		path: '/invoice/developers/invoices/:id',
+		parentName: 'Invoice',
+		component: DeveloperInvoices,
 	},
 	{
-		moduleId: 'expense',
-		name: 'Balance',
+		moduleId: 'invoice',
+		name: 'Single Invoice',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'expense',
-		path: '/expenses/balance',
-		parentName: 'expense',
-		component: ExpenseBalanceScreen,
+		under: 'single-invoice',
+		parentName: 'Invoice',
+		path: '/invoice/developers/invoices/view/:id',
+		component: SingleInvoice,
 	},
 	{
-		moduleId: 'expense',
+		moduleId: 'invoice',
+		name: 'Invoice Entries',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'invoice-entries',
+		parentName: 'Invoice',
+		path: '/invoice/developers/invoices/entries/:id',
+		component: AddEntry,
+	},
+
+	// ********** Payrol routes ************** //
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/payroll',
+		component: Payroll,
+	},
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/payroll/payslip/:userId',
+		component: Payslip,
+	},
+
+	{
+		parent: 'evaluation',
+		childId: 'evaluation_users',
+		name: 'User Evalution',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/user-evaluation',
+		parentName: 'evaluation',
+		component: UserEvalution,
+	},
+	{
+		parent: 'evaluation',
+		childId: 'evaluation_users',
+		name: 'Add Evalution',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/user-evaluation/role/:roleId/user/:userId',
+		parentName: 'evaluation',
+		component: EvaluationForm,
+	},
+	{
+		parent: 'evaluation',
+		childId: 'settings',
+		name: 'Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/settings',
+		parentName: 'evaluation',
+		component: EvaluateSettings,
+	},
+
+	//****** Finance routes *********//
+	{
+		parent: 'expense',
+		childId: 'incoming_cash',
+		name: 'Incoming Cash',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/incoming-cash',
+		parentName: 'finance',
+		component: IncomingCash,
+	},
+	{
+		parent: 'expense',
+		childId: 'outgoing_cash',
 		name: 'Outgoing Cash',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'expense',
-		path: '/expenses/outgoing-cash',
-		parentName: 'expense',
-		component: OutgoingCashScreen,
+		under: 'finance',
+		path: '/finance/outgoing-cash',
+		parentName: 'finance',
+		component: OutgoingCash,
 	},
+	{
+		parent: 'expense',
+		childId: 'employee_loans',
+		name: 'Employee Loans',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/employee-loans',
+		parentName: 'finance',
+		component: EmployeeLoans,
+	},
+	{
+		parent: 'expense',
+		childId: 'employee_loans',
+		name: 'Employee Loan Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/employee-loans/:id',
+		parentName: 'finance',
+		component: EmployeeLoanDetails,
+	},
+	{
+		parent: 'expense',
+		childId: 'settings',
+		name: 'Finance Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'finance',
+		path: '/finance/settings',
+		parentName: 'finance',
+		component: FinanceSettings,
+	},
+
+	// ****** Invoice Routes ******** //
 	{
 		moduleId: 'invoice',
 		name: 'Developer Invoices',
@@ -675,21 +818,21 @@ const routes = [
 		component: Sip,
 	},
 	{
+		// parent: 'sip',
 		moduleId: 'sip',
 		name: 'Dashboard',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/dashboard',
 		under: 'Sip',
-		parentName: 'Sip',
 		component: SipDashboard,
 	},
 	{
+		parent: 'sip',
 		childId: 'call_history',
 		name: 'Call history',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/sip/history',
 		under: 'Sip',
-		parentName: 'Sip',
 		component: SipHistory,
 	},
 	{
@@ -791,6 +934,25 @@ const routes = [
 		under: 'listing',
 		parentName: 'Listing',
 		component: AllListing,
+	},
+	{
+		childId: 'client_listing',
+		parent: 'listing',
+		name: 'Client Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/client-listings',
+		under: 'listing',
+		parentName: 'Listing',
+		component: ClientListings,
+	},
+	{
+		// moduleId: 'listing',
+		name: 'View Client Listings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/listing/client-listings/:id',
+		under: 'listing',
+		parentName: 'Listing',
+		component: PropertyView,
 	},
 	{
 		moduleId: 'listing',
@@ -1059,6 +1221,121 @@ const routes = [
 		moduleId: 'admin_settings',
 		name: 'User Permission',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/user-permission/:id',
+		under: 'role',
+		component: UserPermission,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Custom Fields',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/custom-Fields',
+		under: 'customField',
+		icon: <Icon as={FaWpforms} width='20px' height='20px' color='inherit' />,
+		component: CustomField,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Change Images',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/change-images',
+		under: 'image',
+		icon: (
+			<Icon
+				as={FaCreativeCommonsBy}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: ChangeImage,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Validation',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/validations',
+		under: 'Validation',
+		icon: (
+			<Icon
+				as={FaCreativeCommonsBy}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Validation,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Table Fields',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/table-field',
+		under: 'tableField',
+		icon: <Icon as={FaWpforms} width='20px' height='20px' color='inherit' />,
+		component: TableField,
+	},
+	// // ------------- Text message Routes ------------------------
+	{
+		moduleId: 'reports',
+		name: 'Reports',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics',
+		icon: (
+			<Icon
+				as={MdInsertChartOutlined}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Report,
+	},
+	{
+		moduleId: 'reports',
+		name: 'Team Details',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reporting-analytics/team-details/:id',
+		parent: 'Reports',
+		under: 'Reports',
+		component: TeamDetailsScreen,
+	},
+	{
+		moduleId: 'system_log',
+		name: 'System Log',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/system-log',
+		icon: (
+			<Icon
+				as={MdOutlineLaptopMac}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: SystemLog,
+	},
+	// ------------- Roles Routes ------------------------
+	{
+		moduleId: 'admin_settings',
+		name: 'Roles',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/role',
+		under: 'role',
+		icon: (
+			<Icon
+				as={FaCreativeCommonsBy}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: Role,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'User Permission',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/user-permission/:id/:roleName',
 		under: 'role',
 		component: UserPermission,
@@ -1159,7 +1436,7 @@ const routes = [
 		moduleId: 'users',
 		name: 'Users',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/user',
+		path: '/users',
 		under: 'user',
 		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
 		component: User,
@@ -1171,15 +1448,44 @@ const routes = [
 		path: '/admin-setting/users',
 		under: 'user',
 		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
-		component: User,
+		// component: User,
+		component: UserV2,
 	},
 	{
 		name: 'User View',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		parentName: 'Email',
 		under: 'user',
-		path: '/userView/:id',
+		path: '/users/:id',
 		component: UserView,
+	},
+	{
+		name: 'User View',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		parentName: 'Email',
+		under: 'user',
+		path: '/users/edit/:id',
+		component: EditUser,
+	},
+
+	// ------------- user v2 Routes ------------------------
+	{
+		moduleId: 'users',
+		name: 'Users V2',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/users-v2',
+		under: 'user',
+		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+		component: UserV2,
+	},
+	{
+		// moduleId: 'users',
+		name: 'Users V2',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/users-v2/:id',
+		under: 'user',
+		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+		component: UserProfileDetails,
 	},
 
 	{

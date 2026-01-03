@@ -17,14 +17,17 @@ import { mergeSort, removeDisableUser } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
-const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
+const Managers = ({ lead }) => {
+	const { managerAssigned } = lead;
+
 	const [loading, setLoading] = useState(false);
 	const [selected, setSelected] = useState('');
-	const tree = useSelector((state) => state.user.tree);
+	// const tree = useSelector((state) => state.user.tree);
 
 	// const user = JSON.parse(localStorage.getItem('user'));
-
+	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
@@ -35,16 +38,17 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 	const dispatch = useDispatch();
 
 	const handleChangeManager = async (e) => {
-		const managerAssignedValue = e.target.value;
+		const managerAssignedValue = e.target.value || null;
 
 		const dataObj = {
-			managerAssigned: managerAssignedValue || '',
-			agentAssigned: managerAssigned ? '' : undefined,
+			// agentAssigned: managerAssigned ? '' : undefined,
+			managerAssigned: managerAssignedValue,
+			isFreshLead: managerAssigned ? false : true,
 		};
 
 		try {
 			setLoading(true);
-			const res = await putApi(`api/lead/edit/${lead._id}`, dataObj);
+			const res = await putApi(`api/lead/v2/edit/${lead._id}`, dataObj);
 
 			if (res.status === 200) {
 				setSelected(managerAssigned);
@@ -60,8 +64,11 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 							},
 
 							// if manager is unassigned then null agent also
-							...(managerAssignedValue === ''
-								? [{ key: 'agentDetails', value: null }]
+							...(managerAssignedValue === null
+								? [
+										{ key: 'teamLeadDetails', value: null },
+										{ key: 'agentDetails', value: null },
+									]
 								: []),
 
 							{
@@ -69,7 +76,9 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 								value:
 									managerAssignedValue !== '' ? new Date().toISOString() : null,
 							},
-							{ key: 'agentAssigned', value: '' },
+							{ key: 'teamLeadAssigned', value: null },
+							{ key: 'agentAssigned', value: null },
+							{ key: 'teamLeadAssignedDate', value: null },
 							{ key: 'agentAssignedDate', value: null },
 							// {
 							// 	key: 'leadType',
@@ -86,15 +95,17 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				toast.success('Manager updated successfully');
 
 				// send lead notification
-				sendLeadNotification(user?._id, managerAssignedValue, lead);
+				if (managerAssignedValue) {
+					sendLeadNotification(user?._id, managerAssignedValue, lead);
+				}
 
 				let message;
 
-				if (managerAssignedValue === '') {
+				if (managerAssignedValue === null) {
 					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
 				} else {
-					const manager = tree?.managers?.find(
-						(user) => user._id === managerAssignedValue
+					const manager = team?.find(
+						(manager) => manager?._id === managerAssignedValue
 					);
 
 					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;
@@ -116,10 +127,29 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 						leadId: lead?.intID || null,
 					},
 				});
+			} else {
+				const errorMessage =
+					res?.response?.data?.message || 'Failed to update the manager';
+
+				toast.error(errorMessage);
+
+				// update user activity log
+				createUserLog({
+					userId: user?._id,
+					action: 'ASSIGN',
+					entity: 'Lead',
+					enityType: 'Lead',
+					entityId: lead._id || null,
+					status: res?.response?.statusCode === 500 ? 'error' : 'fail',
+					message: errorMessage,
+				});
 			}
 		} catch (error) {
-			console.error('Failed to update the manager:', error);
-			toast.error('Failed to update the manager');
+			const errorMessage =
+				error?.data?.message || 'Failed to update the manager';
+			console.error(errorMessage);
+
+			toast.error(errorMessage);
 
 			// update user activity log
 			createUserLog({
@@ -128,25 +158,25 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 				entity: 'Lead',
 				enityType: 'Lead',
 				entityId: lead._id || null,
-				status: error?.response?.status === 500 ? 'error' : 'fail',
-				message: 'Failed to update the manager',
+				status: errorMessage?.statusCode === 500 ? 'error' : 'fail',
+				message: errorMessage,
 			});
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const { managerName } = useMemo(() => {
-		if (!['Manager', 'Agent'].includes(role)) return { managerName: 'N/A' };
+	// const { managerName } = useMemo(() => {
+	// 	if (!['Manager', 'Agent'].includes(role)) return { managerName: 'N/A' };
 
-		// Create a lookup map for fast access
-		const managerMap = new Map(
-			tree?.managers?.map((m) => [m._id, m.fullName]) || []
-		);
-		const managerName = managerMap.get(selected) || 'N/A';
+	// 	// Create a lookup map for fast access
+	// 	const managerMap = new Map(
+	// 		tree?.managers?.map((m) => [m._id, m.fullName]) || []
+	// 	);
+	// 	const managerName = managerMap.get(selected) || 'N/A';
 
-		return { managerName };
-	}, [tree?.managers, role, selected, lead]);
+	// 	return { managerName };
+	// }, [tree?.managers, role, selected, lead]);
 
 	return (
 		<>
@@ -188,7 +218,8 @@ const Managers = ({ lead, managerAssigned, refreshLeads, role }) => {
 			<SelectInput
 				name='managerAssigned'
 				placeholder='Select'
-				options={mergeSort(removeDisableUser(tree?.managers || []))}
+				// options={mergeSort(removeDisableUser(tree?.managers || []))}
+				options={mergeSort(team || [])}
 				selectedValue={selected}
 				type='dynamic'
 				size={leadSelectInputSize}

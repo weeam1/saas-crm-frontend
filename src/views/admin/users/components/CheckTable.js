@@ -587,7 +587,7 @@ export default function CheckTable(props) {
                           const userId = cell?.row?.values._id;
 
                           data = (
-                            <Link to={`/userView/${userId}`}>
+                            <Link to={`/users/${userId}`}>
                               <Text
                                 me="10px"
                                 sx={{
@@ -739,6 +739,9 @@ export default function CheckTable(props) {
                                       <MenuItem
                                         py={2.5}
                                         onClick={() => {
+                                          // return navigate(
+                                          // 	`/users/edit/${cell?.row?.original._id}`
+                                          // );
                                           setEdit(true);
                                           setSelectedId(
                                             cell?.row?.original._id
@@ -756,7 +759,7 @@ export default function CheckTable(props) {
                                       color={"green"}
                                       onClick={() =>
                                         navigate(
-                                          `/userView/${cell?.row?.values._id}`
+                                          `/users/${cell?.row?.values._id}`
                                         )
                                       }
                                       icon={<ViewIcon mb={1} fontSize={15} />}

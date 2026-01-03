@@ -49,6 +49,7 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 		leadStatus: '',
 		leadLang: '',
 		lastNote: '',
+		leadSource: '',
 		leadSourceDetails: '',
 		leadSourceChannel: '',
 		leadSourceMedium: '',
@@ -83,11 +84,12 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 			}),
 		},
 		{ name: 'leadLang', label: 'Language', type: 'text' },
-		{ name: 'leadSourceDetails', label: 'Source Content', type: 'text' },
-		{ name: 'leadSourceChannel', label: 'Lead Source Channel', type: 'text' },
-		{ name: 'leadCampaign', label: 'Campaign', type: 'text' },
-		{ name: 'pageUrl', label: 'Page URL', type: 'url' },
-		{ name: 'leadSourceMedium', label: 'Source Medium', type: 'text' },
+		{ name: 'leadSource', label: 'Platform', type: 'text' },
+		{ name: 'leadSourceDetails', label: 'Ad Name', type: 'text' },
+		{ name: 'leadSourceChannel', label: 'Channel', type: 'text' },
+		{ name: 'leadCampaign', label: 'Campaign Name', type: 'text' },
+		{ name: 'leadSourceMedium', label: 'Placement', type: 'text' },
+		// { name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE?', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
@@ -169,7 +171,10 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 				bg={bg}
 				borderRadius='lg'
 				overflow='hidden'
+				maxH='90vh'
 				mx={{ base: 2, sm: 2, md: 0 }}
+				maxW={{ base: 'full', sm: 'full', md: '70vw' }}
+				w='full'
 			>
 				<ModalHeader
 					bg={headerColor}
@@ -179,8 +184,11 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 				>
 					<HStack justify='space-between' align='center'>
 						<HStack spacing='2' align='center'>
-							<FiUserPlus size='22' />
-							<Text fontSize='xl' fontWeight='600'>
+							<FiUserPlus size='20' />
+							<Text
+								fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+								fontWeight='600'
+							>
 								Add New Lead
 							</Text>
 						</HStack>
@@ -198,7 +206,7 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 							<ModalBody
 								px={{ base: 4, md: 8 }}
 								py={6}
-								maxH='70vh'
+								maxH='60vh'
 								overflowY='auto'
 							>
 								<Grid
@@ -210,6 +218,7 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 									}}
 									gap={5}
 								>
+									<RenderFields fields={fields} />
 									<PhoneField
 										name='leadWhatsappNumber'
 										label='WhatsApp'
@@ -230,7 +239,6 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 										onChange={(val) => setFieldValue('leadPhoneNumber', val)}
 										onBlur={handleBlur}
 									/>
-									<RenderFields fields={fields} />
 								</Grid>
 							</ModalBody>
 

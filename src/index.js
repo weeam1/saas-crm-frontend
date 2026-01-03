@@ -6,6 +6,8 @@ import {
 	Routes,
 	Route,
 	useNavigate,
+	useLocation,
+	useSearchParams,
 } from 'react-router-dom';
 import AuthLayout from './layouts/auth';
 import AdminLayout from 'layouts/admin';
@@ -39,6 +41,7 @@ import socketService from 'services/socketService';
 import useUserSession from 'hooks/useUserSession';
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 // import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
@@ -51,15 +54,14 @@ function App() {
 
 	registerWhatsappSocket(store);
 
-	// console.log(
-	// 	'check : 92000003495580124: ',
-	// 	normalizePhone('92000003495580124')
-	// );
-
 	useEffect(() => {
 		getSmartTimezone();
+
 		// register whatsapp socket
 	}, []);
+
+	// initilzed the team Structure
+	useTeamStructure();
 
 	const token = localStorage.getItem('token') || null;
 
@@ -275,9 +277,20 @@ function App() {
 	// 	}
 	// }, [user]);
 
+	const location = useLocation();
+	// const [searchParams, setSearchParams] = useSearchParams();
+
+	const saveInviteRedirect = useCallback(() => {
+		const fullPath = location.pathname + location.search;
+		if (fullPath.includes('invite')) {
+			localStorage.setItem('redirectInvite', fullPath);
+		}
+	}, []);
+
 	useEffect(() => {
 		const token = localStorage.getItem('token');
 		if (!token || !user) {
+			saveInviteRedirect();
 			setAppLoaded(true);
 			return;
 		}
@@ -317,7 +330,7 @@ function App() {
 		};
 
 		fetchAllData();
-	}, [user]);
+	}, [user, dispatch]);
 
 	// Show splash screen
 	if (!appLoaded || splashScreen) {

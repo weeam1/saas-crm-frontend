@@ -6,6 +6,7 @@ import {
   Stack,
   useDisclosure,
   Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import TopPagination from "components/pagination/TopPagination";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
@@ -14,6 +15,7 @@ import DateFilter from "./FilterComponent/DateFilter";
 import { formatDNS } from "utils/helpers";
 import SearchTags from "components/search/SearchTags";
 import ViewToggle from "components/toggle/ViewToggle";
+import { FiRefreshCw } from "react-icons/fi";
 
 const FilterSearch = ({
   currentPage,
@@ -32,6 +34,8 @@ const FilterSearch = ({
   searchTags,
   view,
   handleViewChange,
+  isFetching,
+  refetch,
 }) => {
   const [openCalendar, setOpenCalendar] = useState(null);
   const [forceTooltip, setForceTooltip] = useState(false);
@@ -92,6 +96,15 @@ const FilterSearch = ({
           flexDir={{ base: "column", sm: "column", md: "row" }}
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
+
           <DateFilterButton onClick={openModal} isForceOpen={forceTooltip} />
           <ViewToggle
             view={view}

@@ -86,6 +86,7 @@ const Developers = () => {
 		error,
 		refetch: developersRefetch,
 		isUninitialized,
+		isFetching
 	} = useFetchItemsQuery(queryArgs, {
 		skip: !user._id,
 		refetchOnMountOrArgChange: true,
@@ -209,7 +210,7 @@ const Developers = () => {
 					<CheckTable
 						dateTime={dateTime}
 						setDateTime={setDateTime}
-						isLoding={isLoading}
+						isLoding={isLoading || queryLoading || isFetching}
 						setIsLoding={setIsLoading}
 						columnsData={roleColumns[role] || tableColumns}
 						setAction={setAction}
@@ -240,6 +241,8 @@ const Developers = () => {
 						selectedAgency={selectedAgency}
 						setSelectedAgency={setSelectedAgency}
 						role={role}
+						refetch ={developersRefetch}
+						isFetching = {isFetching}
 					/>
 				</GridItem>
 			</Grid>

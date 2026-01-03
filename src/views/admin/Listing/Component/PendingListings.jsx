@@ -31,13 +31,14 @@ import TableLoading from "components/loading/TableLoading";
 import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
 import AdvancedFilterModal from "./AdvancedSearchModal";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { ViewIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { useModalColors } from "hooks/useModalColors";
 
 const PendingListings = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -54,6 +55,8 @@ const PendingListings = () => {
   const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [statusLoadingId, setStatusLoadingId] = useState(null);
+
+  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
@@ -274,29 +277,44 @@ const PendingListings = () => {
         <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
           Pending Listings
         </Text>
-        {isMobile ? (
+
+        <Flex
+          alignItems="center"
+          gap={3}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           <IconButton
-            icon={<FiSearch />}
-            onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
             size="sm"
-            borderRadius="full"
-            boxShadow="md"
           />
-        ) : (
-          <Button
-            colorScheme="brand"
-             size="sm"
+          {isMobile ? (
+            <IconButton
+              icon={<FiSearch />}
+              onClick={() => setIsFilterOpen(true)}
+              aria-label="Search Listings"
+              colorScheme="brand"
+              variant="solid"
+              size="sm"
+              borderRadius="full"
+              boxShadow="md"
+            />
+          ) : (
+            <Button
+              colorScheme="brand"
+              size="sm"
               borderRadius={"md"}
-            py={3}
-            px={6}
-            onClick={() => setIsFilterOpen(true)}
-          >
-            Advanced Search
-          </Button>
-        )}
+              py={3}
+              px={6}
+              onClick={() => setIsFilterOpen(true)}
+            >
+              Advanced Search
+            </Button>
+          )}
+        </Flex>
       </Flex>
       <ActiveFiltersDisplay
         filters={filters}
@@ -356,7 +374,7 @@ const PendingListings = () => {
               </Tr>
             </Thead>
             {isLoading || isFetching ? (
-              <TableLoading columns={columns} length={10} py="4" />
+              <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
                 {tableData.length > 0 ? (
@@ -551,7 +569,7 @@ const PendingListings = () => {
                   <Tr borderColor="gray.200" textAlign="center">
                     <Td
                       borderBottom="none"
-                      colSpan="13"
+                      colSpan="16"
                       fontSize={{ base: "12px", md: "15px" }}
                       fontWeight="500"
                       color="gray.500"
@@ -571,12 +589,47 @@ const PendingListings = () => {
       <Modal
         isOpen={isRejectionModalOpen}
         onClose={() => setIsRejectionModalOpen(false)}
+        isCentered
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Rejection Details</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
+        <ModalContent borderRadius="2xl" overflow="hidden">
+          <ModalHeader
+            display="flex"
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            top="0"
+            zIndex="10"
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              Rejection Details
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+          </ModalHeader>
+          <ModalBody
+            p={5}
+            overflowY="auto"
+            scrollBehavior="smooth"
+            sx={{
+              "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-thumb": {
+                background: "#c1c1c1",
+                borderRadius: "10px",
+              },
+            }}
+          >
             <Box mb={4}>
               <FormLabel>Rejection Reason (Optional)</FormLabel>
               <Input
@@ -596,9 +649,22 @@ const PendingListings = () => {
               />
             </Box>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter
+            bg={footerBg}
+            borderTop="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            bottom="0"
+            zIndex="10"
+            py={3}
+            px={5}
+            justifyContent="flex-end"
+            gap={3}
+          >
             <Button
               variant="outline"
+              borderRadius="md"
+              size="sm"
               mr={3}
               onClick={() => setIsRejectionModalOpen(false)}
             >
@@ -606,6 +672,8 @@ const PendingListings = () => {
             </Button>
             <Button
               colorScheme="red"
+              borderRadius="md"
+              size="sm"
               onClick={() =>
                 updateListingStatus(currentListingId, selectedStatus)
               }

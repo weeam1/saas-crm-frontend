@@ -5,7 +5,13 @@ import {
 	useColorModeValue,
 	useDisclosure,
 } from '@chakra-ui/react';
-import React, { Suspense, useCallback, useState, version } from 'react';
+import React, {
+	Suspense,
+	useCallback,
+	useEffect,
+	useState,
+	version,
+} from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 // import { FaRegCalendarCheck, FaWhatsapp } from 'react-icons/fa';
 
@@ -26,6 +32,9 @@ import { usePermissions } from 'hooks/usePermissions';
 // import UserWhatsappChat from 'views/admin/whatsapp/UserWhatsapp';
 import keys from 'config/keys';
 import ServerErrorPage from 'views/admin/error/ServerErrorPage';
+import { setAgenciesData } from '../../redux/utilSlice';
+import { useDispatch } from 'react-redux';
+import WebRTCModal from 'views/webrtc';
 // import AppLoader from 'components/loading/AppLoader';
 // import { filterRoutes } from 'components/sidebar/sidebarHelpers';
 
@@ -44,6 +53,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
 
+	const dispatch = useDispatch();
+
 	// only check for other non super admin user's
 	const { data: whatsappInstance } = useFetchItemsQuery(
 		{
@@ -53,6 +64,14 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			skip: !user?._id || isSuperAdmin,
 		}
 	);
+
+	const { data: agencies } = useFetchItemsQuery({ path: '/agencies' });
+
+	useEffect(() => {
+		if (agencies?.doc?.length) {
+			dispatch(setAgenciesData(agencies?.doc));
+		}
+	}, [agencies?.doc, dispatch]);
 
 	// console.log({ whatsappUser });
 
@@ -294,7 +313,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 				return hasPermission(route.moduleId);
 			}
 
-			// routes without permission binding always allowed
+			// routes without permission binding always alluowed
 			return true;
 		});
 
@@ -342,6 +361,9 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 				setOpenSidebar={setOpenSidebar}
 				onOpenMobile={onOpen}
 			/>
+
+			{/* WEB RTC APP */}
+			{hasPermission('call_dialer') && <WebRTCModal />}
 
 			<Flex>
 				{/* Sidebar (desktop fixed, mobile Drawer) */}

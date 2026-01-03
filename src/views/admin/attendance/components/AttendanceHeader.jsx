@@ -1,4 +1,5 @@
 import { SearchIcon } from '@chakra-ui/icons';
+import { Activity } from 'react';
 import {
 	Box,
 	Heading,
@@ -12,7 +13,7 @@ import {
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import { buttonStyle } from '../constants';
 import { BiX } from 'react-icons/bi';
-import { FiFilter } from 'react-icons/fi';
+import { FiFilter, FiRefreshCw } from 'react-icons/fi';
 import DateFilter from './DateFilter';
 import ViewToggle from 'components/toggle/ViewToggle';
 import useUserSession from 'hooks/useUserSession';
@@ -30,6 +31,8 @@ const AttendanceHeader = ({
 	content,
 	view,
 	handleView,
+	refetch = null,
+	isLoading,
 }) => {
 	const handleInputChange = (event) => {
 		searchTermRef.current = event.target.value;
@@ -64,6 +67,17 @@ const AttendanceHeader = ({
 				flexDirection={{ base: 'column', md: 'row' }}
 				alignItems={{ base: 'flex-end', md: 'center' }}
 			>
+				{refetch && (
+					<IconButton
+						icon={<FiRefreshCw />}
+						aria-label='Refresh'
+						onClick={() => refetch()}
+						isLoading={isLoading}
+						variant='outline'
+						size='sm'
+					/>
+				)}
+
 				{/* Search Input & Button */}
 				<InputGroup
 					bg='white'
@@ -108,7 +122,7 @@ const AttendanceHeader = ({
 						<IconButton
 							icon={<FiFilter />}
 							onClick={filterOpen}
-							aria-label='Filter Date'
+							aria-label='Filter agency'
 							colorScheme='brand'
 							variant='solid'
 							size='sm'

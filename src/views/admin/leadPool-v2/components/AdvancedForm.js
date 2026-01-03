@@ -39,11 +39,11 @@ const AdvancedSearchForm = (props) => {
 				label: 'Nationality',
 				placeholder: 'Search by Nationality',
 			},
-			{
-				name: 'ip',
-				label: 'Country Source',
-				placeholder: 'Search by Country Source',
-			},
+			// {
+			// 	name: 'ip',
+			// 	label: 'Country Source',
+			// 	placeholder: 'Search by Country Source',
+			// },
 			{
 				name: 'leadAddress',
 				label: 'Lead Address',
@@ -51,24 +51,37 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: 'leadCampaign',
-				label: 'Lead Campaign',
+				label: 'Campaign Name',
 				placeholder: 'Search by Campaign',
 			},
 			{
 				name: 'leadSourceDetails',
-				label: 'Source Content',
-				placeholder: 'Search by Source Content',
+				// label: 'Source Content',
+				label: 'Ad Name',
+				placeholder: 'Search by Ad Name',
 			},
 			{
 				name: 'leadSourceMedium',
-				label: 'Source Medium',
-				placeholder: 'Search by Source Medium',
+				// label: 'Source Medium',
+				label: 'Placement',
+				placeholder: 'Search by Placement',
+			},
+			{
+				name: 'leadSourceChannel',
+				label: 'Source Channel',
+				placeholder: 'Search by Source Channel',
+			},
+			{
+				name: 'adset',
+				label: 'Adset',
+				placeholder: 'Search by Adset',
 			},
 			{
 				name: 'pageUrl',
 				label: 'Campaign URL',
 				placeholder: 'Search by Campaign URL',
 			},
+
 			{
 				name: 'r_u_in_uae',
 				label: 'Are You in UAE?',

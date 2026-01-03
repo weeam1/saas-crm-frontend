@@ -380,7 +380,10 @@ const LeadScreen = () => {
 						// leadType: 'leadpool',
 					};
 
-					const updatedRes = await putApi(`api/lead/edit/${leadId}`, data);
+					const updatedRes = await putApi(
+						`api/lead/v2/edit/${leadId}?leadApproved=true`,
+						data
+					);
 
 					if (displayAdvSearchData || displaySearchData) {
 						setSearchedData((prev) => {

@@ -15,7 +15,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useDeleteItemMutation,
@@ -353,6 +353,15 @@ const TaskV2 = () => {
           flexDir={{ base: "column", sm: "column", md: "row" }}
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isFetching}
+            isDisabled={isLoading}
+            variant="outline"
+            size="sm"
+          />
           {hasPermission("task", "create") && (
             <Button
               size="sm"
@@ -451,7 +460,7 @@ const TaskV2 = () => {
             </Tr>
           </Thead>
           {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
+            <TableLoading columns={columns} length={20} py="4" />
           ) : (
             <Tbody>
               {tableData && tableData.length > 0 ? (

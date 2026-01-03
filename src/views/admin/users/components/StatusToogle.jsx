@@ -6,7 +6,7 @@ import {
 	Flex,
 	Box,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,20 +15,34 @@ import PasswordPermission from './PasswordPermission';
 import InfoModal from './InfoModal';
 import { fetchActiveTree, fetchTree } from '../userApis';
 import useUserSession from 'hooks/useUserSession';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import ReplaceTeamLead from './ReplaceTeamLead';
 
 const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	const [isActive, setIsActive] = useState(initialStatus);
 	const [isAllowed, setIsAllowed] = useState(false);
 
 	const [replacementManager, setReplacementManager] = useState('');
+	const [replacementTeamLead, setReplacementTeamLead] = useState(null);
 	const [securityPassword, setSecurityPassword] = useState('');
 
 	const { isSuperAdmin } = useUserSession();
+	const {
+		team: managers,
+		getTeamLeadsByManager,
+		refreshTeam,
+	} = useTeamStructure();
 
 	const {
 		isOpen: replaceIsOpen,
 		onOpen: replaceOnOpen,
 		onClose: replaceOnClose,
+	} = useDisclosure();
+
+	const {
+		isOpen: replaceLeadIsOpen,
+		onOpen: replaceLeadOnOpen,
+		onClose: replaceLeadOnClose,
 	} = useDisclosure();
 
 	const {
@@ -58,9 +72,14 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 				return;
 			}
 
-			if (!securityPassword) return passwordOnOpen();
-
 			let bodyData = { isActive: newStatus };
+
+			console.log({
+				role: user?.roles[0]?.roleName,
+				isActive,
+				replacementTeamLead,
+				replacementManager,
+			});
 
 			if (
 				user?.roles[0]?.roleName === 'Manager' &&
@@ -71,13 +90,23 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 				// const agents = tree?.agents?.[`manager-${user._id}`];
 
 				// if (agents?.length > 0) {
-				replaceOnOpen();
-				return;
+				return replaceOnOpen();
+
 				// }
+			} else if (
+				user?.roles[0]?.roleName === 'Team Leader' &&
+				isActive &&
+				!replacementTeamLead
+			) {
+				return replaceLeadOnOpen();
 			}
 
 			if (securityPassword) bodyData.securityPassword = securityPassword;
 			if (replacementManager) bodyData.replacementManager = replacementManager;
+			if (replacementTeamLead)
+				bodyData.replacementTeamLead = replacementTeamLead;
+
+			if (!securityPassword) return passwordOnOpen();
 
 			await updateItemMutation({
 				path: `/v2/user/status/${user._id}`,
@@ -91,6 +120,7 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 			fetchActiveTree(dispatch);
 			fetchTree(dispatch);
 			resetStates();
+			refreshTeam();
 		} catch (error) {
 			toast.error(error?.data?.message || 'Error updating user status');
 			resetStates();
@@ -117,6 +147,17 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 	useEffect(() => {
 		setIsActive(initialStatus);
 	}, [initialStatus]);
+
+	const managerTeamLeaders = useMemo(() => {
+		console.log({ user });
+		if (!user?.parent || user?.roles[0]?.roleName !== 'Team Leader') return [];
+
+		return getTeamLeadsByManager(user.parent)?.filter(
+			(tl) => tl?._id !== user?._id
+		);
+	}, [user?._id]);
+
+	console.log({ managerTeamLeaders });
 
 	return (
 		<Box>
@@ -157,8 +198,12 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 			{replaceIsOpen && (
 				<ReplaceManager
 					isOpen={replaceIsOpen}
-					onClose={replaceOnClose}
-					managers={tree?.managers?.filter((item) => item._id !== user?._id)}
+					onClose={() => {
+						replaceOnClose();
+						setIsAllowed(false);
+						setSecurityPassword('');
+					}}
+					managers={managers?.filter((item) => item._id !== user?._id)}
 					replacementManager={replacementManager}
 					setReplacementManager={setReplacementManager}
 					type='userStatus'
@@ -166,6 +211,24 @@ const StatusToggle = ({ user, initialStatus, role, statusChange }) => {
 						replaceOnClose();
 						handleToggle();
 					}}
+				/>
+			)}
+
+			{replaceLeadIsOpen && (
+				<ReplaceTeamLead
+					isOpen={replaceLeadIsOpen}
+					onClose={() => {
+						replaceLeadOnClose();
+						setIsAllowed(false);
+						setSecurityPassword('');
+					}}
+					teamLeaders={managerTeamLeaders}
+					replacementTeamLead={replacementTeamLead}
+					handleProceed={() => {
+						replaceLeadOnClose();
+						handleToggle();
+					}}
+					setReplacementTeamLead={setReplacementTeamLead}
 				/>
 			)}
 

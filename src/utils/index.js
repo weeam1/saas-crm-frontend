@@ -326,3 +326,11 @@ export const hasPermission = (moduleId, _actionKey = null) => {
 
 	return currentAction?.isAllowed;
 };
+
+export const cleanSearchParams = (obj) => {
+	return Object.fromEntries(
+		Object.entries(obj).filter(
+			([_, v]) => v !== undefined && v !== null && v !== ''
+		)
+	);
+};

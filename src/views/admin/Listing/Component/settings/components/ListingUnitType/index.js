@@ -40,6 +40,8 @@ import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
+import { useModalColors } from "hooks/useModalColors";
+import { FiRefreshCw } from "react-icons/fi";
 
 const UnitTypeSchema = Yup.object().shape({
   name: Yup.string()
@@ -62,6 +64,8 @@ const UnitType = () => {
 
   const { createUserLog } = useUserActivityLog();
   const navigate = useNavigate();
+
+  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
     {
@@ -230,6 +234,14 @@ const UnitType = () => {
           Listing Unit Types
         </Text>
         <Stack direction={{ base: "column", sm: "row" }} spacing={4}>
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh Analytics"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
           <Button
             size="sm"
             borderRadius={"md"}
@@ -282,8 +294,8 @@ const UnitType = () => {
                 ))}
               </Tr>
             </Thead>
-            {isLoading && isFetching ? (
-              <TableLoading columns={columns} length={7} py="4" />
+            {isLoading || isFetching ? (
+              <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
                 {data?.doc?.map((unitType) => (
@@ -339,11 +351,32 @@ const UnitType = () => {
       {/* Add/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent w="500px" maxW="95%">
-          <ModalHeader>
-            {isEditMode ? "Edit Main Unit Type" : "Add New Main Unit Type"}
+        <ModalContent w="500px" maxW="95%" borderRadius="2xl" overflow="hidden">
+          <ModalHeader
+            display="flex"
+            align="center"
+            justify="space-between"
+            bg={headerBg}
+            color={headerText}
+            px={6}
+            py={3}
+            borderBottom="1px solid"
+            borderColor={borderColor}
+            position="sticky"
+            top="0"
+            zIndex="10"
+          >
+            <Text fontSize="lg" fontWeight="bold">
+              {isEditMode ? "Edit Main Unit Type" : "Add New Main Unit Type"}
+            </Text>
+            <ModalCloseButton
+              position="absolute"
+              right="12px"
+              top="10px"
+              color={headerText}
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
           </ModalHeader>
-          <ModalCloseButton />
 
           <Formik
             enableReinitialize
@@ -366,7 +399,18 @@ const UnitType = () => {
               isSubmitting,
             }) => (
               <Form onSubmit={handleSubmit}>
-                <ModalBody pb={6}>
+                <ModalBody
+                  p={5}
+                  overflowY="auto"
+                  scrollBehavior="smooth"
+                  sx={{
+                    "&::-webkit-scrollbar": { width: "6px" },
+                    "&::-webkit-scrollbar-thumb": {
+                      background: "#c1c1c1",
+                      borderRadius: "10px",
+                    },
+                  }}
+                >
                   <FormControl isInvalid={touched.name && errors.name}>
                     <FormLabel>Unit Type Name</FormLabel>
                     <Input
@@ -393,10 +437,23 @@ const UnitType = () => {
                   </FormControl>
                 </ModalBody>
 
-                <ModalFooter>
+                <ModalFooter
+                  bg={footerBg}
+                  borderTop="1px solid"
+                  borderColor={borderColor}
+                  position="sticky"
+                  bottom="0"
+                  zIndex="10"
+                  py={3}
+                  px={5}
+                  justifyContent="flex-end"
+                  gap={3}
+                >
                   <Button
                     variant="outline"
-                    mr={2}
+                    borderRadius="md"
+                    size="sm"
+                    mr={3}
                     onClick={() => {
                       onClose();
                       setIsEditMode(false);
@@ -409,6 +466,8 @@ const UnitType = () => {
                     type="submit"
                     bg="#d99a36"
                     color="white"
+                    size="sm"
+                    borderRadius="md"
                     isLoading={isSubmitting}
                   >
                     Save

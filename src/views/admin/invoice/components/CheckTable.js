@@ -50,6 +50,7 @@ import { useLocation } from "react-router-dom";
 import ViewToggle from "components/toggle/ViewToggle";
 import DevelopersTableView from "./DevelopersTableView";
 import DevelopersCardView from "./DevelopersCardView";
+import { FiRefreshCw } from "react-icons/fi";
 
 export default function CheckTable(props) {
   const {
@@ -82,6 +83,8 @@ export default function CheckTable(props) {
     setSelectedAgency,
     role,
     fetchAgencies,
+    refetch,
+    isFetching
   } = props;
 
   const [view, setView] = useState(() => {
@@ -277,6 +280,14 @@ export default function CheckTable(props) {
             gap={2}
             w={{ base: "100%", md: "auto" }}
           >
+            <IconButton
+              icon={<FiRefreshCw />}
+              aria-label="Refresh Analytics"
+              onClick={() => refetch()}
+              isLoading={isLoding || isFetching}
+              variant="outline"
+              size="sm"
+            />
             <CustomSearchInput
               fetchData={fetchData}
               setDisplaySearchData={setDisplaySearchData}

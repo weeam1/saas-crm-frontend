@@ -6,8 +6,8 @@ import { useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
 
 const RightCard = ({ lead, hiddenFields }) => {
-	const countries = useSelector((state) => state.countries.countryNames);
-	const { city, country } = extractLocationData(lead?.ip, countries);
+	const countries = useSelector((state) => state.countries.list);
+	const { city, country } = extractLocationData(lead?.ip);
 
 	return (
 		<Flex
@@ -40,6 +40,7 @@ const RightCard = ({ lead, hiddenFields }) => {
 						label='City'
 						value={city}
 						valueProps={{ color: '#FF0004' }}
+						isInfo
 					/>
 				)}
 
@@ -48,6 +49,8 @@ const RightCard = ({ lead, hiddenFields }) => {
 						label='Country'
 						value={country}
 						valueProps={{ color: '#FF0004' }}
+						countries={countries}
+						isInfo
 					/>
 				)}
 			</Flex>

@@ -17,6 +17,8 @@ import { formatPostDate } from 'utils/helpers';
 // }
 
 export default function LeadHistoryTimeline({ timelineData }) {
+	console.log({ timelineData });
+
 	return (
 		<>
 			{/* {timelineData.map((item) => {
@@ -174,8 +176,11 @@ export default function LeadHistoryTimeline({ timelineData }) {
 							borderRadius='lg'
 							boxShadow='sm'
 						>
-							{(item.type === 'assignment-manager' ||
-								item.type === 'assignment-agent') && (
+							{[
+								'assignment-manager',
+								'assignment-team-lead',
+								'assignment-agent',
+							].includes(item.type) && (
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										{item.type === 'assignment-manager' ? '👔' : '👤'}{' '}
@@ -184,7 +189,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 											color={getStatusColor(item.type)}
 											fontWeight='600'
 										>
-											{item?.updatedData}
+											{item?.updatedData || 'N/A'}
 										</Text>
 									</Text>
 									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
@@ -195,8 +200,11 @@ export default function LeadHistoryTimeline({ timelineData }) {
 									</Text>
 								</Box>
 							)}
-							{(item.type === 'unassigned-manager' ||
-								item.type === 'unassigned-agent') && (
+							{[
+								'unassigned-manager',
+								'unassigned-team-lead',
+								'unassigned-agent',
+							].includes(item.type) && (
 								<Box>
 									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
 										♻️
@@ -326,9 +334,8 @@ const getStatusColor = (type) => {
 	const colors = {
 		creation: 'blue.500',
 		'assignment-manager': 'teal.500',
+		'assignment-team-lead': 'pink.500',
 		'assignment-agent': 'cyan.500',
-		'unassigned-manager': 'gray.500',
-		'unassigned-agent': 'gray.500',
 		status: 'purple.500',
 		mStatus: 'brand.500',
 		'lead-buy': 'green.500',
@@ -341,9 +348,11 @@ const getBadgeColor = (type) => {
 	const colors = {
 		creation: 'blue',
 		'assignment-manager': 'teal',
+		'assignment-team-lead': 'pink',
 		'assignment-agent': 'cyan',
-		'unassigned-manager': 'gray',
-		'unassigned-agent': 'gray',
+		// 'unassigned-manager': 'gray',
+		// 'unassigned-team-leader': 'gray',
+		// 'unassigned-agent': 'gray',
 		status: 'purple',
 		mStatus: 'brand',
 		'lead-buy': 'green',
@@ -357,8 +366,10 @@ const getTypeLabel = (type) => {
 		creation: 'Created',
 		release: 'Release',
 		'assignment-manager': 'Manager Assigned',
-		'assignment-agent': 'Agent Assigned',
 		'unassigned-manager': 'Unassigned Manager',
+		'assignment-team-lead': 'Team Lead Assigned',
+		'unassigned-team-lead': 'Unassigned Team Lead',
+		'assignment-agent': 'Agent Assigned',
 		'unassigned-agent': 'Unassigned Agent',
 		status: 'Status Changed',
 		mStatus: 'M Status Changed',

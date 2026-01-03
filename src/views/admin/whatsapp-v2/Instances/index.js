@@ -59,10 +59,6 @@ const AdminWhatsapp = () => {
 		refetch();
 	}, [page, refetch]);
 
-	useEffect(() => {
-		refetch();
-	}, [page, refetch]);
-
 	const handleNext = () => {
 		if (page < totalPages) setPage((prev) => prev + 1);
 	};

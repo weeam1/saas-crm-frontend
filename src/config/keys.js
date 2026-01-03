@@ -13,7 +13,8 @@ const keys = {
 	fbPixelToken: process.env.REACT_APP_FB_PIXEL_TOKEN,
 
 	socketIoUrl: process.env.REACT_APP_SOCKET_IO_URL,
-	sipApiUrl: process.env.REACT_APP_SIP_BASE_URL
+	sipApiUrl: process.env.REACT_APP_SIP_BASE_URL,
+	sipApiUrl2: process.env.REACT_APP_SIP_SERVER_2_BASE_URL,
 };
 
 export default keys;

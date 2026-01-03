@@ -16,22 +16,32 @@ const ConfirmationModal = ({
 	onConfirm,
 	title,
 	message,
+	isLoading = false,
 	confirmText = 'Confirm',
 	cancelText = 'Cancel',
 }) => {
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered>
 			<ModalOverlay />
-			<ModalContent fontFamily="'DM Sans', sans-serif" mx={{ base: 2, sm: 4, md: 8 }}>
+			<ModalContent
+				fontFamily="'DM Sans', sans-serif"
+				mx={{ base: 2, sm: 4, md: 8 }}
+			>
 				<ModalHeader>{title || 'Are you sure?'}</ModalHeader>
 				<ModalBody>
 					<Text>{message || 'This action cannot be undone.'}</Text>
 				</ModalBody>
 				<ModalFooter>
-					<Button rounded='md' onClick={onClose} mr={3}>
+					<Button rounded='md' onClick={onClose} isDisabled={isLoading} mr={3}>
 						{cancelText}
 					</Button>
-					<Button colorScheme='red' rounded='md' onClick={onConfirm}>
+					<Button
+						colorScheme='red'
+						rounded='md'
+						isLoading={isLoading}
+						isDisabled={isLoading}
+						onClick={onConfirm}
+					>
 						{confirmText}
 					</Button>
 				</ModalFooter>

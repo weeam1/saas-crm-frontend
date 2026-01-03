@@ -1,10 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Box, Flex, Heading, Skeleton, useColorModeValue } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Skeleton,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import Chart from "chart.js/auto";
 
-const SurveyGraph = ({ data, isLoading }) => {
+const SurveyGraph = ({ data, isLoading, isFetching }) => {
   const lineChartRef = useRef(null);
   const pieChartRef = useRef(null);
   const [lineChart, setLineChart] = useState(null);
@@ -17,7 +23,7 @@ const SurveyGraph = ({ data, isLoading }) => {
   const chartColors = {
     line: "#6C5CE7",
     areaFill: "rgba(108, 92, 231, 0.1)",
-    pie: ["#00B894", "#FDCB6E", "#E17055", "#0984E3", "#6C5CE7"]
+    pie: ["#00B894", "#FDCB6E", "#E17055", "#0984E3", "#6C5CE7"],
   };
 
   useEffect(() => {
@@ -47,40 +53,42 @@ const SurveyGraph = ({ data, isLoading }) => {
     if (lineChartRef.current) {
       const lineCtx = lineChartRef.current.getContext("2d");
       const newLineChart = new Chart(lineCtx, {
-        type: 'line',
+        type: "line",
         data: {
           labels: data.lineChart.labels,
-          datasets: [{
-            label: data.lineChart.datasets[0].label,
-            data: data.lineChart.datasets[0].data,
-            borderColor: chartColors.line,
-            backgroundColor: chartColors.areaFill,
-            borderWidth: 3,
-            tension: 0.4,
-            fill: true,
-            pointBackgroundColor: chartColors.line,
-            pointRadius: 5,
-            pointHoverRadius: 7
-          }]
+          datasets: [
+            {
+              label: data.lineChart.datasets[0].label,
+              data: data.lineChart.datasets[0].data,
+              borderColor: chartColors.line,
+              backgroundColor: chartColors.areaFill,
+              borderWidth: 3,
+              tension: 0.4,
+              fill: true,
+              pointBackgroundColor: chartColors.line,
+              pointRadius: 5,
+              pointHoverRadius: 7,
+            },
+          ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { 
-            legend: { display: false }
+          plugins: {
+            legend: { display: false },
           },
           scales: {
-            x: { 
+            x: {
               grid: { display: false },
-              ticks: { color: textColor }
+              ticks: { color: textColor },
             },
             y: {
               beginAtZero: true,
-              grid: { color:'rgba(255,255,255,0.1)' },
-              ticks: { color: textColor }
-            }
-          }
-        }
+              grid: { color: "rgba(255,255,255,0.1)" },
+              ticks: { color: textColor },
+            },
+          },
+        },
       });
       setLineChart(newLineChart);
     }
@@ -89,38 +97,40 @@ const SurveyGraph = ({ data, isLoading }) => {
     if (pieChartRef.current) {
       const pieCtx = pieChartRef.current.getContext("2d");
       const newPieChart = new Chart(pieCtx, {
-        type: 'doughnut',
+        type: "doughnut",
         data: {
           labels: data.pieChart.labels,
-          datasets: [{
-            data: data.pieChart.datasets[0].data,
-            backgroundColor: chartColors.pie,
-            borderWidth: 0
-          }]
+          datasets: [
+            {
+              data: data.pieChart.datasets[0].data,
+              backgroundColor: chartColors.pie,
+              borderWidth: 0,
+            },
+          ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '65%',
+          cutout: "65%",
           plugins: {
             legend: {
-              position: 'right',
-              labels: { color: textColor }
-            }
-          }
-        }
+              position: "right",
+              labels: { color: textColor },
+            },
+          },
+        },
       });
       setPieChart(newPieChart);
     }
   }, [data, isLoading, textColor]);
 
   return (
-    <Flex direction={{ base: 'column', lg: 'row' }} gap={6} mt={8}>
+    <Flex direction={{ base: "column", lg: "row" }} gap={6} mt={8}>
       {/* Line Chart */}
-      <Box 
-        flex={2} 
-        bg={bgColor} 
-        p={5} 
+      <Box
+        flex={2}
+        bg={bgColor}
+        p={5}
         borderRadius="12px"
         boxShadow="sm"
         position="relative"
@@ -129,8 +139,8 @@ const SurveyGraph = ({ data, isLoading }) => {
           Responses Over Time
         </Heading>
         <Box h="300px" position="relative">
-          {isLoading && (
-            <Skeleton 
+          {(isLoading || isFetching) && (
+            <Skeleton
               position="absolute"
               top={0}
               left={0}
@@ -141,18 +151,18 @@ const SurveyGraph = ({ data, isLoading }) => {
               bg={skeletonColor}
             />
           )}
-          <canvas 
-            ref={lineChartRef} 
-            style={{ display: isLoading ? 'none' : 'block' }}
+          <canvas
+            ref={lineChartRef}
+            style={{ display: isLoading ? "none" : "block" }}
           />
         </Box>
       </Box>
 
       {/* Pie Chart */}
-      <Box 
-        flex={1} 
-        bg={bgColor} 
-        p={5} 
+      <Box
+        flex={1}
+        bg={bgColor}
+        p={5}
         borderRadius="12px"
         boxShadow="sm"
         position="relative"
@@ -161,8 +171,8 @@ const SurveyGraph = ({ data, isLoading }) => {
           Response Distribution
         </Heading>
         <Box h="300px" position="relative">
-          {isLoading && (
-            <Skeleton 
+          {(isLoading || isFetching) && (
+            <Skeleton
               position="absolute"
               top={0}
               left={0}
@@ -173,9 +183,9 @@ const SurveyGraph = ({ data, isLoading }) => {
               bg={skeletonColor}
             />
           )}
-          <canvas 
-            ref={pieChartRef} 
-            style={{ display: isLoading ? 'none' : 'block' }}
+          <canvas
+            ref={pieChartRef}
+            style={{ display: isLoading ? "none" : "block" }}
           />
         </Box>
       </Box>

@@ -44,6 +44,7 @@ export const apiSlice = createApi({
 
 				return [{ type: 'Items', id: cacheKey }];
 			},
+			keepUnusedDataFor: 10, // 10 seconds
 		}),
 
 		createItem: builder.mutation({

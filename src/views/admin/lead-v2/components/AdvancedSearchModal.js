@@ -53,14 +53,18 @@ const AdvancedSearchModal = ({
 		leadEmail: '',
 		leadPhoneNumber: '',
 		managerAssigned: '',
+		teamLeadAssigned: '',
 		agentAssigned: '',
 		leadWhatsappNumber: '',
 		nationality: '',
 		ip: '',
 		leadAddress: '',
 		leadCampaign: '',
+		leadSource: '',
 		leadSourceDetails: '',
 		leadSourceMedium: '',
+		leadSourceChannel: '',
+		adset: '',
 		pageUrl: '',
 		r_u_in_uae: '',
 		timetocall: '',
@@ -70,6 +74,7 @@ const AdvancedSearchModal = ({
 		isReleased: '',
 		from: '', // start date
 		to: '', // end date
+		mainStatusSort: '',
 	};
 
 	const formik = useFormik({

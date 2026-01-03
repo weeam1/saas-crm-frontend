@@ -20,7 +20,7 @@ import Assigned_Survey from "../../../assets/img/survey/Assigned_Survey.png";
 import Inbox_survey from "../../../assets/img/survey/Inbox_survey.png";
 import Survey_Live from "../../../assets/img/survey/Survey_Live.png";
 import Survey_filled from "../../../assets/img/survey/Survey_filled.png";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
 import { useFetchItemsQuery } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
 import TableLoading from "components/loading/TableLoading";
@@ -322,6 +322,14 @@ const LeaderBoard = () => {
         mb={4}
         flexWrap="wrap"
       >
+        <IconButton
+          icon={<FiRefreshCw />}
+          aria-label="Refresh Analytics"
+          onClick={() => refetch()}
+          isLoading={isLoading || isFetching}
+          variant="outline"
+          size="sm"
+        />
         {isMobile ? (
           <IconButton
             icon={<FiSearch />}
@@ -400,7 +408,7 @@ const LeaderBoard = () => {
           </Thead>
 
           {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="2" />
+            <TableLoading columns={columns} length={20} py="2" />
           ) : (
             <Tbody>
               {leaderboardData?.doc?.leaderboard?.length > 0 ? (

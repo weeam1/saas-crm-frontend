@@ -55,8 +55,6 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 
 			const payload = { employeeId: employee?._id, format, month, year };
 
-			console.log(payload);
-
 			const { blob, contentType } =
 				await generateEmployeeAttendanceReport(payload);
 

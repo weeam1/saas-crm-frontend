@@ -13,11 +13,14 @@ import {
 	IconButton,
 	useDisclosure,
 	useBreakpointValue,
+	Badge,
 } from '@chakra-ui/react';
-import { FiSearch } from 'react-icons/fi';
+import { useDispatch } from 'react-redux';
+
+import { FiSearch, FiRefreshCw } from 'react-icons/fi';
 import { AddIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
-import AddSipSettingModal from './components/AddSipSettingModal';
-import EditSipSettingModal from './components/EditSipSettingModal';
+// import AddSipSettingModal from './components/AddSipSettingModal';
+// import EditSipSettingModal from './components/EditSipSettingModal';
 import { useFetchItemsQuery, useDeleteItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import TopPagination from 'components/pagination/TopPagination';
@@ -27,6 +30,9 @@ import AdvancedSearchModal from './components/AdvancedSearchModal';
 import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import ManageCallSetting from './components/ManageCallSetting';
+import ConfirmationModal from 'components/Message/ConfirmationModal';
+import { resetSettings } from '../../../../../redux/webrtc/webrtcSlice';
 
 const UserSetting = () => {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -34,6 +40,8 @@ const UserSetting = () => {
 	const [filters, setFilters] = useState({});
 	const [selectedSip, setSelectedSip] = useState(null);
 	const [filterChanged, setFilterChanged] = useState(false);
+
+	const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
 	const {
 		isOpen: isAddOpen,
@@ -43,6 +51,7 @@ const UserSetting = () => {
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const dispatch = useDispatch();
 
 	const {
 		isOpen: isEditOpen,
@@ -58,9 +67,9 @@ const UserSetting = () => {
 
 	const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
-	const { data, isLoading, refetch } = useFetchItemsQuery(
+	const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
 		{
-			path: 'sipSetting',
+			path: '/sipSetting',
 			params: {
 				page: currentPage,
 				limit: pageSize,
@@ -74,19 +83,20 @@ const UserSetting = () => {
 		{
 			path: '/v2/user/search_users',
 		},
-		{ refetchOnMountOrArgChange: true }
+		{
+			refetchOnMountOrArgChange: false,
+			refetchOnFocus: true,
+		}
 	);
 
-	const [deleteSipSetting] = useDeleteItemMutation();
+	const [deleteSipSetting, { isLoading: isDeleting }] = useDeleteItemMutation();
 
 	const columns = [
-		'SR.No',
+		'S.No',
 		'User',
-		'SIP ID',
-		'Extension ID',
-		'SIP IP',
-		'SIP Port',
+		'Agency',
 		'SIM Number',
+		'Feedback',
 		'Actions',
 	];
 
@@ -117,37 +127,49 @@ const UserSetting = () => {
 		setFilterChanged(true);
 	};
 
-	const handleDelete = async (id) => {
+	const handleDelete = (item) => {
+		setSelectedSip(item);
+		setDeleteModalOpen(true);
+	};
+
+	const handleConfirmRemove = async () => {
 		try {
 			await deleteSipSetting({
-				path: `/sipSetting/${id}`,
+				path: `/sipSetting/${selectedSip._id}`,
 				body: {},
 			}).unwrap();
-			toast.success('SIP Setting deleted successfully');
+			toast.success('Call Setting deleted successfully');
 			createUserLog({
 				userId: user?._id,
 				action: 'DELETE',
 				entity: 'Call_Logs',
 				entityType: 'SipSetting',
-				entityId: id,
+				entityId: selectedSip._id,
 				status: 'success',
-				message: `${user?.fullName} deleted the sip setting.`,
+				message: `${user?.fullName} deleted the call setting.`,
 			});
 			refetch();
+
+			// if current user settings deleted update in redux store
+			if (user?._id === selectedSip?.user?._id) {
+				dispatch(resetSettings());
+			}
 		} catch (error) {
 			const errorMsg =
 				error?.data?.message ||
-				'Failed to delete SIP Setting. Please try again.';
+				'Failed to delete call Setting. Please try again.';
 			createUserLog({
 				userId: user?._id,
 				action: 'DELETE',
 				entity: 'Call_Logs',
 				entityType: 'SipSetting',
-				entityId: id,
+				entityId: selectedSip._id,
 				status: error?.status === 500 ? 'error' : 'fail',
 				message: errorMsg,
 			});
-			toast.error(error.data?.message || 'Failed to delete SIP Setting');
+			toast.error(error.data?.message || 'Failed to delete call Setting');
+		} finally {
+			setDeleteModalOpen(false);
 		}
 	};
 
@@ -165,7 +187,7 @@ const UserSetting = () => {
 				flexDir={{ base: 'column', sm: 'column', md: 'row' }}
 			>
 				<Text fontSize='20px' fontWeight='bold' color='black' p={3}>
-					SIP Settings Management
+					Call Settings
 				</Text>
 				<Box
 					gap={2}
@@ -174,14 +196,22 @@ const UserSetting = () => {
 					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
 					justifyContent={{ base: 'center', sm: 'center', md: 'normal' }}
 				>
+					<IconButton
+						icon={<FiRefreshCw />}
+						aria-label='Refresh Analytics'
+						onClick={() => refetch()}
+						isLoading={isLoading || isFetching}
+						variant='outline'
+						size='sm'
+					/>
 					<Button
 						colorScheme='brand'
 						leftIcon={<AddIcon />}
 						onClick={onAddOpen}
 						size='sm'
-						borderRadius={"md"}
+						borderRadius={'md'}
 					>
-						Add SIP Setting
+						Add Setting
 					</Button>
 					{isMobile ? (
 						<IconButton
@@ -195,7 +225,12 @@ const UserSetting = () => {
 							boxShadow='md'
 						/>
 					) : (
-						<Button colorScheme='brand' onClick={onFilterOpen} size='sm' borderRadius={"md"}>
+						<Button
+							colorScheme='brand'
+							onClick={onFilterOpen}
+							size='sm'
+							borderRadius={'md'}
+						>
 							Advanced Search
 						</Button>
 					)}
@@ -212,7 +247,7 @@ const UserSetting = () => {
 				currentPage={currentPage}
 				totalPages={data?.totalPages || 0}
 				onPageChange={handlePageChange}
-				totalItems={data?.count || 0}
+				totalItems={data?.totalDocs || 0}
 				itemsPerPage={pageSize}
 				setPageSize={setPageSize}
 				handlePageSize={handlePageSizeChange}
@@ -222,7 +257,8 @@ const UserSetting = () => {
 				borderRadius='lg'
 				boxShadow='sm'
 				bg='white'
-				maxH='85vh'
+				minH='60vh'
+				maxH='70vh'
 				overflowY='auto'
 			>
 				<Table variant='striped' size='lg' bg='white'>
@@ -241,6 +277,7 @@ const UserSetting = () => {
 									whiteSpace='nowrap'
 									py={4}
 									textAlign='center'
+									textTransform='capitalize'
 								>
 									<Text
 										fontSize={{ base: '12px', md: '14px' }}
@@ -253,12 +290,12 @@ const UserSetting = () => {
 							))}
 						</Tr>
 					</Thead>
-					{isLoading ? (
-						<TableLoading columns={columns} length={7} py='4' />
+					{isLoading || isFetching ? (
+						<TableLoading columns={columns} length={20} py='4' />
 					) : (
 						<Tbody>
-							{data?.sipSettings?.length > 0 ? (
-								data.sipSettings.map((sip, index) => (
+							{data?.doc?.length > 0 ? (
+								data.doc.map((sip, index) => (
 									<Tr key={sip._id}>
 										<Td textAlign='center'>
 											{(currentPage - 1) * pageSize + index + 1}
@@ -270,32 +307,15 @@ const UserSetting = () => {
 											minWidth='200px'
 											textAlign={'center'}
 										>
-											{sip.userId?.fullName || 'N/A'}
+											{sip.user?.fullName || 'N/A'}
 										</Td>
 										<Td
 											textAlign='center'
 											fontSize={{ base: '12px', md: '14px' }}
 										>
-											{sip.sipId}
+											{sip.user?.agency?.name || 'Dubai'}
 										</Td>
-										<Td
-											textAlign='center'
-											fontSize={{ base: '12px', md: '14px' }}
-										>
-											{sip.extensionId}
-										</Td>
-										<Td
-											textAlign='center'
-											fontSize={{ base: '12px', md: '14px' }}
-										>
-											{sip.sipIp}
-										</Td>
-										<Td
-											textAlign='center'
-											fontSize={{ base: '12px', md: '14px' }}
-										>
-											{sip.sipPort}
-										</Td>
+
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '14px' }}
@@ -303,7 +323,20 @@ const UserSetting = () => {
 											minWidth='200px'
 											textAlign={'center'}
 										>
-											{sip.sipSimNumber || 'N/A'}
+											{sip.simNumber || 'N/A'}
+										</Td>
+
+										<Td py={4} minWidth='100px' textAlign={'center'}>
+											<Badge
+												colorScheme={sip.isFeedback ? 'green' : 'red'}
+												variant='subtle'
+												px={2}
+												py={1}
+												borderRadius='full'
+												fontSize={{ base: 'xs' }}
+											>
+												{sip?.isFeedback ? 'Enabled' : 'Disabled'}
+											</Badge>
 										</Td>
 										<Td textAlign='center'>
 											<Flex justifyContent='center' gap={2}>
@@ -327,7 +360,7 @@ const UserSetting = () => {
 														backgroundColor: '#c09f5f',
 														color: 'white',
 													}}
-													onClick={() => handleDelete(sip._id)}
+													onClick={() => handleDelete(sip)}
 												/>
 											</Flex>
 										</Td>
@@ -340,7 +373,7 @@ const UserSetting = () => {
 										textAlign='center'
 										color='gray.500'
 									>
-										<NoData label='SIP settings' />
+										<NoData label='call settings' />
 									</Td>
 								</Tr>
 							)}
@@ -349,22 +382,43 @@ const UserSetting = () => {
 				</Table>
 			</Box>
 
-			<AddSipSettingModal
+			{/* <AddSipSettingModal
 				isOpen={isAddOpen}
 				onClose={onAddClose}
 				onSuccess={refetch}
 				existingSettings={data?.sipSettings || []}
 				usersData={usersData}
-			/>
-
-			{selectedSip && (
-				<EditSipSettingModal
+			/> */}
+			{isAddOpen && (
+				<ManageCallSetting
+					isOpen={isAddOpen}
+					onClose={onAddClose}
+					onSuccess={refetch}
+					usersData={usersData}
+				/>
+			)}
+			{isEditOpen && (
+				<ManageCallSetting
 					isOpen={isEditOpen}
 					onClose={onEditClose}
 					onSuccess={refetch}
-					sipSetting={selectedSip}
-					existingSettings={data?.sipSettings || []}
 					usersData={usersData}
+					initialData={selectedSip}
+					modeType='edit'
+				/>
+			)}
+
+			{/* Delete Confirmation Modal */}
+			{isDeleteModalOpen && (
+				<ConfirmationModal
+					isOpen={isDeleteModalOpen}
+					onClose={() => setDeleteModalOpen(false)}
+					onConfirm={handleConfirmRemove}
+					title='Delete'
+					message={`Are you sure you want to delete this setting?`}
+					confirmText='Yes, Delete'
+					cancelText='Cancel'
+					isLoading={isDeleting}
 				/>
 			)}
 

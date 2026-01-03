@@ -12,22 +12,24 @@ import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { sendLeadNotification } from 'api';
 import { format } from 'date-fns';
-import { mergeSort, removeDisableUser } from 'utils/helpers';
+import { mergeSort } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
-const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
+const Agents = ({ lead }) => {
+	const { agentAssigned, managerAssigned, teamLeadAssigned } = lead;
+
 	const [selected, setSelected] = useState(agentAssigned || '');
 	const [loading, setLoading] = useState(false);
 
 	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 	const [errorLeadData, setErrorLeadData] = useState({});
 
-	const tree = useSelector((state) => state.user.tree);
+	// const tree = useSelector((state) => state.user.tree);
 
-	// const user = JSON.parse(localStorage.getItem('user'));
-
+	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
@@ -41,7 +43,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 		try {
 			setLoading(true);
 
-			const agentAssignedValue = e.target.value;
+			const agentAssignedValue = e.target.value || null;
 
 			const data = {
 				agentAssigned: agentAssignedValue,
@@ -58,7 +60,7 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				}
 			}
 
-			const res = await putApi(`api/lead/edit/${lead._id}`, data);
+			const res = await putApi(`api/lead/v2/edit/${lead._id}`, data);
 
 			if (res.status === 200) {
 				setSelected(data.agentAssigned);
@@ -89,11 +91,13 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				);
 
 				// send lead notification
-				sendLeadNotification(user?._id, agentAssignedValue, lead);
+				if (agentAssignedValue) {
+					sendLeadNotification(user?._id, agentAssignedValue, lead);
+				}
 
 				let message;
 
-				if (agentAssignedValue === '') {
+				if (agentAssignedValue === null) {
 					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
 				} else {
 					const agent = agents?.find(
@@ -120,8 +124,9 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				});
 			}
 		} catch (error) {
-			console.error('Failed to update the agent:', error);
-			toast.error('Agent not updated. Please try again.');
+			const errorMessage = error?.data?.message || 'Failed to update the agent';
+			console.error('Failed to update the agent:', errorMessage);
+			toast.error(errorMessage);
 
 			// update user activity log
 			createUserLog({
@@ -130,20 +135,35 @@ const Agents = ({ lead, managerAssigned, agentAssigned, refreshLeads }) => {
 				entity: 'Lead',
 				enityType: 'Lead',
 				entityId: lead._id || null,
-				status: error?.response?.status === 500 ? 'error' : 'fail',
-				message: `failed to assigned the lead'.`,
+				status: error?.data?.status === 500 ? 'error' : 'fail',
+				message: errorMessage,
 			});
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	// Filter agents related to the assigned manager
+	// Filter agents related to the assigned manager + team lead
 	const agents = useMemo(() => {
-		return mergeSort(
-			removeDisableUser(tree?.agents?.[`manager-${managerAssigned}`] || [])
+		if (!team?.length || !managerAssigned || !teamLeadAssigned) return [];
+
+		const manager = team.find((m) => m._id === managerAssigned);
+		if (!manager?.teamLeaders?.length) return [];
+
+		const teamLead = manager.teamLeaders.find(
+			(tl) => tl._id === teamLeadAssigned
 		);
-	}, [managerAssigned, tree]);
+
+		if (!teamLead?.agents?.length) return [];
+
+		return mergeSort(teamLead.agents);
+	}, [team, managerAssigned, teamLeadAssigned]);
+
+	// const agents = useMemo(() => {
+	// 	return mergeSort(
+	// 		removeDisableUser(tree?.agents?.[`manager-${managerAssigned}`] || [])
+	// 	);
+	// }, [managerAssigned, tree]);
 
 	return (
 		<>

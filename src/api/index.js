@@ -61,6 +61,15 @@ export const fetchAllUsers = async () => {
 	}
 };
 
+export const fetchTeamStructure = async () => {
+	const headers = {};
+	setAuthHeader(headers);
+
+	return axios.get(`${constant[server]}api/v2/user/team-structure`, {
+		headers,
+	});
+};
+
 export const getApplications = async (
 	page,
 	pageSize,
@@ -163,8 +172,8 @@ export const sendLeadFeedback = async (pixelData) => {
 		if (zip) user_data.zp = [sha256Hash(zip)];
 		if (city) user_data.ct = [sha256Hash(city)];
 		if (country) user_data.country = [sha256Hash(country)];
-		if (firstName) user_data.fn = sha256Hash(firstName); // first name
-		if (lastName) user_data.ln = sha256Hash(lastName); // last name
+		if (firstName) user_data.fn = sha256Hash(firstName);
+		if (lastName) user_data.ln = sha256Hash(lastName);
 
 		const eventData = {
 			data: [
@@ -180,10 +189,70 @@ export const sendLeadFeedback = async (pixelData) => {
 		};
 
 		await axios.post(url, eventData);
-		console.log(`Lead feedback sent: ${event_name}`, eventData);
+		// console.log(`Lead feedback sent: ${event_name}`, eventData);
 	} catch (error) {
 		console.error(
 			'Error sending lead feedback:',
+			error.response?.data || error.message
+		);
+	}
+};
+// send lead feedback
+export const sendHiringMetaFeedback = async (pixelData) => {
+	try {
+		const { name, email, phone, status, metaData = {} } = pixelData;
+
+		const { city, country, ip, zip, userAgent, fbp, fbc, fbclid } = metaData;
+
+		const url = `${keys.fbPixelAPI}/${keys.fbPixelId}/events?access_token=${keys.fbPixelToken}`;
+
+		const eventNameMap = {
+			'Not Eligible': 'Unqualified',
+			Eligible: 'Qualified',
+		};
+
+		const event_name = eventNameMap[status];
+
+		const user_data = {};
+		const hashedEmail = sha256Hash(email);
+		const hashedPhone = sha256Hash(phone);
+
+		const { firstName, lastName } = splitName(name);
+
+		if (hashedEmail) user_data.em = [hashedEmail]; // customer email
+		if (hashedPhone) user_data.ph = [hashedPhone]; // customer phone
+		if (ip) user_data.client_ip_address = ip; // client ip address
+		if (fbclid) user_data.fbc = fbclid; // client facbeook click ad id
+		if (fbp) user_data.fbp = fbp; // faccebook id
+		if (fbc) user_data.fbc = fbc; // user browser session id
+		if (userAgent) user_data.client_user_agent = userAgent; // client broswer where the lead comes
+
+		// Must be hashed values
+		if (zip) user_data.zp = [sha256Hash(zip)];
+		if (city) user_data.ct = [sha256Hash(city)];
+		if (country) user_data.country = [sha256Hash(country)];
+		if (firstName) user_data.fn = sha256Hash(firstName);
+		if (lastName) user_data.ln = sha256Hash(lastName);
+
+		const eventData = {
+			data: [
+				{
+					event_id: generateUniqueId(),
+					event_name,
+					event_time: Math.floor(Date.now() / 1000),
+					action_source: 'website',
+					event_source_url:
+						window?.location?.href || `${keys.clientUrl}hiring/candidates`,
+					user_data,
+				},
+			],
+		};
+
+		await axios.post(url, eventData);
+		// console.log(`Hiring meta feedback sent: ${event_name}`, eventData);
+	} catch (error) {
+		console.error(
+			'Error sending hiring meta feedback:',
 			error.response?.data || error.message
 		);
 	}

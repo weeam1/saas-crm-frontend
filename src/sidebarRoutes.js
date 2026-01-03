@@ -11,6 +11,7 @@ import {
 	MdPeopleOutline,
 	MdCampaign,
 	MdInsights,
+	MdOutlinePayments,
 } from 'react-icons/md';
 import {
 	FaTasks,
@@ -20,6 +21,9 @@ import {
 	FaHandshake,
 	FaPhone,
 	FaRegCopy,
+	FaFileAlt,
+	FaFileInvoiceDollar,
+	FaMoneyCheckAlt,
 } from 'react-icons/fa';
 import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
@@ -430,23 +434,87 @@ export const sidebarRoutes = [
 	},
 
 	// -------- Expenses --------
+	// {
+	// 	moduleId: 'expense',
+	// 	name: 'Expenses',
+	// 	path: '/expenses',
+	// 	isNested: true,
+	// 	icon: FaRegCopy,
+	// 	color: '#F97316', // Orange
+	// 	children: [
+	// 		{
+	// 			name: 'Balance',
+	// 			path: '/expenses/balance',
+	// 		},
+	// 		{
+	// 			name: 'Outgoing Cash',
+	// 			path: '/expenses/outgoing-cash',
+	// 		},
+	// 	],
+	// },
+
+	// -------- Finance --------
 	{
 		moduleId: 'expense',
 		name: 'Expenses',
-		path: '/expenses',
+		path: '/finance',
 		isNested: true,
 		icon: FaRegCopy,
 		color: '#F97316', // Orange
 		children: [
 			{
-				name: 'Balance',
-				path: '/expenses/balance',
+				id: 'incoming_cash',
+				name: 'Incomming Cash',
+				path: '/finance/incoming-cash',
 			},
 			{
+				id: 'outgoing_cash',
 				name: 'Outgoing Cash',
-				path: '/expenses/outgoing-cash',
+				path: '/finance/outgoing-cash',
+			},
+			{
+				id: 'employee_loans',
+				name: 'Employee Loans',
+				path: '/finance/employee-loans',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/finance/settings',
 			},
 		],
+	},
+
+	// ------- Evaluation ---------
+	{
+		moduleId: 'evaluation',
+		name: 'Evaluation',
+		path: '/evaluation',
+		icon: FaFileAlt,
+		color: '#86f17dff', // Gray
+		children: [
+			{
+				id: 'evaluation_users',
+				name: 'Evalute User',
+				path: '/evaluation/user-evaluation',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/evaluation/settings',
+			},
+		],
+	},
+
+	// ---------- Payroll -----------
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		path: '/payroll',
+		icon: MdOutlinePayments,
+		// icon: FaMoneyCheckAlt,
+		isNested: false,
+		color: '#36ce6dff', // Teal
 	},
 
 	// -------- Tasks --------
@@ -469,6 +537,11 @@ export const sidebarRoutes = [
 
 		color: '#64748B', // Slate
 		children: [
+			{
+				id: 'client_listing',
+				name: 'Client Listings',
+				path: '/listing/client-listings',
+			},
 			{
 				id: 'all_listing',
 				name: 'All Listings',
@@ -534,7 +607,7 @@ export const sidebarRoutes = [
 				name: 'User Analytics',
 				path: '/sip/user-analytics',
 			},
-			{ id: 'user_settings', name: 'User Settings', path: '/sip/settings' },
+			{ id: 'user_settings', name: 'Call Settings', path: '/sip/settings' },
 			{
 				id: 'shared_recordings',
 				name: 'Shared Recording',
@@ -587,11 +660,21 @@ export const sidebarRoutes = [
 	},
 
 	// -------- Users --------
+	// {
+	// 	moduleId: 'users',
+	// 	name: 'Users',
+	// 	isNested: false,
+	// 	path: '/users',
+	// 	icon: HiUsers,
+	// 	color: '#8B5CF6', // Violet
+	// },
+
+	// -------- Users V2 --------
 	{
 		moduleId: 'users',
 		name: 'Users',
 		isNested: false,
-		path: '/user',
+		path: '/users-v2',
 		icon: HiUsers,
 		color: '#8B5CF6', // Violet
 	},

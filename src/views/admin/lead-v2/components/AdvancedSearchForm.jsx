@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react';
-import ManagerAgentForm from './ManagerAgentForm';
+import TeamForm from './TeamForm';
 import { mainLeadStatus } from 'utils/options';
 import { leadStatus } from 'utils/options';
 import CustomDatePicker from 'components/datetime/CustomDatePicker';
+import { useSelector } from 'react-redux';
+import { toCapitalCase } from 'utils/helpers';
 
 const {
 	Grid,
@@ -26,11 +28,17 @@ const AdvancedSearchForm = (props) => {
 		setFieldValue,
 	} = props;
 
-	const [openCalendar, setOpenCalendar] = useState(null); // Track which calendar is open
+	const [openCalendar, setOpenCalendar] = useState(null);
+	const allCountries = useSelector((state) => state.countries.countryNames);
 
 	const toggleCalendar = (calendar) => {
 		setOpenCalendar(openCalendar === calendar ? null : calendar);
 	};
+
+	const countries = allCountries.map((name) => {
+		const countryName = toCapitalCase(name);
+		return { label: countryName, value: countryName };
+	});
 
 	// Define field configurations
 	const fields = useMemo(
@@ -53,10 +61,15 @@ const AdvancedSearchForm = (props) => {
 				label: 'Nationality',
 				placeholder: 'Search by Nationality',
 			},
+			// {
+			// 	name: 'ip',
+			// 	label: 'Country Source',
+			// 	placeholder: 'Search by Country Source',
+			// },
 			{
-				name: 'ip',
-				label: 'Country Source',
-				placeholder: 'Search by Country Source',
+				name: 'attendanceDay',
+				label: 'Attendance Day',
+				placeholder: 'Search by Attendance day',
 			},
 			{
 				name: 'leadAddress',
@@ -65,18 +78,36 @@ const AdvancedSearchForm = (props) => {
 			},
 			{
 				name: 'leadCampaign',
-				label: 'Lead Campaign',
-				placeholder: 'Search by Campaign',
+				label: 'Campaign Name',
+				placeholder: 'Search by Campaign Name',
 			},
 			{
 				name: 'leadSourceDetails',
-				label: 'Source Content',
-				placeholder: 'Search by Source Content',
+				// label: 'Source Content',
+				label: 'Ad Name',
+				placeholder: 'Search by Ad Name',
+			},
+			{
+				name: 'leadSource',
+				// label: 'Source',
+				label: 'Platform',
+				placeholder: 'Search by Platform',
 			},
 			{
 				name: 'leadSourceMedium',
-				label: 'Source Medium',
-				placeholder: 'Search by Source Medium',
+				// label: 'Source Medium',
+				label: 'Placement',
+				placeholder: 'Search by Placement',
+			},
+			{
+				name: 'leadSourceChannel',
+				label: 'Source Channel',
+				placeholder: 'Search by source channel',
+			},
+			{
+				name: 'adset',
+				label: 'Adset',
+				placeholder: 'Search by Adset',
 			},
 			{
 				name: 'pageUrl',
@@ -107,6 +138,11 @@ const AdvancedSearchForm = (props) => {
 				name: 'timetocall',
 				label: 'Time To Call',
 				placeholder: 'Search by time to call',
+			},
+			{
+				name: 'city',
+				label: 'City',
+				placeholder: 'Search by city',
 			},
 		],
 		[]
@@ -150,11 +186,22 @@ const AdvancedSearchForm = (props) => {
 		>
 			{/* Start Date */}
 			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Start Date
+				</FormLabel>
 				<CustomDatePicker
 					selectedDate={values.startDate}
 					handleDateChange={(date) => setFieldValue('startDate', date)}
 					errors={touched.startDate && errors.startDate}
-					label='Start Date'
+					// label='Start Date'
 					placeholder='Select start date'
 					maxDate={values.endDate || new Date()}
 					isCalendarOpen={openCalendar === 'start'}
@@ -164,11 +211,22 @@ const AdvancedSearchForm = (props) => {
 
 			{/* End Date */}
 			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					End Date
+				</FormLabel>
 				<CustomDatePicker
 					selectedDate={values.endDate}
 					handleDateChange={(date) => setFieldValue('endDate', date)}
 					errors={touched.endDate && errors.endDate}
-					label='End Date'
+					// label='End Date'
 					placeholder='Select end date'
 					minDate={values.startDate} // Ensure the end date is after the start date
 					maxDate={new Date()}
@@ -178,6 +236,38 @@ const AdvancedSearchForm = (props) => {
 			</GridItem>
 
 			{fields.map(renderField)}
+
+			{/* Country  Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Country
+				</FormLabel>
+				<Select
+					value={values?.country}
+					fontSize='sm'
+					name='country'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select country'
+				>
+					{countries?.map((item) => (
+						<option key={item.value} value={item.value}>
+							{item.label}
+						</option>
+					))}
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
 
 			{/* Lead Status Field */}
 			<GridItem colSpan={{ base: 12, md: 6 }}>
@@ -209,6 +299,33 @@ const AdvancedSearchForm = (props) => {
 				<Text mb='10px' color='red'>
 					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
 				</Text>
+			</GridItem>
+
+			{/* M Status Sort Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Sort Main Status
+				</FormLabel>
+
+				<Select
+					value={values?.mainStatusSort}
+					name='mainStatusSort'
+					onChange={handleChange}
+					fontSize='sm'
+					fontWeight='500'
+					placeholder='Select Main Status Order'
+				>
+					<option value='-1'>Latest to Oldest</option>
+					<option value='1'>Oldest to Latest</option>
+				</Select>
 			</GridItem>
 
 			{/* Extra Status Field */}
@@ -243,6 +360,7 @@ const AdvancedSearchForm = (props) => {
 					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
 				</Text>
 			</GridItem>
+
 			{user?.roles[0]?.roleName !== 'Agent' && (
 				<GridItem colSpan={{ base: 12, md: 6 }}>
 					<FormLabel
@@ -272,9 +390,9 @@ const AdvancedSearchForm = (props) => {
 				</GridItem>
 			)}
 
-			<ManagerAgentForm
-				user={user}
-				tree={tree}
+			<TeamForm
+				// user={user}
+				// tree={tree}
 				handleChange={handleChange}
 				values={values}
 				errors={errors}
