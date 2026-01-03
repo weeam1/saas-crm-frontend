@@ -133,6 +133,15 @@ export const useWhatsapp = () => {
 		[dispatch]
 	);
 
+	const getDirectChat = useCallback(
+		(sessionId, chatId) => {
+			if (!sessionId || !chatId) return;
+			socketService.emit('get_chat', { sessionId, chatId });
+			// dispatch(setActiveChat(chat));
+		},
+		[dispatch]
+	);
+
 	const markChatAsSeen = useCallback((sessionId, chatId) => {
 		if (!sessionId || !chatId) return;
 		socketService.emit(WHATSAPP_EVENTS.CHAT_SEEN, { sessionId, chatId });
@@ -155,8 +164,6 @@ export const useWhatsapp = () => {
 				...(media && { media }),
 				...(options && { options }),
 			};
-
-			console.log({ messageData });
 
 			socketService.emit('send_message', messageData);
 		},
@@ -206,6 +213,7 @@ export const useWhatsapp = () => {
 		whatsappInitialize,
 		getChats,
 		getChat,
+		getDirectChat,
 		sendMessage,
 		markChatAsSeen,
 		disconnectWhatsapp,

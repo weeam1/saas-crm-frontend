@@ -76,7 +76,7 @@ const DirectWhatsappMessage = ({ isOpen, onClose, onSend, user, number }) => {
 
 	useEffect(() => {
 		if (number) {
-			const validNumber = normalizePhone(safeValue(number, 'object'));
+			const validNumber = normalizePhone(safeValue(number));
 
 			if (validNumber) {
 				setWhatsappNumber(validNumber);
