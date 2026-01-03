@@ -249,7 +249,7 @@ const CallFeedbackCard = ({ feedback }) => {
               _dark={{ color: "gray.300" }}
               fontWeight="medium"
             >
-              {feedback.leadName || "Unknown Lead"}
+              {feedback?.lead?.leadName || "Unknown Lead"}
             </Text>
           </HStack>
 
