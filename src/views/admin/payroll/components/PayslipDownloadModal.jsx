@@ -68,6 +68,7 @@ const PayslipDownloadModal = ({
 	}, []);
 
 	const generationType = hasCompletedAttendance(employee) ? 'normal' : 'forced';
+	const payslipPaid = Boolean(employee?.payslip?.status === 'paid' || false);
 
 	/**
 	 * Calculate attendance completion percentage
@@ -340,6 +341,14 @@ const PayslipDownloadModal = ({
 		</VStack>
 	);
 
+	const handleProccedPayslip = () => {
+		if (payslipPaid) {
+			handleGeneratePayslip({
+				adjustments: employee?.payslip?.adjustments || [],
+			});
+		} else setAdjustmentsOpen(true);
+	};
+
 	return (
 		<>
 			<Modal
@@ -442,7 +451,7 @@ const PayslipDownloadModal = ({
 								<Button
 									colorScheme='green'
 									// onClick={() => handleGeneratePayslip({ adjustments: [] })}
-									onClick={() => setAdjustmentsOpen(true)}
+									onClick={handleProccedPayslip}
 									// leftIcon={<FiPrinter />}
 									size='sm'
 									borderRadius='md'
@@ -450,7 +459,7 @@ const PayslipDownloadModal = ({
 									loadingText='Generating...'
 									isDisabled={!hasValidSalaryInfo(employee) || loading}
 								>
-									Proceed
+									{payslipPaid ? 'Generate' : 'Proceed'}
 								</Button>
 
 								// 	hasCompletedAttendance(employee) ? (

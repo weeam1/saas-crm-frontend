@@ -54,6 +54,15 @@ const PREDEFINED_ADJUSTMENTS = [
 	},
 ];
 
+const mergeAdjustments = (employeeAdjustments = []) => {
+	const map = new Map(employeeAdjustments.map((a) => [a.type, a]));
+
+	return PREDEFINED_ADJUSTMENTS.map((def) => ({
+		...def,
+		...(map.get(def.type) || {}),
+	}));
+};
+
 const AdjustmentsModal = ({
 	isOpen,
 	onClose,
@@ -61,9 +70,9 @@ const AdjustmentsModal = ({
 	employeeAdjustments = [],
 	currency = 'AED',
 }) => {
-	const [adjustments, setAdjustments] = useState(
-		employeeAdjustments?.length > 0
-			? employeeAdjustments
+	const [adjustments, setAdjustments] = useState(() =>
+		employeeAdjustments?.length
+			? mergeAdjustments(employeeAdjustments)
 			: PREDEFINED_ADJUSTMENTS
 	);
 
