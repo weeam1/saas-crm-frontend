@@ -197,7 +197,6 @@ const AdjustmentsModal = ({
 													size='md'
 													width='120px'
 													min={1}
-													max={30}
 													value={adj.days || 1}
 													onChange={(value) =>
 														handleChange(adj.type, 'days', parseInt(value) || 1)
