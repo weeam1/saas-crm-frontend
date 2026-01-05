@@ -433,12 +433,12 @@ const PayslipDownloadModal = ({ isOpen, onClose, employee, month, year }) => {
 							{
 								<Button
 									colorScheme='green'
-									// onClick={() => handleGeneratePayslip('normal')}
+									// onClick={() => handleGeneratePayslip({ adjustments: [] })}
 									onClick={() => setAdjustmentsOpen(true)}
 									// leftIcon={<FiPrinter />}
 									size='sm'
 									borderRadius='md'
-									isLoading={loading && generationType === 'normal'}
+									isLoading={loading}
 									loadingText='Generating...'
 									isDisabled={!hasValidSalaryInfo(employee) || loading}
 								>

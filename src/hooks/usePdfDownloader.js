@@ -86,14 +86,15 @@ export function usePdfDownloader() {
 					setError(null);
 				}
 
-				const headers = {
-					'Content-Type': 'application/json',
-				};
+				const headers = {};
 				setAuthHeader(headers);
 
 				const response = await fetch(constant.baseUrl + url, {
-					method: 'GET',
-					headers: headers,
+					method: 'POST',
+					headers: {
+						...headers,
+						'Content-Type': 'application/json',
+					},
 					signal: abortRef.current.signal,
 					body: JSON.stringify(payload),
 				});
