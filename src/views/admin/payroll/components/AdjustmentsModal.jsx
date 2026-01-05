@@ -125,8 +125,6 @@ const AdjustmentsModal = ({
 		setAdjustments(PREDEFINED_ADJUSTMENTS);
 	};
 
-	console.log({ employeeAdjustments });
-
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -145,7 +143,7 @@ const AdjustmentsModal = ({
 				<ModalCloseButton />
 				<ModalBody>
 					<VStack spacing={4} align='stretch'>
-						<HStack>
+						<HStack justifyContent='space-between'>
 							<Text fontSize='sm' color='gray.600'>
 								Currency:{' '}
 								<Text as='span' fontWeight='semibold'>
@@ -156,7 +154,7 @@ const AdjustmentsModal = ({
 							<Button
 								size='sm'
 								variant='ghost'
-								colorScheme='red'
+								colorScheme='cyan'
 								onClick={handleReset}
 								leftIcon={<RepeatIcon />}
 							>
