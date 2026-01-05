@@ -43,101 +43,112 @@ const CallFeedbackHeader = ({
       borderRadius="lg"
       bg={useColorModeValue("white", "gray.800")}
     >
-      <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
+      <HStack spacing={4} align="center" wrap="wrap">
         {/* Search */}
         <Input
           placeholder="Search by user or lead..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          maxW={{ base: "full", md: "200px" }}
+          size="sm"
         />
 
-        {/* Global Date Range Picker Button */}
-        <Button onClick={onOpen} variant="outline">
-          Select Date Range
-        </Button>
+        {/* Date Range Picker + Clear */}
+        <HStack spacing={2}>
+          <Button onClick={onOpen} variant="outline" size="sm">
+            Select Date Range
+          </Button>
 
-        {/* spacer so layout stays nice */}
-        <Box />
+          <Button
+            onClick={() => {
+              setFromDate("");
+              setToDate("");
+              setPage(1); // reset page
+            }}
+            variant="ghost"
+            size="sm"
+            colorScheme="red"
+          >
+            Clear
+          </Button>
+        </HStack>
+
+        {/* Spacer pushes pagination to the right */}
+        <Box flex="1" />
 
         {/* Pagination */}
-        {/* Pagination */}
-        <Box display="flex" alignItems="center" justifyContent="center">
-          <HStack spacing={2}>
-            <Tooltip label="First page">
-              <IconButton
-                size="sm"
-                icon={<FiChevronsLeft />}
-                aria-label="First"
-                onClick={() => setPage(1)}
-                isDisabled={page === 1}
-                variant="ghost"
-              />
-            </Tooltip>
+        <HStack spacing={2}>
+          <Tooltip label="First page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronsLeft />}
+              aria-label="First"
+              onClick={() => setPage(1)}
+              isDisabled={page === 1}
+              variant="ghost"
+            />
+          </Tooltip>
 
-            <Tooltip label="Previous page">
-              <IconButton
-                size="sm"
-                icon={<FiChevronLeft />}
-                aria-label="Previous"
-                onClick={() => setPage((p) => p - 1)}
-                isDisabled={page === 1}
-                variant="ghost"
-              />
-            </Tooltip>
+          <Tooltip label="Previous page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronLeft />}
+              aria-label="Previous"
+              onClick={() => setPage((p) => p - 1)}
+              isDisabled={page === 1}
+              variant="ghost"
+            />
+          </Tooltip>
 
-            {/* Jump to page */}
-            <HStack spacing={1}>
-              <NumberInput
-                size="sm"
-                width="60px"
-                min={1}
-                max={totalPages || 1}
-                value={page}
-                onChange={(valueAsString, valueAsNumber) => {
-                  // Allow empty string while typing
-                  if (valueAsString === "") {
-                    setPage(""); // let user clear input before typing
-                    return;
-                  }
+          {/* Jump to page */}
+          <HStack spacing={1}>
+            <NumberInput
+              size="sm"
+              width="60px"
+              min={1}
+              max={totalPages || 1}
+              value={page}
+              onChange={(valueAsString, valueAsNumber) => {
+                if (valueAsString === "") {
+                  setPage(""); // allow clearing input while typing
+                  return;
+                }
+                const num = parseInt(valueAsString, 10);
+                if (!isNaN(num)) {
+                  setPage(Math.min(Math.max(1, num), totalPages || 1));
+                }
+              }}
+              clampValueOnBlur
+            >
+              <NumberInputField textAlign="center" />
+            </NumberInput>
 
-                  // Only update if it's a valid number
-                  const num = parseInt(valueAsString, 10);
-                  if (!isNaN(num)) {
-                    setPage(Math.min(Math.max(1, num), totalPages || 1));
-                  }
-                }}
-                clampValueOnBlur
-              >
-                <NumberInputField textAlign="center" />
-              </NumberInput>
-
-              <Text fontSize="sm">/ {totalPages || 1}</Text>
-            </HStack>
-
-            <Tooltip label="Next page">
-              <IconButton
-                size="sm"
-                icon={<FiChevronRight />}
-                aria-label="Next"
-                onClick={() => setPage((p) => p + 1)}
-                isDisabled={page === totalPages}
-                variant="ghost"
-              />
-            </Tooltip>
-
-            <Tooltip label="Last page">
-              <IconButton
-                size="sm"
-                icon={<FiChevronsRight />}
-                aria-label="Last"
-                onClick={() => setPage(totalPages)}
-                isDisabled={page === totalPages}
-                variant="ghost"
-              />
-            </Tooltip>
+            <Text fontSize="sm">/ {totalPages || 1}</Text>
           </HStack>
-        </Box>
-      </SimpleGrid>
+
+          <Tooltip label="Next page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronRight />}
+              aria-label="Next"
+              onClick={() => setPage((p) => p + 1)}
+              isDisabled={page === totalPages}
+              variant="ghost"
+            />
+          </Tooltip>
+
+          <Tooltip label="Last page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronsRight />}
+              aria-label="Last"
+              onClick={() => setPage(totalPages)}
+              isDisabled={page === totalPages}
+              variant="ghost"
+            />
+          </Tooltip>
+        </HStack>
+      </HStack>
 
       {/* Global Date Filter Modal */}
       <DateRangeFilter
