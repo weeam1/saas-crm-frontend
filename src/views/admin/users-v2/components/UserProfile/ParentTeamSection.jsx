@@ -13,8 +13,11 @@ import { ChevronRightIcon } from '@chakra-ui/icons';
 import PropTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { usePermissions } from 'hooks/usePermissions';
 
 const ParentTeamSection = ({ user }) => {
+	const { hasPermission } = usePermissions();
+
 	const renderPersonCard = (person, type) => {
 		if (!person) return null;
 
@@ -53,26 +56,30 @@ const ParentTeamSection = ({ user }) => {
 								{type === 'parent' ? 'Manager' : person.roles?.[0]?.roleName}
 							</Badge> */}
 						</HStack>
-						<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.600'>
-							{person.username}
-						</Text>
+						{hasPermission('users') && (
+							<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.600'>
+								{person.username}
+							</Text>
+						)}
 						{/* <Text fontSize='sm' color='gray.500'>
 							{person.agency?.name || 'No Agency'}
 						</Text> */}
 					</VStack>
-					<CustomTooltip label='User Details'>
-						<Link
-							as={NavLink}
-							to={`/users-v2/${person?._id}`}
-							display='inline-flex'
-							alignItems='center'
-							color='gray.400'
-							cursor='pointer'
-							_hover={{ color: 'gray.600' }}
-						>
-							<ChevronRightIcon />
-						</Link>
-					</CustomTooltip>
+					{hasPermission('users') && (
+						<CustomTooltip label='User Details'>
+							<Link
+								as={NavLink}
+								to={`/users-v2/${person?._id}`}
+								display='inline-flex'
+								alignItems='center'
+								color='gray.400'
+								cursor='pointer'
+								_hover={{ color: 'gray.600' }}
+							>
+								<ChevronRightIcon />
+							</Link>
+						</CustomTooltip>
+					)}
 
 					{/* <ChevronRightIcon color='gray.400' /> */}
 				</HStack>

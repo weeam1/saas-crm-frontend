@@ -24,7 +24,13 @@ import UserProfileItem from 'components/table/UserProfileItem';
 import { FaPlus } from 'react-icons/fa6';
 import useUserSession from 'hooks/useUserSession';
 
-const UserEvaluationTable = ({ data = [], isLoading, setView }) => {
+const UserEvaluationTable = ({
+	data = [],
+	isLoading,
+	setView,
+	month,
+	year,
+}) => {
 	const columns = [
 		{ key: 'user', label: 'User', width: '250px' },
 		{ key: 'roles', label: 'Role', width: '150px' }, // could display role names
@@ -222,7 +228,7 @@ const UserEvaluationTable = ({ data = [], isLoading, setView }) => {
 																variant='ghost'
 																onClick={() =>
 																	navigate(
-																		`/evaluation/user-evaluation/role/${row?.roles?.[0]?._id}/user/${row?._id}`
+																		`/evaluation/user-evaluation/role/${row?.roles?.[0]?._id}/user/${row?._id}?month=${month}&year=${year}`
 																	)
 																}
 																// onClick={() => handleOpenEdit(row)}

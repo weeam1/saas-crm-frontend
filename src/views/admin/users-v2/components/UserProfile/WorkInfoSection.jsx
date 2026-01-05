@@ -22,12 +22,16 @@ const WorkInfoSection = ({ user }) => {
 
 	const financialItems = [
 		{ label: 'Monthly Target', value: user.target || 'N/A' },
-		{ label: 'Salary', value: user.salary || 'N/A' },
+		{ label: 'Salary', value: user.salary ?? 'N/A' },
 		{
 			label: 'Commission',
-			value: user?.commission ? `${user.commission}%` : 'N/A',
+			value:
+				user?.commission !== null && user?.commission !== undefined
+					? `${user.commission}%`
+					: 'N/A',
+			// value: Number.isFinite(user?.commission) ? `${user.commission}%` : 'N/A',
 		},
-		{ label: 'Incentive', value: user.incentive || 'N/A' },
+		{ label: 'Incentive', value: user.incentive ?? 'N/A' },
 		{ label: 'Coins', value: user.coins?.toLocaleString() || 'N/A' },
 	];
 

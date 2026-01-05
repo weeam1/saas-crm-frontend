@@ -72,89 +72,97 @@ export function usePdfDownloader() {
 		};
 	}, []);
 
-	const downloadPdf = useCallback(async (url, filename = 'document.pdf') => {
-		try {
-			// Abort previous downloads
-			if (abortRef.current) abortRef.current.abort();
-			abortRef.current = new AbortController();
+	const downloadPdf = useCallback(
+		async (url, filename = 'document.pdf', payload = {}) => {
+			try {
+				console.log({ payload });
+				// Abort previous downloads
+				if (abortRef.current) abortRef.current.abort();
+				abortRef.current = new AbortController();
 
-			if (isMounted.current) {
-				setLoading(true);
-				setProgress(0);
-				setError(null);
-			}
+				if (isMounted.current) {
+					setLoading(true);
+					setProgress(0);
+					setError(null);
+				}
 
-			const headers = {};
-			setAuthHeader(headers);
+				const headers = {};
+				setAuthHeader(headers);
 
-			const response = await fetch(constant.baseUrl + url, {
-				method: 'GET',
-				headers: headers,
-				signal: abortRef.current.signal,
-			});
+				const response = await fetch(constant.baseUrl + url, {
+					method: 'POST',
+					headers: {
+						...headers,
+						'Content-Type': 'application/json',
+					},
+					signal: abortRef.current.signal,
+					body: JSON.stringify(payload),
+				});
 
-			if (!response.ok) {
-				throw new Error(`Download failed with status: ${response.status}`);
-			}
+				if (!response.ok) {
+					throw new Error(`Download failed with status: ${response.status}`);
+				}
 
-			const contentLength = Number(response.headers.get('content-length'));
-			const reader = response.body.getReader();
+				const contentLength = Number(response.headers.get('content-length'));
+				const reader = response.body.getReader();
 
-			const chunks = [];
-			let received = 0;
+				const chunks = [];
+				let received = 0;
 
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
 
-				chunks.push(value);
-				received += value.length;
+					chunks.push(value);
+					received += value.length;
 
-				// Progress handling
-				if (contentLength && isMounted.current) {
-					setProgress(
-						Math.min(100, Math.round((received / contentLength) * 100))
-					);
-				} else if (isMounted.current) {
-					// No content length header available
-					setProgress((prev) => (prev < 95 ? prev + 5 : 95));
+					// Progress handling
+					if (contentLength && isMounted.current) {
+						setProgress(
+							Math.min(100, Math.round((received / contentLength) * 100))
+						);
+					} else if (isMounted.current) {
+						// No content length header available
+						setProgress((prev) => (prev < 95 ? prev + 5 : 95));
+					}
+				}
+
+				// Basic corruption check
+				if (contentLength && received !== contentLength) {
+					throw new Error('File corrupted during download');
+				}
+
+				const blob = new Blob(chunks, { type: 'application/pdf' });
+				const fileUrl = URL.createObjectURL(blob);
+
+				// Download without browser UI
+				const a = document.createElement('a');
+				a.style.display = 'none';
+				a.href = fileUrl;
+				a.download = filename;
+
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+
+				// Allow browser to settle before cleanup
+				requestIdleCallback(() => URL.revokeObjectURL(fileUrl));
+
+				if (isMounted.current) {
+					setProgress(100);
+					setLoading(false);
+				}
+			} catch (err) {
+				if (err.name === 'AbortError') return;
+
+				if (isMounted.current) {
+					setError(err.message || 'Download error');
+					setLoading(false);
 				}
 			}
-
-			// Basic corruption check
-			if (contentLength && received !== contentLength) {
-				throw new Error('File corrupted during download');
-			}
-
-			const blob = new Blob(chunks, { type: 'application/pdf' });
-			const fileUrl = URL.createObjectURL(blob);
-
-			// Download without browser UI
-			const a = document.createElement('a');
-			a.style.display = 'none';
-			a.href = fileUrl;
-			a.download = filename;
-
-			document.body.appendChild(a);
-			a.click();
-			document.body.removeChild(a);
-
-			// Allow browser to settle before cleanup
-			requestIdleCallback(() => URL.revokeObjectURL(fileUrl));
-
-			if (isMounted.current) {
-				setProgress(100);
-				setLoading(false);
-			}
-		} catch (err) {
-			if (err.name === 'AbortError') return;
-
-			if (isMounted.current) {
-				setError(err.message || 'Download error');
-				setLoading(false);
-			}
-		}
-	}, []);
+		},
+		[]
+	);
 
 	return { downloadPdf, loading, progress, error };
 }

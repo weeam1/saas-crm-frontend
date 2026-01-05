@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
 	Box,
 	VStack,
@@ -37,8 +37,17 @@ import { FiChevronLeft } from 'react-icons/fi';
 
 const EvaluationForm = () => {
 	const { roleId, userId } = useParams();
+	const [searchParams] = useSearchParams();
+
 	const navigate = useNavigate();
 	const { user: loggedInUser } = useUserSession();
+
+	const now = new Date();
+	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
+	const defaultYear = String(now.getFullYear());
+
+	const month = searchParams.get('month') || defaultMonth;
+	const year = searchParams.get('year') || defaultYear;
 
 	// States
 	const [errorMessage, setErrorMessage] = useState(null);
@@ -71,6 +80,7 @@ const EvaluationForm = () => {
 	const { data: userEval, isLoading: userEvalLoading } = useFetchItemsQuery(
 		{
 			path: `/evaluation/users/user/${userId}`,
+			params: { month, year },
 		},
 		{
 			skip: !userId,
@@ -181,11 +191,6 @@ const EvaluationForm = () => {
 				maxScore: attr.maxScore,
 			}));
 
-			// Get current month and year
-			const now = new Date();
-			const month = now.getMonth() + 1;
-			const year = now.getFullYear();
-
 			// Get evaluator ID (assuming from auth context)
 			const evaluatorId = loggedInUser?._id;
 
@@ -290,11 +295,7 @@ const EvaluationForm = () => {
 						{errorMessage?.message}
 					</Text>
 
-					<Button
-						mt={6}
-						colorScheme='brand'
-						onClick={() => navigate('/evaluation/settings')}
-					>
+					<Button mt={6} colorScheme='brand' onClick={() => navigate('-1')}>
 						Go Back
 					</Button>
 				</Box>
