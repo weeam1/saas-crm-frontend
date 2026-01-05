@@ -1,342 +1,178 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Box,
   VStack,
   useColorModeValue,
   SimpleGrid,
   Text,
-  Badge,
-  Flex,
   Icon,
-  HStack,
-  Divider,
   Spinner,
   Center,
 } from "@chakra-ui/react";
-import {
-  FiPhone,
-  FiUser,
-  FiCalendar,
-  FiMessageSquare,
-  FiWifi,
-  FiWifiOff,
-  FiStar,
-  FiThumbsUp,
-  FiMinus,
-  FiThumbsDown,
-  FiX,
-} from "react-icons/fi";
-import { FaSimCard, FaWhatsapp } from "react-icons/fa";
-import { Avatar, AvatarBadge } from "@chakra-ui/react";
+import { FiPhone } from "react-icons/fi";
 import { useFetchCallFeedback } from "./hooks/useFetchCallFeedback";
-import { constant } from "constant";
-
-// Mock data for call feedback analytics
-const mockSummary = [
-  { label: "Total Calls", value: 1250, trend: "+12%", isPositive: true },
-  { label: "Excellent Quality", value: 680, trend: "+8%", isPositive: true },
-  { label: "Good Quality", value: 320, trend: "+5%", isPositive: true },
-  { label: "Average Quality", value: 150, trend: "-2%", isPositive: false },
-  { label: "Poor Quality", value: 100, trend: "-15%", isPositive: false },
-  { label: "VPN Issues", value: 45, trend: "-5%", isPositive: false },
-  { label: "Voice Cutting", value: 32, trend: "-8%", isPositive: false },
-  { label: "High Latency", value: 28, trend: "-12%", isPositive: false },
-];
-
-const mockTotals = {
-  total: 1250,
-  excellent: 680,
-  good: 320,
-  average: 150,
-  poor: 100,
-};
-
-const categories = [
-  { value: "all", label: "All Calls" },
-  { value: "today", label: "Today" },
-  { value: "week", label: "This Week" },
-  { value: "month", label: "This Month" },
-];
-
-const getQualityColor = (quality) => {
-  switch (quality) {
-    case "excellent":
-      return "green";
-    case "good":
-      return "blue";
-    case "average":
-      return "yellow";
-    case "bad":
-      return "orange";
-    case "very_bad":
-      return "red";
-    default:
-      return "gray";
-  }
-};
-
-const getQualityIcon = (quality) => {
-  switch (quality) {
-    case "excellent":
-      return FiStar;
-    case "good":
-      return FiThumbsUp;
-    case "average":
-      return FiMinus;
-    case "bad":
-      return FiThumbsDown;
-    case "very_bad":
-      return FiX;
-    default:
-      return FiPhone;
-  }
-};
-
-const getStarRating = (quality) => {
-  const ratings = {
-    excellent: 5,
-    good: 4,
-    average: 3,
-    bad: 2,
-    very_bad: 1,
-  };
-  return ratings[quality] || 3;
-};
-
-const renderStars = (rating) => {
-  return Array.from({ length: 5 }, (_, index) => (
-    <Icon
-      key={index}
-      as={FiStar}
-      color={index < rating ? "yellow.400" : "gray.300"}
-      boxSize={4}
-      fill={index < rating ? "yellow.400" : "transparent"}
-    />
-  ));
-};
-
-const getMediumIcon = (medium) => {
-  switch (medium) {
-    case "external_sim":
-      return FaSimCard;
-    case "whatsapp":
-      return FaWhatsapp;
-    case "dailer":
-      return FiPhone;
-    default:
-      return FiPhone;
-  }
-};
-
-const CallFeedbackCard = ({ feedback }) => {
-  console.log(feedback, "show feedback");
-
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.100", "gray.600");
-  const hoverBgColor = useColorModeValue("gray.50", "gray.700");
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  const getQualityGradient = (quality) => {
-    switch (quality) {
-      case "excellent":
-        return "linear(to-r, green.400, green.600)";
-      case "good":
-        return "linear(to-r, blue.400, blue.600)";
-      case "average":
-        return "linear(to-r, yellow.400, yellow.600)";
-      case "bad":
-        return "linear(to-r, orange.400, orange.600)";
-      case "very_bad":
-        return "linear(to-r, red.400, red.600)";
-      default:
-        return "linear(to-r, gray.400, gray.600)";
-    }
-  };
-
-  return (
-    <Box
-      bg={bgColor}
-      borderRadius="xl"
-      border="1px solid"
-      borderColor={borderColor}
-      p={6}
-      shadow="lg"
-      _hover={{
-        shadow: "xl",
-        bg: hoverBgColor,
-        transform: "translateY(-2px)",
-      }}
-      transition="all 0.3s ease"
-      position="relative"
-      overflow="hidden"
-    >
-      {/* Quality indicator bar */}
-      <Box
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        height="4px"
-        bgGradient={getQualityGradient(feedback.callQuality)}
-      />
-
-      {/* Quality Badge - Top Right Corner */}
-      <Box position="absolute" top={3} right={3} zIndex={1}>
-        <HStack spacing={1}>
-          {renderStars(getStarRating(feedback.callQuality))}
-        </HStack>
-      </Box>
-
-      <VStack align="stretch" pt="2" spacing={4}>
-        {/* User Profile Section */}
-        <HStack spacing={4}>
-          <Avatar
-            src={`${constant.baseUrl}/${feedback.user?.profileImage}`}
-            size="md"
-            name={feedback.user.username}
-            bg="blue.500"
-            color="white"
-          >
-            <AvatarBadge boxSize="1em" bg="green.500" />
-          </Avatar>
-          <Box flex={1}>
-            <Text
-              fontWeight="bold"
-              fontSize="lg"
-              color="gray.800"
-              _dark={{ color: "white" }}
-            >
-              {feedback?.user?.username}
-            </Text>
-            <Badge colorScheme="purple" variant="subtle">
-              Ext ID {feedback.userExtensionId}
-            </Badge>
-          </Box>
-        </HStack>
-
-        <HStack spacing={3}>
-          <Box p={2} borderRadius="lg" bg="blue.50" _dark={{ bg: "blue.900" }}>
-            <Icon
-              as={getMediumIcon(feedback.callMedium)}
-              color="blue.500"
-              boxSize={5}
-            />
-          </Box>
-          <Box>
-            <Text fontSize="sm" color="gray.600" _dark={{ color: "gray.400" }}>
-              {feedback.callMedium.replace("_", " ").toUpperCase()}
-            </Text>
-          </Box>
-        </HStack>
-
-        <Divider />
-
-        <VStack align="stretch" spacing={3}>
-          <HStack spacing={3}>
-            <Icon as={FiPhone} color="green.500" boxSize={4} />
-            <Text
-              fontSize="sm"
-              color="gray.700"
-              _dark={{ color: "gray.300" }}
-              fontWeight="medium"
-            >
-              {feedback?.lead?.leadName || "Unknown Lead"}
-            </Text>
-          </HStack>
-
-          {feedback.reason && (
-            <HStack spacing={3}>
-              <Icon as={FiWifiOff} color="red.500" boxSize={4} />
-              <Text fontSize="sm" color="red.600" fontWeight="medium">
-                Issue: {feedback.reason}
-              </Text>
-            </HStack>
-          )}
-
-          <HStack spacing={3}>
-            <Icon as={FiCalendar} color="purple.500" boxSize={4} />
-            <Text fontSize="sm" color="gray.600" _dark={{ color: "gray.400" }}>
-              {formatDate(feedback.createdAt)}
-            </Text>
-          </HStack>
-        </VStack>
-
-        {feedback.description && (
-          <>
-            <Divider />
-            <Box>
-              <HStack align="start" spacing={3}>
-                <Icon
-                  as={FiMessageSquare}
-                  color="gray.500"
-                  boxSize={4}
-                  mt={0.5}
-                />
-                <Text
-                  fontSize="sm"
-                  color="gray.700"
-                  _dark={{ color: "gray.300" }}
-                  lineHeight="1.5"
-                  flex={1}
-                >
-                  {feedback.description}
-                </Text>
-              </HStack>
-            </Box>
-          </>
-        )}
-      </VStack>
-    </Box>
-  );
-};
+import { CallFeedbackCard } from "./components/FeedBackCard";
+import { CallFeedbackSummary } from "./components/FeedBackOverview";
+import CallFeedbackHeader from "./components/FeedBackHeader";
 
 const CallFeedback = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-
   const { data: callFeedbackData, isLoading } = useFetchCallFeedback();
 
   const bgColor = useColorModeValue("gray.50", "gray.900");
+  const mockData = [
+    {
+      _id: "1",
+      userExtensionId: "101",
+      callMedium: "external_sim",
+      description:
+        "The call started perfectly fine, but after a few minutes the other side experienced a lot of echo and occasional dropouts. The network seemed unstable, and the participant had to reconnect multiple times. Overall, the conversation lasted about 15 minutes, and we could only complete the first 10 minutes clearly.",
+      callQuality: "good",
+      reason: "voice_cutting",
+      createdAt: "2026-01-01T10:00:00Z",
+      user: {
+        _id: "u1",
+        username: "john.doe@gmail.com",
+        fullName: "John Doe",
+        profileImage: "uploads/profileImages/john.jpg",
+      },
+      lead: {
+        _id: "l1",
+        leadName: "Lead One",
+      },
+    },
+    {
+      _id: "2",
+      userExtensionId: "102",
+      callMedium: "whatsapp",
+      description:
+        "Call quality was excellent initially. After 5 minutes, intermittent delays started to occur, causing miscommunication. The client reported that the connection dropped twice. I had to call back each time, and finally, we managed to discuss all points. Notes: ensure better network connection next time.",
+      callQuality: "average",
+      reason: "VPN Issue",
+      createdAt: "2026-01-01T11:30:00Z",
+      user: {
+        _id: "u2",
+        username: "jane.doe@gmail.com",
+        fullName: "Jane Doe",
+        profileImage: "uploads/profileImages/jane.jpg",
+      },
+      lead: {
+        _id: "l2",
+        leadName: "Lead Two",
+      },
+    },
+
+    {
+      _id: "3",
+      userExtensionId: "104",
+      callMedium: "whatsapp",
+      description:
+        "Call started normally but then the voice was extremely distorted. It was hard to understand any of the client's responses. Attempted to troubleshoot by asking them to switch networks, but the quality remained very poor. Only 3 minutes of conversation were usable.",
+      callQuality: "bad",
+      reason: "distorted_audio",
+      createdAt: "2026-01-02T14:45:00Z",
+      user: {
+        _id: "u4",
+        username: "sarah.connor@gmail.com",
+        fullName: "Sarah Connor",
+        profileImage: "uploads/profileImages/sarah.jpg",
+      },
+      lead: {
+        _id: "l4",
+        leadName: "Lead Four",
+      },
+    },
+    {
+      _id: "4",
+      userExtensionId: "105",
+      callMedium: "external_sim",
+      description:
+        "The call was extremely bad from start to finish. Constant disconnects, overlapping voices, and complete loss of communication for multiple minutes. Unable to complete discussion. Follow-up required immediately to resolve issues.",
+      callQuality: "very_bad",
+      reason: "no_audio",
+      createdAt: "2026-01-03T08:00:00Z",
+      user: {
+        _id: "u5",
+        username: "linda.jackson@gmail.com",
+        fullName: "Linda Jackson",
+        profileImage: "uploads/profileImages/linda.jpg",
+      },
+      lead: {
+        _id: "l5",
+        leadName: "Lead Five",
+      },
+    },
+  ];
+  // Pagination
+  const [page, setPage] = useState(1);
+  const pageSize = 4;
+
+  // Filters
+  const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  // Filter data
+  const filteredData = useMemo(() => {
+    return (callFeedbackData || [])
+      .filter((f) =>
+        search
+          ? f?.user?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+            f?.lead?.leadName?.toLowerCase().includes(search.toLowerCase())
+          : true
+      )
+      .filter((f) =>
+        fromDate ? new Date(f.createdAt) >= new Date(fromDate) : true
+      )
+      .filter((f) =>
+        toDate ? new Date(f.createdAt) <= new Date(toDate) : true
+      );
+  }, [callFeedbackData, search, fromDate, toDate]);
+
+  // Pagination math
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredData.slice(start, start + pageSize);
+  }, [filteredData, page]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [search, fromDate, toDate]);
 
   return (
-    <Box minH="100vh" bg={bgColor} p={8}>
-      <Box maxW="1400px" mx="auto">
-        <VStack spacing={8} align="stretch">
-          {/* Header */}
-          <Box textAlign="center" mb={6}>
-            <Text
-              fontSize="3xl"
-              fontWeight="bold"
-              bgGradient="linear(to-r, blue.400, purple.500)"
-              bgClip="text"
-              mb={2}
-            >
-              Call Feedback Dashboard
-            </Text>
-            <Text fontSize="lg" color="gray.600" _dark={{ color: "gray.400" }}>
-              Monitor and analyze call quality feedback
-            </Text>
-          </Box>
-
-          {/* Call Feedback Cards Grid */}
+    <Box bg={bgColor} p={2}>
+      <Box mx="auto">
+        <VStack spacing={4} align="stretch">
           {isLoading ? (
             <Center py={16}>
               <Spinner size="xl" color="blue.500" thickness="4px" />
             </Center>
           ) : (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3, xl: 4 }} spacing={6}>
-              {callFeedbackData.map((feedback) => (
-                <CallFeedbackCard key={feedback._id} feedback={feedback} />
-              ))}
-            </SimpleGrid>
+            <>
+              {" "}
+              <CallFeedbackSummary data={callFeedbackData || []} />
+              <CallFeedbackHeader
+                search={search}
+                setSearch={setSearch}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
+                page={page}
+                setPage={setPage}
+                totalPages={totalPages}
+              />
+              <SimpleGrid
+                columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
+                spacing={6}
+              >
+                {paginatedData.map((feedback) => (
+                  <CallFeedbackCard key={feedback._id} feedback={feedback} />
+                ))}
+              </SimpleGrid>
+            </>
           )}
 
           {!isLoading && callFeedbackData.length === 0 && (
