@@ -23,8 +23,7 @@ import {
 	Input,
 	Textarea,
 } from '@chakra-ui/react';
-import { Icon } from 'lucide-react';
-import { FaCoins } from 'react-icons/fa';
+import { Icon, RepeatIcon } from 'lucide-react';
 
 const PREDEFINED_ADJUSTMENTS = [
 	{
@@ -63,7 +62,9 @@ const AdjustmentsModal = ({
 	currency = 'AED',
 }) => {
 	const [adjustments, setAdjustments] = useState(
-		employeeAdjustments || PREDEFINED_ADJUSTMENTS
+		employeeAdjustments?.length > 0
+			? employeeAdjustments
+			: PREDEFINED_ADJUSTMENTS
 	);
 
 	const handleChange = (type, field, value) => {
@@ -101,10 +102,18 @@ const AdjustmentsModal = ({
 			});
 	}
 
-	const handleSave = () => {
-		const finalAdjustments = normalizeAdjustments(adjustments) || [];
+	const handleSave = (mode = 'save') => {
+		const finalAdjustments =
+			mode === 'save'
+				? normalizeAdjustments(adjustments) || []
+				: employeeAdjustments;
+
 		onSave({ adjustments: finalAdjustments });
 		onClose();
+	};
+
+	const handleReset = () => {
+		setAdjustments(PREDEFINED_ADJUSTMENTS);
 	};
 
 	console.log({ employeeAdjustments });
@@ -127,12 +136,24 @@ const AdjustmentsModal = ({
 				<ModalCloseButton />
 				<ModalBody>
 					<VStack spacing={4} align='stretch'>
-						<Text fontSize='sm' color='gray.600'>
-							Currency:{' '}
-							<Text as='span' fontWeight='semibold'>
-								{currency}
+						<HStack>
+							<Text fontSize='sm' color='gray.600'>
+								Currency:{' '}
+								<Text as='span' fontWeight='semibold'>
+									{currency}
+								</Text>
 							</Text>
-						</Text>
+
+							<Button
+								size='sm'
+								variant='ghost'
+								colorScheme='red'
+								onClick={handleReset}
+								leftIcon={<RepeatIcon />}
+							>
+								Reset
+							</Button>
+						</HStack>
 
 						{adjustments?.map((adj) => (
 							<Box key={adj.type} p={2} bg='gray.50' borderRadius='md'>
@@ -228,10 +249,10 @@ const AdjustmentsModal = ({
 				</ModalBody>
 
 				<ModalFooter>
-					<Button variant='outline' onClick={handleSave}>
+					<Button variant='outline' onClick={() => handleSave('skip')}>
 						Skip & Generate
 					</Button>
-					<Button colorScheme='green' ml={6} onClick={handleSave}>
+					<Button colorScheme='green' ml={6} onClick={() => handleSave('save')}>
 						Save & Generate
 					</Button>
 				</ModalFooter>
