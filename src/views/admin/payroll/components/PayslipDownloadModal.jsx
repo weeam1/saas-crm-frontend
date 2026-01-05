@@ -33,10 +33,18 @@ import { useModalColors } from 'hooks/useModalColors';
 import { getSalaryType } from 'schema/userSchema';
 import AdjustmentsModal from './AdjustmentsModal';
 
-const PayslipDownloadModal = ({ isOpen, onClose, employee, month, year }) => {
+const PayslipDownloadModal = ({
+	isOpen,
+	onClose,
+	employee,
+	month,
+	year,
+	refetchPayslips,
+}) => {
 	const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
 	const { downloadPdf, loading, progress, error } = usePdfDownloader();
 
+	console.log({ employee });
 	// State to track generation type
 	const [adjustmentsOpen, setAdjustmentsOpen] = useState(false);
 
@@ -110,13 +118,13 @@ const PayslipDownloadModal = ({ isOpen, onClose, employee, month, year }) => {
 				}
 			);
 
-			console.log({ adjustments });
-
 			toast.success(
 				generationType === 'forced'
 					? 'Provisional Payslip Generated'
 					: 'Payslip Generated'
 			);
+
+			refetchPayslips();
 
 			onClose(); // Close modal on success
 		} catch (err) {
@@ -483,6 +491,8 @@ const PayslipDownloadModal = ({ isOpen, onClose, employee, month, year }) => {
 					isOpen={adjustmentsOpen}
 					onClose={() => setAdjustmentsOpen(false)}
 					onSave={handleGeneratePayslip}
+					employeeAdjustments={employee?.payslip?.adjustments}
+					currency={employee?.payrollSummary?.currency}
 				/>
 			)}
 		</>

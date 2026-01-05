@@ -23,47 +23,53 @@ import {
 	Input,
 	Textarea,
 } from '@chakra-ui/react';
+import { Icon } from 'lucide-react';
+import { FaCoins } from 'react-icons/fa';
 
 const PREDEFINED_ADJUSTMENTS = [
 	{
-		id: 'bonus',
-		name: 'Bonus',
 		type: 'BONUS',
 		calculation: 'FIXED',
 		amount: 0,
-		days: 1,
+		days: 0,
+		note: '',
 	},
 	{
-		id: 'allowance',
-		name: 'Allowance',
 		type: 'ALLOWANCE',
 		calculation: 'FIXED',
 		amount: 0,
+		note: '',
 	},
 	{
-		id: 'overtime',
-		name: 'Overtime',
 		type: 'OVERTIME',
 		calculation: 'FIXED',
 		amount: 0,
+		note: '',
 	},
 	{
-		id: 'deduction',
-		name: 'Deduction',
 		type: 'DEDUCTION',
 		calculation: 'FIXED',
 		amount: 0,
-		days: 1,
+		days: 0,
+		note: '',
 	},
 ];
 
-const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
-	const [adjustments, setAdjustments] = useState(PREDEFINED_ADJUSTMENTS);
+const AdjustmentsModal = ({
+	isOpen,
+	onClose,
+	onSave,
+	employeeAdjustments = [],
+	currency = 'AED',
+}) => {
+	const [adjustments, setAdjustments] = useState(
+		employeeAdjustments || PREDEFINED_ADJUSTMENTS
+	);
 
-	const handleChange = (id, field, value) => {
+	const handleChange = (type, field, value) => {
 		setAdjustments((prev) =>
 			prev.map((adj) =>
-				adj.id === id
+				adj.type === type
 					? {
 							...adj,
 							[field]: value,
@@ -76,23 +82,32 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 		);
 	};
 
-	const calculateTotal = () => {
-		return adjustments.reduce((total, adj) => {
-			let amount = adj.amount || 0;
-			if (
-				(adj.type === 'BONUS' || adj.type === 'DEDUCTION') &&
-				adj.calculation === 'PER_DAY'
-			) {
-				amount *= adj.days || 1;
-			}
-			return adj.type === 'DEDUCTION' ? total - amount : total + amount;
-		}, 0);
-	};
+	function normalizeAdjustments(adjustments = []) {
+		return adjustments
+			.filter((a) => Number(a.amount) > 0) // drop zeros
+			.map((a) => {
+				const out = {
+					type: a.type, // BONUS | DEDUCTION | ...
+					calculation: a.calculation, // FIXED | PER_DAY
+					amount: Number(a.amount),
+					note: a?.note || '',
+				};
+
+				if (a.calculation === 'PER_DAY') {
+					out.days = Math.max(1, Math.min(30, Number(a.days || 1)));
+				}
+
+				return out;
+			});
+	}
 
 	const handleSave = () => {
-		onSave({ adjustments });
+		const finalAdjustments = normalizeAdjustments(adjustments) || [];
+		onSave({ adjustments: finalAdjustments });
 		onClose();
 	};
+
+	console.log({ employeeAdjustments });
 
 	return (
 		<Modal
@@ -112,8 +127,15 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 				<ModalCloseButton />
 				<ModalBody>
 					<VStack spacing={4} align='stretch'>
-						{adjustments.map((adj) => (
-							<Box key={adj.id} p={2} bg='gray.50' borderRadius='md'>
+						<Text fontSize='sm' color='gray.600'>
+							Currency:{' '}
+							<Text as='span' fontWeight='semibold'>
+								{currency}
+							</Text>
+						</Text>
+
+						{adjustments?.map((adj) => (
+							<Box key={adj.type} p={2} bg='gray.50' borderRadius='md'>
 								<VStack spacing={1} align='stretch'>
 									{/* Row: Name | Calculation | Amount */}
 									<Badge
@@ -130,7 +152,7 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 										py='2'
 										px='4'
 									>
-										{adj.name}
+										{adj.type}
 									</Badge>
 									<HStack spacing={3} w='full'>
 										{(adj.type === 'BONUS' || adj.type === 'DEDUCTION') && (
@@ -139,7 +161,7 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 												maxWidth='120px'
 												value={adj.calculation}
 												onChange={(e) =>
-													handleChange(adj.id, 'calculation', e.target.value)
+													handleChange(adj.type, 'calculation', e.target.value)
 												}
 											>
 												<option value='FIXED'>Fixed</option>
@@ -157,7 +179,7 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 													max={30}
 													value={adj.days || 1}
 													onChange={(value) =>
-														handleChange(adj.id, 'days', parseInt(value) || 1)
+														handleChange(adj.type, 'days', parseInt(value) || 1)
 													}
 												>
 													<NumberInputField placeholder='Days' />
@@ -175,7 +197,7 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 											min={0}
 											value={adj.amount}
 											onChange={(value) =>
-												handleChange(adj.id, 'amount', parseFloat(value))
+												handleChange(adj.type, 'amount', parseFloat(value))
 											}
 										>
 											<NumberInputField placeholder='Amount' />
@@ -190,7 +212,7 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 									<Textarea
 										value={adj.note || ''}
 										onChange={(e) =>
-											handleChange(adj.id, 'note', e.target.value)
+											handleChange(adj.type, 'note', e.target.value)
 										}
 										placeholder='Optional note…'
 										maxH='50px'
@@ -201,7 +223,6 @@ const AdjustmentsModal = ({ isOpen, onClose, onSave }) => {
 								</VStack>
 							</Box>
 						))}
-
 						<Divider />
 					</VStack>
 				</ModalBody>
