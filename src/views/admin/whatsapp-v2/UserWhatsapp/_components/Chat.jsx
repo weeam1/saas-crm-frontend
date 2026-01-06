@@ -38,8 +38,6 @@ const Chat = ({ chatId, sessionId }) => {
 				...(caption && { options: { caption } }),
 			};
 
-			console.log('Sending message:', whatsappPayload);
-
 			setSending(true);
 
 			sendMessage(whatsappPayload);

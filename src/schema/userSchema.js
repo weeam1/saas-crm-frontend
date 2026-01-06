@@ -100,11 +100,11 @@
 // // 		file ? file.size <= 2 * 1024 * 1024 : false
 // // 	),
 
-import { salaryTypes } from "utils/options";
-import * as yup from "yup";
+import { salaryTypes } from 'utils/options';
+import * as yup from 'yup';
 
 export const getSalaryType = (salaryType) =>
-  salaryTypes.find((t) => t.value === salaryType);
+	salaryTypes.find((t) => t.value === salaryType);
 
 /**
  * @param {Object} options
@@ -115,87 +115,87 @@ export const getSalaryType = (salaryType) =>
  * If nothing is passed, behaves like old schema (admin-level validation)
  */
 export const userSchema = ({ isAdmin = true, isSuperAdmin = true } = {}) =>
-  yup.object({
-    firstName: yup.string().required("First Name is required"),
-    lastName: yup.string(),
+	yup.object({
+		firstName: yup.string().required('First Name is required'),
+		lastName: yup.string(),
 
-    agency:
-      isAdmin || isSuperAdmin
-        ? yup.string().required("Agency is required")
-        : yup.string().nullable(),
+		agency:
+			isAdmin || isSuperAdmin
+				? yup.string().required('Agency is required')
+				: yup.string().nullable(),
 
-    username: yup
-      .string()
-      .email("Email must be a valid email")
-      .required("Email Is required"),
+		username: yup
+			.string()
+			.email('Email must be a valid email')
+			.required('Email Is required'),
 
-    salaryType:
-      isAdmin || isSuperAdmin
-        ? yup
-            .string()
-            .required("Salary type is required")
-            .test("valid-salary-type", "Salary type is required", (value) =>
-              salaryTypes.some((t) => t.value === value)
-            )
-        : yup.string().nullable(),
+		salaryType:
+			isAdmin || isSuperAdmin
+				? yup
+						.string()
+						.required('Salary type is required')
+						.test('valid-salary-type', 'Salary type is required', (value) =>
+							salaryTypes.some((t) => t.value === value)
+						)
+				: yup.string().nullable(),
 
-    salary:
-      isAdmin || isSuperAdmin
-        ? yup
-            .number()
-            .transform((v) => (isNaN(v) ? undefined : v))
-            .when("salaryType", (salaryType, schema) => {
-              const type = getSalaryType(salaryType[0]);
-              if (type?.hasBaseSalary) {
-                return schema
-                  .required("Salary amount is required")
-                  .positive("Salary must be a positive amount");
-              }
-              return schema.optional().nullable();
-            })
-        : yup.number().nullable(),
+		salary:
+			isAdmin || isSuperAdmin
+				? yup
+						.number()
+						.transform((v) => (isNaN(v) ? undefined : v))
+						.when('salaryType', (salaryType, schema) => {
+							const type = getSalaryType(salaryType[0]);
+							if (type?.hasBaseSalary) {
+								return schema
+									.required('Salary amount is required')
+									.min(0, 'Salary must be a positive amount');
+							}
+							return schema.optional().nullable();
+						})
+				: yup.number().nullable(),
 
-    commission:
-      isAdmin || isSuperAdmin
-        ? yup
-            .number()
-            .transform((v) => (isNaN(v) ? undefined : v))
-            .when("salaryType", (salaryType, schema) => {
-              const type = getSalaryType(salaryType[0]);
-              if (type?.hasCommission) {
-                return schema
-                  .required("Commission rate is required")
-                  .min(0, "Commission must be at least 0%")
-                  .max(100, "Commission cannot exceed 100%");
-              }
-              return schema.optional().nullable();
-            })
-        : yup.number().nullable(),
+		commission:
+			isAdmin || isSuperAdmin
+				? yup
+						.number()
+						.transform((v) => (isNaN(v) ? undefined : v))
+						.when('salaryType', (salaryType, schema) => {
+							const type = getSalaryType(salaryType[0]);
+							if (type?.hasCommission) {
+								return schema
+									.required('Commission rate is required')
+									.min(0, 'Commission must be at least 0%')
+									.max(100, 'Commission cannot exceed 100%');
+							}
+							return schema.optional().nullable();
+						})
+				: yup.number().nullable(),
 
-    incentive:
-      isAdmin || isSuperAdmin
-        ? yup
-            .number()
-            .transform((v) => (isNaN(v) ? undefined : v))
-            .when("salaryType", (salaryType, schema) => {
-              const type = getSalaryType(salaryType[0]);
-              if (type?.hasIncentive) {
-                return schema
-                  .required("Incentive amount is required")
-                  .positive("Incentive amount must be positive");
-              }
-              return schema.optional().nullable();
-            })
-        : yup.number().nullable(),
+		incentive:
+			isAdmin || isSuperAdmin
+				? yup
+						.number()
+						.transform((v) => (isNaN(v) ? undefined : v))
+						.when('salaryType', (salaryType, schema) => {
+							const type = getSalaryType(salaryType[0]);
+							if (type?.hasIncentive) {
+								return schema
+									.required('Incentive amount is required')
+									.min(0, 'Incentive must be a positive amount');
+							}
+							return schema.optional().nullable();
+						})
+				: yup.number().nullable(),
 
-    nationality: yup.string().optional(),
-    dob: yup.date().optional().max(new Date(), "Date cannot be in future"),
-    passportId: yup.string().optional(),
-    uaeId: yup.string().optional(),
-    drivingLicense: yup.string().optional(),
-    education: yup.string().optional(),
-    uaeAddress: yup.string().optional(),
-    homeCountry: yup.string().optional(),
-    homeCountryAddress: yup.string().optional(),
-    intlPhone: yup.string().optional(),
-  });
+		nationality: yup.string().optional(),
+		dob: yup.date().optional().max(new Date(), 'Date cannot be in future'),
+		passportId: yup.string().optional(),
+		uaeId: yup.string().optional(),
+		drivingLicense: yup.string().optional(),
+		education: yup.string().optional(),
+		uaeAddress: yup.string().optional(),
+		homeCountry: yup.string().optional(),
+		homeCountryAddress: yup.string().optional(),
+		intlPhone: yup.string().optional(),
+	});
