@@ -34,7 +34,7 @@ import { Avatar, AvatarBadge } from "@chakra-ui/react";
 import { constant } from "constant";
 import { Image } from "@chakra-ui/react"; // add this at top
 
-export const CallFeedbackCard = ({ feedback }) => {
+export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
   console.log(feedback, "show feedback");
 
   const bgColor = useColorModeValue("white", "gray.800");
@@ -194,7 +194,7 @@ export const CallFeedbackCard = ({ feedback }) => {
                 icon={<FiEye />}
                 size="xs"
                 variant="solid"
-                onClick={() => console.log("View details for", feedback._id)}
+                onClick={() => onViewDetails(feedback)}
               />
             </Flex>
             <Box

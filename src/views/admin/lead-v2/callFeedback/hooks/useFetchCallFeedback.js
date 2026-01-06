@@ -41,7 +41,7 @@ export const useFetchCallFeedback = () => {
   const fetchResult = useFetchItemsQuery(
     { path: "/sipSetting/feedback", params: queryParams },
     {
-      refetchOnMountOrArgChange: false,
+      refetchOnMountOrArgChange: true,
       refetchOnFocus: true,
       refetchOnReconnect: true,
     }

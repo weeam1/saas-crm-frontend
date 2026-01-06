@@ -22,6 +22,8 @@ import {
 const CallFeedbackHeader = ({
   search,
   setSearch,
+  onSearch,
+  onClear,
   setFromDate,
   setToDate,
   page,
@@ -49,6 +51,11 @@ const CallFeedbackHeader = ({
           placeholder="Search by user or lead..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === "Enter") {
+              onSearch();
+            }
+          }}
           maxW={{ base: "full", md: "200px" }}
           size="sm"
         />
@@ -59,16 +66,7 @@ const CallFeedbackHeader = ({
             Select Date Range
           </Button>
 
-          <Button
-            onClick={() => {
-              setFromDate("");
-              setToDate("");
-              setPage(1); // reset page
-            }}
-            variant="ghost"
-            size="sm"
-            colorScheme="red"
-          >
+          <Button onClick={onClear} variant="ghost" size="sm" colorScheme="red">
             Clear
           </Button>
         </HStack>
@@ -84,7 +82,7 @@ const CallFeedbackHeader = ({
               icon={<FiChevronsLeft />}
               aria-label="First"
               onClick={() => setPage(1)}
-              isDisabled={page === 1}
+              isDisabled={page === 1 || totalPages <= 1}
               variant="ghost"
             />
           </Tooltip>
@@ -95,7 +93,7 @@ const CallFeedbackHeader = ({
               icon={<FiChevronLeft />}
               aria-label="Previous"
               onClick={() => setPage((p) => p - 1)}
-              isDisabled={page === 1}
+              isDisabled={page === 1 || totalPages <= 1}
               variant="ghost"
             />
           </Tooltip>
@@ -108,6 +106,7 @@ const CallFeedbackHeader = ({
               min={1}
               max={totalPages || 1}
               value={page}
+              isDisabled={totalPages <= 1}
               onChange={(valueAsString, valueAsNumber) => {
                 if (valueAsString === "") {
                   setPage(""); // allow clearing input while typing
@@ -132,7 +131,7 @@ const CallFeedbackHeader = ({
               icon={<FiChevronRight />}
               aria-label="Next"
               onClick={() => setPage((p) => p + 1)}
-              isDisabled={page === totalPages}
+              isDisabled={page === totalPages || totalPages <= 1}
               variant="ghost"
             />
           </Tooltip>
@@ -143,7 +142,7 @@ const CallFeedbackHeader = ({
               icon={<FiChevronsRight />}
               aria-label="Last"
               onClick={() => setPage(totalPages)}
-              isDisabled={page === totalPages}
+              isDisabled={page === totalPages || totalPages <= 1}
               variant="ghost"
             />
           </Tooltip>
