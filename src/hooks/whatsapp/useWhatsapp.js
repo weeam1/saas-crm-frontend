@@ -122,7 +122,6 @@ export const useWhatsapp = () => {
 		whatsappInitialize,
 		getChats,
 		getChat,
-		getDirectChat,
 		sendMessage,
 		markChatAsSeen,
 		disconnectWhatsapp,
