@@ -20,8 +20,6 @@ const ChatMessage = ({ chat, chatId, sessionId, sending, setSending }) => {
 
 	const messages = useSelector((state) => getMessagesByChatId(state, chatId));
 
-	console.log({ messages });
-
 	const { downloadMedia, downloaded_media } = useWhatsapp();
 
 	useEffect(() => {
@@ -53,7 +51,7 @@ const ChatMessage = ({ chat, chatId, sessionId, sending, setSending }) => {
 			scrollBehavior='smoth'
 			overflowY='auto'
 			position='relative'
-			maxH='100%'
+			maxH={'100vh'}
 			ref={containerRef}
 		>
 			{messages?.length ? (
@@ -180,11 +178,17 @@ const ChatMessage = ({ chat, chatId, sessionId, sending, setSending }) => {
 					<div ref={messagesEndRef} />
 				</Flex>
 			) : (
-				<Flex align='center' justify='center' h='100vh' direction='column'>
-					<Text color='gray.400' fontSize='lg' mb={2}>
+				<Flex
+					align='center'
+					justify='center'
+					minH='65dvh'
+					overflow='hidden'
+					direction='column'
+				>
+					<Text color='gray.600' fontSize='lg' mb={2}>
 						No messages yet
 					</Text>
-					<Text color='gray.400' fontSize='sm'>
+					<Text color='gray.500' fontSize='sm'>
 						Start a conversation by sending a message
 					</Text>
 				</Flex>

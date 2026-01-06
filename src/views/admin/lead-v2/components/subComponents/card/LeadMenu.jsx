@@ -313,6 +313,7 @@ const LeadMenu = ({
 					isOpen={directMessageModal}
 					onClose={() => setDirectMessageModal(false)}
 					user={user}
+					lead={lead}
 					number={lead.leadWhatsappNumber}
 				/>
 			)}

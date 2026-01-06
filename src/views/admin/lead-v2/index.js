@@ -64,7 +64,8 @@ const Index = () => {
 	// Cleanup on unmount / reload
 	// ---------------------------
 	const disconnectedRef = useRef(false);
-	const { whatsappInitialize, disconnectWhatsapp } = useWhatsapp();
+	const { whatsappInitialize, disconnectWhatsapp, getChats, isReady } =
+		useWhatsapp();
 
 	useEffect(() => {
 		if (whatsappSessionId) {
@@ -77,6 +78,15 @@ const Index = () => {
 			}, delay);
 		}
 	}, [whatsappInitialize, whatsappSessionId]);
+
+	// ---------------------------
+	// 3. Fetch chats when ready (only once per ready state)
+	// ---------------------------
+	useEffect(() => {
+		if (isReady && whatsappSessionId) {
+			getChats(whatsappSessionId);
+		}
+	}, [isReady, whatsappSessionId, getChats]);
 
 	const safeDisconnect = useCallback(() => {
 		if (!disconnectedRef.current && whatsappSessionId) {

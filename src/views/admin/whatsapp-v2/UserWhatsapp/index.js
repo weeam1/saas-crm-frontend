@@ -58,7 +58,6 @@ const UserWhatsapp = () => {
 		}
 		// if account id disabled
 		else if (instanceData?.doc && !instanceData?.doc?.isActive) {
-			console.log('whatsapp deisbaled');
 			setWhatsappErrorMessage(
 				'WhatsApp instance is inactive. Please contact your administrator to re-enable it.'
 			);

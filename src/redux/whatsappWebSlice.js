@@ -93,6 +93,7 @@ const whatsappWebSlice = createSlice({
 			state.page = page;
 			state.hasMoreChats = hasMore;
 		},
+
 		saveDownloadedMedia: (state, action) => {
 			const { media, mediaKey } = action.payload || {};
 			// if (!media) return;
@@ -117,18 +118,24 @@ const whatsappWebSlice = createSlice({
 			state.activeChat = action.payload;
 		},
 		chatLoaded: (state, action) => {
-			const { sessionId, chatId, messages } = action.payload;
+			const { sessionId, chat, chatId, messages } = action.payload;
 			if (!sessionId || !chatId) return;
+			// set active chat
+			if (chat) {
+				console.log({ chat });
+				state.activeChat = chat;
+			}
 
 			// Replace or set messages list for this chatId
 			state.userChats[chatId] = messages || [];
 
 			// also update unread count to 0 in all conversations if active chat
-			const chat = state.allConversations?.find((c) => c.id === chatId);
-			if (chat) {
-				chat.unreadCount = 0;
+			const localChat = state.allConversations?.find((c) => c.id === chatId);
+			if (localChat) {
+				localChat.unreadCount = 0;
 			}
 		},
+
 		newMessage: (state, action) => {
 			const { message } = action.payload;
 
