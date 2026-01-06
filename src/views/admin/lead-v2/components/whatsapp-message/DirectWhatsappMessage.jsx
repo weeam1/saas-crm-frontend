@@ -21,14 +21,7 @@ import {
 	Box,
 } from '@chakra-ui/react';
 
-import {
-	FaWhatsapp,
-	FaArrowRight,
-	FaCheckCircle,
-	FaShieldAlt,
-	FaHistory,
-	FaPaperclip,
-} from 'react-icons/fa';
+import { FaWhatsapp, FaArrowRight } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { normalizePhone, formatToWhatsappId } from 'utils/phoneValidation';
 import { safeValue } from 'utils';
