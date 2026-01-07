@@ -413,6 +413,8 @@ import {
   Icon,
   Divider,
   Stack,
+  VStack,
+  HStack,
 } from "@chakra-ui/react";
 import {
   FaHeadset,
@@ -434,7 +436,7 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
     "linear-gradient(135deg, #1a202c, #2d3748)"
   );
   const infoBg = useColorModeValue("#f8f9fa", "gray.700");
-  const highlightBg = useColorModeValue("#fffde7", "yellow.900");
+  const highlightBg = useColorModeValue("#fffde7", "yellow.300");
   const highlightBorder = useColorModeValue("#fff9c4", "yellow.700");
   const borderColor = useColorModeValue("#eaeaea", "gray.600");
   const getQualityStyles = (quality) => {
@@ -470,6 +472,11 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
         return 3;
     }
   };
+  const issueBg = useColorModeValue("#f9fafb", "gray.700"); // very light gray
+  const issueBorder = useColorModeValue("#e5e7eb", "gray.500");
+
+  const descriptionBg = useColorModeValue("#f8fafc", "gray.700"); // soft light
+  const descriptionBorder = useColorModeValue("#e2e8f0", "gray.600");
 
   const rating = getRatingFromQuality(feedback?.callQuality);
 
@@ -512,12 +519,12 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
         animation="fadeIn 0.4s ease-out"
       >
         {/* Header */}
-        <Box bg={headerBg} color="white" p={6} position="relative">
+        <Box bg={headerBg} color="white" px={6} py="3" position="relative">
           <Flex justify="space-between" align="center" mb={2}>
             <Flex align="center">
               <Icon as={FaHeadset} mr={3} fontSize="24px" />
               <Text fontSize="24px" fontWeight="600">
-                Call Feedback Details
+                Call Feedback
               </Text>
             </Flex>
             <Button
@@ -550,22 +557,10 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
         </Box>
 
         {/* Body */}
-        <Box p={6} overflowY="auto" maxH="calc(85vh - 120px)">
+        <Box px="6" pt="3" pb="6" overflowY="auto" maxH="calc(85vh - 120px)">
           <Stack spacing={8}>
             {/* Quality Assessment */}
             <Box>
-              <Flex
-                align="center"
-                mb={4}
-                pb={2}
-                borderBottom={`1px solid ${borderColor}`}
-              >
-                {/* <Icon as={FaStar} mr={3} color="#4a6491" /> */}
-                <Text fontSize="16px" fontWeight="600" color="#2c3e50">
-                  Quality Assessment
-                </Text>
-              </Flex>
-
               <Flex align="center" mb={4}>
                 <Text fontSize="28px" fontWeight="700" color="#2c3e50" mr={4}>
                   {rating}.0
@@ -584,7 +579,7 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
                 </Flex>
               </Flex>
 
-              <Stack direction="row" spacing={3} flexWrap="wrap">
+              {/* <Stack direction="row" spacing={3} flexWrap="wrap">
                 <Badge
                   display="inline-flex"
                   alignItems="center"
@@ -614,27 +609,61 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
                   <Icon as={FaExclamationTriangle} mr={2} />
                   {feedback?.reason || "No Issues Reported"}
                 </Badge>
-              </Stack>
+              </Stack> */}
+              <VStack align="stretch" spacing={3}>
+                {/* Quality Badge */}
+                <HStack>
+                  <Badge
+                    display="inline-flex"
+                    alignItems="center"
+                    px={4}
+                    py={2}
+                    borderRadius="20px"
+                    fontWeight="500"
+                    fontSize="14px"
+                    bg={qualityStyles.bg}
+                    color={qualityStyles.color}
+                  >
+                    <Icon as={FaCheckCircle} mr={2} />
+                    {feedback?.callQuality?.toUpperCase() || "GOOD"} Quality
+                  </Badge>
+                </HStack>
+
+                {/* Issue / Reason (Next line, full width) */}
+                <Box>
+                  <Text fontSize="13px" color="gray.500" mb={1}>
+                    Issue
+                  </Text>
+
+                  <Box
+                    p={3}
+                    bg="#fdf7eeff"
+                    color="#ee9d5aff"
+                    borderRadius="8px"
+                    fontSize="14px"
+                    lineHeight="1.5"
+                    borderLeft="4px solid #fab983ff"
+                    noOfLines={2}
+                  >
+                    {feedback?.reason || "No issues reported"}
+                  </Box>
+                </Box>
+              </VStack>
             </Box>
 
             {/* Account Details */}
             <Box>
-              <Flex
-                align="center"
-                mb={4}
-                pb={2}
-                borderBottom={`1px solid ${borderColor}`}
-              >
+              <Flex align="center" mb={1} pb={2}>
                 <Icon as={FaUserCircle} mr={3} color="#4a6491" />
                 <Text fontSize="16px" fontWeight="600" color="#2c3e50">
-                  Account Details
+                  User Details
                 </Text>
               </Flex>
 
               <Grid templateColumns="1fr 1fr" gap={4}>
                 <Box>
                   <Text fontSize="13px" color="#7f8c8d" mb={1}>
-                    Account
+                    UserName
                   </Text>
                   <Box
                     fontSize="15px"
@@ -687,12 +716,7 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
 
             {/* Call Information */}
             <Box>
-              <Flex
-                align="center"
-                mb={4}
-                pb={2}
-                borderBottom={`1px solid ${borderColor}`}
-              >
+              <Flex align="center" mb={1} pb={2}>
                 <Icon as={FaPhoneAlt} mr={3} color="#4a6491" />
                 <Text fontSize="16px" fontWeight="600" color="#2c3e50">
                   Call Information
@@ -702,7 +726,7 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
               <Grid templateColumns="1fr 1fr" gap={4}>
                 <Box>
                   <Text fontSize="13px" color="#7f8c8d" mb={1}>
-                    Started
+                    Created
                   </Text>
                   <Box
                     fontSize="15px"
@@ -764,7 +788,7 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
                     borderRadius="6px"
                     borderLeft="3px solid #4a6491"
                   >
-                    {feedback?.lead?.leadName || "No Lead Assigned"}
+                    {feedback?.lead?.leadName || "Unknown Lead"}
                   </Box>
                 </Box>
               </Grid>
@@ -775,8 +799,8 @@ const CallFeedbackModal = ({ isOpen, onClose, feedback }) => {
               <Box
                 p={5}
                 borderRadius="8px"
-                border={`1px solid ${highlightBorder}`}
-                bg={highlightBg}
+                border={`1px solid #fdf9edff`}
+                bg={"#fffeefff"}
               >
                 <Flex align="center" mb={3}>
                   <Icon as={FaFileAlt} mr={2} color="#ff9800" />

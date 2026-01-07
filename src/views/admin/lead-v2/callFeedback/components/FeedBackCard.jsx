@@ -33,13 +33,14 @@ import { FaSimCard, FaWhatsapp } from "react-icons/fa";
 import { Avatar, AvatarBadge } from "@chakra-ui/react";
 import { constant } from "constant";
 import { Image } from "@chakra-ui/react"; // add this at top
+import { getImageUrl } from "views/admin/Listing/client-listings/propertyUtils";
 
 export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
   console.log(feedback, "show feedback");
 
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.100", "gray.600");
-  const hoverBgColor = useColorModeValue("gray.50", "gray.700");
+  const hoverBgColor = useColorModeValue("gray.50", "gray.50");
 
   // const formatDate = (dateString) => {
   //   const date = new Date(dateString);
@@ -124,6 +125,23 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
     }
   };
   const mediumImage = getMediumImage(feedback.callMedium);
+  const getGlowColor = (quality) => {
+    switch (quality) {
+      case "excellent":
+        return "green";
+      case "good":
+        return "blue";
+      case "average":
+        return "yellow";
+      case "bad":
+        return "orange";
+      case "very_bad":
+        return "red";
+      default:
+        return "gray";
+    }
+  };
+  const quality = feedback?.callQuality?.toLowerCase()?.replace(" ", "_");
 
   return (
     <Box
@@ -135,13 +153,24 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
       shadow="lg"
       _hover={{
         shadow: "xl",
-        bg: hoverBgColor,
         transform: "translateY(-2px)",
       }}
       transition="all 0.3s ease"
       position="relative"
       overflow="hidden"
     >
+      {/* Glow Box */}
+      <Box
+        position="absolute"
+        top="4px"
+        right={0}
+        w="140px"
+        h="140px"
+        bgGradient={`linear(45deg, transparent 30%, ${getGlowColor(quality)}.50 100%)`}
+        opacity={0.6}
+        borderRadius="0 0 0 100%"
+        transition="all 0.3s ease"
+      />
       {/* Quality indicator bar */}
       <Box
         position="absolute"
@@ -158,8 +187,8 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
         {/* User Profile Section */}
         <HStack spacing={{ base: 2 }} align="start">
           <Avatar
-            src={`${constant.baseUrl}/${feedback.user?.profileImage}`}
-            size="md"
+            src={`${getImageUrl(feedback.user?.profileImage)}`}
+            size="lg"
             name={feedback.user.username}
             bg="blue.500"
             color="white"
@@ -203,20 +232,28 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
               display="flex"
               justifyContent="space-between"
             >
-              <HStack spacing={{ base: 2, md: 3 }}>
-                {/* <Icon
+              <Flex display={"column"}>
+                <Box>
+                  <HStack spacing={1}>
+                    {renderStars(getStarRating(feedback.callQuality))}
+                  </HStack>
+                </Box>
+                <HStack spacing={{ base: 2, md: 3 }} pt={1}>
+                  {/* <Icon
                   as={FiCalendar}
                   color="purple.500"
                   boxSize={{ base: 3, md: 4 }}
                 /> */}
-                <Text
-                  fontSize={{ base: "xs" }}
-                  color="gray.600"
-                  _dark={{ color: "gray.400" }}
-                >
-                  {formatDate(feedback.createdAt)}
-                </Text>
-              </HStack>
+
+                  <Text
+                    fontSize={{ base: "xs" }}
+                    color="gray.600"
+                    _dark={{ color: "gray.400" }}
+                  >
+                    {formatDate(feedback.createdAt)}
+                  </Text>
+                </HStack>
+              </Flex>
               <Tooltip label={mediumImage.alt} hasArrow>
                 <Image
                   src={mediumImage.src}
@@ -229,12 +266,7 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
             </Box>
           </Box>
         </HStack>
-        <Divider />
-        <Box>
-          <HStack spacing={1}>
-            {renderStars(getStarRating(feedback.callQuality))}
-          </HStack>
-        </Box>
+
         <HStack spacing={{ base: 2, md: 3 }}>
           {/* <Box
             p={{ base: 1.5, md: 2 }}
@@ -253,8 +285,6 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
             </Badge>
           </Box>
         </HStack>
-
-        <Divider />
 
         <VStack align="stretch" spacing={{ base: 2, md: 3 }}>
           <HStack spacing={{ base: 2, md: 3 }}>
