@@ -1,5 +1,3 @@
-// InfoPair.jsx
-import React from 'react';
 import { VStack, Text } from '@chakra-ui/react';
 import { safeValue } from 'utils';
 
@@ -8,7 +6,7 @@ const InfoPair = ({ label, value, color = '#ff0307' }) => (
 		<Text fontSize='9px' color='#C1C1C1' fontFamily='DM Sans'>
 			{label}
 		</Text>
-		<Text fontSize='10px' color={color} fontFamily='DM Sans' isTruncated>
+		<Text fontSize='10px' color={color} maxW='100px' isTruncated>
 			{safeValue(value) || 'N/A'}
 		</Text>
 	</VStack>

@@ -18,6 +18,7 @@ import { leadLabels } from 'utils/searchLabels';
 import { leadStatusLabels } from 'utils/searchLabels';
 import { mainLeadStatusLabels } from 'utils/searchLabels';
 import { useModalColors } from 'hooks/useModalColors';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const LazyAdvancedSearchForm = React.lazy(() => import('./AdvancedForm'));
 
@@ -40,6 +41,9 @@ const AdvancedSearchModal = ({
 	const tree = useSelector((state) => state.user.tree);
 
 	const { headerBg, headerText } = useModalColors();
+	const { leadStatusMaps } = useLeadStatuses();
+
+	const { mainStatusMap, subStatusMap } = leadStatusMaps;
 
 	const initialValues = {
 		intID: '',
@@ -86,11 +90,11 @@ const AdvancedSearchModal = ({
 									? 'Interested'
 									: value === 'pending'
 										? 'Not Interested'
-										: leadStatusLabels[value];
+										: subStatusMap[value];
 						}
 						if (key === 'eLeadStatus') {
 							displayValue =
-								value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
+								value === '-1' ? 'No E.Status' : mainStatusMap[value];
 						}
 						if (key === 'agentAssigned') {
 							const agentsArray = Object.values(tree.agents).flatMap(
@@ -144,6 +148,7 @@ const AdvancedSearchModal = ({
 		handleSubmit,
 		resetForm,
 		dirty,
+		setFieldValue,
 	} = formik;
 
 	const formClearHandler = () => {
@@ -208,6 +213,7 @@ const AdvancedSearchModal = ({
 							handleBlur={handleBlur}
 							user={user}
 							tree={tree}
+							setFieldValue={setFieldValue}
 						/>
 					</ModalBody>
 					<ModalFooter>
