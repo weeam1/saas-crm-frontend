@@ -16,6 +16,7 @@ import {
 	Flex,
 } from '@chakra-ui/react';
 import { useModalColors } from 'hooks/useModalColors';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const QuickFilterModal = ({
 	isOpen,
@@ -34,10 +35,11 @@ const QuickFilterModal = ({
 	// Handle light/dark mode
 	// const headerBg = useColorModeValue('brand.500', 'brand.400');
 	const textColor = useColorModeValue('white', 'gray.100');
+	const { leadStatuses } = useLeadStatuses();
 
-	const allStatusSelected = selectedStatus.length === statusOptions.length;
+	// const allStatusSelected = selectedStatus.length === statusOptions.length;
 
-	const allMstatusSelected = selectedMstatus.length === mstatusOptions.length;
+	const allMstatusSelected = selectedMstatus.length === leadStatuses.length;
 
 	const { headerBg, headerText, footerBg } = useModalColors();
 
@@ -48,29 +50,30 @@ const QuickFilterModal = ({
 		return filters;
 	};
 
-	const handleStatusSelectAll = (isChecked) => {
-		if (isChecked) {
-			const allStatusValues = statusOptions.map((option) => option.value);
-			setSelectedStatus(allStatusValues);
+	// const handleStatusSelectAll = (isChecked) => {
+	// 	if (isChecked) {
+	// 		const allStatusValues = statusOptions.map((option) => option.value);
+	// 		setSelectedStatus(allStatusValues);
 
-			setQueryParams({
-				page: 1,
-				statusFilters: buildFilters(allStatusValues, selectedMstatus),
-			});
-		} else {
-			setSelectedStatus([]);
+	// 		setQueryParams({
+	// 			page: 1,
+	// 			statusFilters: buildFilters(allStatusValues, selectedMstatus),
+	// 		});
+	// 	} else {
+	// 		setSelectedStatus([]);
 
-			setQueryParams({
-				page: 1,
-				statusFilters: buildFilters([], selectedMstatus),
-			});
-		}
-		setRefetchLoading(true);
-	};
+	// 		setQueryParams({
+	// 			page: 1,
+	// 			statusFilters: buildFilters([], selectedMstatus),
+	// 		});
+	// 	}
+	// 	setRefetchLoading(true);
+	// };
 
 	const handleMstatusSelectAll = (isChecked) => {
 		if (isChecked) {
-			const allMstatusValues = mstatusOptions.map((option) => option.value);
+			// const allMstatusValues = mstatusOptions.map((option) => option.value);
+			const allMstatusValues = leadStatuses?.map((option) => option.value);
 			setSelectedMstatus(allMstatusValues);
 
 			setQueryParams({
@@ -158,10 +161,32 @@ const QuickFilterModal = ({
 						)}
 
 						<Grid
-							templateColumns='repeat(auto-fit, minmax(200px, 1fr))'
+							templateColumns='repeat(auto-fit, minmax(300px, 1fr))'
 							gap={3}
 						>
-							{mstatusOptions.map((option) => (
+							{/* {mstatusOptions.map((option) => (
+								<Checkbox
+									key={option.value}
+									isChecked={selectedMstatus.includes(option.value)}
+									onChange={(e) =>
+										onMstatusChange(option.value, e.target.checked)
+									}
+									colorScheme='brand'
+									size='lg'
+									p={2}
+								>
+									<Text
+										fontWeight={
+											selectedMstatus.includes(option.value)
+												? 'medium'
+												: 'normal'
+										}
+									>
+										{option.label}
+									</Text>
+								</Checkbox>
+							))} */}
+							{leadStatuses?.map((option) => (
 								<Checkbox
 									key={option.value}
 									isChecked={selectedMstatus.includes(option.value)}
@@ -187,7 +212,7 @@ const QuickFilterModal = ({
 					</Box>
 
 					{/* Status Section */}
-					<Box mb={6}>
+					{/* <Box mb={6}>
 						<Flex justifyContent='space-between' alignItems='center' mb={3}>
 							<Text fontWeight='semibold'>Status</Text>
 							<Flex gap={2} alignItems='center'>
@@ -205,7 +230,6 @@ const QuickFilterModal = ({
 							</Flex>
 						</Flex>
 
-						{/* Clear button positioned below the status header */}
 						{selectedStatus.length > 0 && (
 							<Flex justifyContent='flex-end' mb={3}>
 								<Button
@@ -247,7 +271,7 @@ const QuickFilterModal = ({
 								</Checkbox>
 							))}
 						</Grid>
-					</Box>
+					</Box> */}
 				</ModalBody>
 
 				{/* Footer */}
