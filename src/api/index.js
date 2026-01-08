@@ -130,28 +130,32 @@ export const sendLeadFeedback = async (pixelData) => {
 
 		const url = `${keys.fbPixelAPI}/${keys.fbPixelId}/events?access_token=${keys.fbPixelToken}`;
 
-		const eventNameMapMStatus = {
-			interested: 'Lead_Interested',
-			'interested-buyer': 'Lead_Interested',
-			'interested-seller': 'Lead_Interested',
-			'secondary-request': 'Lead_Interested',
-			'change-agent': 'Lead_Interested',
-			'not-interested': 'Lead_Not_Interested',
-			junk: 'Lead_Unqualified',
-			deal: 'Lead_Qualified',
-		};
+		if (status && status?.meta_id === null)
+			return console.warn('Meta id is null, skipping lead feedback.');
 
-		const eventNameMapStatus = {
-			pending: 'Lead_Unqualified',
-			broker: 'Lead_Unqualified',
-			will_attend_the_show: 'Lead_Interested',
-			// will_attend_the_show: 'Lead_Qualified',
-		};
+		const event_name = status.meta_id;
 
-		const event_name =
-			action === 'MStatus'
-				? eventNameMapMStatus[status]
-				: eventNameMapStatus[status];
+		// const eventNameMapMStatus = {
+		// 	interested: 'Lead_Interested',
+		// 	'interested-buyer': 'Lead_Interested',
+		// 	'interested-seller': 'Lead_Interested',
+		// 	'secondary-request': 'Lead_Interested',
+		// 	'change-agent': 'Lead_Interested',
+		// 	'not-interested': 'Lead_Not_Interested',
+		// 	junk: 'Lead_Unqualified',
+		// 	deal: 'Lead_Qualified',
+		// };
+
+		// const eventNameMapStatus = {
+		// 	pending: 'Lead_Unqualified',
+		// 	broker: 'Lead_Unqualified',
+		// 	will_attend_the_show: 'Lead_Interested',
+		// };
+
+		// const event_name =
+		// 	action === 'MStatus'
+		// 		? eventNameMapMStatus[status]
+		// 		: eventNameMapStatus[status];
 
 		const user_data = {
 			lead_id: leadId,
@@ -210,7 +214,7 @@ export const sendHiringMetaFeedback = async (pixelData) => {
 			'Not Eligible': 'not_qualified_candidates',
 			Eligible: 'qualified_candidates',
 		};
-		
+
 		const event_name = eventNameMap[status];
 
 		const user_data = {};

@@ -11,7 +11,11 @@ import {
 import { InfoIcon } from '@chakra-ui/icons';
 import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
-import { deleteLead, updateLeadField } from '../../../../../redux/leadsSlice';
+import {
+	deleteLead,
+	updateLeadField,
+	updateLeadFields,
+} from '../../../../../redux/leadsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
@@ -19,13 +23,14 @@ import { extractLocationData } from 'utils/helpers';
 import CloseDealModal from '../deals/CloseDealModal';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const AdminStatus = ['deal', 'show'];
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
-	const [label, setLabel] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [currentStatus, setCurrentStatus] = useState(null);
 
 	const [closeDeal, setCloseDeal] = useState(false);
 
@@ -35,6 +40,7 @@ const MainStatus = ({ lead, role }) => {
 
 	const dispatch = useDispatch();
 
+	const { leadStatuses } = useLeadStatuses();
 	const { user, userRoleName } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
@@ -47,6 +53,7 @@ const MainStatus = ({ lead, role }) => {
 
 			const data = {
 				eLeadStatus: newStatus,
+				leadStatus: null,
 			};
 
 			const { skipDealModal = false } = options;
@@ -70,10 +77,12 @@ const MainStatus = ({ lead, role }) => {
 				!skipDealModal && toast.success('Main Lead Status Updated!');
 
 				dispatch(
-					updateLeadField({
+					updateLeadFields({
 						id: lead?._id,
-						key: 'eLeadStatus',
-						value: newStatus,
+						updates: [
+							{ key: 'eLeadStatus', value: newStatus },
+							{ key: 'leadStatus', value: null },
+						],
 					})
 				);
 
@@ -81,32 +90,43 @@ const MainStatus = ({ lead, role }) => {
 				// 	dispatch(deleteLead(lead?._id));
 				// }
 
-				// check if status is event lead status
-				if (eventMainLeadStatus.includes(newStatus)) {
-					const leadEmail = lead?.leadEmail ?? '';
-					const leadPhone =
-						typeof lead?.leadPhoneNumber === 'object'
-							? lead?.leadPhoneNumber?.result
-							: lead?.leadPhoneNumber;
+				if (newStatus) {
+					const mainStatusData = leadStatuses?.find(
+						(status) => status.value === newStatus
+					);
 
-					const { ip, city, country } = extractLocationData(lead?.ip);
+					// check the main status has meta id
+					if (mainStatusData?.meta_id) {
+						const leadEmail = lead?.leadEmail ?? '';
+						const leadPhone =
+							typeof lead?.leadPhoneNumber === 'object'
+								? lead?.leadPhoneNumber?.result
+								: lead?.leadPhoneNumber;
 
-					sendLeadFeedback({
-						email: leadEmail,
-						phone: leadPhone,
-						status: newStatus,
-						action: 'MStatus',
-						fcblid: lead?.fcblid || null,
-						fbp: lead?.fbp || null,
-						ip,
-						country,
-						city,
-						zip: lead?.zip || null,
-						userAgent: lead?.userAgent || null,
-						leadName: lead?.leadName,
-						leadId: lead?.intID,
-					});
+						const { ip, city, country } = extractLocationData(lead?.ip);
+
+						sendLeadFeedback({
+							email: leadEmail,
+							phone: leadPhone,
+							status: mainStatusData,
+							action: 'MStatus',
+							fcblid: lead?.fcblid || null,
+							fbp: lead?.fbp || null,
+							ip,
+							country,
+							city,
+							zip: lead?.zip || null,
+							userAgent: lead?.userAgent || null,
+							leadName: lead?.leadName,
+							leadId: lead?.intID,
+						});
+					}
 				}
+
+				// check if status is event lead status
+				// if (eventMainLeadStatus.includes(newStatus)) {
+
+				// }
 
 				// update user activity log
 				createUserLog({
@@ -189,13 +209,13 @@ const MainStatus = ({ lead, role }) => {
 	};
 
 	useEffect(() => {
-		const selectedOption = mainLeadStatus.find(
+		const selectedOption = leadStatuses?.find(
 			(item) => item.value === selected
 		);
 
 		if (selectedOption) {
-			setLabel(selectedOption?.label);
-		}
+			setCurrentStatus(selectedOption);
+		} else setCurrentStatus(null);
 	}, [selected]);
 
 	return (
@@ -210,7 +230,7 @@ const MainStatus = ({ lead, role }) => {
 					>
 						M Status
 					</Text>
-					<CustomTooltip label={label || 'N/A'}>
+					<CustomTooltip label={currentStatus?.label || 'N/A'}>
 						<Icon
 							as={InfoIcon}
 							cursor='pointer'
@@ -224,17 +244,20 @@ const MainStatus = ({ lead, role }) => {
 			<SelectInput
 				mt={layoutView === 'table' ? '20px' : 0}
 				name='eLeadStatus'
-				options={mainLeadStatus || []}
+				// options={mainLeadStatus || []}
+				options={leadStatuses || []}
 				placeholder='Select'
 				selectedValue={selected}
-				textColorCustom='white'
-				bgColorCustom={selected === 'deal' ? 'green.300' : 'brand.300'}
+				// bgColorCustom={selected === 'deal' ? 'green.300' : 'brand.300'}
 				loading={loading}
 				isDisabled={
 					(selected === 'deal' && ['Agent', 'Manager'].includes(role)) ||
 					loading
 				}
-				borderColorCustom={selected === 'deal' ? 'green.500' : 'brand.600'}
+				// borderColorCustom={selected === 'deal' ? 'green.500' : 'brand.600'}
+				bgColorCustom={currentStatus?.bgColor}
+				textColorCustom={currentStatus?.textColor}
+				borderColorCustom={currentStatus?.color}
 				size={leadSelectInputSize}
 				onChange={hanldeMainStatus}
 			/>
