@@ -53,7 +53,6 @@ const MainStatus = ({ lead, role }) => {
 
 			const data = {
 				eLeadStatus: newStatus,
-				leadStatus: null,
 			};
 
 			const { skipDealModal = false } = options;
