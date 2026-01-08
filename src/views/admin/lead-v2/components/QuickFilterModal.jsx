@@ -21,8 +21,6 @@ import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 const QuickFilterModal = ({
 	isOpen,
 	onClose,
-	statusOptions,
-	mstatusOptions,
 	selectedStatus,
 	selectedMstatus,
 	onStatusChange,

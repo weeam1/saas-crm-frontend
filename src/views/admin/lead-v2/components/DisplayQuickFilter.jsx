@@ -6,8 +6,6 @@ import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 const DisplayQuickFilter = ({
 	selectedStatus,
 	selectedMstatus,
-	statusOptions,
-	mstatusOptions,
 	onRemoveStatus,
 	onRemoveMstatus,
 }) => {
