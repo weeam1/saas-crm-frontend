@@ -29,7 +29,6 @@ import Loader from 'components/loading/Loader';
 import TopPagination from 'components/pagination/TopPagination';
 import { useSearchParams } from 'react-router-dom';
 
-
 const LeadTableView = lazy(() => import('./table'));
 const LeadGridView = lazy(() => import('./grid'));
 
@@ -79,7 +78,6 @@ const LeadsLayout = memo(
 			setRefetchLoading,
 		} = useFilteredQueryParams();
 
-	
 		// const leads = useSelector(
 		// 	(state) => state.leads,
 		// 	(prev, next) => prev === next
@@ -93,46 +91,46 @@ const LeadsLayout = memo(
 		const [selectedStatus, setSelectedStatus] = useState([]);
 		const [selectedMstatus, setSelectedMstatus] = useState([]);
 
-		const statusOptions = [
-			{ value: 'active', label: 'Interested' },
-			{ value: 'sold', label: 'Sold' },
-			{ value: 'not_interested', label: 'Not Interested' },
-			{ value: 'reassigned', label: 'Reassigned' },
-			{ value: 'new', label: 'New' },
-			{ value: 'no_answer', label: 'No Answer' },
-			{ value: 'unreachable', label: 'Unreachable' },
-			{ value: 'callback', label: 'Callback' },
-			{ value: 'voice_mail', label: 'Voice Mail' },
-			{ value: 'wrong_number', label: 'Wrong Number' },
-			{ value: 'waiting', label: 'Waiting' },
-			{ value: 'follow_up', label: 'Follow Up' },
-			{ value: 'meeting', label: 'Meeting' },
-			{ value: 'follow_up_after_meeting', label: 'Follow Up After Meeting' },
-			{ value: 'deal', label: 'Deal' },
-			{ value: 'deal_out', label: 'Deal Out' },
-			{ value: 'whatsapp_send', label: 'Whatsapp Send' },
-			{ value: 'whatsapp_rec', label: 'Whatsapp Rec' },
-			{ value: 'will_attend_the_show', label: 'Will Attend the Show' },
-			{ value: 'attended_the_show', label: 'Attended the Show' },
-			{ value: 'junk', label: 'Junk' },
-			{ value: 'shift_project', label: 'Shift Project' },
-			{ value: 'broker', label: 'Broker' },
-			{ value: 'request', label: 'Request' },
-		];
+		// const statusOptions = [
+		// 	{ value: 'active', label: 'Interested' },
+		// 	{ value: 'sold', label: 'Sold' },
+		// 	{ value: 'not_interested', label: 'Not Interested' },
+		// 	{ value: 'reassigned', label: 'Reassigned' },
+		// 	{ value: 'new', label: 'New' },
+		// 	{ value: 'no_answer', label: 'No Answer' },
+		// 	{ value: 'unreachable', label: 'Unreachable' },
+		// 	{ value: 'callback', label: 'Callback' },
+		// 	{ value: 'voice_mail', label: 'Voice Mail' },
+		// 	{ value: 'wrong_number', label: 'Wrong Number' },
+		// 	{ value: 'waiting', label: 'Waiting' },
+		// 	{ value: 'follow_up', label: 'Follow Up' },
+		// 	{ value: 'meeting', label: 'Meeting' },
+		// 	{ value: 'follow_up_after_meeting', label: 'Follow Up After Meeting' },
+		// 	{ value: 'deal', label: 'Deal' },
+		// 	{ value: 'deal_out', label: 'Deal Out' },
+		// 	{ value: 'whatsapp_send', label: 'Whatsapp Send' },
+		// 	{ value: 'whatsapp_rec', label: 'Whatsapp Rec' },
+		// 	{ value: 'will_attend_the_show', label: 'Will Attend the Show' },
+		// 	{ value: 'attended_the_show', label: 'Attended the Show' },
+		// 	{ value: 'junk', label: 'Junk' },
+		// 	{ value: 'shift_project', label: 'Shift Project' },
+		// 	{ value: 'broker', label: 'Broker' },
+		// 	{ value: 'request', label: 'Request' },
+		// ];
 
-		const mstatusOptions = [
-			{ value: 'interested', label: 'Interested' },
-			{ value: 'not_interested', label: 'Not Interested' },
-			{ value: 'no_response', label: 'No Response' },
-			{ value: 'interested_seller', label: 'Interested Seller' },
-			{ value: 'interested_buyer', label: 'Interested Buyer' },
-			{ value: 'hot', label: 'Hot' },
-			{ value: 'secondary_request', label: 'Secondary request' },
-			{ value: 'show', label: 'Show' },
-			{ value: 'junk', label: 'Junk' },
-			{ value: 'deal', label: 'Deal' },
-			{ value: 'change_agent', label: 'Change Agent' },
-		];
+		// const mstatusOptions = [
+		// 	{ value: 'interested', label: 'Interested' },
+		// 	{ value: 'not_interested', label: 'Not Interested' },
+		// 	{ value: 'no_response', label: 'No Response' },
+		// 	{ value: 'interested_seller', label: 'Interested Seller' },
+		// 	{ value: 'interested_buyer', label: 'Interested Buyer' },
+		// 	{ value: 'hot', label: 'Hot' },
+		// 	{ value: 'secondary_request', label: 'Secondary request' },
+		// 	{ value: 'show', label: 'Show' },
+		// 	{ value: 'junk', label: 'Junk' },
+		// 	{ value: 'deal', label: 'Deal' },
+		// 	{ value: 'change_agent', label: 'Change Agent' },
+		// ];
 
 		useEffect(() => {
 			if (leadsLoading) {
@@ -427,8 +425,8 @@ const LeadsLayout = memo(
 						<DisplayQuickFilter
 							selectedStatus={selectedStatus}
 							selectedMstatus={selectedMstatus}
-							statusOptions={statusOptions}
-							mstatusOptions={mstatusOptions}
+							// statusOptions={statusOptions}
+							// mstatusOptions={mstatusOptions}
 							onRemoveStatus={handleRemoveStatus}
 							onRemoveMstatus={handleRemoveMstatus}
 						/>
@@ -614,8 +612,8 @@ const LeadsLayout = memo(
 				<QuickFilterModal
 					isOpen={manageColumnsOpen}
 					onClose={closeManageColumns}
-					statusOptions={statusOptions}
-					mstatusOptions={mstatusOptions}
+					// statusOptions={statusOptions}
+					// mstatusOptions={mstatusOptions}
 					selectedStatus={selectedStatus}
 					selectedMstatus={selectedMstatus}
 					onStatusChange={handleStatusChange}

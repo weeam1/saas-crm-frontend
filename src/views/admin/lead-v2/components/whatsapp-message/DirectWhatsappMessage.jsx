@@ -141,8 +141,6 @@ const DirectWhatsappMessage = ({
 		}
 	};
 
-	console.log({ activeChat });
-
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='4xl' isCentered>
 			<ModalOverlay />
