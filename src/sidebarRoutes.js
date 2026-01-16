@@ -515,6 +515,18 @@ export const sidebarRoutes = [
 		// icon: FaMoneyCheckAlt,
 		isNested: false,
 		color: '#36ce6dff', // Teal
+		children: [
+			{
+				// id: 'all_users',
+				name: 'Salaried Users',
+				path: '/payroll/users',
+			},
+			{
+				// id: 'commission_users',
+				name: 'Commission Users',
+				path: '/payroll/commission-users',
+			},
+		],
 	},
 
 	// -------- Tasks --------

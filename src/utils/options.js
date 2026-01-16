@@ -283,6 +283,14 @@ export const salaryTypes = [
 		hasIncentive: false,
 	},
 	{
+		value: 'COMMISSION_ONLY',
+		label: 'Commission',
+		description: 'Earnings based solely on sales performance',
+		hasBaseSalary: false,
+		hasCommission: true,
+		hasIncentive: false,
+	},
+	{
 		value: 'SALARY_COMMISSION',
 		label: 'Salary / Commission',
 		description: 'Fixed salary plus commission on sales',

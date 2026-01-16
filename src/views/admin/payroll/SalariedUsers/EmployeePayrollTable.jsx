@@ -18,8 +18,8 @@ import NoData from 'components/Message/NoData';
 import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState, useCallback } from 'react';
 import { formatCurrency } from 'utils/helpers';
-import UserProfileCell from './UserProfileCell';
-import PayslipDownloadModal from './PayslipDownloadModal';
+import UserProfileCell from '../components/UserProfileCell';
+import PayslipDownloadModal from '../components/PayslipDownloadModal';
 import { formatValue, PAYROLL_COLUMNS } from '../formatUtils';
 import { useNavigate } from 'react-router-dom';
 
@@ -103,7 +103,7 @@ const EmployeePayrollTable = ({
 								variant='ghost'
 								onClick={() =>
 									navigate(
-										`/payroll/payslip/${row._id}?month=${month}&year=${year}`
+										`/payroll/users/payslip/${row._id}?month=${month}&year=${year}`
 									)
 								}
 							/>
@@ -176,7 +176,7 @@ const EmployeePayrollTable = ({
 									textTransform='capitalize'
 									fontSize='md'
 									py='4'
-									textAlign={['name'].includes(column.key) ? 'left' : 'center'}
+									textAlign={['user'].includes(column.key) ? 'left' : 'center'}
 									fontWeight='semibold'
 									color='gray.700'
 									minW={column.width}
