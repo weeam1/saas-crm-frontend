@@ -169,7 +169,7 @@ const EmployeePayrollDetails = () => {
 			refetchOnFocus: true,
 			refetchOnReconnect: true,
 			skip: !userId,
-		}
+		},
 	);
 
 	const bgColor = useColorModeValue('gray.50', 'gray.900');
@@ -386,8 +386,9 @@ const EmployeePayrollDetails = () => {
 											</Text>
 											<Text fontWeight='semibold' color='green.500'>
 												{formatCurrency(
-													payrollSummary?.closeDealCommission,
-													currency
+													payrollSummary?.closeDealCommission ||
+														payrollSummary?.currentCloseDealCommission,
+													currency,
 												)}
 											</Text>
 										</HStack>
@@ -395,8 +396,9 @@ const EmployeePayrollDetails = () => {
 											<Text color='gray.600'>Shared Commission</Text>
 											<Text fontWeight='semibold' color='green.500'>
 												{formatCurrency(
-													payrollSummary?.sharedDealCommission,
-													currency
+													payrollSummary?.sharedDealCommission ||
+														payrollSummary?.currentSharedDealCommission,
+													currency,
 												)}
 											</Text>
 										</HStack>
@@ -405,7 +407,7 @@ const EmployeePayrollDetails = () => {
 											<Text fontWeight='semibold' color='green.500'>
 												{formatCurrency(
 													payrollSummary?.incentiveEarned,
-													currency
+													currency,
 												)}
 											</Text>
 										</HStack>
@@ -431,7 +433,7 @@ const EmployeePayrollDetails = () => {
 											<Text fontWeight='semibold' color='red.500'>
 												{formatCurrency(
 													payrollSummary?.loanDeduction,
-													currency
+													currency,
 												)}
 											</Text>
 										</HStack>
@@ -439,8 +441,9 @@ const EmployeePayrollDetails = () => {
 											<Text color='gray.600'>Attendance Deduction</Text>
 											<Text fontWeight='semibold' color='red.500'>
 												{formatCurrency(
-													payrollSummary?.attendanceDeduction,
-													currency
+													payrollSummary?.attendanceDeduction ||
+														payrollSummary?.currentAttendanceDeduction,
+													currency,
 												)}
 											</Text>
 										</HStack>
@@ -469,7 +472,7 @@ const EmployeePayrollDetails = () => {
 											-
 											{formatCurrency(
 												payrollSummary?.totalDeductions,
-												currency
+												currency,
 											)}
 										</Text>
 									</HStack>
@@ -491,7 +494,7 @@ const EmployeePayrollDetails = () => {
 										<Text fontSize='2xl' fontWeight='bold' color='green.600'>
 											{formatCurrency(
 												payrollSummary?.netSalary,
-												payrollSummary?.currency
+												payrollSummary?.currency,
 											)}
 										</Text>
 									</HStack>
@@ -577,7 +580,7 @@ const EmployeePayrollDetails = () => {
 											{payrollData?.doc?.paymentStatus === 'paid'
 												? formatAmount(
 														loanSummary?.totalRemainingAmount -
-															loanSummary?.monthlyInstallment
+															loanSummary?.monthlyInstallment,
 													)
 												: formatAmount(loanSummary?.totalRemainingAmount)}
 										</Text>

@@ -79,7 +79,7 @@ const EmployeePayrollTable = ({
 			setSelectedEmployeeForModal(employee);
 			onOpen();
 		},
-		[onOpen]
+		[onOpen],
 	);
 
 	const renderCellContent = useCallback(
@@ -94,28 +94,40 @@ const EmployeePayrollTable = ({
 
 				return (
 					<Flex align='center' justify='center' gap='2'>
-						<Tooltip label='View Details' placement='top' hasArrow>
+						{/* View Payslip / Details */}
+						<Tooltip label='View commission details' placement='top' hasArrow>
 							<IconButton
-								aria-label='View employee details'
+								aria-label='View commission payslip'
 								icon={<FiEye />}
 								size='sm'
-								colorScheme='blue'
 								variant='ghost'
+								colorScheme='blue'
 								onClick={() =>
 									navigate(
-										`/payroll/commission-users/payslip/${row._id}?month=${month}&year=${year}`
+										`/payroll/commission-users/payslip/${row._id}?month=${month}&year=${year}`,
 									)
 								}
 							/>
 						</Tooltip>
 
-						<Tooltip label='Generate Payslip' placement='top' hasArrow>
+						{/* Generate Payslip */}
+						<Tooltip
+							label={
+								row?.payslip?._id
+									? 'Generate payslip PDF'
+									: 'Payslip not created yet'
+							}
+							placement='top'
+							hasArrow
+						>
 							<IconButton
-								aria-label={'generate payslip'}
+								aria-label='Generate payslip'
 								icon={<FiPrinter />}
 								size='sm'
-								colorScheme={'green'}
-								variant='ghost'
+								variant='solid'
+								colorScheme='green'
+								isDisabled={!row?.payslip?._id}
+								opacity={row?.payslip?._id ? 1 : 0.4}
 								onClick={() => handlePayslipGenerate(row)}
 							/>
 						</Tooltip>
@@ -150,7 +162,7 @@ const EmployeePayrollTable = ({
 
 			return formatValue(column.key, value, row);
 		},
-		[navigate, month, year, handlePayslipGenerate, getNestedValue]
+		[navigate, month, year, handlePayslipGenerate, getNestedValue],
 	);
 
 	return (

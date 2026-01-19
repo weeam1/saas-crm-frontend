@@ -17,6 +17,7 @@ import {
 	Alert,
 	AlertIcon,
 	AlertTitle,
+	IconButton,
 	AlertDescription,
 	Input,
 	NumberInputStepper,
@@ -38,15 +39,25 @@ import {
 } from 'react-icons/fa';
 import { formatCurrency } from 'utils/helpers';
 import { toast } from 'react-toastify';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import { FiArrowRight, FiChevronLeft, FiSkipForward } from 'react-icons/fi';
 
-const PendingPayrollSummary = ({ payroll }) => {
+const buildIntentPayload = (allItems, selectedIds) => {
+	if (allItems?.length === 0) return [];
+	return allItems?.map((item) => ({
+		id: item._id,
+		status: selectedIds.includes(item._id) ? 1 : 0, // 1 = ADD/APPLY, 0 = REMOVE/UNAPPLY
+	}));
+};
+
+const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 	const [selectedDeductions, setSelectedDeductions] = useState([]);
 	const [selectedCommissions, setSelectedCommissions] = useState([]);
 	const [manualCommission, setManualCommission] = useState(0);
 
 	const [searchParams] = useSearchParams();
+	const navigate = useNavigate();
 
 	const now = new Date();
 	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
@@ -68,13 +79,13 @@ const PendingPayrollSummary = ({ payroll }) => {
 		setSelectedDeductions(
 			normalize(data.deductions.doc)
 				.filter((d) => d.status === 'APPLIED')
-				.map((d) => d._id)
+				.map((d) => d._id),
 		);
 
 		setSelectedCommissions(
 			normalize(data.commissions.doc)
 				.filter((c) => c.status === 'APPLIED')
-				.map((c) => c._id)
+				.map((c) => c._id),
 		);
 
 		const commission = payroll?.payrollSummary?.adjustments?.commission;
@@ -99,12 +110,20 @@ const PendingPayrollSummary = ({ payroll }) => {
 			setSelectedCommissions((prev) => [...prev, commissionId]);
 		} else {
 			setSelectedCommissions((prev) =>
-				prev.filter((id) => id !== commissionId)
+				prev.filter((id) => id !== commissionId),
 			);
 		}
 	};
 
 	console.log({ selectedCommissions, selectedDeductions });
+
+	// const handleSelectAll = (allItems, setter, isSelected) => {
+	// 	if (isSelected) {
+	// 		setter(allItems.map((item) => item._id));
+	// 	} else {
+	// 		setter([]);
+	// 	}
+	// };
 
 	const handleSelectAllDeductions = (isSelected) => {
 		if (isSelected) {
@@ -124,14 +143,31 @@ const PendingPayrollSummary = ({ payroll }) => {
 
 	const handleApplyToPayroll = async () => {
 		try {
+			const commissionsPayload = buildIntentPayload(
+				data.commissions.doc,
+				selectedCommissions,
+			);
+			const deductionsPayload = buildIntentPayload(
+				data.deductions.doc,
+				selectedDeductions,
+			);
+
 			const payload = {
-				deductions: selectedDeductions,
-				commissions: selectedCommissions,
+				commissions: commissionsPayload,
+				deductions: deductionsPayload,
 				commissionAmount: manualCommission,
 				month,
 				year,
 				status: 1, // Applied
 			};
+
+			// const payload = {
+			// 	deductions: selectedDeductions,
+			// 	commissions: selectedCommissions,
+			// 	commissionAmount: manualCommission,
+			// 	month,
+			// 	year,
+			// };
 
 			await updatePayroll({
 				path: `/payroll/commission-users/pending/${payroll?._id}`,
@@ -140,6 +176,7 @@ const PendingPayrollSummary = ({ payroll }) => {
 
 			// Show success message
 			toast.success('Payroll update Successfully');
+			onSkip();
 		} catch (error) {
 			toast.error(error?.data?.message || 'Failed to update the payroll');
 		}
@@ -158,11 +195,34 @@ const PendingPayrollSummary = ({ payroll }) => {
 		.filter((c) => selectedCommissions.includes(c._id))
 		.reduce((sum, c) => sum + c.totalAmount, 0);
 
-	const netTotal = totalSelectedCommissions - totalSelectedDeductions;
-	const isBlocked = totalSelectedCommissions <= 0 && manualCommission <= 0;
+	const netTotal =
+		totalSelectedCommissions + manualCommission - totalSelectedDeductions;
+	const isBlocked = netTotal <= totalSelectedDeductions;
 
 	return (
 		<Box p={{ base: 4, md: 6, lg: 8 }} bg='white' rounded='lg' shadow='sm'>
+			<HStack spacing='2' align='center' justify='space-between' mb='4'>
+				<IconButton
+					aria-label='Go back'
+					icon={<FiChevronLeft />}
+					onClick={() => navigate(-1)}
+					size='md'
+					isRound
+				/>
+
+				{showSkip && (
+					<Button
+						size='sm'
+						variant='outline'
+						colorScheme='gray'
+						leftIcon={<FiSkipForward />}
+						onClick={onSkip}
+					>
+						Go to payslip
+					</Button>
+				)}
+			</HStack>
+
 			{/* Header */}
 			<VStack spacing={6} align='stretch'>
 				<Flex justify='space-between' align='center'>
@@ -342,7 +402,7 @@ const PendingPayrollSummary = ({ payroll }) => {
 							<VStack spacing={4} align='stretch'>
 								{data.commissions.doc.map((commission) => {
 									const isSelected = selectedCommissions.includes(
-										commission._id
+										commission._id,
 									);
 
 									return (
@@ -387,7 +447,7 @@ const PendingPayrollSummary = ({ payroll }) => {
 															<Text fontWeight='semibold'>
 																{formatMonthYear(
 																	commission.month,
-																	commission.year
+																	commission.year,
 																)}
 															</Text>
 														</HStack>
@@ -414,7 +474,7 @@ const PendingPayrollSummary = ({ payroll }) => {
 														+
 														{formatCurrency(
 															commission.totalAmount,
-															commission.currency
+															commission.currency,
 														)}
 													</Text>
 
@@ -574,11 +634,11 @@ const PendingPayrollSummary = ({ payroll }) => {
 					bg={'white'}
 					borderRadius='xl'
 					border='1px'
-					borderColor={totalSelectedCommissions <= 0 ? 'gray.200' : 'blue.200'}
+					borderColor={isBlocked ? 'gray.200' : 'blue.200'}
 					shadow='lg'
 					position='relative'
 					overflow='hidden'
-					opacity={totalSelectedCommissions <= 0 ? 0.7 : 1}
+					opacity={isBlocked ? 0.7 : 1}
 					transition='all 0.3s'
 					_before={{
 						content: '""',
@@ -587,10 +647,9 @@ const PendingPayrollSummary = ({ payroll }) => {
 						left: 0,
 						right: 0,
 						height: '4px',
-						bgGradient:
-							totalSelectedCommissions <= 0
-								? 'linear(to-r, gray.300, gray.400)'
-								: 'linear(to-r, blue.400, purple.400)',
+						bgGradient: isBlocked
+							? 'linear(to-r, gray.300, gray.400)'
+							: 'linear(to-r, blue.400, purple.400)',
 					}}
 				>
 					<Flex

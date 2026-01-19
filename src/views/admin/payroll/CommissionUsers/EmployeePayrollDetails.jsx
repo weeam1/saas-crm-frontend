@@ -41,6 +41,7 @@ import PayrollStatus from '../components/PayrollStatus';
 import PendingPayrollSummary from '../components/PendingPayrollSummary';
 import { ImageModal } from '../components/ImageModal';
 import { formatAmount, formatCurrency } from 'utils/helpers';
+import { useState } from 'react';
 
 // Custom components for better organization
 const StatCard = ({
@@ -145,6 +146,8 @@ const EmployeePayrollDetails = () => {
 	const { userId } = useParams();
 	const navigate = useNavigate();
 
+	const [skipPendingSummary, setSkipPendingSummary] = useState(false);
+
 	const now = new Date();
 	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
 	const defaultYear = String(now.getFullYear());
@@ -160,7 +163,12 @@ const EmployeePayrollDetails = () => {
 	const month = searchParams.get('month') || defaultMonth;
 	const year = searchParams.get('year') || defaultYear;
 
-	const { data: payrollData, isLoading: payrollLoading } = useFetchItemsQuery(
+	const {
+		data: payrollData,
+		isLoading: payrollLoading,
+		isFetching: payrollFetching,
+		refetch,
+	} = useFetchItemsQuery(
 		{
 			path: `/payroll/user/${userId}`,
 			params: { month, year },
@@ -170,13 +178,13 @@ const EmployeePayrollDetails = () => {
 			refetchOnFocus: true,
 			refetchOnReconnect: true,
 			skip: !userId,
-		}
+		},
 	);
 
 	const bgColor = useColorModeValue('gray.50', 'gray.900');
 	const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-	if (payrollLoading) {
+	if (payrollLoading || payrollFetching) {
 		return <PayrollSkeleton />;
 	}
 
@@ -191,9 +199,32 @@ const EmployeePayrollDetails = () => {
 		);
 	}
 
-	if (payrollData?.doc?.pendingPayrollSummary?.isPending) {
-		return <PendingPayrollSummary payroll={payrollData?.doc} />;
+	const summary = payrollData?.doc?.pendingPayrollSummary;
+
+	const hasApplied =
+		summary?.deductions?.doc?.some((d) => d?.status === 'APPLIED') ||
+		summary?.commissions?.doc?.some((c) => c?.status === 'APPLIED');
+
+	const isPending = Boolean(summary?.isPending);
+
+	const shouldShowPendingSummary = isPending && !skipPendingSummary;
+
+	if (shouldShowPendingSummary) {
+		return (
+			<PendingPayrollSummary
+				payroll={payrollData.doc}
+				showSkip={hasApplied} // only show skip if applied exists
+				onSkip={() => {
+					refetch();
+					setSkipPendingSummary(true);
+				}}
+			/>
+		);
 	}
+
+	// if (payrollData?.doc?.pendingPayrollSummary?.isPending) {
+	// 	return <PendingPayrollSummary payroll={payrollData?.doc} />;
+	// }
 
 	const {
 		fullName,
@@ -392,8 +423,8 @@ const EmployeePayrollDetails = () => {
 											</Text>
 											<Text fontWeight='semibold' color='green.500'>
 												{formatCurrency(
-													payrollSummary?.closeDealCommission,
-													currency
+													payrollSummary?.previousCloseDealCommission,
+													currency,
 												)}
 											</Text>
 										</HStack>
@@ -401,20 +432,20 @@ const EmployeePayrollDetails = () => {
 											<Text color='gray.600'>Shared Commission</Text>
 											<Text fontWeight='semibold' color='green.500'>
 												{formatCurrency(
-													payrollSummary?.sharedDealCommission,
-													currency
+													payrollSummary?.previousSharedDealCommission,
+													currency,
 												)}
 											</Text>
 										</HStack>
-										{/* <HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Incentive ({incentive})</Text>
+										<HStack w='100%' justify='space-between'>
+											<Text color='gray.600'>Commission Adjustment</Text>
 											<Text fontWeight='semibold' color='green.500'>
 												{formatCurrency(
-													payrollSummary?.incentiveEarned,
-													currency
+													payrollSummary?.adjustments?.commission,
+													currency,
 												)}
 											</Text>
-										</HStack> */}
+										</HStack>
 									</VStack>
 									<Divider />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
@@ -438,7 +469,7 @@ const EmployeePayrollDetails = () => {
 												<Text fontWeight='semibold' color='red.500'>
 													{formatCurrency(
 														payrollSummary?.loanDeduction,
-														currency
+														currency,
 													)}
 												</Text>
 											</HStack>
@@ -448,8 +479,8 @@ const EmployeePayrollDetails = () => {
 											<Text color='gray.600'>Attendance Deduction</Text>
 											<Text fontWeight='semibold' color='red.500'>
 												{formatCurrency(
-													payrollSummary?.attendanceDeduction,
-													currency
+													payrollSummary?.previousAttendanceDeduction,
+													currency,
 												)}
 											</Text>
 										</HStack>
@@ -478,7 +509,7 @@ const EmployeePayrollDetails = () => {
 											-
 											{formatCurrency(
 												payrollSummary?.totalDeductions,
-												currency
+												currency,
 											)}
 										</Text>
 									</HStack>
@@ -500,7 +531,7 @@ const EmployeePayrollDetails = () => {
 										<Text fontSize='2xl' fontWeight='bold' color='green.600'>
 											{formatCurrency(
 												payrollSummary?.netSalary,
-												payrollSummary?.currency
+												payrollSummary?.currency,
 											)}
 										</Text>
 									</HStack>
@@ -587,7 +618,7 @@ const EmployeePayrollDetails = () => {
 												{payrollData?.doc?.paymentStatus === 'paid'
 													? formatAmount(
 															loanSummary?.totalRemainingAmount -
-																loanSummary?.monthlyInstallment
+																loanSummary?.monthlyInstallment,
 														)
 													: formatAmount(loanSummary?.totalRemainingAmount)}
 											</Text>
