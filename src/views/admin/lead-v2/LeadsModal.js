@@ -19,7 +19,12 @@ import { useState } from 'react';
 import { buttonStyle } from 'utils/btn';
 import useUserSession from 'hooks/useUserSession';
 
-const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
+const LeadsModal = ({
+	leadsModal,
+	onClose,
+	reFreshData,
+	isInLeadPool = false,
+}) => {
 	const [leadNotes, setLeadNotes] = useState(false);
 
 	const headerBg = useColorModeValue('brand.300', 'brand.100');
@@ -27,7 +32,7 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 
 	const { userRoleName } = useUserSession();
 
-	const isNotesAllowed = isInLeadPool ? userRoleName !== 'Agent' : true;
+	// const isNotesAllowed = isInLeadPool ? userRoleName !== 'Agent' : true;
 
 	return (
 		<Modal onClose={onClose} isOpen={leadsModal.isOpen} size='6xl' isCentered>
@@ -55,21 +60,20 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 						</HStack>
 
 						<HStack spacing={2} align='center' justify='flex-end'>
-							{isNotesAllowed && (
-								<Button
-									{...buttonStyle}
-									bg='whiteAlpha.200'
-									color='white'
-									_hover={{ bg: 'whiteAlpha.300' }}
-									size='sm'
-									leftIcon={<FaPen />}
-									onClick={() => setLeadNotes(true)}
-									aria-label='lead notes'
-									whiteSpace='nowrap'
-								>
-									Lead Notes
-								</Button>
-							)}
+							<Button
+								{...buttonStyle}
+								bg='whiteAlpha.200'
+								color='white'
+								_hover={{ bg: 'whiteAlpha.300' }}
+								size='sm'
+								leftIcon={<FaPen />}
+								onClick={() => setLeadNotes(true)}
+								aria-label='lead notes'
+								whiteSpace='nowrap'
+							>
+								Lead Notes
+							</Button>
+
 							<ModalCloseButton
 								position='relative'
 								color='white'
@@ -101,6 +105,7 @@ const LeadsModal = ({ leadsModal, onClose, reFreshData, isInLeadPool }) => {
 							leadId={leadsModal.lid}
 							isOpen={leadNotes}
 							onClose={() => setLeadNotes(false)}
+							isInLeadPool={isInLeadPool}
 						/>
 					)}
 				</Box>

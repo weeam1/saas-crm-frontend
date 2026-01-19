@@ -30,7 +30,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useModalColors } from 'hooks/useModalColors';
 
-const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
+const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 	const [notesLoading, setNotesLoading] = useState(false);
 	const [allNotes, setAllNotes] = useState([]);
 
@@ -41,9 +41,11 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 
 	const [deleteItemMutation] = useDeleteItemMutation();
 
-	const { user } = useUserSession();
+	const { user, userRoleName } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 	const { headerBg, headerText } = useModalColors();
+
+	const addNoteAllowed = userRoleName !== 'Agent' ? true : !isInLeadPool;
 
 	const fetchLeadNotes = useCallback(async () => {
 		if (!leadId) return;
@@ -152,21 +154,23 @@ const LeadNotesModal = ({ leadId, isOpen, onClose }) => {
 						</HStack>
 
 						<HStack spacing='3' align='center' gap={2}>
-							<Button
-								bg='brand.500'
-								color='white'
-								_hover={{ bg: 'brand.400' }}
-								_active={{ bg: 'brand.400' }}
-								py='2'
-								px='4'
-								size={{ base: 'xs', md: 'sm' }}
-								fontSize='clamp(0.75rem, 1.8vw, 0.875rem)'
-								onClick={() => setAddNote(true)}
-								aria-label='add new note'
-								borderRadius={'md'}
-							>
-								Add Note
-							</Button>
+							{addNoteAllowed && (
+								<Button
+									bg='brand.500'
+									color='white'
+									_hover={{ bg: 'brand.400' }}
+									_active={{ bg: 'brand.400' }}
+									py='2'
+									px='4'
+									size={{ base: 'xs', md: 'sm' }}
+									fontSize='clamp(0.75rem, 1.8vw, 0.875rem)'
+									onClick={() => setAddNote(true)}
+									aria-label='add new note'
+									borderRadius={'md'}
+								>
+									Add Note
+								</Button>
+							)}
 
 							<ModalCloseButton
 								position='relative'
