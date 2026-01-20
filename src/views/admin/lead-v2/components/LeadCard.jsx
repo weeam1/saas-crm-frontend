@@ -13,6 +13,8 @@ import useUserSession from "hooks/useUserSession";
 // import moment from 'moment';
 
 const LeadCard = ({
+  editSecondary,
+  setEditSecondary,
   lead,
   refreshLeads,
   setViewLead,
@@ -40,13 +42,13 @@ const LeadCard = ({
   });
 
   // const user = useSelector((state) => state.user.user);
-
+  console.log(editSecondary, "leadcard");
   const { user, userRoleName } = useUserSession();
 
   const [leadNotes, setLeadNotes] = useState(false);
 
   const [localChecked, setLocalChecked] = useState(
-    selectedValues.includes(lead?._id)
+    selectedValues.includes(lead?._id),
   );
 
   const handleCheckboxChange = useCallback(
@@ -59,7 +61,7 @@ const LeadCard = ({
         setSelectedValues((prev = []) =>
           isChecked
             ? [...prev, lead?._id]
-            : prev.filter((id) => id !== lead?._id)
+            : prev.filter((id) => id !== lead?._id),
         );
         setSelectedLeads((prev) => {
           if (!Array.isArray(prev)) prev = [];
@@ -71,7 +73,7 @@ const LeadCard = ({
       }, 0);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setSelectedValues, lead]
+    [setSelectedValues, lead],
   );
 
   useEffect(() => {
@@ -84,7 +86,7 @@ const LeadCard = ({
   // 		: (user?.roles?.[0]?.roleName ?? 'unknown');
 
   const hiddenFields = JSON.parse(
-    localStorage.getItem("userCustomColumns") || "[]"
+    localStorage.getItem("userCustomColumns") || "[]",
   );
 
   return (
@@ -128,6 +130,8 @@ const LeadCard = ({
           </label>
 
           <LeadMenu
+            editSecondary={editSecondary}
+            setEditSecondary={setEditSecondary}
             user={user}
             lead={lead}
             emailAccess={emailAccess}

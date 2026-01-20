@@ -8,9 +8,12 @@ import Delete from "../Delete";
 import LeadPhoneHistory from "./subComponents/LeadPhoneHistory";
 import LeadAdditionalInfoModal from "./lead-note/LeadAdditionalInfoModal";
 import LeadCycle from "views/admin/leadCycle";
+import { SecondaryContactForm } from "./SecondaryContacts";
 
 const LeadsModals = (props) => {
   const {
+    editSecondary,
+    setEditSecondary,
     refetchData,
     setViewLead,
     viewLead,
@@ -36,7 +39,7 @@ const LeadsModals = (props) => {
   const handleViewClose = () => {
     setViewLead({ isOpen: false, lid: null });
   };
-
+  console.log(editSecondary, "leadsmodals");
   return (
     <>
       {viewLead?.isOpen && (
@@ -69,6 +72,16 @@ const LeadsModals = (props) => {
           size="xl"
           leadData={lead}
           onClose={() => setEditLead(false)}
+        />
+      )}
+
+      {editSecondary && (
+        <SecondaryContactForm
+          isOpen={editSecondary}
+          size="xl"
+          leadData={lead}
+          isSecondary={true}
+          onClose={() => setEditSecondary(false)}
         />
       )}
 
@@ -107,7 +120,7 @@ const LeadsModals = (props) => {
         <LeadCycle isLeadCycle={isLeadCycle} setIsLeadCycle={setIsLeadCycle} />
       )}
 
-      {/* 
+      {/*
 			<AddPhoneCall
 				fetchData={refetchData}
 				isOpen={addPhoneCall}

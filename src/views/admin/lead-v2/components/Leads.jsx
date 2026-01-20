@@ -99,6 +99,8 @@ const Leads = ({
 
   const [viewLead, setViewLead] = useState({ isOpen: false, lid: null });
   const [editLead, setEditLead] = useState(false);
+  const [editSecondary, setEditSecondary] = useState(false);
+
   const [viewPhoneHistory, setViewPhoneHistory] = useState({
     modal: false,
     leadId: null,
@@ -110,6 +112,7 @@ const Leads = ({
   const [leadAddtionalInfo, setLeadAddtionalInfo] = useState(false);
 
   const [advanceSearch, setAdvanceSearch] = useState(false);
+  console.log(editSecondary, "leads");
 
   // const [formValues, setFormValues] = useState([]);
   const [isFormReset, setIsFormReset] = useState(false);
@@ -178,7 +181,7 @@ const Leads = ({
       [currentPage]: {
         selectAllChecked,
         selectedValues: selectedValues.filter((id) =>
-          leads?.doc?.some((lead) => lead._id === id)
+          leads?.doc?.some((lead) => lead._id === id),
         ),
       },
     }));
@@ -346,6 +349,8 @@ const Leads = ({
         >
           {leads?.doc?.map((lead) => (
             <LeadCard
+              editSecondary={editSecondary}
+              setEditSecondary={setEditSecondary}
               key={lead._id}
               lead={lead}
               refreshLeads={refreshLeads}
@@ -379,6 +384,8 @@ const Leads = ({
 
       {/* Modals */}
       <LeadsModals
+        editSecondary={editSecondary}
+        setEditSecondary={setEditSecondary}
         refetchData={refreshLeads}
         viewLead={viewLead}
         setViewLead={setViewLead}
