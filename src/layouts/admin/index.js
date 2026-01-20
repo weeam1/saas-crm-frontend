@@ -35,6 +35,7 @@ import ServerErrorPage from 'views/admin/error/ServerErrorPage';
 import { setAgenciesData } from '../../redux/utilSlice';
 import { useDispatch } from 'react-redux';
 import WebRTCModal from 'views/webrtc';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 // import AppLoader from 'components/loading/AppLoader';
 // import { filterRoutes } from 'components/sidebar/sidebarHelpers';
 
@@ -52,6 +53,8 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 
 	const { user, isSuperAdmin, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
+
+	const {} = useLeadStatuses(); // fetch lead statuses
 
 	const dispatch = useDispatch();
 
@@ -72,8 +75,6 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 			dispatch(setAgenciesData(agencies?.doc));
 		}
 	}, [agencies?.doc, dispatch]);
-
-	// console.log({ whatsappUser });
 
 	const {
 		data: ServerStatus,

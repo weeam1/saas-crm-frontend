@@ -118,10 +118,9 @@ const Chat = ({ chatId, sessionId }) => {
 			/>
 
 			{/* Input Area */}
-			<Box p={2}>
-				<HStack spacing={2}>
-					{/* Attachment Button */}
-					{/* <IconButton
+			<HStack p={2} spacing={2}>
+				{/* Attachment Button */}
+				{/* <IconButton
 						aria-label='Attach file'
 						icon={<AttachmentIcon />}
 						variant='ghost'
@@ -129,45 +128,44 @@ const Chat = ({ chatId, sessionId }) => {
 						size='md'
 					/> */}
 
-					<MediaAttachment onSend={handleSendMessage} />
+				<MediaAttachment onSend={handleSendMessage} />
 
-					{/* Message Input */}
-					<Input
-						placeholder='Type a message...'
-						value={message}
-						onChange={(e) => setMessage(e.target.value)}
-						onKeyPress={handleKeyPress}
-						bg='white'
-						borderRadius='full'
-						size='md'
-						border='1px solid #e0e0e0'
-						_focus={{
-							borderColor: whatsappColors.primary,
-							boxShadow: 'none',
-						}}
-					/>
+				{/* Message Input */}
+				<Input
+					placeholder='Type a message...'
+					value={message}
+					onChange={(e) => setMessage(e.target.value)}
+					onKeyPress={handleKeyPress}
+					bg='white'
+					borderRadius='full'
+					size='md'
+					border='1px solid #e0e0e0'
+					_focus={{
+						borderColor: whatsappColors.primary,
+						boxShadow: 'none',
+					}}
+				/>
 
-					{/* Send Button */}
-					<IconButton
-						aria-label='Send message'
-						icon={<IoSend size={20} />}
-						colorScheme='green'
-						bg={whatsappColors.primary}
-						borderRadius='full'
-						size='md'
-						onClick={handleSendMessage}
-						isDisabled={!message.trim()}
-						_hover={{
-							bg: '#128C7E',
-							transform: 'scale(1.05)',
-							transition: 'all 0.2s ease-in-out',
-						}}
-						_active={{
-							transform: 'scale(0.95)',
-						}}
-					/>
-				</HStack>
-			</Box>
+				{/* Send Button */}
+				<IconButton
+					aria-label='Send message'
+					icon={<IoSend size={20} />}
+					colorScheme='green'
+					bg={whatsappColors.primary}
+					borderRadius='full'
+					size='md'
+					onClick={handleSendMessage}
+					isDisabled={!message.trim()}
+					_hover={{
+						bg: '#128C7E',
+						transform: 'scale(1.05)',
+						transition: 'all 0.2s ease-in-out',
+					}}
+					_active={{
+						transform: 'scale(0.95)',
+					}}
+				/>
+			</HStack>
 		</Flex>
 	);
 };

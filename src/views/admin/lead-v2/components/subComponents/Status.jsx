@@ -1,8 +1,8 @@
 import SelectInput from 'components/shared/SelectInput';
-import { leadStatus } from 'utils/options';
+// import { leadStatus } from 'utils/options';
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	leadIconSize,
 	leadlabelFontSize,
@@ -13,29 +13,31 @@ import { putApi } from 'services/api';
 import { updateLeadField } from '../../../../../redux/leadsSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import InvitationModal from './InvitationModal';
-import { eventLeadStatus } from 'utils/options';
+// import { eventLeadStatus } from 'utils/options';
 import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { extractLocationData } from 'utils/helpers';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import CloseDealModal from '../deals/CloseDealModal';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const Status = ({ lead }) => {
 	const [selected, setSelected] = useState('' || lead?.leadStatus);
-	const [label, setLabel] = useState('');
-	const [bgColor, setBgColor] = useState('');
-	const [textColor, setTextColor] = useState('');
+
+	const [currentStatus, setCurrentStatus] = useState(null);
+	// const [label, setLabel] = useState('');
+	// const [bgColor, setBgColor] = useState('');
+	// const [textColor, setTextColor] = useState('');
 
 	const [closeDeal, setCloseDeal] = useState(false);
 
 	const layoutView = localStorage.getItem('leadView') || 'grid';
 
-	const countries = useSelector((state) => state.countries.countryNames);
-
 	const [loading, setLoading] = useState(false);
 	const [inviteModal, setInviteModal] = useState(false);
 
+	const { getSubStatuses } = useLeadStatuses();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
@@ -78,35 +80,42 @@ const Status = ({ lead }) => {
 					setInviteModal(true);
 				}
 
-				// check if status is event lead status
-				if (eventLeadStatus.includes(data.leadStatus)) {
-					const leadEmail = lead?.leadEmail ?? '';
-					const leadPhone =
-						typeof lead?.leadPhoneNumber === 'object'
-							? lead?.leadPhoneNumber?.result
-							: lead?.leadPhoneNumber;
-
-					const { ip, city, country } = extractLocationData(
-						lead?.ip,
-						countries
+				if (newStatus) {
+					const statusData = leadSubStatuses?.find(
+						(item) => item.value === newStatus
 					);
 
-					sendLeadFeedback({
-						email: leadEmail,
-						phone: leadPhone,
-						status: data.leadStatus,
-						action: 'Status',
-						ip,
-						fcblid: lead?.fcblid || null,
-						fbp: lead?.fbp || null,
-						country,
-						city,
-						zip: lead?.zip || null,
-						userAgent: lead?.userAgent || null,
-						leadName: lead?.leadName,
-						leadId: lead?.intID,
-					});
+					if (statusData?.meta_id) {
+						const leadEmail = lead?.leadEmail ?? '';
+						const leadPhone =
+							typeof lead?.leadPhoneNumber === 'object'
+								? lead?.leadPhoneNumber?.result
+								: lead?.leadPhoneNumber;
+
+						const { ip, city, country } = extractLocationData(lead?.ip);
+
+						sendLeadFeedback({
+							email: leadEmail,
+							phone: leadPhone,
+							status: statusData,
+							action: 'Status',
+							ip,
+							fcblid: lead?.fcblid || null,
+							fbp: lead?.fbp || null,
+							country,
+							city,
+							zip: lead?.zip || null,
+							userAgent: lead?.userAgent || null,
+							leadName: lead?.leadName,
+							leadId: lead?.intID,
+						});
+					}
 				}
+
+				// check if status is event lead status
+				// if (eventLeadStatus.includes(data.leadStatus)) {
+
+				// }
 
 				// update user activity log
 				createUserLog({
@@ -154,18 +163,24 @@ const Status = ({ lead }) => {
 		}
 	};
 
+	const leadSubStatuses = useMemo(() => {
+		if (!lead?.eLeadStatus) return [];
+
+		return getSubStatuses(lead.eLeadStatus) || [];
+	}, [lead?.eLeadStatus]);
+
 	useEffect(() => {
-		const selectedOption = leadStatus.find((item) => item.value === selected);
+		const selectedOption = leadSubStatuses?.find(
+			(item) => item.value === selected
+		);
 
 		if (selectedOption) {
-			setBgColor(selectedOption.bgColor || 'white');
-			setTextColor(selectedOption.textColor || 'black');
-			setLabel(selectedOption?.label);
-		} else {
-			setBgColor('white');
-			setTextColor('black');
-		}
-	}, [selected]);
+			setCurrentStatus(selectedOption);
+			// setBgColor(selectedOption.bgColor || 'white');
+			// setTextColor(selectedOption.textColor || 'black');
+			// setLabel(selectedOption?.label);
+		} else setCurrentStatus(null);
+	}, [selected, lead?.eLeadStatus]);
 
 	const handleCloseDealSuccess = async () => {
 		setCloseDeal(false);
@@ -185,7 +200,7 @@ const Status = ({ lead }) => {
 						Status
 					</Text>
 
-					<CustomTooltip label={label || 'N/A'}>
+					<CustomTooltip label={currentStatus?.label || 'N/A'}>
 						<Icon
 							as={InfoIcon}
 							cursor='pointer'
@@ -198,13 +213,15 @@ const Status = ({ lead }) => {
 			<SelectInput
 				mt={layoutView === 'table' ? '20px' : 0}
 				name='leadStatus'
-				options={leadStatus}
+				options={leadSubStatuses}
+				// options={leadStatus}
 				placeholder='Select'
 				selectedValue={selected}
 				loading={loading}
 				onChange={handleStatus}
-				bgColorCustom={bgColor}
-				textColorCustom={textColor}
+				bgColorCustom={currentStatus?.bgColor}
+				textColorCustom={currentStatus?.textColor}
+				borderColorCustom={currentStatus?.color}
 				size={leadSelectInputSize}
 			/>
 

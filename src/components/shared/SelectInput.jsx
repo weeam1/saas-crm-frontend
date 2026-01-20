@@ -278,9 +278,10 @@ const SelectInput = ({
 				) : (
 					<>
 						{/* Placeholder option */}
-						<option value='' disabled selected={selectedValue === ''}>
+
+						{/* <option value='' disabled selected={selectedValue === ''}>
 							{placeholder}
-						</option>
+						</option> */}
 
 						{/* "Unassigned" option */}
 						{/* {['managerAssigned', 'agentAssigned', 'teamLeadAssigned'].includes(
@@ -298,7 +299,7 @@ const SelectInput = ({
 							</option>
 						)} */}
 
-						{UNASSIGN_LEADS_LABELS[name] && (
+						{UNASSIGN_LEADS_LABELS[name] ? (
 							<option
 								value=''
 								disabled={!selectedValue}
@@ -308,6 +309,10 @@ const SelectInput = ({
 								}}
 							>
 								Unassigned {UNASSIGN_LEADS_LABELS[name]}
+							</option>
+						) : (
+							<option value='' selected={selectedValue === ''}>
+								{placeholder}
 							</option>
 						)}
 
