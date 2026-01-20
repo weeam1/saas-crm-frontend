@@ -51,10 +51,20 @@ const buildIntentPayload = (allItems, selectedIds) => {
 	}));
 };
 
+const sanitizeMoney = (v) => {
+	// digits + one dot
+	v = v.replace(/[^0-9.]/g, '');
+	const parts = v.split('.');
+	if (parts.length > 2) {
+		v = parts.shift() + '.' + parts.join('');
+	}
+	return v;
+};
+
 const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 	const [selectedDeductions, setSelectedDeductions] = useState([]);
 	const [selectedCommissions, setSelectedCommissions] = useState([]);
-	const [manualCommission, setManualCommission] = useState(0);
+	const [manualCommission, setManualCommission] = useState('');
 
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
@@ -155,7 +165,7 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 			const payload = {
 				commissions: commissionsPayload,
 				deductions: deductionsPayload,
-				commissionAmount: manualCommission,
+				commissionAmount: Number(manualCommission),
 				month,
 				year,
 				status: 1, // Applied
@@ -196,8 +206,10 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 		.reduce((sum, c) => sum + c.totalAmount, 0);
 
 	const netTotal =
-		totalSelectedCommissions + manualCommission - totalSelectedDeductions;
-	const isBlocked = netTotal <= totalSelectedDeductions;
+		totalSelectedCommissions +
+		Number(manualCommission) -
+		totalSelectedDeductions;
+	const isBlocked = netTotal <= 0;
 
 	return (
 		<Box p={{ base: 4, md: 6, lg: 8 }} bg='white' rounded='lg' shadow='sm'>
@@ -585,19 +597,36 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 							<Text fontSize='sm' fontWeight='medium' color='gray.700' mb={2}>
 								Commission Amount
 							</Text>
-							<NumberInput
-								min={0}
-								step={1}
+							<Input
+								type='text'
+								inputMode='decimal'
+								placeholder='Enter commission amount'
 								value={manualCommission}
-								onChange={(valueString) =>
-									setManualCommission(parseFloat(valueString) || 0)
+								onChange={(e) =>
+									setManualCommission(sanitizeMoney(e.target.value))
 								}
-								precision={2}
+								onBlur={() => {
+									const n = parseFloat(manualCommission);
+									if (!Number.isFinite(n) || n < 0) setManualCommission('');
+								}}
+								bg='white'
+								size='lg'
+								fontSize='md'
+							/>
+
+							{/* <NumberInput
+								min={0}
+								// step={1}
+								value={manualCommission}
+								// precision={2}
+								onChange={(valueString) => setManualCommission(valueString)}
 							>
 								<NumberInputField
 									placeholder='Enter commission amount'
 									size='lg'
 									fontSize='md'
+									inputMode='decimal'
+									onKeyDown={sanitizeDecimal}
 									bg='white'
 									_focus={{
 										borderColor: 'green.400',
@@ -608,7 +637,7 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 									<NumberIncrementStepper />
 									<NumberDecrementStepper />
 								</NumberInputStepper>
-							</NumberInput>
+							</NumberInput> */}
 						</Box>
 					</HStack>
 				</Box>
@@ -672,14 +701,14 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 										{selectedCommissions.length} Commission
 										{selectedCommissions.length !== 1 ? 's' : ''}
 									</Badge>
-									<Badge
+									{/* <Badge
 										colorScheme={netTotal >= 0 ? 'green' : 'red'}
 										fontSize='xs'
 										px={3}
 										py={1}
 									>
 										Net: {formatCurrency(netTotal)}
-									</Badge>
+									</Badge> */}
 								</HStack>
 								<Text fontSize='sm' color='gray.600' mt={2}>
 									Review all selected items before proceeding
