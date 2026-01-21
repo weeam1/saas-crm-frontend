@@ -42,6 +42,7 @@ import PendingPayrollSummary from '../components/PendingPayrollSummary';
 import { ImageModal } from '../components/ImageModal';
 import { formatAmount, formatCurrency } from 'utils/helpers';
 import { useState } from 'react';
+import { SalarySummaryRow } from '../components/PayrollResuable';
 
 // Custom components for better organization
 const StatCard = ({
@@ -252,6 +253,60 @@ const EmployeePayrollDetails = () => {
 
 	const currency = payrollSummary?.currency || 'AED';
 
+	const userEarnings = [
+		{
+			key: 'dealCommission',
+			label: `Deal Commission (${commission}%)`,
+			value: payrollSummary?.previousCloseDealCommission,
+		},
+		{
+			key: 'sharedCommission',
+			label: 'Shared Commission',
+			value: payrollSummary?.previousSharedDealCommission,
+		},
+		{
+			key: 'overtime',
+			label: 'Overtime',
+			value: payrollSummary?.adjustments?.overtime,
+		},
+		{
+			key: 'bonus',
+			label: 'Bonus',
+			value: payrollSummary?.adjustments?.bonus,
+		},
+		{
+			key: 'allowance',
+			label: 'Allowance',
+			value: payrollSummary?.adjustments?.allowance,
+		},
+
+		{
+			key: 'commissionAdjustment',
+			label: 'Commission Adjustment',
+			value: payrollSummary?.adjustments?.commission,
+		},
+	];
+
+	const userDeductions = [
+		{
+			key: 'loanInstallments',
+			label: loanSummary?.activeLoans
+				? `${loanSummary.activeLoans} Loan Installment's`
+				: null,
+			value: payrollSummary?.loanDeduction,
+		},
+		{
+			key: 'attendanceDeduction',
+			label: 'Attendance Deduction',
+			value: payrollSummary?.previousAttendanceDeduction,
+		},
+		{
+			key: 'deduction',
+			label: 'Deduction',
+			value: payrollSummary?.adjustments?.deduction,
+		},
+	];
+
 	return (
 		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
 			<HStack justify='space-between' mb='3'>
@@ -411,42 +466,18 @@ const EmployeePayrollDetails = () => {
 										Earnings
 									</Text>
 									<VStack spacing={3}>
-										{/* <HStack w='100%' justify='space-between'>
-											<Box color='gray.600'>Virtual</Box>
-											<Box fontWeight='semibold'>
-												{formatCurrency(payrollSummary?.virtual, currency)}
-											</Box>
-										</HStack> */}
-										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>
-												Deal Commission ({commission}%)
-											</Text>
-											<Text fontWeight='semibold' color='green.500'>
-												{formatCurrency(
-													payrollSummary?.previousCloseDealCommission,
-													currency,
-												)}
-											</Text>
-										</HStack>
-										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Shared Commission</Text>
-											<Text fontWeight='semibold' color='green.500'>
-												{formatCurrency(
-													payrollSummary?.previousSharedDealCommission,
-													currency,
-												)}
-											</Text>
-										</HStack>
-										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Commission Adjustment</Text>
-											<Text fontWeight='semibold' color='green.500'>
-												{formatCurrency(
-													payrollSummary?.adjustments?.commission,
-													currency,
-												)}
-											</Text>
-										</HStack>
+										{userEarnings
+											.filter((row) => Number(row.value) > 0)
+											.map(({ key, label, value, valueColor }) => (
+												<SalarySummaryRow
+													key={key}
+													label={label}
+													value={formatCurrency(value, currency)}
+													valueColor={valueColor}
+												/>
+											))}
 									</VStack>
+
 									<Divider />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Earnings</Text>
@@ -461,47 +492,18 @@ const EmployeePayrollDetails = () => {
 										Deductions
 									</Text>
 									<VStack spacing={3}>
-										{loanSummary?.activeLoans > 0 && (
-											<HStack w='100%' justify='space-between'>
-												<Text color='gray.600'>
-													{loanSummary?.activeLoans} Loan Installment's
-												</Text>
-												<Text fontWeight='semibold' color='red.500'>
-													{formatCurrency(
-														payrollSummary?.loanDeduction,
-														currency,
-													)}
-												</Text>
-											</HStack>
-										)}
-
-										<HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Attendance Deduction</Text>
-											<Text fontWeight='semibold' color='red.500'>
-												{formatCurrency(
-													payrollSummary?.previousAttendanceDeduction,
-													currency,
-												)}
-											</Text>
-										</HStack>
-										{/* <HStack w='100%' justify='space-between'>
-											<Text color='gray.600'>Attendance</Text>
-											<Text fontWeight='semibold' color='red.500'>
-												{(
-													attendanceSummary?.absentDeduction +
-													attendanceSummary?.unpaidLeaveDeduction
-												)?.toLocaleString()}
-											</Text>
-										</HStack>
-										{attendanceSummary?.remainingDaysDeduction > 0 && (
-											<HStack w='100%' justify='space-between'>
-												<Text color='gray.600'>Attendance Remaining</Text>
-												<Text fontWeight='semibold' color='red.500'>
-													{attendanceSummary?.remainingDaysDeduction?.toLocaleString()}
-												</Text>
-											</HStack>
-										)} */}
+										{userDeductions
+											.filter((row) => Number(row.value) > 0)
+											.map(({ key, label, value }) => (
+												<SalarySummaryRow
+													key={key}
+													label={label}
+													value={formatCurrency(value, currency)}
+													valueColor='red.500'
+												/>
+											))}
 									</VStack>
+
 									<Divider />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Deductions</Text>

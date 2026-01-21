@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
 	Box,
 	VStack,
@@ -10,26 +10,14 @@ import {
 	Flex,
 	Icon,
 	Badge,
-	Divider,
-	useToast,
 	SimpleGrid,
-	Stack,
 	Alert,
 	AlertIcon,
-	AlertTitle,
 	IconButton,
-	AlertDescription,
 	Input,
-	NumberInputStepper,
-	NumberIncrementStepper,
-	NumberDecrementStepper,
-	NumberInputField,
-	NumberInput,
-	Tooltip,
 } from '@chakra-ui/react';
 import {
 	FaMoneyBillWave,
-	FaCalculator,
 	FaCalendarAlt,
 	FaCheckCircle,
 	FaExclamationTriangle,
@@ -41,7 +29,7 @@ import { formatCurrency } from 'utils/helpers';
 import { toast } from 'react-toastify';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useUpdateItemMutation } from 'api/apiSlice';
-import { FiArrowRight, FiChevronLeft, FiSkipForward } from 'react-icons/fi';
+import { FiChevronLeft, FiSkipForward } from 'react-icons/fi';
 
 const buildIntentPayload = (allItems, selectedIds) => {
 	if (allItems?.length === 0) return [];
@@ -239,17 +227,20 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 			<VStack spacing={6} align='stretch'>
 				<Flex justify='space-between' align='center'>
 					<VStack align='start' spacing={2}>
-						<Heading size='lg' color='gray.800'>
+						<Heading
+							fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }}
+							color='gray.800'
+						>
 							<Icon as={FaFileInvoiceDollar} mr={3} color='blue.500' />
 							Pending Payroll Summary
 						</Heading>
-						<Text color='gray.600' fontSize='sm'>
+						<Text color='gray.600' fontSize={{ base: 'xs', md: 'sm' }}>
 							Review and apply pending deductions and commissions to payroll
 						</Text>
 					</VStack>
-					<Badge
+					{/* <Badge
 						colorScheme={data.isPending ? 'orange' : 'green'}
-						fontSize='md'
+						fontSize={{ base: 'sm', md: 'md' }}
 						p={2}
 						borderRadius='full'
 					>
@@ -258,10 +249,10 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 							mr={2}
 						/>
 						{data.isPending ? 'Pending Review' : 'Processed'}
-					</Badge>
+					</Badge> */}
 				</Flex>
 
-				<SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
+				<SimpleGrid columns={{ base: 1, xl: 2 }} spacing={6}>
 					{/* Deductions Box */}
 					<Box
 						p={2}
@@ -284,14 +275,12 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 										</Text>
 									</VStack>
 								</HStack>
-								<Badge colorScheme='red' fontSize='md' p={2}>
-									Total: {formatCurrency(data.deductions.totalDeductionAmount)}
-								</Badge>
 							</Flex>
 							<Checkbox
 								mt={3}
 								colorScheme='red'
 								isChecked={
+									selectedDeductions.length &&
 									selectedDeductions.length === data.deductions.doc.length
 								}
 								isIndeterminate={
@@ -339,16 +328,31 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 													/>
 
 													<HStack spacing={2}>
-														<Icon as={FaCalendarAlt} color='gray.500' />
-														<Text fontWeight='semibold'>
+														<Icon
+															as={FaCalendarAlt}
+															fontSize={{ base: 'xs', md: 'sm' }}
+															color='gray.500'
+														/>
+														<Text
+															fontWeight='semibold'
+															fontSize={{ base: 'xs', md: 'sm' }}
+														>
 															{formatMonthYear(deduction.month, deduction.year)}
 														</Text>
 													</HStack>
 												</HStack>
 
 												<VStack align='end' spacing={1}>
-													<Text fontSize='lg' fontWeight='bold' color='red.600'>
-														−{formatCurrency(deduction.deductionAmount)}
+													<Text
+														fontSize={{ base: 'sm', md: 'md' }}
+														fontWeight='bold'
+														color='red.600'
+													>
+														−
+														{formatCurrency(
+															deduction.deductionAmount,
+															deduction.currency,
+														)}
 													</Text>
 													<Badge
 														colorScheme={
@@ -356,6 +360,7 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 																? 'orange'
 																: 'green'
 														}
+														size='xs'
 													>
 														{deduction.status}
 													</Badge>
@@ -390,14 +395,15 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 										</Text>
 									</VStack>
 								</HStack>
-								<Badge colorScheme='green' fontSize='md' p={2}>
+								{/* <Badge colorScheme='green' fontSize='md' p={2}>
 									Total: {formatCurrency(data.commissions.totalDealAmount)}
-								</Badge>
+								</Badge> */}
 							</Flex>
 							<Checkbox
 								mt={3}
 								colorScheme='green'
 								isChecked={
+									selectedCommissions?.length &&
 									selectedCommissions.length === data.commissions.doc.length
 								}
 								isIndeterminate={
@@ -456,7 +462,10 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 													<VStack align='start' spacing={1}>
 														<HStack spacing={2}>
 															<Icon as={FaCalendarAlt} color='gray.500' />
-															<Text fontWeight='semibold'>
+															<Text
+																fontWeight='semibold'
+																fontSize={{ base: 'xs', md: 'sm' }}
+															>
 																{formatMonthYear(
 																	commission.month,
 																	commission.year,
@@ -464,12 +473,18 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 															</Text>
 														</HStack>
 
-														<Text fontSize='sm' color='gray.600'>
+														<Text
+															color='gray.600'
+															fontSize={{ base: 'xs', md: 'sm' }}
+														>
 															Deal: {formatCurrency(commission.dealAmount)}
 														</Text>
 
 														{commission.shareDealAmount > 0 && (
-															<Text fontSize='sm' color='gray.600'>
+															<Text
+																color='gray.600'
+																fontSize={{ base: 'xs', md: 'sm' }}
+															>
 																Shared:{' '}
 																{formatCurrency(commission.shareDealAmount)}
 															</Text>
@@ -479,7 +494,7 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 
 												<VStack align='end' spacing={1}>
 													<Text
-														fontSize='xl'
+														fontSize={{ base: 'sm', md: 'md' }}
 														fontWeight='bold'
 														color='green.600'
 													>
@@ -496,6 +511,7 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 																? 'orange'
 																: 'green'
 														}
+														size='xs'
 													>
 														{commission.status}
 													</Badge>
@@ -581,10 +597,10 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 						alignItems='center'
 						gap={2}
 					>
-						Additional Commission Entry
+						Additional Commission
 					</Heading>
 
-					<Text fontSize='sm' color='gray.600' mb={4}>
+					<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500' mb={4}>
 						Add manual commission amount if not included in the list above
 					</Text>
 
@@ -610,8 +626,8 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 									if (!Number.isFinite(n) || n < 0) setManualCommission('');
 								}}
 								bg='white'
-								size='lg'
-								fontSize='md'
+								size='md'
+								fontSize={{ base: 'sm', md: 'md' }}
 							/>
 
 							{/* <NumberInput
@@ -683,12 +699,17 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 				>
 					<Flex
 						justify='space-between'
-						align='center'
-						wrap={{ base: 'wrap', md: 'nowrap' }}
+						align={{ base: 'left', lg: 'center' }}
+						flexDir={{ base: 'column', lg: 'row' }}
+						// wrap={{ base: 'wrap', md: 'nowrap' }}
 						gap={4}
 					>
 						<VStack align='start' spacing={2} flex={1}>
-							<Text fontWeight='bold' color='gray.800' fontSize='lg'>
+							<Text
+								fontWeight='bold'
+								color='gray.800'
+								fontSize={{ base: 'sm', md: 'lg' }}
+							>
 								Ready to Apply to Payroll?
 							</Text>
 							<Box>
@@ -728,10 +749,10 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 							fontWeight='bold'
 							borderRadius='lg'
 							bgGradient={
-								isBlocked ? 'linear(to-r, blue.500, purple.500)' : 'gray.300'
+								!isBlocked ? 'linear(to-r, blue.500, purple.500)' : 'gray.300'
 							}
 							_hover={
-								isBlocked
+								!isBlocked
 									? {
 											bgGradient: 'linear(to-r, blue.600, purple.600)',
 											transform: 'translateY(-2px)',
