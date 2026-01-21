@@ -7,6 +7,8 @@ const AttendanceStats = ({ stats, employee }) => {
 			? 'Super Admin'
 			: employee?.roles[0]?.roleName;
 
+	const isCommissionOnly = employee?.salaryType === 'COMMISSION_ONLY';
+
 	return (
 		<Box bg='white' p={5} borderRadius='md' shadow='sm' position='relative'>
 			{/* Agency Badge on Top-Right */}
@@ -45,14 +47,32 @@ const AttendanceStats = ({ stats, employee }) => {
 						>
 							{employee.fullName}
 						</Text>
-						<Text color='#C4C4C4' fontWeight='medium' fontSize='sm'>
-							{roleName}
-						</Text>
-						<Text fontWeight='medium' fontSize={{ base: 'sm', md: 'md' }}>
-							{employee.salary ? `${employee.salary}/month` : 'Salary N/A'}
-						</Text>
 						<Text fontWeight='medium' fontSize='12px' color='softGray.200'>
 							{employee.username}
+						</Text>
+						{/* <Text
+							color='#C4C4C4'
+							fontWeight='medium'
+							textTransform='capitalize'
+							fontSize='sm'
+						>
+							{roleName}
+						</Text> */}
+						{/* <Text fontWeight='medium' fontSize={{ base: 'sm', md: 'md' }}>
+							{employeeSalary === 'COMMISSION'
+								? `${employeeSalary}/month`
+								: 'Salary N/A'}
+						</Text> */}
+						<Text fontWeight='medium' fontSize={{ base: 'sm', md: 'md' }}>
+							{isCommissionOnly ? (
+								<Badge colorScheme='purple' variant='subtle'>
+									Commission Only
+								</Badge>
+							) : employee?.salary ? (
+								`${employee.salary}/month`
+							) : (
+								'Salary N/A'
+							)}
 						</Text>
 					</Box>
 				</Box>
@@ -73,7 +93,7 @@ const AttendanceStats = ({ stats, employee }) => {
 					label='Total Deduction'
 					value={stats?.totalAttendanceDeduction}
 				/>
-				<StatsCard label='Attendance Earned' value={stats?.netSalary} />
+				{/* <StatsCard label='Attendance Earned' value={stats?.netSalary} /> */}
 			</VStack>
 		</Box>
 	);

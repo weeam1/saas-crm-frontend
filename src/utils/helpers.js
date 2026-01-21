@@ -61,13 +61,38 @@ export const capitalizeWords = (str = '') =>
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
 
-export const formatCurrency = (amount, currency) => {
-	return new Intl.NumberFormat('en-AE', {
-		style: 'currency',
-		currency: currency || 'AED',
-		minimumFractionDigits: 0,
-		maximumFractionDigits: 2,
-	}).format(amount);
+// export const formatCurrency = (amount, currency) => {
+// 	return new Intl.NumberFormat('en-AE', {
+// 		style: 'currency',
+// 		currency: currency || 'AED',
+// 		minimumFractionDigits: 0,
+// 		maximumFractionDigits: 2,
+// 	}).format(amount);
+// };
+
+export const formatCurrency = (amount, currency = 'AED') => {
+	// Ensure the amount is a valid number
+	const value = Number(amount);
+	if (Number.isNaN(value)) return formatCurrency(0, currency); // fallback to 0
+
+	// Validate currency code (basic ISO 4217 check: 3 letters)
+	const safeCurrency =
+		typeof currency === 'string' && currency.length === 3
+			? currency.toUpperCase()
+			: 'AED';
+
+	try {
+		return new Intl.NumberFormat('en-AE', {
+			style: 'currency',
+			currency: safeCurrency,
+			minimumFractionDigits: 0,
+			maximumFractionDigits: 2,
+		}).format(value);
+	} catch (err) {
+		// Fallback in case Intl fails
+		console.warn('Currency formatting failed:', err);
+		return `${safeCurrency} ${value.toFixed(2)}`;
+	}
 };
 
 export const formatAmount = (amount) => {

@@ -100,9 +100,17 @@ const DeveloperInvoices = React.lazy(
 );
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
-const Payroll = React.lazy(() => import('views/admin/payroll/index'));
-const Payslip = React.lazy(
+const PayrollSalariedUsers = React.lazy(
+	() => import('views/admin/payroll/SalariedUsers')
+);
+const PayrollCommissionUsers = React.lazy(
+	() => import('views/admin/payroll/CommissionUsers')
+);
+const EmployeePayslip = React.lazy(
 	() => import('views/admin/payroll/components/EmployeePayrollDetails')
+);
+const CommissionEmployeePayslip = React.lazy(
+	() => import('views/admin/payroll/CommissionUsers/EmployeePayrollDetails')
 );
 
 //Evalution
@@ -572,15 +580,29 @@ const routes = [
 		moduleId: 'payroll',
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/payroll',
-		component: Payroll,
+		path: '/payroll/users',
+		component: PayrollSalariedUsers,
 	},
 	{
 		moduleId: 'payroll',
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/payroll/payslip/:userId',
-		component: Payslip,
+		path: '/payroll/commission-users',
+		component: PayrollCommissionUsers,
+	},
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/payroll/users/payslip/:userId',
+		component: EmployeePayslip,
+	},
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/payroll/commission-users/payslip/:userId',
+		component: CommissionEmployeePayslip,
 	},
 
 	{

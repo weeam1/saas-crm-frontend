@@ -2,7 +2,14 @@ import { useSearchParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useRef, useState, useEffect } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
-import { Button, Flex, Box, IconButton, Skeleton } from '@chakra-ui/react';
+import {
+	Button,
+	Flex,
+	Box,
+	IconButton,
+	Skeleton,
+	Text,
+} from '@chakra-ui/react';
 import { skipToken } from '@reduxjs/toolkit/query';
 
 function getValidRolesFromStorage() {
@@ -178,7 +185,7 @@ const RoleTabs = ({ updateFilters }) => {
 									isActive={currentRole === role.roleName}
 									onClick={() => handleRoleChange(role.roleName)}
 								>
-									{role.roleName}
+									<Text textTransform='capitalize'>{role.roleName}</Text>
 								</TabButton>
 							))}
 					</>

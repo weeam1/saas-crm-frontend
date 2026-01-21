@@ -18,9 +18,9 @@ import NoData from 'components/Message/NoData';
 import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState, useCallback } from 'react';
 import { formatCurrency } from 'utils/helpers';
-import UserProfileCell from './UserProfileCell';
-import PayslipDownloadModal from './PayslipDownloadModal';
-import { formatValue, PAYROLL_COLUMNS } from '../formatUtils';
+import UserProfileCell from '../components/UserProfileCell';
+import PayslipDownloadModal from '../components/PayslipDownloadModal';
+import { formatValue, COMMISSION_PAYROLL_COLUMNS } from '../formatUtils';
 import { useNavigate } from 'react-router-dom';
 
 const EmployeePayrollTable = ({
@@ -79,7 +79,7 @@ const EmployeePayrollTable = ({
 			setSelectedEmployeeForModal(employee);
 			onOpen();
 		},
-		[onOpen]
+		[onOpen],
 	);
 
 	const renderCellContent = useCallback(
@@ -94,28 +94,40 @@ const EmployeePayrollTable = ({
 
 				return (
 					<Flex align='center' justify='center' gap='2'>
-						<Tooltip label='View Details' placement='top' hasArrow>
+						{/* View Payslip / Details */}
+						<Tooltip label='View commission details' placement='top' hasArrow>
 							<IconButton
-								aria-label='View employee details'
+								aria-label='View commission payslip'
 								icon={<FiEye />}
 								size='sm'
-								colorScheme='blue'
 								variant='ghost'
+								colorScheme='blue'
 								onClick={() =>
 									navigate(
-										`/payroll/payslip/${row._id}?month=${month}&year=${year}`
+										`/payroll/commission-users/payslip/${row._id}?month=${month}&year=${year}`,
 									)
 								}
 							/>
 						</Tooltip>
 
-						<Tooltip label='Generate Payslip' placement='top' hasArrow>
+						{/* Generate Payslip */}
+						<Tooltip
+							label={
+								row?.payslip?._id
+									? 'Generate payslip PDF'
+									: 'Payslip not created yet'
+							}
+							placement='top'
+							hasArrow
+						>
 							<IconButton
-								aria-label={'generate payslip'}
+								aria-label='Generate payslip'
 								icon={<FiPrinter />}
 								size='sm'
-								colorScheme={'green'}
-								variant='ghost'
+								variant='solid'
+								colorScheme='green'
+								isDisabled={!row?.payslip?._id}
+								opacity={row?.payslip?._id ? 1 : 0.4}
 								onClick={() => handlePayslipGenerate(row)}
 							/>
 						</Tooltip>
@@ -150,7 +162,7 @@ const EmployeePayrollTable = ({
 
 			return formatValue(column.key, value, row);
 		},
-		[navigate, month, year, handlePayslipGenerate, getNestedValue]
+		[navigate, month, year, handlePayslipGenerate, getNestedValue],
 	);
 
 	return (
@@ -169,14 +181,16 @@ const EmployeePayrollTable = ({
 				<Table variant='striped' size='sm'>
 					<Thead bg='brand.200' position='sticky' top={0} zIndex={1}>
 						<Tr>
-							{PAYROLL_COLUMNS.map((column) => (
+							{COMMISSION_PAYROLL_COLUMNS.map((column) => (
 								<Th
 									key={column.key}
 									whiteSpace='nowrap'
 									textTransform='capitalize'
 									fontSize='md'
 									py='4'
-									textAlign={['name'].includes(column.key) ? 'left' : 'center'}
+									textAlign={
+										['name', 'user'].includes(column.key) ? 'left' : 'center'
+									}
 									fontWeight='semibold'
 									color='gray.700'
 									minW={column.width}
@@ -189,10 +203,14 @@ const EmployeePayrollTable = ({
 
 					<Tbody>
 						{isLoading || delayedLoading ? (
-							<TableLoading columns={PAYROLL_COLUMNS} length={10} py='4' />
+							<TableLoading
+								columns={COMMISSION_PAYROLL_COLUMNS}
+								length={10}
+								py='4'
+							/>
 						) : data.length === 0 ? (
 							<Tr>
-								<Td colSpan={PAYROLL_COLUMNS.length} py={10}>
+								<Td colSpan={COMMISSION_PAYROLL_COLUMNS.length} py={10}>
 									<Center>
 										<NoData label='incoming balance' />
 									</Center>
@@ -206,7 +224,7 @@ const EmployeePayrollTable = ({
 									bg={index % 2 === 0 ? 'white' : 'gray.25'}
 									transition='background-color 0.2s'
 								>
-									{PAYROLL_COLUMNS.map((column) => (
+									{COMMISSION_PAYROLL_COLUMNS.map((column) => (
 										<Td
 											key={column.key}
 											px={3}
