@@ -16,7 +16,7 @@ import { CallFeedbackCard } from "./components/FeedBackCard";
 import { CallFeedbackSummary } from "./components/FeedBackOverview";
 import CallFeedbackDetailModal from "./components/CallFeedbackDetailModal";
 import CallFeedbackHeader from "./components/FeedBackHeader";
-
+import { CallFeedbackSkeleton } from "./components/skeleton";
 const CallFeedback = () => {
   const bgColor = useColorModeValue("gray.50", "gray.900");
   // Filters
@@ -100,9 +100,7 @@ const CallFeedback = () => {
       <Box mx="auto">
         <VStack spacing={4} align="stretch">
           {isLoading ? (
-            <Center py={16}>
-              <Spinner size="xl" color="blue.500" thickness="4px" />
-            </Center>
+            <CallFeedbackSkeleton />
           ) : (
             <>
               {" "}
