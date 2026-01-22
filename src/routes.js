@@ -41,6 +41,9 @@ const DealsScreen = React.lazy(() => import('views/admin/deals'));
 const SharedDealsScreen = React.lazy(
 	() => import('views/admin/deals/SharedDealsScreen'),
 );
+const CallFeedback = React.lazy(
+	() => import('views/admin/lead-v2/callFeedback/index'),
+);
 const CloseDealScreen = React.lazy(
 	() => import('views/admin/deals/DealsScreen'),
 );
@@ -345,6 +348,13 @@ const routes = [
 		path: '/lead_analytics',
 		parent: 'lead',
 		component: LeadAnalytics,
+	},
+	{
+		name: 'Call Feedback',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/lead/call-feedback',
+		parent: 'lead',
+		component: CallFeedback,
 	},
 	{
 		moduleId: 'leadpool_admin',
