@@ -51,7 +51,7 @@ const CallFeedback = () => {
       refetchOnMountOrArgChange: true,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-    }
+    },
   );
 
   // Handle search on Enter key press
@@ -132,20 +132,6 @@ const CallFeedback = () => {
                 ))}
               </SimpleGrid>
             </>
-          )}
-
-          {!isLoading && totalRecords === 0 && (
-            <Center py={16}>
-              <VStack spacing={4}>
-                <Icon as={FiPhone} boxSize={12} color="gray.400" />
-                <Text fontSize="lg" color="gray.500" fontWeight="medium">
-                  No call feedback records found
-                </Text>
-                <Text fontSize="sm" color="gray.400">
-                  Call feedback data will appear here once available
-                </Text>
-              </VStack>
-            </Center>
           )}
         </VStack>
       </Box>

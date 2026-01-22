@@ -82,6 +82,10 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
 
   // Submit handler
   const handleSubmit = async (values, actions) => {
+    if (!values.secondaryPhone && !values.secondaryWhatsapp) {
+      toast.warning("Please fill at least one secondary contact");
+      return;
+    }
     try {
       const payload = {
         secondaryContacts: {
@@ -169,7 +173,7 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
 
         <Formik
           initialValues={initialValues}
-          validationSchema={validationSchema}
+          // validationSchema={validationSchema}
           enableReinitialize
           onSubmit={handleSubmit}
         >

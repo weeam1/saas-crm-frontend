@@ -895,38 +895,41 @@ const LeadsModal = ({
               )}
             </Box>
             {/* Secondary Contact */}
-            <Box
-              display="flex"
-              flexDirection="column"
-              gap="10px"
-              alignItems={{ base: "center", md: "flex-start" }}
-              borderLeftWidth={{ base: "0", md: "1px" }}
-              borderLeftStyle="solid"
-              borderLeftColor="gray.200"
-              pl={{ base: 0, md: 5 }}
-              mt={{ base: 4, md: 0 }}
-              flex="1"
-            >
-              <Heading as="h4" size="sm" color="gray.600">
-                Secondary Contact
-              </Heading>
+            {!data?.secondaryContacts?.phoneNumber &&
+            !data?.secondaryContacts?.whatsapp ? null : (
+              <Box
+                display="flex"
+                flexDirection="column"
+                gap="10px"
+                alignItems={{ base: "center", md: "flex-start" }}
+                borderLeftWidth={{ base: "0", md: "1px" }}
+                borderLeftStyle="solid"
+                borderLeftColor="gray.200"
+                pl={{ base: 0, md: 5 }}
+                mt={{ base: 4, md: 0 }}
+                flex="1"
+              >
+                <Heading as="h4" size="sm" color="gray.600">
+                  Secondary Contact
+                </Heading>
 
-              <Box display="flex" gap="16px">
-                <Box display="flex" alignItems="center" gap="8px">
-                  <FaPhoneAlt color="gray" size={15} />
-                  <Text fontSize="sm" color="gray.700">
-                    {data?.secondaryContacts?.phoneNumber}
-                  </Text>
-                </Box>
+                <Box display="flex" gap="16px">
+                  <Box display="flex" alignItems="center" gap="8px">
+                    <FaPhoneAlt color="gray" size={15} />
+                    <Text fontSize="sm" color="gray.700">
+                      {data?.secondaryContacts?.phoneNumber}
+                    </Text>
+                  </Box>
 
-                <Box display="flex" alignItems="center" gap="8px">
-                  <FaWhatsapp color="#25D366" size={17} />
-                  <Text fontSize="sm" color="gray.700">
-                    {data?.secondaryContacts?.whatsapp}
-                  </Text>
+                  <Box display="flex" alignItems="center" gap="8px">
+                    <FaWhatsapp color="#25D366" size={17} />
+                    <Text fontSize="sm" color="gray.700">
+                      {data?.secondaryContacts?.whatsapp}
+                    </Text>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
+            )}
           </Box>
 
           {/* TABS */}

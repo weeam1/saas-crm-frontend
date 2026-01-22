@@ -192,35 +192,33 @@ export const CallFeedbackSummary = ({ data }) => {
                     borderRadius="full"
                     transition="width 0.5s ease-in-out"
                   />
-
-                  {percentage > 25 && (
-                    <Text
-                      position="absolute"
-                      left="3"
-                      top="50%"
-                      transform="translateY(-50%)"
-                      fontSize="xs"
-                      color="white"
-                      fontWeight="bold"
-                      zIndex={1}
-                    >
-                      {displayCount}
-                    </Text>
-                  )}
-                </Box>
-
-                {percentage <= 25 && (
+                  {/* {percentage > 25 && ( */}
                   <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    _dark={{ color: "gray.400" }}
-                    minW="50px"
-                    textAlign="right"
-                    fontWeight="medium"
+                    position="absolute"
+                    left="3"
+                    top="50%"
+                    transform="translateY(-50%)"
+                    fontSize="xs"
+                    color="white"
+                    fontWeight="bold"
+                    zIndex={1}
                   >
                     {displayCount}
                   </Text>
-                )}
+                </Box>
+
+                {/* {percentage <= 25 && ( */}
+                {/* <Text
+                  fontSize="sm"
+                  color="gray.600"
+                  _dark={{ color: "gray.400" }}
+                  minW="50px"
+                  textAlign="right"
+                  fontWeight="medium"
+                >
+                  {displayCount}
+                </Text> */}
+                {/* )} */}
               </Flex>
             );
           })}
