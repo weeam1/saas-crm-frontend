@@ -8,7 +8,7 @@ export const useFetchCallFeedback = () => {
   const searchString = searchParams.toString();
 
   const initialPage = Number(searchParams.get("page")) || 1;
-  const initialLimit = Number(searchParams.get("limit")) || 20;
+  const initialLimit = Number(searchParams.get("limit")) || 10;
 
   const [list, setList] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -44,15 +44,17 @@ export const useFetchCallFeedback = () => {
       refetchOnMountOrArgChange: true,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-    }
+    },
   );
 
   const { data, isLoading, isFetching, refetch } = fetchResult;
 
   useEffect(() => {
+    console.log("API Data:", data); // Debug log
     if (data?.doc) {
       setList(data?.doc || []);
-      setTotalCount(data?.pagination?.total || 0);
+      // FIXED: Use data?.total instead of data?.pagination?.total
+      setTotalCount(data?.total || 0);
     } else if (data) {
       // If data is directly the array
       setList(data || []);
@@ -71,13 +73,8 @@ export const useFetchCallFeedback = () => {
   const onDateFilterChange = (value) => {
     const newMonth = Number(value.month);
     const newYear = Number(value.year);
-
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
-
-  // const refetchSummary = useCallback(() => {
-  // 	refetch();
-  // }, [refetch]);
 
   const updateData = (id, updated, type = "update") => {
     setList((prev) => {
@@ -110,7 +107,6 @@ export const useFetchCallFeedback = () => {
 
   const removeItem = (id) => {
     setList((prev) => prev.filter((item) => item._id !== id));
-
     setTotalCount((prev) => prev - 1);
   };
 
@@ -118,7 +114,8 @@ export const useFetchCallFeedback = () => {
     queryParams,
     data: list ?? [],
     setData: setList,
-    totalPages: data?.pagination?.totalPages ?? 0,
+    // FIXED: Use data?.totalPages directly
+    totalPages: data?.totalPages ?? 0,
     totalRecords: totalCount ?? 0,
     pagination,
     setPagination,

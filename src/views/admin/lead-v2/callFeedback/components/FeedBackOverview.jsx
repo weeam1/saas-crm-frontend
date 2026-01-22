@@ -8,7 +8,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 
-export const CallFeedbackSummary = ({ data, month }) => {
+export const CallFeedbackSummary = ({ data, month, year }) => {
   const bgColor = useColorModeValue("white", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.600", "gray.400");
@@ -82,7 +82,23 @@ export const CallFeedbackSummary = ({ data, month }) => {
       borderColor={borderColor}
       mb={6}
       w="100%"
+      position="relative"
     >
+      {/* Add this heading section */}
+      <Flex position={"absolute"} align="center" mb={4}>
+        <Badge
+          bg="blue.50"
+          color="blue.400"
+          fontSize="lg"
+          fontWeight="bold"
+          px={4}
+          py={2}
+          borderRadius="lg"
+        >
+          Call Feedback
+        </Badge>
+      </Flex>
+
       <Flex
         direction={{ base: "column", md: "row" }}
         justify="space-between"
@@ -151,7 +167,7 @@ export const CallFeedbackSummary = ({ data, month }) => {
             fontSize="sm"
             fontWeight="medium"
           >
-            {monthLabel}
+            {monthLabel} {year}
           </Badge>
 
           {[5, 4, 3, 2, 1].map((stars) => {
@@ -207,7 +223,6 @@ export const CallFeedbackSummary = ({ data, month }) => {
                     borderRadius="full"
                     transition="width 0.5s ease-in-out"
                   />
-                  {/* {percentage > 25 && ( */}
                   <Text
                     position="absolute"
                     left="3"
@@ -221,19 +236,6 @@ export const CallFeedbackSummary = ({ data, month }) => {
                     {displayCount}
                   </Text>
                 </Box>
-
-                {/* {percentage <= 25 && ( */}
-                {/* <Text
-                  fontSize="sm"
-                  color="gray.600"
-                  _dark={{ color: "gray.400" }}
-                  minW="50px"
-                  textAlign="right"
-                  fontWeight="medium"
-                >
-                  {displayCount}
-                </Text> */}
-                {/* )} */}
               </Flex>
             );
           })}

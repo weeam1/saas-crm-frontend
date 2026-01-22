@@ -11,6 +11,7 @@ import {
   NumberInputField,
   InputGroup,
   InputLeftElement,
+  Flex,
 } from "@chakra-ui/react";
 import {
   Modal,
@@ -22,7 +23,6 @@ import {
   ModalCloseButton,
   VStack,
   Select,
-  Flex,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import { IconButton, HStack, Tag, Tooltip } from "@chakra-ui/react";
@@ -32,9 +32,12 @@ import {
   FiChevronRight,
   FiChevronsRight,
   FiSearch,
+  FiCalendar,
 } from "react-icons/fi";
+import TopPagination from "components/pagination/TopPagination";
+import { SearchBarV2 } from "components/search/SearchBarV2";
 
-const CallFeedbackHeader = ({
+export const CallFeedbackHeader = ({
   search,
   setSearch,
   onSearch,
@@ -42,6 +45,16 @@ const CallFeedbackHeader = ({
   setFromDate,
   setToDate,
   setMonth,
+  setYear,
+  // Pagination props
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalItems,
+  itemsPerPage,
+  refetching,
+  loading,
+  handlePageSize,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -53,169 +66,105 @@ const CallFeedbackHeader = ({
 
   // ✅ Set default month on mount
   React.useEffect(() => {
-    setMonth(currentMonth);
-  }, [currentMonth, setMonth]);
+    if (setMonth) setMonth(currentMonth);
+    if (setYear) setYear(currentYear);
+  }, [currentMonth, currentYear, setMonth, setYear]);
 
   return (
-    <Box
-      p={4}
-      borderWidth="1px"
-      borderRadius="lg"
-      bg={useColorModeValue("white", "gray.800")}
-    >
-      <HStack spacing={4} align="center" wrap="wrap">
-        {/* Search Input with Icon */}
-        <InputGroup flex="1" maxW={{ base: "full", md: "400px" }}>
-          <InputLeftElement pointerEvents="none">
-            <FiSearch color="gray.300" />
-          </InputLeftElement>
-          <Input
-            placeholder="Search by user or lead..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                onSearch();
-              }
-            }}
-            size="md"
-            pl={10}
-          />
-        </InputGroup>
-
-        {/* Date Range Picker + Clear */}
-        <HStack spacing={2}>
-          <Button onClick={onOpen} variant="outline" size="md">
-            Select Date Range
-          </Button>
-
-          <Button onClick={onClear} variant="ghost" size="md" colorScheme="red">
-            Clear
-          </Button>
-        </HStack>
-      </HStack>
-
-      <MonthFilterModal
-        isOpen={isOpen}
-        onClose={onClose}
-        month={selectedMonth}
-        year={selectedYear}
-        setMonth={setSelectedMonth}
-        setYear={setSelectedYear}
-        handleDateFilter={({ from, to, month }) => {
-          setFromDate(from);
-          setToDate(to);
-          setMonth(month); // ✅ sync with parent
-        }}
-      />
-    </Box>
-  );
-};
-
-const CallFeedbackFooter = ({ page, setPage, totalPages }) => {
-  return (
-    <Box
-      p={4}
-      borderWidth="1px"
-      borderRadius="lg"
-      bg={useColorModeValue("white", "gray.800")}
-      mt={4}
-    >
-      <Flex justify="space-between" align="center" wrap="wrap">
-        {/* Page Info */}
-        <Text fontSize="sm" color="gray.600">
-          Page {page} of {totalPages || 1}
-        </Text>
-
-        {/* Pagination Controls */}
-        <HStack spacing={2}>
-          <Tooltip label="First page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronsLeft />}
-              aria-label="First"
-              onClick={() => setPage(1)}
-              isDisabled={page === 1 || totalPages <= 1}
-              variant="outline"
-            />
-          </Tooltip>
-
-          <Tooltip label="Previous page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronLeft />}
-              aria-label="Previous"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              isDisabled={page === 1 || totalPages <= 1}
-              variant="outline"
-            />
-          </Tooltip>
-
-          {/* Jump to page */}
-          <HStack spacing={1} align="center">
-            <Text fontSize="sm" whiteSpace="nowrap">
-              Go to:
-            </Text>
-            <NumberInput
-              size="sm"
-              width="70px"
-              min={1}
-              max={totalPages || 1}
-              value={page}
-              isDisabled={totalPages <= 1}
-              onChange={(valueAsString, valueAsNumber) => {
-                if (valueAsString === "") {
-                  setPage(""); // allow clearing input while typing
-                  return;
-                }
-                const num = parseInt(valueAsString, 10);
-                if (!isNaN(num)) {
-                  setPage(Math.min(Math.max(1, num), totalPages || 1));
-                }
+    <>
+      <Box
+        p={4}
+        borderWidth="1px"
+        borderRadius="lg"
+        bg={useColorModeValue("white", "gray.800")}
+      >
+        <Flex gap={3} align="center">
+          {/* Search Bar with 70% width */}
+          <Box width="80%">
+            <SearchBarV2
+              value={search} // parent state for controlled "submitted" search
+              onSearchTermChange={onSearch} // parent function called with latest term
+              onClear={() => {
+                if (setSearch) setSearch("");
+                if (onClear) onClear();
               }}
-              clampValueOnBlur
+            />
+          </Box>
+
+          {/* Month-Year Picker with icon + Clear button */}
+          <HStack spacing={2} width="20%">
+            <Button
+              onClick={onOpen}
+              variant="outline"
+              size="md"
+              leftIcon={<FiCalendar />}
+              width="full"
             >
-              <NumberInputField textAlign="center" />
-            </NumberInput>
+              {dayjs().month(selectedMonth).format("MMMM")} {selectedYear}
+            </Button>
+
+            {/* <Button
+              onClick={onClear}
+              variant="ghost"
+              size="md"
+              colorScheme="red"
+            >
+              Clear
+            </Button> */}
           </HStack>
+        </Flex>
 
-          <Tooltip label="Next page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronRight />}
-              aria-label="Next"
-              onClick={() => setPage((p) => Math.min(totalPages || 1, p + 1))}
-              isDisabled={page === totalPages || totalPages <= 1}
-              variant="outline"
-            />
-          </Tooltip>
+        <MonthYearModal
+          isOpen={isOpen}
+          onClose={onClose}
+          month={selectedMonth}
+          year={selectedYear}
+          setMonth={setSelectedMonth}
+          setYear={setSelectedYear}
+          onApply={(month, year) => {
+            if (setMonth) setMonth(month);
+            if (setYear) setYear(year);
 
-          <Tooltip label="Last page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronsRight />}
-              aria-label="Last"
-              onClick={() => setPage(totalPages)}
-              isDisabled={page === totalPages || totalPages <= 1}
-              variant="outline"
-            />
-          </Tooltip>
-        </HStack>
+            // Also set from/to dates if needed
+            if (setFromDate) {
+              const from = dayjs()
+                .year(year)
+                .month(month)
+                .startOf("month")
+                .toISOString();
+              setFromDate(from);
+            }
+            if (setToDate) {
+              const to = dayjs()
+                .year(year)
+                .month(month)
+                .endOf("month")
+                .toISOString();
+              setToDate(to);
+            }
+          }}
+        />
+      </Box>
 
-        {/* Total Pages Info */}
-        <Text fontSize="sm" color="gray.600">
-          Total: {totalPages || 1} {totalPages === 1 ? "page" : "pages"}
-        </Text>
-      </Flex>
-    </Box>
+      {/* Add TopPagination with all props */}
+      <TopPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        refetching={refetching}
+        loading={loading}
+        handlePageSize={handlePageSize}
+      />
+    </>
   );
 };
 
-export { CallFeedbackHeader, CallFeedbackFooter };
-const MonthFilterModal = ({
+const MonthYearModal = ({
   isOpen,
   onClose,
-  handleDateFilter,
+  onApply,
   month,
   year,
   setMonth,
@@ -245,11 +194,7 @@ const MonthFilterModal = ({
   const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
 
   const handleApply = () => {
-    const from = dayjs().year(year).month(month).startOf("month").toISOString();
-
-    const to = dayjs().year(year).month(month).endOf("month").toISOString();
-
-    handleDateFilter({ from, to, month });
+    onApply(month, year);
     onClose();
   };
 
@@ -274,7 +219,7 @@ const MonthFilterModal = ({
             justify="space-between"
           >
             <Text fontSize="lg" fontWeight="bold">
-              Select Month
+              Select Month & Year
             </Text>
             <ModalCloseButton position="static" />
           </Flex>
@@ -293,6 +238,7 @@ const MonthFilterModal = ({
                 ))}
               </Select>
 
+              {/* Year */}
               <Select value={year} onChange={(e) => setYear(+e.target.value)}>
                 {years.map((y) => (
                   <option key={y} value={y}>
@@ -303,7 +249,7 @@ const MonthFilterModal = ({
             </HStack>
 
             <Text fontSize="sm" color="gray.500" textAlign="center">
-              Filters data for the selected month
+              Select month and year to filter data
             </Text>
           </VStack>
         </ModalBody>
