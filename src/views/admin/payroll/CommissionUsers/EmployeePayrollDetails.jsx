@@ -37,10 +37,12 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { constant } from 'constant';
 import { FaBuilding } from 'react-icons/fa';
-import PayrollStatus from './PayrollStatus';
-import { ImageModal } from './ImageModal';
+import PayrollStatus from '../components/PayrollStatus';
+import PendingPayrollSummary from '../components/PendingPayrollSummary';
+import { ImageModal } from '../components/ImageModal';
 import { formatAmount, formatCurrency } from 'utils/helpers';
-import { SalarySummaryRow } from './PayrollResuable';
+import { useState } from 'react';
+import { SalarySummaryRow } from '../components/PayrollResuable';
 
 // Custom components for better organization
 const StatCard = ({
@@ -145,6 +147,8 @@ const EmployeePayrollDetails = () => {
 	const { userId } = useParams();
 	const navigate = useNavigate();
 
+	const [skipPendingSummary, setSkipPendingSummary] = useState(false);
+
 	const now = new Date();
 	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
 	const defaultYear = String(now.getFullYear());
@@ -160,7 +164,12 @@ const EmployeePayrollDetails = () => {
 	const month = searchParams.get('month') || defaultMonth;
 	const year = searchParams.get('year') || defaultYear;
 
-	const { data: payrollData, isLoading: payrollLoading } = useFetchItemsQuery(
+	const {
+		data: payrollData,
+		isLoading: payrollLoading,
+		isFetching: payrollFetching,
+		refetch,
+	} = useFetchItemsQuery(
 		{
 			path: `/payroll/user/${userId}`,
 			params: { month, year },
@@ -176,7 +185,7 @@ const EmployeePayrollDetails = () => {
 	const bgColor = useColorModeValue('gray.50', 'gray.900');
 	const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-	if (payrollLoading) {
+	if (payrollLoading || payrollFetching) {
 		return <PayrollSkeleton />;
 	}
 
@@ -191,6 +200,33 @@ const EmployeePayrollDetails = () => {
 		);
 	}
 
+	const summary = payrollData?.doc?.pendingPayrollSummary;
+
+	const hasApplied =
+		summary?.deductions?.doc?.some((d) => d?.status === 'APPLIED') ||
+		summary?.commissions?.doc?.some((c) => c?.status === 'APPLIED');
+
+	const isPending = Boolean(summary?.isPending);
+
+	const shouldShowPendingSummary = isPending && !skipPendingSummary;
+
+	if (shouldShowPendingSummary) {
+		return (
+			<PendingPayrollSummary
+				payroll={payrollData.doc}
+				showSkip={hasApplied} // only show skip if applied exists
+				onSkip={() => {
+					refetch();
+					setSkipPendingSummary(true);
+				}}
+			/>
+		);
+	}
+
+	// if (payrollData?.doc?.pendingPayrollSummary?.isPending) {
+	// 	return <PendingPayrollSummary payroll={payrollData?.doc} />;
+	// }
+
 	const {
 		fullName,
 		profileImage,
@@ -198,6 +234,7 @@ const EmployeePayrollDetails = () => {
 		username,
 		commission,
 		incentive,
+		virtualSalary,
 		salary,
 		salaryType,
 		evaluation,
@@ -218,57 +255,35 @@ const EmployeePayrollDetails = () => {
 
 	const userEarnings = [
 		{
-			key: 'basic',
-			label: 'Basic',
-			value: payrollSummary?.basicSalary,
-		},
-		{
 			key: 'dealCommission',
 			label: `Deal Commission (${commission}%)`,
-			value:
-				payrollSummary?.closeDealCommission ??
-				payrollSummary?.currentCloseDealCommission,
-			color: 'green.500',
+			value: payrollSummary?.previousCloseDealCommission,
 		},
 		{
 			key: 'sharedCommission',
 			label: 'Shared Commission',
-			value:
-				payrollSummary?.sharedDealCommission ??
-				payrollSummary?.currentSharedDealCommission,
-			color: 'green.500',
+			value: payrollSummary?.previousSharedDealCommission,
 		},
-		{
-			key: 'incentive',
-			label: `Incentive (${incentive})`,
-			value: payrollSummary?.incentiveEarned,
-			color: 'green.500',
-		},
-
-		// 🔹 Adjustments (earnings side)
 		{
 			key: 'overtime',
 			label: 'Overtime',
 			value: payrollSummary?.adjustments?.overtime,
-			color: 'green.500',
 		},
 		{
 			key: 'bonus',
 			label: 'Bonus',
 			value: payrollSummary?.adjustments?.bonus,
-			color: 'green.500',
 		},
 		{
 			key: 'allowance',
 			label: 'Allowance',
 			value: payrollSummary?.adjustments?.allowance,
-			color: 'green.500',
 		},
+
 		{
 			key: 'commissionAdjustment',
 			label: 'Commission Adjustment',
 			value: payrollSummary?.adjustments?.commission,
-			color: 'green.500',
 		},
 	];
 
@@ -283,9 +298,7 @@ const EmployeePayrollDetails = () => {
 		{
 			key: 'attendanceDeduction',
 			label: 'Attendance Deduction',
-			value:
-				payrollSummary?.attendanceDeduction ??
-				payrollSummary?.currentAttendanceDeduction,
+			value: payrollSummary?.previousAttendanceDeduction,
 		},
 		{
 			key: 'deduction',
@@ -400,7 +413,7 @@ const EmployeePayrollDetails = () => {
 				</VStack>
 
 				{/* Key Metrics Grid */}
-				<SimpleGrid columns={{ base: 1, md: 2, xl: 4 }} spacing={6} mb={8}>
+				<SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} spacing={6} mb={8}>
 					<StatCard
 						title='Net Salary'
 						value={formatAmount(payrollSummary?.netSalary)}
@@ -422,13 +435,13 @@ const EmployeePayrollDetails = () => {
 						icon={FiAward}
 						color='purple'
 					/>
-					<StatCard
+					{/* <StatCard
 						title='Performance Score'
 						value={`${evaluation?.finalPercentage || 0}%`}
 						subtitle={`${evaluation?.totalObtainedScore || 0}/${evaluation?.totalScore || 0} points`}
 						icon={FiPieChart}
 						color='orange'
-					/>
+					/> */}
 				</SimpleGrid>
 
 				<Grid
@@ -464,6 +477,7 @@ const EmployeePayrollDetails = () => {
 												/>
 											))}
 									</VStack>
+
 									<Divider />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Earnings</Text>
@@ -489,6 +503,7 @@ const EmployeePayrollDetails = () => {
 												/>
 											))}
 									</VStack>
+
 									<Divider />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
 										<Text>Total Deductions</Text>
@@ -574,55 +589,57 @@ const EmployeePayrollDetails = () => {
 					{/* Right Column - Sidebar */}
 					<VStack spacing={6} align='stretch'>
 						{/* Loan Information */}
-						<SectionCard title='Loan Summary' icon={FiCreditCard}>
-							<VStack spacing={4} align='stretch'>
-								{/* <ProgressIndicator
+						{loanSummary?.activeLoans > 0 && (
+							<SectionCard title='Loan Summary' icon={FiCreditCard}>
+								<VStack spacing={4} align='stretch'>
+									{/* <ProgressIndicator
 									label='Loan Repayment Progress'
 									value={loanSummary?.totalPaidAmount}
 									max={loanSummary?.totalBorrowedAmount}
 									color='blue'
 									currency={payrollSummary?.currency}
 								/> */}
-								<SimpleGrid columns={1} spacing={3}>
-									<HStack justify='space-between'>
-										<Text color='gray.600'>Total Borrowed</Text>
-										<Text fontWeight='semibold'>
-											{formatAmount(loanSummary?.totalBorrowedAmount)}
-										</Text>
-									</HStack>
-									<HStack justify='space-between'>
-										<Text color='gray.600'>Amount Paid</Text>
-										<Text fontWeight='semibold' color='green.600'>
-											{payrollData?.doc?.paymentStatus === 'paid'
-												? formatAmount(loanSummary?.monthlyInstallment)
-												: formatAmount(loanSummary?.totalPaidAmount)}
-										</Text>
-									</HStack>
-									<HStack justify='space-between'>
-										<Text color='gray.600'>Remaining</Text>
-										<Text fontWeight='semibold' color='red.600'>
-											{payrollData?.doc?.paymentStatus === 'paid'
-												? formatAmount(
-														loanSummary?.totalRemainingAmount -
-															loanSummary?.monthlyInstallment,
-													)
-												: formatAmount(loanSummary?.totalRemainingAmount)}
-										</Text>
-									</HStack>
-									<HStack justify='space-between'>
-										<Text color='gray.600'>Monthly Installment</Text>
-										<Text fontWeight='semibold'>
-											{formatAmount(loanSummary?.monthlyInstallment)}
-										</Text>
-									</HStack>
-								</SimpleGrid>
-							</VStack>
-						</SectionCard>
+									<SimpleGrid columns={1} spacing={3}>
+										<HStack justify='space-between'>
+											<Text color='gray.600'>Total Borrowed</Text>
+											<Text fontWeight='semibold'>
+												{formatAmount(loanSummary?.totalBorrowedAmount)}
+											</Text>
+										</HStack>
+										<HStack justify='space-between'>
+											<Text color='gray.600'>Amount Paid</Text>
+											<Text fontWeight='semibold' color='green.600'>
+												{payrollData?.doc?.paymentStatus === 'paid'
+													? formatAmount(loanSummary?.monthlyInstallment)
+													: formatAmount(loanSummary?.totalPaidAmount)}
+											</Text>
+										</HStack>
+										<HStack justify='space-between'>
+											<Text color='gray.600'>Remaining</Text>
+											<Text fontWeight='semibold' color='red.600'>
+												{payrollData?.doc?.paymentStatus === 'paid'
+													? formatAmount(
+															loanSummary?.totalRemainingAmount -
+																loanSummary?.monthlyInstallment,
+														)
+													: formatAmount(loanSummary?.totalRemainingAmount)}
+											</Text>
+										</HStack>
+										<HStack justify='space-between'>
+											<Text color='gray.600'>Monthly Installment</Text>
+											<Text fontWeight='semibold'>
+												{formatAmount(loanSummary?.monthlyInstallment)}
+											</Text>
+										</HStack>
+									</SimpleGrid>
+								</VStack>
+							</SectionCard>
+						)}
 
 						{/* Performance & Deals */}
 						<SectionCard title='Performance & Deals' icon={FiTrendingUp}>
 							<VStack spacing={4} align='stretch'>
-								<Box>
+								{/* <Box>
 									<HStack justify='space-between' mb={2}>
 										<Text fontWeight='medium' color='gray.600'>
 											Performance Score
@@ -638,7 +655,7 @@ const EmployeePayrollDetails = () => {
 										w='100%'
 										borderRadius='full'
 									/>
-								</Box>
+								</Box> */}
 								<SimpleGrid columns={1} spacing={3}>
 									<HStack justify='space-between'>
 										<Text color='gray.600'>Closed Deals</Text>
@@ -652,18 +669,18 @@ const EmployeePayrollDetails = () => {
 											{sharedDeals?.dealsCount || 0}
 										</Text>
 									</HStack>
-									<HStack justify='space-between'>
+									{/* <HStack justify='space-between'>
 										<Text color='gray.600'>Deal Value</Text>
 										<Text fontWeight='semibold'>
 											{closeDeals?.totalAmount?.toLocaleString() || 0}
 										</Text>
-									</HStack>
-									<HStack justify='space-between'>
+									</HStack> */}
+									{/* <HStack justify='space-between'>
 										<Text color='gray.600'>Evaluators</Text>
 										<Text fontWeight='semibold'>
 											{evaluation?.totalEvaluators || 0}
 										</Text>
-									</HStack>
+									</HStack> */}
 								</SimpleGrid>
 							</VStack>
 						</SectionCard>

@@ -8,23 +8,24 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
-import TopPagination from 'components/pagination/TopPagination';
+import { FiFilter } from 'react-icons/fi';
+
 import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { FiFilter, FiRefreshCw } from 'react-icons/fi';
-import { buttonStyle } from 'utils/btn';
-import { BiX } from 'react-icons/bi';
-import { useEmployeePayroll } from './hooks/usePayroll';
+import TopPagination from 'components/pagination/TopPagination';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
-import AgencyFilter from './components/AgencyFilter';
-import EmployeePayrollTable from './SalariedUsers/EmployeePayrollTable';
-import SearchBar from 'components/search/SearchBar';
-import AdvancedSearchModal from './components/AdvancedSearchModal';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
-import SearchBox from './components/SearchBox';
 import RefreshButton from 'components/refresh/RefreshButton';
-import EmployeePayrollCards from './SalariedUsers/EmployeePayrollCards';
 import ViewToggle from 'components/toggle/ViewToggle';
+
+import AgencyFilter from '../components/AgencyFilter';
+import AdvancedSearchModal from '../components/AdvancedSearchModal';
+import ActiveFiltersDisplay from '../components/ActiveFiltersDisplay';
+import SearchBox from '../components/SearchBox';
+import EmployeePayrollTable from './EmployeePayrollTable';
+import EmployeePayrollCards from './EmployeePayrollCards';
+
+import { useFetchItemsQuery } from 'api/apiSlice';
+import { useEmployeePayroll } from '../hooks/usePayroll';
+import { useCommissionEmployeePayroll } from '../hooks/useCommissionPayroll';
 
 const Payroll = () => {
 	const {
@@ -47,7 +48,7 @@ const Payroll = () => {
 		setPagination,
 		setFilters,
 		refetch,
-	} = useEmployeePayroll();
+	} = useCommissionEmployeePayroll();
 
 	const selectedAgency = useMemo(
 		() => agencies.find((a) => a._id === agencyId) || null,
@@ -160,7 +161,7 @@ const Payroll = () => {
 					textAlign={{ base: 'center', md: 'left' }}
 					order={{ base: 1, md: 1 }}
 				>
-					<Text>{selectedAgency?.name || 'All '} Employee Payroll</Text>
+					<Text>{selectedAgency?.name || 'All '} Commission Payroll</Text>
 					<CountUpComponent key={totalRecords} targetNumber={totalRecords} />
 				</Flex>
 
@@ -224,25 +225,25 @@ const Payroll = () => {
 						handleView={handleViewChange}
 					/>
 					{/* {clearFilters && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='softGray.100'
-							w='fit-content'
-							color='gray.800'
-							sx={{
-								svg: {
-									fill: 'gray.800',
-								},
-							}}
-							_active={{ bg: 'gray.200' }}
-							leftIcon={<BiX />}
-							aria-label='Clear'
-							onClick={handleClear}
-						>
-							Clear
-						</Button>
-					)} */}
+            <Button
+              {...buttonStyle}
+              variant='solid'
+              bg='softGray.100'
+              w='fit-content'
+              color='gray.800'
+              sx={{
+                svg: {
+                  fill: 'gray.800',
+                },
+              }}
+              _active={{ bg: 'gray.200' }}
+              leftIcon={<BiX />}
+              aria-label='Clear'
+              onClick={handleClear}
+            >
+              Clear
+            </Button>
+          )} */}
 				</HStack>
 			</Flex>
 			{/* <SummaryCards data={summary || {}} isLoading={summaryLoading} /> */}

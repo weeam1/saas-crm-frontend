@@ -60,7 +60,7 @@ const Agents = ({ lead }) => {
 				}
 			}
 
-			const res = await putApi(`api/lead/v2/edit/${lead._id}`, data);
+			const res = await putApi(`api/lead/v2/assign/${lead._id}`, data);
 
 			if (res.status === 200) {
 				setSelected(data.agentAssigned);
@@ -87,7 +87,7 @@ const Agents = ({ lead }) => {
 								value: res?.data?.isReleased,
 							},
 						],
-					})
+					}),
 				);
 
 				// send lead notification
@@ -101,7 +101,7 @@ const Agents = ({ lead }) => {
 					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
 				} else {
 					const agent = agents?.find(
-						(agent) => agent._id === agentAssignedValue
+						(agent) => agent._id === agentAssignedValue,
 					);
 					message = `Lead '${lead?.leadName || ''}' assigned to Agent ${agent?.fullName || 'N/A'} by ${user?.fullName}.`;
 				}
@@ -151,7 +151,7 @@ const Agents = ({ lead }) => {
 		if (!manager?.teamLeaders?.length) return [];
 
 		const teamLead = manager.teamLeaders.find(
-			(tl) => tl._id === teamLeadAssigned
+			(tl) => tl._id === teamLeadAssigned,
 		);
 
 		if (!teamLead?.agents?.length) return [];

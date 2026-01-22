@@ -155,6 +155,22 @@ export const userSchema = ({ isAdmin = true, isSuperAdmin = true } = {}) =>
 						})
 				: yup.number().nullable(),
 
+		virtualSalary:
+			isAdmin || isSuperAdmin
+				? yup
+						.number()
+						.transform((v) => (isNaN(v) ? undefined : v))
+						.when('salaryType', (salaryType, schema) => {
+							const type = getSalaryType(salaryType[0]);
+							if (type?.hasCommission && type.value === 'COMMISSION_ONLY') {
+								return schema
+									.required('Virtual Salary amount is required')
+									.min(0, 'Virtual Salary must be a positive amount');
+							}
+							return schema.optional().nullable();
+						})
+				: yup.number().nullable(),
+
 		commission:
 			isAdmin || isSuperAdmin
 				? yup

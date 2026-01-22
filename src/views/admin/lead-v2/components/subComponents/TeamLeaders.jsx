@@ -60,7 +60,7 @@ const TeamLeaders = ({ lead }) => {
 
 		try {
 			setLoading(true);
-			const res = await putApi(`api/lead/v2/edit/${_id}`, dataObj);
+			const res = await putApi(`api/lead/v2/assign/${_id}`, dataObj);
 
 			if (res.status === 200) {
 				setSelected(teamLeadAssignedValue);
@@ -94,7 +94,7 @@ const TeamLeaders = ({ lead }) => {
 								value: res?.data?.isReleased,
 							},
 						],
-					})
+					}),
 				);
 
 				toast.success('Team Lead updated successfully');
@@ -110,7 +110,7 @@ const TeamLeaders = ({ lead }) => {
 					message = `Lead '${leadName || ''}' unassigned from Team lead by ${user?.fullName}.`;
 				} else {
 					const teamLeader = teamLeaders?.find(
-						(teamLead) => teamLead?._id === teamLeadAssignedValue
+						(teamLead) => teamLead?._id === teamLeadAssignedValue,
 					);
 
 					message = `Lead '${leadName || ''}' assigned to Team lead ${teamLeader?.fullName} by ${user?.fullName}.`;
