@@ -28,6 +28,7 @@ const CallFeedback = () => {
   // Modal state
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [month, setMonth] = useState(null);
 
   const {
     data: callFeedbackData,
@@ -51,7 +52,7 @@ const CallFeedback = () => {
       refetchOnMountOrArgChange: true,
       refetchOnFocus: true,
       refetchOnReconnect: true,
-    }
+    },
   );
 
   // Handle search on Enter key press
@@ -105,8 +106,9 @@ const CallFeedback = () => {
           ) : (
             <>
               {" "}
-              <CallFeedbackSummary data={allData?.doc || []} />
+              <CallFeedbackSummary month={month} data={allData?.doc || []} />
               <CallFeedbackHeader
+                setMonth={setMonth}
                 search={search}
                 setSearch={setSearch}
                 onSearch={handleSearch}
@@ -132,20 +134,6 @@ const CallFeedback = () => {
                 ))}
               </SimpleGrid>
             </>
-          )}
-
-          {!isLoading && totalRecords === 0 && (
-            <Center py={16}>
-              <VStack spacing={4}>
-                <Icon as={FiPhone} boxSize={12} color="gray.400" />
-                <Text fontSize="lg" color="gray.500" fontWeight="medium">
-                  No call feedback records found
-                </Text>
-                <Text fontSize="sm" color="gray.400">
-                  Call feedback data will appear here once available
-                </Text>
-              </VStack>
-            </Center>
           )}
         </VStack>
       </Box>

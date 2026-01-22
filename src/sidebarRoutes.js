@@ -282,7 +282,7 @@ export const sidebarRoutes = [
 			{
 				// id: "lead_analytics",
 				name: 'Call Feedback',
-				path: '/lead/call-feedback',
+				path: '/call-feedback',
 			},
 		],
 	},

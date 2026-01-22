@@ -206,7 +206,7 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
                   fontSize={{ base: "xs", md: "sm" }}
                   color="gray.700"
                   _dark={{ color: "gray.300" }}
-                  maxW={{ base: "100px" }} // 👈 adjust width
+                  maxW={{ base: "150px" }} // 👈 adjust width
                   isTruncated
                   flex={1}
                   cursor="pointer"

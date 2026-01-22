@@ -11,7 +11,7 @@ import { EditIcon, DeleteIcon, PhoneIcon, EmailIcon } from "@chakra-ui/icons";
 import { FaHistory } from "react-icons/fa";
 import { BsWhatsapp } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-
+import { FiUsers } from "react-icons/fi";
 import ReleaseLead from "../../ReleaseLead";
 import { AiFillInfoCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
@@ -193,7 +193,7 @@ const LeadMenu = ({
               setEditSecondary(true);
               setLeadDetails(lead); // 🔹 set lead data
             }}
-            icon={<EditIcon fontSize={15} />}
+            icon={<FiUsers fontSize={15} />}
           >
             Secondary Contact
           </MenuItem>

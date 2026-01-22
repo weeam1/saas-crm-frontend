@@ -895,38 +895,41 @@ const LeadsModal = ({
               )}
             </Box>
             {/* Secondary Contact */}
-            <Box
-              display="flex"
-              flexDirection="column"
-              gap="10px"
-              alignItems={{ base: "center", md: "flex-start" }}
-              borderLeftWidth={{ base: "0", md: "1px" }}
-              borderLeftStyle="solid"
-              borderLeftColor="gray.200"
-              pl={{ base: 0, md: 5 }}
-              mt={{ base: 4, md: 0 }}
-              flex="1"
-            >
-              <Heading as="h4" size="sm" color="gray.600">
-                Secondary Contact
-              </Heading>
+            {!data?.secondaryContacts?.phoneNumber &&
+            !data?.secondaryContacts?.whatsapp ? null : (
+              <Box
+                display="flex"
+                flexDirection="column"
+                gap="10px"
+                alignItems={{ base: "center", md: "flex-start" }}
+                borderLeftWidth={{ base: "0", md: "1px" }}
+                borderLeftStyle="solid"
+                borderLeftColor="gray.200"
+                pl={{ base: 0, md: 5 }}
+                mt={{ base: 4, md: 0 }}
+                flex="1"
+              >
+                <Heading as="h4" size="sm" color="gray.600">
+                  Secondary Contact
+                </Heading>
 
-              <Box display="flex" gap="16px">
-                <Box display="flex" alignItems="center" gap="8px">
-                  <FaPhoneAlt color="gray" size={15} />
-                  <Text fontSize="sm" color="gray.700">
-                    +923009876543
-                  </Text>
-                </Box>
+                <Box display="flex" gap="16px">
+                  <Box display="flex" alignItems="center" gap="8px">
+                    <FaPhoneAlt color="gray" size={15} />
+                    <Text fontSize="sm" color="gray.700">
+                      {data?.secondaryContacts?.phoneNumber}
+                    </Text>
+                  </Box>
 
-                <Box display="flex" alignItems="center" gap="8px">
-                  <FaWhatsapp color="#25D366" size={17} />
-                  <Text fontSize="sm" color="gray.700">
-                    +923009876543
-                  </Text>
+                  <Box display="flex" alignItems="center" gap="8px">
+                    <FaWhatsapp color="#25D366" size={17} />
+                    <Text fontSize="sm" color="gray.700">
+                      {data?.secondaryContacts?.whatsapp}
+                    </Text>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
+            )}
           </Box>
 
           {/* TABS */}
@@ -1046,7 +1049,7 @@ const LeadsModal = ({
               >
                 Notes
               </Tab>
-              <Tab
+              {/* <Tab
                 _selected={{
                   color: "#B79045",
                   borderBottom: "2px solid",
@@ -1060,7 +1063,7 @@ const LeadsModal = ({
                 _focus={{ boxShadow: "none" }}
               >
                 FeedBack
-              </Tab>
+              </Tab> */}
             </TabList>
 
             {/* TAB PANELS */}
@@ -1703,114 +1706,10 @@ const LeadsModal = ({
                   )}
                 </Box>
               </TabPanel>
+
               {/* <TabPanel py={4}>
-                <Box mt={6} display="flex" flexDirection="column" gap={6}>
-
-                  <Flex align="center" justify="space-between">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      colorScheme="gray"
-                      onClick={() => {
-                        setOpenFeedbackForm(true);
-                        setTimeout(() => {
-                          addNoteRef.current?.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start",
-                          });
-                        }, 100);
-                      }}
-                    >
-                      Add Feedback
-                    </Button>
-                  </Flex>
-
-
-                  {leadQualifications?.length === 0 && (
-                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
-                      No qualification data available.
-                    </Text>
-                  )}
-
-                  <Box display="flex" flexDirection="column" gap={4}>
-                    {leadQualifications?.map((q) => (
-                      <Box
-                        key={q.leadId}
-                        p={4}
-                        bg="white"
-                        border="1px solid"
-                        borderColor="gray.200"
-                        borderRadius="xl"
-                        boxShadow="sm"
-                        _hover={{ boxShadow: "md", cursor: "pointer" }}
-                        onClick={() => {
-                          setSelectedQualification(q);
-                          setOpenQualificationView(true);
-                        }}
-                      >
-                        <Flex justify="space-between" mb={2} align="center">
-                          <Text fontSize="sm" fontWeight="600" color="#B79045">
-                            Lead ID: {q.leadId}
-                          </Text>
-
-                          <Badge
-                            colorScheme={
-                              q.clientTemperature === "Hot"
-                                ? "red"
-                                : q.clientTemperature === "Warm"
-                                  ? "yellow"
-                                  : "blue"
-                            }
-                          >
-                            {q.clientTemperature}
-                          </Badge>
-                        </Flex>
-
-                        <Text fontSize="sm">
-                          <b>Lead Type:</b> {q.leadType}
-                        </Text>
-
-                        <Text fontSize="sm">
-                          <b>Budget Range:</b> {q.budgetRange}
-                        </Text>
-
-                        <Text fontSize="sm">
-                          <b>Decision Status:</b> {q.decisionStatus}
-                        </Text>
-
-                        <Text fontSize="sm">
-                          <b>Purchase Timeline:</b> {q.purchaseTimeline}
-                        </Text>
-
-                        <Text fontSize="sm">
-                          <b>Preferred Locations:</b>{" "}
-                          {q.preferredLocations?.join(", ")}
-                        </Text>
-
-                        <Divider my={2} />
-
-                        <Text fontSize="xs" color="gray.500">
-                          Next Action: {q.nextActionType} • {q.nextActionDate}
-                        </Text>
-
-                        <Text fontSize="xs" color="gray.400" mt={1}>
-                          Updated by {q.lastUpdatedBy} • {q.lastUpdatedAt}
-                        </Text>
-                      </Box>
-                    ))}
-                  </Box>
-
-
-                  <QualificationViewModal
-                    isOpen={openQualificationView}
-                    onClose={() => setOpenQualificationView(false)}
-                    data={selectedQualification}
-                  />
-                </Box>
-              </TabPanel> */}
-              <TabPanel py={4}>
                 <Box mt={6} display="flex" flexDirection="column" gap={4}>
-                  {/* HEADER */}
+
                   <Flex align="center" justify="space-between">
                     {hasFeedbackForThisLead ? (
                       <Box>
@@ -1845,9 +1744,6 @@ const LeadsModal = ({
                     )}
                   </Flex>
 
-                  {/* ========================= */}
-                  {/* QUALIFICATION LIST */}
-                  {/* ========================= */}
 
                   {leadQualificationss?.length === 0 && (
                     <Center py={8} bg="gray.50" borderRadius="lg">
@@ -1862,12 +1758,11 @@ const LeadsModal = ({
 
                   <Box display="flex" flexDirection="column" gap={4}>
                     {leadQualificationss?.map((q) => {
-                      // Extract data from nested structure
+
                       const core = q.coreQualification || {};
                       const leadInfo = q.lead || {};
                       const updatedBy = q.updatedBy || {};
 
-                      // Format date for display
                       const formatDate = (dateString) => {
                         if (!dateString) return "";
                         return new Date(dateString).toLocaleDateString(
@@ -1879,7 +1774,6 @@ const LeadsModal = ({
                         );
                       };
 
-                      // Format date with time for next action
                       const formatDateTime = (dateString) => {
                         if (!dateString) return "";
                         return new Date(dateString).toLocaleDateString(
@@ -1916,7 +1810,7 @@ const LeadsModal = ({
                             setOpenQualificationView(true);
                           }}
                         >
-                          {/* Decorative gradient accent */}
+
                           <Box
                             position="absolute"
                             top={0}
@@ -1926,7 +1820,7 @@ const LeadsModal = ({
                             bgGradient="linear(to-r, #FF6B6B, #FFD93D, #6BCB77, #4D96FF)"
                           />
 
-                          {/* Card Header with Action Icons */}
+
                           <Flex justify="space-between" mb={3} align="center">
                             <Flex align="center" gap={2}>
                               <Box
@@ -1956,7 +1850,7 @@ const LeadsModal = ({
                             </Flex>
 
                             <Flex align="center" gap={2}>
-                              {/* View Icon (Eye) */}
+
                               <IconButton
                                 icon={<FiEye />}
                                 size="sm"
@@ -1971,19 +1865,16 @@ const LeadsModal = ({
                                 aria-label="View qualification"
                               />
 
-                              {/* Edit Icon */}
                               <IconButton
                                 icon={<FiEdit2 />}
                                 size="sm"
                                 variant="ghost"
                                 color="gray.500"
                                 _hover={{ color: "#B79045", bg: "gray.50" }}
-                                // Change the edit button onClick to:
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setSelectedQualification(q); // Set the data first
+                                  setSelectedQualification(q);
                                   setTimeout(() => {
-                                    // Small delay to ensure state is updated
                                     setOpenFeedbackForm(true);
                                     setIsEdit(true);
                                   }, 10);
@@ -2012,13 +1903,11 @@ const LeadsModal = ({
                             </Flex>
                           </Flex>
 
-                          {/* Main Content - One Row Layout */}
                           <SimpleGrid
                             columns={{ base: 1, sm: 2, md: 4 }}
                             spacing={4}
                             mb={3}
                           >
-                            {/* Budget */}
                             <Box>
                               <Flex align="center" gap={2} mb={1}>
                                 <Box
@@ -2048,7 +1937,6 @@ const LeadsModal = ({
                               </Text>
                             </Box>
 
-                            {/* Timeline */}
                             <Box>
                               <Flex align="center" gap={2} mb={1}>
                                 <Box
@@ -2078,7 +1966,6 @@ const LeadsModal = ({
                               </Text>
                             </Box>
 
-                            {/* Decision */}
                             <Box>
                               <Flex align="center" gap={2} mb={1}>
                                 <Box
@@ -2107,7 +1994,6 @@ const LeadsModal = ({
                               </Text>
                             </Box>
 
-                            {/* Locations */}
                             <Box>
                               <Flex align="center" gap={2} mb={1}>
                                 <Box
@@ -2140,75 +2026,7 @@ const LeadsModal = ({
                             </Box>
                           </SimpleGrid>
 
-                          {/* Investment Profile Section (for Investors) */}
-                          {/* {q.isInvestor && q.investmentProfile && (
-                            <Box
-                              p={3}
-                              mb={3}
-                              bg="purple.50"
-                              borderRadius="md"
-                              borderLeft="4px solid"
-                              borderColor="purple.400"
-                            >
-                              <Flex align="center" gap={2} mb={2}>
-                                <Icon as={FiTrendingUp} color="purple.500" />
-                                <Text
-                                  fontSize="xs"
-                                  fontWeight="600"
-                                  color="purple.700"
-                                >
-                                  Investment Profile
-                                </Text>
-                              </Flex>
-                              <SimpleGrid
-                                columns={{ base: 2, md: 3 }}
-                                spacing={2}
-                              >
-                                <Box>
-                                  <Text fontSize="2xs" color="gray.600">
-                                    Goal
-                                  </Text>
-                                  <Text
-                                    fontSize="xs"
-                                    fontWeight="500"
-                                    textTransform="capitalize"
-                                  >
-                                    {q.investmentProfile.investmentGoal?.toLowerCase() ||
-                                      "-"}
-                                  </Text>
-                                </Box>
-                                <Box>
-                                  <Text fontSize="2xs" color="gray.600">
-                                    Target ROI
-                                  </Text>
-                                  <Text
-                                    fontSize="xs"
-                                    fontWeight="500"
-                                    textTransform="capitalize"
-                                  >
-                                    {q.investmentProfile.targetROI
-                                      ?.replace(/_/g, " ")
-                                      .toLowerCase() || "-"}
-                                  </Text>
-                                </Box>
-                                <Box>
-                                  <Text fontSize="2xs" color="gray.600">
-                                    Exit Strategy
-                                  </Text>
-                                  <Text
-                                    fontSize="xs"
-                                    fontWeight="500"
-                                    textTransform="capitalize"
-                                  >
-                                    {q.investmentProfile.exitStrategy?.toLowerCase() ||
-                                      "-"}
-                                  </Text>
-                                </Box>
-                              </SimpleGrid>
-                            </Box>
-                          )} */}
 
-                          {/* Footer - Next Action & Timeline */}
                           <Box
                             pt={3}
                             borderTop="1px solid"
@@ -2264,7 +2082,6 @@ const LeadsModal = ({
                     })}
                   </Box>
 
-                  {/* VIEW MODAL */}
                   <QualificationViewModal
                     isOpen={openQualificationView}
                     onClose={() => setOpenQualificationView(false)}
@@ -2279,7 +2096,7 @@ const LeadsModal = ({
                     isEditMode={isEdit}
                   />
                 </Box>
-              </TabPanel>
+              </TabPanel> */}
             </TabPanels>
           </Tabs>
         </Box>
