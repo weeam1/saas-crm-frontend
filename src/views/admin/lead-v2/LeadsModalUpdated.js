@@ -915,14 +915,14 @@ const LeadsModal = ({
                 <Box display="flex" alignItems="center" gap="8px">
                   <FaPhoneAlt color="gray" size={15} />
                   <Text fontSize="sm" color="gray.700">
-                    +923009876543
+                    {data?.secondaryContacts?.phoneNumber}
                   </Text>
                 </Box>
 
                 <Box display="flex" alignItems="center" gap="8px">
                   <FaWhatsapp color="#25D366" size={17} />
                   <Text fontSize="sm" color="gray.700">
-                    +923009876543
+                    {data?.secondaryContacts?.whatsapp}
                   </Text>
                 </Box>
               </Box>
