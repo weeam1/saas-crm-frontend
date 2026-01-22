@@ -8,7 +8,7 @@ import {
   HStack,
 } from "@chakra-ui/react";
 
-export const CallFeedbackSummary = ({ data }) => {
+export const CallFeedbackSummary = ({ data, month }) => {
   const bgColor = useColorModeValue("white", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.700");
   const textColor = useColorModeValue("gray.600", "gray.400");
@@ -56,6 +56,21 @@ export const CallFeedbackSummary = ({ data }) => {
     if (num >= 1000) return (num / 1000).toFixed(1) + "k";
     return num.toString();
   };
+  const MONTH_NAMES = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const monthLabel = typeof month === "number" ? MONTH_NAMES[month] : month;
 
   return (
     <Box
@@ -136,7 +151,7 @@ export const CallFeedbackSummary = ({ data }) => {
             fontSize="sm"
             fontWeight="medium"
           >
-            December 2024 - November 2025
+            {monthLabel}
           </Badge>
 
           {[5, 4, 3, 2, 1].map((stars) => {

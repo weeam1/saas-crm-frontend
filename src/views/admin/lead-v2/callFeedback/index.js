@@ -28,6 +28,7 @@ const CallFeedback = () => {
   // Modal state
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [month, setMonth] = useState(null);
 
   const {
     data: callFeedbackData,
@@ -105,8 +106,9 @@ const CallFeedback = () => {
           ) : (
             <>
               {" "}
-              <CallFeedbackSummary data={allData?.doc || []} />
+              <CallFeedbackSummary month={month} data={allData?.doc || []} />
               <CallFeedbackHeader
+                setMonth={setMonth}
                 search={search}
                 setSearch={setSearch}
                 onSearch={handleSearch}
