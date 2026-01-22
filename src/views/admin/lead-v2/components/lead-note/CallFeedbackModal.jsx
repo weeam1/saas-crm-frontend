@@ -51,7 +51,7 @@ const feedbackSchema = Yup.object({
 		.required('Details required'),
 });
 
-const SimpleCallFeedbackModal = ({ isOpen, onClose, onSubmit }) => {
+const CallFeedbackModal = ({ isOpen, onClose, onSubmit }) => {
 	const formik = useFormik({
 		initialValues: {
 			callMedium: '',
@@ -301,4 +301,4 @@ const SimpleCallFeedbackModal = ({ isOpen, onClose, onSubmit }) => {
 	);
 };
 
-export default SimpleCallFeedbackModal;
+export default CallFeedbackModal;

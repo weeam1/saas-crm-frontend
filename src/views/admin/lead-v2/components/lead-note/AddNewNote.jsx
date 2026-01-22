@@ -21,7 +21,7 @@ import { useModalColors } from 'hooks/useModalColors';
 import CallFeedbackModal from './CallFeedbackModal';
 import { useCreateItemMutation } from 'api/apiSlice';
 
-const getUsernameByPriority = (modes = {}) => {
+export const getUsernameByPriority = (modes = {}) => {
 	return (
 		modes?.udp?.username ?? modes?.wss?.username ?? modes?.tls?.username ?? null
 	);
@@ -45,8 +45,6 @@ const AddNewNote = ({
 	const userExtensionId = userSettings
 		? getUsernameByPriority(userSettings?.modes)
 		: null;
-
-	console.log({ isFeedbackStatus, userExtensionId });
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();

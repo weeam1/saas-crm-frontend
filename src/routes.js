@@ -352,7 +352,7 @@ const routes = [
 	{
 		name: 'Call Feedback',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/lead/call-feedback',
+		path: '/call-feedback',
 		parent: 'lead',
 		component: CallFeedback,
 	},
