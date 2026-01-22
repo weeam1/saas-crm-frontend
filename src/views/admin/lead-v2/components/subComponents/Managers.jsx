@@ -48,7 +48,7 @@ const Managers = ({ lead }) => {
 
 		try {
 			setLoading(true);
-			const res = await putApi(`api/lead/v2/edit/${lead._id}`, dataObj);
+			const res = await putApi(`api/lead/v2/assign/${lead._id}`, dataObj);
 
 			if (res.status === 200) {
 				setSelected(managerAssigned);
@@ -89,7 +89,7 @@ const Managers = ({ lead }) => {
 								value: res?.data?.isReleased,
 							},
 						],
-					})
+					}),
 				);
 
 				toast.success('Manager updated successfully');
@@ -105,7 +105,7 @@ const Managers = ({ lead }) => {
 					message = `Lead '${lead?.leadName || ''}' unassigned from Manager by ${user?.fullName}.`;
 				} else {
 					const manager = team?.find(
-						(manager) => manager?._id === managerAssignedValue
+						(manager) => manager?._id === managerAssignedValue,
 					);
 
 					message = `Lead '${lead?.leadName || ''}' assigned to Manager ${manager?.fullName} by ${user?.fullName}.`;
@@ -201,7 +201,7 @@ const Managers = ({ lead }) => {
 						lead?.managerAssignedDate
 							? format(
 									new Date(lead?.managerAssignedDate),
-									'MMM d, yyyy h:mm a'
+									'MMM d, yyyy h:mm a',
 								)
 							: 'N/A'
 					}`}
