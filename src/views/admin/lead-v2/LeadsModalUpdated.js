@@ -5,8 +5,12 @@ import {
   ModalOverlay,
   ModalCloseButton,
   ModalHeader,
+  ModalFooter,
   Flex,
   Text,
+  VStack,
+  Center,
+  Icon,
   Avatar,
   Heading,
   Tabs,
@@ -22,6 +26,9 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
+  ModalBody,
+  SimpleGrid,
+  Divider,
   PopoverArrow,
   PopoverHeader,
   PopoverBody,
@@ -29,12 +36,38 @@ import {
   Link,
 } from "@chakra-ui/react";
 import {
+  FiTag,
+  FiDollarSign,
+  FiMessageSquare,
+  FiClock,
+  FiCheckCircle,
+  FiThermometer,
+  FiUserCheck,
+  FiCreditCard,
+  FiPercent,
+  FiPackage,
+  FiStar,
+  FiTarget,
+  FiTrendingUp,
+  FiLogOut,
+  FiInfo,
+  FiBriefcase,
+  FiTrendingUp as FiTrendingUp2,
+  FiX,
+  FiHash,
+  FiChevronDown,
+  FiEdit2,
+  FiEye,
+} from "react-icons/fi";
+import {
   FaEdit,
   FaPhoneAlt,
   FaPlus,
   FaTrash,
   FaWhatsapp,
 } from "react-icons/fa";
+import { FiFileText, FiUser, FiCalendar, FiArrowRight } from "react-icons/fi";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EmailIcon } from "@chakra-ui/icons";
 import { getApi, postApi } from "services/api";
@@ -51,11 +84,13 @@ import { updateLeadField } from "../../../redux/leadsSlice";
 import {
   useDeleteItemMutation,
   useUpdateItemMutation,
+  useGetLeadQualificationQuery,
 } from "../../../api/apiSlice";
 import { usePermissions } from "hooks/usePermissions";
 import { useSearchParams } from "react-router-dom";
 import { safeValue } from "utils";
-
+import CRMQualificationModal from "./components/CrmQualificationModal";
+import { QualificationViewModal } from "./components/QualificationViewModal";
 // const safeValue = (value) => {
 //   // treat these as "empty"
 //   if (
@@ -154,7 +189,7 @@ const LeadsModal = ({
   const { hasPermission } = usePermissions();
   const countries = useSelector((state) => state.countries.countryNames);
   const { createUserLog } = useUserActivityLog();
-
+  const [openQualificationEdit, setOpenQualificationEdit] = useState(false);
   const [data, setData] = useState();
   const [leadIp, setLeadIp] = useState({ ip: "", city: "", country: "" });
 
@@ -208,7 +243,14 @@ const LeadsModal = ({
   }, []);
 
   // Lead Cycle Logic
-
+  const {
+    data: leadQualificationss,
+    isLoading,
+    error,
+  } = useGetLeadQualificationQuery({
+    leadId: leadId,
+    createdBy: user?._id,
+  });
   const [searchParams] = useSearchParams();
   let hideContact = false;
 
@@ -262,6 +304,111 @@ const LeadsModal = ({
       toast.error("Something went wrong!");
     }
   }, [leadId]); // include dependencies
+  const [openQualificationView, setOpenQualificationView] = useState(false);
+  const [selectedQualification, setSelectedQualification] = useState(null);
+  const leadQualifications = [
+    {
+      leadId: "LD-1001",
+
+      /* ===== CORE QUALIFICATION ===== */
+      leadType: "End User",
+      budgetRange: "1M–2M",
+      exactRequest: "Looking for a ready 2BR apartment near metro station",
+      propertyType: ["Apartment"],
+      preferredLocations: ["Business Bay", "Downtown"],
+      purchaseTimeline: "1–3 Months",
+      decisionStatus: "Comparing",
+      clientTemperature: "Warm",
+      nextActionType: "Send Options",
+      nextActionDate: "2026-01-25",
+
+      /* ===== DEAL QUALIFICATION ===== */
+      decisionMaker: "Self",
+      paymentMethod: "Mortgage",
+      downPaymentPreference: "20–30%",
+      handoverPreference: "Ready",
+      installmentDuration: "4–5 Years",
+      clientPriority: ["Location", "Price"],
+
+      /* ===== INVESTMENT PROFILE ===== */
+      investmentGoal: null,
+      targetROI: null,
+      holdingPeriod: null,
+      exitStrategy: null,
+
+      /* ===== SYSTEM TRACKING ===== */
+      lastUpdatedBy: "Ahmed Khan",
+      lastUpdatedAt: "2026-01-20",
+    },
+
+    {
+      leadId: "LD-1002",
+
+      /* ===== CORE QUALIFICATION ===== */
+      leadType: "Investor",
+      budgetRange: "2M–5M",
+      exactRequest: "Off-plan property with strong payment plan and good ROI",
+      propertyType: ["Apartment", "Townhouse"],
+      preferredLocations: ["Dubai Marina", "Palm Jumeirah"],
+      purchaseTimeline: "Immediate",
+      decisionStatus: "Ready",
+      clientTemperature: "Hot",
+      nextActionType: "Book Meeting",
+      nextActionDate: "2026-01-22",
+
+      /* ===== DEAL QUALIFICATION ===== */
+      decisionMaker: "Partner",
+      paymentMethod: "Cash",
+      downPaymentPreference: "30%+",
+      handoverPreference: "Off-plan",
+      installmentDuration: "2–3 Years",
+      clientPriority: ["ROI", "Payment Plan"],
+
+      /* ===== INVESTMENT PROFILE (VISIBLE BECAUSE LEAD TYPE = INVESTOR) ===== */
+      investmentGoal: "Rental Yield",
+      targetROI: "7–10%",
+      holdingPeriod: "3–5 Years",
+      exitStrategy: "Rent",
+
+      /* ===== SYSTEM TRACKING ===== */
+      lastUpdatedBy: "Sara Ali",
+      lastUpdatedAt: "2026-01-18",
+    },
+
+    {
+      leadId: "LD-1003",
+
+      /* ===== CORE QUALIFICATION ===== */
+      leadType: "Seller",
+      budgetRange: "5M+",
+      exactRequest: "Want to sell villa in Palm Jumeirah",
+      propertyType: ["Villa"],
+      preferredLocations: ["Palm Jumeirah"],
+      purchaseTimeline: "Immediate",
+      decisionStatus: "Ready",
+      clientTemperature: "Hot",
+      nextActionType: "Call",
+      nextActionDate: "2026-01-21",
+
+      /* ===== DEAL QUALIFICATION ===== */
+      decisionMaker: "Self",
+      paymentMethod: "Undecided",
+      downPaymentPreference: null,
+      handoverPreference: "Ready",
+      installmentDuration: null,
+      clientPriority: ["Price"],
+
+      /* ===== INVESTMENT PROFILE (NOT APPLICABLE) ===== */
+      investmentGoal: null,
+      targetROI: null,
+      holdingPeriod: null,
+      exitStrategy: null,
+
+      /* ===== SYSTEM TRACKING ===== */
+      lastUpdatedBy: "Omar Hassan",
+      lastUpdatedAt: "2026-01-19",
+    },
+  ];
 
   useEffect(() => {
     if (user && user?._id) {
@@ -450,6 +597,8 @@ const LeadsModal = ({
   const [deleteItemMutation] = useDeleteItemMutation();
 
   const [deletingNoteId, setDeletingNoteId] = useState();
+  const [openFeedbackForm, setOpenFeedbackForm] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
   // main delete logic
 
   const confirmDelete = async (noteId) => {
@@ -505,7 +654,10 @@ const LeadsModal = ({
       setDeletingNoteId(null);
     }
   };
-
+  const hasFeedbackForThisLead = leadQualificationss?.some(
+    (qualification) =>
+      qualification.lead?._id === leadId || qualification.lead === leadId,
+  );
   const DefaultTabContent = ({ data }) => (
     <Box
       minH="150px"
@@ -893,6 +1045,21 @@ const LeadsModal = ({
                 _focus={{ boxShadow: "none" }}
               >
                 Notes
+              </Tab>
+              <Tab
+                _selected={{
+                  color: "#B79045",
+                  borderBottom: "2px solid",
+                  borderColor: "#B79045",
+                  fontWeight: "600",
+                }}
+                fontWeight="500"
+                px={4}
+                py={2}
+                borderRadius="none"
+                _focus={{ boxShadow: "none" }}
+              >
+                FeedBack
               </Tab>
             </TabList>
 
@@ -1536,6 +1703,583 @@ const LeadsModal = ({
                   )}
                 </Box>
               </TabPanel>
+              {/* <TabPanel py={4}>
+                <Box mt={6} display="flex" flexDirection="column" gap={6}>
+
+                  <Flex align="center" justify="space-between">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      colorScheme="gray"
+                      onClick={() => {
+                        setOpenFeedbackForm(true);
+                        setTimeout(() => {
+                          addNoteRef.current?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start",
+                          });
+                        }, 100);
+                      }}
+                    >
+                      Add Feedback
+                    </Button>
+                  </Flex>
+
+
+                  {leadQualifications?.length === 0 && (
+                    <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                      No qualification data available.
+                    </Text>
+                  )}
+
+                  <Box display="flex" flexDirection="column" gap={4}>
+                    {leadQualifications?.map((q) => (
+                      <Box
+                        key={q.leadId}
+                        p={4}
+                        bg="white"
+                        border="1px solid"
+                        borderColor="gray.200"
+                        borderRadius="xl"
+                        boxShadow="sm"
+                        _hover={{ boxShadow: "md", cursor: "pointer" }}
+                        onClick={() => {
+                          setSelectedQualification(q);
+                          setOpenQualificationView(true);
+                        }}
+                      >
+                        <Flex justify="space-between" mb={2} align="center">
+                          <Text fontSize="sm" fontWeight="600" color="#B79045">
+                            Lead ID: {q.leadId}
+                          </Text>
+
+                          <Badge
+                            colorScheme={
+                              q.clientTemperature === "Hot"
+                                ? "red"
+                                : q.clientTemperature === "Warm"
+                                  ? "yellow"
+                                  : "blue"
+                            }
+                          >
+                            {q.clientTemperature}
+                          </Badge>
+                        </Flex>
+
+                        <Text fontSize="sm">
+                          <b>Lead Type:</b> {q.leadType}
+                        </Text>
+
+                        <Text fontSize="sm">
+                          <b>Budget Range:</b> {q.budgetRange}
+                        </Text>
+
+                        <Text fontSize="sm">
+                          <b>Decision Status:</b> {q.decisionStatus}
+                        </Text>
+
+                        <Text fontSize="sm">
+                          <b>Purchase Timeline:</b> {q.purchaseTimeline}
+                        </Text>
+
+                        <Text fontSize="sm">
+                          <b>Preferred Locations:</b>{" "}
+                          {q.preferredLocations?.join(", ")}
+                        </Text>
+
+                        <Divider my={2} />
+
+                        <Text fontSize="xs" color="gray.500">
+                          Next Action: {q.nextActionType} • {q.nextActionDate}
+                        </Text>
+
+                        <Text fontSize="xs" color="gray.400" mt={1}>
+                          Updated by {q.lastUpdatedBy} • {q.lastUpdatedAt}
+                        </Text>
+                      </Box>
+                    ))}
+                  </Box>
+
+
+                  <QualificationViewModal
+                    isOpen={openQualificationView}
+                    onClose={() => setOpenQualificationView(false)}
+                    data={selectedQualification}
+                  />
+                </Box>
+              </TabPanel> */}
+              <TabPanel py={4}>
+                <Box mt={6} display="flex" flexDirection="column" gap={4}>
+                  {/* HEADER */}
+                  <Flex align="center" justify="space-between">
+                    {hasFeedbackForThisLead ? (
+                      <Box>
+                        <Text
+                          fontSize="sm"
+                          color="green.600"
+                          fontWeight="medium"
+                        >
+                          You have already submitted feedback for this lead
+                        </Text>
+                        <Text fontSize="xs" color="gray.500" mt={1}>
+                          You can view or edit your existing feedback below
+                        </Text>
+                      </Box>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        colorScheme="gray"
+                        onClick={() => {
+                          setOpenFeedbackForm(true);
+                          setTimeout(() => {
+                            addNoteRef.current?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "start",
+                            });
+                          }, 100);
+                        }}
+                      >
+                        Add Feedback
+                      </Button>
+                    )}
+                  </Flex>
+
+                  {/* ========================= */}
+                  {/* QUALIFICATION LIST */}
+                  {/* ========================= */}
+
+                  {leadQualificationss?.length === 0 && (
+                    <Center py={8} bg="gray.50" borderRadius="lg">
+                      <VStack spacing={2}>
+                        <Icon as={FiFileText} color="gray.400" boxSize={6} />
+                        <Text fontSize="sm" color="gray.500" fontStyle="italic">
+                          No qualification data available.
+                        </Text>
+                      </VStack>
+                    </Center>
+                  )}
+
+                  <Box display="flex" flexDirection="column" gap={4}>
+                    {leadQualificationss?.map((q) => {
+                      // Extract data from nested structure
+                      const core = q.coreQualification || {};
+                      const leadInfo = q.lead || {};
+                      const updatedBy = q.updatedBy || {};
+
+                      // Format date for display
+                      const formatDate = (dateString) => {
+                        if (!dateString) return "";
+                        return new Date(dateString).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                          },
+                        );
+                      };
+
+                      // Format date with time for next action
+                      const formatDateTime = (dateString) => {
+                        if (!dateString) return "";
+                        return new Date(dateString).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        );
+                      };
+
+                      return (
+                        <Box
+                          key={q._id}
+                          position="relative"
+                          overflow="hidden"
+                          p={4}
+                          bg="white"
+                          border="1px solid"
+                          borderColor="gray.200"
+                          borderRadius="xl"
+                          boxShadow="sm"
+                          transition="all 0.2s ease"
+                          _hover={{
+                            boxShadow: "md",
+                            transform: "translateY(-2px)",
+                            cursor: "pointer",
+                            borderColor: "#B79045",
+                          }}
+                          onClick={() => {
+                            setSelectedQualification(q);
+                            setOpenQualificationView(true);
+                          }}
+                        >
+                          {/* Decorative gradient accent */}
+                          <Box
+                            position="absolute"
+                            top={0}
+                            left={0}
+                            right={0}
+                            h="3px"
+                            bgGradient="linear(to-r, #FF6B6B, #FFD93D, #6BCB77, #4D96FF)"
+                          />
+
+                          {/* Card Header with Action Icons */}
+                          <Flex justify="space-between" mb={3} align="center">
+                            <Flex align="center" gap={2}>
+                              <Box
+                                p={1.5}
+                                bg="#B79045"
+                                borderRadius="md"
+                                color="white"
+                                display="flex"
+                                alignItems="center"
+                                justifyContent="center"
+                              >
+                                <Icon as={FiUser} boxSize={3} />
+                              </Box>
+                              <Box>
+                                <Text
+                                  fontSize="sm"
+                                  fontWeight="600"
+                                  color="#B79045"
+                                >
+                                  {leadInfo.leadName ||
+                                    `Lead #${leadInfo._id?.slice(-6)}`}
+                                </Text>
+                                <Text fontSize="xs" color="gray.500">
+                                  {core.leadType?.replace(/_/g, " ")}
+                                </Text>
+                              </Box>
+                            </Flex>
+
+                            <Flex align="center" gap={2}>
+                              {/* View Icon (Eye) */}
+                              <IconButton
+                                icon={<FiEye />}
+                                size="sm"
+                                variant="ghost"
+                                color="gray.500"
+                                _hover={{ color: "#B79045", bg: "gray.50" }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedQualification(q);
+                                  setOpenQualificationView(true);
+                                }}
+                                aria-label="View qualification"
+                              />
+
+                              {/* Edit Icon */}
+                              <IconButton
+                                icon={<FiEdit2 />}
+                                size="sm"
+                                variant="ghost"
+                                color="gray.500"
+                                _hover={{ color: "#B79045", bg: "gray.50" }}
+                                // Change the edit button onClick to:
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedQualification(q); // Set the data first
+                                  setTimeout(() => {
+                                    // Small delay to ensure state is updated
+                                    setOpenFeedbackForm(true);
+                                    setIsEdit(true);
+                                  }, 10);
+                                }}
+                                aria-label="Edit qualification"
+                              />
+
+                              <Badge
+                                fontSize="xs"
+                                px={3}
+                                py={1}
+                                borderRadius="full"
+                                colorScheme={
+                                  core.clientTemperature === "HOT"
+                                    ? "red"
+                                    : core.clientTemperature === "WARM"
+                                      ? "orange"
+                                      : "blue"
+                                }
+                                variant="solid"
+                                fontWeight="bold"
+                                textTransform="capitalize"
+                              >
+                                {core.clientTemperature?.toLowerCase()}
+                              </Badge>
+                            </Flex>
+                          </Flex>
+
+                          {/* Main Content - One Row Layout */}
+                          <SimpleGrid
+                            columns={{ base: 1, sm: 2, md: 4 }}
+                            spacing={4}
+                            mb={3}
+                          >
+                            {/* Budget */}
+                            <Box>
+                              <Flex align="center" gap={2} mb={1}>
+                                <Box
+                                  w={2}
+                                  h={2}
+                                  borderRadius="full"
+                                  bg="green.400"
+                                />
+                                <Text
+                                  fontSize="xs"
+                                  fontWeight="500"
+                                  color="gray.600"
+                                >
+                                  Budget
+                                </Text>
+                              </Flex>
+                              <Text
+                                fontSize="sm"
+                                fontWeight="600"
+                                color="green.600"
+                                pl={4}
+                                textTransform="capitalize"
+                              >
+                                {core.budgetRange
+                                  ?.replace(/_/g, " ")
+                                  .toLowerCase() || "Not specified"}
+                              </Text>
+                            </Box>
+
+                            {/* Timeline */}
+                            <Box>
+                              <Flex align="center" gap={2} mb={1}>
+                                <Box
+                                  w={2}
+                                  h={2}
+                                  borderRadius="full"
+                                  bg="orange.400"
+                                />
+                                <Text
+                                  fontSize="xs"
+                                  fontWeight="500"
+                                  color="gray.600"
+                                >
+                                  Timeline
+                                </Text>
+                              </Flex>
+                              <Text
+                                fontSize="sm"
+                                fontWeight="600"
+                                color="orange.600"
+                                pl={4}
+                                textTransform="capitalize"
+                              >
+                                {core.purchaseTimeline
+                                  ?.replace(/_/g, " ")
+                                  .toLowerCase() || "Not specified"}
+                              </Text>
+                            </Box>
+
+                            {/* Decision */}
+                            <Box>
+                              <Flex align="center" gap={2} mb={1}>
+                                <Box
+                                  w={2}
+                                  h={2}
+                                  borderRadius="full"
+                                  bg="blue.400"
+                                />
+                                <Text
+                                  fontSize="xs"
+                                  fontWeight="500"
+                                  color="gray.600"
+                                >
+                                  Decision
+                                </Text>
+                              </Flex>
+                              <Text
+                                fontSize="sm"
+                                fontWeight="600"
+                                color="blue.600"
+                                pl={4}
+                                textTransform="capitalize"
+                              >
+                                {core.decisionStatus?.toLowerCase() ||
+                                  "Not specified"}
+                              </Text>
+                            </Box>
+
+                            {/* Locations */}
+                            <Box>
+                              <Flex align="center" gap={2} mb={1}>
+                                <Box
+                                  w={2}
+                                  h={2}
+                                  borderRadius="full"
+                                  bg="purple.400"
+                                />
+                                <Text
+                                  fontSize="xs"
+                                  fontWeight="500"
+                                  color="gray.600"
+                                >
+                                  Locations
+                                </Text>
+                              </Flex>
+                              <Text
+                                fontSize="xs"
+                                color="gray.700"
+                                pl={4}
+                                lineHeight="shorter"
+                                textTransform="capitalize"
+                              >
+                                {core.preferredLocations
+                                  ?.map((loc) =>
+                                    loc.replace(/_/g, " ").toLowerCase(),
+                                  )
+                                  .join(", ") || "Not specified"}
+                              </Text>
+                            </Box>
+                          </SimpleGrid>
+
+                          {/* Investment Profile Section (for Investors) */}
+                          {/* {q.isInvestor && q.investmentProfile && (
+                            <Box
+                              p={3}
+                              mb={3}
+                              bg="purple.50"
+                              borderRadius="md"
+                              borderLeft="4px solid"
+                              borderColor="purple.400"
+                            >
+                              <Flex align="center" gap={2} mb={2}>
+                                <Icon as={FiTrendingUp} color="purple.500" />
+                                <Text
+                                  fontSize="xs"
+                                  fontWeight="600"
+                                  color="purple.700"
+                                >
+                                  Investment Profile
+                                </Text>
+                              </Flex>
+                              <SimpleGrid
+                                columns={{ base: 2, md: 3 }}
+                                spacing={2}
+                              >
+                                <Box>
+                                  <Text fontSize="2xs" color="gray.600">
+                                    Goal
+                                  </Text>
+                                  <Text
+                                    fontSize="xs"
+                                    fontWeight="500"
+                                    textTransform="capitalize"
+                                  >
+                                    {q.investmentProfile.investmentGoal?.toLowerCase() ||
+                                      "-"}
+                                  </Text>
+                                </Box>
+                                <Box>
+                                  <Text fontSize="2xs" color="gray.600">
+                                    Target ROI
+                                  </Text>
+                                  <Text
+                                    fontSize="xs"
+                                    fontWeight="500"
+                                    textTransform="capitalize"
+                                  >
+                                    {q.investmentProfile.targetROI
+                                      ?.replace(/_/g, " ")
+                                      .toLowerCase() || "-"}
+                                  </Text>
+                                </Box>
+                                <Box>
+                                  <Text fontSize="2xs" color="gray.600">
+                                    Exit Strategy
+                                  </Text>
+                                  <Text
+                                    fontSize="xs"
+                                    fontWeight="500"
+                                    textTransform="capitalize"
+                                  >
+                                    {q.investmentProfile.exitStrategy?.toLowerCase() ||
+                                      "-"}
+                                  </Text>
+                                </Box>
+                              </SimpleGrid>
+                            </Box>
+                          )} */}
+
+                          {/* Footer - Next Action & Timeline */}
+                          <Box
+                            pt={3}
+                            borderTop="1px solid"
+                            borderColor="gray.100"
+                          >
+                            <Flex align="center" justify="space-between">
+                              <Flex align="center" gap={2}>
+                                <Icon
+                                  as={FiCalendar}
+                                  color="#B79045"
+                                  boxSize={3}
+                                />
+                                <Box>
+                                  <Text
+                                    fontSize="xs"
+                                    color="gray.600"
+                                    fontWeight="500"
+                                  >
+                                    Next Action:{" "}
+                                    {core.nextActionType || "Not specified"}
+                                  </Text>
+                                  <Text
+                                    fontSize="xs"
+                                    color="#B79045"
+                                    fontWeight="600"
+                                  >
+                                    {core.nextActionDate
+                                      ? formatDateTime(core.nextActionDate)
+                                      : "No date set"}
+                                  </Text>
+                                </Box>
+                              </Flex>
+
+                              <Box textAlign="right">
+                                <Flex align="center" gap={1} justify="flex-end">
+                                  <Icon
+                                    as={FiUser}
+                                    color="gray.400"
+                                    boxSize={2.5}
+                                  />
+                                  <Text fontSize="xs" color="gray.500">
+                                    {updatedBy.fullName || "Unknown"}
+                                  </Text>
+                                  <Text fontSize="xs" color="gray.400" ml={1}>
+                                    {q.updatedAt ? formatDate(q.updatedAt) : ""}
+                                  </Text>
+                                </Flex>
+                              </Box>
+                            </Flex>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+
+                  {/* VIEW MODAL */}
+                  <QualificationViewModal
+                    isOpen={openQualificationView}
+                    onClose={() => setOpenQualificationView(false)}
+                    data={selectedQualification}
+                  />
+                  <CRMQualificationModal
+                    leadId={leadId}
+                    userId={user?._id}
+                    isOpen={openFeedbackForm}
+                    onClose={() => setOpenFeedbackForm(false)}
+                    data={selectedQualification}
+                    isEditMode={isEdit}
+                  />
+                </Box>
+              </TabPanel>
             </TabPanels>
           </Tabs>
         </Box>
@@ -1545,3 +2289,16 @@ const LeadsModal = ({
 };
 
 export default LeadsModal;
+
+// import {
+//   // Modal,
+//   // ModalOverlay,
+//   // ModalContent,
+//   // ModalHeader,
+//   // ModalCloseButton,
+//   ModalBody,
+//   // Box,
+//   // Text,
+//   SimpleGrid,
+//   Divider,
+// } from "@chakra-ui/react";
