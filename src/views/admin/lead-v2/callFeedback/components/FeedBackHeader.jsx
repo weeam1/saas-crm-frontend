@@ -9,6 +9,8 @@ import {
   useColorModeValue,
   NumberInput,
   NumberInputField,
+  InputGroup,
+  InputLeftElement,
 } from "@chakra-ui/react";
 import {
   Modal,
@@ -23,13 +25,13 @@ import {
   Flex,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
-import DateRangeFilter from "views/admin/deals/components/DateRangeFilter";
 import { IconButton, HStack, Tag, Tooltip } from "@chakra-ui/react";
 import {
   FiChevronsLeft,
   FiChevronLeft,
   FiChevronRight,
   FiChevronsRight,
+  FiSearch,
 } from "react-icons/fi";
 
 const CallFeedbackHeader = ({
@@ -39,10 +41,7 @@ const CallFeedbackHeader = ({
   onClear,
   setFromDate,
   setToDate,
-  page,
-  setPage,
-  totalPages,
-  setMonth, // 👈 parent setter
+  setMonth,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -59,112 +58,40 @@ const CallFeedbackHeader = ({
 
   return (
     <Box
-      p={3}
+      p={4}
       borderWidth="1px"
       borderRadius="lg"
       bg={useColorModeValue("white", "gray.800")}
     >
       <HStack spacing={4} align="center" wrap="wrap">
-        {/* Search */}
-        <Input
-          placeholder="Search by user or lead..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              onSearch();
-            }
-          }}
-          maxW={{ base: "full", md: "200px" }}
-          size="sm"
-        />
+        {/* Search Input with Icon */}
+        <InputGroup flex="1" maxW={{ base: "full", md: "400px" }}>
+          <InputLeftElement pointerEvents="none">
+            <FiSearch color="gray.300" />
+          </InputLeftElement>
+          <Input
+            placeholder="Search by user or lead..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                onSearch();
+              }
+            }}
+            size="md"
+            pl={10}
+          />
+        </InputGroup>
 
         {/* Date Range Picker + Clear */}
         <HStack spacing={2}>
-          <Button onClick={onOpen} variant="outline" size="sm">
+          <Button onClick={onOpen} variant="outline" size="md">
             Select Date Range
           </Button>
 
-          <Button onClick={onClear} variant="ghost" size="sm" colorScheme="red">
+          <Button onClick={onClear} variant="ghost" size="md" colorScheme="red">
             Clear
           </Button>
-        </HStack>
-
-        {/* Spacer pushes pagination to the right */}
-        <Box flex="1" />
-
-        {/* Pagination */}
-        <HStack spacing={2}>
-          <Tooltip label="First page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronsLeft />}
-              aria-label="First"
-              onClick={() => setPage(1)}
-              isDisabled={page === 1 || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
-
-          <Tooltip label="Previous page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronLeft />}
-              aria-label="Previous"
-              onClick={() => setPage((p) => p - 1)}
-              isDisabled={page === 1 || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
-
-          {/* Jump to page */}
-          <HStack spacing={1}>
-            <NumberInput
-              size="sm"
-              width="60px"
-              min={1}
-              max={totalPages || 1}
-              value={page}
-              isDisabled={totalPages <= 1}
-              onChange={(valueAsString, valueAsNumber) => {
-                if (valueAsString === "") {
-                  setPage(""); // allow clearing input while typing
-                  return;
-                }
-                const num = parseInt(valueAsString, 10);
-                if (!isNaN(num)) {
-                  setPage(Math.min(Math.max(1, num), totalPages || 1));
-                }
-              }}
-              clampValueOnBlur
-            >
-              <NumberInputField textAlign="center" />
-            </NumberInput>
-
-            <Text fontSize="sm">/ {totalPages || 1}</Text>
-          </HStack>
-
-          <Tooltip label="Next page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronRight />}
-              aria-label="Next"
-              onClick={() => setPage((p) => p + 1)}
-              isDisabled={page === totalPages || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
-
-          <Tooltip label="Last page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronsRight />}
-              aria-label="Last"
-              onClick={() => setPage(totalPages)}
-              isDisabled={page === totalPages || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
         </HStack>
       </HStack>
 
@@ -185,8 +112,106 @@ const CallFeedbackHeader = ({
   );
 };
 
-export default CallFeedbackHeader;
+const CallFeedbackFooter = ({ page, setPage, totalPages }) => {
+  return (
+    <Box
+      p={4}
+      borderWidth="1px"
+      borderRadius="lg"
+      bg={useColorModeValue("white", "gray.800")}
+      mt={4}
+    >
+      <Flex justify="space-between" align="center" wrap="wrap">
+        {/* Page Info */}
+        <Text fontSize="sm" color="gray.600">
+          Page {page} of {totalPages || 1}
+        </Text>
 
+        {/* Pagination Controls */}
+        <HStack spacing={2}>
+          <Tooltip label="First page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronsLeft />}
+              aria-label="First"
+              onClick={() => setPage(1)}
+              isDisabled={page === 1 || totalPages <= 1}
+              variant="outline"
+            />
+          </Tooltip>
+
+          <Tooltip label="Previous page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronLeft />}
+              aria-label="Previous"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              isDisabled={page === 1 || totalPages <= 1}
+              variant="outline"
+            />
+          </Tooltip>
+
+          {/* Jump to page */}
+          <HStack spacing={1} align="center">
+            <Text fontSize="sm" whiteSpace="nowrap">
+              Go to:
+            </Text>
+            <NumberInput
+              size="sm"
+              width="70px"
+              min={1}
+              max={totalPages || 1}
+              value={page}
+              isDisabled={totalPages <= 1}
+              onChange={(valueAsString, valueAsNumber) => {
+                if (valueAsString === "") {
+                  setPage(""); // allow clearing input while typing
+                  return;
+                }
+                const num = parseInt(valueAsString, 10);
+                if (!isNaN(num)) {
+                  setPage(Math.min(Math.max(1, num), totalPages || 1));
+                }
+              }}
+              clampValueOnBlur
+            >
+              <NumberInputField textAlign="center" />
+            </NumberInput>
+          </HStack>
+
+          <Tooltip label="Next page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronRight />}
+              aria-label="Next"
+              onClick={() => setPage((p) => Math.min(totalPages || 1, p + 1))}
+              isDisabled={page === totalPages || totalPages <= 1}
+              variant="outline"
+            />
+          </Tooltip>
+
+          <Tooltip label="Last page">
+            <IconButton
+              size="sm"
+              icon={<FiChevronsRight />}
+              aria-label="Last"
+              onClick={() => setPage(totalPages)}
+              isDisabled={page === totalPages || totalPages <= 1}
+              variant="outline"
+            />
+          </Tooltip>
+        </HStack>
+
+        {/* Total Pages Info */}
+        <Text fontSize="sm" color="gray.600">
+          Total: {totalPages || 1} {totalPages === 1 ? "page" : "pages"}
+        </Text>
+      </Flex>
+    </Box>
+  );
+};
+
+export { CallFeedbackHeader, CallFeedbackFooter };
 const MonthFilterModal = ({
   isOpen,
   onClose,

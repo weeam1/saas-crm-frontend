@@ -15,7 +15,10 @@ import { useFetchItemsQuery } from "api/apiSlice";
 import { CallFeedbackCard } from "./components/FeedBackCard";
 import { CallFeedbackSummary } from "./components/FeedBackOverview";
 import CallFeedbackDetailModal from "./components/CallFeedbackDetailModal";
-import CallFeedbackHeader from "./components/FeedBackHeader";
+import {
+  CallFeedbackHeader,
+  CallFeedbackFooter,
+} from "./components/FeedBackHeader";
 import { CallFeedbackSkeleton } from "./components/skeleton";
 const CallFeedback = () => {
   const bgColor = useColorModeValue("gray.50", "gray.900");
@@ -106,31 +109,37 @@ const CallFeedback = () => {
               {" "}
               <CallFeedbackSummary month={month} data={allData?.doc || []} />
               <CallFeedbackHeader
-                setMonth={setMonth}
                 search={search}
                 setSearch={setSearch}
                 onSearch={handleSearch}
                 onClear={handleClear}
-                fromDate={fromDate}
                 setFromDate={setFromDate}
-                toDate={toDate}
                 setToDate={setToDate}
+                setMonth={setMonth}
+              />
+              <Box
+                overflowY="auto"
+                maxHeight="calc(80vh)" // Adjust based on your layout
+                pr={2} // Add some padding for scrollbar
+              >
+                <SimpleGrid
+                  columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
+                  spacing={6}
+                >
+                  {callFeedbackData.map((feedback) => (
+                    <CallFeedbackCard
+                      key={feedback._id}
+                      feedback={feedback}
+                      onViewDetails={handleViewDetails}
+                    />
+                  ))}
+                </SimpleGrid>
+              </Box>
+              <CallFeedbackFooter
                 page={pagination.page}
                 setPage={handlePageChange}
                 totalPages={totalPages}
               />
-              <SimpleGrid
-                columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
-                spacing={6}
-              >
-                {callFeedbackData.map((feedback) => (
-                  <CallFeedbackCard
-                    key={feedback._id}
-                    feedback={feedback}
-                    onViewDetails={handleViewDetails}
-                  />
-                ))}
-              </SimpleGrid>
             </>
           )}
         </VStack>
