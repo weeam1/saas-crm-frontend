@@ -39,217 +39,217 @@ const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const DealsScreen = React.lazy(() => import('views/admin/deals'));
 const SharedDealsScreen = React.lazy(
-	() => import('views/admin/deals/SharedDealsScreen')
+	() => import('views/admin/deals/SharedDealsScreen'),
 );
 const CloseDealScreen = React.lazy(
-	() => import('views/admin/deals/DealsScreen')
+	() => import('views/admin/deals/DealsScreen'),
 );
 const LeadAnalytics = React.lazy(
-	() => import('views/admin/lead-v2/leadAnalytics')
+	() => import('views/admin/lead-v2/leadAnalytics'),
 );
 const UserProfileDetails = React.lazy(
-	() => import('views/admin/users-v2/components/UserProfile')
+	() => import('views/admin/users-v2/components/UserProfile'),
 );
 
 // Hiring
 const Hiring = React.lazy(() => import('views/admin/hiring'));
 const HiringDashboard = React.lazy(
-	() => import('views/admin/hiring/hiringDashboard')
+	() => import('views/admin/hiring/hiringDashboard'),
 );
 const Candidates = React.lazy(() => import('views/admin/hiring/candidates'));
 const ShortListedCandidates = React.lazy(
-	() => import('views/admin/hiring/shortListedCandidates')
+	() => import('views/admin/hiring/shortListedCandidates'),
 );
 const InterviewScreen = React.lazy(
-	() => import('views/admin/hiring/interview/InterviewScreen')
+	() => import('views/admin/hiring/interview/InterviewScreen'),
 );
 const InterviewedCandidates = React.lazy(
-	() => import('views/admin/hiring/interviewedCandidates')
+	() => import('views/admin/hiring/interviewedCandidates'),
 );
 const OfferLetter = React.lazy(
-	() => import('views/admin/hiring/interviewedCandidates/OfferLetter')
+	() => import('views/admin/hiring/interviewedCandidates/OfferLetter'),
 );
 const OfferView = React.lazy(
-	() => import('views/admin/hiring/interviewedCandidates/OfferView')
+	() => import('views/admin/hiring/interviewedCandidates/OfferView'),
 );
 const Positions = React.lazy(() => import('views/admin/hiring/positions'));
 const InterviewedRound = React.lazy(
-	() => import('views/admin/hiring/interviewedCandidates/Rounds/index')
+	() => import('views/admin/hiring/interviewedCandidates/Rounds/index'),
 );
 // Attendance
 const AttendanceV2 = React.lazy(
-	() => import('views/admin/attendance/AttendenceV2')
+	() => import('views/admin/attendance/AttendenceV2'),
 );
 const AttendanceDashboard = React.lazy(
-	() => import('views/admin/attendance/components/dashboard')
+	() => import('views/admin/attendance/components/dashboard'),
 );
 const Employees = React.lazy(
-	() => import('views/admin/attendance/components/employees')
+	() => import('views/admin/attendance/components/employees'),
 );
 const Records = React.lazy(
-	() => import('views/admin/attendance/components/records')
+	() => import('views/admin/attendance/components/records'),
 );
 const MyAttendance = React.lazy(
-	() => import('views/admin/attendance/components/myAttendance')
+	() => import('views/admin/attendance/components/myAttendance'),
 );
 
 // Invoice & Expenses
 const InvoiceModule = React.lazy(() => import('views/admin/invoice'));
 const DeveloperInvoices = React.lazy(
-	() => import('views/admin/invoice/developers/DeveloperInvoices')
+	() => import('views/admin/invoice/developers/DeveloperInvoices'),
 );
 const SingleInvoice = React.lazy(() => import('views/admin/invoice/View'));
 const AddEntry = React.lazy(() => import('views/admin/invoice/AddEntry'));
 const PayrollSalariedUsers = React.lazy(
-	() => import('views/admin/payroll/SalariedUsers')
+	() => import('views/admin/payroll/SalariedUsers'),
 );
 const PayrollCommissionUsers = React.lazy(
-	() => import('views/admin/payroll/CommissionUsers')
+	() => import('views/admin/payroll/CommissionUsers'),
 );
 const EmployeePayslip = React.lazy(
-	() => import('views/admin/payroll/components/EmployeePayrollDetails')
+	() => import('views/admin/payroll/components/EmployeePayrollDetails'),
 );
 const CommissionEmployeePayslip = React.lazy(
-	() => import('views/admin/payroll/CommissionUsers/EmployeePayrollDetails')
+	() => import('views/admin/payroll/CommissionUsers/EmployeePayrollDetails'),
 );
 
 //Evalution
 // const Evalution = React.lazy(() => imporviews/admin/evalution/user-evalution/indexdex'));
 const UserEvalution = React.lazy(
-	() => import('views/admin/evalution/user-evalution/index')
+	() => import('views/admin/evalution/user-evalution/index'),
 );
 const EvaluationForm = React.lazy(
-	() => import('views/admin/evalution/user-evalution/EvaluationForm')
+	() => import('views/admin/evalution/user-evalution/EvaluationForm'),
 );
 const EvaluateSettings = React.lazy(
-	() => import('views/admin/evalution/settings/index')
+	() => import('views/admin/evalution/settings/index'),
 );
 
 // Finance
 const IncomingCash = React.lazy(
-	() => import('views/admin/finance/incoming-balance/index')
+	() => import('views/admin/finance/incoming-balance/index'),
 );
 const OutgoingCash = React.lazy(
-	() => import('views/admin/finance/outgoing-expense/index')
+	() => import('views/admin/finance/outgoing-expense/index'),
 );
 const FinanceSettings = React.lazy(
-	() => import('views/admin/finance/settings/index')
+	() => import('views/admin/finance/settings/index'),
 );
 const EmployeeLoans = React.lazy(
-	() => import('views/admin/finance/employee-laon/index')
+	() => import('views/admin/finance/employee-laon/index'),
 );
 const EmployeeLoanDetails = React.lazy(
-	() => import('views/admin/finance/employee-laon/loan-details/index')
+	() => import('views/admin/finance/employee-laon/loan-details/index'),
 );
 
 const DeveloperDetails = React.lazy(
-	() => import('views/admin/developers/components/DeveloperView')
+	() => import('views/admin/developers/components/DeveloperView'),
 );
 
 const BankAccount = React.lazy(
-	() => import('views/admin/bankAccountsV2/index')
+	() => import('views/admin/bankAccountsV2/index'),
 );
 
 const DeveloperScreen = React.lazy(
-	() => import('views/admin/invoice/developers/index')
+	() => import('views/admin/invoice/developers/index'),
 );
 const ProjectScreen = React.lazy(
-	() => import('views/admin/developers/projects/index')
+	() => import('views/admin/developers/projects/index'),
 );
 
 // Listing
 const Listing = React.lazy(() => import('views/admin/Listing'));
 const ClientListings = React.lazy(
-	() => import('views/admin/Listing/client-listings')
+	() => import('views/admin/Listing/client-listings'),
 );
 const PropertyView = React.lazy(
 	() =>
 		import(
 			'views/admin/Listing/client-listings/_component/details/PropertyView'
-		)
+		),
 );
 const AddListing = React.lazy(
-	() => import('views/admin/Listing/Component/AddListing')
+	() => import('views/admin/Listing/Component/AddListing'),
 );
 const ViewListing = React.lazy(
-	() => import('views/admin/Listing/Component/ViewLisitng')
+	() => import('views/admin/Listing/Component/ViewLisitng'),
 );
 const UpdateListing = React.lazy(
-	() => import('views/admin/Listing/Component/UpdateListing')
+	() => import('views/admin/Listing/Component/UpdateListing'),
 );
 const SettingPage = React.lazy(
-	() => import('views/admin/Listing/Component/settings')
+	() => import('views/admin/Listing/Component/settings'),
 );
 
 const AllListing = React.lazy(
-	() => import('views/admin/Listing/Component/AllListing')
+	() => import('views/admin/Listing/Component/AllListing'),
 );
 const MyListing = React.lazy(
-	() => import('views/admin/Listing/Component/MyListing')
+	() => import('views/admin/Listing/Component/MyListing'),
 );
 const ViewRequestListing = React.lazy(
-	() => import('views/admin/Listing/Component/ViewRequest')
+	() => import('views/admin/Listing/Component/ViewRequest'),
 );
 const PendingListing = React.lazy(
-	() => import('views/admin/Listing/Component/PendingListings')
+	() => import('views/admin/Listing/Component/PendingListings'),
 );
 const PendingViewRequest = React.lazy(
-	() => import('views/admin/Listing/Component/ViewRequest/ViewRequest')
+	() => import('views/admin/Listing/Component/ViewRequest/ViewRequest'),
 );
 const ApprovedViewRequest = React.lazy(
-	() => import('views/admin/Listing/Component/ViewRequest/ApprovedRequest')
+	() => import('views/admin/Listing/Component/ViewRequest/ApprovedRequest'),
 );
 const RejectedViewRequest = React.lazy(
-	() => import('views/admin/Listing/Component/ViewRequest/RejectRequest')
+	() => import('views/admin/Listing/Component/ViewRequest/RejectRequest'),
 );
 const SubUnitType = React.lazy(
 	() =>
 		import(
 			'views/admin/Listing/Component/settings/components/ListingUnitType/SubComponent/SubUnitType'
-		)
+		),
 );
 
 // Survey
 const Survey = React.lazy(() => import('views/admin/survey'));
 const LeaderBoard = React.lazy(() => import('views/admin/survey/LeaderBoard'));
 const CreateSurvey = React.lazy(
-	() => import('views/admin/survey/CreateSurvey')
+	() => import('views/admin/survey/CreateSurvey'),
 );
 const ViewSurveyResponse = React.lazy(
-	() => import('views/admin/survey/ViewSurveyResponse')
+	() => import('views/admin/survey/ViewSurveyResponse'),
 );
 const SurveyDashboard = React.lazy(
-	() => import('views/admin/survey/Component/SurveyDashboard')
+	() => import('views/admin/survey/Component/SurveyDashboard'),
 );
 const SurveyManage = React.lazy(
-	() => import('views/admin/survey/Component/ManageSurveys')
+	() => import('views/admin/survey/Component/ManageSurveys'),
 );
 // Whatsapp
 const AdminWhatsapp = React.lazy(
-	() => import('views/admin/whatsapp/AdminWhatsapp')
+	() => import('views/admin/whatsapp/AdminWhatsapp'),
 );
 
 const WhatsappInstances = React.lazy(
-	() => import('views/admin/whatsapp-v2/Instances')
+	() => import('views/admin/whatsapp-v2/Instances'),
 );
 
 const UserWhatsappInstance = React.lazy(
-	() => import('views/admin/whatsapp-v2/UserWhatsapp')
+	() => import('views/admin/whatsapp-v2/UserWhatsapp'),
 );
 const UserWhatsappChat = React.lazy(
-	() => import('views/admin/whatsapp/UserWhatsapp')
+	() => import('views/admin/whatsapp/UserWhatsapp'),
 );
 const WhatsappSettings = React.lazy(
-	() => import('views/admin/whatsapp/WhatsappSettings')
+	() => import('views/admin/whatsapp/WhatsappSettings'),
 );
 const WhatsappTemplates = React.lazy(
-	() => import('views/admin/whatsapp/WhatsappSettings/Templates')
+	() => import('views/admin/whatsapp/WhatsappSettings/Templates'),
 );
 const CreateWhatsappTemplate = React.lazy(
 	() =>
 		import(
 			'views/admin/whatsapp/WhatsappSettings/Templates/CreateWhatsappTemplate'
-		)
+		),
 );
 
 // Reports
@@ -258,7 +258,7 @@ const TeamDetailsScreen = React.lazy(
 	() =>
 		import(
 			'views/admin/reports-v2/components/lead-report/Teams/TeamDetailsScreen'
-		)
+		),
 );
 
 // Settings
@@ -272,33 +272,33 @@ const Validation = React.lazy(() => import('views/admin/validation'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
 const Agency = React.lazy(() => import('views/admin/agencies'));
 const OfficeSettings = React.lazy(
-	() => import('views/admin/agencies/OfficeSetting')
+	() => import('views/admin/agencies/OfficeSetting'),
 );
 
 // Others
 const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
 const Sip = React.lazy(() => import('views/admin/sip'));
 const SipDashboard = React.lazy(
-	() => import('views/admin/sip/component/Dashboard')
+	() => import('views/admin/sip/component/Dashboard'),
 );
 const SipHistory = React.lazy(
-	() => import('views/admin/sip/component/RecordingHistory/index')
+	() => import('views/admin/sip/component/RecordingHistory/index'),
 );
 const SipSettings = React.lazy(
-	() => import('views/admin/sip/component/UserSetting/index')
+	() => import('views/admin/sip/component/UserSetting/index'),
 );
 const SipUserAnalytics = React.lazy(
-	() => import('views/admin/sip/component/Analytics/index')
+	() => import('views/admin/sip/component/Analytics/index'),
 );
 const SharedSipRecording = React.lazy(
-	() => import('views/admin/sip/component/sharedRecording/index')
+	() => import('views/admin/sip/component/sharedRecording/index'),
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CreateAnnouncement = React.lazy(
-	() => import('views/admin/announcement/components/CreateAnnouncement')
+	() => import('views/admin/announcement/components/CreateAnnouncement'),
 );
 const AnnouncementHistory = React.lazy(
-	() => import('views/admin/announcement/components/History')
+	() => import('views/admin/announcement/components/History'),
 );
 
 const SystemLog = React.lazy(() => import('views/admin/logAction/index'));
@@ -312,7 +312,7 @@ const UserV2 = React.lazy(() => import('views/admin/users-v2'));
 // Auth
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const BulkMessage = React.lazy(
-	() => import('views/admin/whatsapp/BulkMessage')
+	() => import('views/admin/whatsapp/BulkMessage'),
 );
 
 const routes = [

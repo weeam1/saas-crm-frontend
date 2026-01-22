@@ -269,7 +269,7 @@ export const sidebarRoutes = [
 		color: '#9333EA', // Emerald
 		children: [
 			{
-				// id: 'leads',
+				// id: "leads",
 				name: 'Leads',
 				path: '/lead',
 			},
@@ -278,6 +278,11 @@ export const sidebarRoutes = [
 				name: 'Analytics',
 				path: '/lead_analytics',
 				version: 'Beta',
+			},
+			{
+				// id: "lead_analytics",
+				name: 'Call Feedback',
+				path: '/lead/call-feedback',
 			},
 		],
 	},
