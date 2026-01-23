@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -14,6 +14,8 @@ import {
   Center,
   Tooltip,
   IconButton,
+  useDisclosure,
+  useOutsideClick,
 } from "@chakra-ui/react";
 import {
   FiPhone,
@@ -29,6 +31,15 @@ import {
   FiX,
   FiEye,
 } from "react-icons/fi";
+import { MdDescription } from "react-icons/md"; // Best for "description"
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+} from "@chakra-ui/react";
+import { FiInfo } from "react-icons/fi";
+
 import { FaSimCard, FaWhatsapp } from "react-icons/fa";
 import { Avatar, AvatarBadge } from "@chakra-ui/react";
 import { constant } from "constant";
@@ -266,7 +277,6 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
             </Box>
           </Box>
         </HStack>
-
         <HStack spacing={{ base: 2, md: 3 }}>
           {/* <Box
             p={{ base: 1.5, md: 2 }}
@@ -284,8 +294,17 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
               Ext ID {feedback.userExtensionId}
             </Badge>
           </Box>
+          <Box>
+            <Badge
+              colorScheme="blue"
+              variant="subtle"
+              size="xs"
+              fontSize={{ base: "xs", md: "xs" }}
+            >
+              Lead ID {feedback?.lead?.intID}
+            </Badge>
+          </Box>
         </HStack>
-
         <VStack align="stretch" spacing={{ base: 2, md: 3 }}>
           <HStack spacing={{ base: 2, md: 3 }}>
             <Icon as={FiPhone} color="green.500" boxSize={{ base: 3, md: 4 }} />
@@ -316,16 +335,16 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
             </HStack>
           )}
         </VStack>
-
         {feedback.description && (
           <>
             <Divider />
             <HStack spacing={2} align="flex-start" mt={2}>
-              <Tooltip
-                label={feedback.description}
-                placement="top"
-                hasArrow
-                isDisabled={!feedback.description}
+              <Icon as={MdDescription} color="gray.500" boxSize={4} mt={0.5} />
+              <HStack
+                flex={1}
+                align="flex-start"
+                justify="space-between"
+                position="relative"
               >
                 <Text
                   fontSize={{ base: "xs", md: "sm" }}
@@ -333,18 +352,80 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
                   _dark={{ color: "gray.300" }}
                   lineHeight="1.5"
                   flex={1}
-                  noOfLines={2} // clamps to 2 lines
-                  cursor="pointer"
+                  noOfLines={2}
+                  mr={2}
                 >
                   {feedback.description}
                 </Text>
-              </Tooltip>
 
-              {/* Spacer ensures the button stays at the far right */}
+                {/* Clickable Tooltip positioned to appear on left side of icon */}
+                <Box position="relative">
+                  <ClickableTooltip
+                    label={feedback.description}
+                    placement="left"
+                  >
+                    <IconButton
+                      aria-label="View full description"
+                      icon={<FiInfo />}
+                      size="xs"
+                      variant="ghost"
+                      color="blue.500"
+                      _hover={{ color: "blue.600", bg: "blue.50" }}
+                      _dark={{
+                        color: "gray.400",
+                        _hover: { color: "blue.300", bg: "blue.900" },
+                      }}
+                      minW="auto"
+                      h="auto"
+                      p={1}
+                    />
+                  </ClickableTooltip>
+                </Box>
+              </HStack>
             </HStack>
           </>
         )}
       </VStack>
+    </Box>
+  );
+};
+
+const ClickableTooltip = ({ children, label, placement = "left" }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const ref = useRef();
+
+  useOutsideClick({
+    ref,
+    handler: () => {
+      if (isOpen) onClose();
+    },
+  });
+
+  const handleClick = () => {
+    isOpen ? onClose() : onOpen();
+  };
+
+  return (
+    <Box ref={ref} display="inline-block">
+      <Tooltip
+        label={label}
+        placement={placement}
+        isOpen={isOpen}
+        hasArrow
+        closeOnClick={false}
+        closeOnBlur={false}
+        borderRadius="md"
+        px={3}
+        py={2}
+        maxW={{ base: "260px", sm: "300px" }}
+        bg="gray.700"
+        color="white"
+        _dark={{ bg: "gray.100", color: "gray.800" }}
+      >
+        <Box onClick={handleClick} cursor="pointer">
+          {children}
+        </Box>
+      </Tooltip>
     </Box>
   );
 };

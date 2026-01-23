@@ -1,16 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
-  SimpleGrid,
-  Input,
   Button,
   Text,
   useDisclosure,
   useColorModeValue,
-  NumberInput,
-  NumberInputField,
-} from "@chakra-ui/react";
-import {
+  Flex,
+  VStack,
+  HStack,
+  Select,
   Modal,
   ModalOverlay,
   ModalContent,
@@ -18,179 +16,198 @@ import {
   ModalBody,
   ModalFooter,
   ModalCloseButton,
-  VStack,
-  Select,
-  Flex,
 } from "@chakra-ui/react";
 import dayjs from "dayjs";
-import DateRangeFilter from "views/admin/deals/components/DateRangeFilter";
-import { IconButton, HStack, Tag, Tooltip } from "@chakra-ui/react";
-import {
-  FiChevronsLeft,
-  FiChevronLeft,
-  FiChevronRight,
-  FiChevronsRight,
-} from "react-icons/fi";
+import { FiCalendar } from "react-icons/fi";
+import TopPagination from "components/pagination/TopPagination";
+import { SearchBarV2 } from "components/search/SearchBarV2";
+import AdvancedSearch from "./AdvanceSearch";
 
-const CallFeedbackHeader = ({
+export const CallFeedbackHeader = ({
   search,
   setSearch,
   onSearch,
+  onAdvancedSearch,
   onClear,
-  setFromDate,
-  setToDate,
-  page,
-  setPage,
+  setMonth, // we'll store YYYY-MM here
+  month,
+  advancedFilters,
+  currentPage,
   totalPages,
-  setMonth, // 👈 parent setter
+  onPageChange,
+  totalItems,
+  itemsPerPage,
+  refetching,
+  loading,
+  handlePageSize,
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [advanceSearch, setAdvanceSearch] = React.useState(false);
 
-  const currentMonth = dayjs().month();
+  const currentMonth = dayjs().format("MM");
   const currentYear = dayjs().year();
 
   const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
   const [selectedYear, setSelectedYear] = React.useState(currentYear);
 
-  // ✅ Set default month on mount
+  // Check if any filters are active
+  const hasActiveFilters = React.useMemo(() => {
+    // Check if search has value
+    const hasSearch = search && search.trim() !== "";
+
+    // Check if any advanced filter has value
+    const hasAdvancedFilters = Object.values(advancedFilters || {}).some(
+      (value) => value && value.trim() !== "",
+    );
+
+    // Check if month is different from current month
+    const isCurrentMonth = month === `${currentYear}-${currentMonth}`;
+    const hasMonthFilter = !isCurrentMonth;
+
+    return hasSearch || hasAdvancedFilters || hasMonthFilter;
+  }, [search, advancedFilters, month, currentYear, currentMonth]);
+
+  // Set default month-year as YYYY-MM
   React.useEffect(() => {
-    setMonth(currentMonth);
-  }, [currentMonth, setMonth]);
+    if (!month) {
+      setMonth?.(`${currentYear}-${currentMonth}`);
+    }
+  }, [currentMonth, currentYear, setMonth, month]);
+
+  const handleClearAll = () => {
+    // Clear search
+    setSearch?.("");
+    onSearch?.("");
+
+    // Call parent's clear function
+    onClear?.();
+
+    // Reset month to current
+    setMonth?.(`${currentYear}-${currentMonth}`);
+    setSelectedMonth(currentMonth);
+    setSelectedYear(currentYear);
+  };
 
   return (
-    <Box
-      p={3}
-      borderWidth="1px"
-      borderRadius="lg"
-      bg={useColorModeValue("white", "gray.800")}
-    >
-      <HStack spacing={4} align="center" wrap="wrap">
-        {/* Search */}
-        <Input
-          placeholder="Search by user or lead..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyPress={(e) => {
-            if (e.key === "Enter") {
-              onSearch();
-            }
+    <>
+      <Box
+        p={4}
+        borderWidth="1px"
+        borderRadius="lg"
+        bg={useColorModeValue("white", "gray.800")}
+      >
+        <Box
+          display="grid"
+          gridTemplateColumns={{
+            base: "1fr", // mobile: 1 per row
+            md: "1fr 1fr", // tablet: 2 per row
+            lg: " 1fr 1fr 1fr", // desktop: full layout
+            xl: "4fr 1.5fr 1fr 1fr", // desktop: full layout
           }}
-          maxW={{ base: "full", md: "200px" }}
-          size="sm"
-        />
-
-        {/* Date Range Picker + Clear */}
-        <HStack spacing={2}>
-          <Button onClick={onOpen} variant="outline" size="sm">
-            Select Date Range
-          </Button>
-
-          <Button onClick={onClear} variant="ghost" size="sm" colorScheme="red">
-            Clear
-          </Button>
-        </HStack>
-
-        {/* Spacer pushes pagination to the right */}
-        <Box flex="1" />
-
-        {/* Pagination */}
-        <HStack spacing={2}>
-          <Tooltip label="First page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronsLeft />}
-              aria-label="First"
-              onClick={() => setPage(1)}
-              isDisabled={page === 1 || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
-
-          <Tooltip label="Previous page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronLeft />}
-              aria-label="Previous"
-              onClick={() => setPage((p) => p - 1)}
-              isDisabled={page === 1 || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
-
-          {/* Jump to page */}
-          <HStack spacing={1}>
-            <NumberInput
-              size="sm"
-              width="60px"
-              min={1}
-              max={totalPages || 1}
-              value={page}
-              isDisabled={totalPages <= 1}
-              onChange={(valueAsString, valueAsNumber) => {
-                if (valueAsString === "") {
-                  setPage(""); // allow clearing input while typing
-                  return;
-                }
-                const num = parseInt(valueAsString, 10);
-                if (!isNaN(num)) {
-                  setPage(Math.min(Math.max(1, num), totalPages || 1));
-                }
+          gap={3}
+          alignItems="center"
+        >
+          {/* Search Bar */}
+          <Box>
+            <SearchBarV2
+              value={search}
+              onSearchTermChange={onSearch}
+              onClear={() => {
+                setSearch?.("");
+                onSearch?.("");
               }}
-              clampValueOnBlur
+            />
+          </Box>
+
+          {/* Advanced Search Button */}
+          <Button
+            colorScheme="brand"
+            borderRadius="md"
+            size="md"
+            onClick={() => setAdvanceSearch(true)}
+          >
+            Advanced Search
+          </Button>
+
+          {/* Month-Year Picker */}
+          <Box>
+            <Button
+              onClick={onOpen}
+              variant="outline"
+              size="md"
+              leftIcon={<FiCalendar />}
+              width="100%"
+              borderRadius="md"
             >
-              <NumberInputField textAlign="center" />
-            </NumberInput>
+              {dayjs(month || `${selectedYear}-${selectedMonth}-01`).format(
+                "MMMM YYYY",
+              )}
+            </Button>
+          </Box>
 
-            <Text fontSize="sm">/ {totalPages || 1}</Text>
-          </HStack>
+          {/* Clear Filters Button - Disabled when no filters are active */}
+          <Button
+            bg={hasActiveFilters ? "gray.300" : "gray.200"}
+            color={hasActiveFilters ? "gray.800" : "gray.600"}
+            borderRadius="md"
+            size="md"
+            onClick={handleClearAll}
+            disabled={!hasActiveFilters}
+            _hover={
+              hasActiveFilters
+                ? { bg: "gray.400", cursor: "pointer" }
+                : { bg: "gray.200", cursor: "not-allowed" }
+            }
+            _active={hasActiveFilters ? { bg: "gray.500" } : { bg: "gray.100" }}
+            cursor={hasActiveFilters ? "pointer" : "not-allowed"}
+          >
+            Clear Filters
+          </Button>
+        </Box>
 
-          <Tooltip label="Next page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronRight />}
-              aria-label="Next"
-              onClick={() => setPage((p) => p + 1)}
-              isDisabled={page === totalPages || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
+        {/* Month-Year Modal */}
+        <MonthYearModal
+          isOpen={isOpen}
+          onClose={onClose}
+          month={selectedMonth}
+          year={selectedYear}
+          setMonth={setSelectedMonth}
+          setYear={setSelectedYear}
+          onApply={(month, year) => {
+            setSelectedMonth(month.padStart(2, "0"));
+            setSelectedYear(year);
+            setMonth?.(`${year}-${month.padStart(2, "0")}`);
+          }}
+        />
+      </Box>
 
-          <Tooltip label="Last page">
-            <IconButton
-              size="sm"
-              icon={<FiChevronsRight />}
-              aria-label="Last"
-              onClick={() => setPage(totalPages)}
-              isDisabled={page === totalPages || totalPages <= 1}
-              variant="ghost"
-            />
-          </Tooltip>
-        </HStack>
-      </HStack>
-
-      <MonthFilterModal
-        isOpen={isOpen}
-        onClose={onClose}
-        month={selectedMonth}
-        year={selectedYear}
-        setMonth={setSelectedMonth}
-        setYear={setSelectedYear}
-        handleDateFilter={({ from, to, month }) => {
-          setFromDate(from);
-          setToDate(to);
-          setMonth(month); // ✅ sync with parent
-        }}
+      <TopPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        refetching={refetching}
+        loading={loading}
+        handlePageSize={handlePageSize}
       />
-    </Box>
+
+      {advanceSearch && (
+        <AdvancedSearch
+          isOpen={advanceSearch}
+          onClose={() => setAdvanceSearch(false)}
+          onSearch={onAdvancedSearch}
+          initialValues={advancedFilters}
+        />
+      )}
+    </>
   );
 };
 
-export default CallFeedbackHeader;
-
-const MonthFilterModal = ({
+const MonthYearModal = ({
   isOpen,
   onClose,
-  handleDateFilter,
+  onApply,
   month,
   year,
   setMonth,
@@ -202,29 +219,25 @@ const MonthFilterModal = ({
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    { label: "January", value: "01" },
+    { label: "February", value: "02" },
+    { label: "March", value: "03" },
+    { label: "April", value: "04" },
+    { label: "May", value: "05" },
+    { label: "June", value: "06" },
+    { label: "July", value: "07" },
+    { label: "August", value: "08" },
+    { label: "September", value: "09" },
+    { label: "October", value: "10" },
+    { label: "November", value: "11" },
+    { label: "December", value: "12" },
   ];
 
   const currentYear = dayjs().year();
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - i);
+  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
   const handleApply = () => {
-    const from = dayjs().year(year).month(month).startOf("month").toISOString();
-
-    const to = dayjs().year(year).month(month).endOf("month").toISOString();
-
-    handleDateFilter({ from, to, month });
+    onApply(month, year);
     onClose();
   };
 
@@ -238,7 +251,6 @@ const MonthFilterModal = ({
     >
       <ModalOverlay />
       <ModalContent bg={bgColor} borderRadius="2xl" overflow="hidden">
-        {/* Header */}
         <ModalHeader p={0}>
           <Flex
             bg={headerBg}
@@ -249,26 +261,24 @@ const MonthFilterModal = ({
             justify="space-between"
           >
             <Text fontSize="lg" fontWeight="bold">
-              Select Month
+              Select Month & Year
             </Text>
             <ModalCloseButton position="static" />
           </Flex>
         </ModalHeader>
 
-        {/* Body */}
         <ModalBody py={6}>
           <VStack spacing={4} align="stretch">
             <HStack spacing={3}>
-              {/* Month */}
-              <Select value={month} onChange={(e) => setMonth(+e.target.value)}>
-                {months.map((m, i) => (
-                  <option key={m} value={i}>
-                    {m}
+              <Select value={month} onChange={(e) => setMonth(e.target.value)}>
+                {months.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
                   </option>
                 ))}
               </Select>
 
-              <Select value={year} onChange={(e) => setYear(+e.target.value)}>
+              <Select value={year} onChange={(e) => setYear(e.target.value)}>
                 {years.map((y) => (
                   <option key={y} value={y}>
                     {y}
@@ -278,12 +288,11 @@ const MonthFilterModal = ({
             </HStack>
 
             <Text fontSize="sm" color="gray.500" textAlign="center">
-              Filters data for the selected month
+              Select month and year to filter data
             </Text>
           </VStack>
         </ModalBody>
 
-        {/* Footer */}
         <ModalFooter borderTop="1px solid" borderColor={borderColor} gap={3}>
           <Button variant="outline" size="sm" onClick={onClose}>
             Cancel
