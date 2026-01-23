@@ -15,6 +15,8 @@ import {
 	AlertIcon,
 	IconButton,
 	Input,
+	Grid,
+	Divider,
 } from '@chakra-ui/react';
 import {
 	FaMoneyBillWave,
@@ -68,6 +70,8 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 
 	// Initialize with sample data if not provided
 	const data = payroll?.pendingPayrollSummary || null;
+	const isLoan = payroll?.loanSummary?.activeLoans;
+	const loanSummary = payroll?.loanSummary;
 
 	useEffect(() => {
 		if (!data) return;
@@ -193,11 +197,14 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 		.filter((c) => selectedCommissions.includes(c._id))
 		.reduce((sum, c) => sum + c.totalAmount, 0);
 
-	const netTotal =
-		totalSelectedCommissions +
-		Number(manualCommission) -
-		totalSelectedDeductions;
-	const isBlocked = netTotal <= 0;
+	const totalDeductions =
+		totalSelectedDeductions + loanSummary?.monthlyInstallment || 0;
+
+	const totalCommission = totalSelectedCommissions + Number(manualCommission);
+
+	const netSalary = totalCommission - totalDeductions;
+
+	const isBlocked = netSalary <= 0;
 
 	return (
 		<Box p={{ base: 4, md: 6, lg: 8 }} bg='white' rounded='lg' shadow='sm'>
@@ -251,7 +258,6 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 						{data.isPending ? 'Pending Review' : 'Processed'}
 					</Badge> */}
 				</Flex>
-
 				<SimpleGrid columns={{ base: 1, xl: 2 }} spacing={6}>
 					{/* Deductions Box */}
 					<Box
@@ -524,61 +530,82 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 						</Box>
 					</Box>
 				</SimpleGrid>
+				{/* Loan  */}
+				{isLoan && (
+					<Box
+						bg='white'
+						borderRadius='2xl'
+						p={6}
+						border='1px solid'
+						borderColor='gray.100'
+						shadow='md'
+					>
+						{/* Header */}
+						<Flex justify='space-between' align='center' mb={6}>
+							<Text fontSize='lg' fontWeight='600'>
+								Loan Summary
+							</Text>
 
-				{/* Summary Box */}
-				{/* <Box
-					mt={6}
-					bg='blue.50'
-					border='1px'
-					borderColor='blue.200'
-					shadow='md'
-					p={2}
-				>
-					<Box>
-						<SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-							<Box textAlign='center'>
-								<Text fontSize='sm' color='gray.600' mb={1}>
-									Selected Deductions
-								</Text>
-								<Text fontSize='2xl' fontWeight='bold' color='red.600'>
-									-{formatCurrency(totalSelectedDeductions)}
-								</Text>
+							<Badge
+								px={3}
+								py={1}
+								borderRadius='full'
+								fontSize='xs'
+								colorScheme={loanSummary?.activeLoans > 0 ? 'orange' : 'green'}
+							>
+								{loanSummary?.activeLoans > 0 ? 'Active' : 'Cleared'}
+							</Badge>
+						</Flex>
+
+						{/* Metrics */}
+						<SimpleGrid columns={{ base: 1, lg: 2 }} spacing={5}>
+							<Box>
 								<Text fontSize='sm' color='gray.500'>
-									{selectedDeductions.length} items
+									Active Loans
+								</Text>
+								<Text fontSize='2xl' fontWeight='600'>
+									{loanSummary?.activeLoans || 0}
 								</Text>
 							</Box>
 
-							<Box textAlign='center'>
-								<Text fontSize='sm' color='gray.600' mb={1}>
-									Selected Commissions
-								</Text>
-								<Text fontSize='2xl' fontWeight='bold' color='green.600'>
-									+{formatCurrency(totalSelectedCommissions)}
-								</Text>
+							<Box>
 								<Text fontSize='sm' color='gray.500'>
-									{selectedCommissions.length} items
+									Monthly Installment
+								</Text>
+								<Text fontSize='xl' fontWeight='600'>
+									{formatCurrency(
+										loanSummary?.monthlyInstallment,
+										payroll?.agency?.currency,
+									)}
 								</Text>
 							</Box>
 
-							<Box textAlign='center'>
-								<Text fontSize='sm' color='gray.600' mb={1}>
-									Net Total
-								</Text>
-								<Text
-									fontSize='2xl'
-									fontWeight='bold'
-									color={netTotal >= 0 ? 'green.600' : 'red.600'}
-								>
-									{formatCurrency(Math.abs(netTotal))}
-								</Text>
+							{/* <Box>
 								<Text fontSize='sm' color='gray.500'>
-									After deductions
+									Total Borrowed
+								</Text>
+								<Text fontSize='lg' fontWeight='500'>
+									{formatCurrency(
+										loanSummary?.totalBorrowedAmount,
+										payroll?.agency?.currency,
+									)}
 								</Text>
 							</Box>
+
+							<Box>
+								<Text fontSize='sm' color='gray.500'>
+									Remaining Amount
+								</Text>
+								<Text fontSize='lg' fontWeight='600' color='red.500'>
+									{formatCurrency(
+										loanSummary?.totalRemainingAmount,
+										payroll?.agency?.currency,
+									)}
+								</Text>
+							</Box> */}
 						</SimpleGrid>
 					</Box>
-				</Box> */}
-
+				)}
 				{/* Manual Commission Input Section */}
 				<Box
 					mt={6}
@@ -657,7 +684,6 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 						</Box>
 					</HStack>
 				</Box>
-
 				{/* BLOCKING WARNING */}
 				{isBlocked && (
 					<Alert status='error' borderRadius='lg'>
@@ -671,6 +697,92 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 						</Box>
 					</Alert>
 				)}
+
+				<Box
+					bg='white'
+					borderRadius='2xl'
+					p={{ base: 4, md: 6 }}
+					border='1px solid'
+					borderColor='gray.100'
+					boxShadow='md'
+				>
+					{/* Header */}
+					<Text
+						fontSize={{ base: 'md', md: 'lg' }}
+						fontWeight='600'
+						mb={{ base: 4, md: 5 }}
+					>
+						Salary Summary
+					</Text>
+
+					{/* Breakdown */}
+					<SimpleGrid
+						columns={{ base: 1, md: 2, lg: 3 }}
+						spacing={{ base: 3, md: 4 }}
+					>
+						<Box>
+							<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+								Total Commission
+							</Text>
+							<Text
+								fontSize={{ base: 'md', md: 'lg' }}
+								fontWeight='600'
+								color='green.600'
+							>
+								{formatCurrency(totalCommission, payroll?.agency?.currency)}
+							</Text>
+						</Box>
+
+						<Box>
+							<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+								Total Deductions
+							</Text>
+							<Text
+								fontSize={{ base: 'md', md: 'lg' }}
+								fontWeight='600'
+								color='red.500'
+							>
+								{formatCurrency(totalDeductions, payroll?.agency?.currency)}
+							</Text>
+						</Box>
+
+						{isLoan && (
+							<Box>
+								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									Loan Deduction
+								</Text>
+								<Text
+									fontSize={{ base: 'md', md: 'lg' }}
+									fontWeight='500'
+									color='orange.500'
+								>
+									{formatCurrency(
+										loanSummary?.monthlyInstallment || 0,
+										payroll?.agency?.currency,
+									)}
+								</Text>
+							</Box>
+						)}
+					</SimpleGrid>
+
+					{/* Divider */}
+					<Divider my={{ base: 3, md: 4 }} />
+
+					{/* Net Salary */}
+					<Flex justify='space-between' align='center'>
+						<Text fontSize={{ base: 'sm', md: 'md' }} fontWeight='600'>
+							Net Salary
+						</Text>
+
+						<Text
+							fontSize={{ base: 'lg', md: 'xl' }}
+							fontWeight='700'
+							color={netSalary >= 0 ? 'green.600' : 'red.600'}
+						>
+							{formatCurrency(netSalary, payroll?.agency?.currency)}
+						</Text>
+					</Flex>
+				</Box>
 
 				{/* Action Section */}
 				<Box
@@ -788,7 +900,6 @@ const PendingPayrollSummary = ({ payroll, showSkip, onSkip }) => {
 						</Box>
 					</Alert>
 				</Box>
-
 				{/* MANUAL COMMISSION */}
 				{/* <Box p={4} borderWidth='1px' borderRadius='xl' bg='white'>
 					<VStack align='start' spacing={3}>
