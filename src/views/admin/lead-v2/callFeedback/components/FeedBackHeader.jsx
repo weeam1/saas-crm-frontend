@@ -102,7 +102,7 @@ export const CallFeedbackHeader = ({
             base: "1fr", // mobile: 1 per row
             md: "1fr 1fr", // tablet: 2 per row
             lg: " 1fr 1fr 1fr", // desktop: full layout
-            xl: "4fr 1fr 1fr 1fr", // desktop: full layout
+            xl: "4fr 1.5fr 1fr 1fr", // desktop: full layout
           }}
           gap={3}
           alignItems="center"
