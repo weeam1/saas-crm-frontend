@@ -29,6 +29,8 @@ import {
   FiX,
   FiEye,
 } from "react-icons/fi";
+import { MdDescription } from "react-icons/md"; // Best for "description"
+
 import { FaSimCard, FaWhatsapp } from "react-icons/fa";
 import { Avatar, AvatarBadge } from "@chakra-ui/react";
 import { constant } from "constant";
@@ -266,7 +268,6 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
             </Box>
           </Box>
         </HStack>
-
         <HStack spacing={{ base: 2, md: 3 }}>
           {/* <Box
             p={{ base: 1.5, md: 2 }}
@@ -285,7 +286,6 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
             </Badge>
           </Box>
         </HStack>
-
         <VStack align="stretch" spacing={{ base: 2, md: 3 }}>
           <HStack spacing={{ base: 2, md: 3 }}>
             <Icon as={FiPhone} color="green.500" boxSize={{ base: 3, md: 4 }} />
@@ -316,16 +316,24 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
             </HStack>
           )}
         </VStack>
-
+        {/* i want a description icon here */}
         {feedback.description && (
           <>
             <Divider />
             <HStack spacing={2} align="flex-start" mt={2}>
+              <Icon
+                as={MdDescription} // ✅ Best for "description"
+                color="gray.500"
+                boxSize={4}
+                mt={0.5}
+                _dark={{ color: "gray.400" }}
+              />
               <Tooltip
                 label={feedback.description}
                 placement="top"
                 hasArrow
                 isDisabled={!feedback.description}
+                portalProps={{ appendToParentPortal: true }}
               >
                 <Text
                   fontSize={{ base: "xs", md: "sm" }}
@@ -333,14 +341,12 @@ export const CallFeedbackCard = ({ feedback, onViewDetails }) => {
                   _dark={{ color: "gray.300" }}
                   lineHeight="1.5"
                   flex={1}
-                  noOfLines={2} // clamps to 2 lines
+                  noOfLines={2}
                   cursor="pointer"
                 >
                   {feedback.description}
                 </Text>
               </Tooltip>
-
-              {/* Spacer ensures the button stays at the far right */}
             </HStack>
           </>
         )}
