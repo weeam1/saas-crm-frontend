@@ -73,7 +73,7 @@ const AdjustmentsModal = ({
 	const [adjustments, setAdjustments] = useState(() =>
 		employeeAdjustments?.length
 			? mergeAdjustments(employeeAdjustments)
-			: PREDEFINED_ADJUSTMENTS
+			: PREDEFINED_ADJUSTMENTS,
 	);
 
 	const handleChange = (type, field, value) => {
@@ -87,15 +87,15 @@ const AdjustmentsModal = ({
 								? { days: 1 }
 								: {}),
 						}
-					: adj
-			)
+					: adj,
+			),
 		);
 	};
 
 	function normalizeAdjustments(adjustments = []) {
-		return adjustments
-			.filter((a) => Number(a.amount) > 0) // drop zeros
-			.map((a) => {
+		return (
+			// .filter((a) => Number(a.amount) > 0) // drop zeros
+			adjustments.map((a) => {
 				const out = {
 					type: a.type, // BONUS | DEDUCTION | ...
 					calculation: a.calculation, // FIXED | PER_DAY
@@ -108,7 +108,8 @@ const AdjustmentsModal = ({
 				}
 
 				return out;
-			});
+			})
+		);
 	}
 
 	const handleSave = (mode = 'save') => {
@@ -203,7 +204,7 @@ const AdjustmentsModal = ({
 												<NumberInput
 													size='md'
 													width='120px'
-													min={1}
+													min={0}
 													value={adj.days || 1}
 													onChange={(value) =>
 														handleChange(adj.type, 'days', parseInt(value) || 1)

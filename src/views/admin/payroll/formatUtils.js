@@ -69,11 +69,7 @@ export const PAYROLL_COLUMNS = [
 
 export const COMMISSION_PAYROLL_COLUMNS = [
 	{ key: 'user', label: 'Employee', width: '220px' },
-	// {
-	// 	key: 'virtualSalary',
-	// 	label: 'Virtual Salary',
-	// 	width: '150px',
-	// },
+
 	{
 		key: 'payrollSummary.commissionEarned',
 		label: 'Commission',
