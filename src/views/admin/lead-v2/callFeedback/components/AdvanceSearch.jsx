@@ -19,7 +19,13 @@ import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useModalColors } from "hooks/useModalColors";
 
-const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
+const AdvancedSearch = ({
+  isOpen,
+  onClose,
+  onSearch,
+  initialValues,
+  refetch,
+}) => {
   const defaultValues = {
     leadName: "",
     leadIntId: "",
@@ -29,6 +35,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
     // userId: "",
     extension: "",
   };
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const [formValues, setFormValues] = useState(initialValues || defaultValues);
   const { headerBg, primaryBtnBg, headerText } = useModalColors();
@@ -56,6 +63,10 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
     // userId: Yup.string(),
     extension: Yup.string(),
   });
+  const handleClear = (resetForm) => {
+    resetForm();
+    setHasInteracted(false);
+  };
 
   const handleSubmit = (values) => {
     // Clean up empty values
@@ -65,8 +76,9 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
       }
       return acc;
     }, {});
-
+    setHasInteracted(false);
     onSearch(cleanedValues);
+
     onClose();
     if (isMounted.current) setFormValues(values);
   };
@@ -94,6 +106,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
           >
             {({
               handleChange,
+              dirty,
               handleBlur,
               values,
               errors,
@@ -116,6 +129,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                       Lead Name
                     </FormLabel>
                     <Input
+                      onFocus={() => setHasInteracted(true)}
                       type="text"
                       name="leadName"
                       placeholder="Enter lead name"
@@ -144,6 +158,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                       Lead ID
                     </FormLabel>
                     <Input
+                      onFocus={() => setHasInteracted(true)}
                       type="text"
                       name="leadIntId"
                       placeholder="Enter lead ID (12345)"
@@ -172,6 +187,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                       Call Medium
                     </FormLabel>
                     <Select
+                      onFocus={() => setHasInteracted(true)}
                       name="callMedium"
                       placeholder="Select call medium"
                       value={values.callMedium}
@@ -208,6 +224,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                     </FormLabel>
 
                     <Select
+                      onFocus={() => setHasInteracted(true)}
                       name="callQuality"
                       placeholder="Select call quality"
                       value={values.callQuality}
@@ -242,6 +259,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                       Reason
                     </FormLabel>
                     <Input
+                      onFocus={() => setHasInteracted(true)}
                       type="text"
                       name="reason"
                       placeholder="Enter reason"
@@ -298,6 +316,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                       Extension ID
                     </FormLabel>
                     <Input
+                      onFocus={() => setHasInteracted(true)}
                       type="text"
                       name="extension"
                       placeholder="Enter extension id"
@@ -323,7 +342,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                     variant="outline"
                     size="sm"
                     rounded="md"
-                    onClick={() => resetForm()}
+                    onClick={() => handleClear(resetForm)}
                   >
                     Clear
                   </Button>
@@ -335,6 +354,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, initialValues }) => {
                     rounded="md"
                     size="sm"
                     type="submit"
+                    isDisabled={!dirty && !hasInteracted}
                   >
                     Search
                   </Button>

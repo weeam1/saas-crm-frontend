@@ -35,6 +35,7 @@ export const useFetchCallFeedback = () => {
     const raw = {
       page: pagination.page,
       limit: pagination.limit,
+      __forceFetch: Date.now(),
       // Only include non-empty filters
       ...(filters.q && { q: filters.q }),
       ...(filters.month && { month: filters.month }),

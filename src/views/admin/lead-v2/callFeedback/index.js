@@ -223,6 +223,7 @@ const CallFeedback = () => {
     handlePageSize,
     filters,
     setFilters,
+    refetch,
     queryParams,
   } = useFetchCallFeedback();
 
@@ -334,6 +335,7 @@ const CallFeedback = () => {
                 refetching={isFetching}
                 loading={isLoading}
                 handlePageSize={handlePageSize}
+                refetch={refetch}
               />
 
               {/* Feedback Cards */}
