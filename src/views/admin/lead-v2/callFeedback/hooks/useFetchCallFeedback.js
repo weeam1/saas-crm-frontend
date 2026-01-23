@@ -11,21 +11,42 @@ export const useFetchCallFeedback = () => {
   const initialLimit = Number(searchParams.get("limit")) || 10;
 
   const [list, setList] = useState([]);
+  const [stats, setStats] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
   const [pagination, setPagination] = useState({
     page: initialPage,
     limit: initialLimit,
   });
 
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState({
+    q: "", // Global search
+    month: "", // Month filter in YYYY-MM format
+    leadName: "",
+    leadIntId: "",
+    callMedium: "",
+    callQuality: "",
+    reason: "",
+    // userId: "",
+    extension: "",
+  });
 
   // stable queryParams (memoized)
   const queryParams = useMemo(() => {
     const raw = {
       page: pagination.page,
       limit: pagination.limit,
-      ...(filters && { ...filters }),
+      // Only include non-empty filters
+      ...(filters.q && { q: filters.q }),
+      ...(filters.month && { month: filters.month }),
+      ...(filters.leadName && { leadName: filters.leadName }),
+      ...(filters.leadIntId && { leadIntId: filters.leadIntId }),
+      ...(filters.callMedium && { callMedium: filters.callMedium }),
+      ...(filters.callQuality && { callQuality: filters.callQuality }),
+      ...(filters.reason && { reason: filters.reason }),
+      // ...(filters.userId && { userId: filters.userId }),
+      ...(filters.extension && { extension: filters.extension }),
     };
+
     return cleanSearchParams(raw);
   }, [pagination.page, pagination.limit, filters]);
 
@@ -39,7 +60,10 @@ export const useFetchCallFeedback = () => {
 
   // --- Fetching Data ---
   const fetchResult = useFetchItemsQuery(
-    { path: "/sipSetting/feedback", params: queryParams },
+    {
+      path: "/sipSetting/feedback",
+      params: queryParams,
+    },
     {
       refetchOnMountOrArgChange: true,
       refetchOnFocus: true,
@@ -50,15 +74,18 @@ export const useFetchCallFeedback = () => {
   const { data, isLoading, isFetching, refetch } = fetchResult;
 
   useEffect(() => {
-    console.log("API Data:", data); // Debug log
+    console.log("API Data:", data);
     if (data?.doc) {
-      setList(data?.doc || []);
-      // FIXED: Use data?.total instead of data?.pagination?.total
+      setList(data.doc || []);
       setTotalCount(data?.total || 0);
+      setStats(data);
     } else if (data) {
       // If data is directly the array
       setList(data || []);
       setTotalCount(data?.length || 0);
+    } else {
+      setList([]);
+      setTotalCount(0);
     }
   }, [data]);
 
@@ -68,12 +95,6 @@ export const useFetchCallFeedback = () => {
 
   const handlePageSize = (limit) => {
     setPagination({ page: 1, limit: Number(limit) });
-  };
-
-  const onDateFilterChange = (value) => {
-    const newMonth = Number(value.month);
-    const newYear = Number(value.year);
-    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const updateData = (id, updated, type = "update") => {
@@ -112,11 +133,11 @@ export const useFetchCallFeedback = () => {
 
   return {
     queryParams,
-    data: list ?? [],
+    data: list,
     setData: setList,
-    // FIXED: Use data?.totalPages directly
-    totalPages: data?.totalPages ?? 0,
-    totalRecords: totalCount ?? 0,
+    totalPages:
+      data?.totalPages || Math.ceil(totalCount / pagination.limit) || 0,
+    totalRecords: totalCount,
     pagination,
     setPagination,
     isLoading,
@@ -124,10 +145,11 @@ export const useFetchCallFeedback = () => {
     refetch,
     handlePageChange,
     handlePageSize,
-    onDateFilterChange,
     updateData,
     removeItem,
     filters,
+    stats,
+    setStats,
     setFilters,
   };
 };
