@@ -77,10 +77,9 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
       bg={bgColor}
       p={6}
       borderRadius="xl"
-      shadow="lg"
+      shadow="sm"
       borderWidth="1px"
       borderColor={borderColor}
-      mb={6}
       w="100%"
       position="relative"
     >

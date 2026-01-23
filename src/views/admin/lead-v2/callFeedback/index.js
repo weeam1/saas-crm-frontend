@@ -99,8 +99,8 @@ const CallFeedback = () => {
 
   // Show loading state
   return (
-    <Box bg={bgColor} p={2}>
-      <Box mx="auto">
+    <Box bg={bgColor}>
+      <Box>
         <VStack spacing={4} align="stretch">
           {isLoading ? (
             <CallFeedbackSkeleton />
