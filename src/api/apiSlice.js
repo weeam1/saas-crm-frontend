@@ -89,17 +89,30 @@ export const apiSlice = createApi({
         responseHandler: (response) => response.blob(),
       }),
     }),
+    // createLeadQualification: builder.mutation({
+    //   query: ({ leadId, createdBy, body }) => ({
+    //     url: `/lead/qualifications`,
+    //     method: "POST",
+    //     params: {
+    //       lead: leadId,
+    //       createdBy,
+    //     },
+    //     body,
+    //   }),
+    // }),
     createLeadQualification: builder.mutation({
       query: ({ leadId, createdBy, body }) => ({
         url: `/lead/qualifications`,
         method: "POST",
-        params: {
-          lead: leadId,
-          createdBy,
-        },
+        params: { lead: leadId, createdBy },
         body,
       }),
+      // Invalidate the tag for this lead so getLeadQualification refetches
+      invalidatesTags: (result, error, { leadId }) => [
+        { type: "Items", id: leadId },
+      ],
     }),
+
     getLeadQualification: builder.query({
       query: ({ leadId, createdBy }) => ({
         url: `/lead/qualifications`,
