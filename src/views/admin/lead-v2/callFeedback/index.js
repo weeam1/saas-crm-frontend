@@ -192,7 +192,6 @@ const CallFeedback = () => {
   // Filters
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
-  const [month, setMonth] = useState(dayjs().format("YYYY-MM"));
 
   // Advanced filters - all as text fields
   const [advancedFilters, setAdvancedFilters] = useState({
@@ -221,6 +220,8 @@ const CallFeedback = () => {
     totalRecords,
     handlePageChange,
     handlePageSize,
+    month,
+    setMonth,
     filters,
     setFilters,
     refetch,
@@ -246,7 +247,23 @@ const CallFeedback = () => {
   );
 
   // Handle clear all filters
+  // const handleClear = useCallback(() => {
+  //   setSearch("");
+  //   setAppliedSearch("");
+  //   setAdvancedFilters({
+  //     leadName: "",
+  //     leadIntId: "",
+  //     callMedium: "",
+  //     callQuality: "",
+  //     reason: "",
+  //     // userId: "",
+  //     extension: "",
+  //   });
+  //   setMonth(dayjs().format("YYYY-MM"));
+  //   setPagination((prev) => ({ ...prev, page: 1 }));
+  // }, [setPagination]);
   const handleClear = useCallback(() => {
+    // Reset all local states
     setSearch("");
     setAppliedSearch("");
     setAdvancedFilters({
@@ -255,22 +272,42 @@ const CallFeedback = () => {
       callMedium: "",
       callQuality: "",
       reason: "",
-      // userId: "",
       extension: "",
     });
     setMonth(dayjs().format("YYYY-MM"));
+
+    // Reset hook filters
+    setFilters({});
+
+    // Reset pagination
     setPagination((prev) => ({ ...prev, page: 1 }));
-  }, [setPagination]);
+  }, [setPagination, setFilters]);
 
   // Update filters in hook when local filters change
+  // useEffect(() => {
+  //   const newFilters = {
+  //     ...(appliedSearch && { q: appliedSearch }),
+  //     ...(month && { month: month }),
+  //     ...advancedFilters,
+  //   };
+
+  //   // Clean up empty values
+  //   const cleanedFilters = Object.keys(newFilters).reduce((acc, key) => {
+  //     if (newFilters[key] && newFilters[key].trim() !== "") {
+  //       acc[key] = newFilters[key].trim();
+  //     }
+  //     return acc;
+  //   }, {});
+
+  //   setFilters(cleanedFilters);
+  // }, [appliedSearch, month, advancedFilters, setFilters]);
+
   useEffect(() => {
     const newFilters = {
       ...(appliedSearch && { q: appliedSearch }),
-      ...(month && { month: month }),
       ...advancedFilters,
     };
 
-    // Clean up empty values
     const cleanedFilters = Object.keys(newFilters).reduce((acc, key) => {
       if (newFilters[key] && newFilters[key].trim() !== "") {
         acc[key] = newFilters[key].trim();
@@ -279,12 +316,12 @@ const CallFeedback = () => {
     }, {});
 
     setFilters(cleanedFilters);
-  }, [appliedSearch, month, advancedFilters, setFilters]);
+  }, [appliedSearch, advancedFilters, setFilters]);
 
   // Reset page when filters change
-  useEffect(() => {
-    setPagination((prev) => ({ ...prev, page: 1 }));
-  }, [appliedSearch, month, advancedFilters, setPagination]);
+  // useEffect(() => {
+  //   setPagination((prev) => ({ ...prev, page: 1 }));
+  // }, [appliedSearch, month, advancedFilters, setPagination]);
 
   // Modal handlers
   const handleViewDetails = useCallback((feedback) => {
@@ -318,6 +355,8 @@ const CallFeedback = () => {
 
               {/* Header with Filters */}
               <CallFeedbackHeader
+                setAppliedSearch={setAppliedSearch}
+                setAdvancedFilters={setAdvancedFilters}
                 search={search}
                 setSearch={setSearch}
                 onSearch={handleSearch}
@@ -327,6 +366,8 @@ const CallFeedback = () => {
                 setMonth={setMonth}
                 advancedFilters={advancedFilters}
                 // Pagination props
+                filters={filters}
+                setFilters={setFilters}
                 currentPage={pagination.page}
                 totalPages={totalPages}
                 onPageChange={handlePageChange}
@@ -339,7 +380,9 @@ const CallFeedback = () => {
               />
 
               {/* Feedback Cards */}
-              <Box overflowY="auto" maxHeight="calc(80vh)" pr={2}>
+              <Box
+              // overflowY="auto" maxHeight="calc(80vh)" pr={2}
+              >
                 <SimpleGrid
                   columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
                   spacing={6}

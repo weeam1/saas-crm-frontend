@@ -22,6 +22,7 @@ import { FiCalendar } from "react-icons/fi";
 import TopPagination from "components/pagination/TopPagination";
 import { SearchBarV2 } from "components/search/SearchBarV2";
 import AdvancedSearch from "./AdvanceSearch";
+import ActiveFiltersDisplay from "./ActiveFiltersDIsplay";
 
 export const CallFeedbackHeader = ({
   search,
@@ -29,9 +30,13 @@ export const CallFeedbackHeader = ({
   onSearch,
   onAdvancedSearch,
   onClear,
+  setAppliedSearch,
+  setAdvancedFilters,
   setMonth, // we'll store YYYY-MM here
   month,
   advancedFilters,
+  filters,
+  setFilters,
   currentPage,
   totalPages,
   onPageChange,
@@ -102,7 +107,7 @@ export const CallFeedbackHeader = ({
             base: "1fr", // mobile: 1 per row
             md: "1fr 1fr", // tablet: 2 per row
             lg: " 1fr 1fr 1fr", // desktop: full layout
-            xl: "4fr 1.5fr 1fr 1fr", // desktop: full layout
+            xl: "5fr  1fr 1fr", // desktop: full layout
           }}
           gap={3}
           alignItems="center"
@@ -146,7 +151,7 @@ export const CallFeedbackHeader = ({
           </Box>
 
           {/* Clear Filters Button - Disabled when no filters are active */}
-          <Button
+          {/* <Button
             bg={hasActiveFilters ? "gray.300" : "gray.200"}
             color={hasActiveFilters ? "gray.800" : "gray.600"}
             borderRadius="md"
@@ -162,8 +167,28 @@ export const CallFeedbackHeader = ({
             cursor={hasActiveFilters ? "pointer" : "not-allowed"}
           >
             Clear Filters
-          </Button>
+          </Button> */}
         </Box>
+        <ActiveFiltersDisplay
+          filters={filters}
+          onClearFilters={(key) => {
+            if (key) {
+              setFilters((prev) => {
+                const updated = { ...prev };
+                delete updated[key];
+                return updated;
+              });
+
+              // Also clear corresponding local state
+              setAdvancedFilters((prev) => ({ ...prev, [key]: "" }));
+              if (key === "q") setAppliedSearch("");
+              if (key === "month") setMonth(dayjs().format("YYYY-MM"));
+            } else {
+              // Clear all
+              onClear();
+            }
+          }}
+        />
 
         {/* Month-Year Modal */}
         <MonthYearModal
