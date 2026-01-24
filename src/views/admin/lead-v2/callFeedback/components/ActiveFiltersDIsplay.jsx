@@ -32,11 +32,15 @@ const ActiveFiltersDisplay = ({ filters, onClearFilters, users = [] }) => {
 
   const getTagLabel = (key) => {
     const labels = {
-      userId: "Employee",
-      role: "Role",
-      status: "Status",
-      department: "Department",
-      position: "Position",
+      q: "Search",
+      leadName: "Lead Name",
+      leadIntId: "Lead ID", // ✅ THIS is the important one
+      callMedium: "Call Medium",
+      callQuality: "Call Quality",
+      reason: "Reason",
+      extension: "Extension ID",
+
+      month: "Month",
     };
     return labels[key] || key;
   };
