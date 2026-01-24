@@ -1,4 +1,5 @@
 import { useFetchItemsQuery } from "api/apiSlice";
+import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { cleanSearchParams } from "utils";
@@ -8,7 +9,10 @@ export const useFetchCallFeedback = () => {
   const searchString = searchParams.toString();
 
   const initialPage = Number(searchParams.get("page")) || 1;
-  const initialLimit = Number(searchParams.get("limit")) || 10;
+  const initialLimit = Number(searchParams.get("limit")) || 20;
+  const [month, setMonth] = useState(
+    searchParams.get("month") || dayjs().format("YYYY-MM"),
+  );
 
   const [list, setList] = useState([]);
   const [stats, setStats] = useState([]);
@@ -20,7 +24,6 @@ export const useFetchCallFeedback = () => {
 
   const [filters, setFilters] = useState({
     q: "", // Global search
-    month: "", // Month filter in YYYY-MM format
     leadName: "",
     leadIntId: "",
     callMedium: "",
@@ -37,8 +40,9 @@ export const useFetchCallFeedback = () => {
       limit: pagination.limit,
       __forceFetch: Date.now(),
       // Only include non-empty filters
+      ...(month && { month }),
+
       ...(filters.q && { q: filters.q }),
-      ...(filters.month && { month: filters.month }),
       ...(filters.leadName && { leadName: filters.leadName }),
       ...(filters.leadIntId && { leadIntId: filters.leadIntId }),
       ...(filters.callMedium && { callMedium: filters.callMedium }),
@@ -47,9 +51,9 @@ export const useFetchCallFeedback = () => {
       // ...(filters.userId && { userId: filters.userId }),
       ...(filters.extension && { extension: filters.extension }),
     };
-
+    delete raw.__forceFetch;
     return cleanSearchParams(raw);
-  }, [pagination.page, pagination.limit, filters]);
+  }, [pagination.page, pagination.limit, filters, month]);
 
   // sync queryParams -> URL (loop proof)
   useEffect(() => {
@@ -145,6 +149,8 @@ export const useFetchCallFeedback = () => {
     isFetching,
     refetch,
     handlePageChange,
+    month,
+    setMonth,
     handlePageSize,
     updateData,
     removeItem,
