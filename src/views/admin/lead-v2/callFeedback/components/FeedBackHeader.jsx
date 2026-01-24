@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { useBreakpointValue } from "@chakra-ui/react";
 import {
   Box,
   Button,
@@ -17,12 +18,17 @@ import {
   ModalFooter,
   ModalCloseButton,
 } from "@chakra-ui/react";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import moment from "moment";
+
 import dayjs from "dayjs";
 import { FiCalendar } from "react-icons/fi";
 import TopPagination from "components/pagination/TopPagination";
 import { SearchBarV2 } from "components/search/SearchBarV2";
 import AdvancedSearch from "./AdvanceSearch";
 import ActiveFiltersDisplay from "./ActiveFiltersDIsplay";
+import DateFilter from "views/admin/attendance/components/DateFilter";
 
 export const CallFeedbackHeader = ({
   search,
@@ -229,6 +235,102 @@ export const CallFeedbackHeader = ({
   );
 };
 
+// const MonthYearModal = ({
+//   isOpen,
+//   onClose,
+//   onApply,
+//   month,
+//   year,
+//   setMonth,
+//   setYear,
+// }) => {
+//   const bgColor = useColorModeValue("white", "gray.800");
+//   const headerBg = useColorModeValue("brand.300", "brand.100");
+//   const headerText = useColorModeValue("brand.700", "brand.900");
+//   const borderColor = useColorModeValue("gray.200", "gray.600");
+
+//   const months = [
+//     { label: "January", value: "01" },
+//     { label: "February", value: "02" },
+//     { label: "March", value: "03" },
+//     { label: "April", value: "04" },
+//     { label: "May", value: "05" },
+//     { label: "June", value: "06" },
+//     { label: "July", value: "07" },
+//     { label: "August", value: "08" },
+//     { label: "September", value: "09" },
+//     { label: "October", value: "10" },
+//     { label: "November", value: "11" },
+//     { label: "December", value: "12" },
+//   ];
+
+//   const currentYear = dayjs().year();
+//   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+
+//   const handleApply = () => {
+//     onApply(month, year);
+//     onClose();
+//   };
+//   const handleDateFilterChange = ({ month, year }) => {
+//     setMonth(month);
+//     setYear(year);
+
+//     // Apply immediately (same behavior as clicking Apply)
+//     onApply(month, year);
+//     onClose();
+//   };
+
+//   const selectedDate = moment(`${year}-${month}-01`).toDate();
+
+//   return (
+//     <Modal isOpen={isOpen} onClose={onClose} isCentered size="sm">
+//       <ModalOverlay />
+//       <ModalContent borderRadius="xl" overflow="hidden">
+//         <ModalBody p={4}>
+
+//           <Calendar
+//             value={selectedDate}
+//             view="year"
+//             onClickMonth={(date) => {
+//               const m = moment(date).format("MM");
+//               const y = moment(date).format("YYYY");
+
+//               setMonth(m);
+//               setYear(y);
+//               onApply(m, y);
+//               onClose();
+//             }}
+//             maxDate={moment().endOf("month").toDate()}
+//             tileDisabled={({ date }) => date.getDate() !== 1}
+//             className="custom-calendar"
+//           />
+//         </ModalBody>
+
+//         {/* 👇 SAME styles from DateFilter */}
+//         <style jsx global>{`
+//           .react-calendar {
+//             width: 100%;
+//             border: none !important;
+//             font-size: 0.9rem;
+//           }
+//           @media (max-width: 768px) {
+//             .react-calendar {
+//               font-size: 0.8rem;
+//             }
+//           }
+//           .react-calendar__tile--active {
+//             background: #3182ce !important;
+//             color: white !important;
+//             border-radius: 8px;
+//           }
+//           .react-calendar__navigation button {
+//             color: #2d3748;
+//           }
+//         `}</style>
+//       </ModalContent>
+//     </Modal>
+//   );
+// };
 const MonthYearModal = ({
   isOpen,
   onClose,
@@ -238,31 +340,35 @@ const MonthYearModal = ({
   setMonth,
   setYear,
 }) => {
-  const bgColor = useColorModeValue("white", "gray.800");
-  const headerBg = useColorModeValue("brand.300", "brand.100");
-  const headerText = useColorModeValue("brand.700", "brand.900");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const modalRef = useRef(null);
+  const isMobile = useBreakpointValue({ base: true, md: false });
 
-  const months = [
-    { label: "January", value: "01" },
-    { label: "February", value: "02" },
-    { label: "March", value: "03" },
-    { label: "April", value: "04" },
-    { label: "May", value: "05" },
-    { label: "June", value: "06" },
-    { label: "July", value: "07" },
-    { label: "August", value: "08" },
-    { label: "September", value: "09" },
-    { label: "October", value: "10" },
-    { label: "November", value: "11" },
-    { label: "December", value: "12" },
-  ];
+  // Calculate popup style for desktop
+  const [popupStyle, setPopupStyle] = useState({});
+  const buttonRef = useRef(null);
 
-  const currentYear = dayjs().year();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+  // Get the position of the trigger button (simulated for modal)
+  useEffect(() => {
+    if (!isMobile && isOpen) {
+      // For modal, we'll use centered positioning
+      setPopupStyle({
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+      });
+    }
+  }, [isOpen, isMobile]);
 
-  const handleApply = () => {
-    onApply(month, year);
+  const selectedDate = moment(`${year}-${month}-01`).toDate();
+
+  const handleDateChange = (date) => {
+    const m = moment(date).format("MM");
+    const y = moment(date).format("YYYY");
+
+    setMonth(m);
+    setYear(y);
+    onApply(m, y);
     onClose();
   };
 
@@ -271,61 +377,85 @@ const MonthYearModal = ({
       isOpen={isOpen}
       onClose={onClose}
       isCentered
-      motionPreset="slideInBottom"
       size="sm"
+      closeOnOverlayClick={true}
     >
-      <ModalOverlay />
-      <ModalContent bg={bgColor} borderRadius="2xl" overflow="hidden">
-        <ModalHeader p={0}>
-          <Flex
-            bg={headerBg}
-            color={headerText}
-            px={5}
-            py={3}
-            align="center"
-            justify="space-between"
+      <ModalOverlay bg="rgba(0,0,0,0.4)" />
+      <ModalContent
+        borderRadius="xl"
+        overflow="hidden"
+        boxShadow="none"
+        border="none"
+        background="transparent"
+      >
+        <ModalBody p={0}>
+          {/* Mobile Overlay is handled by ModalOverlay */}
+
+          {/* Calendar Container - matches the exact styling from first component */}
+          <Box
+            ref={modalRef}
+            zIndex="999"
+            bg="white"
+            borderRadius="xl"
+            boxShadow="0 10px 25px rgba(0,0,0,0.25)"
+            border="1px solid rgba(0,0,0,0.2)"
+            p={{ base: 3, md: 4 }}
+            w={{ base: "90vw", sm: "80vw", md: "350px" }}
+            maxW="420px"
+            transition="all 0.3s ease"
+            {...(isMobile
+              ? {
+                  position: "fixed",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                }
+              : popupStyle)}
           >
-            <Text fontSize="lg" fontWeight="bold">
-              Select Month & Year
-            </Text>
-            <ModalCloseButton position="static" />
-          </Flex>
-        </ModalHeader>
+            <Calendar
+              onChange={handleDateChange}
+              value={selectedDate}
+              view="year"
+              onClickMonth={handleDateChange}
+              maxDate={moment().endOf("month").toDate()}
+              tileDisabled={({ date }) => date.getDate() !== 1}
+              className="custom-calendar"
+            />
+          </Box>
 
-        <ModalBody py={6}>
-          <VStack spacing={4} align="stretch">
-            <HStack spacing={3}>
-              <Select value={month} onChange={(e) => setMonth(e.target.value)}>
-                {months.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </Select>
+          {/* Custom Styles - matches exactly from first component */}
+          <style jsx global>{`
+            .react-calendar {
+              width: 100%;
+              border: none !important;
+              font-size: 0.9rem;
+            }
+            @media (max-width: 768px) {
+              .react-calendar {
+                font-size: 0.8rem;
+              }
+            }
+            .react-calendar__tile--active {
+              background: #3182ce !important;
+              color: white !important;
+              border-radius: 8px;
+            }
+            .react-calendar__navigation button {
+              color: #2d3748;
+            }
 
-              <Select value={year} onChange={(e) => setYear(e.target.value)}>
-                {years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </Select>
-            </HStack>
+            /* Additional styles for better mobile experience */
+            .react-calendar__tile {
+              padding: 0.75em 0.5em;
+            }
 
-            <Text fontSize="sm" color="gray.500" textAlign="center">
-              Select month and year to filter data
-            </Text>
-          </VStack>
+            @media (max-width: 480px) {
+              .react-calendar__tile {
+                padding: 0.5em 0.25em;
+              }
+            }
+          `}</style>
         </ModalBody>
-
-        <ModalFooter borderTop="1px solid" borderColor={borderColor} gap={3}>
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button colorScheme="brand" size="sm" onClick={handleApply}>
-            Apply
-          </Button>
-        </ModalFooter>
       </ModalContent>
     </Modal>
   );

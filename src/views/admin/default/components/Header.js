@@ -131,7 +131,7 @@ const Header = () => {
         <Image
           src={logo}
           alt="CRM"
-          boxSize={{ base: "50px", md: "80px" }}
+          boxSize={{ base: "50px", md: "90px" }}
           objectFit="contain"
           mb={2}
         />

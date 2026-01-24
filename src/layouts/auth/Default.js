@@ -50,7 +50,7 @@ import { constant } from "constant";
 function AuthIllustration({ children }) {
   const { data } = useFetchItemsQuery(
     { path: `/upload/apk` },
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
 
   const handleDownloadApk = async () => {
@@ -102,7 +102,7 @@ function AuthIllustration({ children }) {
           display={{ base: "none", md: "block" }}
           w={{ md: "40%", lg: "50%" }}
           h="100%"
-          bgImage="url('/image/Login_Page.jpg')"
+          bgImage="url('/image/Login_Page.png')"
           bgSize="fill"
           bgRepeat="no-repeat"
           bgPos="center"
