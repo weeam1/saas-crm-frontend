@@ -15,16 +15,55 @@ const ActiveFiltersDisplay = ({ filters, onClearFilters, users = [] }) => {
 
   if (!hasFilters) return null;
 
+  //   const getDisplayValue = (key, value) => {
+  //     switch (key) {
+  //       case "userId":
+  //         const user = users?.doc?.find((u) => u._id === value);
+  //         return user ? user.fullName : "Unknown User";
+  //       case "role":
+  //         const role = roles?.find((role) => role?._id === value);
+  //         return role ? role.roleName : "Unknown Role";
+  //       case "status":
+  //         return value.charAt(0).toUpperCase() + value.slice(1);
+  //       default:
+  //         return value;
+  //     }
+  //   };
   const getDisplayValue = (key, value) => {
+    const callMediumLabels = {
+      external_sim: "External SIM",
+      whatsapp: "WhatsApp",
+      dialer: "Dialer",
+    };
+
+    const callQualityLabels = {
+      very_bad: "Very Bad",
+      bad: "Bad",
+      average: "Average",
+      good: "Good",
+      excellent: "Excellent",
+    };
+
     switch (key) {
-      case "userId":
+      case "callMedium":
+        return callMediumLabels[value] || value;
+
+      case "callQuality":
+        return callQualityLabels[value] || value;
+
+      case "userId": {
         const user = users?.doc?.find((u) => u._id === value);
         return user ? user.fullName : "Unknown User";
-      case "role":
+      }
+
+      case "role": {
         const role = roles?.find((role) => role?._id === value);
         return role ? role.roleName : "Unknown Role";
+      }
+
       case "status":
         return value.charAt(0).toUpperCase() + value.slice(1);
+
       default:
         return value;
     }
