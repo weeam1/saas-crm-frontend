@@ -1,5 +1,5 @@
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLeadStatuses } from './../../redux/leadsSlice';
 
@@ -17,7 +17,7 @@ export const useLeadStatuses = () => {
 				skip: leadStatuses?.length > 0,
 				refetchOnMountOrArgChange: false,
 				refetchOnFocus: true,
-			}
+			},
 		);
 
 	// Store in Redux when first loaded
@@ -34,11 +34,16 @@ export const useLeadStatuses = () => {
 				[]
 			);
 		},
-		[leadStatuses]
+		[leadStatuses],
 	);
+
+	const allSubStatuses = useMemo(() => {
+		return leadStatuses.flatMap((status) => status.statuses || []);
+	}, [leadStatuses]);
 
 	return {
 		leadStatuses,
+		allSubStatuses,
 		isLoading: isLoading || isFetching,
 		isError,
 		error,
