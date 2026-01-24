@@ -113,11 +113,22 @@ export const apiSlice = createApi({
       ],
     }),
 
+    // getLeadQualification: builder.query({
+    //   query: ({ leadId, createdBy }) => ({
+    //     url: `/lead/qualifications`,
+    //     method: "GET",
+    //     params: { lead: leadId, createdBy },
+    //   }),
+    //   transformResponse: (response) => response.doc, // returns array
+    //   providesTags: (result, error, { leadId }) => [
+    //     { type: "Items", id: leadId },
+    //   ],
+    // }),
     getLeadQualification: builder.query({
       query: ({ leadId, createdBy }) => ({
-        url: `/lead/qualifications`,
+        url: `/lead/qualifications/lead/${leadId}`,
         method: "GET",
-        params: { lead: leadId, createdBy },
+        // params: { lead: leadId },
       }),
       transformResponse: (response) => response.doc, // returns array
       providesTags: (result, error, { leadId }) => [

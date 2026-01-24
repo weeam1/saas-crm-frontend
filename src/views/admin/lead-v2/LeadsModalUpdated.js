@@ -197,6 +197,11 @@ const LeadsModal = ({
   const [leadIp, setLeadIp] = useState({ ip: "", city: "", country: "" });
 
   const dispatch = useDispatch();
+  console.log(
+    hasPermission("leads", "feedback.edit.all"),
+    hasPermission("leads", "feedback.edit.own"),
+    "permissions",
+  );
 
   const leadId = leadsModal.lid;
 
@@ -706,7 +711,8 @@ const LeadsModal = ({
   };
   const hasFeedbackForThisLead = leadQualificationss?.some(
     (qualification) =>
-      qualification.lead?._id === leadId || qualification.lead === leadId,
+      qualification.createdBy?._id === user?._id ||
+      qualification.createdBy === user?._id,
   );
   const DefaultTabContent = ({ data }) => (
     <Box
@@ -1870,6 +1876,17 @@ const LeadsModal = ({
                             },
                           );
                         };
+                        const canEditAll = hasPermission(
+                          "leads",
+                          "feedback.edit.all",
+                        );
+                        const canEditOwn = hasPermission(
+                          "leads",
+                          "feedback.edit.own",
+                        );
+                        const isOwner = q.createdBy?._id === user?._id; // or however you store the owner
+
+                        const canEdit = canEditAll || (canEditOwn && isOwner);
 
                         return (
                           <Box
@@ -1946,22 +1963,24 @@ const LeadsModal = ({
                                   aria-label="View qualification"
                                 />
 
-                                <IconButton
-                                  icon={<FiEdit2 />}
-                                  size="sm"
-                                  variant="ghost"
-                                  color="gray.500"
-                                  _hover={{ color: "#B79045", bg: "gray.50" }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedQualification(q);
-                                    setTimeout(() => {
-                                      setOpenFeedbackForm(true);
-                                      setIsEdit(true);
-                                    }, 10);
-                                  }}
-                                  aria-label="Edit qualification"
-                                />
+                                {canEdit && (
+                                  <IconButton
+                                    icon={<FiEdit2 />}
+                                    size="sm"
+                                    variant="ghost"
+                                    color="gray.500"
+                                    _hover={{ color: "#B79045", bg: "gray.50" }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedQualification(q);
+                                      setTimeout(() => {
+                                        setOpenFeedbackForm(true);
+                                        setIsEdit(true);
+                                      }, 10);
+                                    }}
+                                    aria-label="Edit qualification"
+                                  />
+                                )}
 
                                 <Badge
                                   fontSize="xs"
