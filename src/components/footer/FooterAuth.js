@@ -11,10 +11,13 @@ import {
 
 export default function Footer() {
   let textColor = useColorModeValue("gray.400", "white");
-  let linkColor = useColorModeValue({ base: "gray.400", lg: "gray.400" }, "gray.400");
+  let linkColor = useColorModeValue(
+    { base: "gray.400", lg: "gray.400" },
+    "gray.400",
+  );
   return (
     <Flex
-      zIndex='3'
+      zIndex="3"
       flexDirection={{
         base: "column",
         lg: "row",
@@ -23,20 +26,22 @@ export default function Footer() {
         base: "center",
         xl: "start",
       }}
-      justifyContent='space-between'
+      justifyContent="space-between"
       px={{ base: "30px", md: "0px" }}
-      pb='30px'>
+      pb="30px"
+    >
       <Text
         color={textColor}
         textAlign={{
           base: "center",
           xl: "start",
         }}
-        mb={{ base: "20px", lg: "0px" }}>
+        mb={{ base: "20px", lg: "0px" }}
+      >
         {" "}
         &copy; {1900 + new Date().getYear()}
-        <Text as='span' fontWeight='500' ms='4px'>
-         Weeam CRM 
+        <Text as="span" fontWeight="500" ms="4px">
+          Weam CRM
         </Text>
       </Text>
       {/* <List display='flex'>

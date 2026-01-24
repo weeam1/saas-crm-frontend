@@ -119,7 +119,7 @@ function Footer({
 
 				<Image
 					src={weeamLogo}
-					alt='weeam Logo'
+					alt='weam Logo'
 					w='32px'
 					h='32px'
 					objectFit='contain'

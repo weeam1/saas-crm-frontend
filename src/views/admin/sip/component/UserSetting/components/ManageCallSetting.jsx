@@ -590,7 +590,7 @@ const ManageCallSetting = ({
 																</FormLabel>
 																<Input
 																	name='domain'
-																	placeholder='e.g., call.weeam.info'
+																	placeholder='e.g., call.weam.info'
 																	value={form.values.domain}
 																	onChange={form.handleChange}
 																	onBlur={form.handleBlur}
