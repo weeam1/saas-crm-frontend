@@ -280,7 +280,7 @@ export const sidebarRoutes = [
 				version: 'Beta',
 			},
 			{
-				// id: "lead_analytics",
+				id: 'call_feedbacks',
 				name: 'Call Feedback',
 				path: '/call-feedback',
 			},
