@@ -342,18 +342,19 @@ const routes = [
 		component: LeadScreen,
 	},
 	{
-		// childId: 'lead_analytics',
+		parent: 'leads',
+		childId: 'lead_analytics',
 		name: 'Lead',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/lead_analytics',
-		parent: 'lead',
 		component: LeadAnalytics,
 	},
 	{
+		parent: 'leads',
+		childId: 'call_feedbacks',
 		name: 'Call Feedback',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/call-feedback',
-		parent: 'lead',
 		component: CallFeedback,
 	},
 	{

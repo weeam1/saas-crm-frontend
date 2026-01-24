@@ -65,7 +65,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		},
 		{
 			skip: !user?._id || isSuperAdmin,
-		}
+		},
 	);
 
 	const { data: agencies } = useFetchItemsQuery({ path: '/agencies' });
@@ -250,7 +250,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 
 	if (hasPermission('whatsapp')) {
 		const whatsappSidebarRoutes = appSidebarRoutes.find(
-			(r) => r.moduleId === 'whatsapp'
+			(r) => r.moduleId === 'whatsapp',
 		);
 
 		if (!whatsappSidebarRoutes) return null;
@@ -306,6 +306,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		const finalRoutes = routes?.filter((route) => {
 			// if route has parent/child, check both
 			if (route.parent && route.childId) {
+				console.log({ route });
 				return hasPermission(route.parent, route.childId);
 			}
 

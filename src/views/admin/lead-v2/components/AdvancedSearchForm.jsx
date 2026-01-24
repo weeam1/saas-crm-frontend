@@ -41,10 +41,10 @@ const AdvancedSearchForm = (props) => {
 		return { label: countryName, value: countryName };
 	});
 
-	const { leadStatuses, getSubStatuses } = useLeadStatuses();
+	const { leadStatuses, allSubStatuses, getSubStatuses } = useLeadStatuses();
 
 	const leadSubStatuses = useMemo(() => {
-		if (!values?.eLeadStatus) return [];
+		if (!values?.eLeadStatus) return allSubStatuses;
 
 		setFieldValue('leadStatus', '');
 
@@ -156,7 +156,7 @@ const AdvancedSearchForm = (props) => {
 				placeholder: 'Search by city',
 			},
 		],
-		[]
+		[],
 	);
 
 	// Utility function for rendering fields
@@ -333,7 +333,7 @@ const AdvancedSearchForm = (props) => {
 							{item.label}
 						</option>
 					))}
-					<option value='-1'>No E.Status</option>
+					<option value='-1'>No M.Status</option>
 				</Select>
 				<Text mb='10px' color='red'>
 					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}

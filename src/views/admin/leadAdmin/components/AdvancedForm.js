@@ -38,10 +38,10 @@ const AdvancedSearchForm = (props) => {
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isAgent = user?.roles?.[0]?.roleName === 'Agent';
 
-	const { leadStatuses, getSubStatuses } = useLeadStatuses();
+	const { leadStatuses, allSubStatuses, getSubStatuses } = useLeadStatuses();
 
 	const leadSubStatuses = useMemo(() => {
-		if (!values?.eLeadStatus) return [];
+		if (!values?.eLeadStatus) return allSubStatuses;
 
 		setFieldValue('leadStatus', '');
 
@@ -114,7 +114,7 @@ const AdvancedSearchForm = (props) => {
 				placeholder: 'Search by time to call',
 			},
 		],
-		[]
+		[],
 	);
 
 	// Define fields to display based on roles
@@ -132,7 +132,7 @@ const AdvancedSearchForm = (props) => {
 					'nationality',
 					'leadEmail',
 					'status',
-				].includes(field.name)
+				].includes(field.name),
 			);
 		}
 
