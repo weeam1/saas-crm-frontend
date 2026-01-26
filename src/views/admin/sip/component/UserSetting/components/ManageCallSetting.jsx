@@ -413,7 +413,7 @@ const ManageCallSetting = ({
 								</FormErrorMessage>
 							</FormControl>
 
-							{/* <FormControl py={4}>
+							<FormControl py={4}>
 								<Flex align='center' justify='space-between'>
 									<FormLabel fontWeight='semibold'>Call Feedback</FormLabel>
 
@@ -462,7 +462,7 @@ const ManageCallSetting = ({
 										</>
 									)}
 								</HStack>
-							</FormControl> */}
+							</FormControl>
 						</Box>
 
 						{/* Mode Configuration Tabs */}
@@ -590,7 +590,7 @@ const ManageCallSetting = ({
 																</FormLabel>
 																<Input
 																	name='domain'
-																	placeholder='e.g., call.weeam.info'
+																	placeholder='e.g., call.weam.info'
 																	value={form.values.domain}
 																	onChange={form.handleChange}
 																	onBlur={form.handleBlur}

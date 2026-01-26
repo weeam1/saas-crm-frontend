@@ -60,6 +60,7 @@ const getInitialValues = (userData = {}) => ({
 	salary: userData?.salary ?? '',
 	commission: userData?.commission ?? '',
 	incentive: userData?.incentive ?? '',
+	virtualSalary: userData?.virtualSalary ?? '',
 	// currency: userData?.currency ?? 'AED',
 
 	roles: userData?.roles?._id || userData?.roles?.[0]?._id || '',

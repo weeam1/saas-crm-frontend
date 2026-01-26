@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
 import { mainLeadStatus } from 'utils/options';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const AdvancedSearchForm = (props) => {
 	const {
@@ -20,6 +21,7 @@ const AdvancedSearchForm = (props) => {
 		handleBlur,
 		user: userProp,
 		tree,
+		setFieldValue,
 	} = props;
 
 	const user = JSON.parse(localStorage.getItem('user')) || userProp;
@@ -27,6 +29,16 @@ const AdvancedSearchForm = (props) => {
 
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isAgent = user?.roles?.[0]?.roleName === 'Agent';
+
+	const { leadStatuses, allSubStatuses, getSubStatuses } = useLeadStatuses();
+
+	const leadSubStatuses = useMemo(() => {
+		if (!values?.eLeadStatus) return allSubStatuses;
+
+		setFieldValue('leadStatus', '');
+
+		return getSubStatuses(values.eLeadStatus) || [];
+	}, [values?.eLeadStatus]);
 
 	// Define field configurations
 	const allFields = useMemo(
@@ -108,7 +120,7 @@ const AdvancedSearchForm = (props) => {
 				placeholder: 'Search by time to call',
 			},
 		],
-		[]
+		[],
 	);
 
 	// Define fields to display based on roles
@@ -126,7 +138,7 @@ const AdvancedSearchForm = (props) => {
 					'nationality',
 					'leadEmail',
 					'status',
-				].includes(field.name)
+				].includes(field.name),
 			);
 		}
 
@@ -178,6 +190,41 @@ const AdvancedSearchForm = (props) => {
 		>
 			{displayedFields.map(renderField)}
 
+			{/* Main Status Field */}
+			<GridItem>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Main Status
+				</FormLabel>
+				<Select
+					value={values?.eLeadStatus}
+					fontSize='sm'
+					name='eLeadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Main Lead Status'
+				>
+					{leadStatuses
+						?.filter((item) => item.value !== 'deal')
+						?.map((item) => (
+							<option key={item.value} value={item.value}>
+								{item.label}
+							</option>
+						))}
+					<option value='-1'>No E.Status</option>
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
+
 			{/* Lead Status Field */}
 			<GridItem>
 				<FormLabel
@@ -199,69 +246,14 @@ const AdvancedSearchForm = (props) => {
 					fontWeight='500'
 					placeholder='Select Lead Status'
 				>
-					<option value='active'>Interested</option>
-					<option value='sold'>Sold</option>
-					<option value='pending'>Not interested</option>
-					<option value='reassigned'>Reassigned</option>
-					<option value='new'>New</option>
-					<option value='no_answer'>No Answer</option>
-					<option value='unreachable'>Unreachable</option>
-					<option value='waiting'>Waiting</option>
-					<option value='follow_up'>Follow Up</option>
-					<option value='meeting'>Meeting</option>
-					<option value='follow_up_after_meeting'>
-						Follow Up After Meeting
-					</option>
-					<option value='junk'>Junk</option>
-					<option value='whatsapp_send'>Whatsapp Send</option>
-					<option value='whatsapp_rec'>Whatsapp Rec</option>
-					<option value='deal_out'>Deal Out</option>
-					<option value='shift_project'>Shift Project</option>
-					<option value='wrong_number'>Wrong Number</option>
-					<option value='broker'>Broker</option>
-					<option value='voice_mail'>Voice Mail</option>
-					<option value='request'>Request</option>
-					<option value='will_attend_the_show'>Will attend the show</option>
-					<option value='attended_the_show'>Attended the show</option>
-					<option value='callback'>Callback</option>
+					{leadSubStatuses?.map((item) => (
+						<option key={item.value} value={item.value}>
+							{item.label}
+						</option>
+					))}
 				</Select>
 				<Text mb='10px' color='red'>
 					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
-				</Text>
-			</GridItem>
-
-			{/* Extra Status Field */}
-			<GridItem>
-				<FormLabel
-					display='flex'
-					ms='4px'
-					fontSize='sm'
-					fontWeight='600'
-					color='#000'
-					mb='0'
-					mt={2}
-				>
-					Main Status
-				</FormLabel>
-				<Select
-					value={values?.eLeadStatus}
-					fontSize='sm'
-					name='eLeadStatus'
-					onChange={handleChange}
-					fontWeight='500'
-					placeholder='Select Main Lead Status'
-				>
-					{mainLeadStatus
-						?.filter((item) => item.value !== 'deal')
-						?.map((item) => (
-							<option key={item.value} value={item.value}>
-								{item.label}
-							</option>
-						))}
-					{/* <option value='-1'>No E.Status</option> */}
-				</Select>
-				<Text mb='10px' color='red'>
-					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
 				</Text>
 			</GridItem>
 

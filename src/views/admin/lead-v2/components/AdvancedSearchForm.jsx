@@ -5,6 +5,7 @@ import { leadStatus } from 'utils/options';
 import CustomDatePicker from 'components/datetime/CustomDatePicker';
 import { useSelector } from 'react-redux';
 import { toCapitalCase } from 'utils/helpers';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const {
 	Grid,
@@ -39,6 +40,16 @@ const AdvancedSearchForm = (props) => {
 		const countryName = toCapitalCase(name);
 		return { label: countryName, value: countryName };
 	});
+
+	const { leadStatuses, allSubStatuses, getSubStatuses } = useLeadStatuses();
+
+	const leadSubStatuses = useMemo(() => {
+		if (!values?.eLeadStatus) return allSubStatuses;
+
+		setFieldValue('leadStatus', '');
+
+		return getSubStatuses(values.eLeadStatus) || [];
+	}, [values?.eLeadStatus]);
 
 	// Define field configurations
 	const fields = useMemo(
@@ -145,7 +156,7 @@ const AdvancedSearchForm = (props) => {
 				placeholder: 'Search by city',
 			},
 		],
-		[]
+		[],
 	);
 
 	// Utility function for rendering fields
@@ -269,38 +280,6 @@ const AdvancedSearchForm = (props) => {
 				</Text>
 			</GridItem>
 
-			{/* Lead Status Field */}
-			<GridItem colSpan={{ base: 12, md: 6 }}>
-				<FormLabel
-					display='flex'
-					ms='4px'
-					fontSize='sm'
-					fontWeight='600'
-					color='#000'
-					mb='0'
-					mt={2}
-				>
-					Status
-				</FormLabel>
-				<Select
-					value={values?.leadStatus}
-					fontSize='sm'
-					name='leadStatus'
-					onChange={handleChange}
-					fontWeight='500'
-					placeholder='Select Lead Status'
-				>
-					{leadStatus.map((item) => (
-						<option key={item.value} value={item.value}>
-							{item.label}
-						</option>
-					))}
-				</Select>
-				<Text mb='10px' color='red'>
-					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
-				</Text>
-			</GridItem>
-
 			{/* M Status Sort Field */}
 			<GridItem colSpan={{ base: 12, md: 6 }}>
 				<FormLabel
@@ -349,15 +328,47 @@ const AdvancedSearchForm = (props) => {
 					fontWeight='500'
 					placeholder='Select Main Lead Status'
 				>
-					{mainLeadStatus?.map((item) => (
+					{leadStatuses?.map((item) => (
 						<option key={item.value} value={item.value}>
 							{item.label}
 						</option>
 					))}
-					<option value='-1'>No E.Status</option>
+					<option value='-1'>No M.Status</option>
 				</Select>
 				<Text mb='10px' color='red'>
 					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
+
+			{/* Lead Status Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Status
+				</FormLabel>
+				<Select
+					value={values?.leadStatus}
+					fontSize='sm'
+					name='leadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Lead Status'
+				>
+					{leadSubStatuses?.map((item) => (
+						<option key={item.value} value={item.value}>
+							{item.label}
+						</option>
+					))}
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
 				</Text>
 			</GridItem>
 

@@ -5,6 +5,7 @@ import { formattedDate } from './../../../utils/helpers';
 import { leadLabels } from 'utils/searchLabels';
 import { mainLeadStatusLabels, leadStatusLabels } from 'utils/searchLabels';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 40;
@@ -89,6 +90,8 @@ export const useFilteredQueryParams = () => {
 	const [searchClear, setSearchClear] = useState(false);
 	const [refetchLoading, setRefetchLoading] = useState(false);
 
+	const { leadStatusMaps } = useLeadStatuses();
+
 	const leads = useSelector((state) => state.leads, shallowEqual);
 	const { team: managers, allAgents, allTeamLeaders } = useTeamStructure();
 
@@ -144,7 +147,8 @@ export const useFilteredQueryParams = () => {
 						searchTags,
 						managers,
 						allTeamLeaders,
-						allAgents
+						allAgents,
+						leadStatusMaps
 					)
 				);
 				setSearchClear(true);
@@ -299,9 +303,12 @@ export const generateSearchTags = (
 	prevTags = [],
 	managers,
 	teamLeaders,
-	agents
+	agents,
+	leadStatusMaps
 ) => {
 	const tags = [];
+
+	console.log({ leadStatusMaps });
 
 	if (filters.search) tags.push(`Search: ${filters.search}`);
 	if (filters.from) tags.push(`Start Date: ${formattedDate(filters.from)}`);
@@ -320,11 +327,11 @@ export const generateSearchTags = (
 						? 'Interested'
 						: value === 'pending'
 							? 'Not Interested'
-							: leadStatusLabels[value];
+							: leadStatusMaps?.subStatusMap[value];
 			}
 			if (key === 'eLeadStatus') {
 				displayValue =
-					value === '-1' ? 'No E.Status' : mainLeadStatusLabels[value];
+					value === '-1' ? 'No E.Status' : leadStatusMaps?.mainStatusMap[value];
 			}
 			if (key === 'agentAssigned') {
 				const assignedAgent = agents?.find(

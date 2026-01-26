@@ -1,8 +1,11 @@
 import { Grid, GridItem, Text, VStack, Badge, Flex } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { getSalaryType } from './../../../../../schema/userSchema';
+import { useMemo } from 'react';
 
 const WorkInfoSection = ({ user }) => {
+	const salaryType = getSalaryType(user?.salaryType);
+
 	const workItems = [
 		{ label: 'Agency', value: user.agency?.name || 'Not assigned' },
 		{
@@ -20,20 +23,66 @@ const WorkInfoSection = ({ user }) => {
 		// { label: 'Currency', value: user.currency },
 	];
 
-	const financialItems = [
-		{ label: 'Monthly Target', value: user.target || 'N/A' },
-		{ label: 'Salary', value: user.salary ?? 'N/A' },
-		{
-			label: 'Commission',
+	const financialItems = useMemo(() => {
+		const items = [
+			{
+				label: 'Monthly Target',
+				value: user.target ?? 'N/A',
+			},
+		];
+
+		if (salaryType?.hasBaseSalary) {
+			items.push({
+				label: 'Salary',
+				value: user.salary ?? 'N/A',
+			});
+		}
+
+		if (salaryType?.value === 'COMMISSION_ONLY') {
+			items.push({
+				label: 'Virtual Salary',
+				value: user.virtualSalary ?? 'N/A',
+			});
+		}
+
+		if (salaryType?.hasCommission) {
+			items.push({
+				label: 'Commission',
+				value:
+					user.commission !== null && user.commission !== undefined
+						? `${user.commission}%`
+						: 'N/A',
+			});
+		}
+
+		if (salaryType?.hasIncentive) {
+			items.push({
+				label: 'Incentive',
+				value: user.incentive ?? 'N/A',
+			});
+		}
+
+		items.push({
+			label: 'Coins',
 			value:
-				user?.commission !== null && user?.commission !== undefined
-					? `${user.commission}%`
+				user.coins !== null && user.coins !== undefined
+					? user.coins.toLocaleString()
 					: 'N/A',
-			// value: Number.isFinite(user?.commission) ? `${user.commission}%` : 'N/A',
-		},
-		{ label: 'Incentive', value: user.incentive ?? 'N/A' },
-		{ label: 'Coins', value: user.coins?.toLocaleString() || 'N/A' },
-	];
+		});
+
+		return items;
+	}, [
+		user.target,
+		user.salary,
+		user.virtualSalary,
+		user.commission,
+		user.incentive,
+		user.coins,
+		salaryType?.hasBaseSalary,
+		salaryType?.hasCommission,
+		salaryType?.hasIncentive,
+		salaryType?.value,
+	]);
 
 	return (
 		<Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={8}>

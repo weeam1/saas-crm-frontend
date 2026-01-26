@@ -16,14 +16,14 @@ import { BiX } from 'react-icons/bi';
 import { useEmployeePayroll } from './hooks/usePayroll';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import AgencyFilter from './components/AgencyFilter';
-import EmployeePayrollTable from './components/EmployeePayrollTable';
+import EmployeePayrollTable from './SalariedUsers/EmployeePayrollTable';
 import SearchBar from 'components/search/SearchBar';
 import AdvancedSearchModal from './components/AdvancedSearchModal';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
 import SearchBox from './components/SearchBox';
 import RefreshButton from 'components/refresh/RefreshButton';
-import EmployeePayrollCards from './components/EmployeePayrollCards';
+import EmployeePayrollCards from './SalariedUsers/EmployeePayrollCards';
 import ViewToggle from 'components/toggle/ViewToggle';
 
 const Payroll = () => {

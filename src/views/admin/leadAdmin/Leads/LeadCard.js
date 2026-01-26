@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
 	Box,
 	Text,
@@ -31,6 +31,7 @@ import { mainLeadStatus } from 'utils/options';
 import LeadsModal from 'views/admin/lead-v2/LeadsModal';
 import { safeValue } from './../../../../utils/index';
 import { leadlabelFontSize } from '../components/constants';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const getLabelByValue = (value) => {
 	const status = leadStatus.find((status) => status.value === value);
@@ -62,8 +63,18 @@ const LeadCard = ({
 	const users = useSelector((state) => state.user?.users) || [];
 	const agentName = getUserNameById(agentId, users);
 
+	const { leadStatuses, getSubStatuses } = useLeadStatuses();
+
+	const leadSubStatuses = useMemo(() => {
+		if (!leadData?.eLeadStatus) return [];
+
+		return getSubStatuses(leadData?.eLeadStatus) || [];
+	}, [leadData?.eLeadStatus]);
+
+	console.log({ mStatus, leadStatusValue, leadStatuses });
+
 	const [localApprovalStatus, setLocalApprovalStatus] = useState(
-		initialApprovalStatus
+		initialApprovalStatus,
 	);
 	const [localApprovedDate, setLocalApprovedDate] =
 		useState(initialApprovedDate);
@@ -356,12 +367,7 @@ const LeadCard = ({
 				// flex='2'
 			>
 				<VStack align='start' flex='1'>
-					<Text
-						fontSize='12px'
-						fontWeight='bold'
-						fontFamily='DM Sans'
-						isTruncated
-					>
+					<Text fontSize='12px' fontWeight='bold' maxW='200px' isTruncated>
 						{leadName || 'N/A'}
 					</Text>
 					<HStack spacing={4} w='100%' alignItems='flex-start'>
@@ -372,6 +378,7 @@ const LeadCard = ({
 							<Text
 								fontSize='10px'
 								color='#FFBB00'
+								maxW='100px'
 								isTruncated
 								lineHeight='1.2'
 							>
@@ -390,7 +397,7 @@ const LeadCard = ({
 							<Text
 								fontSize='10px'
 								color='#36BE05'
-								fontFamily='DM Sans'
+								maxW='100px'
 								isTruncated
 								lineHeight='1.2'
 							>
@@ -402,7 +409,9 @@ const LeadCard = ({
 						<InputPair
 							label='M Status'
 							value={
-								mainLeadStatus.find((item) => item.value === mStatus)?.label
+								leadStatuses?.find(
+									(item) => item.value === leadData?.eLeadStatus,
+								)?.label
 							}
 							bg='#E5B668'
 							width='85px'
@@ -410,7 +419,12 @@ const LeadCard = ({
 						/>
 						<InputPair
 							label='Status'
-							value={getLabelByValue(leadStatusValue)}
+							value={
+								leadSubStatuses?.find(
+									(item) => item.value === leadData?.leadStatus,
+								)?.label
+								// getLabelByValue(leadStatusValue)
+							}
 							bg='#FEEFEE'
 							width='85px'
 							color='black'
@@ -565,7 +579,7 @@ const InfoPair = ({ label, value, color = '#ff0307' }) => (
 		<Text fontSize='9px' color='#C1C1C1' fontFamily='DM Sans'>
 			{label}
 		</Text>
-		<Text fontSize='10px' color={color} fontFamily='DM Sans' isTruncated>
+		<Text fontSize='10px' color={color} maxW='100px' isTruncated>
 			{value || 'N/A'}
 		</Text>
 	</VStack>

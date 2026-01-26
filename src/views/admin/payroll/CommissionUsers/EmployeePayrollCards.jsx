@@ -22,7 +22,7 @@ import { FiEye, FiPrinter } from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
 import { useEffect, useState, useCallback } from 'react';
 import { formatCurrency } from 'utils/helpers';
-import PayslipDownloadModal from './PayslipDownloadModal';
+import PayslipDownloadModal from '../components/PayslipDownloadModal';
 import { useNavigate } from 'react-router-dom';
 
 const EmployeePayrollCards = ({

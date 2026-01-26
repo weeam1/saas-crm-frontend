@@ -1,167 +1,167 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { Badge, Box, HStack, Text, useColorModeValue } from '@chakra-ui/react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useSelector, useDispatch } from "react-redux";
+import { Badge, Box, HStack, Text, useColorModeValue } from "@chakra-ui/react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 
-import WebRTCApp from './WebRTCApp';
+import WebRTCApp from "./WebRTCApp";
 import {
-	toggleDialerModal,
-	saveUserDialerSettings,
-	resetSettings,
-} from '../../redux/webrtc/webrtcSlice';
-import { PhoneIcon } from '@chakra-ui/icons';
-import useUserSession from 'hooks/useUserSession';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import { useEffect, useState } from 'react';
+  toggleDialerModal,
+  saveUserDialerSettings,
+  resetSettings,
+} from "../../redux/webrtc/webrtcSlice";
+import { PhoneIcon } from "@chakra-ui/icons";
+import useUserSession from "hooks/useUserSession";
+import { useFetchItemsQuery } from "api/apiSlice";
+import { useEffect, useState } from "react";
 
 const MotionBox = motion(Box);
 
 const WebRTCModal = () => {
-	const bg = useColorModeValue('white', 'gray.800');
-	const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const bg = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
 
-	const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-	const webrtc = useSelector((state) => state.webrtc);
-	const sipStatus = webrtc.sipStatus;
-	const isOpen = webrtc.isModalOpen;
-	const userSettings = webrtc?.userSettings;
+  const webrtc = useSelector((state) => state.webrtc);
+  const sipStatus = webrtc.sipStatus;
+  const isOpen = webrtc.isModalOpen;
+  const userSettings = webrtc?.userSettings;
 
-	const isWssEnabled = Boolean(
-		userSettings?.status?.wss || userSettings?.modes?.wss?.cid
-	);
+  const isWssEnabled = Boolean(
+    userSettings?.status?.wss || userSettings?.modes?.wss?.cid,
+  );
 
-	// console.log({ userSettings, isWssEnabled });
+  // console.log({ userSettings, isWssEnabled });
 
-	const { user } = useUserSession();
+  const { user } = useUserSession();
 
-	const { data } = useFetchItemsQuery(
-		{
-			path: `/sipSetting/user/${user?._id}`,
-		},
-		{
-			skip: !user?._id,
-			refetchOnMountOrArgChange: false,
-			refetchOnFocus: true,
-		}
-	);
+  const { data } = useFetchItemsQuery(
+    {
+      path: `/sipSetting/user/${user?._id}`,
+    },
+    {
+      skip: !user?._id,
+      refetchOnMountOrArgChange: false,
+      refetchOnFocus: true,
+    },
+  );
 
-	// Sync API → Redux
-	useEffect(() => {
-		if (data?.doc) {
-			dispatch(saveUserDialerSettings(data.doc));
-		}
-	}, [data?.doc]);
+  // Sync API → Redux
+  useEffect(() => {
+    if (data?.doc) {
+      dispatch(saveUserDialerSettings(data.doc));
+    }
+  }, [data?.doc]);
 
-	// If WSS not enabled, UI shouldn't render
-	if (!isWssEnabled) return null;
+  // If WSS not enabled, UI shouldn't render
+  if (!isWssEnabled) return null;
 
-	const handleToggle = () => dispatch(toggleDialerModal());
+  const handleToggle = () => dispatch(toggleDialerModal());
 
-	return (
-		<>
-			{/* Bottom Tab - only when modal is closed */}
-			{!isOpen && (
-				<MotionBox
-					position='fixed'
-					bottom='0px'
-					right='20px'
-					w={{ base: '300px', md: '380px' }}
-					zIndex={10000}
-					bg='greenish.600'
-					color='white'
-					px={4}
-					py={3}
-					cursor='pointer'
-					borderTopRadius='md'
-					shadow='lg'
-					display='flex'
-					justifyContent='space-between'
-					alignItems='center'
-					onClick={handleToggle}
-					whileHover={{ scale: 1.02 }}
-					whileTap={{ scale: 0.98 }}
-				>
-					<HStack spacing={2} align='center'>
-						<PhoneIcon w={5} h={5} />
-						<Text fontWeight='bold' fontSize='sm'>
-							Weeam Dialer
-						</Text>
-						<Badge
-							colorScheme={sipStatus === 'registered' ? 'green' : 'red'}
-							fontSize='0.65rem'
-							px={2}
-							py={1}
-							rounded='full'
-						>
-							{sipStatus === 'registered' ? 'Online' : 'Offline'}
-						</Badge>
-					</HStack>
+  return (
+    <>
+      {/* Bottom Tab - only when modal is closed */}
+      {!isOpen && (
+        <MotionBox
+          position="fixed"
+          bottom="0px"
+          right="20px"
+          w={{ base: "300px", md: "380px" }}
+          zIndex={10000}
+          bg="greenish.600"
+          color="white"
+          px={4}
+          py={3}
+          cursor="pointer"
+          borderTopRadius="md"
+          shadow="lg"
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          onClick={handleToggle}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <HStack spacing={2} align="center">
+            <PhoneIcon w={5} h={5} />
+            <Text fontWeight="bold" fontSize="sm">
+              Weam Dialer
+            </Text>
+            <Badge
+              colorScheme={sipStatus === "registered" ? "green" : "red"}
+              fontSize="0.65rem"
+              px={2}
+              py={1}
+              rounded="full"
+            >
+              {sipStatus === "registered" ? "Online" : "Offline"}
+            </Badge>
+          </HStack>
 
-					<FaChevronUp />
-				</MotionBox>
-			)}
+          <FaChevronUp />
+        </MotionBox>
+      )}
 
-			{/* Modal */}
-			<AnimatePresence>
-				<MotionBox
-					position='fixed'
-					bottom={0}
-					right='20px'
-					w='380px'
-					// maxHeight='80vh'
-					bg={bg}
-					borderTopRadius='xl'
-					shadow='2xl'
-					overflow='hidden'
-					border='1px solid'
-					borderColor={borderColor}
-					initial={{ y: '100%' }}
-					animate={{ y: isOpen ? 0 : '100%' }}
-					exit={{ y: '100%' }}
-					transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-					zIndex={9999}
-					display={isOpen ? 'block' : 'none'}
-				>
-					{/* Tab becomes Modal Header */}
-					<MotionBox
-						bg='greenish.600'
-						color='white'
-						px={4}
-						py={3}
-						display='flex'
-						justifyContent='space-between'
-						alignItems='center'
-						cursor='pointer'
-						onClick={handleToggle}
-					>
-						<HStack spacing={2} align='center'>
-							<PhoneIcon w={5} h={5} />
-							<Text fontWeight='bold' fontSize='sm'>
-								Weeam Dialer
-							</Text>
-							<Badge
-								colorScheme={sipStatus === 'registered' ? 'green' : 'red'}
-								fontSize='0.65rem'
-								px={2}
-								py={1}
-								rounded='full'
-							>
-								{sipStatus === 'registered' ? 'Online' : 'Offline'}
-							</Badge>
-						</HStack>
+      {/* Modal */}
+      <AnimatePresence>
+        <MotionBox
+          position="fixed"
+          bottom={0}
+          right="20px"
+          w="380px"
+          // maxHeight='80vh'
+          bg={bg}
+          borderTopRadius="xl"
+          shadow="2xl"
+          overflow="hidden"
+          border="1px solid"
+          borderColor={borderColor}
+          initial={{ y: "100%" }}
+          animate={{ y: isOpen ? 0 : "100%" }}
+          exit={{ y: "100%" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          zIndex={9999}
+          display={isOpen ? "block" : "none"}
+        >
+          {/* Tab becomes Modal Header */}
+          <MotionBox
+            bg="greenish.600"
+            color="white"
+            px={4}
+            py={3}
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+            cursor="pointer"
+            onClick={handleToggle}
+          >
+            <HStack spacing={2} align="center">
+              <PhoneIcon w={5} h={5} />
+              <Text fontWeight="bold" fontSize="sm">
+                Weam Dialer
+              </Text>
+              <Badge
+                colorScheme={sipStatus === "registered" ? "green" : "red"}
+                fontSize="0.65rem"
+                px={2}
+                py={1}
+                rounded="full"
+              >
+                {sipStatus === "registered" ? "Online" : "Offline"}
+              </Badge>
+            </HStack>
 
-						<FaChevronDown />
-					</MotionBox>
+            <FaChevronDown />
+          </MotionBox>
 
-					{/* Content */}
-					<Box>
-						<WebRTCApp />
-					</Box>
-				</MotionBox>
-			</AnimatePresence>
-		</>
-	);
+          {/* Content */}
+          <Box>
+            <WebRTCApp />
+          </Box>
+        </MotionBox>
+      </AnimatePresence>
+    </>
+  );
 };
 
 export default WebRTCModal;

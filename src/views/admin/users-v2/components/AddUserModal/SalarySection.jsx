@@ -10,6 +10,8 @@ const SalarySection = ({ formik }) => {
 
 	const config = getSalaryType(selectedSalaryType);
 
+	const commissionOnly = config?.value === 'COMMISSION_ONLY';
+
 	// if (!selectedSalaryType) {
 	// 	return (
 	// 		<Box bg='gray.50' borderRadius='lg' p={5} mb={6}>
@@ -77,6 +79,18 @@ const SalarySection = ({ formik }) => {
 						placeholder='0'
 						min={0}
 						max={100}
+					/>
+				)}
+
+				{commissionOnly && (
+					<FormField
+						label='Virtual Salary'
+						name='virtualSalary'
+						type='number'
+						// icon={<FaPercent size={14} />}
+						formik={formik}
+						isRequired={config?.hasCommission}
+						placeholder='0.00'
 					/>
 				)}
 

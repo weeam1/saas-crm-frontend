@@ -11,6 +11,7 @@ import {
 import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
 import { mainLeadStatus } from 'utils/options';
 import { removeDisableUser } from 'utils/helpers';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const AdvancedSearchForm = (props) => {
 	const {
@@ -21,6 +22,7 @@ const AdvancedSearchForm = (props) => {
 		handleBlur,
 		user: userProp,
 		tree,
+		setFieldValue,
 	} = props;
 
 	const user = JSON.parse(localStorage.getItem('user')) || userProp;
@@ -35,6 +37,16 @@ const AdvancedSearchForm = (props) => {
 
 	const isSuperAdmin = user?.role === 'superAdmin';
 	const isAgent = user?.roles?.[0]?.roleName === 'Agent';
+
+	const { leadStatuses, allSubStatuses, getSubStatuses } = useLeadStatuses();
+
+	const leadSubStatuses = useMemo(() => {
+		if (!values?.eLeadStatus) return allSubStatuses;
+
+		setFieldValue('leadStatus', '');
+
+		return getSubStatuses(values.eLeadStatus) || [];
+	}, [values?.eLeadStatus]);
 
 	// Define field configurations
 	const allFields = useMemo(
@@ -102,7 +114,7 @@ const AdvancedSearchForm = (props) => {
 				placeholder: 'Search by time to call',
 			},
 		],
-		[]
+		[],
 	);
 
 	// Define fields to display based on roles
@@ -120,7 +132,7 @@ const AdvancedSearchForm = (props) => {
 					'nationality',
 					'leadEmail',
 					'status',
-				].includes(field.name)
+				].includes(field.name),
 			);
 		}
 
@@ -173,7 +185,7 @@ const AdvancedSearchForm = (props) => {
 			{displayedFields.map(renderField)}
 
 			{/* Lead Status Field */}
-			<GridItem>
+			{/* <GridItem>
 				<FormLabel
 					display='flex'
 					ms='4px'
@@ -222,9 +234,9 @@ const AdvancedSearchForm = (props) => {
 				<Text mb='10px' color='red'>
 					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
 				</Text>
-			</GridItem>
+			</GridItem> */}
 
-			{/* Extra Status Field */}
+			{/* Main Status Field */}
 			<GridItem>
 				<FormLabel
 					display='flex'
@@ -245,7 +257,7 @@ const AdvancedSearchForm = (props) => {
 					fontWeight='500'
 					placeholder='Select Main Lead Status'
 				>
-					{mainLeadStatus
+					{leadStatuses
 						?.filter((item) => item.value !== 'deal')
 						?.map((item) => (
 							<option key={item.value} value={item.value}>
@@ -256,6 +268,38 @@ const AdvancedSearchForm = (props) => {
 				</Select>
 				<Text mb='10px' color='red'>
 					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
+
+			{/* Lead Status Field */}
+			<GridItem>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Status
+				</FormLabel>
+				<Select
+					value={values?.leadStatus || ''}
+					fontSize='sm'
+					name='leadStatus'
+					onChange={handleChange}
+					fontWeight='500'
+					placeholder='Select Lead Status'
+				>
+					{leadSubStatuses?.map((item) => (
+						<option key={item.value} value={item.value}>
+							{item.label}
+						</option>
+					))}
+				</Select>
+				<Text mb='10px' color='red'>
+					{errors.leadStatus && touched.leadStatus && errors.leadStatus}
 				</Text>
 			</GridItem>
 

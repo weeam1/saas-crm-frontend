@@ -1,4 +1,4 @@
-/* eslint-disable eqeqeq */
+/* eslint-disable */
 import {
 	Button,
 	CircularProgress,
@@ -128,10 +128,10 @@ const Index = () => {
 	const tree = useSelector((state) => state.user.tree);
 
 	const [dynamicColumns, setDynamicColumns] = useState(
-		roleColumns[role] || tableColumns
+		roleColumns[role] || tableColumns,
 	);
 	const [selectedColumns, setSelectedColumns] = useState(
-		roleColumns[role] || tableColumns
+		roleColumns[role] || tableColumns,
 	);
 	const [action, setAction] = useState(false);
 	const [dateTime, setDateTime] = useState({
@@ -199,7 +199,7 @@ const Index = () => {
 						user._id
 					}&role=${user.roles[0]?.roleName}&dateTime=${
 						dateTime?.from + '|' + dateTime?.to
-					}&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`
+					}&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`,
 		);
 		setDisplayAdvSearchData(true);
 		setIsLoding(false);
@@ -332,7 +332,7 @@ const Index = () => {
 
 					currentState === 'pending' && { Header: 'Cancel' },
 					{ Header: 'Action', accessor: '' },
-				].filter(Boolean)
+				].filter(Boolean),
 			);
 		}
 
@@ -361,7 +361,7 @@ const Index = () => {
 	}, [tableColumnsManager]);
 
 	const dataColumn = dynamicColumns?.filter((item) =>
-		selectedColumns?.find((colum) => colum?.Header === item.Header)
+		selectedColumns?.find((colum) => colum?.Header === item.Header),
 	);
 
 	const fetchData = async (pageNo = 1, pageSize = 10, source) => {
@@ -390,7 +390,7 @@ const Index = () => {
 						}&page=${pageNo}&pageSize=${pageSize}`,
 				null,
 				'baseUrl',
-				source
+				source,
 			);
 
 			const newData = result.data?.result?.map((lead) => {
@@ -427,7 +427,7 @@ const Index = () => {
 						agentId: user?.roles[0]?.roleName == 'Agent' ? user?._id : '',
 					},
 					cancelToken: source?.token,
-				}
+				},
 			);
 			//  setApprovals()
 			setData([...result.data?.approvals] || []);
@@ -458,7 +458,7 @@ const Index = () => {
 						user.roles[0]?.roleName
 					}&dateTime=${
 						dateTime?.from + '|' + dateTime?.to
-					}&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`
+					}&page=${pageNo}&pageSize=${pageSize}&isInLeadPool=true`,
 		);
 		setDisplaySearchData(true);
 		setSearchedData(result.data?.result || []);

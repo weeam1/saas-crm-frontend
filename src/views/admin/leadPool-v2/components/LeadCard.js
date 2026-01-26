@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
 	Box,
 	Text,
@@ -18,6 +18,7 @@ import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { mainLeadStatus } from 'utils/options';
 import LeadsModal from 'views/admin/lead-v2/LeadsModal';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData) {
@@ -72,6 +73,14 @@ const LeadCard = ({
 		} catch (e) {}
 	}
 
+	const { leadStatuses, getSubStatuses } = useLeadStatuses();
+
+	const leadSubStatuses = useMemo(() => {
+		if (!mStatus) return [];
+
+		return getSubStatuses(mStatus) || [];
+	}, [mStatus]);
+
 	const [cancelLoading, setCancelLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [leadsModal, setLeadsModal] = useState({ isOpen: false, lid: null });
@@ -79,7 +88,7 @@ const LeadCard = ({
 	useEffect(() => {}, [leadsModal]);
 
 	const displayButtonText = () => {
-		switch (leadStatusValue?.toLowerCase()) {
+		switch (mStatus?.toLowerCase()) {
 			case 'pending':
 				return 'Buy for 50 coins';
 			case 'rejected':
@@ -234,7 +243,13 @@ const LeadCard = ({
 							<Text fontSize='xs' color='#C0C0C0' fontFamily='DM Sans'>
 								Ad Name
 							</Text>
-							<Text fontSize='10px' color='#FFBB00' fontWeight='bold'>
+							<Text
+								fontSize='10px'
+								maxW='100px'
+								isTruncated
+								color='#FFBB00'
+								fontWeight='bold'
+							>
 								{renderValue(leadSourceDetails)}
 							</Text>
 						</VStack>
@@ -246,7 +261,8 @@ const LeadCard = ({
 								fontSize={timeToCallFontSize}
 								color='#32BD00'
 								fontWeight='bold'
-								fontFamily='DM Sans'
+								maxW='100px'
+								isTruncated
 								wordBreak='break-word'
 							>
 								{renderValue(adset)}
@@ -258,7 +274,7 @@ const LeadCard = ({
 							label='M Status'
 							width={{ base: '70px', md: '85px', lg: '100px' }}
 							value={
-								mainLeadStatus.find((item) => item.value === mStatus)?.label
+								leadStatuses?.find((item) => item.value === mStatus)?.label
 							}
 							bg='#E5B668'
 							color='white'
@@ -266,7 +282,10 @@ const LeadCard = ({
 						<InputPair
 							label='Status'
 							width={{ base: '70px', md: '85px', lg: '100px' }}
-							value={renderValue(getLabelByValue(leadStatusValue))}
+							value={
+								leadSubStatuses?.find((item) => item.value === leadStatusValue)
+									?.label
+							}
 							bg='#FEEFEE'
 							color='black'
 						/>
@@ -283,7 +302,6 @@ const LeadCard = ({
 						<Text
 							fontSize={lastNote?.length > 100 ? 'xx-small' : 'xs'}
 							color='gray.500'
-							fontFamily='DM Sans'
 							isTruncated
 							noOfLines={2}
 							whiteSpace='normal'
@@ -362,29 +380,8 @@ const LeadCard = ({
 					justify='space-between'
 				>
 					<VStack align='start' spacing={2} w='100%'>
-						<InfoPair
-							label='City'
-							value={
-								<Text fontWeight='bold' fontFamily='DM Sans'>
-									{renderValue(city)}
-								</Text>
-							}
-						/>
-						<InfoPair
-							label='Country'
-							value={
-								<Text
-									fontWeight='bold'
-									fontFamily='DM Sans'
-									fontSize={nationalityFontSize}
-									wordBreak='break-word'
-									whiteSpace='normal'
-									maxW='100%'
-								>
-									{renderValue(nationality)}
-								</Text>
-							}
-						/>
+						<InfoPair label='City' value={renderValue(city)} />
+						<InfoPair label='Country' value={renderValue(nationality)} />
 					</VStack>
 					<VStack align='start' spacing={1} w='100%' pl={2}>
 						<Text

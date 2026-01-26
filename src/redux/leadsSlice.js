@@ -6,6 +6,11 @@ const initialState = {
 	totalLeads: null,
 	totalPages: null,
 	doc: [],
+	leadStatuses: [],
+	leadStatusMaps: {
+		mainStatusMap: {},
+		subStatusMap: {},
+	},
 	selectedIds: {},
 	selectedLeads: [],
 	hiddenFields: JSON.parse(localStorage.getItem('userCustomColumns') || '[]'),
@@ -19,6 +24,15 @@ const leadsSlice = createSlice({
 			console.log('Setting hidden fields:', action.payload);
 			localStorage.setItem('userCustomColumns', JSON.stringify(action.payload));
 			state.hiddenFields = action.payload;
+		},
+		setLeadStatuses: (state, action) => {
+			const { data, maps } = action.payload;
+
+			state.leadStatuses = data;
+			state.leadStatusMaps = {
+				mainStatusMap: maps?.mainStatusMap || {},
+				subStatusMap: maps?.subStatusMap || {},
+			};
 		},
 		updateLeads: (state, action) => {
 			const { currentPage, leads, pageSize } = action.payload;
@@ -196,5 +210,6 @@ export const {
 	toggleCheckItem,
 	selectAllCheck,
 	deselectAllCheck,
+	setLeadStatuses,
 } = leadsSlice.actions;
 export default leadsSlice.reducer;

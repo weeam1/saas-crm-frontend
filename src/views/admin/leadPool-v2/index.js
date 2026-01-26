@@ -99,7 +99,7 @@ const Index = () => {
 					`api/lead/?&page=${page}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&excludeApprovalStatus=buy_leads`,
 					null,
 					'baseUrl',
-					cancelTokenRef.current.token
+					cancelTokenRef.current.token,
 				);
 			} else {
 				const statusMap = { Pending: 'pending', Rejected: 'rejected' };
@@ -115,7 +115,7 @@ const Index = () => {
 					`api/adminApproval/get?${queryParams}`,
 					null,
 					'baseUrl',
-					cancelTokenRef.current.token
+					cancelTokenRef.current.token,
 				);
 			}
 
@@ -133,7 +133,7 @@ const Index = () => {
 			setData(newData);
 			setTotalPages(result.data?.totalPages || 0);
 			setTotalLeads(
-				result.data?.totalLeads || result.data?.totalApprovals || 0
+				result.data?.totalLeads || result.data?.totalApprovals || 0,
 			);
 		} catch (error) {
 			if (!axios.isCancel(error)) {
@@ -181,7 +181,7 @@ const Index = () => {
 					`api/adminApproval/search?${queryParams}`,
 					null,
 					'baseUrl',
-					cancelTokenRef.current.token
+					cancelTokenRef.current.token,
 				);
 
 				const rawData = result.data?.result || result.data || [];
@@ -198,7 +198,7 @@ const Index = () => {
 				setCurrentPage(pageNo);
 
 				setTotalPages(
-					result.data?.totalPages || Math.ceil(newData.length / size) || 0
+					result.data?.totalPages || Math.ceil(newData.length / size) || 0,
 				);
 				setTotalLeads(result.data?.totalLeads || newData.length || 0);
 			} else if (activeTab === 'Buy Leads') {
@@ -206,7 +206,7 @@ const Index = () => {
 					`api/lead/search?term=${term}&page=${pageNo}&pageSize=${size}&isInLeadPool=true&excludeUser=${user._id}&role=Agent`,
 					null,
 					'baseUrl',
-					cancelTokenRef.current.token
+					cancelTokenRef.current.token,
 				);
 
 				const rawData = result.data?.result || [];
@@ -240,7 +240,7 @@ const Index = () => {
 	const fetchAdvancedSearch = async (
 		data = {},
 		pageNo = 1,
-		size = pageSize
+		size = pageSize,
 	) => {
 		if (fetchLockRef.current) return;
 
@@ -264,7 +264,7 @@ const Index = () => {
 					: `api/adminApproval/advanced-search?data=${JSON.stringify(data)}&page=${pageNo}&pageSize=${size}&activeTab=${activeTab}`,
 				null,
 				'baseUrl',
-				cancelTokenRef.current.token
+				cancelTokenRef.current.token,
 			);
 
 			const newData =
@@ -341,11 +341,11 @@ const Index = () => {
 			const currentCoins = userResponse?.data?.coins || 0;
 
 			const lead = data.find((l) => l._id === leadId);
-			const coinCost = lead?.leadStatus === 'new' ? 300 : 50;
+			const coinCost = lead?.eLeadStatus === 'new' ? 300 : 50;
 
 			if (currentCoins < coinCost) {
 				throw new Error(
-					`Insufficient coins. You need at least ${coinCost} coins to purchase this lead.`
+					`Insufficient coins. You need at least ${coinCost} coins to purchase this lead.`,
 				);
 			}
 
@@ -469,7 +469,7 @@ const Index = () => {
 						Authorization:
 							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
-				}
+				},
 			);
 			if (res.status !== 200)
 				throw new Error('Failed to delete approval request');
@@ -478,7 +478,8 @@ const Index = () => {
 			if (!leadResponse?.data?.lead) throw new Error('Lead not found');
 
 			const userResponse = await getApi(`api/user/view/${userId}`);
-			const coinRefund = leadResponse.data.lead.leadStatus === 'new' ? 300 : 50;
+			const coinRefund =
+				leadResponse.data.lead.eLeadStatus === 'new' ? 300 : 50;
 			const currentCoins = userResponse.data.coins || 0;
 			const updatedCoins = currentCoins + coinRefund;
 
@@ -537,12 +538,12 @@ const Index = () => {
 
 	const debouncedFetchSearchedData = useCallback(
 		debounce(fetchSearchedData, 300),
-		[user, activeTab]
+		[user, activeTab],
 	);
 
 	const debouncedFetchAdvancedSearch = useCallback(
 		debounce(fetchAdvancedSearch, 300),
-		[dateTime, user, activeTab]
+		[dateTime, user, activeTab],
 	);
 
 	useEffect(() => {

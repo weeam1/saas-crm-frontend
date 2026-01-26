@@ -66,3 +66,23 @@ export const PAYROLL_COLUMNS = [
 	{ key: 'payslip.paymentStatus', label: 'Status', width: '100px' },
 	{ key: 'actions', label: 'Actions', width: '100px' },
 ];
+
+export const COMMISSION_PAYROLL_COLUMNS = [
+	{ key: 'user', label: 'Employee', width: '220px' },
+
+	{
+		key: 'payrollSummary.commissionEarned',
+		label: 'Commission',
+		width: '150px',
+	},
+	{
+		key: 'payrollSummary.totalDeductions',
+		label: 'Total Deduction',
+		width: '150px',
+	},
+	{ key: 'payrollSummary.netSalary', label: 'Net Salary', width: '150px' },
+
+	{ key: 'createdAt', label: 'Joining Date', width: '100px' },
+	{ key: 'payslip.paymentStatus', label: 'Status', width: '100px' },
+	{ key: 'actions', label: 'Actions', width: '100px' },
+];
