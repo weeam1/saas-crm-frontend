@@ -66,13 +66,15 @@ const LeadCard = ({
 	const { leadStatuses, getSubStatuses } = useLeadStatuses();
 
 	const leadSubStatuses = useMemo(() => {
-		if (!mStatus) return [];
+		if (!leadData?.eLeadStatus) return [];
 
-		return getSubStatuses(mStatus) || [];
-	}, [mStatus]);
+		return getSubStatuses(leadData?.eLeadStatus) || [];
+	}, [leadData?.eLeadStatus]);
+
+	console.log({ mStatus, leadStatusValue, leadStatuses });
 
 	const [localApprovalStatus, setLocalApprovalStatus] = useState(
-		initialApprovalStatus
+		initialApprovalStatus,
 	);
 	const [localApprovedDate, setLocalApprovedDate] =
 		useState(initialApprovedDate);
@@ -407,7 +409,9 @@ const LeadCard = ({
 						<InputPair
 							label='M Status'
 							value={
-								leadStatuses?.find((item) => item.value === mStatus)?.label
+								leadStatuses?.find(
+									(item) => item.value === leadData?.eLeadStatus,
+								)?.label
 							}
 							bg='#E5B668'
 							width='85px'
@@ -416,8 +420,9 @@ const LeadCard = ({
 						<InputPair
 							label='Status'
 							value={
-								leadSubStatuses?.find((item) => item.value === leadStatusValue)
-									?.label
+								leadSubStatuses?.find(
+									(item) => item.value === leadData?.leadStatus,
+								)?.label
 								// getLabelByValue(leadStatusValue)
 							}
 							bg='#FEEFEE'
