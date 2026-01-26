@@ -25,6 +25,7 @@ import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { FiUserPlus } from 'react-icons/fi';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 	const { user } = useUserSession();
@@ -62,6 +63,16 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 		adset: '',
 	};
 
+	// const { leadStatuses, getSubStatuses } = useLeadStatuses();
+
+	// const leadSubStatuses = useMemo(() => {
+	// 	if (!values?.eLeadStatus) return [];
+
+	// 	setFieldValue('leadStatus', '');
+
+	// 	return getSubStatuses(values.eLeadStatus) || [];
+	// }, [values?.eLeadStatus]);
+
 	const validationSchema = Yup.object({
 		leadName: Yup.string().required('Name is required'),
 	});
@@ -94,18 +105,18 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
 		{ name: 'adset', label: 'Adset', type: 'text' },
-		{
-			name: 'eLeadStatus',
-			label: 'Select Main Status',
-			type: 'select',
-			options: mainLeadStatus,
-		},
-		{
-			name: 'leadStatus',
-			label: 'Select Lead Status',
-			type: 'select',
-			options: leadStatus,
-		},
+		// {
+		// 	name: 'eLeadStatus',
+		// 	label: 'Select Main Status',
+		// 	type: 'select',
+		// 	options: leadStatuses,
+		// },
+		// {
+		// 	name: 'leadStatus',
+		// 	label: 'Select Lead Status',
+		// 	type: 'select',
+		// 	options: leadSubStatuses,
+		// },
 	];
 
 	const [createItemMutation, { isLoading }] = useCreateItemMutation();

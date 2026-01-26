@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
 	Box,
 	Text,
@@ -18,6 +18,7 @@ import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { mainLeadStatus } from 'utils/options';
 import LeadsModal from 'views/admin/lead-v2/LeadsModal';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData) {
@@ -71,6 +72,14 @@ const LeadCard = ({
 			pageUrl = `${url.hostname}${url.pathname}`;
 		} catch (e) {}
 	}
+
+	const { leadStatuses, getSubStatuses } = useLeadStatuses();
+
+	const leadSubStatuses = useMemo(() => {
+		if (!mStatus) return [];
+
+		return getSubStatuses(mStatus) || [];
+	}, [mStatus]);
 
 	const [cancelLoading, setCancelLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -265,7 +274,7 @@ const LeadCard = ({
 							label='M Status'
 							width={{ base: '70px', md: '85px', lg: '100px' }}
 							value={
-								mainLeadStatus.find((item) => item.value === mStatus)?.label
+								leadStatuses?.find((item) => item.value === mStatus)?.label
 							}
 							bg='#E5B668'
 							color='white'
@@ -273,7 +282,10 @@ const LeadCard = ({
 						<InputPair
 							label='Status'
 							width={{ base: '70px', md: '85px', lg: '100px' }}
-							value={renderValue(getLabelByValue(leadStatusValue))}
+							value={
+								leadSubStatuses?.find((item) => item.value === leadStatusValue)
+									?.label
+							}
 							bg='#FEEFEE'
 							color='black'
 						/>

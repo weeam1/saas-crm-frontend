@@ -140,7 +140,7 @@ const LeadScreen = () => {
 				sessionStorage.setItem('searchQuery', searchQuery);
 			}
 		},
-		[activeTab, currentPage, pageSize, searchQuery]
+		[activeTab, currentPage, pageSize, searchQuery],
 	);
 
 	const fetchLeads = useCallback(
@@ -177,7 +177,7 @@ const LeadScreen = () => {
 				setLoading(false);
 			}
 		},
-		[activeTab, currentPage, pageSize]
+		[activeTab, currentPage, pageSize],
 	);
 
 	const fetchSearchedData = useCallback(
@@ -185,7 +185,7 @@ const LeadScreen = () => {
 			term = searchQuery,
 			page = currentPage,
 			size = pageSize,
-			activeTabParam = activeTab
+			activeTabParam = activeTab,
 		) => {
 			try {
 				setLoading(true);
@@ -242,7 +242,7 @@ const LeadScreen = () => {
 				setLoading(false);
 			}
 		},
-		[searchQuery, currentPage, pageSize, activeTab, user, dateTime]
+		[searchQuery, currentPage, pageSize, activeTab, user, dateTime],
 	);
 
 	const fetchAdvancedSearch = useCallback(
@@ -250,7 +250,7 @@ const LeadScreen = () => {
 			data = formValues,
 			page = currentPage,
 			size = pageSize,
-			activeTabParam = activeTab
+			activeTabParam = activeTab,
 		) => {
 			try {
 				setLoading(true);
@@ -260,8 +260,8 @@ const LeadScreen = () => {
 				const cleanedData = Object.fromEntries(
 					Object.entries(data).filter(
 						([_, value]) =>
-							value !== '' && value !== undefined && value !== null
-					)
+							value !== '' && value !== undefined && value !== null,
+					),
 				);
 
 				const queryParams = new URLSearchParams({
@@ -329,7 +329,7 @@ const LeadScreen = () => {
 				setLoading(false);
 			}
 		},
-		[activeTab, currentPage, pageSize, user, dateTime, formValues, users]
+		[activeTab, currentPage, pageSize, user, dateTime, formValues, users],
 	);
 
 	const clearAdvancedSearch = useCallback(() => {
@@ -349,7 +349,7 @@ const LeadScreen = () => {
 		leadId,
 		agentId,
 		approvalId,
-		currentTab
+		currentTab,
 	) => {
 		if (e === 'none') return;
 
@@ -370,7 +370,7 @@ const LeadScreen = () => {
 						Authorization:
 							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
-				}
+				},
 			);
 
 			if (res?.data?.status) {
@@ -381,8 +381,8 @@ const LeadScreen = () => {
 					};
 
 					const updatedRes = await putApi(
-						`api/lead/v2/edit/${leadId}?leadApproved=true`,
-						data
+						`api/lead/v2/assign/${leadId}?leadApproved=true`,
+						data,
 					);
 
 					if (displayAdvSearchData || displaySearchData) {
@@ -395,7 +395,7 @@ const LeadScreen = () => {
 											approvalStatus: 'accepted',
 											approvedDate: currentDate,
 										}
-									: lead
+									: lead,
 							);
 							return currentTab === 'Pending'
 								? updatedLeads.filter((lead) => lead._id !== leadId)
@@ -411,14 +411,14 @@ const LeadScreen = () => {
 											agentId,
 											approvedDate: currentDate,
 										}
-									: approval
+									: approval,
 							);
 							return {
 								...prev,
 								approvals:
 									currentTab === 'Pending'
 										? updatedApprovals.filter(
-												(approval) => approval._id !== approvalId
+												(approval) => approval._id !== approvalId,
 											)
 										: updatedApprovals,
 								totalApprovals:
@@ -484,7 +484,7 @@ const LeadScreen = () => {
 											approvalStatus: 'rejected',
 											rejectedDate: currentDate,
 										}
-									: lead
+									: lead,
 							);
 							return currentTab === 'Pending'
 								? updatedLeads.filter((lead) => lead._id !== leadId)
@@ -499,14 +499,14 @@ const LeadScreen = () => {
 											approvalStatus: 'rejected',
 											rejectedDate: currentDate,
 										}
-									: approval
+									: approval,
 							);
 							return {
 								...prev,
 								approvals:
 									currentTab === 'Pending'
 										? updatedApprovals.filter(
-												(approval) => approval._id !== approvalId
+												(approval) => approval._id !== approvalId,
 											)
 										: updatedApprovals,
 								totalApprovals:
@@ -587,7 +587,7 @@ const LeadScreen = () => {
 				initialSearchQuery,
 				initialPage,
 				initialPageSize,
-				initialTab
+				initialTab,
 			);
 		} else if (Object.keys(formValues).length > 0) {
 			fetchAdvancedSearch(formValues, initialPage, initialPageSize, initialTab);
@@ -623,7 +623,7 @@ const LeadScreen = () => {
 			fetchSearchedData,
 			fetchAdvancedSearch,
 			updateUrlAndStorage,
-		]
+		],
 	);
 
 	const handlePageSizeChange = useCallback(
@@ -649,7 +649,7 @@ const LeadScreen = () => {
 			fetchSearchedData,
 			fetchAdvancedSearch,
 			updateUrlAndStorage,
-		]
+		],
 	);
 
 	// const handleTabChange = useCallback(
@@ -681,7 +681,7 @@ const LeadScreen = () => {
 			updateUrlAndStorage(pageSize);
 			fetchLeads(newTab, 1, pageSize);
 		},
-		[pageSize, fetchLeads, updateUrlAndStorage]
+		[pageSize, fetchLeads, updateUrlAndStorage],
 	);
 	const handleSearch = useCallback(
 		(query) => {
@@ -697,7 +697,7 @@ const LeadScreen = () => {
 				fetchLeads(activeTab, 1, pageSize);
 			}
 		},
-		[activeTab, pageSize, fetchLeads, fetchSearchedData, updateUrlAndStorage]
+		[activeTab, pageSize, fetchLeads, fetchSearchedData, updateUrlAndStorage],
 	);
 
 	if (error) {
