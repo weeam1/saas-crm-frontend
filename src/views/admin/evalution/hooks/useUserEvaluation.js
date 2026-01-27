@@ -593,6 +593,7 @@ export const useUserEvalution = () => {
         position: "top-right",
         autoClose: 5000,
       });
+      onClose();
     }
   };
 

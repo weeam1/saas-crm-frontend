@@ -66,10 +66,17 @@ const MyEvaluation = () => {
       delete newFilters[filterKey];
       setMyFilters(newFilters);
       setMyPagination((prev) => ({ ...prev, page: 1 }));
-      if (filterKey === "search") setSearchTerm("");
+
+      // Clear searchTerm when "search" filter is cleared
+      if (filterKey === "search") {
+        setSearchTerm("");
+      }
     } else {
+      // Clear all filters
       setMyFilters({});
       setMyPagination((prev) => ({ ...prev, page: 1 }));
+
+      // Clear search term
       setSearchTerm("");
     }
   };
@@ -83,6 +90,31 @@ const MyEvaluation = () => {
     setMyFilters(cleanedFilters);
     setMyPagination((prev) => ({ ...prev, page: 1 }));
   };
+  // Add this function inside the component, before return
+  const handleMySearchTermChange = (searchQuery) => {
+    const trimmed = searchQuery?.trim() || "";
+
+    if (trimmed !== "") {
+      setMyFilters((prev) => ({
+        ...prev,
+        search: trimmed,
+      }));
+      setMyPagination((prev) => ({ ...prev, page: 1 }));
+    } else {
+      // remove search key from filters
+      setMyFilters((prev) => {
+        const updated = { ...prev };
+        delete updated.search;
+        return updated;
+      });
+      setMyPagination((prev) => ({ ...prev, page: 1 }));
+    }
+
+    // Always update the searchTerm state
+    setSearchTerm(searchQuery);
+  };
+
+  // Then update the SearchBox usage:
 
   return (
     <Box
@@ -153,7 +185,7 @@ const MyEvaluation = () => {
             <SearchBox
               onSearchTermChange={(value) => {
                 setSearchTerm(value);
-                handleMySearchChange(value); // Use handleMySearchChange directly
+                handleMySearchTermChange(value); // Use the new handler
               }}
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}

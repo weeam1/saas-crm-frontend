@@ -103,13 +103,21 @@ const UserEvaluation = () => {
       delete newFilters[filterKey];
       setFilters(newFilters);
       setPagination((prev) => ({ ...prev, page: 1 }));
+
+      // Clear searchTerm when "search" filter is cleared
+      if (filterKey === "search") {
+        setSearchTerm("");
+      }
     } else {
+      // Clear all filters
       setFilters({});
       setPagination((prev) => ({ ...prev, page: 1 }));
+
+      // Clear search term
+      setSearchTerm("");
     }
     setClearFilters(false);
   };
-
   const handleSearchTermChange = (searchQuery) => {
     const trimmed = searchQuery?.trim() || "";
 
@@ -425,10 +433,7 @@ const UserEvaluation = () => {
 
           <Box w={{ base: "100%", sm: "auto" }} flexShrink={1}>
             <SearchBox
-              onSearchTermChange={(value) => {
-                setSearchTerm(value);
-                handleSearchChange(value); // Use hook's function
-              }}
+              onSearchTermChange={handleSearchTermChange}
               setSearchTerm={setSearchTerm}
               searchTerm={searchTerm}
             />
