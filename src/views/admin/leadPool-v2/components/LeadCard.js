@@ -88,7 +88,7 @@ const LeadCard = ({
 	useEffect(() => {}, [leadsModal]);
 
 	const displayButtonText = () => {
-		switch (leadStatusValue?.toLowerCase()) {
+		switch (mStatus?.toLowerCase()) {
 			case 'pending':
 				return 'Buy for 50 coins';
 			case 'rejected':
