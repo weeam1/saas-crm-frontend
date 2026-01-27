@@ -75,13 +75,13 @@ const View = () => {
   const [showCall, setShowCall] = useState(false);
   const [showTasks, setShowTasks] = useState(false);
   const [showMeetings, setShowMeetings] = useState(false);
-  const [newNoteModal, setNewNoteModal] = useState(false); 
+  const [newNoteModal, setNewNoteModal] = useState(false);
   const [action, setAction] = useState(false);
   const [leadData, setLeadData] = useState([]);
   const [noteAdded, setNoteAdded] = useState(0);
   const size = "lg";
 
-  console.log('view open')
+  console.log("view open");
 
   const [addEmailHistory, setAddEmailHistory] = useState(false);
   const [addPhoneCall, setAddPhoneCall] = useState(false);
@@ -154,7 +154,6 @@ const View = () => {
   useEffect(() => {
     if (fetchCustomData) fetchCustomData();
   }, [action]);
-
 
   return (
     <>
@@ -818,8 +817,8 @@ const View = () => {
                                 showEmail
                                   ? allData.Email
                                   : allData?.Email?.length > 0
-                                  ? [allData.Email[0]]
-                                  : []
+                                    ? [allData.Email[0]]
+                                    : []
                               }
                               title={"Email "}
                             />
@@ -871,8 +870,8 @@ const View = () => {
                                 showCall
                                   ? allData?.phoneCall
                                   : allData?.phoneCall?.length > 0
-                                  ? [allData?.phoneCall[0]]
-                                  : []
+                                    ? [allData?.phoneCall[0]]
+                                    : []
                               }
                               title={"Call "}
                             />
@@ -923,8 +922,8 @@ const View = () => {
                                 showTasks
                                   ? allData?.task
                                   : allData?.task?.length > 0
-                                  ? [allData?.task[0]]
-                                  : []
+                                    ? [allData?.task[0]]
+                                    : []
                               }
                               title={"Task "}
                               action={action}
@@ -977,8 +976,8 @@ const View = () => {
                                 showMeetings
                                   ? allData?.meeting
                                   : allData?.meeting?.length > 0
-                                  ? [allData?.meeting[0]]
-                                  : []
+                                    ? [allData?.meeting[0]]
+                                    : []
                               }
                               title={"Meeting "}
                               action={action}
@@ -1072,19 +1071,29 @@ const View = () => {
                       <Heading flex={2} size="md">
                         Lead Notes/Comments
                       </Heading>
-                       
-                       <Flex flex={1} justifyContent={"flex-end"} alignItems={"center"}>
-                       
-                        <Button color="white" onClick={() => setNewNoteModal(true)} style={{
-                          padding: "0 20px", 
-                          color: "white",
-                        }} leftIcon={<FaPlus />} size="sm" variant="brand">
+
+                      <Flex
+                        flex={1}
+                        justifyContent={"flex-end"}
+                        alignItems={"center"}
+                      >
+                        <Button
+                          color="white"
+                          onClick={() => setNewNoteModal(true)}
+                          style={{
+                            padding: "0 20px",
+                            color: "white",
+                          }}
+                          leftIcon={<FaPlus />}
+                          size="sm"
+                          variant="brand"
+                        >
                           Add New Note
                         </Button>
                       </Flex>
                     </Flex>
                     <HSeparator />
-                     
+
                     <LeadNotes noteAdded={noteAdded} lid={param.id} />
                   </Card>
                 </GridItem>
@@ -1131,11 +1140,9 @@ const View = () => {
             </Card>
           )}
         </>
-
-        
       )}
 
-       <NewNoteModal
+      <NewNoteModal
         isOpen={newNoteModal}
         onClose={() => setNewNoteModal(false)}
         paramId={param.id}
