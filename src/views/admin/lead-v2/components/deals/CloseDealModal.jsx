@@ -58,6 +58,7 @@ const CloseDealModal = React.memo(
 			leadWhatsappNumber,
 			agentDetails,
 			managerDetails,
+			teamLeadDetails,
 		} = lead;
 
 		const { user, userRoleName, isSuperAdmin, isAdmin } = useUserSession();
@@ -69,7 +70,7 @@ const CloseDealModal = React.memo(
 			{
 				path: '/v2/user/search_users',
 			},
-			{ refetchOnMountOrArgChange: true }
+			{ refetchOnMountOrArgChange: true },
 		);
 
 		const phoneNumber =
@@ -87,6 +88,7 @@ const CloseDealModal = React.memo(
 				clientNumber: phoneNumber || '',
 				clientWhatsapp: whatsappNumber || '',
 				agentName: agentDetails?.fullName || 'Unassigned',
+				teamLeadName: teamLeadDetails?.fullName || 'Unassigned',
 				managerName: managerDetails?.fullName || 'Unassigned',
 				closedBy: user?.fullName || '',
 
@@ -113,11 +115,12 @@ const CloseDealModal = React.memo(
 			[
 				agentDetails?.fullName,
 				managerDetails?.fullName,
+				teamLeadDetails?.fullName,
 				leadName,
 				phoneNumber,
 				user?.fullName,
 				whatsappNumber,
-			]
+			],
 		);
 
 		const {
@@ -235,14 +238,15 @@ const CloseDealModal = React.memo(
 			formData.append('downpaymentPercent', downpaymentPercent);
 			formData.append(
 				'companyCommissionPercent',
-				data.companyCommissionPercent || 0
+				data.companyCommissionPercent || 0,
 			);
 			formData.append(
 				'companyCommissionAmount',
-				data.companyCommissionAmount || 0
+				data.companyCommissionAmount || 0,
 			);
 			formData.append('bookingPercent', bookingPercent);
 			formData.append('manager', lead?.managerAssigned || '');
+			formData.append('teamLead', lead?.teamLeadAssigned || '');
 			formData.append('agent', lead?.agentAssigned || '');
 			formData.append('lead', leadId);
 
@@ -278,13 +282,14 @@ const CloseDealModal = React.memo(
 			if (!role) return false;
 
 			// Only allow these roles
-			const allowedRoles = ['Manager', 'Agent'];
+			const allowedRoles = ['Manager', 'Agent', 'Team Leader'];
 
 			// Exclude self and assigned users
 			const excludedIds = new Set([
 				user._id,
 				lead?.agentAssigned,
 				lead?.managerAssigned,
+				lead?.teamLeadAssigned,
 			]);
 
 			return allowedRoles.includes(role) && !excludedIds.has(u._id);
@@ -366,6 +371,14 @@ const CloseDealModal = React.memo(
 									<FormInput
 										label='Manager'
 										name='managerName'
+										register={register}
+										errors={errors}
+										isDisabled
+										isRequired
+									/>
+									<FormInput
+										label='Team Lead'
+										name='teamLeadName'
 										register={register}
 										errors={errors}
 										isDisabled
@@ -714,7 +727,7 @@ const CloseDealModal = React.memo(
 				</ModalContent>
 			</Modal>
 		);
-	}
+	},
 );
 
 CloseDealModal.displayName = 'CloseDealModal';
