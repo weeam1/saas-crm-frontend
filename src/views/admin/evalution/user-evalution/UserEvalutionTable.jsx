@@ -13,6 +13,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import { FiTrash2 } from "react-icons/fi";
+import { usePermissions } from "hooks/usePermissions";
 
 import {
   useToast,
@@ -58,7 +59,7 @@ const UserEvaluationTable = ({
     // { key: 'updatedAt', label: 'Last Update', width: '180px' },
     { key: "actions", label: "Actions", width: "80px" }, // actions button
   ];
-
+  const { hasPermission } = usePermissions();
   console.log(month, "check month");
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -169,7 +170,13 @@ const UserEvaluationTable = ({
             <Button
               colorScheme="red"
               onClick={() =>
-                confirmDelete(loggedInUser?._id, month, year, onClose)
+                confirmDelete(
+                  loggedInUser?._id,
+                  month,
+                  year,
+                  onClose,
+                  "USEREVAL",
+                )
               }
             >
               Delete
@@ -264,19 +271,24 @@ const UserEvaluationTable = ({
                                     }
                                   />
                                 </CustomTooltip>
-                                <CustomTooltip label="Delete Evaluation">
-                                  <IconButton
-                                    aria-label="Delete"
-                                    icon={<FiTrash2 />}
-                                    size="sm"
-                                    colorScheme="red"
-                                    variant="ghost"
-                                    onClick={() => {
-                                      setSelectedRow(row);
-                                      onOpen();
-                                    }}
-                                  />
-                                </CustomTooltip>
+                                {hasPermission(
+                                  "evaluation",
+                                  "delete_monthly",
+                                ) && (
+                                  <CustomTooltip label="Delete Evaluation">
+                                    <IconButton
+                                      aria-label="Delete"
+                                      icon={<FiTrash2 />}
+                                      size="sm"
+                                      colorScheme="red"
+                                      variant="ghost"
+                                      onClick={() => {
+                                        setSelectedRow(row);
+                                        onOpen();
+                                      }}
+                                    />
+                                  </CustomTooltip>
+                                )}
                               </>
                             )}
 

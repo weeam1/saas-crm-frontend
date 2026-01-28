@@ -575,14 +575,15 @@ export const useUserEvalution = () => {
 
   // --- Delete evaluation ---
   const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
-  const confirmDelete = async (userId, month, year, onClose) => {
+  const confirmDelete = async (userId, month, year, onClose, evalType) => {
     try {
       // With this:
       await deleteItem({
         path: "/evaluation/users/monthly",
         body: { userId, month, year },
       }).unwrap();
-
+      if (evalType == "USEREVAL") refetch();
+      else refetchMyEvaluations();
       toast.success("Evaluation deleted successfully!", {
         position: "top-right",
         autoClose: 3000,

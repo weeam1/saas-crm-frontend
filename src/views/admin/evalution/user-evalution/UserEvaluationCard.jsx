@@ -11,7 +11,11 @@ import {
   CircularProgress,
   Stack,
   Skeleton,
+  MenuItem,
+  MenuList,
   Icon,
+  Menu,
+  MenuButton,
 } from "@chakra-ui/react";
 import {
   useDisclosure,
@@ -25,8 +29,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { constant } from "constant";
-import { FiTrash2 } from "react-icons/fi"; // Add to existing import
-
+import { FiMoreVertical, FiEdit, FiTrash2 } from "react-icons/fi";
 import { FiEye, FiClock, FiCheck } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +37,7 @@ import { useEffect, useState } from "react";
 import NoData from "components/Message/NoData";
 import { getBadgeColors } from "utils/colorUtils";
 import useUserSession from "hooks/useUserSession";
+import { usePermissions } from "hooks/usePermissions";
 
 const CardSkeleton = () => (
   <Box
@@ -114,7 +118,7 @@ const UserEvaluationCards = ({
     else timer = setTimeout(() => setDelayedLoading(false), 400);
     return () => clearTimeout(timer);
   }, [isLoading]);
-
+  const { hasPermission } = usePermissions();
   return (
     <Box my={4}>
       {delayedLoading ? (
@@ -241,7 +245,8 @@ const UserEvaluationCards = ({
                             onClick={() => setView({ modal: true, data: user })}
                           />
                         </Tooltip>
-                        <Tooltip label="Delete Evaluation">
+
+                        {/* <Tooltip label="Delete Evaluation">
                           <IconButton
                             size="sm"
                             icon={<FiTrash2 />}
@@ -252,7 +257,44 @@ const UserEvaluationCards = ({
                               onOpen();
                             }}
                           />
-                        </Tooltip>
+                        </Tooltip> */}
+                        <Menu placement="bottom-end">
+                          <Tooltip label="Actions">
+                            <MenuButton
+                              as={IconButton}
+                              icon={<FiMoreVertical />}
+                              variant="ghost"
+                              size="sm"
+                            />
+                          </Tooltip>
+
+                          <MenuList minW="100px">
+                            <MenuItem
+                              fontSize="sm"
+                              icon={<FiEdit />}
+                              onClick={() =>
+                                navigate(
+                                  `/evaluation/edit-user-evaluation/role/${user?.roles?.[0]?._id}/user/${user?._id}?month=${month}&year=${year}`,
+                                )
+                              }
+                            >
+                              Edit
+                            </MenuItem>
+                            {hasPermission("evaluation", "delete_monthly") && (
+                              <MenuItem
+                                fontSize="sm"
+                                icon={<FiTrash2 />}
+                                color="red.500"
+                                onClick={() => {
+                                  setSelectedUser(user);
+                                  onOpen();
+                                }}
+                              >
+                                Delete
+                              </MenuItem>
+                            )}
+                          </MenuList>
+                        </Menu>
                       </>
                     )}
 
@@ -365,7 +407,13 @@ const UserEvaluationCards = ({
             <Button
               colorScheme="red"
               onClick={() =>
-                confirmDelete(loggedInUser?._id, month, year, onClose)
+                confirmDelete(
+                  selectedUser?._id,
+                  month,
+                  year,
+                  onClose,
+                  "USEREVAL",
+                )
               }
             >
               Delete
@@ -373,7 +421,6 @@ const UserEvaluationCards = ({
           </ModalFooter>
         </ModalContent>
       </Modal>
-      ;
     </Box>
   );
 };

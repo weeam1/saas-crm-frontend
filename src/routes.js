@@ -127,6 +127,9 @@ const MyEvaluation = React.lazy(
 const EvaluationForm = React.lazy(
   () => import("views/admin/evalution/user-evalution/EvaluationForm"),
 );
+const EditEvaluationForm = React.lazy(
+  () => import("views/admin/evalution/user-evalution/EditEvaluationForm"),
+);
 const EvaluateSettings = React.lazy(
   () => import("views/admin/evalution/settings/index"),
 );
@@ -648,6 +651,16 @@ const routes = [
     path: "/evaluation/user-evaluation/role/:roleId/user/:userId",
     parentName: "evaluation",
     component: EvaluationForm,
+  },
+  {
+    parent: "evaluation",
+    childId: "evaluation_users",
+    name: "Edit Evalution",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "evaluation",
+    path: "/evaluation/edit-user-evaluation/role/:roleId/user/:userId",
+    parentName: "evaluation",
+    component: EditEvaluationForm,
   },
   {
     parent: "evaluation",

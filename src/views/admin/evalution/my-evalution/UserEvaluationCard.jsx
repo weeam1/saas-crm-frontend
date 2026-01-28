@@ -1162,7 +1162,7 @@ const UserEvaluationCards = ({
                       )}
 
                       {/* Delete Button */}
-                      <Tooltip label="Delete Evaluation">
+                      {/* <Tooltip label="Delete Evaluation">
                         <IconButton
                           size="sm"
                           icon={<FiTrash2 />}
@@ -1173,7 +1173,7 @@ const UserEvaluationCards = ({
                             onOpen();
                           }}
                         />
-                      </Tooltip>
+                      </Tooltip> */}
 
                       {canAddEvaluation && (
                         <Tooltip label="Add Evaluation">
@@ -1313,6 +1313,7 @@ const UserEvaluationCards = ({
                     selectedRow.month,
                     selectedRow.year,
                     onClose,
+                    "MYEVAL",
                   );
                 }
               }}

@@ -228,7 +228,7 @@ const UserEvaluationTable = ({
                               />
                             </CustomTooltip>
 
-                            <CustomTooltip label="Delete Evaluation">
+                            {/* <CustomTooltip label="Delete Evaluation">
                               <IconButton
                                 aria-label="Delete"
                                 icon={<FiTrash2 />}
@@ -240,7 +240,7 @@ const UserEvaluationTable = ({
                                   onOpen();
                                 }}
                               />
-                            </CustomTooltip>
+                            </CustomTooltip> */}
                           </Flex>
                         ) : (
                           "—"
@@ -281,6 +281,7 @@ const UserEvaluationTable = ({
                     selectedRow.month,
                     selectedRow.year,
                     onClose,
+                    "MYEVAL",
                   )
                 }
               >
