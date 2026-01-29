@@ -68,6 +68,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 		lead,
 		agent,
 		manager,
+		teamLead,
 		developer,
 		salesPerson,
 		projectName,
@@ -288,18 +289,26 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 												icon={FaUserTie}
 											/>
 										)}
-										{agent && (
-											<PersonCard
-												title='Agent'
-												person={agent}
-												icon={FaUserTag}
-											/>
-										)}
+
 										{manager && (
 											<PersonCard
 												title='Manager'
 												person={manager}
 												icon={FaUserShield}
+											/>
+										)}
+										{teamLead && (
+											<PersonCard
+												title='Team Lead'
+												person={teamLead}
+												icon={FaUserShield}
+											/>
+										)}
+										{agent && (
+											<PersonCard
+												title='Agent'
+												person={agent}
+												icon={FaUserTag}
 											/>
 										)}
 										{closedBy && (

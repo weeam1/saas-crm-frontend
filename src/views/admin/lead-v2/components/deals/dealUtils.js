@@ -311,6 +311,13 @@ export const getSharedUsersData = ({
 			percent: Number(lead.managerDetails.commission) || 0,
 		});
 	}
+	if (lead.teamLeadDetails?._id) {
+		usersList.push({
+			role: 'teamLeader',
+			data: lead.teamLeadDetails,
+			percent: Number(lead.teamLeadDetails.commission) || 0,
+		});
+	}
 
 	// If neither manager nor agent → use login user
 	if (usersList.length === 0 && user) {
@@ -338,12 +345,12 @@ export const getSharedUsersData = ({
 
 	const originalTotalPercent = originalUsers.reduce(
 		(sum, u) => sum + u.originalPercent,
-		0
+		0,
 	);
 
 	const originalTotalAmount = originalUsers.reduce(
 		(sum, u) => sum + u.originalAmount,
-		0
+		0,
 	);
 
 	// If no shared user or sharePercent = 0 → return original users
