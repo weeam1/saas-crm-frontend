@@ -383,7 +383,7 @@ const AdvancedSearchForm = (props) => {
 						mb='0'
 						mt={2}
 					>
-						Rleased
+						Released
 					</FormLabel>
 					<Select
 						value={values?.isReleased}
@@ -394,6 +394,7 @@ const AdvancedSearchForm = (props) => {
 						placeholder='Select Released Status'
 					>
 						<option value={true}>Released Leads</option>
+						<option value={false}>Unreleased Leads</option>
 					</Select>
 					<Text mb='10px' color='red'>
 						{errors.isReleased && touched.isReleased && errors.isReleased}

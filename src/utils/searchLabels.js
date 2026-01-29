@@ -30,7 +30,7 @@ export const leadLabels = {
 	agentAssigned: 'Agent',
 	leadStatus: 'Status',
 	eLeadStatus: 'Main Status',
-	isReleased: 'Rleased Lead',
+	isReleased: 'Released',
 	endDate: 'End Date',
 	startDate: 'Start Date',
 	mainStatusSort: 'MStatus Sort',
