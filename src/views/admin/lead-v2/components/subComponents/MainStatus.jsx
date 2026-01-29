@@ -25,7 +25,8 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
-const AdminStatus = ['deal', 'show'];
+// const AdminStatus = ['deal', 'show'];
+const AdminStatus = ['deal'];
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
@@ -68,7 +69,7 @@ const MainStatus = ({ lead, role }) => {
 			setLoading(true);
 			const response = await putApi(
 				`api/lead/update/e-status/${lead?._id}`,
-				data
+				data,
 			);
 
 			if (response.status === 200) {
@@ -82,7 +83,7 @@ const MainStatus = ({ lead, role }) => {
 							{ key: 'eLeadStatus', value: newStatus },
 							{ key: 'leadStatus', value: null },
 						],
-					})
+					}),
 				);
 
 				// if (newStatus === 'deal') {
@@ -91,7 +92,7 @@ const MainStatus = ({ lead, role }) => {
 
 				if (newStatus) {
 					const mainStatusData = leadStatuses?.find(
-						(status) => status.value === newStatus
+						(status) => status.value === newStatus,
 					);
 
 					// check the main status has meta id
@@ -209,7 +210,7 @@ const MainStatus = ({ lead, role }) => {
 
 	useEffect(() => {
 		const selectedOption = leadStatuses?.find(
-			(item) => item.value === selected
+			(item) => item.value === selected,
 		);
 
 		if (selectedOption) {
