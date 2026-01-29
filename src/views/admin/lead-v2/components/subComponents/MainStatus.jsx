@@ -25,8 +25,8 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
-// const AdminStatus = ['deal', 'show'];
-const AdminStatus = ['deal'];
+const AdminStatus = ['deal', 'show'];
+// const AdminStatus = ['deal'];
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
