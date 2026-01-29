@@ -469,7 +469,7 @@ const LeadScreen = () => {
 						const r = await getApi(`api/user/view/${agentId}`);
 						await putApi(`api/user/edit/${agentId}`, {
 							coins:
-								lead?.data?.lead?.leadStatus === 'new'
+								lead?.data?.lead?.eLeadStatus === 'new'
 									? r?.data?.coins + 300
 									: r?.data?.coins + 50,
 						});
