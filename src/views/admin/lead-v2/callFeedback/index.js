@@ -185,6 +185,7 @@ import { CallFeedbackHeader } from "./components/FeedBackHeader";
 import { CallFeedbackSkeleton } from "./components/skeleton";
 import TopPagination from "components/pagination/TopPagination";
 import dayjs from "dayjs";
+import NoData from "components/Message/NoData";
 
 const CallFeedback = () => {
   const bgColor = useColorModeValue("gray.50", "gray.900");
@@ -383,18 +384,22 @@ const CallFeedback = () => {
               <Box
               // overflowY="auto" maxHeight="calc(80vh)" pr={2}
               >
-                <SimpleGrid
-                  columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
-                  spacing={6}
-                >
-                  {callFeedbackData?.map((feedback) => (
-                    <CallFeedbackCard
-                      key={feedback._id}
-                      feedback={feedback}
-                      onViewDetails={handleViewDetails}
-                    />
-                  ))}
-                </SimpleGrid>
+                {callFeedbackData.length == 0 ? (
+                  <NoData label="Feedback" />
+                ) : (
+                  <SimpleGrid
+                    columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
+                    spacing={6}
+                  >
+                    {callFeedbackData?.map((feedback) => (
+                      <CallFeedbackCard
+                        key={feedback._id}
+                        feedback={feedback}
+                        onViewDetails={handleViewDetails}
+                      />
+                    ))}
+                  </SimpleGrid>
+                )}
               </Box>
             </>
           )}
