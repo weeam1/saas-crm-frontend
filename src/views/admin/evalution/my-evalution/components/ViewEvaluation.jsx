@@ -935,11 +935,18 @@ const ViewEvaluation = ({
                 borderColor={borderColor}
               >
                 <VStack spacing={3} align="stretch">
-                  <HStack justify="space-between">
+                  <HStack justify="space-between" position="relative">
                     <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
                       Performance Evaluation
                     </Text>
-                    <Badge colorScheme="blue" fontSize="lg" px={3} py={1}>
+                    <Badge
+                      colorScheme="blue"
+                      position="absolute"
+                      right="10"
+                      fontSize="lg"
+                      px={3}
+                      py={1}
+                    >
                       {month}/{year}
                     </Badge>
                   </HStack>
@@ -1169,8 +1176,8 @@ const ViewEvaluation = ({
                                     size="sm"
                                     name={evaluation?.evaluator?.fullName}
                                     src={
-                                      evaluation?.evaluator?.profileImage
-                                        ? `${constant.baseUrl}${evaluation?.evaluator?.profileImage}`
+                                      evaluation.evaluator?.profileImage
+                                        ? `${constant.baseUrl}${evaluation.evaluator?.profileImage}`
                                         : undefined
                                     }
                                   />

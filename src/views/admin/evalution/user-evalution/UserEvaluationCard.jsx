@@ -258,43 +258,53 @@ const UserEvaluationCards = ({
                             }}
                           />
                         </Tooltip> */}
-                        <Menu placement="bottom-end">
-                          <Tooltip label="Actions">
-                            <MenuButton
-                              as={IconButton}
-                              icon={<FiMoreVertical />}
-                              variant="ghost"
-                              size="sm"
-                            />
-                          </Tooltip>
+                        {(hasPermission("evaluation", "edit") ||
+                          hasPermission("evaluation", "delete_monthly")) && (
+                          <Menu placement="bottom-end">
+                            <Tooltip label="Actions">
+                              <MenuButton
+                                as={IconButton}
+                                icon={<FiMoreVertical />}
+                                variant="ghost"
+                                size="sm"
+                              />
+                            </Tooltip>
 
-                          <MenuList minW="100px">
-                            <MenuItem
-                              fontSize="sm"
-                              icon={<FiEdit />}
-                              onClick={() =>
-                                navigate(
-                                  `/evaluation/edit-user-evaluation/role/${user?.roles?.[0]?._id}/user/${user?._id}?month=${month}&year=${year}`,
-                                )
-                              }
-                            >
-                              Edit
-                            </MenuItem>
-                            {hasPermission("evaluation", "delete_monthly") && (
-                              <MenuItem
-                                fontSize="sm"
-                                icon={<FiTrash2 />}
-                                color="red.500"
-                                onClick={() => {
-                                  setSelectedUser(user);
-                                  onOpen();
-                                }}
-                              >
-                                Delete
-                              </MenuItem>
-                            )}
-                          </MenuList>
-                        </Menu>
+                            <MenuList minW="100px">
+                              {hasPermission("evaluation", "edit") && (
+                                <MenuItem
+                                  isDisabled={evaluation.payrollProcessed}
+                                  fontSize="sm"
+                                  icon={<FiEdit />}
+                                  onClick={() =>
+                                    navigate(
+                                      `/evaluation/edit-user-evaluation/role/${user?.roles?.[0]?._id}/user/${user?._id}?month=${month}&year=${year}`,
+                                    )
+                                  }
+                                >
+                                  Edit
+                                </MenuItem>
+                              )}
+
+                              {hasPermission(
+                                "evaluation",
+                                "delete_monthly",
+                              ) && (
+                                <MenuItem
+                                  fontSize="sm"
+                                  icon={<FiTrash2 />}
+                                  color="red.500"
+                                  onClick={() => {
+                                    setSelectedUser(user);
+                                    onOpen();
+                                  }}
+                                >
+                                  Delete
+                                </MenuItem>
+                              )}
+                            </MenuList>
+                          </Menu>
+                        )}
                       </>
                     )}
 

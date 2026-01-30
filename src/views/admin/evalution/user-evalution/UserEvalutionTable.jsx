@@ -28,7 +28,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 
-import { FiEye } from "react-icons/fi";
+import { FiEye, FiEdit } from "react-icons/fi";
 import NoData from "components/Message/NoData";
 import TableLoading from "components/loading/TableLoading";
 import { useEffect, useState } from "react";
@@ -286,6 +286,24 @@ const UserEvaluationTable = ({
                                         setSelectedRow(row);
                                         onOpen();
                                       }}
+                                    />
+                                  </CustomTooltip>
+                                )}
+                                {hasPermission("evaluation", "edit") && (
+                                  <CustomTooltip label="Delete Evaluation">
+                                    <IconButton
+                                      aria-label="Edit"
+                                      icon={<FiEdit />}
+                                      size="sm"
+                                      isDisabled={
+                                        row?.evaluation?.[0].payrollProcessed
+                                      }
+                                      variant="ghost"
+                                      onClick={() =>
+                                        navigate(
+                                          `/evaluation/edit-user-evaluation/role/${row?.roles?.[0]?._id}/user/${row?._id}?month=${month}&year=${year}`,
+                                        )
+                                      }
                                     />
                                   </CustomTooltip>
                                 )}

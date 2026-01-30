@@ -149,6 +149,13 @@ export const apiSlice = createApi({
         { type: "Items", id: leadId },
       ],
     }),
+    fetchItemsV2: builder.query({
+      query: ({ path, params }) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `${path}?${queryString}`;
+      },
+      keepUnusedDataFor: 0,
+    }),
   }),
 });
 
@@ -162,4 +169,5 @@ export const {
   useCreateLeadQualificationMutation,
   useGetLeadQualificationQuery,
   useUpdateLeadQualificationMutation,
+  useLazyFetchItemsV2Query,
 } = apiSlice;
