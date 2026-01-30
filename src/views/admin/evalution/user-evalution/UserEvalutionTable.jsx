@@ -292,10 +292,12 @@ const UserEvaluationTable = ({
                                 {hasPermission("evaluation", "edit") && (
                                   <CustomTooltip label="Delete Evaluation">
                                     <IconButton
-                                      aria-label="Delete"
+                                      aria-label="Edit"
                                       icon={<FiEdit />}
                                       size="sm"
-                                      // colorScheme="red"
+                                      isDisabled={
+                                        row?.evaluation?.[0].payrollProcessed
+                                      }
                                       variant="ghost"
                                       onClick={() =>
                                         navigate(

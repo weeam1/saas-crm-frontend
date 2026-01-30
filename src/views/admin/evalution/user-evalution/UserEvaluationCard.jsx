@@ -273,6 +273,7 @@ const UserEvaluationCards = ({
                             <MenuList minW="100px">
                               {hasPermission("evaluation", "edit") && (
                                 <MenuItem
+                                  isDisabled={evaluation.payrollProcessed}
                                   fontSize="sm"
                                   icon={<FiEdit />}
                                   onClick={() =>

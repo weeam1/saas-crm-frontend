@@ -142,6 +142,7 @@ const EmployeePayrollTable = ({
             </Tooltip>
             <Tooltip label="Add Warning" placement="top" hasArrow>
               <IconButton
+                isDisabled={row?.employeeWarning?.payrollProcessed}
                 aria-label="Warning"
                 icon={<FiAlertTriangle />}
                 size="sm"

@@ -120,7 +120,7 @@ const EmployeePayrollTable = ({
       if (column.key === "user") {
         return <UserProfileCell user={row} />;
       }
-
+      console.log("show row", row);
       if (column.key === "actions") {
         return (
           <Flex align="center" justify="center" gap="2">
@@ -153,8 +153,10 @@ const EmployeePayrollTable = ({
             </Tooltip>
 
             {/* Warning Button - No Modal */}
+
             <Tooltip label="Add Warning" placement="top" hasArrow>
               <IconButton
+                isDisabled={row?.employeeWarning?.payrollProcessed}
                 aria-label="Warning"
                 icon={<FiAlertTriangle />}
                 size="sm"

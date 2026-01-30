@@ -164,7 +164,7 @@ export const ViewWarningsModal = ({
       setRevokingId(null); // stop loader
     }
   };
-
+  const payrollProcessed = sortedWarnings?.payrollProcessed;
   return (
     <Modal
       isOpen={isOpen}
@@ -224,6 +224,22 @@ export const ViewWarningsModal = ({
                   </HStack>
                 </Box>
               </Box>
+              {payrollProcessed && (
+                <Box
+                  p={3}
+                  mb={4}
+                  bg={"orange.50"}
+                  border="1px solid"
+                  borderColor={"orange.200"}
+                  rounded="md"
+                  textAlign="center"
+                >
+                  <Text fontSize="sm" fontWeight="medium" color={"orange.800"}>
+                    All warning deductions have been successfully applied for
+                    this period.
+                  </Text>
+                </Box>
+              )}
 
               {/* History Timeline - Same structure as commented code */}
               <VStack align="stretch" spacing={0} position="relative">
@@ -377,17 +393,19 @@ export const ViewWarningsModal = ({
                           )}
 
                           {/* Revoke Button */}
-                          <Flex justify="right">
-                            <Button
-                              size="sm"
-                              colorScheme="blue"
-                              variant="outline"
-                              onClick={() => handleRevokeWarning(warning._id)}
-                              isLoading={revokingId === warning._id} // only show loader for this button
-                            >
-                              Revoke
-                            </Button>
-                          </Flex>
+                          {!payrollProcessed && (
+                            <Flex justify="right">
+                              <Button
+                                size="sm"
+                                colorScheme="blue"
+                                variant="outline"
+                                onClick={() => handleRevokeWarning(warning._id)}
+                                isLoading={revokingId === warning._id} // only show loader for this button
+                              >
+                                Revoke
+                              </Button>
+                            </Flex>
+                          )}
                         </Box>
                       </HStack>
                     );

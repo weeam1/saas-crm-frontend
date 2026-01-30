@@ -204,6 +204,9 @@ const EmployeePayrollCards = ({
                                 />
                                 <MenuList minW="150px" fontSize="sm">
                                   <MenuItem
+                                    isDisabled={
+                                      row?.employeeWarning?.payrollProcessed
+                                    }
                                     icon={<FiAlertTriangle />}
                                     onClick={() => {
                                       onAddHistoryModalOpen();
