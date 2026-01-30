@@ -176,11 +176,11 @@ const Interviewed = ({
   const handleSendOffer = (interviewId, offerType) => {
     if (offerType === "view") {
       navigate(
-        `/hiring/interviewed-candidates/offer-letter/view/${interviewId}`
+        `/hiring/interviewed-candidates/offer-letter/view/${interviewId}`,
       );
     } else {
       navigate(
-        `/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
+        `/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`,
       );
     }
   };
@@ -194,7 +194,7 @@ const Interviewed = ({
     }
 
     const filteredData = data.filter((item) =>
-      item.candidate.name.toLowerCase().includes(term.toLowerCase())
+      item.candidate.name.toLowerCase().includes(term.toLowerCase()),
     );
 
     setIsSearch(true);
@@ -216,7 +216,7 @@ const Interviewed = ({
         <HStack gap="2">
           <FaUserCheck w="14" h="14" />
           <Heading size="20px" color="gray.800" fontWeight={"bold"}>
-            Interviewed Candidates we
+            Interviewed Candidates
             {data && (
               <span style={{ marginLeft: "6px" }}>
                 ({<CountUpComponent targetNumber={totalDocs || 0} />})

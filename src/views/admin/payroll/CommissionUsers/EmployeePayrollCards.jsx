@@ -400,7 +400,7 @@ const EmployeePayrollCards = ({
                       _hover={{ bg: "purple.300" }}
                       onClick={() =>
                         navigate(
-                          `/payroll/payslip/${row._id}?month=${month}&year=${year}`,
+                          `/payroll/commission-users/payslip/${row._id}?month=${month}&year=${year}`,
                         )
                       }
                     >

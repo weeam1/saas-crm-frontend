@@ -154,11 +154,6 @@ export const apiSlice = createApi({
         const queryString = new URLSearchParams(params).toString();
         return `${path}?${queryString}`;
       },
-
-      // 🚫 No tags
-      providesTags: [],
-
-      // 🔥 Kill cache immediately
       keepUnusedDataFor: 0,
     }),
   }),
