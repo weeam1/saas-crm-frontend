@@ -1124,16 +1124,16 @@ const UserEvaluationCards = ({
                   {/* Header: Avatar + Name + Badges + Actions */}
                   <Flex justify="space-between" align="flex-start" mb={4}>
                     <Flex gap={3}>
-                      <Avatar
+                      {/* <Avatar
                         size="lg"
                         name={user.user.fullName}
                         src={imgSrc}
-                      />
+                      /> */}
                       <VStack align="start" spacing={1}>
                         <Text fontWeight="bold" fontSize="md" noOfLines={1}>
                           {monthYear}
                         </Text>
-                        <Badge
+                        {/* <Badge
                           bg={roleBg}
                           color={roleText}
                           rounded="full"
@@ -1143,7 +1143,7 @@ const UserEvaluationCards = ({
                           fontWeight="medium"
                         >
                           {roleName}
-                        </Badge>
+                        </Badge> */}
                       </VStack>
                     </Flex>
 
@@ -1152,6 +1152,8 @@ const UserEvaluationCards = ({
                       {hasEvaluated && (
                         <Tooltip label="View">
                           <IconButton
+                            alignItems="flex-start"
+                            mt={1}
                             size="sm"
                             icon={<FiEye />}
                             variant="ghost"
@@ -1175,7 +1177,7 @@ const UserEvaluationCards = ({
                         />
                       </Tooltip> */}
 
-                      {canAddEvaluation && (
+                      {/* {canAddEvaluation && (
                         <Tooltip label="Add Evaluation">
                           <IconButton
                             size="sm"
@@ -1189,7 +1191,7 @@ const UserEvaluationCards = ({
                             }
                           />
                         </Tooltip>
-                      )}
+                      )} */}
                     </Flex>
                   </Flex>
 
