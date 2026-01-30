@@ -269,17 +269,19 @@ const UserEvaluationCards = ({
                           </Tooltip>
 
                           <MenuList minW="100px">
-                            <MenuItem
-                              fontSize="sm"
-                              icon={<FiEdit />}
-                              onClick={() =>
-                                navigate(
-                                  `/evaluation/edit-user-evaluation/role/${user?.roles?.[0]?._id}/user/${user?._id}?month=${month}&year=${year}`,
-                                )
-                              }
-                            >
-                              Edit
-                            </MenuItem>
+                            {hasPermission("evaluation", "edit") && (
+                              <MenuItem
+                                fontSize="sm"
+                                icon={<FiEdit />}
+                                onClick={() =>
+                                  navigate(
+                                    `/evaluation/edit-user-evaluation/role/${user?.roles?.[0]?._id}/user/${user?._id}?month=${month}&year=${year}`,
+                                  )
+                                }
+                              >
+                                Edit
+                              </MenuItem>
+                            )}
                             {hasPermission("evaluation", "delete_monthly") && (
                               <MenuItem
                                 fontSize="sm"
