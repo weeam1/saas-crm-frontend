@@ -212,7 +212,7 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 		<MotionVStack spacing={5} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 			{/* File Preview Box */}
 			{exportStatus !== 'success' && (
-				<MotionBox
+				<Box
 					w='full'
 					// border='1px solid'
 					// borderColor='gray.200'
@@ -292,51 +292,43 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
                 </VStack>
               </HStack> */}
 
-							<MotionBox
-								flex={2}
-								whileHover={{ scale: 1.02 }}
-								whileTap={{ scale: 0.98 }}
+							<Button
+								{...buttonStyle}
+								onClick={handleExport}
+								isLoading={loading}
+								loadingText='Exporting...'
+								colorScheme='blue'
+								bg='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+								color='white'
+								size='md'
+								py={6}
+								px={8}
+								w='full'
+								fontSize='lg'
+								fontWeight='semibold'
+								borderRadius='lg'
+								_hover={{
+									transform: 'translateY(-2px)',
+									boxShadow: 'xl',
+									bg: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
+								}}
+								_active={{
+									transform: 'translateY(0)',
+								}}
+								transition='all 0.3s ease-in-out'
+								leftIcon={<FiDownload size={20} />}
+								isDisabled={
+									exportStatus === 'processing' || exportStatus === 'success'
+								}
 							>
-								<Button
-									{...buttonStyle}
-									onClick={handleExport}
-									isLoading={loading}
-									loadingText='Exporting...'
-									colorScheme='blue'
-									bg='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-									color='white'
-									size='md'
-									py={6}
-									px={8}
-									w='full'
-									fontSize='lg'
-									fontWeight='semibold'
-									borderRadius='lg'
-									_hover={{
-										transform: 'translateY(-2px)',
-										boxShadow: 'xl',
-										bg: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
-									}}
-									_active={{
-										transform: 'translateY(0)',
-									}}
-									transition='all 0.3s ease-in-out'
-									leftIcon={<FiDownload size={20} />}
-									isDisabled={
-										exportStatus === 'processing' || exportStatus === 'success'
-									}
-								>
-									{exportStatus === 'processing'
-										? 'Exporting...'
-										: 'Export CSV'}
-								</Button>
-								<Text color='gray.500' fontSize='xs' mt={2} textAlign='center'>
-									Lead export typically completes within 5–20 seconds.
-								</Text>
-							</MotionBox>
+								{exportStatus === 'processing' ? 'Exporting...' : 'Export CSV'}
+							</Button>
+							<Text color='gray.500' fontSize='xs' mt={2} textAlign='center'>
+								Lead export typically completes within 5–20 seconds.
+							</Text>
 						</VStack>
 					</Box>
-				</MotionBox>
+				</Box>
 			)}
 
 			<AnimatePresence mode='wait'>
