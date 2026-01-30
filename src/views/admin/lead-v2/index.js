@@ -346,12 +346,11 @@ const Index = () => {
 								transition='all 0.3s ease'
 								onClick={() => {
 									setIsOpenExport(true);
-									console.log('Export clicked!');
 								}}
 							>
 								Export
 							</Button>
-						)}{' '}
+						)}
 					</Flex>
 
 					<HStack>
