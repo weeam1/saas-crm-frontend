@@ -292,6 +292,11 @@ const EmployeePayrollDetails = () => {
 			label: 'Deduction',
 			value: payrollSummary?.adjustments?.deduction,
 		},
+		{
+			key: 'warningDeduction',
+			label: 'Warning Deduction',
+			value: payrollSummary?.warningDeduction,
+		},
 	];
 
 	return (
