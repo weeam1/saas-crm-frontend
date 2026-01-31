@@ -21,8 +21,8 @@ import useUserSession from 'hooks/useUserSession';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 import CRMQualificationModal from '../CrmQualificationModal';
 
-// const AdminStatus = ['deal', 'show'];
-const AdminStatus = ['deal'];
+const AdminStatus = ['deal', 'show'];
+// const AdminStatus = ['deal'];
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);

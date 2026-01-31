@@ -12,6 +12,7 @@ import { formattedDate } from 'utils/helpers';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 // lead for admin
 const LeadScreen = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
@@ -20,6 +21,8 @@ const LeadScreen = () => {
 
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
+
+	const { leadStatuses } = useLeadStatuses();
 
 	useEffect(() => {
 		if (!hasPermission('leadpool_admin')) return navigate('/default');
@@ -344,26 +347,269 @@ const LeadScreen = () => {
 		fetchLeads(activeTab, currentPage, pageSize);
 	}, [activeTab, currentPage, pageSize, fetchLeads]);
 
+	// const approveChangeHandler = async (
+	// 	e,
+	// 	leadId,
+	// 	agentId,
+	// 	approvalId,
+	// 	currentTab,
+	// ) => {
+	// 	if (e === 'none') return;
+
+	// 	const currentDate = new Date().toISOString();
+
+	// 	const agentDetails = users?.find((user) => user?._id === agentId);
+
+	// 	try {
+	// 		const res = await axios.put(
+	// 			constant['baseUrl'] + 'api/adminApproval/update',
+	// 			{
+	// 				isApproved: e === 'accept',
+	// 				objectId: approvalId,
+	// 				agentId,
+	// 			},
+	// 			{
+	// 				headers: {
+	// 					Authorization:
+	// 						localStorage.getItem('token') || sessionStorage.getItem('token'),
+	// 				},
+	// 			},
+	// 		);
+
+	// 		if (res?.data?.status) {
+	// 			try {
+	// 				const data = {
+	// 					agentAssigned: agentId,
+	// 					// leadType: 'leadpool',
+	// 				};
+
+	// 				console.log('assign to  lead user');
+
+	// 				const updatedRes = await putApi(
+	// 					`api/lead/v2/assign/${leadId}?leadApproved=true`,
+	// 					data,
+	// 				);
+
+	// 				if (displayAdvSearchData || displaySearchData) {
+	// 					setSearchedData((prev) => {
+	// 						const updatedLeads = prev.map((lead) =>
+	// 							lead._id === leadId
+	// 								? {
+	// 										...lead,
+	// 										agentAssigned: agentId,
+	// 										approvalStatus: 'accepted',
+	// 										approvedDate: currentDate,
+	// 									}
+	// 								: lead,
+	// 						);
+	// 						return currentTab === 'Pending'
+	// 							? updatedLeads.filter((lead) => lead._id !== leadId)
+	// 							: updatedLeads;
+	// 					});
+	// 				} else {
+	// 					setLeads((prev) => {
+	// 						const updatedApprovals = prev.approvals.map((approval) =>
+	// 							approval._id === approvalId
+	// 								? {
+	// 										...approval,
+	// 										approvalStatus: 'accepted',
+	// 										agentId,
+	// 										approvedDate: currentDate,
+	// 									}
+	// 								: approval,
+	// 						);
+	// 						return {
+	// 							...prev,
+	// 							approvals:
+	// 								currentTab === 'Pending'
+	// 									? updatedApprovals.filter(
+	// 											(approval) => approval._id !== approvalId,
+	// 										)
+	// 									: updatedApprovals,
+	// 							totalApprovals:
+	// 								currentTab === 'Pending'
+	// 									? prev.totalApprovals - 1
+	// 									: prev.totalApprovals,
+	// 						};
+	// 					});
+	// 				}
+
+	// 				toast.success('Lead request approved successfully!');
+
+	// 				sendLeadNotification(user?._id, agentId, updatedRes?.data);
+
+	// 				// update user activity log
+	// 				createUserLog({
+	// 					userId: user?._id,
+	// 					action: 'APPROVE',
+	// 					entity: 'Lead_Pool',
+	// 					enityType: 'Lead',
+	// 					entityId: leadId || null,
+	// 					status: 'success',
+	// 					message: `${user?.fullName} has successfully approved the lead '${updatedRes?.data?.leadName || ''}' for ${agentDetails?.fullName || ''}.`,
+	// 					rawPayload: {
+	// 						leadId: updatedRes?.data?.intID || null,
+	// 					},
+	// 				});
+	// 			} catch (error) {
+	// 				console.log(error);
+	// 				toast.error('Failed to update the lead');
+
+	// 				// update user activity log
+	// 				createUserLog({
+	// 					userId: user?._id,
+	// 					action: 'APPROVE',
+	// 					entity: 'Lead_Pool',
+	// 					enityType: 'Lead',
+	// 					entityId: leadId || null,
+	// 					status: error?.response?.status === 500 ? 'error' : 'fail',
+	// 					message: `Failed to approved the lead.`,
+	// 				});
+	// 			}
+	// 		} else {
+	// 			try {
+	// 				let lead;
+	// 				if (agentId) {
+	// 					lead = await getApi(`api/lead/view/${leadId}`);
+
+	// 					const mainStatus =
+	// 						leadStatuses?.find(
+	// 							(item) => item.value === lead?.data?.lead?.eLeadStatus,
+	// 						)?.label || 'New';
+
+	// 					const coinCost =
+	// 						COIN_COST_BY_STATUS[mainStatus?.toLowerCase()] ??
+	// 						COIN_COST_BY_STATUS.default;
+
+	// 					const userRes = await getApi(`api/user/view/${agentId}`);
+
+	// 					const currentCoins = userRes?.data?.coins ?? 0;
+
+	// 					console.log({ mainStatus, currentCoins, coinCost });
+
+	// 					await putApi(`api/user/edit/${agentId}`, {
+	// 						coins: currentCoins + coinCost,
+	// 					});
+	// 				}
+
+	// 				if (displayAdvSearchData || displaySearchData) {
+	// 					setSearchedData((prev) => {
+	// 						const updatedLeads = prev.map((lead) =>
+	// 							lead._id === leadId
+	// 								? {
+	// 										...lead,
+	// 										approvalStatus: 'rejected',
+	// 										rejectedDate: currentDate,
+	// 									}
+	// 								: lead,
+	// 						);
+	// 						return currentTab === 'Pending'
+	// 							? updatedLeads.filter((lead) => lead._id !== leadId)
+	// 							: updatedLeads;
+	// 					});
+	// 				} else {
+	// 					setLeads((prev) => {
+	// 						const updatedApprovals = prev.approvals.map((approval) =>
+	// 							approval._id === approvalId
+	// 								? {
+	// 										...approval,
+	// 										approvalStatus: 'rejected',
+	// 										rejectedDate: currentDate,
+	// 									}
+	// 								: approval,
+	// 						);
+	// 						return {
+	// 							...prev,
+	// 							approvals:
+	// 								currentTab === 'Pending'
+	// 									? updatedApprovals.filter(
+	// 											(approval) => approval._id !== approvalId,
+	// 										)
+	// 									: updatedApprovals,
+	// 							totalApprovals:
+	// 								currentTab === 'Pending'
+	// 									? prev.totalApprovals - 1
+	// 									: prev.totalApprovals,
+	// 						};
+	// 					});
+	// 				}
+
+	// 				toast.success('Lead request rejected successfully!');
+
+	// 				// update user activity log
+	// 				createUserLog({
+	// 					userId: user?._id,
+	// 					action: 'REJECT',
+	// 					entity: 'Lead_Pool',
+	// 					enityType: 'Lead',
+	// 					entityId: leadId || null,
+	// 					status: 'success',
+	// 					rawPayload: {
+	// 						leadId: lead?.data?.lead.intID || null,
+	// 					},
+	// 					message: `${user?.fullName} has successfully rejected the lead '${lead?.data?.lead.leadName || ''}' for ${agentDetails?.fullName || ''}.`,
+	// 				});
+	// 			} catch (error) {
+	// 				console.log(error);
+
+	// 				const errorMsg =
+	// 					error?.response?.data?.message || 'Failed to update the lead';
+	// 				toast.error(errorMsg);
+
+	// 				// update user activity log
+	// 				createUserLog({
+	// 					userId: user?._id,
+	// 					action: 'UPDATE',
+	// 					entity: 'Lead_Pool',
+	// 					enityType: 'Lead',
+	// 					entityId: leadId || null,
+	// 					status: error?.response?.status === 500 ? 'error' : 'fail',
+	// 					message: errorMsg,
+	// 				});
+	// 			}
+	// 		}
+	// 	} catch (error) {
+	// 		console.log('error', error);
+
+	// 		const errorMsg =
+	// 			error?.response?.data?.message || 'Failed to process lead request';
+	// 		toast.error(errorMsg);
+
+	// 		// update user activity log
+	// 		createUserLog({
+	// 			userId: user?._id,
+	// 			action: 'REJECT',
+	// 			entity: 'Lead_Pool',
+	// 			enityType: 'Lead',
+	// 			entityId: leadId || null,
+	// 			status: error?.response?.status === 500 ? 'error' : 'fail',
+	// 			message: errorMsg,
+	// 		});
+	// 	}
+	// };
+
 	const approveChangeHandler = async (
-		e,
+		action,
 		leadId,
 		agentId,
 		approvalId,
 		currentTab,
 	) => {
-		if (e === 'none') return;
+		if (action === 'none') return;
 
 		const currentDate = new Date().toISOString();
+		const isApproved = action === 'accept';
 
 		const agentDetails = users?.find((user) => user?._id === agentId);
 
 		try {
 			const res = await axios.put(
-				constant['baseUrl'] + 'api/adminApproval/update',
+				`${constant.baseUrl}api/adminApproval/update`,
 				{
-					isApproved: e === 'accept',
+					isApproved,
 					objectId: approvalId,
 					agentId,
+					leadId,
 				},
 				{
 					headers: {
@@ -373,198 +619,81 @@ const LeadScreen = () => {
 				},
 			);
 
-			if (res?.data?.status) {
-				try {
-					const data = {
-						agentAssigned: agentId,
-						// leadType: 'leadpool',
-					};
-
-					const updatedRes = await putApi(
-						`api/lead/v2/assign/${leadId}?leadApproved=true`,
-						data,
-					);
-
-					if (displayAdvSearchData || displaySearchData) {
-						setSearchedData((prev) => {
-							const updatedLeads = prev.map((lead) =>
-								lead._id === leadId
-									? {
-											...lead,
-											agentAssigned: agentId,
-											approvalStatus: 'accepted',
-											approvedDate: currentDate,
-										}
-									: lead,
-							);
-							return currentTab === 'Pending'
-								? updatedLeads.filter((lead) => lead._id !== leadId)
-								: updatedLeads;
-						});
-					} else {
-						setLeads((prev) => {
-							const updatedApprovals = prev.approvals.map((approval) =>
-								approval._id === approvalId
-									? {
-											...approval,
-											approvalStatus: 'accepted',
-											agentId,
-											approvedDate: currentDate,
-										}
-									: approval,
-							);
-							return {
-								...prev,
-								approvals:
-									currentTab === 'Pending'
-										? updatedApprovals.filter(
-												(approval) => approval._id !== approvalId,
-											)
-										: updatedApprovals,
-								totalApprovals:
-									currentTab === 'Pending'
-										? prev.totalApprovals - 1
-										: prev.totalApprovals,
-							};
-						});
-					}
-
-					toast.success('Lead request approved successfully!');
-
-					sendLeadNotification(user?._id, agentId, updatedRes?.data);
-
-					// update user activity log
-					createUserLog({
-						userId: user?._id,
-						action: 'APPROVE',
-						entity: 'Lead_Pool',
-						enityType: 'Lead',
-						entityId: leadId || null,
-						status: 'success',
-						message: `${user?.fullName} has successfully approved the lead '${updatedRes?.data?.leadName || ''}' for ${agentDetails?.fullName || ''}.`,
-						rawPayload: {
-							leadId: updatedRes?.data?.intID || null,
-						},
-					});
-				} catch (error) {
-					console.log(error);
-					toast.error('Failed to update the lead');
-
-					// update user activity log
-					createUserLog({
-						userId: user?._id,
-						action: 'APPROVE',
-						entity: 'Lead_Pool',
-						enityType: 'Lead',
-						entityId: leadId || null,
-						status: error?.response?.status === 500 ? 'error' : 'fail',
-						message: `Failed to approved the lead.`,
-					});
-				}
-			} else {
-				try {
-					let lead;
-					if (agentId) {
-						lead = await getApi(`api/lead/view/${leadId}`);
-						const r = await getApi(`api/user/view/${agentId}`);
-						await putApi(`api/user/edit/${agentId}`, {
-							coins:
-								lead?.data?.lead?.eLeadStatus === 'new'
-									? r?.data?.coins + 300
-									: r?.data?.coins + 50,
-						});
-					}
-
-					if (displayAdvSearchData || displaySearchData) {
-						setSearchedData((prev) => {
-							const updatedLeads = prev.map((lead) =>
-								lead._id === leadId
-									? {
-											...lead,
-											approvalStatus: 'rejected',
-											rejectedDate: currentDate,
-										}
-									: lead,
-							);
-							return currentTab === 'Pending'
-								? updatedLeads.filter((lead) => lead._id !== leadId)
-								: updatedLeads;
-						});
-					} else {
-						setLeads((prev) => {
-							const updatedApprovals = prev.approvals.map((approval) =>
-								approval._id === approvalId
-									? {
-											...approval,
-											approvalStatus: 'rejected',
-											rejectedDate: currentDate,
-										}
-									: approval,
-							);
-							return {
-								...prev,
-								approvals:
-									currentTab === 'Pending'
-										? updatedApprovals.filter(
-												(approval) => approval._id !== approvalId,
-											)
-										: updatedApprovals,
-								totalApprovals:
-									currentTab === 'Pending'
-										? prev.totalApprovals - 1
-										: prev.totalApprovals,
-							};
-						});
-					}
-
-					toast.success('Lead request rejected successfully!');
-
-					// update user activity log
-					createUserLog({
-						userId: user?._id,
-						action: 'REJECT',
-						entity: 'Lead_Pool',
-						enityType: 'Lead',
-						entityId: leadId || null,
-						status: 'success',
-						rawPayload: {
-							leadId: lead?.data?.lead.intID || null,
-						},
-						message: `${user?.fullName} has successfully rejected the lead '${lead?.data?.lead.leadName || ''}' for ${agentDetails?.fullName || ''}.`,
-					});
-				} catch (error) {
-					console.log(error);
-
-					const errorMsg =
-						error?.response?.data?.message || 'Failed to update the lead';
-					toast.error(errorMsg);
-
-					// update user activity log
-					createUserLog({
-						userId: user?._id,
-						action: 'UPDATE',
-						entity: 'Lead_Pool',
-						enityType: 'Lead',
-						entityId: leadId || null,
-						status: error?.response?.status === 500 ? 'error' : 'fail',
-						message: errorMsg,
-					});
-				}
+			if (!res?.data?.success) {
+				throw new Error(res?.data?.message || 'Approval failed');
 			}
-		} catch (error) {
-			console.log('error', error);
 
-			const errorMsg =
-				error?.response?.data?.message || 'Failed to process lead request';
-			toast.error(errorMsg);
+			// ===== UI STATE UPDATE ONLY =====
+			const updateApprovalState = (item) =>
+				item?._id === approvalId
+					? {
+							...item,
+							approvalStatus: isApproved ? 'accepted' : 'rejected',
+							[isApproved ? 'approvedDate' : 'rejectedDate']: currentDate,
+						}
+					: item;
 
-			// update user activity log
+			if (displayAdvSearchData || displaySearchData) {
+				setSearchedData((prev) =>
+					currentTab === 'Pending'
+						? prev.filter((lead) => lead._id !== leadId)
+						: prev,
+				);
+			} else {
+				setLeads((prev) => {
+					const updated = prev.approvals.map(updateApprovalState);
+
+					return {
+						...prev,
+						approvals:
+							currentTab === 'Pending'
+								? updated.filter((a) => a._id !== approvalId)
+								: updated,
+						totalApprovals:
+							currentTab === 'Pending'
+								? prev.totalApprovals - 1
+								: prev.totalApprovals,
+					};
+				});
+			}
+
+			toast.success(
+				isApproved
+					? 'Lead request approved successfully!'
+					: 'Lead request rejected successfully!',
+			);
+
+			const leadFromState =
+				displayAdvSearchData || displaySearchData
+					? searchedData?.find((lead) => lead._id === leadId)
+					: leads?.approvals?.find((approval) => approval._id === approvalId);
+
+			const logMessage = `${user?.fullName || 'Admin'} has successfully ${isApproved ? 'approved' : 'rejected'} the lead '${leadFromState?.leadName}' for ${
+				agentDetails?.fullName || 'the selected agent'
+			}`;
+
 			createUserLog({
 				userId: user?._id,
-				action: 'REJECT',
+				action: isApproved ? 'APPROVE' : 'REJECT',
 				entity: 'Lead_Pool',
 				enityType: 'Lead',
-				entityId: leadId || null,
+				entityId: leadId,
+				status: 'success',
+				message: logMessage,
+			});
+		} catch (error) {
+			console.log({ error });
+			const errorMsg =
+				error?.response?.data?.message || 'Failed to process lead request';
+
+			toast.error(errorMsg);
+
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Lead_Pool',
+				enityType: 'Lead',
+				entityId: leadId,
 				status: error?.response?.status === 500 ? 'error' : 'fail',
 				message: errorMsg,
 			});

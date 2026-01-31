@@ -25,7 +25,7 @@ import { handleCopy } from '../utils/utils';
 import { getUserNameById } from 'utils';
 import { extractLocationData, formattedDate } from 'utils/helpers';
 import LeadCycleModal from '../components/LeadCard/LeadCycleModal';
-import { leadStatus } from 'utils/options';
+// import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { mainLeadStatus } from 'utils/options';
 import LeadsModal from 'views/admin/lead-v2/LeadsModal';
@@ -33,17 +33,17 @@ import { safeValue } from './../../../../utils/index';
 import { leadlabelFontSize } from '../components/constants';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
-const getLabelByValue = (value) => {
-	const status = leadStatus.find((status) => status.value === value);
-	return status ? status.label : 'N/A';
-};
+// const getLabelByValue = (value) => {
+// 	const status = leadStatus.find((status) => status.value === value);
+// 	return status ? status.label : 'N/A';
+// };
 
 const LeadCard = ({
 	leadId,
 	leadData,
 	leadName,
 	nationality,
-	eLeadStatus: mStatus,
+	eLeadStatus,
 	leadStatus: leadStatusValue,
 	approvalStatus: initialApprovalStatus,
 	agentId,
@@ -66,12 +66,10 @@ const LeadCard = ({
 	const { leadStatuses, getSubStatuses } = useLeadStatuses();
 
 	const leadSubStatuses = useMemo(() => {
-		if (!leadData?.eLeadStatus) return [];
+		if (!eLeadStatus) return [];
 
-		return getSubStatuses(leadData?.eLeadStatus) || [];
-	}, [leadData?.eLeadStatus]);
-
-	console.log({ mStatus, leadStatusValue, leadStatuses });
+		return getSubStatuses(eLeadStatus) || [];
+	}, [eLeadStatus]);
 
 	const [localApprovalStatus, setLocalApprovalStatus] = useState(
 		initialApprovalStatus,
@@ -334,6 +332,15 @@ const LeadCard = ({
 		} catch (e) {}
 	}
 
+	const mainStatus =
+		leadStatuses?.find((item) => item.value === eLeadStatus)?.label ?? 'New';
+
+	const subStatus =
+		leadSubStatuses?.find((item) => item.value === leadStatusValue)?.label ??
+		(mainStatus === 'New' ? 'Fresh Lead' : null);
+
+	console.log({ mainStatus, leadStatusValue, subStatus });
+
 	return (
 		<Box
 			borderRadius='lg'
@@ -408,23 +415,14 @@ const LeadCard = ({
 					<HStack spacing={2} w='100%'>
 						<InputPair
 							label='M Status'
-							value={
-								leadStatuses?.find(
-									(item) => item.value === leadData?.eLeadStatus,
-								)?.label
-							}
+							value={mainStatus}
 							bg='#E5B668'
 							width='85px'
 							color='white'
 						/>
 						<InputPair
 							label='Status'
-							value={
-								leadSubStatuses?.find(
-									(item) => item.value === leadData?.leadStatus,
-								)?.label
-								// getLabelByValue(leadStatusValue)
-							}
+							value={subStatus}
 							bg='#FEEFEE'
 							width='85px'
 							color='black'
