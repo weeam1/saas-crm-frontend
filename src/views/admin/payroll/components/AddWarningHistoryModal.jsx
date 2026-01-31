@@ -43,7 +43,11 @@ export const AddHistoryModal = ({
 
   // Validation schema
   const validationSchema = Yup.object({
-    amount: Yup.string().required("Amount is required"),
+    amount: Yup.number()
+      .typeError("Amount must be a number")
+      .required("Amount is required")
+      .min(1, "Amount cannot be less than 1"),
+
     Notes: Yup.string().nullable(),
   });
 
@@ -52,7 +56,7 @@ export const AddHistoryModal = ({
     {
       name: "amount",
       label: "Amount",
-      type: "text",
+      type: "Number",
     },
     {
       name: "Notes",

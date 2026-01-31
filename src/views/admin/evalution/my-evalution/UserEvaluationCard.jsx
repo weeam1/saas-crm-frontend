@@ -1032,7 +1032,7 @@ const UserEvaluationCards = ({
             columns={{ base: 1, md: 2, lg: 2, xl: 3, "2xl": 4 }}
             spacing={4}
           >
-            {Array.from({ length: 10 }).map((_, i) => (
+            {Array.from({ length: 12 }).map((_, i) => (
               <CardSkeleton key={i} />
             ))}
           </SimpleGrid>

@@ -181,7 +181,7 @@ const MyEvaluation = () => {
           </Box>
 
           {/* Search */}
-          <Box w={{ base: "100%", sm: "auto" }} flexShrink={1}>
+          {/* <Box w={{ base: "100%", sm: "auto" }} flexShrink={1}>
             <SearchBox
               onSearchTermChange={(value) => {
                 setSearchTerm(value);
@@ -190,7 +190,7 @@ const MyEvaluation = () => {
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
             />
-          </Box>
+          </Box> */}
 
           <ViewToggle
             moduleView="evalView"

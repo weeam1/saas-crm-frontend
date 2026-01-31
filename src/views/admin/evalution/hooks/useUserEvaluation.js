@@ -339,7 +339,7 @@ export const useUserEvalution = () => {
     Number(searchParams.get("year")) || new Date().getFullYear();
   const initialAgencyId = isAgenciesAllowed ? searchParams.get("agency") : null;
   const initialPage = Number(searchParams.get("page")) || 1;
-  const initialLimit = Number(searchParams.get("limit")) || 10;
+  const initialLimit = Number(searchParams.get("limit")) || 20;
   const initialSearch = searchParams.get("search") || "";
 
   // --- State for main evaluations ---
@@ -358,7 +358,7 @@ export const useUserEvalution = () => {
   });
   const [myPagination, setMyPagination] = useState({
     page: Number(searchParams.get("myPage")) || 1,
-    limit: Number(searchParams.get("myLimit")) || 10,
+    limit: Number(searchParams.get("myLimit")) || 20,
   });
 
   const [list, setList] = useState([]);

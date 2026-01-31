@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -12,6 +12,12 @@ import {
   Text,
   Box,
   Divider,
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogContent,
+  AlertDialogOverlay,
   Flex,
   Button,
   useColorModeValue,
@@ -71,6 +77,9 @@ export const ViewWarningsModal = ({
     month,
     year,
   });
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedWarningId, setSelectedWarningId] = useState(null);
+  const cancelRef = useRef();
 
   const [revokingId, setRevokingId] = useState(null);
   const [warningsData, setWarningsData] = useState(null);
@@ -168,275 +177,321 @@ export const ViewWarningsModal = ({
 
   const payrollProcessed = sortedWarnings?.payrollProcessed;
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      size="xl"
-      isCentered
-      scrollBehavior="inside"
-      motionPreset="slideInBottom"
-    >
-      <ModalOverlay backdropFilter="blur(5px)" />
-      <ModalContent rounded="xl" overflow="hidden" shadow="2xl">
-        <ModalHeader py={4} bg={subtleBg}>
-          <VStack align="flex-start" spacing={1}>
-            <HStack>
-              <Text fontSize="lg" fontWeight="bold">
-                Employee Warnings
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        size="xl"
+        isCentered
+        scrollBehavior="inside"
+        motionPreset="slideInBottom"
+      >
+        <ModalOverlay backdropFilter="blur(5px)" />
+        <ModalContent rounded="xl" overflow="hidden" shadow="2xl">
+          <ModalHeader py={4} bg={subtleBg}>
+            <VStack align="flex-start" spacing={1}>
+              <HStack>
+                <Text fontSize="lg" fontWeight="bold">
+                  Employee Warnings
+                </Text>
+                <Badge colorScheme="blue" fontSize="sm">
+                  {monthYear}
+                </Badge>
+              </HStack>
+              <Text fontSize="sm" color="gray.500" fontWeight="normal">
+                Warning History and Deductions
               </Text>
-              <Badge colorScheme="blue" fontSize="sm">
-                {monthYear}
-              </Badge>
-            </HStack>
-            <Text fontSize="sm" color="gray.500" fontWeight="normal">
-              Warning History and Deductions
-            </Text>
-          </VStack>
-        </ModalHeader>
-        <ModalCloseButton top={4} right={4} />
+            </VStack>
+          </ModalHeader>
+          <ModalCloseButton top={4} right={4} />
 
-        <ModalBody py={4}>
-          {isLoading || !warningsData ? (
-            <>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <WarningSkeleton key={i} />
-              ))}
-            </>
-          ) : (
-            <>
-              <Box
-                p={4}
-                mb={6}
-                bg={cardBg}
-                rounded="lg"
-                borderWidth="1px"
-                borderColor={borderColor}
-                shadow="sm"
-              >
-                <Box>
-                  <HStack justify="space-between" mt={2}>
-                    <HStack spacing={2}>
-                      <Text fontSize="sm" color="gray.600">
-                        Total Warning Deductions
+          <ModalBody py={4}>
+            {isLoading || !warningsData ? (
+              <>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <WarningSkeleton key={i} />
+                ))}
+              </>
+            ) : (
+              <>
+                <Box
+                  p={4}
+                  mb={6}
+                  bg={cardBg}
+                  rounded="lg"
+                  borderWidth="1px"
+                  borderColor={borderColor}
+                  shadow="sm"
+                >
+                  <Box>
+                    <HStack justify="space-between" mt={2}>
+                      <HStack spacing={2}>
+                        <Text fontSize="sm" color="gray.600">
+                          Total Warning Deductions
+                        </Text>
+                      </HStack>
+                      <Text fontSize="lg" fontWeight="bold" color="orange.300">
+                        {`${data?.agency?.currency} ${totalDeduction.toLocaleString()}`}
                       </Text>
                     </HStack>
-                    <Text fontSize="lg" fontWeight="bold" color="orange.300">
-                      {`${data?.agency?.currency} ${totalDeduction.toLocaleString()}`}
-                    </Text>
-                  </HStack>
-                </Box>
-              </Box>
-              {payrollProcessed && (
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  gap={1}
-                  px={2}
-                  py={3}
-                  mb={4}
-                  bg="green.50"
-                  border="1px solid"
-                  borderColor="green.200"
-                  rounded="md"
-                >
-                  <Icon as={FiCheckCircle} color="green.500" boxSize={4} />
-                  <Text fontSize="sm" fontWeight="medium" color="green.800">
-                    All warning deductions have been successfully applied for
-                    this period.
-                  </Text>
-                </Box>
-              )}
-
-              {/* History Timeline - Same structure as commented code */}
-              <VStack align="stretch" spacing={0} position="relative">
-                <Box
-                  position="absolute"
-                  left="16px"
-                  top="0"
-                  bottom="0"
-                  width="2px"
-                  bg={borderColor}
-                  zIndex={1}
-                />
-
-                {sortedWarnings.length === 0 ? (
-                  <Box
-                    p={6}
-                    minH="400px"
-                    textAlign="center"
-                    justify="center"
-                    bg={cardBg}
-                    rounded="lg"
-                    borderWidth="1px"
-                    borderColor={borderColor}
-                  >
-                    <Icon as={FiClock} boxSize={6} color="gray.400" mb={2} />
-                    <Text color="gray.500">No warnings for this period</Text>
                   </Box>
-                ) : (
-                  sortedWarnings.map((warning, idx) => {
-                    const statusKey = warning.status.toLowerCase();
-                    const config =
-                      statusConfig[statusKey] || statusConfig.active;
-                    const isLatest = true;
-                    // idx === 0;
+                </Box>
+                {payrollProcessed && (
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={1}
+                    px={2}
+                    py={3}
+                    mb={4}
+                    bg="green.50"
+                    border="1px solid"
+                    borderColor="green.200"
+                    rounded="md"
+                  >
+                    <Icon as={FiCheckCircle} color="green.500" boxSize={4} />
+                    <Text fontSize="sm" fontWeight="medium" color="green.800">
+                      All warning deductions have been successfully applied for
+                      this period.
+                    </Text>
+                  </Box>
+                )}
 
-                    return (
-                      <HStack
-                        key={warning._id}
-                        align="flex-start"
-                        spacing={4}
-                        py={2}
-                        position="relative"
-                        zIndex={2}
-                      >
-                        <Box flexShrink={0} position="relative">
-                          <Box
-                            w="32px"
-                            h="32px"
-                            rounded="full"
-                            bg={
-                              isLatest ? `${config.color}.500` : "transparent"
-                            }
-                            borderWidth={isLatest ? "0" : "2px"}
-                            borderColor={`${config.color}.500`}
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="center"
-                          >
-                            <Icon
-                              as={config.icon}
-                              color={isLatest ? "white" : `${config.color}.500`}
-                              boxSize={4}
-                            />
-                          </Box>
-                        </Box>
+                {/* History Timeline - Same structure as commented code */}
+                <VStack align="stretch" spacing={0} position="relative">
+                  <Box
+                    position="absolute"
+                    left="16px"
+                    top="0"
+                    bottom="0"
+                    width="2px"
+                    bg={borderColor}
+                    zIndex={1}
+                  />
 
-                        <Box
-                          flex="1"
-                          bg={isLatest ? `${config.color}.50` : cardBg}
-                          p={4}
-                          rounded="lg"
-                          borderWidth="1px"
-                          borderColor={
-                            isLatest ? `${config.color}.200` : borderColor
-                          }
-                          shadow={isLatest ? "sm" : "none"}
+                  {sortedWarnings.length === 0 ? (
+                    <Box
+                      p={6}
+                      minH="400px"
+                      textAlign="center"
+                      justify="center"
+                      bg={cardBg}
+                      rounded="lg"
+                      borderWidth="1px"
+                      borderColor={borderColor}
+                    >
+                      <Icon as={FiClock} boxSize={6} color="gray.400" mb={2} />
+                      <Text color="gray.500">No warnings for this period</Text>
+                    </Box>
+                  ) : (
+                    sortedWarnings.map((warning, idx) => {
+                      const statusKey = warning.status.toLowerCase();
+                      const config =
+                        statusConfig[statusKey] || statusConfig.active;
+                      const isLatest = true;
+                      // idx === 0;
+
+                      return (
+                        <HStack
+                          key={warning._id}
+                          align="flex-start"
+                          spacing={4}
+                          py={2}
+                          position="relative"
+                          zIndex={2}
                         >
-                          <HStack justify="space-between" mb={2}>
-                            {warning.issuedBy && (
-                              <HStack spacing={2}>
-                                <VStack align="start" spacing={0}>
-                                  <Text fontSize="xs" color="gray.600">
-                                    Issued By
-                                  </Text>
-                                  <Text
-                                    fontSize="xs"
-                                    fontWeight="medium"
-                                    color="gray.600"
-                                  >
-                                    {warning.issuedBy.fullName}
-                                  </Text>
-                                </VStack>
-                              </HStack>
-                            )}
-                            <Text fontSize="xs" color="gray.500">
-                              {formatPostDate(warning.issuedAt)}
-                            </Text>
-                          </HStack>
+                          <Box flexShrink={0} position="relative">
+                            <Box
+                              w="32px"
+                              h="32px"
+                              rounded="full"
+                              bg={
+                                isLatest ? `${config.color}.500` : "transparent"
+                              }
+                              borderWidth={isLatest ? "0" : "2px"}
+                              borderColor={`${config.color}.500`}
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="center"
+                            >
+                              <Icon
+                                as={config.icon}
+                                color={
+                                  isLatest ? "white" : `${config.color}.500`
+                                }
+                                boxSize={4}
+                              />
+                            </Box>
+                          </Box>
 
-                          {/* Warning Amount */}
-                          <HStack justify="space-between" mb={3}>
-                            <HStack spacing={1}>
-                              <Text
-                                fontSize="xs"
-                                fontWeight="medium"
-                                color="gray.600"
-                              >
-                                Warning Deduction Amount:
+                          <Box
+                            flex="1"
+                            bg={isLatest ? `${config.color}.50` : cardBg}
+                            p={4}
+                            rounded="lg"
+                            borderWidth="1px"
+                            borderColor={
+                              isLatest ? `${config.color}.200` : borderColor
+                            }
+                            shadow={isLatest ? "sm" : "none"}
+                          >
+                            <HStack justify="space-between" mb={2}>
+                              {warning.issuedBy && (
+                                <HStack spacing={2}>
+                                  <VStack align="start" spacing={0}>
+                                    <Text fontSize="xs" color="gray.600">
+                                      Issued By
+                                    </Text>
+                                    <Text
+                                      fontSize="xs"
+                                      fontWeight="medium"
+                                      color="gray.600"
+                                    >
+                                      {warning.issuedBy.fullName}
+                                    </Text>
+                                  </VStack>
+                                </HStack>
+                              )}
+                              <Text fontSize="xs" color="gray.500">
+                                {formatPostDate(warning.issuedAt)}
                               </Text>
                             </HStack>
-                            <Text
-                              fontSize="lg"
-                              fontWeight="bold"
-                              color="orange.300"
-                            >
-                              {`${data?.agency?.currency} ${warning.amount.toLocaleString()}`}
-                            </Text>
-                          </HStack>
 
-                          {/* Warning Note */}
-                          {warning.note && (
-                            <>
-                              <HStack spacing={1} mb={1}>
-                                <Icon
-                                  as={FiMessageSquare}
-                                  boxSize={3}
-                                  color="gray.500"
-                                />
+                            {/* Warning Amount */}
+                            <HStack justify="space-between" mb={3}>
+                              <HStack spacing={1}>
                                 <Text
                                   fontSize="xs"
                                   fontWeight="medium"
                                   color="gray.600"
                                 >
-                                  Note
+                                  Warning Deduction Amount:
                                 </Text>
                               </HStack>
-
-                              <Box
-                                bg={"gray.100"}
-                                border="1px solid"
-                                borderColor="gray.200"
-                                rounded="md"
-                                p={3}
-                                fontSize="sm"
-                                color="gray.700"
-                                mb={3}
+                              <Text
+                                fontSize="lg"
+                                fontWeight="bold"
+                                color="orange.300"
                               >
-                                {warning.note}
-                              </Box>
-                            </>
-                          )}
+                                {`${data?.agency?.currency} ${warning.amount.toLocaleString()}`}
+                              </Text>
+                            </HStack>
 
-                          {/* Revoke Button */}
-                          {!payrollProcessed && (
-                            <Flex justify="right">
-                              <Button
-                                size="sm"
-                                colorScheme="blue"
-                                variant="outline"
-                                onClick={() => handleRevokeWarning(warning._id)}
-                                isLoading={revokingId === warning._id} // only show loader for this button
-                              >
-                                Revoke
-                              </Button>
-                            </Flex>
-                          )}
-                        </Box>
-                      </HStack>
-                    );
-                  })
-                )}
-              </VStack>
-            </>
-          )}
-        </ModalBody>
+                            {/* Warning Note */}
+                            {warning.note && (
+                              <>
+                                <HStack spacing={1} mb={1}>
+                                  <Icon
+                                    as={FiMessageSquare}
+                                    boxSize={3}
+                                    color="gray.500"
+                                  />
+                                  <Text
+                                    fontSize="xs"
+                                    fontWeight="medium"
+                                    color="gray.600"
+                                  >
+                                    Note
+                                  </Text>
+                                </HStack>
 
-        <Divider />
+                                <Box
+                                  bg={"gray.100"}
+                                  border="1px solid"
+                                  borderColor="gray.200"
+                                  rounded="md"
+                                  p={3}
+                                  fontSize="sm"
+                                  color="gray.700"
+                                  mb={3}
+                                >
+                                  {warning.note}
+                                </Box>
+                              </>
+                            )}
 
-        <ModalFooter py={3}>
-          <Button
-            onClick={handleClose}
-            rounded="lg"
-            px={6}
-            variant="outline"
-            colorScheme="blue"
-          >
-            Close
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+                            {/* Revoke Button */}
+                            {!payrollProcessed && (
+                              <Flex justify="right">
+                                <Button
+                                  size="sm"
+                                  colorScheme="blue"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setSelectedWarningId(warning._id);
+                                    setIsConfirmOpen(true);
+                                  }}
+                                  isLoading={revokingId === warning._id} // only show loader for this button
+                                >
+                                  Revoke
+                                </Button>
+                              </Flex>
+                            )}
+                          </Box>
+                        </HStack>
+                      );
+                    })
+                  )}
+                </VStack>
+              </>
+            )}
+          </ModalBody>
+
+          <Divider />
+
+          <ModalFooter py={3}>
+            <Button
+              onClick={handleClose}
+              rounded="lg"
+              px={6}
+              variant="outline"
+              colorScheme="blue"
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      <AlertDialog
+        isOpen={isConfirmOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsConfirmOpen(false)}
+        isCentered
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Revoke Warning Deduction
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to revoke this warning deduction?
+              <br />
+              <Text mt={2} fontSize="sm" color="gray.600">
+                If you confirm, it will not be applied in the payroll, and this
+                action cannot be undone.
+              </Text>
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => setIsConfirmOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                colorScheme="red"
+                ml={3}
+                onClick={() => {
+                  setIsConfirmOpen(false);
+                  handleRevokeWarning(selectedWarningId);
+                }}
+              >
+                Confirm Revoke
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+    </>
   );
 };
 
