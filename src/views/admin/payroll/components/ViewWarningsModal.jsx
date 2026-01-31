@@ -221,7 +221,7 @@ export const ViewWarningsModal = ({
                       </Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="orange.300">
-                      {`${data?.sharedDeals?.currency} ${totalDeduction.toLocaleString()}`}
+                      {`${data?.agency?.currency} ${totalDeduction.toLocaleString()}`}
                     </Text>
                   </HStack>
                 </Box>
@@ -361,7 +361,7 @@ export const ViewWarningsModal = ({
                               fontWeight="bold"
                               color="orange.300"
                             >
-                              {`${data?.sharedDeals?.currency} ${warning.amount.toLocaleString()}`}
+                              {`${data?.agency?.currency} ${warning.amount.toLocaleString()}`}
                             </Text>
                           </HStack>
 
