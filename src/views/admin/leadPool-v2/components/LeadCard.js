@@ -14,11 +14,12 @@ import CardHeader from './LeadCard/CardHeader';
 import InfoPair from './LeadCard/InfoPair';
 import InputPair from './LeadCard/InputPair';
 import LeadCycleModal from './LeadCard/LeadCycleModal';
-import { leadStatus } from 'utils/options';
+// import { leadStatus } from 'utils/options';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { mainLeadStatus } from 'utils/options';
 import LeadsModal from 'views/admin/lead-v2/LeadsModal';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
+import { COIN_COST_BY_STATUS } from '../utils/utils';
 
 class TimelineItem {
 	constructor(type, updatedAt, updatedBy, updatedData) {
@@ -29,10 +30,10 @@ class TimelineItem {
 	}
 }
 
-const getLabelByValue = (value) => {
-	const status = leadStatus.find((status) => status.value === value);
-	return status ? status.label : 'N/A';
-};
+// const getLabelByValue = (value) => {
+// 	const status = leadStatus.find((status) => status.value === value);
+// 	return status ? status.label : 'N/A';
+// };
 
 const LeadCard = ({
 	_id,
@@ -194,7 +195,17 @@ const LeadCard = ({
 	// const userCoins = userData?.coins || 0;
 	// const isBuyDisabled =
 	//   userCoins < coinCost || buyLoading[_id] || isRejected || isPending;
-	const coinCost = leadStatusValue?.toLowerCase() === 'new' ? 300 : 50;
+	const mainStatus =
+		leadStatuses?.find((item) => item.value === mStatus)?.label ?? 'New';
+
+	const subStatus =
+		leadSubStatuses?.find((item) => item.value === leadStatusValue)?.label ??
+		(mainStatus === 'New' ? 'Fresh Lead' : null);
+
+	const coinCost =
+		COIN_COST_BY_STATUS[mainStatus?.toLowerCase()] ??
+		COIN_COST_BY_STATUS.default;
+
 	const userCoins = userData?.coins || 0;
 	const isBuyDisabled =
 		userCoins < coinCost ||
@@ -273,19 +284,14 @@ const LeadCard = ({
 						<InputPair
 							label='M Status'
 							width={{ base: '70px', md: '85px', lg: '100px' }}
-							value={
-								leadStatuses?.find((item) => item.value === mStatus)?.label
-							}
+							value={mainStatus}
 							bg='#E5B668'
 							color='white'
 						/>
 						<InputPair
 							label='Status'
 							width={{ base: '70px', md: '85px', lg: '100px' }}
-							value={
-								leadSubStatuses?.find((item) => item.value === leadStatusValue)
-									?.label
-							}
+							value={subStatus}
 							bg='#FEEFEE'
 							color='black'
 						/>
@@ -325,7 +331,6 @@ const LeadCard = ({
 								size='xs'
 								width='100%'
 								maxWidth='200px'
-								fontFamily='DM Sans'
 								borderRadius='5px'
 								_hover={{ bg: 'red.600' }}
 								onClick={handleCancelClick}
@@ -365,7 +370,7 @@ const LeadCard = ({
 								isLoading={buyLoading[_id]}
 								isDisabled={isBuyDisabled} // Updated to use coin-based logic
 							>
-								{displayButtonText()}
+								Buy for {coinCost} coins
 							</Button>
 						)}
 					</VStack>
