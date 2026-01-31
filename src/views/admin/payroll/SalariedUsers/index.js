@@ -324,6 +324,7 @@ const Payroll = () => {
         isOpen={isViewHistoryModalOpen}
         onClose={onViewHistoryModalClose}
         employeeId={payRollData?._id}
+        data={payRollData}
         month={month}
         year={year}
         // candidate={selectedEmployeeForWarningHistory}

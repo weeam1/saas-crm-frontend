@@ -6,7 +6,10 @@ import {
   Badge,
   IconButton,
   Center,
+  HStack,
+  VStack,
   Tooltip,
+  useColorModeValue,
   SimpleGrid,
   CircularProgress,
   Stack,
@@ -30,7 +33,7 @@ import {
 } from "@chakra-ui/react";
 import { constant } from "constant";
 import { FiMoreVertical, FiEdit, FiTrash2 } from "react-icons/fi";
-import { FiEye, FiClock, FiCheck } from "react-icons/fi";
+import { FiEye, FiClock, FiUsers, FiCheck, FiBarChart2 } from "react-icons/fi";
 import { FaPlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -111,7 +114,7 @@ const UserEvaluationCards = ({
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedUser, setSelectedUser] = useState(null);
-
+  const subTextColor = useColorModeValue("gray.600", "gray.300");
   useEffect(() => {
     let timer;
     if (isLoading) setDelayedLoading(true);
@@ -328,12 +331,12 @@ const UserEvaluationCards = ({
 
                 {/* Stats + Circular Progress */}
                 <Flex
-                  gap={user?.hasEvaluated ? "24" : "24"}
+                  gap={user?.hasEvaluated ? "8" : "8"}
                   align="center"
                   mb={4}
                   flexWrap="nowrap"
                 >
-                  <Stack spacing={1} flexShrink={0}>
+                  {/* <Stack spacing={1} flexShrink={0}>
                     <Text fontSize={{ base: "xs", lg: "sm" }} color="gray.600">
                       Evaluators: {evaluation?.totalEvaluators ?? 0}
                     </Text>
@@ -365,7 +368,79 @@ const UserEvaluationCards = ({
                         </>
                       )}
                     </Badge>
-                  </Stack>
+                  </Stack> */}
+                  <VStack
+                    spacing={3}
+                    align="stretch"
+                    flex="1"
+                    minW="100px"
+                    maxW="300px"
+                  >
+                    <HStack justify="space-between">
+                      <HStack spacing={2}>
+                        <Icon as={FiUsers} boxSize={4} color={subTextColor} />
+                        <Text fontSize="sm" color={subTextColor}>
+                          Evaluators
+                        </Text>
+                      </HStack>
+                      <Badge
+                        px={2}
+                        py={1}
+                        fontSize="sm"
+                        rounded="full"
+                        colorScheme="blue"
+                      >
+                        {evaluation.totalEvaluators ?? 0}
+                      </Badge>
+                    </HStack>
+
+                    <HStack justify="space-between">
+                      <HStack spacing={2}>
+                        <Icon
+                          as={FiBarChart2}
+                          boxSize={4}
+                          color={subTextColor}
+                        />
+                        <Text fontSize="sm" color={subTextColor}>
+                          Average
+                        </Text>
+                      </HStack>
+                      <Badge
+                        px={2}
+                        py={1}
+                        fontSize="sm"
+                        rounded="full"
+                        colorScheme="purple"
+                      >
+                        {evaluation.finalAvg ?? 0}
+                      </Badge>
+                    </HStack>
+                    <Badge
+                      position="absolute"
+                      left={3}
+                      bottom={{ base: 7, lg: 7 }}
+                      px={{ base: 2, md: 2.5, lg: 3 }}
+                      py={{ base: 0.5, md: 0.75, lg: 1 }}
+                      fontSize={{ base: "10px", md: "sm", lg: "sm" }}
+                      rounded="full"
+                      colorScheme={user?.hasEvaluated ? "green" : "yellow"}
+                      display="inline-flex"
+                      alignItems="center"
+                      gap={{ base: 0.5, lg: 1 }}
+                    >
+                      {!user?.hasEvaluated ? (
+                        <>
+                          <Icon as={FiClock} boxSize={{ base: 3, lg: 4 }} />
+                          Not Evaluated
+                        </>
+                      ) : (
+                        <>
+                          <Icon as={FiCheck} boxSize={{ base: 3, lg: 4 }} />
+                          Evaluated
+                        </>
+                      )}
+                    </Badge>
+                  </VStack>
                   <Flex direction="column" align="center" gap={2}>
                     <Center>
                       <Box position="relative">

@@ -59,6 +59,7 @@ const statusConfig = {
 };
 
 export const ViewWarningsModal = ({
+  data,
   isOpen,
   onClose,
   employeeId,
@@ -164,6 +165,7 @@ export const ViewWarningsModal = ({
       setRevokingId(null); // stop loader
     }
   };
+
   const payrollProcessed = sortedWarnings?.payrollProcessed;
   return (
     <Modal
@@ -219,22 +221,26 @@ export const ViewWarningsModal = ({
                       </Text>
                     </HStack>
                     <Text fontSize="lg" fontWeight="bold" color="orange.300">
-                      {totalDeduction.toLocaleString()}
+                      {`${data?.agency?.currency} ${totalDeduction.toLocaleString()}`}
                     </Text>
                   </HStack>
                 </Box>
               </Box>
               {payrollProcessed && (
                 <Box
-                  p={3}
+                  display="flex"
+                  alignItems="center"
+                  gap={1}
+                  px={2}
+                  py={3}
                   mb={4}
-                  bg={"orange.50"}
+                  bg="green.50"
                   border="1px solid"
-                  borderColor={"orange.200"}
+                  borderColor="green.200"
                   rounded="md"
-                  textAlign="center"
                 >
-                  <Text fontSize="sm" fontWeight="medium" color={"orange.800"}>
+                  <Icon as={FiCheckCircle} color="green.500" boxSize={4} />
+                  <Text fontSize="sm" fontWeight="medium" color="green.800">
                     All warning deductions have been successfully applied for
                     this period.
                   </Text>
@@ -355,7 +361,7 @@ export const ViewWarningsModal = ({
                               fontWeight="bold"
                               color="orange.300"
                             >
-                              {warning.amount.toLocaleString()}
+                              {`${data?.agency?.currency} ${warning.amount.toLocaleString()}`}
                             </Text>
                           </HStack>
 

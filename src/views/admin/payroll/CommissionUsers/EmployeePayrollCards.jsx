@@ -382,7 +382,10 @@ const EmployeePayrollCards = ({
                         fontWeight="bold"
                         color="black.500"
                       >
-                        {formatCurrency(row.payrollSummary?.netSalary || 0)}
+                        {formatCurrency(
+                          row.payrollSummary?.netSalary || 0,
+                          row?.agency?.currency,
+                        )}
                       </Text>
                     </Flex>
                     <Divider mt={2} color={"blackAlpha.900"} />
