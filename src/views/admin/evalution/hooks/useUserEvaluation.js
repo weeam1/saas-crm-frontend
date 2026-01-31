@@ -423,7 +423,7 @@ export const useUserEvalution = () => {
     if (agencyId && isAgenciesAllowed) params.set("agency", agencyId);
     if (pagination.page && pagination.page > 1)
       params.set("page", pagination.page);
-    if (pagination.limit && pagination.limit !== 10)
+    if (pagination.limit && pagination.limit !== 20)
       params.set("limit", pagination.limit);
 
     // Add main filters
@@ -435,9 +435,9 @@ export const useUserEvalution = () => {
 
     // Add my evaluation params (with prefixes to avoid conflicts)
     if (myPagination.page && myPagination.page > 1)
-      params.set("myPage", myPagination.page);
-    if (myPagination.limit && myPagination.limit !== 10)
-      params.set("myLimit", myPagination.limit);
+      params.set("page", myPagination.page);
+    if (myPagination.limit && myPagination.limit !== 20)
+      params.set("limit", myPagination.limit);
     if (myFilters.search) params.set("search", myFilters.search);
 
     // Only update if changed
