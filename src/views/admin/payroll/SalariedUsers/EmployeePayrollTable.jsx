@@ -120,7 +120,6 @@ const EmployeePayrollTable = ({
       if (column.key === "user") {
         return <UserProfileCell user={row} />;
       }
-      console.log("show row", row);
       if (column.key === "actions") {
         return (
           <Flex align="center" justify="center" gap="2">
@@ -153,21 +152,24 @@ const EmployeePayrollTable = ({
             </Tooltip>
 
             {/* Warning Button - No Modal */}
-
-            <Tooltip label="Add Warning" placement="top" hasArrow>
-              <IconButton
-                isDisabled={row?.employeeWarning?.payrollProcessed}
-                aria-label="Warning"
-                icon={<FiAlertTriangle />}
-                size="sm"
-                colorScheme="yellow"
-                variant="ghost"
-                onClick={() => {
-                  onAddHistoryModalOpen();
-                  setPayRollData(row);
-                }}
-              />
-            </Tooltip>
+            {row?.payslip?.status !== "paid" && (
+              <Tooltip label="Add Warning" placement="top" hasArrow>
+                <IconButton
+                  aria-label="Warning"
+                  isDisabled={row?.payslip?.status === "paid"}
+                  icon={<FiAlertCircle />}
+                  size="sm"
+                  colorScheme="yellow"
+                  variant="ghost"
+                  onClick={() => {
+                    onAddHistoryModalOpen();
+                    setPayRollData(row);
+                  }}
+                />
+              </Tooltip>
+            )}
+            
+          
 
             {/* Warning History Button */}
             <Tooltip label="Warning History" placement="top" hasArrow>
@@ -282,7 +284,7 @@ const EmployeePayrollTable = ({
               <Tr>
                 <Td colSpan={PAYROLL_COLUMNS.length} py={10}>
                   <Center>
-                    <NoData label="incoming balance" />
+                    <NoData label="payroll" />
                   </Center>
                 </Td>
               </Tr>

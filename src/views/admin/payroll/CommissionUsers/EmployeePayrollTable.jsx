@@ -140,20 +140,23 @@ const EmployeePayrollTable = ({
                 onClick={() => handlePayslipGenerate(row)}
               />
             </Tooltip>
-            <Tooltip label="Add Warning" placement="top" hasArrow>
-              <IconButton
-                isDisabled={row?.employeeWarning?.payrollProcessed}
-                aria-label="Warning"
-                icon={<FiAlertTriangle />}
-                size="sm"
-                colorScheme="yellow"
-                variant="ghost"
-                onClick={() => {
-                  onAddHistoryModalOpen();
-                  setPayRollData(row);
-                }}
-              />
-            </Tooltip>
+
+            {row?.payslip?.status !== "paid" &&
+              <Tooltip label="Add Warning" placement="top" hasArrow>
+                <IconButton
+                  isDisabled={row?.payslip?.status === "paid"}
+                  aria-label="Warning"
+                  icon={<FiAlertTriangle />}
+                  size="sm"
+                  colorScheme="yellow"
+                  variant="ghost"
+                  onClick={() => {
+                    onAddHistoryModalOpen();
+                    setPayRollData(row);
+                  }}
+                />
+              </Tooltip>
+            }
 
             {/* Warning History Button */}
             <Tooltip label="Warning History" placement="top" hasArrow>
