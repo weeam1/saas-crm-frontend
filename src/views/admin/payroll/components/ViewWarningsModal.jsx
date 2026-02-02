@@ -47,22 +47,16 @@ import { constant } from 'constant';
 
 const statusConfig = {
 	active: {
-		color: 'orange',
+		color: 'greenish',
 		icon: FiAlertTriangle,
 		label: 'Active',
 		description: 'Warning is currently active',
 	},
-	resolved: {
-		color: 'green',
-		icon: FiCheckCircle,
-		label: 'Resolved',
-		description: 'Warning has been resolved',
-	},
-	cancelled: {
-		color: 'gray',
+	revoked: {
+		color: 'red',
 		icon: FiXCircle,
-		label: 'Cancelled',
-		description: 'Warning has been cancelled',
+		label: 'Revoked',
+		description: 'Warning has been revoked',
 	},
 };
 
@@ -213,7 +207,7 @@ export const ViewWarningsModal = ({
 							</>
 						) : (
 							<>
-								<Box
+								{/* <Box
 									p={4}
 									mb={6}
 									bg={cardBg}
@@ -226,7 +220,7 @@ export const ViewWarningsModal = ({
 										<HStack justify='space-between' mt={2}>
 											<HStack spacing={2}>
 												<Text fontSize='sm' color='gray.600'>
-													Total Warning Deductions
+													Total Active Warning Deductions
 												</Text>
 											</HStack>
 											<Text fontSize='lg' fontWeight='bold' color='orange.300'>
@@ -234,7 +228,55 @@ export const ViewWarningsModal = ({
 											</Text>
 										</HStack>
 									</Box>
+								</Box> */}
+								<Box p={5} mb={6} bg='cyan.50' rounded='lg'>
+									<HStack justify='space-between' align='center'>
+										{/* Label */}
+										<HStack spacing={2}>
+											<Box
+												w='36px'
+												h='36px'
+												rounded='full'
+												bg='cyan.50'
+												display='flex'
+												alignItems='center'
+												justifyContent='center'
+											>
+												<Icon
+													as={FiAlertTriangle}
+													color='cyan.400'
+													boxSize={4}
+												/>
+											</Box>
+
+											<VStack align='start' spacing={0}>
+												<Text fontSize='xs' color='gray.500'>
+													Payroll Impact
+												</Text>
+												<Text fontSize='sm' fontWeight='500'>
+													Active Warning Deductions
+												</Text>
+											</VStack>
+										</HStack>
+
+										{/* Amount */}
+										<VStack align='end' spacing={0}>
+											<Text fontSize='xs' color='gray.500'>
+												Total
+											</Text>
+											<Text
+												fontSize='xl'
+												fontWeight='700'
+												color='cyan.500'
+												lineHeight='1'
+											>
+												{data?.agency?.currency}{' '}
+												{totalDeduction.toLocaleString()}
+											</Text>
+										</VStack>
+									</HStack>
 								</Box>
+
 								{payrollProcessed && (
 									<Box
 										display='flex'
