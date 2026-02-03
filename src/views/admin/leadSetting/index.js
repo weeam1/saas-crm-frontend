@@ -17,6 +17,8 @@ import { useLeadSettings } from './useLeadSettings';
 import UserLeadLimitTable from './UserLeadLimitTable';
 import AddUserLeadLimit from './AddUserLeadLimit';
 import LeadLimitModal from './LeadSettingModal';
+import { FiChevronLeft } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 
 const UserLeadLimit = () => {
 	const {
@@ -36,7 +38,11 @@ const UserLeadLimit = () => {
 		removeItem,
 	} = useLeadSettings();
 
+	const navigate = useNavigate();
+
 	const [clearFilters, setClearFilters] = useState(false);
+	const [editData, setEditData] = useState(null);
+
 	const {
 		isOpen: leadLimitIsOpen,
 		onClose: leadLimitOnClose,
@@ -47,8 +53,6 @@ const UserLeadLimit = () => {
 		onClose: defaultLimitOnClose,
 		onOpen: defaultLimitOpen,
 	} = useDisclosure();
-
-	const [editData, setEditData] = useState(null);
 
 	const handleOpenAdd = () => {
 		setEditData(null);
@@ -68,6 +72,13 @@ const UserLeadLimit = () => {
 
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
+			<IconButton
+				aria-label='Go back'
+				icon={<FiChevronLeft />}
+				onClick={() => navigate(-1)}
+				size='md'
+				isRound
+			/>
 			<Box
 				bg='white'
 				border='1px solid'
@@ -75,6 +86,7 @@ const UserLeadLimit = () => {
 				borderRadius='lg'
 				p={{ base: 4, md: 6 }}
 				mb={6}
+				mt={2}
 				boxShadow='sm'
 			>
 				<Flex
