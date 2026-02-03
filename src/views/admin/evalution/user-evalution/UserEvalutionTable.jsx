@@ -60,8 +60,6 @@ const UserEvaluationTable = ({
 		{ key: 'actions', label: 'Actions', width: '80px' }, // actions button
 	];
 	const { hasPermission } = usePermissions();
-	console.log(month, 'check month');
-	const toast = useToast();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [selectedRow, setSelectedRow] = useState(null);
 
@@ -229,6 +227,15 @@ const UserEvaluationTable = ({
 							</Tr>
 						) : (
 							data.map((row, index) => {
+								const isPayrollPaid =
+									row?.payslip?.paymentStatus === 'paid' ?? false;
+								const isEvaluated = row?.hasEvaluated ?? false;
+
+								const canAddEvaluation =
+									!row?.evaluation?.[0]?.evaluations?.find(
+										(e) => e?.evaluator === loggedInUser?._id,
+									) && !isPayrollPaid;
+
 								return (
 									<Tr
 										key={row._id || index}
@@ -257,7 +264,7 @@ const UserEvaluationTable = ({
 													<UserProfileItem user={row} cursor={false} />
 												) : column.key === 'actions' ? (
 													<Flex align='center' justify='center' gap={3}>
-														{row?.payslip?.paymentStatus === 'paid' && (
+														{isPayrollPaid && (
 															<Badge
 																colorScheme='green'
 																variant='subtle'
@@ -266,11 +273,11 @@ const UserEvaluationTable = ({
 																py={2}
 																borderRadius='full'
 															>
-																Payroll Processed
+																Payroll Paid
 															</Badge>
 														)}
 
-														{row?.hasEvaluated && (
+														{isEvaluated && (
 															<>
 																<CustomTooltip label='View'>
 																	<IconButton
@@ -285,7 +292,7 @@ const UserEvaluationTable = ({
 																	/>
 																</CustomTooltip>
 
-																{row?.payslip?.paymentStatus !== 'paid' && (
+																{!isPayrollPaid && (
 																	<>
 																		{hasPermission(
 																			'evaluation',
@@ -326,28 +333,25 @@ const UserEvaluationTable = ({
 															</>
 														)}
 
-														{!row?.evaluation?.[0]?.evaluations?.find(
-															(item) => item?.evaluator === loggedInUser?._id,
-														) &&
-															row?.payslip?.paymentStatus !== 'paid' && (
-																<>
-																	<CustomTooltip label='Add Evaluation'>
-																		<IconButton
-																			aria-label='Add Evaluation'
-																			icon={<FaPlus />}
-																			size='sm'
-																			colorScheme='green'
-																			variant='ghost'
-																			onClick={() =>
-																				navigate(
-																					`/evaluation/user-evaluation/role/${row?.roles?.[0]?._id}/user/${row?._id}?month=${month}&year=${year}`,
-																				)
-																			}
-																			// onClick={() => handleOpenEdit(row)}
-																		/>
-																	</CustomTooltip>
-																</>
-															)}
+														{canAddEvaluation && (
+															<>
+																<CustomTooltip label='Add Evaluation'>
+																	<IconButton
+																		aria-label='Add Evaluation'
+																		icon={<FaPlus />}
+																		size='sm'
+																		colorScheme='green'
+																		variant='ghost'
+																		onClick={() =>
+																			navigate(
+																				`/evaluation/user-evaluation/role/${row?.roles?.[0]?._id}/user/${row?._id}?month=${month}&year=${year}`,
+																			)
+																		}
+																		// onClick={() => handleOpenEdit(row)}
+																	/>
+																</CustomTooltip>
+															</>
+														)}
 													</Flex>
 												) : column.key === 'hasEvaluated' ? (
 													<Badge
