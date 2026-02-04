@@ -29,17 +29,18 @@ import useUserSession from 'hooks/useUserSession';
 
 const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 	const {
-		assignedLeads: agentLeads,
+		assignedLeads,
 		pendingApprovals: pendingLeads,
 		totalLeads,
 		maxLeadLimit,
-	} = errorLeadData;
+		role = 'Agent',
+	} = errorLeadData || {};
 
-	const { isSuperAdmin, role } = useUserSession();
+	const { isSuperAdmin, userRoleName } = useUserSession();
 
 	if (!isOpen) return null;
 
-	const target = role === 'Agent' ? 'You' : 'Agent';
+	const target = userRoleName === role ? 'You' : role;
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
@@ -80,7 +81,7 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 										Assigned Leads
 									</Td>
 									<Td textAlign='right' color='gray.700'>
-										{agentLeads}
+										{assignedLeads}
 									</Td>
 								</Tr>
 								<Tr>
@@ -128,13 +129,13 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 								To continue, you can:
 							</Text>
 							<List spacing={2} styleType='disc' pl={6}>
-								{target === 'Agent' ? (
+								{target !== 'You' ? (
 									<ListItem>
 										<Text>
-											{`The agent has no remaining lead capacity. Please reassign
+											{`The ${role} has no remaining lead capacity. Please reassign
 											some leads ${
 												isSuperAdmin
-													? ` or adjust the agent's lead limit in the
+													? ` or adjust the ${role}'s lead limit in the
 											settings.`
 													: ''
 											} `}
