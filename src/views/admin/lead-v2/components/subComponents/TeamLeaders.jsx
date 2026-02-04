@@ -12,14 +12,14 @@ import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
-import { sendLeadNotification } from 'api';
+import { fetchAgentLeadsStats, sendLeadNotification } from 'api';
 import { mergeSort } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
-const TeamLeaders = ({ lead }) => {
+const TeamLeaders = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const {
 		_id,
 		intID,
@@ -60,6 +60,18 @@ const TeamLeaders = ({ lead }) => {
 
 		try {
 			setLoading(true);
+
+			if (dataObj.teamLeadAssigned) {
+				const stats = await fetchAgentLeadsStats(dataObj.teamLeadAssigned);
+
+				if (!stats.canAddLeads) {
+					setErrorLeadData(stats);
+					setIsErrorModalOpen(true);
+					setLoading(false);
+					return;
+				}
+			}
+
 			const res = await putApi(`api/lead/v2/assign/${_id}`, dataObj);
 
 			if (res.status === 200) {

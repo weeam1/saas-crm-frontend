@@ -24,6 +24,7 @@ import TableLoading from 'components/loading/TableLoading';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { FaEdit } from 'react-icons/fa';
+import UserProfileCell from '../payroll/components/UserProfileCell';
 
 const UserLeadLimitTable = ({
 	data = [],
@@ -62,6 +63,12 @@ const UserLeadLimitTable = ({
 				return value ? format(new Date(value), 'MMM d, yyyy h:mm a') : 'N/A';
 			case 'user':
 				return value?.fullName || value?.username || '-';
+			case 'limit':
+				return (
+					<Badge bg='brand.100' px={2} py={2} borderRadius='md'>
+						{value?.toLocaleString() || 0}
+					</Badge>
+				);
 			default:
 				return value ?? '-';
 		}
@@ -154,7 +161,9 @@ const UserLeadLimitTable = ({
 										fontWeight={column.key === 'user' ? 'semibold' : 'medium'}
 										color='gray.700'
 									>
-										{column.key === 'actions' ? (
+										{column.key === 'user' ? (
+											<UserProfileCell user={row.user} />
+										) : column.key === 'actions' ? (
 											<Flex align='center' justify='center' gap={3}>
 												<CustomTooltip label='Edit'>
 													<IconButton

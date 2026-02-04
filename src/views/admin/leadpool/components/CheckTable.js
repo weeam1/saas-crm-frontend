@@ -84,6 +84,7 @@ import { findManagerForAgent } from 'utils';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { PropTypes } from 'prop-types';
 import { formattedDate } from 'utils/helpers';
+import { fetchAgentLeadsStats } from 'api';
 
 export default function CheckTable(props) {
 	const {
@@ -201,17 +202,17 @@ export default function CheckTable(props) {
 	const toggleColumnVisibility = (columnKey) => {
 		setColumn(columnKey);
 		isColumnSelected = tempSelectedColumns?.some(
-			(column) => column?.accessor === columnKey
+			(column) => column?.accessor === columnKey,
 		);
 
 		if (isColumnSelected) {
 			const updatedColumns = tempSelectedColumns?.filter(
-				(column) => column?.accessor !== columnKey
+				(column) => column?.accessor !== columnKey,
 			);
 			setTempSelectedColumns(updatedColumns);
 		} else {
 			const columnToAdd = dynamicColumns?.find(
-				(column) => column?.accessor === columnKey
+				(column) => column?.accessor === columnKey,
 			);
 			setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
 		}
@@ -229,7 +230,7 @@ export default function CheckTable(props) {
 						Authorization:
 							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
-				}
+				},
 			);
 			const lead = await getApi(`api/lead/view/${leadID}`);
 
@@ -252,7 +253,7 @@ export default function CheckTable(props) {
 
 	const handleColumnClear = () => {
 		isColumnSelected = selectedColumns?.some(
-			(selectedColumn) => selectedColumn?.accessor === column?.accessor
+			(selectedColumn) => selectedColumn?.accessor === column?.accessor,
 		);
 		setTempSelectedColumns(dynamicColumns);
 		setManageColumns(!manageColumns ? !manageColumns : false);
@@ -285,7 +286,7 @@ export default function CheckTable(props) {
 			fetchSearchedData(searchbox.current?.value?.trim() || '', 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== '')
+				Object.entries(formValues).filter(([key, value]) => value !== ''),
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -303,7 +304,7 @@ export default function CheckTable(props) {
 		},
 		useGlobalFilter,
 		useSortBy,
-		usePagination
+		usePagination,
 	);
 
 	const {
@@ -332,7 +333,7 @@ export default function CheckTable(props) {
 			setSelectedValues((prevSelectedValues) => [...prevSelectedValues, value]);
 		} else {
 			setSelectedValues((prevSelectedValues) =>
-				prevSelectedValues.filter((selectedValue) => selectedValue !== value)
+				prevSelectedValues.filter((selectedValue) => selectedValue !== value),
 			);
 		}
 	};
@@ -346,15 +347,15 @@ export default function CheckTable(props) {
 		setLeadData(response.data);
 	};
 
-	const fetchAgentLeadsSats = async (userId) => {
-		try {
-			const { data } = await getApi(`api/lead/leads-stats/${userId}`);
+	// const fetchAgentLeadsStats = async (userId) => {
+	// 	try {
+	// 		const { data } = await getApi(`api/lead/leads-stats/${userId}`);
 
-			return data?.doc;
-		} catch (error) {
-			console.log(error);
-		}
-	};
+	// 		return data?.doc;
+	// 	} catch (error) {
+	// 		console.log(error);
+	// 	}
+	// };
 
 	useEffect(() => {
 		if (fetchCustomData) fetchCustomData();
@@ -394,7 +395,7 @@ export default function CheckTable(props) {
 					selectedRecordsWithSpecificFileds,
 					csvColumns,
 					'lead',
-					extension
+					extension,
 				);
 			} else {
 				const AllRecordsWithSpecificFileds = tableData?.map((rec) => {
@@ -412,7 +413,7 @@ export default function CheckTable(props) {
 					AllRecordsWithSpecificFileds,
 					csvColumns,
 					'lead',
-					extension
+					extension,
 				);
 			}
 		} catch (e) {
@@ -425,7 +426,7 @@ export default function CheckTable(props) {
 		leadId,
 		agentId,
 		managerId,
-		approvalId
+		approvalId,
 	) => {
 		const user = JSON.parse(localStorage.getItem('user'));
 		if (e === 'none') return;
@@ -443,7 +444,7 @@ export default function CheckTable(props) {
 						Authorization:
 							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
-				}
+				},
 			);
 
 			if (res?.data?.status) {
@@ -541,7 +542,7 @@ export default function CheckTable(props) {
 		} catch (error) {
 			console.log('error', error);
 			toast.error(
-				error.response?.data?.message || 'Failed to process lead request'
+				error.response?.data?.message || 'Failed to process lead request',
 			);
 		}
 	};
@@ -557,7 +558,7 @@ export default function CheckTable(props) {
 		jsonArray,
 		csvColumns,
 		fileName,
-		extension
+		extension,
 	) => {
 		const csvHeader = csvColumns.map((col) => col.Header);
 
@@ -604,11 +605,11 @@ export default function CheckTable(props) {
 			fetchSearchedData(
 				searchbox.current?.value?.trim() || '',
 				pageIndex + 1,
-				pageSize
+				pageSize,
 			);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== '')
+				Object.entries(formValues).filter(([key, value]) => value !== ''),
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -623,7 +624,7 @@ export default function CheckTable(props) {
 			fetchSearchedData(searchbox.current?.value?.trim() || '', 1, pageSize);
 		} else if (displayAdvSearchData) {
 			const data = Object.fromEntries(
-				Object.entries(formValues).filter(([key, value]) => value !== '')
+				Object.entries(formValues).filter(([key, value]) => value !== ''),
 			);
 			fetchAdvancedSearch(data, pageIndex + 1, pageSize);
 		} else {
@@ -635,7 +636,7 @@ export default function CheckTable(props) {
 		setBuyLoading((prev) => ({ ...prev, [leadID]: true }));
 
 		const user = JSON.parse(localStorage.getItem('user'));
-		const stats = await fetchAgentLeadsSats(user._id);
+		const stats = await fetchAgentLeadsStats(user._id);
 
 		if (!stats.canAddLeads) {
 			setErrorLeadData(stats);
@@ -672,7 +673,7 @@ export default function CheckTable(props) {
 						Authorization:
 							localStorage.getItem('token') || sessionStorage.getItem('token'),
 					},
-				}
+				},
 			);
 
 			const r = await getApi(`api/user/view/${user?._id}`);
@@ -1172,7 +1173,7 @@ export default function CheckTable(props) {
 										<Th
 											{...column.getHeaderProps(
 												column.isSortable !== false &&
-													column.getSortByToggleProps()
+													column.getSortByToggleProps(),
 											)}
 											key={index}
 											borderColor={borderColor}
@@ -1274,12 +1275,12 @@ export default function CheckTable(props) {
 																colorScheme='brandScheme'
 																value={selectedValues}
 																isChecked={selectedValues.includes(
-																	row?.original?._id
+																	row?.original?._id,
 																)}
 																onChange={(event) =>
 																	handleCheckboxChange(
 																		event,
-																		row?.original?._id
+																		row?.original?._id,
 																	)
 																}
 																me='10px'
@@ -1323,7 +1324,7 @@ export default function CheckTable(props) {
 																variant='link'
 																onClick={() =>
 																	handleLeadsModal(
-																		row?.original?.leadId || row.original?._id
+																		row?.original?.leadId || row.original?._id,
 																	)
 																}
 																me='10px'
@@ -1466,7 +1467,7 @@ export default function CheckTable(props) {
 																			row?.original?.leadId?.toString(),
 																			row?.original?.agentId,
 																			row?.original?.managerId,
-																			row?.original?._id
+																			row?.original?._id,
 																		)
 																	}
 																	sx={{
@@ -1488,7 +1489,7 @@ export default function CheckTable(props) {
 																			row?.original?.leadId?.toString(),
 																			row?.original?.agentId,
 																			row?.original?.managerId,
-																			row?.original?._id
+																			row?.original?._id,
 																		);
 																	}}
 																	sx={{
@@ -1542,7 +1543,7 @@ export default function CheckTable(props) {
 													data = displayAdvSearchData
 														? getUserNameById(
 																row?.original?.agentAssigned,
-																users
+																users,
 															)
 														: getUserNameById(row?.original?.agentId, users);
 
@@ -1835,7 +1836,7 @@ export default function CheckTable(props) {
 																	row?.original?._id,
 																	row?.original?.leadId,
 																	row?.original?.agentId ||
-																		row?.original?.managerId
+																		row?.original?.managerId,
 																)
 															}
 															sx={{
@@ -2565,11 +2566,11 @@ export default function CheckTable(props) {
 									<Checkbox
 										value={selectedColumns.some(
 											(selectedColumn) =>
-												selectedColumn.accessor === column.accessor
+												selectedColumn.accessor === column.accessor,
 										)}
 										defaultChecked={selectedColumns.some(
 											(selectedColumn) =>
-												selectedColumn.accessor === column.accessor
+												selectedColumn.accessor === column.accessor,
 										)}
 										onChange={() => toggleColumnVisibility(column.accessor)}
 										pe={2}

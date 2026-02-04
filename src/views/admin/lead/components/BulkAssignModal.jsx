@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import ManagerAgentImport from './ManagerAgentImport';
-import { fetchAgentLeadsSats } from 'api';
+import { fetchAgentLeadsStats } from 'api';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
@@ -59,10 +59,10 @@ const BulkAssignModal = (props) => {
 			setIsLoading(true);
 
 			if (values?.agentAssigned) {
-				const stats = await fetchAgentLeadsSats(
+				const stats = await fetchAgentLeadsStats(
 					values.agentAssigned,
 					'bulk',
-					selectedValues?.length
+					selectedValues?.length,
 				);
 
 				if (!stats.canAddLeads) {
@@ -73,7 +73,7 @@ const BulkAssignModal = (props) => {
 				}
 			}
 
-			// const stats = await fetchAgentLeadsSats(values.agentAssigned);
+			// const stats = await fetchAgentLeadsStats(values.agentAssigned);
 
 			// if (!stats.canAddLeads) {
 			// 	setIsLoading(false);

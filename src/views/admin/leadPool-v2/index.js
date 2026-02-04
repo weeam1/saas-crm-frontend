@@ -9,7 +9,7 @@ import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
-// lead pool for agent
+import { fetchAgentLeadsStats } from 'api';
 
 const Index = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
@@ -310,19 +310,19 @@ const Index = () => {
 		}
 	};
 
-	const fetchAgentLeadsStats = async (userId) => {
-		if (!userId) {
-			console.error('User ID is missing');
-			return { canAddLeads: false };
-		}
-		try {
-			const { data } = await getApi(`api/lead/leads-stats/${userId}`);
-			return data?.doc || { canAddLeads: false };
-		} catch (error) {
-			console.error('Error fetching agent lead stats:', error);
-			return { canAddLeads: false };
-		}
-	};
+	// const fetchAgentLeadsStats = async (userId) => {
+	// 	if (!userId) {
+	// 		console.error('User ID is missing');
+	// 		return { canAddLeads: false };
+	// 	}
+	// 	try {
+	// 		const { data } = await getApi(`api/lead/leads-stats/${userId}`);
+	// 		return data?.doc || { canAddLeads: false };
+	// 	} catch (error) {
+	// 		console.error('Error fetching agent lead stats:', error);
+	// 		return { canAddLeads: false };
+	// 	}
+	// };
 
 	const refreshBuyLeads = (leadId) => {
 		const filterLeads = (leads) => leads.filter((lead) => lead._id !== leadId);

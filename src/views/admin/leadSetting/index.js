@@ -25,12 +25,12 @@ const UserLeadLimit = () => {
 		queryParams,
 		data,
 		leadSettings,
-		refreshLeadSettings,
 		totalPages,
 		totalRecords,
 		setAgencyId,
 		isLoading,
 		isFetching,
+		refreshLeadSettings,
 		handlePageChange,
 		handlePageSize,
 		updateData,
@@ -127,7 +127,7 @@ const UserLeadLimit = () => {
 								lineHeight='1.2'
 								color='gray.800'
 							>
-								{leadSettings?.agentLeadLimit ?? 0}
+								{leadSettings?.agentLeadLimit?.toLocaleString() ?? 0}
 							</Text>
 							<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500' mt={1}>
 								This value is applied when a user does not have a custom lead

@@ -30,6 +30,8 @@ import Loader from 'components/loading/Loader';
 import * as yup from 'yup';
 import { useMemo } from 'react';
 
+const LEAD_LIMIT_USERS = ['Manager', 'Team Leader', 'Agent'];
+
 const userLeadLimitSchema = yup.object({
 	user: yup.string().required('User is required'),
 	limit: yup
@@ -66,8 +68,6 @@ const AddUserLeadLimit = ({
 	const [create, { isLoading: creating }] = useCreateItemMutation();
 	const [update, { isLoading: updating }] = useUpdateItemMutation();
 
-	console.log({ initialData });
-
 	const {
 		handleSubmit,
 		reset,
@@ -85,8 +85,8 @@ const AddUserLeadLimit = ({
 
 	const agents = useMemo(
 		() =>
-			usersData?.doc?.filter(
-				(user) => user?.roles?.[0]?.roleName === 'Agent',
+			usersData?.doc?.filter((user) =>
+				LEAD_LIMIT_USERS.includes(user?.roles?.[0]?.roleName),
 			) || [],
 		[usersData],
 	);
@@ -126,7 +126,6 @@ const AddUserLeadLimit = ({
 			);
 
 			let updatedData = res?.doc;
-			console.log({ updatedData });
 			if (updatedData?._id) {
 				onSuccess?.(
 					updatedData?._id,

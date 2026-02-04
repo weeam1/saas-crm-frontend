@@ -6,7 +6,7 @@ import { leadIconSize, leadlabelFontSize } from '../constants';
 import { leadSelectInputSize } from './../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { fetchAgentLeadsSats } from 'api';
+import { fetchAgentLeadsStats } from 'api';
 import { putApi } from 'services/api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
@@ -18,14 +18,14 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
-const Agents = ({ lead }) => {
+const Agents = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { agentAssigned, managerAssigned, teamLeadAssigned } = lead;
 
 	const [selected, setSelected] = useState(agentAssigned || '');
 	const [loading, setLoading] = useState(false);
 
-	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-	const [errorLeadData, setErrorLeadData] = useState({});
+	// const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	// const [errorLeadData, setErrorLeadData] = useState({});
 
 	// const tree = useSelector((state) => state.user.tree);
 
@@ -50,7 +50,7 @@ const Agents = ({ lead }) => {
 			};
 
 			if (data.agentAssigned) {
-				const stats = await fetchAgentLeadsSats(data.agentAssigned);
+				const stats = await fetchAgentLeadsStats(data.agentAssigned);
 
 				if (!stats.canAddLeads) {
 					setErrorLeadData(stats);
@@ -205,13 +205,13 @@ const Agents = ({ lead }) => {
 				onChange={handleChangeAgent}
 			/>
 
-			{errorLeadData && (
+			{/* {errorLeadData && (
 				<ErrorLeadLimitMessage
 					isOpen={isErrorModalOpen}
 					onClose={() => setIsErrorModalOpen(false)}
 					errorLeadData={errorLeadData}
 				/>
-			)}
+			)} */}
 		</>
 	);
 };
