@@ -14,6 +14,7 @@ import { ASSIGNMENT_BY_PERMISSION, formatList } from './constants';
 
 import { usePermissions } from 'hooks/usePermissions';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { useCreateItemMutation } from 'api/apiSlice';
 
 const {
 	Modal,
@@ -82,6 +83,9 @@ const BulkAssignModal = (props) => {
 
 	const { headerBg, closeBtnColor, primaryBtnBg, headerText } =
 		useModalColors();
+
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -162,18 +166,12 @@ const BulkAssignModal = (props) => {
 			}
 
 			if (finalValues?.agentAssigned) {
-				const stats = await fetchAgentLeadsStats(
-					values.agentAssigned,
-					'bulk',
-					selectedValues?.length,
-				);
-
-				if (!stats.canAddLeads) {
-					setIsLoading(false);
-					setErrorLeadData(stats);
-					setErrorModal(true);
-					return;
-				}
+				// const stats = await fetchAgentLeadsStats(
+				// 	values.agentAssigned,
+				// 	'bulk',
+				// 	selectedValues?.length,
+				// );
+				// const stats = await fetchAgentLeadsStats(data.agentAssigned);
 
 				// managerTeam = tree?.agents[`manager-${values?.managerAssigned}`] || [];
 
@@ -182,13 +180,38 @@ const BulkAssignModal = (props) => {
 				);
 			}
 
+			const userIds = Object.values(finalValues).filter(Boolean);
+
+			if (userIds.length > 0) {
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds,
+						type: 'bulk',
+						selectedLeads: selectedValues?.length,
+					},
+				}).unwrap();
+
+				if (fetchUserStatsError) {
+					setIsLoading(false);
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
+					setErrorModal(true);
+					setIsLoading(false);
+					return;
+				}
+			}
+
 			let res = await putApi(`api/lead/bulk-assign`, payload);
 
 			if (res.status === 200) {
 				// refreshData();
 				const updates = createUpdates(selectedValues, finalValues);
-
-				console.log({ updates });
 
 				dispatch(
 					updateMultipleLeadFields({
