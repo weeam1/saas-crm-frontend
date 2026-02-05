@@ -358,6 +358,7 @@ const Index = () => {
 				path: '/lead/v2/leads-stats',
 				body: {
 					userIds: [user._id],
+					type: 'purchase',
 				},
 			}).unwrap();
 
@@ -666,6 +667,7 @@ const Index = () => {
 					isOpen={isErrorModalOpen}
 					onClose={() => setIsErrorModalOpen(false)}
 					errorLeadData={errorLeadData}
+					type='purchase'
 				/>
 			)}
 		</>

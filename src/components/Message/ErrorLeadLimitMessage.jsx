@@ -27,7 +27,12 @@ import {
 } from '@chakra-ui/react';
 import useUserSession from 'hooks/useUserSession';
 
-const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
+const ErrorLeadLimitMessage = ({
+	isOpen,
+	onClose,
+	errorLeadData,
+	type = 'assigned',
+}) => {
 	const {
 		assignedLeads,
 		pendingApprovals: pendingLeads,
@@ -37,6 +42,8 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 	} = errorLeadData || {};
 
 	const { isSuperAdmin, userRoleName } = useUserSession();
+
+	const isPurchase = type === 'purchase';
 
 	if (!isOpen) return null;
 
@@ -129,7 +136,13 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 								To continue, you can:
 							</Text>
 							<List spacing={2} styleType='disc' pl={6}>
-								{target !== 'You' ? (
+								{isPurchase ? (
+									<ListItem>
+										<Text>
+											{`Your ${role === 'Manager' ? 'manager' : role === 'Team Leader' ? 'team leader' : 'personal'} lead allocation is full. Please contact your admin to increase your limit.`}
+										</Text>
+									</ListItem>
+								) : target !== 'You' ? (
 									<ListItem>
 										<Text>
 											{`The ${role} has no remaining lead capacity. Please reassign
