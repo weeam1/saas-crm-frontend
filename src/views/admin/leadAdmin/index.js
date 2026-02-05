@@ -22,8 +22,6 @@ const LeadScreen = () => {
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
 
-	const { leadStatuses } = useLeadStatuses();
-
 	useEffect(() => {
 		if (!hasPermission('leadpool_admin')) return navigate('/default');
 		// eslint-disable-next-line react-hooks/exhaustive-deps

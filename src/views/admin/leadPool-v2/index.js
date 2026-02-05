@@ -10,6 +10,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
 import { fetchAgentLeadsStats } from 'api';
+import { useCreateItemMutation } from 'api/apiSlice';
 
 const Index = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
@@ -17,6 +18,8 @@ const Index = () => {
 	const { createUserLog } = useUserActivityLog();
 
 	const { hasPermission } = usePermissions();
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
 
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -349,17 +352,37 @@ const Index = () => {
 				);
 			}
 
-			const stats = await fetchAgentLeadsStats(user._id);
-			if (!stats.canAddLeads) {
-				setErrorLeadData({
-					assignedLeads: stats.assignedLeads || 0,
-					pendingApprovals: stats.pendingApprovals || 0,
-					totalLeads: stats.totalLeads || 0,
-					maxLeadLimit: stats.maxLeadLimit || 0,
-				});
+			// const stats = await fetchAgentLeadsStats(user._id);
+
+			const userStats = await fetchUserStats({
+				path: '/lead/v2/leads-stats',
+				body: {
+					userIds: [user._id],
+				},
+			}).unwrap();
+
+			if (fetchUserStatsError) {
+				setIsPurchasing(false);
+				return toast.error(
+					fetchUserStatsError?.message || 'Failed to fetch user stats',
+				);
+			}
+
+			if (!userStats?.doc?.canAddLeads) {
+				setErrorLeadData(userStats?.doc);
 				setIsErrorModalOpen(true);
 				return;
 			}
+			// if (!stats.canAddLeads) {
+			// 	setErrorLeadData({
+			// 		assignedLeads: stats.assignedLeads || 0,
+			// 		pendingApprovals: stats.pendingApprovals || 0,
+			// 		totalLeads: stats.totalLeads || 0,
+			// 		maxLeadLimit: stats.maxLeadLimit || 0,
+			// 	});
+			// 	setIsErrorModalOpen(true);
+			// 	return;
+			// }
 
 			const payload = { leadId, agentId: user._id, approvalStatus: 'pending' };
 
