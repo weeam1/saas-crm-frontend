@@ -14,6 +14,7 @@ import { mergeSort } from 'utils/helpers';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { fetchAgentLeadsStats, sendLeadNotification } from 'api';
 import { putApi } from 'services/api';
+import { useCreateItemMutation } from 'api/apiSlice';
 
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
@@ -33,6 +34,8 @@ const Managers = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
 
 	useEffect(() => {
 		setSelected(managerAssigned);
@@ -53,10 +56,23 @@ const Managers = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 			setLoading(true);
 
 			if (dataObj.managerAssigned) {
-				const stats = await fetchAgentLeadsStats(dataObj.managerAssigned);
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds: [dataObj.managerAssigned],
+					},
+				}).unwrap();
+				// const stats = await fetchAgentLeadsStats(dataObj.managerAssigned);
 
-				if (!stats.canAddLeads) {
-					setErrorLeadData(stats);
+				if (fetchUserStatsError) {
+					setLoading(false);
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
 					setIsErrorModalOpen(true);
 					setLoading(false);
 					return;

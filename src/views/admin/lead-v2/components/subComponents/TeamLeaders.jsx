@@ -18,6 +18,7 @@ import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { useCreateItemMutation } from 'api/apiSlice';
 
 const TeamLeaders = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const {
@@ -37,6 +38,8 @@ const TeamLeaders = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
 
 	useEffect(() => {
 		setSelected(teamLeadAssigned);
@@ -62,10 +65,24 @@ const TeamLeaders = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 			setLoading(true);
 
 			if (dataObj.teamLeadAssigned) {
-				const stats = await fetchAgentLeadsStats(dataObj.teamLeadAssigned);
+				// const stats = await fetchAgentLeadsStats(dataObj.teamLeadAssigned);
 
-				if (!stats.canAddLeads) {
-					setErrorLeadData(stats);
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds: [dataObj.teamLeadAssigned],
+					},
+				}).unwrap();
+
+				if (fetchUserStatsError) {
+					setLoading(false);
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
 					setIsErrorModalOpen(true);
 					setLoading(false);
 					return;

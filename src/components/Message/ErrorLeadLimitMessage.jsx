@@ -100,7 +100,7 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 										{totalLeads}
 									</Td>
 								</Tr>
-								{errorLeadData?.remainingLeads && (
+								{errorLeadData?.remainingLeads > 0 && (
 									<>
 										<Tr>
 											<Td fontWeight='semibold' color='gray.600'>
