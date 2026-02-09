@@ -37,8 +37,18 @@ export const useLeadStatuses = () => {
 		[leadStatuses],
 	);
 
+	// const allSubStatuses = useMemo(() => {
+	// 	return leadStatuses.flatMap((status) => status.statuses || []);
+	// }, [leadStatuses]);
+
 	const allSubStatuses = useMemo(() => {
-		return leadStatuses.flatMap((status) => status.statuses || []);
+		const seen = new Set();
+
+		return leadStatuses.flatMap((s) =>
+			(s.statuses || []).filter(
+				(sub) => !seen.has(sub.value) && seen.add(sub.value),
+			),
+		);
 	}, [leadStatuses]);
 
 	return {
