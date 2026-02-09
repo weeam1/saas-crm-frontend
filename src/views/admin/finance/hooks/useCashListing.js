@@ -1,280 +1,289 @@
-import { useFetchItemsQuery } from 'api/apiSlice';
-import { usePermissions } from 'hooks/usePermissions';
-import useUserSession from 'hooks/useUserSession';
-import { useEffect, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useFetchItemsQuery } from "api/apiSlice";
+import { usePermissions } from "hooks/usePermissions";
+import useUserSession from "hooks/useUserSession";
+import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 
 // -------------------------------
 // Utility
 // -------------------------------
 const cleanParams = (obj) => {
-	return Object.fromEntries(
-		Object.entries(obj).filter(
-			([_, v]) => v !== undefined && v !== null && v !== ''
-		)
-	);
+  return Object.fromEntries(
+    Object.entries(obj).filter(
+      ([_, v]) => v !== undefined && v !== null && v !== "",
+    ),
+  );
 };
 
-export const useCashListing = ({ endpoint }) => {
-	const [searchParams, setSearchParams] = useSearchParams();
-	const searchString = searchParams.toString();
+export const useCashListing = ({ endpoint, sortConfig }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchString = searchParams.toString();
 
-	const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
+  const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
 
-	const { hasPermission } = usePermissions();
-	const { user } = useUserSession();
+  const { hasPermission } = usePermissions();
+  const { user } = useUserSession();
 
-	// check  all agencies permission
-	const isAgenciesAllowed = hasPermission('expense', 'all_agencies');
+  // check  all agencies permission
+  const isAgenciesAllowed = hasPermission("expense", "all_agencies");
 
-	// derive initial values from URL (stable on first render)
-	const initialMonth =
-		Number(searchParams.get('month')) || new Date().getMonth() + 1;
-	const initialYear =
-		Number(searchParams.get('year')) || new Date().getFullYear();
-	const initialAgencyId = isAgenciesAllowed ? searchParams.get('agency') : null;
-	const initialPage = Number(searchParams.get('page')) || 1;
-	const initialLimit = Number(searchParams.get('limit')) || 10;
+  // derive initial values from URL (stable on first render)
+  const initialMonth =
+    Number(searchParams.get("month")) || new Date().getMonth() + 1;
+  const initialYear =
+    Number(searchParams.get("year")) || new Date().getFullYear();
+  const initialAgencyId = isAgenciesAllowed ? searchParams.get("agency") : null;
+  const initialPage = Number(searchParams.get("page")) || 1;
+  const initialLimit = Number(searchParams.get("limit")) || 10;
 
-	const [month, setMonth] = useState(initialMonth);
-	const [list, setList] = useState([]);
-	const [totalCount, setTotalCount] = useState(0);
-	const [year, setYear] = useState(initialYear);
-	const [agencyId, setAgencyId] = useState(initialAgencyId);
-	const [pagination, setPagination] = useState({
-		page: initialPage,
-		limit: initialLimit,
-	});
+  const [month, setMonth] = useState(initialMonth);
+  const [list, setList] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [year, setYear] = useState(initialYear);
+  const [agencyId, setAgencyId] = useState(initialAgencyId);
+  const [pagination, setPagination] = useState({
+    page: initialPage,
+    limit: initialLimit,
+  });
+  const buildSortParam = (sortConfig) => {
+    if (!sortConfig?.length) return undefined;
 
-	// stable queryParams (memoized)
-	const queryParams = useMemo(() => {
-		const raw = {
-			page: pagination.page,
-			limit: pagination.limit,
-			month,
-			year,
-			agency: isAgenciesAllowed
-				? agencyId || undefined
-				: user?.agency?._id || undefined,
-		};
-		return cleanParams(raw);
-	}, [
-		pagination.page,
-		pagination.limit,
-		month,
-		year,
-		isAgenciesAllowed,
-		agencyId,
-		user?.agency?._id,
-	]);
+    return sortConfig
+      .map(({ key, direction }) => (direction === "desc" ? `-${key}` : key))
+      .join(",");
+  };
 
-	// sync queryParams -> URL (loop proof)
-	useEffect(() => {
-		const nextString = new URLSearchParams(queryParams).toString();
-		if (nextString !== searchString) {
-			setSearchParams(queryParams, { replace: true });
-		}
-	}, [queryParams, searchString, setSearchParams]);
+  // stable queryParams (memoized)
+  const queryParams = useMemo(() => {
+    const raw = {
+      page: pagination.page,
+      limit: pagination.limit,
+      month,
+      year,
+      sort: buildSortParam(sortConfig),
+      agency: isAgenciesAllowed
+        ? agencyId || undefined
+        : user?.agency?._id || undefined,
+    };
+    return cleanParams(raw);
+  }, [
+    pagination.page,
+    pagination.limit,
+    month,
+    year,
+    isAgenciesAllowed,
+    agencyId,
+    sortConfig,
+    user?.agency?._id,
+  ]);
 
-	// --- Fetching Data from dynamic endPoints---
-	const fetchResult = useFetchItemsQuery(
-		{ path: endpoint, params: queryParams },
-		{
-			refetchOnMountOrArgChange: true,
-			refetchOnFocus: true,
-		}
-	);
+  // sync queryParams -> URL (loop proof)
+  useEffect(() => {
+    const nextString = new URLSearchParams(queryParams).toString();
+    if (nextString !== searchString) {
+      setSearchParams(queryParams, { replace: true });
+    }
+  }, [queryParams, searchString, setSearchParams]);
 
-	const { data, isLoading, isFetching, refetch } = fetchResult;
+  // --- Fetching Data from dynamic endPoints---
+  const fetchResult = useFetchItemsQuery(
+    { path: endpoint, params: queryParams },
+    {
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+    },
+  );
 
-	const {
-		data: summary,
-		isLoading: summaryLoading,
-		isFetching: summaryFetching,
-		refetch: refetchSummary,
-	} = useFetchItemsQuery(
-		{
-			path: `finance/reports/monthly-summary`,
-			params: {
-				month,
-				year,
-				...(queryParams?.agency && { agency: queryParams.agency }),
-			},
-		},
-		{ refetchOnMountOrArgChange: true }
-	);
+  const { data, isLoading, isFetching, refetch } = fetchResult;
 
-	useEffect(() => {
-		if (data?.doc) {
-			setList(data?.doc || []);
-			setTotalCount(data?.totalRecords || 0);
-		}
-	}, [data?.doc, data?.totalRecords]);
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    isFetching: summaryFetching,
+    refetch: refetchSummary,
+  } = useFetchItemsQuery(
+    {
+      path: `finance/reports/monthly-summary`,
+      params: {
+        month,
+        year,
+        ...(queryParams?.agency && { agency: queryParams.agency }),
+      },
+    },
+    { refetchOnMountOrArgChange: true },
+  );
 
-	const handlePageChange = (page) => {
-		setPagination((prev) => ({ ...prev, page: Number(page) }));
-	};
+  useEffect(() => {
+    if (data?.doc) {
+      setList(data?.doc || []);
+      setTotalCount(data?.totalRecords || 0);
+    }
+  }, [data?.doc, data?.totalRecords]);
 
-	const handlePageSize = (limit) => {
-		setPagination({ page: 1, limit: Number(limit) });
-	};
+  const handlePageChange = (page) => {
+    setPagination((prev) => ({ ...prev, page: Number(page) }));
+  };
 
-	const onDateFilterChange = (value) => {
-		const newMonth = Number(value.month);
-		const newYear = Number(value.year);
+  const handlePageSize = (limit) => {
+    setPagination({ page: 1, limit: Number(limit) });
+  };
 
-		setMonth(newMonth);
-		setYear(newYear);
-		setPagination((prev) => ({ ...prev, page: 1 }));
-	};
+  const onDateFilterChange = (value) => {
+    const newMonth = Number(value.month);
+    const newYear = Number(value.year);
 
-	// const updateData = (id, updated, type = 'update') => {
-	// 	if (type === 'update') {
-	// 		setList((prev) => {
-	// 			const exists = prev.some((item) => item._id === id);
-	// 			if (exists) {
-	// 				// check if agency filter apply then check the agency also
-	// 				if (agencyId && exists?.agency?._id !== agencyId) {
-	// 					return;
-	// 				}
+    setMonth(newMonth);
+    setYear(newYear);
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
 
-	// 				// Update existing expense
+  // const updateData = (id, updated, type = 'update') => {
+  // 	if (type === 'update') {
+  // 		setList((prev) => {
+  // 			const exists = prev.some((item) => item._id === id);
+  // 			if (exists) {
+  // 				// check if agency filter apply then check the agency also
+  // 				if (agencyId && exists?.agency?._id !== agencyId) {
+  // 					return;
+  // 				}
 
-	// 				return prev.map((item) =>
-	// 					item._id === id ? { ...item, ...updated } : item
-	// 				);
-	// 			}
-	// 			// Add new expense if not found
-	// 			return [{ ...updated }, ...prev];
-	// 		});
+  // 				// Update existing expense
 
-	// 		// refetch the real time data of summary
-	// 		refetchSummary();
-	// 	} else if (pagination.page === 1 && type === 'add') {
-	// 		setList((prev) => {
-	// 			const exists = prev.some((item) => item._id === id);
-	// 			if (exists) {
-	// 				// check if agency filter apply then check the agency also
-	// 				if (agencyId && exists?.agency?._id !== agencyId) {
-	// 					return;
-	// 				}
-	// 				// Update existing expense
-	// 				return prev.map((item) =>
-	// 					item._id === id ? { ...item, ...updated } : item
-	// 				);
-	// 			}
-	// 			// Add new expense if not found
-	// 			return [{ ...updated }, ...prev];
-	// 		});
+  // 				return prev.map((item) =>
+  // 					item._id === id ? { ...item, ...updated } : item
+  // 				);
+  // 			}
+  // 			// Add new expense if not found
+  // 			return [{ ...updated }, ...prev];
+  // 		});
 
-	// 		// refetch the real time data of summary
-	// 		refetchSummary();
-	// 	}
-	// };
-	const updateData = (id, updated, type = 'update') => {
-		const updatedAgencyId = updated?.agency?._id;
-		const filterActive = Boolean(agencyId);
-		const violatesFilter = filterActive && updatedAgencyId !== agencyId;
+  // 		// refetch the real time data of summary
+  // 		refetchSummary();
+  // 	} else if (pagination.page === 1 && type === 'add') {
+  // 		setList((prev) => {
+  // 			const exists = prev.some((item) => item._id === id);
+  // 			if (exists) {
+  // 				// check if agency filter apply then check the agency also
+  // 				if (agencyId && exists?.agency?._id !== agencyId) {
+  // 					return;
+  // 				}
+  // 				// Update existing expense
+  // 				return prev.map((item) =>
+  // 					item._id === id ? { ...item, ...updated } : item
+  // 				);
+  // 			}
+  // 			// Add new expense if not found
+  // 			return [{ ...updated }, ...prev];
+  // 		});
 
-		setList((prev) => {
-			// Find index once instead of mapping multiple times
-			const index = prev.findIndex((item) => item._id === id);
+  // 		// refetch the real time data of summary
+  // 		refetchSummary();
+  // 	}
+  // };
+  const updateData = (id, updated, type = "update") => {
+    const updatedAgencyId = updated?.agency?._id;
+    const filterActive = Boolean(agencyId);
+    const violatesFilter = filterActive && updatedAgencyId !== agencyId;
 
-			// --- UPDATE logic ---
-			if (type === 'update') {
-				// If item doesn't exist, do nothing
-				if (index === -1) return prev;
+    setList((prev) => {
+      // Find index once instead of mapping multiple times
+      const index = prev.findIndex((item) => item._id === id);
 
-				// If agency filter is applied and new agency doesn't match -> remove it
-				if (violatesFilter) {
-					const next = [...prev];
-					next.splice(index, 1);
-					return next;
-				}
+      // --- UPDATE logic ---
+      if (type === "update") {
+        // If item doesn't exist, do nothing
+        if (index === -1) return prev;
 
-				// Otherwise, update it in place
-				const next = [...prev];
-				next[index] = { ...next[index], ...updated };
+        // If agency filter is applied and new agency doesn't match -> remove it
+        if (violatesFilter) {
+          const next = [...prev];
+          next.splice(index, 1);
+          return next;
+        }
 
-				return next;
-			}
+        // Otherwise, update it in place
+        const next = [...prev];
+        next[index] = { ...next[index], ...updated };
 
-			// --- ADD logic ---
-			if (type === 'add') {
-				// Only add on the first page
-				if (pagination.page !== 1) return prev;
+        return next;
+      }
 
-				// Respect filter — only add if matches or no filter
-				if (violatesFilter) return prev;
+      // --- ADD logic ---
+      if (type === "add") {
+        // Only add on the first page
+        if (pagination.page !== 1) return prev;
 
-				// If exists, update in place
-				if (index !== -1) {
-					const next = [...prev];
-					next[index] = { ...next[index], ...updated };
-					return next;
-				}
+        // Respect filter — only add if matches or no filter
+        if (violatesFilter) return prev;
 
-				// Add new item at the top
-				return [{ ...updated }, ...prev];
-			}
+        // If exists, update in place
+        if (index !== -1) {
+          const next = [...prev];
+          next[index] = { ...next[index], ...updated };
+          return next;
+        }
 
-			// If unknown type, return as-is
-			return prev;
-		});
+        // Add new item at the top
+        return [{ ...updated }, ...prev];
+      }
 
-		if (type === 'add' && !violatesFilter) {
-			setTotalCount((prev) => prev + 1);
-		}
+      // If unknown type, return as-is
+      return prev;
+    });
 
-		refetchSummary();
-	};
+    if (type === "add" && !violatesFilter) {
+      setTotalCount((prev) => prev + 1);
+    }
 
-	const removeItem = (id) => {
-		setList((prev) => prev.filter((item) => item._id !== id));
+    refetchSummary();
+  };
 
-		refetchSummary();
+  const removeItem = (id) => {
+    setList((prev) => prev.filter((item) => item._id !== id));
 
-		setTotalCount((prev) => prev - 1);
-	};
+    refetchSummary();
 
-	return {
-		// raw
-		isAgenciesAllowed,
-		agencies,
-		queryParams,
+    setTotalCount((prev) => prev - 1);
+  };
 
-		// data + meta
-		data: list ?? [],
-		summary: summary?.data ?? {},
-		setData: setList,
-		totalPages: data?.totalPages ?? 0,
-		totalRecords: totalCount ?? 0,
+  return {
+    // raw
+    isAgenciesAllowed,
+    agencies,
+    queryParams,
 
-		// filters
-		month,
-		year,
-		agencyId,
-		setMonth,
-		setYear,
-		setAgencyId,
+    // data + meta
+    data: list ?? [],
+    summary: summary?.data ?? {},
+    setData: setList,
+    totalPages: data?.totalPages ?? 0,
+    totalRecords: totalCount ?? 0,
 
-		// pagination
-		pagination,
-		setPagination,
+    // filters
+    month,
+    year,
+    agencyId,
+    setMonth,
+    setYear,
+    setAgencyId,
 
-		// fetch
-		isLoading,
-		isFetching,
-		refetch,
-		summaryLoading,
-		summaryFetching,
+    // pagination
+    pagination,
+    setPagination,
 
-		// helper functions
-		handlePageChange,
-		handlePageSize,
-		onDateFilterChange,
-		updateData,
-		removeItem,
-	};
+    // fetch
+    isLoading,
+    isFetching,
+    refetch,
+    summaryLoading,
+    summaryFetching,
+
+    // helper functions
+    handlePageChange,
+    handlePageSize,
+    onDateFilterChange,
+    updateData,
+    removeItem,
+  };
 };
