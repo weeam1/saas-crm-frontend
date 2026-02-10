@@ -185,9 +185,9 @@ const AddUserLeadLimit = ({
 										onSelectUser={handleSelectUser}
 										users={agents}
 									/>
-									<FormHelperText fontSize='xs' color='blue.600'>
+									{/* <FormHelperText fontSize='xs' color='blue.600'>
 										ℹ️ Only agents are eligible for assignment.
-									</FormHelperText>
+									</FormHelperText> */}
 									{errors.user && (
 										<Text fontSize='sm' color='red.500' mt={1}>
 											{errors.user.message}
