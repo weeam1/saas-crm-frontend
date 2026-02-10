@@ -33,6 +33,7 @@ import useUserSession from 'hooks/useUserSession';
 import ManageCallSetting from './components/ManageCallSetting';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import { resetSettings } from '../../../../../redux/webrtc/webrtcSlice';
+import { MODES } from './components/useModeForms';
 
 const UserSetting = () => {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -76,7 +77,7 @@ const UserSetting = () => {
 				...filters,
 			},
 		},
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: true },
 	);
 
 	const { data: usersData } = useFetchItemsQuery(
@@ -86,7 +87,7 @@ const UserSetting = () => {
 		{
 			refetchOnMountOrArgChange: false,
 			refetchOnFocus: true,
-		}
+		},
 	);
 
 	const [deleteSipSetting, { isLoading: isDeleting }] = useDeleteItemMutation();
@@ -95,6 +96,7 @@ const UserSetting = () => {
 		'S.No',
 		'User',
 		'Agency',
+		'Username',
 		'SIM Number',
 		'Feedback',
 		'Actions',
@@ -313,7 +315,51 @@ const UserSetting = () => {
 											textAlign='center'
 											fontSize={{ base: '12px', md: '14px' }}
 										>
-											{sip.user?.agency?.name || 'Dubai'}
+											{sip.user?.agency?.name || 'N/A'}
+										</Td>
+
+										<Td
+											py={4}
+											fontSize={{ base: '14px', md: '16px' }}
+											fontWeight='400'
+											minWidth='220px'
+											textAlign='center'
+										>
+											{sip?.modes ? (
+												<Flex wrap='wrap' gap={2} justifyContent='center'>
+													{MODES.map((mode) => {
+														const modeData = sip.modes?.[mode];
+
+														if (!modeData?.username) return null;
+
+														return (
+															<Badge
+																key={mode}
+																variant='subtle'
+																colorScheme='brand'
+																borderRadius='md'
+																px={2}
+																py={1}
+															>
+																<Box
+																	as='span'
+																	letterSpacing='0.5px'
+																	textTransform='uppercase'
+																	fontWeight='600'
+																>
+																	{mode}
+																</Box>
+																:
+																<Box as='span' ml={1} textTransform='none'>
+																	{modeData.username}
+																</Box>
+															</Badge>
+														);
+													})}
+												</Flex>
+											) : (
+												'N/A'
+											)}
 										</Td>
 
 										<Td

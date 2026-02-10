@@ -65,11 +65,6 @@ import {
 	FiHelpCircle,
 } from 'react-icons/fi';
 import { RiWhatsappLine, RiWhatsappFill } from 'react-icons/ri';
-import axios from 'axios';
-
-const API_BASE_URL = process.env.REACT_APP_WEEAM_LOCAL_API; // or your base URL
-
-// ===================== OPTIONS DATA WITH ICONS =====================
 
 const buildQualificationPayload = ({ leadId, values }) => {
 	const payload = {
@@ -1481,10 +1476,7 @@ export const CRMQualificationModal = ({
 				>
 					<Flex align='center' justify='space-between'>
 						<Heading size='md' color='white'>
-							{isEditMode
-								? 'Edit Qualification'
-								: 'Lead Qualification & Feedback'}{' '}
-							{/* UPDATE THIS */}
+							{isEditMode ? 'Edit Qualification' : 'Lead Qualification'}
 						</Heading>
 					</Flex>
 				</ModalHeader>

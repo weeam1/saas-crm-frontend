@@ -1,29 +1,20 @@
-// export const leadlabelFontSize = '0.5rem'; // 8px = 0.5rem
-// export const leadValueFontSize = '0.625rem'; // 10px = 0.625rem
-// export const leadIconSize = '0.625rem'; // 10px = 0.625rem
-
 import { css } from '@emotion/react';
 
 export const leadSelectInputSize = 'xs'; // md, lg, sm
-// export const leadSelectInputFontSize = '0.625rem'; // 10px = 0.625rem
-// export const leadlabelFontSize = 'clamp(0.5rem, min(1vw, 0.5rem), 0.75rem)';
-// // 8px (large screens) → scales down on mid-sized → increases to 12px on XL screens
-
-// export const leadValueFontSize =
-// 	'clamp(0.625rem, min(1.2vw, 0.625rem), 0.875rem)';
-// // 10px (large screens) → scales down on mid-sized → increases to 14px on XL screens
-
-// export const leadIconSize = 'clamp(0.625rem, min(1.2vw, 0.625rem), 0.875rem)';
-// // 10px (large screens) → scales down on mid-sized → increases to 14px on XL screens
-
-// export const leadSelectInputFontSize =
-// 	'clamp(0.625rem, min(1.2vw, 0.625rem), 0.875rem)';
 
 export function formatList(items) {
 	if (items.length === 1) return items[0];
 	if (items.length === 2) return `${items[0]} and ${items[1]}`;
 	return `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`;
 }
+
+export const AdminMainStatus = ['deal', 'show'];
+export const QualificationMainStatus = [
+	'contacted',
+	'junk',
+	'unreachable_after_attempts',
+];
+export const QualificationSubStatus = ['booked_by_himself'];
 
 export const ASSIGNMENT_BY_PERMISSION = {
 	bulkAssign_all: ['managerAssigned', 'teamLeadAssigned', 'agentAssigned'],

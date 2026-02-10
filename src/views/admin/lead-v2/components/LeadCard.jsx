@@ -42,7 +42,6 @@ const LeadCard = ({
 	});
 
 	// const user = useSelector((state) => state.user.user);
-	console.log(editSecondary, 'leadcard');
 	const { user, userRoleName } = useUserSession();
 
 	const [leadNotes, setLeadNotes] = useState(false);

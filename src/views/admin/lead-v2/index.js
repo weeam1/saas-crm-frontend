@@ -150,7 +150,6 @@ const Index = () => {
 		(state) => state.leads?.doc.length,
 		shallowEqual,
 	);
-	console.log(totalExportLeads, 'export leads');
 
 	const dispatch = useDispatch();
 

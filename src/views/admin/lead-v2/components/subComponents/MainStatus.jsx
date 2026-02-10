@@ -6,6 +6,8 @@ import {
 	leadIconSize,
 	leadlabelFontSize,
 	leadSelectInputSize,
+	AdminMainStatus,
+	QualificationMainStatus,
 } from '../constants';
 import { InfoIcon } from '@chakra-ui/icons';
 import { putApi } from 'services/api';
@@ -21,7 +23,6 @@ import useUserSession from 'hooks/useUserSession';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 import CRMQualificationModal from '../CrmQualificationModal';
 
-const AdminStatus = ['deal', 'show'];
 // const AdminStatus = ['deal'];
 
 const MainStatus = ({ lead, role }) => {
@@ -224,11 +225,11 @@ const MainStatus = ({ lead, role }) => {
 	const hanldeMainStatus = (statusOrEvent) => {
 		const newStatus = resolveStatus(statusOrEvent);
 
-		if (userRoleName !== 'superAdmin' && AdminStatus.includes(selected)) {
+		if (userRoleName !== 'superAdmin' && AdminMainStatus.includes(selected)) {
 			return toast.error('Only super admin can change main status');
 		}
 
-		if (!lead?.isQualification) {
+		if (!lead?.isQualification && QualificationMainStatus.includes(newStatus)) {
 			setPendingStatus(newStatus);
 			return setOpenQualification(true);
 		}
@@ -261,7 +262,10 @@ const MainStatus = ({ lead, role }) => {
 				{ key: 'leadStatus', value: null },
 			];
 
-			if (!lead?.isQualification) {
+			if (
+				!lead?.isQualification &&
+				QualificationMainStatus.includes(newStatus)
+			) {
 				updates.push({ key: 'isQualification', value: true });
 			}
 

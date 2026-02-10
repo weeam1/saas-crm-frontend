@@ -1,5 +1,4 @@
 import SelectInput from 'components/shared/SelectInput';
-// import { leadStatus } from 'utils/options';
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { useEffect, useMemo, useState } from 'react';
@@ -7,6 +6,7 @@ import {
 	leadIconSize,
 	leadlabelFontSize,
 	leadSelectInputSize,
+	QualificationSubStatus,
 } from '../constants';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
@@ -220,7 +220,10 @@ const Status = ({ lead }) => {
 				},
 			];
 
-			if (!lead?.isQualification) {
+			if (
+				!lead?.isQualification &&
+				QualificationSubStatus.includes(newStatus)
+			) {
 				updates.push({ key: 'isQualification', value: true });
 			}
 
@@ -279,7 +282,7 @@ const Status = ({ lead }) => {
 	const handleSubStatus = (statusOrEvent) => {
 		const newStatus = resolveStatus(statusOrEvent);
 
-		if (!lead?.isQualification) {
+		if (!lead?.isQualification && QualificationSubStatus.includes(newStatus)) {
 			setPendingStatus(newStatus);
 			return setOpenQualification(true);
 		}

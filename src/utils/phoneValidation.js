@@ -106,12 +106,8 @@ export function normalizePhone(input) {
 	let cleaned = preNumber.replace(/[^\d+]/g, '');
 	if (!cleaned.startsWith('+')) cleaned = '+' + cleaned;
 
-	console.log({ cleaned });
-
 	/* ----- Try full parse directly (fast path) ----- */
 	const direct = parsePhoneNumberFromString(cleaned);
-
-	console.log({ cleaned, valid: direct });
 
 	if (direct?.isValid()) {
 		const res = direct.number;
@@ -215,5 +211,3 @@ function normalizePhone2(number) {
 
 	return `00${countryCode}${national}`;
 }
-
-console.warn('0585577271: ---> ', formatWebRTCPhone('0585577271'));

@@ -634,7 +634,7 @@ const routes = [
   },
   {
     parent: "evaluation",
-    childId: "evaluation_users",
+    childId: "my_evaluations",
     name: "My Evalution",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
     under: "evaluation",
