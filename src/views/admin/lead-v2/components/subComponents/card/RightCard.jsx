@@ -71,17 +71,18 @@ const RightCard = ({ lead, hiddenFields, setViewLead }) => {
 					<Button
 						variant='solid'
 						fontSize={{ base: '10px', md: '12px' }}
-						leftIcon={<FaEye size='10' />}
+						leftIcon={<FaEye size='10' color='#63B3ED' />}
 						h='6'
 						color='gray.600'
-						bg='cyan.100'
+						bg='white'
 						fontWeight='500'
-						_hover={{ bg: 'cyan.200' }}
-						_active={{ bg: 'cyan.300' }}
+						_hover={{ bg: 'gray.100' }}
+						_active={{ bg: 'gray.200' }}
 						transition='all 0.2s ease-in-out'
 						py='1'
 						px='2'
-						borderRadius='full'
+						borderRadius='md'
+						shadow='sm'
 						onClick={() =>
 							setViewLead({
 								isOpen: true,
