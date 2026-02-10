@@ -222,7 +222,7 @@ const Status = ({ lead }) => {
 
 			if (
 				!lead?.isQualification &&
-				QualificationSubStatus.includes(newStatus)
+				!QualificationSubStatus.includes(newStatus)
 			) {
 				updates.push({ key: 'isQualification', value: true });
 			}
@@ -282,7 +282,7 @@ const Status = ({ lead }) => {
 	const handleSubStatus = (statusOrEvent) => {
 		const newStatus = resolveStatus(statusOrEvent);
 
-		if (!lead?.isQualification && QualificationSubStatus.includes(newStatus)) {
+		if (!lead?.isQualification && !QualificationSubStatus.includes(newStatus)) {
 			setPendingStatus(newStatus);
 			return setOpenQualification(true);
 		}

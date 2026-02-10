@@ -229,7 +229,10 @@ const MainStatus = ({ lead, role }) => {
 			return toast.error('Only super admin can change main status');
 		}
 
-		if (!lead?.isQualification && QualificationMainStatus.includes(newStatus)) {
+		if (
+			!lead?.isQualification &&
+			!QualificationMainStatus.includes(newStatus)
+		) {
 			setPendingStatus(newStatus);
 			return setOpenQualification(true);
 		}
@@ -264,7 +267,7 @@ const MainStatus = ({ lead, role }) => {
 
 			if (
 				!lead?.isQualification &&
-				QualificationMainStatus.includes(newStatus)
+				!QualificationMainStatus.includes(newStatus)
 			) {
 				updates.push({ key: 'isQualification', value: true });
 			}
