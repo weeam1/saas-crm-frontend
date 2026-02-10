@@ -37,7 +37,7 @@ const LeadsModals = (props) => {
 	} = props;
 
 	const handleViewClose = () => {
-		setViewLead({ isOpen: false, lid: null });
+		setViewLead({ isOpen: false, lid: null, tab: 'basic' });
 	};
 	return (
 		<>

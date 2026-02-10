@@ -163,7 +163,12 @@ const LeadCard = ({
 						user={user}
 						queryParams={queryParams}
 					/>
-					<RightCard lead={lead} hiddenFields={hiddenFields} />
+					<RightCard
+						lead={lead}
+						user={user}
+						setViewLead={setViewLead}
+						hiddenFields={hiddenFields}
+					/>
 				</Flex>
 				{!hiddenFields.includes('createdDate') && (
 					<Box

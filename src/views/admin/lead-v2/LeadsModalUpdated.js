@@ -68,7 +68,7 @@ import {
 } from 'react-icons/fa';
 import { FiFileText, FiUser, FiCalendar, FiArrowRight } from 'react-icons/fi';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EmailIcon } from '@chakra-ui/icons';
 import { getApi, postApi } from 'services/api';
 import { extractLocationData, formatPostDate } from 'utils/helpers';
@@ -179,6 +179,15 @@ const getTypeLabel = (type) => {
 	return labels[type] || type;
 };
 
+const TAB_ORDER = [
+	'basic',
+	'leadCycle',
+	'source',
+	'status',
+	'notes',
+	'qualification',
+];
+
 const LeadsModal = ({
 	leadsModal,
 	onClose,
@@ -199,6 +208,7 @@ const LeadsModal = ({
 	const dispatch = useDispatch();
 
 	const leadId = leadsModal.lid;
+	const [leadTab, setLeadTab] = useState(leadsModal?.tab || 'basic');
 
 	const fetchData = async () => {
 		try {
@@ -240,6 +250,33 @@ const LeadsModal = ({
 		}
 	};
 
+	const visibleTabs = useMemo(() => {
+		const TAB_PERMISSION = {
+			basic: true,
+			leadCycle: hasPermission('leads', 'viewLeadCycle'),
+			source: true,
+			status: true,
+			notes: true,
+			qualification: true,
+		};
+
+		return TAB_ORDER.filter((tab) => TAB_PERMISSION[tab]);
+	}, [hasPermission]);
+
+	const resolvedTab = useMemo(() => {
+		return visibleTabs.includes(leadTab) ? leadTab : visibleTabs[0];
+	}, [leadTab, visibleTabs]);
+
+	const activeTabIndex = useMemo(() => {
+		return visibleTabs.indexOf(resolvedTab);
+	}, [visibleTabs, resolvedTab]);
+
+	useEffect(() => {
+		if (leadTab !== resolvedTab) {
+			setLeadTab(resolvedTab);
+		}
+	}, [leadTab, resolvedTab]);
+
 	useEffect(() => {
 		fetchData();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -254,6 +291,7 @@ const LeadsModal = ({
 		leadId: leadId,
 		createdBy: user?._id,
 	});
+
 	const [searchParams] = useSearchParams();
 	let hideContact = false;
 
@@ -707,6 +745,7 @@ const LeadsModal = ({
 			qualification.createdBy?._id === user?._id ||
 			qualification.createdBy === user?._id,
 	);
+
 	const DefaultTabContent = ({ data }) => (
 		<Box
 			minH='150px'
@@ -988,7 +1027,11 @@ const LeadsModal = ({
 						</Box>
 
 						{/* TABS */}
-						<Tabs variant='unstyled'>
+						<Tabs
+							variant='unstyled'
+							index={activeTabIndex}
+							onChange={(index) => setLeadTab(visibleTabs[index])}
+						>
 							{/* TAB LIST */}
 							<TabList
 								position='sticky'

@@ -4,7 +4,7 @@ import { leadlabelFontSize } from '../../constants';
 
 const InfoSection = ({ lead }) => {
 	const hiddenFields = JSON.parse(
-		localStorage.getItem('userCustomColumns') || '[]'
+		localStorage.getItem('userCustomColumns') || '[]',
 	);
 
 	const infoFields = [
@@ -25,11 +25,11 @@ const InfoSection = ({ lead }) => {
 			label: 'Attendance Day',
 			value: lead?.attendanceDay,
 		},
-		{
-			key: 'leadLang',
-			label: 'Lead Lang',
-			value: lead?.leadLang,
-		},
+		// {
+		// 	key: 'leadLang',
+		// 	label: 'Lead Lang',
+		// 	value: lead?.leadLang,
+		// },
 		// {
 		// 	key: 'r_u_in_uae',
 		// 	label: 'In UAE?',
@@ -41,7 +41,7 @@ const InfoSection = ({ lead }) => {
 	];
 
 	const visibleInfoFields = infoFields.filter(
-		(field) => !hiddenFields.includes(field.key)
+		(field) => !hiddenFields.includes(field.key),
 	);
 
 	return (
