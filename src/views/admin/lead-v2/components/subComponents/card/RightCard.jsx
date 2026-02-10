@@ -5,6 +5,7 @@ import InfoSection from './InfoSection';
 import { useSelector } from 'react-redux';
 import { extractLocationData } from 'utils/helpers';
 import { CheckCircleIcon } from '@chakra-ui/icons';
+import { FaEye } from 'react-icons/fa';
 
 const RightCard = ({ lead, hiddenFields, setViewLead }) => {
 	const countries = useSelector((state) => state.countries.list);
@@ -63,19 +64,24 @@ const RightCard = ({ lead, hiddenFields, setViewLead }) => {
 					flexDirection='column'
 					// alignItems={{ base: 'center', md: 'flex-end' }}
 					gap={2}
+					justifyContent='flex-start'
 					mt={4}
 				>
 					<InfoSection lead={lead} />
 					<Button
-						variant='ghost'
+						variant='solid'
 						fontSize={{ base: '10px', md: '12px' }}
-						leftIcon={
-							<CheckCircleIcon boxSize={{ base: '10px', md: '12px' }} />
-						}
-						color='cyan.600'
+						leftIcon={<FaEye size='10' />}
+						h='6'
+						color='gray.600'
+						bg='cyan.100'
 						fontWeight='500'
-						_hover={{ bg: 'cyan.50' }}
-						_active={{ bg: 'cyan.100' }}
+						_hover={{ bg: 'cyan.200' }}
+						_active={{ bg: 'cyan.300' }}
+						transition='all 0.2s ease-in-out'
+						py='1'
+						px='2'
+						borderRadius='full'
 						onClick={() =>
 							setViewLead({
 								isOpen: true,
