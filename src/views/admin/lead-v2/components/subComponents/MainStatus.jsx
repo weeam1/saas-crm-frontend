@@ -265,6 +265,8 @@ const MainStatus = ({ lead, role }) => {
 				{ key: 'leadStatus', value: null },
 			];
 
+			console.log({ updates });
+
 			if (
 				!lead?.isQualification &&
 				!QualificationMainStatus.includes(newStatus)
@@ -347,6 +349,11 @@ const MainStatus = ({ lead, role }) => {
 
 	const handleQualificationSuccess = () => {
 		setOpenQualification(false);
+
+		if (pendingStatus === 'deal') {
+			return setCloseDeal(true);
+		}
+
 		executeStatusUpdate(pendingStatus ?? '', { silent: true });
 		setPendingStatus(null);
 	};

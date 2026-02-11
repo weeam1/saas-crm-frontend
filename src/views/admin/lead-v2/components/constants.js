@@ -14,7 +14,26 @@ export const QualificationMainStatus = [
 	'junk',
 	'unreachable_after_attempts',
 ];
-export const QualificationSubStatus = ['booked_by_himself'];
+export const QualificationSubStatus = [
+	'booked_by_himself',
+	'no_response',
+	'unreachable',
+	'outside_coverage',
+	'whatsapp_sent',
+	'callback_requested',
+	'busy',
+	'4_attempts',
+	'5_attempts',
+	'6_attempts',
+	'whatsapp_unread',
+	'call_not_answered',
+	'fake_lead',
+	'wrong_number',
+	'spam',
+	'test_lead',
+	'duplicate_confirmed',
+	'not_interested_anymore',
+];
 
 export const ASSIGNMENT_BY_PERMISSION = {
 	bulkAssign_all: ['managerAssigned', 'teamLeadAssigned', 'agentAssigned'],

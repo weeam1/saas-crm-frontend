@@ -53,14 +53,33 @@ const Status = ({ lead }) => {
 	}, [lead?.eLeadStatus]);
 
 	useEffect(() => {
+		if (!lead?.leadStatus) {
+			setCurrentStatus(null);
+			setSelected('');
+			return;
+		}
+
 		const selectedOption = leadSubStatuses?.find(
-			(item) => item.value === selected,
+			(item) => item.value === lead.leadStatus,
 		);
 
-		if (selectedOption) {
-			setCurrentStatus(selectedOption);
-		} else setCurrentStatus(null);
-	}, [selected, lead?.eLeadStatus]);
+		setSelected(lead.leadStatus);
+		setCurrentStatus(selectedOption ?? null);
+	}, [lead?.leadStatus, leadSubStatuses]);
+
+	// useEffect(() => {
+	// 	const selectedOption = leadSubStatuses?.find(
+	// 		(item) => item.value === lead.leadStatus,
+	// 	);
+
+	// 	console.log({ selectedOption });
+
+	// 	setSelected(lead.leadStatus);
+
+	// 	if (selectedOption) {
+	// 		setCurrentStatus(selectedOption);
+	// 	} else setCurrentStatus(null);
+	// }, [lead?.leadStatus, lead?.eLeadStatus]);
 
 	const resolveStatus = (statusOrEvent) =>
 		typeof statusOrEvent === 'string'
@@ -221,11 +240,12 @@ const Status = ({ lead }) => {
 				},
 			];
 
-			if (
+			const isQaualificationReq =
 				!lead?.isQualification &&
-				!QualificationSubStatus.includes(newStatus) &&
-				!QualificationMainStatus.includes(lead?.eLeadStatus)
-			) {
+				!QualificationMainStatus.includes(lead?.eLeadStatus) &&
+				!QualificationSubStatus.includes(newStatus);
+
+			if (isQaualificationReq) {
 				updates.push({ key: 'isQualification', value: true });
 			}
 
@@ -284,11 +304,12 @@ const Status = ({ lead }) => {
 	const handleSubStatus = (statusOrEvent) => {
 		const newStatus = resolveStatus(statusOrEvent);
 
-		if (
+		const isQualificationReq =
 			!lead?.isQualification &&
-			!QualificationSubStatus.includes(newStatus) &&
-			!QualificationMainStatus.includes(lead?.eLeadStatus)
-		) {
+			!QualificationMainStatus.includes(lead?.eLeadStatus) &&
+			!QualificationSubStatus.includes(newStatus);
+
+		if (isQualificationReq) {
 			setPendingStatus(newStatus);
 			return setOpenQualification(true);
 		}
