@@ -305,9 +305,10 @@ const Status = ({ lead }) => {
 		const newStatus = resolveStatus(statusOrEvent);
 
 		const isQualificationReq =
-			!lead?.isQualification &&
-			!QualificationMainStatus.includes(lead?.eLeadStatus) &&
-			!QualificationSubStatus.includes(newStatus);
+			lead?.eLeadStatus === 'show'
+				? !lead?.isQualification && !QualificationSubStatus.includes(newStatus)
+				: !lead?.isQualification &&
+					!QualificationMainStatus.includes(lead?.eLeadStatus);
 
 		if (isQualificationReq) {
 			setPendingStatus(newStatus);
