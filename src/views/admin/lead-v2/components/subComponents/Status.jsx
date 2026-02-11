@@ -6,6 +6,7 @@ import {
 	leadIconSize,
 	leadlabelFontSize,
 	leadSelectInputSize,
+	QualificationMainStatus,
 	QualificationSubStatus,
 } from '../constants';
 import { toast } from 'react-toastify';
@@ -222,7 +223,8 @@ const Status = ({ lead }) => {
 
 			if (
 				!lead?.isQualification &&
-				!QualificationSubStatus.includes(newStatus)
+				!QualificationSubStatus.includes(newStatus) &&
+				!QualificationMainStatus.includes(lead?.eLeadStatus)
 			) {
 				updates.push({ key: 'isQualification', value: true });
 			}
@@ -282,7 +284,11 @@ const Status = ({ lead }) => {
 	const handleSubStatus = (statusOrEvent) => {
 		const newStatus = resolveStatus(statusOrEvent);
 
-		if (!lead?.isQualification && !QualificationSubStatus.includes(newStatus)) {
+		if (
+			!lead?.isQualification &&
+			!QualificationSubStatus.includes(newStatus) &&
+			!QualificationMainStatus.includes(lead?.eLeadStatus)
+		) {
 			setPendingStatus(newStatus);
 			return setOpenQualification(true);
 		}
