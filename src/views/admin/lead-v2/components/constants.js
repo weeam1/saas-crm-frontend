@@ -12,6 +12,7 @@ export const AdminMainStatus = ['deal', 'show'];
 export const QualificationMainStatus = [
 	'contacted',
 	'junk',
+	'show',
 	'unreachable_after_attempts',
 ];
 export const QualificationSubStatus = [
