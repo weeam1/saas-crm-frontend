@@ -171,7 +171,7 @@ const UserLeadLimitTable = ({
 												<CustomTooltip
 													label={
 														row.limit === leadSettings?.agentLeadLimit
-															? 'Already Reset to Default'
+															? 'Already Reset'
 															: 'Reset Limit'
 													}
 												>
