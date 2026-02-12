@@ -25,11 +25,14 @@ import ConfirmationModal from 'components/Message/ConfirmationModal';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { FaEdit } from 'react-icons/fa';
 import UserProfileCell from '../payroll/components/UserProfileCell';
+import { BiReset } from 'react-icons/bi';
 
 const UserLeadLimitTable = ({
 	data = [],
 	isLoading,
+	leadSettings,
 	handleOpenEdit,
+	handleResetLimit,
 	removeItem,
 }) => {
 	const columns = [
@@ -165,6 +168,25 @@ const UserLeadLimitTable = ({
 											<UserProfileCell user={row.user} />
 										) : column.key === 'actions' ? (
 											<Flex align='center' justify='center' gap={3}>
+												<CustomTooltip
+													label={
+														row.limit === leadSettings?.agentLeadLimit
+															? 'Already Reset to Default'
+															: 'Reset Limit'
+													}
+												>
+													<IconButton
+														aria-label='Reset Limit'
+														icon={<BiReset />}
+														size='sm'
+														colorScheme='cyan'
+														disabled={
+															row.limit === leadSettings?.agentLeadLimit
+														}
+														variant='ghost'
+														onClick={() => handleResetLimit(row)}
+													/>
+												</CustomTooltip>
 												<CustomTooltip label='Edit'>
 													<IconButton
 														aria-label='Edit'

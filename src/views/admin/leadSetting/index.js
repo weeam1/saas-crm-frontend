@@ -19,6 +19,8 @@ import AddUserLeadLimit from './AddUserLeadLimit';
 import LeadLimitModal from './LeadSettingModal';
 import { FiChevronLeft } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { useUpdateItemMutation } from 'api/apiSlice';
 
 const UserLeadLimit = () => {
 	const {
@@ -39,6 +41,8 @@ const UserLeadLimit = () => {
 	} = useLeadSettings();
 
 	const navigate = useNavigate();
+
+	const [updateItem] = useUpdateItemMutation();
 
 	const [clearFilters, setClearFilters] = useState(false);
 	const [editData, setEditData] = useState(null);
@@ -68,6 +72,36 @@ const UserLeadLimit = () => {
 		setClearFilters(false);
 		setAgencyId(null);
 		setPagination((prev) => ({ ...prev, page: 1 }));
+	};
+
+	const handleResetLimit = async (data) => {
+		try {
+			const payload = {
+				limit: leadSettings?.agentLeadLimit || 0,
+			};
+
+			if (data?.limit === payload.limit) {
+				return toast.info('User lead limit is already set to default');
+			}
+
+			if (!data?.user) {
+				return toast.error('User is required');
+			}
+
+			const res = await updateItem({
+				path: `/lead/user-lead-limits/${data.user._id}`,
+				body: payload,
+			}).unwrap();
+
+			toast.success(`User lead limit reset successfully`);
+
+			let doc = res?.doc;
+			if (doc?._id) {
+				updateData?.(doc?._id, doc, 'update');
+			}
+		} catch (err) {
+			toast.error(err?.data?.message || 'Failed to reset lead limit');
+		}
 	};
 
 	return (
@@ -217,7 +251,9 @@ const UserLeadLimit = () => {
 				data={data || []}
 				updateData={updateData}
 				removeItem={removeItem}
+				leadSettings={leadSettings}
 				handleOpenEdit={handleOpenEdit}
+				handleResetLimit={handleResetLimit}
 				isLoading={isLoading || isFetching}
 			/>
 

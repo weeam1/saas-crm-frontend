@@ -25,7 +25,7 @@ export const useCommissionEmployeePayroll = () => {
 		Number(searchParams.get('year')) || new Date().getFullYear();
 
 	const initialAgencyId = isAgenciesAllowed
-		? searchParams.get('agency') || agencies[0]?._id
+		? searchParams.get('agency') || user?.agency?._id
 		: user?.agency?._id;
 
 	const initialPage = Number(searchParams.get('page')) || 1;
@@ -82,7 +82,7 @@ export const useCommissionEmployeePayroll = () => {
 			refetchOnMountOrArgChange: false,
 			refetchOnFocus: true,
 			refetchOnReconnect: true,
-		}
+		},
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;
