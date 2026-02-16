@@ -240,12 +240,14 @@ const Status = ({ lead }) => {
 				},
 			];
 
-			const isQaualificationReq =
-				!lead?.isQualification &&
-				!QualificationMainStatus.includes(lead?.eLeadStatus) &&
-				!QualificationSubStatus.includes(newStatus);
+			const isQualificationReq =
+				lead?.eLeadStatus === 'show'
+					? !lead?.isQualification &&
+						!QualificationSubStatus.includes(newStatus)
+					: !lead?.isQualification &&
+						!QualificationMainStatus.includes(lead?.eLeadStatus);
 
-			if (isQaualificationReq) {
+			if (isQualificationReq) {
 				updates.push({ key: 'isQualification', value: true });
 			}
 

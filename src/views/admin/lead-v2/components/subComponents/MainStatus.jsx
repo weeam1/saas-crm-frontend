@@ -265,8 +265,6 @@ const MainStatus = ({ lead, role }) => {
 				{ key: 'leadStatus', value: null },
 			];
 
-			console.log({ updates });
-
 			if (
 				!lead?.isQualification &&
 				!QualificationMainStatus.includes(newStatus)
