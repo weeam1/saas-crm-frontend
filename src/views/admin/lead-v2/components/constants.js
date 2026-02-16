@@ -14,6 +14,7 @@ export const QualificationMainStatus = [
 	'junk',
 	'show',
 	'unreachable_after_attempts',
+	'lost',
 ];
 export const QualificationSubStatus = [
 	'booked_by_himself',
