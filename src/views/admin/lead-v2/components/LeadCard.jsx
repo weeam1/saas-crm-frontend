@@ -1,197 +1,202 @@
-import { useCallback, useEffect, useState } from "react";
-import { FaPen } from "react-icons/fa";
-import { format } from "date-fns";
-import { Box, Flex, Icon, useBreakpointValue } from "@chakra-ui/react";
-import LeftCard from "./subComponents/card/LeftCard";
-import RightCard from "./subComponents/card/RightCard";
-import LeadMenu from "./subComponents/card/LeadMenu";
-import { leadlabelFontSize } from "./constants";
+import { useCallback, useEffect, useState } from 'react';
+import { FaPen } from 'react-icons/fa';
+import { format } from 'date-fns';
+import { Box, Flex, Icon, useBreakpointValue } from '@chakra-ui/react';
+import LeftCard from './subComponents/card/LeftCard';
+import RightCard from './subComponents/card/RightCard';
+import LeadMenu from './subComponents/card/LeadMenu';
+import { leadlabelFontSize } from './constants';
 
-import "./checkbox.css";
-import LeadNotesModal from "./lead-note/LeadNotesModal";
-import useUserSession from "hooks/useUserSession";
+import './checkbox.css';
+import LeadNotesModal from './lead-note/LeadNotesModal';
+import useUserSession from 'hooks/useUserSession';
 // import moment from 'moment';
 
 const LeadCard = ({
-  editSecondary,
-  setEditSecondary,
-  lead,
-  refreshLeads,
-  setViewLead,
-  permission,
-  emailAccess,
-  callAccess,
-  setEditLead,
-  setAddLead,
-  setSendEmail,
-  selectedValues,
-  setSelectedValues,
-  setSelectedLeads,
-  setDeleteLead,
-  setLeadDetails,
-  setViewPhoneHistory,
-  queryParams,
-  setLeadAddtionalInfo,
-  setIsLeadCycle,
+	editSecondary,
+	setEditSecondary,
+	lead,
+	refreshLeads,
+	setViewLead,
+	permission,
+	emailAccess,
+	callAccess,
+	setEditLead,
+	setAddLead,
+	setSendEmail,
+	selectedValues,
+	setSelectedValues,
+	setSelectedLeads,
+	setDeleteLead,
+	setLeadDetails,
+	setViewPhoneHistory,
+	queryParams,
+	setLeadAddtionalInfo,
+	setIsLeadCycle,
 }) => {
-  const cardWidth = useBreakpointValue({
-    base: "100%", // Full width on mobile
-    // sm: '48%', // Two cards per row on small screens
-    md: "33.33%", // Three cards per row on medium screens
-    lg: "25%", // Three cards per row on larger screens
-  });
+	const cardWidth = useBreakpointValue({
+		base: '100%', // Full width on mobile
+		// sm: '48%', // Two cards per row on small screens
+		md: '33.33%', // Three cards per row on medium screens
+		lg: '25%', // Three cards per row on larger screens
+	});
 
-  // const user = useSelector((state) => state.user.user);
-  console.log(editSecondary, "leadcard");
-  const { user, userRoleName } = useUserSession();
+	// const user = useSelector((state) => state.user.user);
+	const { user, userRoleName } = useUserSession();
 
-  const [leadNotes, setLeadNotes] = useState(false);
+	const [leadNotes, setLeadNotes] = useState(false);
 
-  const [localChecked, setLocalChecked] = useState(
-    selectedValues.includes(lead?._id),
-  );
+	const [localChecked, setLocalChecked] = useState(
+		selectedValues.includes(lead?._id),
+	);
 
-  const handleCheckboxChange = useCallback(
-    (event) => {
-      const isChecked = event.target.checked;
+	const handleCheckboxChange = useCallback(
+		(event) => {
+			const isChecked = event.target.checked;
 
-      setLocalChecked(isChecked);
+			setLocalChecked(isChecked);
 
-      setTimeout(() => {
-        setSelectedValues((prev = []) =>
-          isChecked
-            ? [...prev, lead?._id]
-            : prev.filter((id) => id !== lead?._id),
-        );
-        setSelectedLeads((prev) => {
-          if (!Array.isArray(prev)) prev = [];
+			setTimeout(() => {
+				setSelectedValues((prev = []) =>
+					isChecked
+						? [...prev, lead?._id]
+						: prev.filter((id) => id !== lead?._id),
+				);
+				setSelectedLeads((prev) => {
+					if (!Array.isArray(prev)) prev = [];
 
-          return isChecked
-            ? [...prev, lead] // Add the lead
-            : prev.filter((item) => item._id !== lead._id);
-        });
-      }, 0);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setSelectedValues, lead],
-  );
+					return isChecked
+						? [...prev, lead] // Add the lead
+						: prev.filter((item) => item._id !== lead._id);
+				});
+			}, 0);
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[setSelectedValues, lead],
+	);
 
-  useEffect(() => {
-    setLocalChecked(selectedValues.includes(lead?._id));
-  }, [selectedValues, lead?._id]);
+	useEffect(() => {
+		setLocalChecked(selectedValues.includes(lead?._id));
+	}, [selectedValues, lead?._id]);
 
-  // const role =
-  // 	user?.role === 'superAdmin'
-  // 		? 'superAdmin'
-  // 		: (user?.roles?.[0]?.roleName ?? 'unknown');
+	// const role =
+	// 	user?.role === 'superAdmin'
+	// 		? 'superAdmin'
+	// 		: (user?.roles?.[0]?.roleName ?? 'unknown');
 
-  const hiddenFields = JSON.parse(
-    localStorage.getItem("userCustomColumns") || "[]",
-  );
+	const hiddenFields = JSON.parse(
+		localStorage.getItem('userCustomColumns') || '[]',
+	);
 
-  return (
-    <>
-      <Box
-        borderWidth="1px"
-        borderRadius="md"
-        p={2}
-        bg={localChecked ? "gray.100" : "white"}
-        width="100%"
-        flexBasis={cardWidth}
-        boxShadow="sm"
-        _hover={{ boxShadow: "lg", bg: "gray.100" }}
-        transition="all 0.2s ease-in-out"
-        position="relative"
-      >
-        {/* Top-right controls */}
-        <Box
-          position="absolute"
-          top={1}
-          right={0}
-          display="flex"
-          alignItems="center"
-          gap={2}
-        >
-          <Icon
-            as={FaPen}
-            boxSize="14px"
-            onClick={() => setLeadNotes(true)}
-            color="gray.500"
-            cursor="pointer"
-          />
+	return (
+		<>
+			<Box
+				borderWidth='1px'
+				borderRadius='md'
+				p={2}
+				bg={localChecked ? 'gray.100' : 'white'}
+				width='100%'
+				flexBasis={cardWidth}
+				boxShadow='sm'
+				_hover={{ boxShadow: 'lg', bg: 'gray.100' }}
+				transition='all 0.2s ease-in-out'
+				position='relative'
+			>
+				{/* Top-right controls */}
+				<Box
+					position='absolute'
+					top={1}
+					right={0}
+					display='flex'
+					alignItems='center'
+					gap={2}
+				>
+					<Icon
+						as={FaPen}
+						boxSize='14px'
+						onClick={() => setLeadNotes(true)}
+						color='gray.500'
+						cursor='pointer'
+					/>
 
-          <label className="custom-checkbox">
-            <input
-              type="checkbox"
-              checked={localChecked}
-              onChange={handleCheckboxChange}
-            />
-            <span className="checkmark"></span>
-          </label>
+					<label className='custom-checkbox'>
+						<input
+							type='checkbox'
+							checked={localChecked}
+							onChange={handleCheckboxChange}
+						/>
+						<span className='checkmark'></span>
+					</label>
 
-          <LeadMenu
-            editSecondary={editSecondary}
-            setEditSecondary={setEditSecondary}
-            user={user}
-            lead={lead}
-            emailAccess={emailAccess}
-            access={permission}
-            callAccess={callAccess}
-            setEditLead={setEditLead}
-            setAddLead={setAddLead}
-            setSendEmail={setSendEmail}
-            setSelectedValues={setSelectedValues}
-            setDeleteLead={setDeleteLead}
-            setLeadDetails={setLeadDetails}
-            refreshData={refreshLeads}
-            setViewPhoneHistory={setViewPhoneHistory}
-            setLeadAddtionalInfo={setLeadAddtionalInfo}
-            setIsLeadCycle={setIsLeadCycle}
-          />
-        </Box>
-        <Flex
-          justifyContent="space-between"
-          align="stretch"
-          wrap="wrap"
-          gap={{ base: 2, md: 3, lg: 6 }}
-        >
-          <LeftCard
-            lead={lead}
-            hiddenFields={hiddenFields}
-            setViewLead={setViewLead}
-            refreshLeads={refreshLeads}
-            role={userRoleName}
-            user={user}
-            queryParams={queryParams}
-          />
-          <RightCard lead={lead} hiddenFields={hiddenFields} />
-        </Flex>
-        {!hiddenFields.includes("createdDate") && (
-          <Box
-            textAlign="right"
-            width="full"
-            fontSize={leadlabelFontSize}
-            color="gray.900"
-          >
-            <span style={{ color: "softGray.200", marginRight: "4px" }}>
-              Lead time
-            </span>
-            {format(new Date(lead?.createdDate), "MMM d, yyyy h:mm a")}
+					<LeadMenu
+						editSecondary={editSecondary}
+						setEditSecondary={setEditSecondary}
+						user={user}
+						lead={lead}
+						emailAccess={emailAccess}
+						access={permission}
+						callAccess={callAccess}
+						setEditLead={setEditLead}
+						setAddLead={setAddLead}
+						setSendEmail={setSendEmail}
+						setSelectedValues={setSelectedValues}
+						setDeleteLead={setDeleteLead}
+						setLeadDetails={setLeadDetails}
+						refreshData={refreshLeads}
+						setViewPhoneHistory={setViewPhoneHistory}
+						setLeadAddtionalInfo={setLeadAddtionalInfo}
+						setIsLeadCycle={setIsLeadCycle}
+					/>
+				</Box>
+				<Flex
+					justifyContent='space-between'
+					align='stretch'
+					wrap='wrap'
+					gap={{ base: 2, md: 3, lg: 6 }}
+				>
+					<LeftCard
+						lead={lead}
+						hiddenFields={hiddenFields}
+						setViewLead={setViewLead}
+						refreshLeads={refreshLeads}
+						role={userRoleName}
+						user={user}
+						queryParams={queryParams}
+					/>
+					<RightCard
+						lead={lead}
+						user={user}
+						setViewLead={setViewLead}
+						hiddenFields={hiddenFields}
+					/>
+				</Flex>
+				{!hiddenFields.includes('createdDate') && (
+					<Box
+						textAlign='right'
+						width='full'
+						fontSize={leadlabelFontSize}
+						color='gray.900'
+					>
+						<span style={{ color: 'softGray.200', marginRight: '4px' }}>
+							Lead time
+						</span>
 
-            {/* {moment.utc(lead.createdDate).format('MMM D, YYYY h:mm A')} */}
-          </Box>
-        )}
-      </Box>
+						{format(new Date(lead?.createdDate), 'MMM d, yyyy h:mm a')}
 
-      {leadNotes && (
-        <LeadNotesModal
-          leadId={lead?._id}
-          isOpen={leadNotes}
-          onClose={() => setLeadNotes(false)}
-        />
-      )}
-    </>
-  );
+						{/* {moment.utc(lead.createdDate).format('MMM D, YYYY h:mm A')} */}
+					</Box>
+				)}
+			</Box>
+
+			{leadNotes && (
+				<LeadNotesModal
+					leadId={lead?._id}
+					isOpen={leadNotes}
+					onClose={() => setLeadNotes(false)}
+				/>
+			)}
+		</>
+	);
 };
 
 export default LeadCard;

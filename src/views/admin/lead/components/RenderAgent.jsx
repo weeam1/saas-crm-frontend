@@ -1,5 +1,5 @@
 import { Select, Text, useColorModeValue } from '@chakra-ui/react';
-import { fetchAgentLeadsSats } from 'api';
+import { fetchAgentLeadsStats } from 'api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import BoxLoading from 'components/shared/BoxLoading';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
@@ -196,7 +196,7 @@ const RenderAgent = ({
 			};
 
 			if (data.agentAssigned) {
-				const stats = await fetchAgentLeadsSats(data.agentAssigned);
+				const stats = await fetchAgentLeadsStats(data.agentAssigned);
 
 				if (!stats.canAddLeads) {
 					setErrorLeadData(stats);
@@ -218,7 +218,7 @@ const RenderAgent = ({
 				const updateListData = (prevData) => {
 					const newData = [...prevData];
 					const updateIdx = newData.findIndex(
-						(l) => l._id.toString() === leadID
+						(l) => l._id.toString() === leadID,
 					);
 					if (updateIdx !== -1) {
 						newData[updateIdx].agentAssigned = data.agentAssigned;
@@ -240,7 +240,7 @@ const RenderAgent = ({
 					message = `Lead '${lead?.leadName || ''}' unassigned from Agent by ${user?.fullName}.`;
 				} else {
 					const agent = agents?.find(
-						(agent) => agent._id === data.agentAssigned
+						(agent) => agent._id === data.agentAssigned,
 					);
 					message = `Lead '${lead?.leadName || ''}' assigned to Agent ${agent?.fullName || 'N/A'} by ${user?.fullName}.`;
 				}

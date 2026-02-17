@@ -31,6 +31,8 @@ import useUserSession from 'hooks/useUserSession';
 import { useNavigate } from 'react-router-dom';
 import { FiRefreshCw } from 'react-icons/fi';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
+import { FiDownload } from 'react-icons/fi';
+import ExportModal from './components/subComponents/ExportModal';
 
 const Index = () => {
 	const { user } = useUserSession();
@@ -66,7 +68,7 @@ const Index = () => {
 	const disconnectedRef = useRef(false);
 	const { whatsappInitialize, disconnectWhatsapp, getChats, isReady } =
 		useWhatsapp();
-
+	const [isOpenExport, setIsOpenExport] = useState(false);
 	useEffect(() => {
 		if (whatsappSessionId) {
 			const delay = Math.floor(Math.random() * 8000 + 2000);
@@ -136,13 +138,17 @@ const Index = () => {
 	const [manageCols, setManageCols] = useState(false);
 	const [currentPageSelection, setCurrentPageSelection] = useState({});
 	const hiddenFields = JSON.parse(
-		localStorage.getItem('userCustomColumns') || '[]'
+		localStorage.getItem('userCustomColumns') || '[]',
 	);
 	const [hiddenCols, setHiddenCols] = useState(hiddenFields || []);
 
 	const totalLeads = useSelector(
 		(state) => state.leads?.totalLeads,
-		shallowEqual
+		shallowEqual,
+	);
+	const totalExportLeads = useSelector(
+		(state) => state.leads?.doc.length,
+		shallowEqual,
 	);
 
 	const dispatch = useDispatch();
@@ -169,7 +175,7 @@ const Index = () => {
 			refetchOnMountOrArgChange: true,
 			refetchOnFocus: true, // Refetch when user comes back to tab
 			refetchOnReconnect: true, // Refetch on internet reconnection
-		}
+		},
 	);
 
 	const refreshLeads = useCallback(() => {
@@ -187,7 +193,7 @@ const Index = () => {
 					leads,
 					currentPage,
 					pageSize: leads?.length,
-				})
+				}),
 			);
 			// setQueryParams({page: currentPage, pageSize: leads?.doc?.length || 32});
 		}
@@ -257,7 +263,6 @@ const Index = () => {
 							currentPage={currentPage}
 							pageSize={pageSize}
 						/>
-
 						{/* Button */}
 						<Button
 							{...buttonStyle}
@@ -271,7 +276,6 @@ const Index = () => {
 						>
 							Quick Filter
 						</Button>
-
 						{whatsappAccountId && hasPermission('leads', 'bulkWhatsapp') && (
 							<Button
 								{...buttonStyle}
@@ -290,7 +294,6 @@ const Index = () => {
 									: null}
 							</Button> // count added
 						)}
-
 						{bulkAssingPermissionAllowed && (
 							<Button
 								{...buttonStyle}
@@ -320,6 +323,31 @@ const Index = () => {
 								onClick={() => setAddLead(true)}
 							>
 								New
+							</Button>
+						)}
+						{hasPermission('leads', 'export') && (
+							<Button
+								{...buttonStyle}
+								leftIcon={<FiDownload />}
+								colorScheme='teal'
+								bgGradient='linear(to-r, teal.400, teal.500, teal.600)'
+								_hover={{
+									bgGradient: 'linear(to-r, teal.500, teal.600, teal.700)',
+									transform: 'scale(1.05)',
+								}}
+								_active={{
+									bgGradient: 'linear(to-r, teal.600, teal.700, teal.800)',
+								}}
+								boxShadow='xl'
+								borderRadius='md'
+								py='2'
+								px='5'
+								transition='all 0.3s ease'
+								onClick={() => {
+									setIsOpenExport(true);
+								}}
+							>
+								Export
 							</Button>
 						)}
 					</Flex>
@@ -356,7 +384,12 @@ const Index = () => {
 					</HStack>
 				</HStack>
 			</Flex>
-
+			<ExportModal
+				params={queryParams}
+				totalRecords={totalLeads}
+				isOpen={isOpenExport}
+				onClose={() => setIsOpenExport(false)}
+			/>
 			<LeadsLayout
 				layoutView={view}
 				data={leads}

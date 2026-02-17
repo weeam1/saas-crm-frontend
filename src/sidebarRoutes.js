@@ -504,6 +504,11 @@ export const sidebarRoutes = [
 				path: '/evaluation/user-evaluation',
 			},
 			{
+				id: 'my_evaluations',
+				name: 'My Evaluation',
+				path: '/evaluation/my-evaluation',
+			},
+			{
 				id: 'settings',
 				name: 'Settings',
 				path: '/evaluation/settings',

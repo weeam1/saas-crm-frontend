@@ -149,13 +149,12 @@ export const apiSlice = createApi({
         { type: "Items", id: leadId },
       ],
     }),
-    updateLeadV2: builder.mutation({
-      query: ({ id, body }) => ({
-        url: `/lead/v2/edit/${id}`,
-        method: "PUT",
-        body,
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Items", id }],
+    fetchItemsV2: builder.query({
+      query: ({ path, params }) => {
+        const queryString = new URLSearchParams(params).toString();
+        return `${path}?${queryString}`;
+      },
+      keepUnusedDataFor: 0,
     }),
   }),
 });
@@ -170,5 +169,5 @@ export const {
   useCreateLeadQualificationMutation,
   useGetLeadQualificationQuery,
   useUpdateLeadQualificationMutation,
-  useUpdateLeadV2Mutation,
+  useLazyFetchItemsV2Query,
 } = apiSlice;

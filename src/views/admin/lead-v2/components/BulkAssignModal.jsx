@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import ManagerAgentImport from './ManagerAgentImport';
-import { fetchAgentLeadsSats } from 'api';
+import { fetchAgentLeadsStats } from 'api';
 import { updateMultipleLeadFields } from '../../../../redux/leadsSlice';
 import { sendBulkLeadNotification } from 'api';
 import useUserSession from 'hooks/useUserSession';
@@ -14,6 +14,7 @@ import { ASSIGNMENT_BY_PERMISSION, formatList } from './constants';
 
 import { usePermissions } from 'hooks/usePermissions';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { useCreateItemMutation } from 'api/apiSlice';
 
 const {
 	Modal,
@@ -83,6 +84,9 @@ const BulkAssignModal = (props) => {
 	const { headerBg, closeBtnColor, primaryBtnBg, headerText } =
 		useModalColors();
 
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
+
 	useEffect(() => {
 		setIsMounted(true);
 		return () => setIsMounted(false);
@@ -113,7 +117,7 @@ const BulkAssignModal = (props) => {
 		const allowedFields = ASSIGNMENT_BY_PERMISSION[permission];
 
 		return Object.fromEntries(
-			Object.entries(values).filter(([key]) => allowedFields.includes(key))
+			Object.entries(values).filter(([key]) => allowedFields.includes(key)),
 		);
 	};
 
@@ -148,7 +152,7 @@ const BulkAssignModal = (props) => {
 			if (finalValues?.managerAssigned) {
 				managerDetails = managers?.find(
 					(user) =>
-						user?._id?.toString() === values?.managerAssigned?.toString()
+						user?._id?.toString() === values?.managerAssigned?.toString(),
 				);
 			}
 
@@ -157,29 +161,50 @@ const BulkAssignModal = (props) => {
 
 				teamLeadDetails = allTeamLeaders?.find(
 					(user) =>
-						user?._id?.toString() === values?.teamLeadAssigned?.toString()
+						user?._id?.toString() === values?.teamLeadAssigned?.toString(),
 				);
 			}
 
 			if (finalValues?.agentAssigned) {
-				const stats = await fetchAgentLeadsSats(
-					values.agentAssigned,
-					'bulk',
-					selectedValues?.length
-				);
-
-				if (!stats.canAddLeads) {
-					setIsLoading(false);
-					setErrorLeadData(stats);
-					setErrorModal(true);
-					return;
-				}
+				// const stats = await fetchAgentLeadsStats(
+				// 	values.agentAssigned,
+				// 	'bulk',
+				// 	selectedValues?.length,
+				// );
+				// const stats = await fetchAgentLeadsStats(data.agentAssigned);
 
 				// managerTeam = tree?.agents[`manager-${values?.managerAssigned}`] || [];
 
 				agentDetails = allAgents?.find(
-					(user) => user?._id?.toString() === values?.agentAssigned?.toString()
+					(user) => user?._id?.toString() === values?.agentAssigned?.toString(),
 				);
+			}
+
+			const userIds = Object.values(finalValues).filter(Boolean);
+
+			if (userIds.length > 0) {
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds,
+						type: 'bulk',
+						selectedLeads: selectedValues?.length,
+					},
+				}).unwrap();
+
+				if (fetchUserStatsError) {
+					setIsLoading(false);
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
+					setErrorModal(true);
+					setIsLoading(false);
+					return;
+				}
 			}
 
 			let res = await putApi(`api/lead/bulk-assign`, payload);
@@ -188,12 +213,10 @@ const BulkAssignModal = (props) => {
 				// refreshData();
 				const updates = createUpdates(selectedValues, finalValues);
 
-				console.log({ updates });
-
 				dispatch(
 					updateMultipleLeadFields({
 						updates,
-					})
+					}),
 				);
 
 				sendBulkLeadNotification(user?._id, finalValues, selectedLeads);

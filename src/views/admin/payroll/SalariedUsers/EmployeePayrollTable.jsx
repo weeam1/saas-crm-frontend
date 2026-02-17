@@ -12,8 +12,23 @@ import {
 	Center,
 	Tooltip,
 	useDisclosure,
+	Modal,
+	ModalOverlay,
+	ModalContent,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	ModalCloseButton,
+	Button,
 } from '@chakra-ui/react';
-import { FiEye, FiPrinter } from 'react-icons/fi';
+import {
+	FiEye,
+	FiPrinter,
+	FiTrash2,
+	FiAlertTriangle,
+	FiAlertCircle,
+} from 'react-icons/fi';
+import { FaClockRotateLeft } from 'react-icons/fa6';
 import NoData from 'components/Message/NoData';
 import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState, useCallback } from 'react';
@@ -22,21 +37,34 @@ import UserProfileCell from '../components/UserProfileCell';
 import PayslipDownloadModal from '../components/PayslipDownloadModal';
 import { formatValue, PAYROLL_COLUMNS } from '../formatUtils';
 import { useNavigate } from 'react-router-dom';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 const EmployeePayrollTable = ({
+	setPayRollData,
+	onViewHistoryModalOpen,
+	onAddHistoryModalOpen,
 	data = [],
 	isLoading,
 	month,
 	year,
 	refetchPayslips,
+	onDelete,
+	onWarningClick,
+	onWarningHistoryClick,
 }) => {
 	const navigate = useNavigate();
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const {
+		isOpen: isDeleteModalOpen,
+		onOpen: onDeleteModalOpen,
+		onClose: onDeleteModalClose,
+	} = useDisclosure();
 
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
 	const [selectedEmployeeForModal, setSelectedEmployeeForModal] =
 		useState(null);
-
+	const [selectedEmployeeForDelete, setSelectedEmployeeForDelete] =
+		useState(null);
 	useEffect(() => {
 		let timer;
 		if (isLoading) {
@@ -52,7 +80,12 @@ const EmployeePayrollTable = ({
 	const getNestedValue = useCallback((obj, path) => {
 		return path.split('.').reduce((current, key) => current?.[key], obj);
 	}, []);
-
+	const handleDeleteConfirm = useCallback(() => {
+		if (selectedEmployeeForDelete && onDelete) {
+			onDelete(selectedEmployeeForDelete);
+		}
+		onDeleteModalClose();
+	}, [selectedEmployeeForDelete, onDelete, onDeleteModalClose]);
 	// const isPayslipGenerated = useCallback((employee) => {
 	// 	return employee?.payslip?.status === 'generated';
 	// }, []);
@@ -79,7 +112,7 @@ const EmployeePayrollTable = ({
 			setSelectedEmployeeForModal(employee);
 			onOpen();
 		},
-		[onOpen]
+		[onOpen],
 	);
 
 	const renderCellContent = useCallback(
@@ -87,13 +120,10 @@ const EmployeePayrollTable = ({
 			if (column.key === 'user') {
 				return <UserProfileCell user={row} />;
 			}
-
 			if (column.key === 'actions') {
-				// const canDownload = hasCompletedAttendance(row);
-				// const isGenerated = isPayslipGenerated(row);
-
 				return (
 					<Flex align='center' justify='center' gap='2'>
+						{/* View Details Button */}
 						<Tooltip label='View Details' placement='top' hasArrow>
 							<IconButton
 								aria-label='View employee details'
@@ -103,12 +133,13 @@ const EmployeePayrollTable = ({
 								variant='ghost'
 								onClick={() =>
 									navigate(
-										`/payroll/users/payslip/${row._id}?month=${month}&year=${year}`
+										`/payroll/users/payslip/${row._id}?month=${month}&year=${year}`,
 									)
 								}
 							/>
 						</Tooltip>
 
+						{/* Generate Payslip Button */}
 						<Tooltip label='Generate Payslip' placement='top' hasArrow>
 							<IconButton
 								aria-label={'generate payslip'}
@@ -119,6 +150,54 @@ const EmployeePayrollTable = ({
 								onClick={() => handlePayslipGenerate(row)}
 							/>
 						</Tooltip>
+
+						{/* Warning Button - No Modal */}
+						{row?.payslip?.paymentStatus !== 'paid' && (
+							<Tooltip label='Add Warning' placement='top' hasArrow>
+								<IconButton
+									aria-label='Warning'
+									isDisabled={row?.payslip?.status === 'paid'}
+									icon={<FiAlertCircle />}
+									size='sm'
+									colorScheme='yellow'
+									variant='ghost'
+									onClick={() => {
+										onAddHistoryModalOpen();
+										setPayRollData(row);
+									}}
+								/>
+							</Tooltip>
+						)}
+
+						{/* Warning History Button */}
+						<Tooltip label='Warning History' placement='top' hasArrow>
+							<IconButton
+								aria-label='Warning History'
+								icon={<FaClockRotateLeft />}
+								size='sm'
+								colorScheme='yellow'
+								variant='ghost'
+								onClick={() => {
+									onViewHistoryModalOpen();
+									setPayRollData(row);
+								}}
+							/>
+						</Tooltip>
+
+						{/* Delete Button */}
+						{/* <Tooltip label="Delete" placement="top" hasArrow>
+              <IconButton
+                aria-label="Delete"
+                icon={<FiTrash2 />}
+                size="sm"
+                colorScheme="red"
+                variant="ghost"
+                onClick={() => {
+                  setSelectedEmployeeForDelete(row);
+                  onDeleteModalOpen();
+                }}
+              />
+            </Tooltip> */}
 					</Flex>
 				);
 			}
@@ -150,7 +229,16 @@ const EmployeePayrollTable = ({
 
 			return formatValue(column.key, value, row);
 		},
-		[navigate, month, year, handlePayslipGenerate, getNestedValue]
+		[
+			navigate,
+			month,
+			year,
+			handlePayslipGenerate,
+			getNestedValue,
+			onWarningClick,
+			onWarningHistoryClick,
+			getNestedValue,
+		],
 	);
 
 	return (
@@ -194,7 +282,7 @@ const EmployeePayrollTable = ({
 							<Tr>
 								<Td colSpan={PAYROLL_COLUMNS.length} py={10}>
 									<Center>
-										<NoData label='incoming balance' />
+										<NoData label='payroll' />
 									</Center>
 								</Td>
 							</Tr>
@@ -225,8 +313,18 @@ const EmployeePayrollTable = ({
 					</Tbody>
 				</Table>
 			</Box>
-
-			{/* Attendance Warning Modal */}
+			{/* Delete Confirmation Modal */}
+			<DeleteConfirmationModal
+				isOpen={isDeleteModalOpen}
+				onClose={onDeleteModalClose}
+				onConfirm={handleDeleteConfirm}
+				title='Delete Payroll Record'
+				itemName={
+					selectedEmployeeForDelete?.name ||
+					selectedEmployeeForDelete?.user?.name
+				}
+				extraText={`payroll record for ${month}/${year}`}
+			/>
 			{isOpen && selectedEmployeeForModal && (
 				<PayslipDownloadModal
 					isOpen={isOpen}

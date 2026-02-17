@@ -12,14 +12,15 @@ import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { format } from 'date-fns';
-import { sendLeadNotification } from 'api';
+import { fetchAgentLeadsStats, sendLeadNotification } from 'api';
 import { mergeSort } from 'utils/helpers';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { useCreateItemMutation } from 'api/apiSlice';
 
-const TeamLeaders = ({ lead }) => {
+const TeamLeaders = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const {
 		_id,
 		intID,
@@ -37,6 +38,8 @@ const TeamLeaders = ({ lead }) => {
 	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
 
 	useEffect(() => {
 		setSelected(teamLeadAssigned);
@@ -60,6 +63,32 @@ const TeamLeaders = ({ lead }) => {
 
 		try {
 			setLoading(true);
+
+			if (dataObj.teamLeadAssigned) {
+				// const stats = await fetchAgentLeadsStats(dataObj.teamLeadAssigned);
+
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds: [dataObj.teamLeadAssigned],
+					},
+				}).unwrap();
+
+				if (fetchUserStatsError) {
+					setLoading(false);
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
+					setIsErrorModalOpen(true);
+					setLoading(false);
+					return;
+				}
+			}
+
 			const res = await putApi(`api/lead/v2/assign/${_id}`, dataObj);
 
 			if (res.status === 200) {

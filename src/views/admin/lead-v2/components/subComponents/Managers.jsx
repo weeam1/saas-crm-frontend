@@ -1,25 +1,29 @@
-import SelectInput from 'components/shared/SelectInput';
 import { InfoIcon } from '@chakra-ui/icons';
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { useState, useEffect, useMemo } from 'react';
+import { format } from 'date-fns';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+
 import {
 	leadIconSize,
 	leadlabelFontSize,
 	leadSelectInputSize,
 } from '../constants';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import { putApi } from 'services/api';
+import { mergeSort } from 'utils/helpers';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
-import { format } from 'date-fns';
-import { sendLeadNotification } from 'api';
-import { mergeSort, removeDisableUser } from 'utils/helpers';
-import CustomTooltip from 'components/shared/CustomTooltip';
+import { fetchAgentLeadsStats, sendLeadNotification } from 'api';
+import { putApi } from 'services/api';
+import { useCreateItemMutation } from 'api/apiSlice';
+
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
-const Managers = ({ lead }) => {
+import SelectInput from 'components/shared/SelectInput';
+import CustomTooltip from 'components/shared/CustomTooltip';
+
+const Managers = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { managerAssigned } = lead;
 
 	const [loading, setLoading] = useState(false);
@@ -30,6 +34,8 @@ const Managers = ({ lead }) => {
 	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
 
 	useEffect(() => {
 		setSelected(managerAssigned);
@@ -48,6 +54,31 @@ const Managers = ({ lead }) => {
 
 		try {
 			setLoading(true);
+
+			if (dataObj.managerAssigned) {
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds: [dataObj.managerAssigned],
+					},
+				}).unwrap();
+				// const stats = await fetchAgentLeadsStats(dataObj.managerAssigned);
+
+				if (fetchUserStatsError) {
+					setLoading(false);
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
+					setIsErrorModalOpen(true);
+					setLoading(false);
+					return;
+				}
+			}
+
 			const res = await putApi(`api/lead/v2/assign/${lead._id}`, dataObj);
 
 			if (res.status === 200) {

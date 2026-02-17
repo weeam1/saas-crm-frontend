@@ -13,19 +13,37 @@ import {
 	SkeletonText,
 	Divider,
 	Avatar,
+	Menu,
+	MenuButton,
+	MenuList,
+	MenuItem,
+	IconButton,
 	Tooltip,
 	HStack,
 	Progress,
 } from '@chakra-ui/react';
 import { constant } from 'constant';
-import { FiEye, FiPrinter } from 'react-icons/fi';
+import {
+	FiEye,
+	FiPrinter,
+	FiMoreVertical,
+	FiAlertTriangle,
+	FiAlertCircle,
+	FiTrash2,
+} from 'react-icons/fi';
+import { FaClockRotateLeft } from 'react-icons/fa6';
 import NoData from 'components/Message/NoData';
 import { useEffect, useState, useCallback } from 'react';
 import { formatCurrency } from 'utils/helpers';
 import PayslipDownloadModal from '../components/PayslipDownloadModal';
 import { useNavigate } from 'react-router-dom';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 const EmployeePayrollCards = ({
+	onViewHistoryModalOpen,
+	onAddHistoryModalOpen,
+	setPayRollData,
+	onDelete,
 	data = [],
 	isLoading,
 	month,
@@ -35,13 +53,24 @@ const EmployeePayrollCards = ({
 	const monthName = new Date(year, month - 1).toLocaleString('en-US', {
 		month: 'long',
 	});
+	const {
+		isOpen: isDeleteModalOpen,
+		onOpen: onDeleteModalOpen,
+		onClose: onDeleteModalClose,
+	} = useDisclosure();
 	const navigate = useNavigate();
 	const { isOpen, onOpen, onClose } = useDisclosure();
-
+	const [selectedEmployeeForDelete, setSelectedEmployeeForDelete] =
+		useState(null);
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
 	const [selectedEmployeeForModal, setSelectedEmployeeForModal] =
 		useState(null);
-
+	const handleDeleteConfirm = useCallback(() => {
+		if (selectedEmployeeForDelete && onDelete) {
+			onDelete(selectedEmployeeForDelete);
+		}
+		onDeleteModalClose();
+	}, [selectedEmployeeForDelete, onDelete, onDeleteModalClose]);
 	useEffect(() => {
 		let timer;
 		if (isLoading) setDelayedLoading(true);
@@ -54,7 +83,7 @@ const EmployeePayrollCards = ({
 			setSelectedEmployeeForModal(employee);
 			onOpen();
 		},
-		[onOpen]
+		[onOpen],
 	);
 
 	return (
@@ -111,12 +140,12 @@ const EmployeePayrollCards = ({
 												/>
 
 												<Box>
-													<Tooltip
-														label={row?.fullName}
-														placement='top'
-														hasArrow
-													>
-														<Flex align='center' justify='space-between'>
+													<Flex align='center' justify='space-between'>
+														<Tooltip
+															label={row?.fullName}
+															placement='top'
+															hasArrow
+														>
 															<Text
 																fontWeight='bold'
 																isTruncated
@@ -133,17 +162,21 @@ const EmployeePayrollCards = ({
 																	lg: '80px',
 																	xl: '100px',
 
-																	'2xl': '200px',
+																	'2xl': '150px',
 																	//   "2lg": "80px",
 																}}
 															>
 																{row?.fullName}
 															</Text>
-
+														</Tooltip>
+														<Flex
+															position='absolute'
+															top='5px'
+															right='10px'
+															align='center'
+															gap={1}
+														>
 															<Badge
-																position='absolute'
-																top='10px'
-																right='10px'
 																px={2}
 																py={0.5}
 																rounded='full'
@@ -154,14 +187,121 @@ const EmployeePayrollCards = ({
 																		: 'orange'
 																}
 																textTransform='uppercase'
-																flexShrink={0}
 															>
 																{row?.payslip?.status === 'paid'
 																	? 'Paid'
 																	: 'Unpaid'}
 															</Badge>
+
+															<Menu placement='bottom-end'>
+																<MenuButton
+																	as={IconButton}
+																	aria-label='More actions'
+																	icon={<FiMoreVertical />}
+																	size='xs'
+																	variant='ghost'
+																	_hover={{ bg: 'gray.200' }}
+																/>
+																<MenuList minW='150px' fontSize='sm'>
+																	{row?.payslip?.paymentStatus !== 'paid' && (
+																		<MenuItem
+																			isDisabled={
+																				row?.employeeWarning?.payrollProcessed
+																			}
+																			icon={<FiAlertTriangle />}
+																			onClick={() => {
+																				onAddHistoryModalOpen();
+																				setPayRollData(row);
+																			}}
+																		>
+																			Add Warning
+																		</MenuItem>
+																	)}
+
+																	<MenuItem
+																		icon={<FaClockRotateLeft />}
+																		onClick={() => {
+																			onViewHistoryModalOpen();
+																			setPayRollData(row);
+																		}}
+																	>
+																		View Warning History
+																	</MenuItem>
+																</MenuList>
+															</Menu>
 														</Flex>
-													</Tooltip>
+
+														{/* <Badge
+                                position="absolute"
+                                top="10px"
+                                right="10px"
+                                px={2}
+                                py={0.5}
+                                rounded="full"
+                                fontSize="xs"
+                                colorScheme={
+                                  row?.payslip?.status === "paid"
+                                    ? "green"
+                                    : "orange"
+                                }
+                                textTransform="uppercase"
+                                flexShrink={0}
+                              >
+                                {row?.payslip?.status === "paid"
+                                  ? "Paid"
+                                  : "Unpaid"}
+                              </Badge>
+                              <Menu
+                                placement="bottom-end"
+                                position="absolute"
+                                top="10px"
+                                right="10px"
+                              >
+                                <MenuButton
+                                  as={IconButton}
+                                  aria-label="More actions"
+                                  icon={<FiMoreVertical />}
+                                  variant="ghost"
+                                  size="xs"
+                                  colorScheme="gray"
+                                  _hover={{ bg: "gray.200" }}
+                                />
+                                <MenuList
+                                  minW="150px"
+                                  fontSize="sm"
+                                  zIndex={9999}
+                                >
+
+                                  <MenuItem
+                                    icon={<FiAlertTriangle />}
+                                    onClick={onAddHistoryModalOpen}
+                                    _hover={{ bg: "yellow.50" }}
+                                  >
+                                    <Text color="yellow.600">Warning</Text>
+                                  </MenuItem>
+
+
+                                  <MenuItem
+                                    icon={<FiAlertCircle />}
+                                    onClick={onViewHistoryModalOpen}
+                                    _hover={{ bg: "orange.50" }}
+                                  >
+                                    <Text color="orange.600">
+                                      Warning History
+                                    </Text>
+                                  </MenuItem>
+
+
+                                  <MenuItem
+                                    icon={<FiTrash2 />}
+                                    onClick={onDeleteModalOpen}
+                                    _hover={{ bg: "red.50" }}
+                                  >
+                                    <Text color="red.600">Delete</Text>
+                                  </MenuItem>
+                                </MenuList>
+                              </Menu> */}
+													</Flex>
 
 													<Text fontSize='10px' color='gray.500'>
 														{row.roles?.[0]?.roleName}
@@ -259,7 +399,10 @@ const EmployeePayrollCards = ({
 												fontWeight='bold'
 												color='black.500'
 											>
-												{formatCurrency(row.payrollSummary?.netSalary || 0)}
+												{formatCurrency(
+													row.payrollSummary?.netSalary || 0,
+													row?.agency?.currency,
+												)}
 											</Text>
 										</Flex>
 										<Divider mt={2} color={'blackAlpha.900'} />
@@ -280,7 +423,7 @@ const EmployeePayrollCards = ({
 											_hover={{ bg: 'purple.300' }}
 											onClick={() =>
 												navigate(
-													`/payroll/payslip/${row._id}?month=${month}&year=${year}`
+													`/payroll/users/payslip/${row._id}?month=${month}&year=${year}`,
 												)
 											}
 										>
@@ -304,7 +447,17 @@ const EmployeePayrollCards = ({
 					</SimpleGrid>
 				)}
 			</Box>
-
+			<DeleteConfirmationModal
+				isOpen={isDeleteModalOpen}
+				onClose={onDeleteModalClose}
+				onConfirm={handleDeleteConfirm}
+				title='Delete Payroll Record'
+				itemName={
+					selectedEmployeeForDelete?.name ||
+					selectedEmployeeForDelete?.user?.name
+				}
+				extraText={`payroll record for ${month}/${year}`}
+			/>
 			{isOpen && selectedEmployeeForModal && (
 				<PayslipDownloadModal
 					isOpen={isOpen}

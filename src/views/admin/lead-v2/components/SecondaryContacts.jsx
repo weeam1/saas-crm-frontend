@@ -16,8 +16,7 @@ import {
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { toast } from "react-toastify";
-import { useUpdateLeadV2Mutation } from "api/apiSlice";
-
+import { useUpdateItemMutation } from "api/apiSlice";
 import RenderFields from "components/shared/RenderFields";
 import { useDispatch } from "react-redux";
 import { safeValue } from "utils";
@@ -33,7 +32,7 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
   const { user } = useUserSession();
   const { hasPermission } = usePermissions();
   const { createUserLog } = useUserActivityLog();
-  const [updateLeadV2Mutation, { isLoading }] = useUpdateLeadV2Mutation();
+  const [updateItem, { isLoading }] = useUpdateItemMutation();
 
   const bgColor = useColorModeValue("white", "gray.800");
   const headerColor = useColorModeValue("brand.300", "brand.100");
@@ -93,9 +92,8 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
           whatsapp: values.secondaryWhatsapp,
         },
       };
-
-      const res = await updateLeadV2Mutation({
-        id: leadData?._id,
+      const res = await updateItem({
+        path: `/lead/v2/edit/${leadData?._id}`,
         body: payload,
       }).unwrap();
 

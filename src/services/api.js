@@ -109,27 +109,3 @@ export const getApi = async (path, id, server = 'baseUrl', source) => {
 		return e;
 	}
 };
-
-export const newGetApi = async (path, id, server = 'baseUrl', source) => {
-	try {
-		if (id) {
-			let result = await axios.get(constant[server] + path + id, {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-				},
-			});
-			return result;
-		} else {
-			let result = await axios.get(constant[server] + path, {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-				},
-				...(source && { cancelToken: source.token }),
-			});
-			return result;
-		}
-	} catch (e) {
-		console.error(e);
-		return e;
-	}
-};

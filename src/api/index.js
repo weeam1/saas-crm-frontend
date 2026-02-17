@@ -25,15 +25,18 @@ export const setAuthHeader = (headers) => {
 	}
 };
 
-export const fetchAgentLeadsSats = async (
+export const fetchAgentLeadsStats = async (
 	userId,
 	type = 'assigned',
-	selectedLeads = 1
+	selectedLeads = 1,
 ) => {
 	try {
 		const { data } = await getApi(
-			`api/lead/leads-stats/${userId}?type=${type}&selectedLeads=${selectedLeads}`
+			`api/lead/v2/leads-stats/${userId}?type=${type}&selectedLeads=${selectedLeads}`,
 		);
+		// const { data } = await getApi(
+		// 	`api/lead/leads-stats/${userId}?type=${type}&selectedLeads=${selectedLeads}`
+		// );
 
 		return data?.doc;
 	} catch (error) {
@@ -50,13 +53,13 @@ export const fetchAllUsers = async () => {
 			return response.data?.doc || [];
 		} else {
 			throw new Error(
-				`Unexpected response: ${response?.status} - ${response?.statusText}`
+				`Unexpected response: ${response?.status} - ${response?.statusText}`,
 			);
 		}
 	} catch (error) {
 		// Rethrow the error for handling in the consuming component
 		throw new Error(
-			error?.message || 'An unexpected error occurred while fetching users.'
+			error?.message || 'An unexpected error occurred while fetching users.',
 		);
 	}
 };
@@ -74,7 +77,7 @@ export const getApplications = async (
 	page,
 	pageSize,
 	query,
-	server = 'baseUrl'
+	server = 'baseUrl',
 ) => {
 	try {
 		const headers = {};
@@ -92,13 +95,13 @@ export const getApplications = async (
 			return response.data || [];
 		} else {
 			throw new Error(
-				`Unexpected response: ${response?.status} - ${response?.statusText}`
+				`Unexpected response: ${response?.status} - ${response?.statusText}`,
 			);
 		}
 	} catch (error) {
 		throw new Error(
 			error?.message ||
-				'An unexpected error occurred while fetching candidates applications.'
+				'An unexpected error occurred while fetching candidates applications.',
 		);
 	}
 };
@@ -197,7 +200,7 @@ export const sendLeadFeedback = async (pixelData) => {
 	} catch (error) {
 		console.error(
 			'Error sending lead feedback:',
-			error.response?.data || error.message
+			error.response?.data || error.message,
 		);
 	}
 };
@@ -257,7 +260,7 @@ export const sendHiringMetaFeedback = async (pixelData) => {
 	} catch (error) {
 		console.error(
 			'Error sending hiring meta feedback:',
-			error.response?.data || error.message
+			error.response?.data || error.message,
 		);
 	}
 };
@@ -280,7 +283,7 @@ export const sendLeadNotification = async (senderId, receiverId, leadData) => {
 export const sendBulkLeadNotification = async (
 	senderId,
 	receiverIds,
-	leads
+	leads,
 ) => {
 	try {
 		if (!receiverIds || typeof receiverIds !== 'object') {
@@ -321,8 +324,8 @@ export const sendBulkLeadNotification = async (
 
 		await Promise.all(
 			notifications.map((notifyData) =>
-				axios.post(`${keys.socketUrl}/notification`, notifyData)
-			)
+				axios.post(`${keys.socketUrl}/notification`, notifyData),
+			),
 		);
 	} catch (err) {
 		console.error('Failed to send bulk notifications:', err);
@@ -420,7 +423,7 @@ export const generateReportApi = async (payload) => {
 
 	if (!agency || !format) {
 		throw new Error(
-			'Missing required parameters: agency and format are required.'
+			'Missing required parameters: agency and format are required.',
 		);
 	}
 
@@ -484,7 +487,7 @@ export const generateEmployeeAttendanceReport = async (payload) => {
 
 	if (!format || !employeeId) {
 		throw new Error(
-			'Missing required parameters: employeeId and format are required.'
+			'Missing required parameters: employeeId and format are required.',
 		);
 	}
 

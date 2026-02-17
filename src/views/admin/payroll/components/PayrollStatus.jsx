@@ -21,7 +21,6 @@ import { CheckIcon, WarningIcon, TimeIcon } from '@chakra-ui/icons';
 import { FiAlertTriangle, FiCheckCircle, FiDollarSign } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { formatCurrency } from 'utils/helpers';
-import { Tooltip } from 'recharts';
 import CustomTooltip from 'components/shared/CustomTooltip';
 
 const PayrollStatus = ({ initialStatus, payrollData }) => {
@@ -31,8 +30,7 @@ const PayrollStatus = ({ initialStatus, payrollData }) => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const payslipId = payrollData?.payslip?._id;
-
-	console.log({ initialStatus });
+	const isNegativeSalary = payrollData?.payrollSummary?.netSalary < 0;
 
 	const [updatePaymentStatus] = useUpdateItemMutation();
 
@@ -96,7 +94,7 @@ const PayrollStatus = ({ initialStatus, payrollData }) => {
 		} catch (error) {
 			console.error('Failed to update status:', error);
 			toast.error(
-				error?.data?.message || 'Failed to update the payroll status!'
+				error?.data?.message || 'Failed to update the payroll status!',
 			);
 		} finally {
 			setIsLoading(false);
@@ -127,9 +125,11 @@ const PayrollStatus = ({ initialStatus, payrollData }) => {
 			</Flex>
 		);
 	}
-	const tooltipText = payslipId
-		? 'Update the payment status'
-		: 'Generate a payslip before changing the status';
+	const tooltipText = isNegativeSalary
+		? 'User salary is negative!'
+		: payslipId
+			? 'Update the payment status'
+			: 'Generate a payslip before changing the status';
 
 	// Unpaid state - interactive button
 	return (
@@ -142,7 +142,7 @@ const PayrollStatus = ({ initialStatus, payrollData }) => {
 					color='orange.700'
 					border='1px solid'
 					borderColor='orange.300'
-					disabled={!payslipId}
+					disabled={!payslipId || payrollData?.payrollSummary?.netSalary < 0}
 					_hover={{
 						bg: 'orange.100',
 						transform: 'translateY(-1px)',
@@ -221,7 +221,7 @@ const PayrollStatus = ({ initialStatus, payrollData }) => {
 										<Text fontWeight='600' color='green.600'>
 											{formatCurrency(
 												payrollData?.payrollSummary?.netSalary,
-												payrollData?.agency?.currency || 'AED'
+												payrollData?.agency?.currency || 'AED',
 											)}
 										</Text>
 									</HStack>

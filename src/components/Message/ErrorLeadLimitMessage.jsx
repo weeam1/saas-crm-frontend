@@ -27,19 +27,27 @@ import {
 } from '@chakra-ui/react';
 import useUserSession from 'hooks/useUserSession';
 
-const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
+const ErrorLeadLimitMessage = ({
+	isOpen,
+	onClose,
+	errorLeadData,
+	type = 'assigned',
+}) => {
 	const {
-		assignedLeads: agentLeads,
+		assignedLeads,
 		pendingApprovals: pendingLeads,
 		totalLeads,
 		maxLeadLimit,
-	} = errorLeadData;
+		role = 'Agent',
+	} = errorLeadData || {};
 
-	const { isSuperAdmin, role } = useUserSession();
+	const { isSuperAdmin, userRoleName } = useUserSession();
+
+	const isPurchase = type === 'purchase';
 
 	if (!isOpen) return null;
 
-	const target = role === 'Agent' ? 'You' : 'Agent';
+	const target = userRoleName === role ? 'You' : role;
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='lg' isCentered>
@@ -80,7 +88,7 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 										Assigned Leads
 									</Td>
 									<Td textAlign='right' color='gray.700'>
-										{agentLeads}
+										{assignedLeads}
 									</Td>
 								</Tr>
 								<Tr>
@@ -99,7 +107,7 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 										{totalLeads}
 									</Td>
 								</Tr>
-								{errorLeadData?.remainingLeads && (
+								{errorLeadData?.remainingLeads > 0 && (
 									<>
 										<Tr>
 											<Td fontWeight='semibold' color='gray.600'>
@@ -128,13 +136,19 @@ const ErrorLeadLimitMessage = ({ isOpen, onClose, errorLeadData }) => {
 								To continue, you can:
 							</Text>
 							<List spacing={2} styleType='disc' pl={6}>
-								{target === 'Agent' ? (
+								{isPurchase ? (
 									<ListItem>
 										<Text>
-											{`The agent has no remaining lead capacity. Please reassign
+											{`Your ${role === 'Manager' ? 'manager' : role === 'Team Leader' ? 'team leader' : 'personal'} lead allocation is full. Please contact your admin to increase your limit.`}
+										</Text>
+									</ListItem>
+								) : target !== 'You' ? (
+									<ListItem>
+										<Text>
+											{`The ${role} has no remaining lead capacity. Please reassign
 											some leads ${
 												isSuperAdmin
-													? ` or adjust the agent's lead limit in the
+													? ` or adjust the ${role}'s lead limit in the
 											settings.`
 													: ''
 											} `}

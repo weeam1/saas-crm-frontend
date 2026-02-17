@@ -195,12 +195,18 @@ const LeadCard = ({
 	// const userCoins = userData?.coins || 0;
 	// const isBuyDisabled =
 	//   userCoins < coinCost || buyLoading[_id] || isRejected || isPending;
-	const mainStatus =
-		leadStatuses?.find((item) => item.value === mStatus)?.label ?? 'New';
 
-	const subStatus =
-		leadSubStatuses?.find((item) => item.value === leadStatusValue)?.label ??
-		(mainStatus === 'New' ? 'Fresh Lead' : null);
+	const mainStatus = leadStatuses?.find(
+		(item) => item.value === mStatus,
+	)?.label;
+	// const mainStatus =
+	// 	leadStatuses?.find((item) => item.value === mStatus)?.label ?? 'New';
+	const subStatus = leadSubStatuses?.find(
+		(item) => item.value === leadStatusValue,
+	)?.label;
+	// const subStatus =
+	// 	leadSubStatuses?.find((item) => item.value === leadStatusValue)?.label ??
+	// 	(mainStatus === 'New' ? 'Fresh Lead' : null);
 
 	const coinCost =
 		COIN_COST_BY_STATUS[mainStatus?.toLowerCase()] ??

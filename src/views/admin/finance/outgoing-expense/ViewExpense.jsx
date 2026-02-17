@@ -21,6 +21,7 @@ import {
 	FaUser,
 	FaBuilding,
 	FaCalendar,
+	FaHome,
 } from 'react-icons/fa';
 import { useModalColors } from 'hooks/useModalColors';
 import { formatCurrency } from 'utils/helpers';
@@ -39,6 +40,7 @@ const ViewExpense = ({ isOpen, onClose, data }) => {
 		description,
 		addedBy,
 		agency,
+		source,
 		createdAt,
 	} = data;
 
@@ -181,6 +183,7 @@ const ViewExpense = ({ isOpen, onClose, data }) => {
 							icon={FaCalendar}
 						/>
 						<DataView label='Agency' value={agency?.name} icon={FaBuilding} />
+						<DataView label='Source' value={source} icon={FaHome} />
 					</DataViewGroup>
 
 					<Divider my={4} />

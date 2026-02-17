@@ -106,7 +106,7 @@ export const useFilteredQueryParams = () => {
 				if (value !== undefined && value !== null) {
 					updatedParams.set(
 						key,
-						typeof value === 'object' ? JSON.stringify(value) : value
+						typeof value === 'object' ? JSON.stringify(value) : value,
 					);
 				}
 			});
@@ -148,8 +148,8 @@ export const useFilteredQueryParams = () => {
 						managers,
 						allTeamLeaders,
 						allAgents,
-						leadStatusMaps
-					)
+						leadStatusMaps,
+					),
 				);
 				setSearchClear(true);
 			} else {
@@ -192,8 +192,8 @@ export const useFilteredQueryParams = () => {
 				setSearchTags(
 					generateSearchTags(
 						{ from: parsedDatetime[0], to: parsedDatetime[1] },
-						searchTags
-					)
+						searchTags,
+					),
 				);
 				setSearchClear(true);
 			} else {
@@ -304,7 +304,7 @@ export const generateSearchTags = (
 	managers,
 	teamLeaders,
 	agents,
-	leadStatusMaps
+	leadStatusMaps,
 ) => {
 	const tags = [];
 
@@ -335,7 +335,7 @@ export const generateSearchTags = (
 			}
 			if (key === 'agentAssigned') {
 				const assignedAgent = agents?.find(
-					(agent) => agent?._id?.toString() === value
+					(agent) => agent?._id?.toString() === value,
 				);
 				displayValue = assignedAgent
 					? `${assignedAgent.fullName}`
@@ -345,7 +345,7 @@ export const generateSearchTags = (
 			}
 			if (key === 'managerAssigned') {
 				const assignedManager = managers?.find(
-					(user) => user?._id?.toString() === value
+					(user) => user?._id?.toString() === value,
 				);
 				displayValue = assignedManager
 					? `${assignedManager.fullName}`
@@ -355,7 +355,7 @@ export const generateSearchTags = (
 			}
 			if (key === 'teamLeadAssigned') {
 				const assignedTeamLead = teamLeaders?.find(
-					(user) => user?._id?.toString() === value
+					(user) => user?._id?.toString() === value,
 				);
 				displayValue = assignedTeamLead
 					? `${assignedTeamLead.fullName}`
@@ -376,6 +376,16 @@ export const generateSearchTags = (
 						break;
 					default:
 						displayValue = '';
+				}
+			}
+
+			if (key === 'isReleased') {
+				switch (value) {
+					case 'true':
+						displayValue = 'Released Leads';
+						break;
+					default:
+						displayValue = 'Unreleased Leads';
 				}
 			}
 

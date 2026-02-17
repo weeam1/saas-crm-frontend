@@ -6,7 +6,7 @@ import { leadIconSize, leadlabelFontSize } from '../constants';
 import { leadSelectInputSize } from './../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { fetchAgentLeadsSats } from 'api';
+import { fetchAgentLeadsStats } from 'api';
 import { putApi } from 'services/api';
 import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
@@ -17,21 +17,24 @@ import CustomTooltip from 'components/shared/CustomTooltip';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import { useCreateItemMutation } from 'api/apiSlice';
 
-const Agents = ({ lead }) => {
+const Agents = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { agentAssigned, managerAssigned, teamLeadAssigned } = lead;
 
 	const [selected, setSelected] = useState(agentAssigned || '');
 	const [loading, setLoading] = useState(false);
 
-	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
-	const [errorLeadData, setErrorLeadData] = useState({});
+	// const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	// const [errorLeadData, setErrorLeadData] = useState({});
 
 	// const tree = useSelector((state) => state.user.tree);
 
 	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
 
 	useEffect(() => {
 		setSelected(agentAssigned);
@@ -50,10 +53,24 @@ const Agents = ({ lead }) => {
 			};
 
 			if (data.agentAssigned) {
-				const stats = await fetchAgentLeadsSats(data.agentAssigned);
+				// const stats = await fetchAgentLeadsStats(data.agentAssigned);
 
-				if (!stats.canAddLeads) {
-					setErrorLeadData(stats);
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds: [data.agentAssigned],
+					},
+				}).unwrap();
+
+				if (fetchUserStatsError) {
+					setLoading(false);
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
 					setIsErrorModalOpen(true);
 					setLoading(false);
 					return;
@@ -205,13 +222,13 @@ const Agents = ({ lead }) => {
 				onChange={handleChangeAgent}
 			/>
 
-			{errorLeadData && (
+			{/* {errorLeadData && (
 				<ErrorLeadLimitMessage
 					isOpen={isErrorModalOpen}
 					onClose={() => setIsErrorModalOpen(false)}
 					errorLeadData={errorLeadData}
 				/>
-			)}
+			)} */}
 		</>
 	);
 };

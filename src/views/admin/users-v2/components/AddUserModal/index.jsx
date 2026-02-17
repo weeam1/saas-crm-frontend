@@ -68,6 +68,7 @@ const getInitialValues = (userData = {}) => ({
 	parent: userData?.parent?._id || userData?.parent || null,
 	teamLead: userData?.teamLead?._id || userData?.teamLead || null,
 	target: userData?.target ?? '',
+	ranking: userData?.ranking ?? 'NORMAL',
 });
 
 const UserModal = ({
@@ -162,7 +163,7 @@ const UserModal = ({
 			const newRole = allRoles?.find((role) => role?._id === values?.roles);
 
 			const isAgentOrTeamLeadRole = ['Team Leader', 'Agent'].includes(
-				newRole?.roleName
+				newRole?.roleName,
 			);
 
 			const valuesObj = { ...values };
@@ -225,8 +226,8 @@ const UserModal = ({
 						}, {})
 					: Object.fromEntries(
 							Object.entries(valuesObj).filter(
-								([_, value]) => value != null && value !== ''
-							)
+								([_, value]) => value != null && value !== '',
+							),
 						);
 
 			let res = null;
@@ -274,7 +275,7 @@ const UserModal = ({
 			// Don't call onClose()
 		} catch (error) {
 			toast.error(
-				error?.data?.message || 'Failed to save user. Please try again.'
+				error?.data?.message || 'Failed to save user. Please try again.',
 			);
 			if (error?.data?.message.toLowerCase().includes('password')) {
 				passwordOnOpen();
@@ -286,7 +287,7 @@ const UserModal = ({
 
 	const managerTeamLeaders = useMemo(() => {
 		return getTeamLeadsByManager(formik.values.parent)?.filter(
-			(tl) => tl?._id !== userData?._id
+			(tl) => tl?._id !== userData?._id,
 		);
 	}, [formik.values?.parent, userData?._id]);
 
@@ -495,6 +496,19 @@ const UserModal = ({
 													icon={<FaUser size={14} />}
 													formik={formik}
 												/>
+												<FormField
+													label='Ranking'
+													name='ranking'
+													icon={<FaUser size={14} />}
+													formik={formik}
+													as='select'
+													placeholder='Select ranking'
+													options={[
+														{ label: 'Normal', value: 'NORMAL' },
+														{ label: 'Good', value: 'GOOD' },
+														{ label: 'Excellent', value: 'EXCELLENT' },
+													]}
+												/>
 											</SimpleGrid>
 										</Box>
 										<Box bg='gray.50' borderRadius='lg' p={5} w='100%'>
@@ -622,16 +636,16 @@ const UserModal = ({
 										}
 
 										const hasErrors = Object.keys(errors).some((key) =>
-											stepFields[step]?.includes(key)
+											stepFields[step]?.includes(key),
 										);
 
 										if (hasErrors) {
 											formik.setTouched(
 												stepFields[step].reduce(
 													(acc, cur) => ({ ...acc, [cur]: true }),
-													{}
+													{},
 												),
-												true
+												true,
 											);
 											return;
 										}

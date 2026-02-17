@@ -13,8 +13,14 @@ import {
 	Tooltip,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { FiEye, FiPrinter } from 'react-icons/fi';
+import {
+	FiEye,
+	FiPrinter,
+	FiAlertCircle,
+	FiAlertTriangle,
+} from 'react-icons/fi';
 import NoData from 'components/Message/NoData';
+import { FaClockRotateLeft } from 'react-icons/fa6';
 import TableLoading from 'components/loading/TableLoading';
 import { useEffect, useState, useCallback } from 'react';
 import { formatCurrency } from 'utils/helpers';
@@ -24,6 +30,9 @@ import { formatValue, COMMISSION_PAYROLL_COLUMNS } from '../formatUtils';
 import { useNavigate } from 'react-router-dom';
 
 const EmployeePayrollTable = ({
+	setPayRollData,
+	onViewHistoryModalOpen,
+	onAddHistoryModalOpen,
 	data = [],
 	isLoading,
 	month,
@@ -53,27 +62,6 @@ const EmployeePayrollTable = ({
 		return path.split('.').reduce((current, key) => current?.[key], obj);
 	}, []);
 
-	// const isPayslipGenerated = useCallback((employee) => {
-	// 	return employee?.payslip?.status === 'generated';
-	// }, []);
-
-	// const getTooltipText = useCallback(
-	// 	(employee) => {
-	// 		const attendancePercentage = getAttendancePercentage(employee);
-
-	// 		if (!hasCompletedAttendance(employee)) {
-	// 			return `Attendance incomplete (${attendancePercentage}%). Complete attendance or force generate payslip.`;
-	// 		}
-
-	// 		if (isPayslipGenerated(employee)) {
-	// 			return 'Regenerate payslip for this employee';
-	// 		}
-
-	// 		return 'Generate payslip for this employee';
-	// 	},
-	// 	[getAttendancePercentage, hasCompletedAttendance, isPayslipGenerated]
-	// );
-
 	const handlePayslipGenerate = useCallback(
 		(employee) => {
 			setSelectedEmployeeForModal(employee);
@@ -89,9 +77,6 @@ const EmployeePayrollTable = ({
 			}
 
 			if (column.key === 'actions') {
-				// const canDownload = hasCompletedAttendance(row);
-				// const isGenerated = isPayslipGenerated(row);
-
 				return (
 					<Flex align='center' justify='center' gap='2'>
 						{/* View Payslip / Details */}
@@ -129,6 +114,37 @@ const EmployeePayrollTable = ({
 								isDisabled={!row?.payslip?._id}
 								opacity={row?.payslip?._id ? 1 : 0.4}
 								onClick={() => handlePayslipGenerate(row)}
+							/>
+						</Tooltip>
+
+						{row?.payslip?.paymentStatus !== 'paid' && (
+							<Tooltip label='Add Warning' placement='top' hasArrow>
+								<IconButton
+									aria-label='Warning'
+									icon={<FiAlertTriangle />}
+									size='sm'
+									colorScheme='yellow'
+									variant='ghost'
+									onClick={() => {
+										onAddHistoryModalOpen();
+										setPayRollData(row);
+									}}
+								/>
+							</Tooltip>
+						)}
+
+						{/* Warning History Button */}
+						<Tooltip label='Warning History' placement='top' hasArrow>
+							<IconButton
+								aria-label='Warning History'
+								icon={<FaClockRotateLeft />}
+								size='sm'
+								colorScheme='yellow'
+								variant='ghost'
+								onClick={() => {
+									onViewHistoryModalOpen();
+									setPayRollData(row);
+								}}
 							/>
 						</Tooltip>
 					</Flex>

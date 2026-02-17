@@ -1,4 +1,3 @@
-import EntityField from './EntityField';
 import {
 	Box,
 	Flex,
@@ -8,18 +7,22 @@ import {
 	Icon,
 	Text,
 } from '@chakra-ui/react';
+import { useMemo, useState } from 'react';
+import { IoMdEye } from 'react-icons/io';
+
+import { safeValue } from 'utils';
+import { usePermissions } from 'hooks/usePermissions';
+import { leadlabelFontSize } from '../../constants';
+
+import EntityField from './EntityField';
 import LastNoteField from './LastNoteField';
 import MainStatus from '../MainStatus';
 import Status from '../Status';
 import Agents from '../Agents';
 import Managers from '../Managers';
-import { IoMdEye } from 'react-icons/io';
-import { leadlabelFontSize } from '../../constants';
-import LeadTypeBadge from '../LeadTypeBadge';
-import { useMemo } from 'react';
-import { usePermissions } from 'hooks/usePermissions';
-import { safeValue } from 'utils';
 import TeamLeaders from '../TeamLeaders';
+import LeadTypeBadge from '../LeadTypeBadge';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 
 const LeftCard = ({
 	lead,
@@ -36,6 +39,9 @@ const LeftCard = ({
 	}, [lead?.leadType, lead?.leadStatus]);
 
 	const { hasPermission } = usePermissions();
+
+	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	const [errorLeadData, setErrorLeadData] = useState({});
 
 	const QR_CHANGE_MANAGER_AGENT_PERMISSION =
 		queryParams?.invite && hasPermission('leads', 'qr_change_manager_agent');
@@ -151,14 +157,26 @@ const LeftCard = ({
 				{QR_CHANGE_MANAGER_AGENT_PERMISSION && (
 					<>
 						<GridItem colSpan={1}>
-							<Managers lead={lead} />
+							<Managers
+								lead={lead}
+								setErrorLeadData={setErrorLeadData}
+								setIsErrorModalOpen={setIsErrorModalOpen}
+							/>
 						</GridItem>
 						<GridItem colSpan={1}>
-							<TeamLeaders lead={lead} />
+							<TeamLeaders
+								lead={lead}
+								setErrorLeadData={setErrorLeadData}
+								setIsErrorModalOpen={setIsErrorModalOpen}
+							/>
 						</GridItem>
 
 						<GridItem colSpan={2}>
-							<Agents lead={lead} />
+							<Agents
+								lead={lead}
+								setErrorLeadData={setErrorLeadData}
+								setIsErrorModalOpen={setIsErrorModalOpen}
+							/>
 						</GridItem>
 					</>
 				)}
@@ -174,6 +192,8 @@ const LeftCard = ({
 							// refreshLeads={refreshLeads}
 							// role={role}
 							// queryParams={queryParams}
+							setErrorLeadData={setErrorLeadData}
+							setIsErrorModalOpen={setIsErrorModalOpen}
 						/>
 					</GridItem>
 				)}
@@ -181,7 +201,11 @@ const LeftCard = ({
 				{/* Team lead assigned */}
 				{TEAM_LEAD_ASSIGNED_PERMISSION && (
 					<GridItem colSpan={AGENT_ASSIGNED_PERMISSION ? '1' : '2'}>
-						<TeamLeaders lead={lead} />
+						<TeamLeaders
+							lead={lead}
+							setErrorLeadData={setErrorLeadData}
+							setIsErrorModalOpen={setIsErrorModalOpen}
+						/>
 					</GridItem>
 				)}
 
@@ -195,7 +219,12 @@ const LeftCard = ({
 						// 		: '1'
 						// }
 					>
-						<Agents lead={lead} refreshLeads={refreshLeads} />
+						<Agents
+							lead={lead}
+							refreshLeads={refreshLeads}
+							setErrorLeadData={setErrorLeadData}
+							setIsErrorModalOpen={setIsErrorModalOpen}
+						/>
 					</GridItem>
 				)}
 				{/* Main lead status */}
@@ -252,6 +281,14 @@ const LeftCard = ({
 					</GridItem>
 				)}
 			</Grid>
+
+			{errorLeadData && (
+				<ErrorLeadLimitMessage
+					isOpen={isErrorModalOpen}
+					onClose={() => setIsErrorModalOpen(false)}
+					errorLeadData={errorLeadData}
+				/>
+			)}
 		</Box>
 	);
 };

@@ -25,6 +25,8 @@ import EmployeePayrollCards from './EmployeePayrollCards';
 
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useEmployeePayroll } from '../hooks/usePayroll';
+import { ViewWarningsModal } from '../components/ViewWarningsModal';
+import { AddHistoryModal } from '../components/AddWarningHistoryModal';
 
 const Payroll = () => {
 	const {
@@ -48,14 +50,24 @@ const Payroll = () => {
 		setFilters,
 		refetch,
 	} = useEmployeePayroll();
-
+	const {
+		isOpen: isAddHistoryModalOpen,
+		onOpen: onAddHistoryModalOpen,
+		onClose: onAddHistoryModalClose,
+	} = useDisclosure();
+	const {
+		isOpen: isViewHistoryModalOpen,
+		onOpen: onViewHistoryModalOpen,
+		onClose: onViewHistoryModalClose,
+	} = useDisclosure();
 	const selectedAgency = useMemo(
 		() => agencies.find((a) => a._id === agencyId) || null,
-		[agencies, agencyId]
+		[agencies, agencyId],
 	);
 
 	const [clearFilters, setClearFilters] = useState(false);
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [payRollData, setPayRollData] = useState({});
 	const [filterChanged, setFilterChanged] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [view, setView] = useState(() => {
@@ -114,8 +126,8 @@ const Payroll = () => {
 	const handleApplyFilters = (newFilters) => {
 		const cleanedFilters = Object.fromEntries(
 			Object.entries(newFilters).filter(
-				([_, value]) => value !== '' && value !== undefined && value !== null
-			)
+				([_, value]) => value !== '' && value !== undefined && value !== null,
+			),
 		);
 
 		setFilters(cleanedFilters);
@@ -267,6 +279,9 @@ const Payroll = () => {
 			)}
 			{view !== 'grid' ? (
 				<EmployeePayrollTable
+					setPayRollData={setPayRollData}
+					onViewHistoryModalOpen={onViewHistoryModalOpen}
+					onAddHistoryModalOpen={onAddHistoryModalOpen}
 					data={data || []}
 					isLoading={isLoading || isFetching}
 					month={month}
@@ -275,6 +290,9 @@ const Payroll = () => {
 				/>
 			) : (
 				<EmployeePayrollCards
+					setPayRollData={setPayRollData}
+					onViewHistoryModalOpen={onViewHistoryModalOpen}
+					onAddHistoryModalOpen={onAddHistoryModalOpen}
 					data={data || []}
 					isLoading={isLoading || isFetching}
 					month={month}
@@ -302,6 +320,22 @@ const Payroll = () => {
 					usersData={usersData}
 				/>
 			)}
+			<ViewWarningsModal
+				isOpen={isViewHistoryModalOpen}
+				onClose={onViewHistoryModalClose}
+				employeeId={payRollData?._id}
+				data={payRollData}
+				month={month}
+				year={year}
+				// candidate={selectedEmployeeForWarningHistory}
+			/>
+			<AddHistoryModal
+				employeeId={payRollData?._id}
+				month={month}
+				year={year}
+				isOpen={isAddHistoryModalOpen}
+				onClose={onAddHistoryModalClose}
+			/>
 		</Box>
 	);
 };
