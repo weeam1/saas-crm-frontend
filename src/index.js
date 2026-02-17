@@ -42,6 +42,7 @@ import useUserSession from 'hooks/useUserSession';
 import { useSocketEvents } from 'hooks/useSocketEvents';
 import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
+import NewFreshLeadModal from 'views/admin/freshLead/NewFreshLeadModal';
 // import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
@@ -176,7 +177,7 @@ function App() {
 				if (type === 1) {
 					if (Array.isArray(data) && data.length > 0) {
 						data.forEach((announcement) =>
-							dispatch(addAnnouncement(announcement))
+							dispatch(addAnnouncement(announcement)),
 						);
 					} else {
 						dispatch(addAnnouncement(data));
@@ -339,6 +340,9 @@ function App() {
 
 	return (
 		<>
+			{/* Fresh lead modal */}
+			<NewFreshLeadModal />
+
 			<Notifications />
 			{isModalOpen && (
 				<AnnouncementsModal
@@ -383,5 +387,5 @@ ReactDOM.render(
 			</ChakraProvider>
 		</ContextProvider>
 	</Provider>,
-	document.getElementById('root')
+	document.getElementById('root'),
 );

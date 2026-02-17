@@ -17,8 +17,6 @@ import { formatPostDate } from 'utils/helpers';
 // }
 
 export default function LeadHistoryTimeline({ timelineData }) {
-	console.log({ timelineData });
-
 	return (
 		<>
 			{/* {timelineData.map((item) => {

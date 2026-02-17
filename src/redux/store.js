@@ -21,6 +21,7 @@ import permissionReducer from './permissionSlice';
 import onlineUsersReducer from './onlineUsersSlice';
 import utilSliceReducer from './utilSlice';
 import webrtcSliceReducer from './webrtc/webrtcSlice';
+import freshLeadReducer from './freshLeadSlice';
 
 import { apiSlice } from 'api/apiSlice';
 import countriesData from 'data/countries.json';
@@ -50,6 +51,7 @@ const store = configureStore({
 		webSocket: webSocketReducer,
 		permissions: permissionReducer,
 		whatsappWeb: whatsappWebReducer,
+		freshLead: freshLeadReducer,
 		[apiSlice.reducerPath]: apiSlice.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>
@@ -59,7 +61,7 @@ const store = configureStore({
 // Load countries from JSON into Redux store
 store.dispatch(setCountries(countriesData));
 store.dispatch(
-	setCountryNames(countriesData.map((country) => country.name.toLowerCase()))
+	setCountryNames(countriesData.map((country) => country.name.toLowerCase())),
 );
 
 export default store;
