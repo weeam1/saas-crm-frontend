@@ -43,6 +43,7 @@ import { useSocketEvents } from 'hooks/useSocketEvents';
 import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import NewFreshLeadModal from 'views/admin/freshLead/NewFreshLeadModal';
+import NewFreshLeadPoolModal from 'views/admin/freshLead/freshLeadPool/FreshLeadPoolModal';
 // import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
@@ -72,7 +73,7 @@ function App() {
 	// const [permissionGranted, setPermissionGranted] = useState(false);
 	// const user = JSON.parse(localStorage.getItem('user'));
 
-	const { user } = useUserSession();
+	const { user, userRoleName } = useUserSession();
 	// const { whatsappInitialize, disconnectWhatsapp } = useWhatsapp();
 
 	// const whatsappSessionId = user?.whatsappInstance?.sessionId;
@@ -341,7 +342,12 @@ function App() {
 	return (
 		<>
 			{/* Fresh lead modal */}
-			<NewFreshLeadModal />
+			{userRoleName === 'Agent' && <NewFreshLeadModal />}
+
+			{/* Admin lead pool modal real time */}
+			{['Admin', 'superAdmin'].includes(userRoleName) && (
+				<NewFreshLeadPoolModal />
+			)}
 
 			<Notifications />
 			{isModalOpen && (

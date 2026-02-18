@@ -1,5 +1,5 @@
-import { removeFreshLead } from '../../../redux/freshLeadSlice';
-import { useTierCountdown } from './useTierCountdown';
+import { removeFreshLeadPool } from '../../../../redux/freshLeadPoolSlice';
+import { useTierCountdown } from '../useTierCountdown';
 import { toast } from 'react-toastify';
 
 import {
@@ -31,27 +31,17 @@ import {
 import { useDispatch } from 'react-redux';
 import { useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaCoins, FaStar } from 'react-icons/fa';
+import { FaCoins, FaStar, FaUser } from 'react-icons/fa';
 
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
 
-const FreshLeadCard = ({
-	lead,
-	user,
-	handleBuy,
-	isDialerEnabled,
-	isSubmitting,
-}) => {
+const FreshLeadPoolCard = ({ lead, isSubmitting, handleSubmit }) => {
 	const dispatch = useDispatch();
 
-	const coins = user?.coins || 0;
-
-	const userIsEligible = Boolean(coins >= 300);
-
 	const handleExpire = useCallback(() => {
-		dispatch(removeFreshLead(lead._id));
-		toast.info('Lead offer expired! New leads coming soon...');
+		dispatch(removeFreshLeadPool(lead._id));
+		toast.info('Lead request expired!');
 	}, [dispatch]);
 
 	const { remaining, percentage } = useTierCountdown(
@@ -61,8 +51,8 @@ const FreshLeadCard = ({
 	);
 
 	const handleSkip = useCallback(() => {
-		dispatch(removeFreshLead(lead._id));
-		toast.info('Lead skipped');
+		dispatch(removeFreshLeadPool(lead._id));
+		toast.info('Lead request skipped');
 	}, [dispatch, lead?._id]);
 
 	// Format long text with truncation
@@ -98,7 +88,7 @@ const FreshLeadCard = ({
 			/>
 
 			{/* Main Lead Card - Compact */}
-			{lead?.isClaimed ? (
+			{lead?.isResolved ? (
 				<Box>
 					<Alert
 						status='error'
@@ -110,28 +100,13 @@ const FreshLeadCard = ({
 						<Box>
 							<AlertTitle>Lead Unavailable</AlertTitle>
 							<AlertDescription>
-								This lead has already been claimed and is no longer available.
+								This lead has already been responsed by another admin.
 							</AlertDescription>
 						</Box>
 					</Alert>
 				</Box>
 			) : (
 				<>
-					{/* Premium Badge - New Lead Alert */}
-					<HStack spacing={2} justify='flex-end'>
-						<Badge
-							colorScheme='green'
-							variant='subtle'
-							fontSize='2xs'
-							px={2}
-							py={0.5}
-							borderRadius='full'
-							startElement={<Icon as={FiZap} size={12} />}
-						>
-							🔥 Fresh Lead • Available now
-						</Badge>
-					</HStack>
-
 					<Box
 						p={4}
 						bg='white'
@@ -157,16 +132,6 @@ const FreshLeadCard = ({
 									<Heading size='xs' noOfLines={1} color='gray.800'>
 										{lead?.leadName || 'New Lead'}
 									</Heading>
-									<HStack spacing={1.5}>
-										<Badge
-											colorScheme='brand'
-											fontSize='2xs'
-											px={1.5}
-											borderRadius='sm'
-										>
-											⚡ Premium
-										</Badge>
-									</HStack>
 								</VStack>
 
 								{/* Time Indicator */}
@@ -189,7 +154,7 @@ const FreshLeadCard = ({
 								<CompactInfoItem
 									icon={FiDollarSign}
 									label='Budget'
-									value={formatLongText(lead?.budget, 25)}
+									value={formatLongText(lead?.budget, 30)}
 									color='green.500'
 								/>
 								<CompactInfoItem
@@ -213,62 +178,66 @@ const FreshLeadCard = ({
 									tooltip={lead?.interest}
 									color='orange.500'
 								/>
+								<CompactInfoItem
+									icon={FaUser}
+									label='Requested By'
+									value={formatLongText(lead?.agentName, 35)}
+									tooltip={lead?.agentName}
+									color='cyan.500'
+								/>
 							</SimpleGrid>
 
 							{/* Action Buttons - Compact */}
 							<AnimatePresence>
-								{!userIsEligible && (
-									<Box
-										flex={2}
-										p={3}
-										bg='yellow.50'
-										border='1px solid'
-										borderColor='yellow.200'
-										borderRadius='lg'
-										fontSize='sm'
-										color='yellow.800'
-									>
-										You don’t have enough coins to buy this lead. Get more coins
-										to unlock the latest premium leads.
-									</Box>
-								)}
-
 								{remaining > 0 ? (
-									<HStack spacing={2} w='full'>
-										{userIsEligible && (
+									<VStack gap='2' w='full'>
+										<HStack spacing={2} w='full'>
 											<Button
 												flex={2}
 												h='36px'
 												fontSize='sm'
 												borderRadius='lg'
-												leftIcon={<Icon as={FiAward} size={16} />}
 												bg='green.600'
 												color='white'
 												_hover={{ bg: 'green.700' }}
 												isLoading={isSubmitting}
 												isDisabled={isSubmitting}
-												onClick={() => handleBuy(lead._id)}
+												onClick={() => handleSubmit(lead._id, 'approve')}
 												size='sm'
 											>
-												{isDialerEnabled ? 'Buy & Call for 300' : 'Buy for 300'}
+												Approve
 											</Button>
-										)}
-
+											<Button
+												flex={2}
+												h='36px'
+												fontSize='sm'
+												borderRadius='lg'
+												bg='red.600'
+												color='white'
+												_hover={{ bg: 'red.700' }}
+												isLoading={isSubmitting}
+												isDisabled={isSubmitting}
+												onClick={() => handleSubmit(lead._id, 'reject')}
+												size='sm'
+											>
+												Reject
+											</Button>
+										</HStack>
 										<Button
-											flex={1}
-											h='36px'
+											// h='36px'
+											w='full'
 											fontSize='sm'
 											borderRadius='lg'
 											variant='outline'
 											colorScheme='gray'
-											isDisabled={isSubmitting}
 											leftIcon={<Icon as={FiX} size={16} />}
 											onClick={handleSkip}
+											isDisabled={isSubmitting}
 											size='sm'
 										>
 											Skip
 										</Button>
-									</HStack>
+									</VStack>
 								) : (
 									<MotionBox
 										initial={{ opacity: 0 }}
@@ -291,13 +260,6 @@ const FreshLeadCard = ({
 									</MotionBox>
 								)}
 							</AnimatePresence>
-
-							{/* Agent Tip - Small Hint */}
-							{userIsEligible && remaining > 0 && remaining < 10 && (
-								<Text fontSize='2xs' color='red.500' textAlign='center'>
-									⚡ Hurry! Only {remaining} seconds left to grab this new lead
-								</Text>
-							)}
 						</VStack>
 					</Box>
 				</>
@@ -323,4 +285,4 @@ const CompactInfoItem = ({ icon, label, value, tooltip, color }) => (
 	</HStack>
 );
 
-export default FreshLeadCard;
+export default FreshLeadPoolCard;

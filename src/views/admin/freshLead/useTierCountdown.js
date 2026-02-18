@@ -49,10 +49,15 @@ export const useTierCountdown = (expiresAt, onExpire, leadId) => {
 	console.log({ percentage });
 
 	return {
-		remaining: Math.ceil(remaining / 1000),
-		percentage,
-		isExpired: remaining <= 0,
+		remaining: 200,
+		percentage: 100,
+		isExpired: false,
 	};
+	// return {
+	// 	remaining: Math.ceil(remaining / 1000),
+	// 	percentage,
+	// 	isExpired: remaining <= 0,
+	// };
 };
 
 // export const useTierCountdown = (expiresAt, onExpire, leadId) => {

@@ -1,4 +1,4 @@
-import { removeFreshLead } from '../../../redux/freshLeadSlice';
+import { removeFreshLeadPool } from '../../../../redux/freshLeadPoolSlice';
 import { toast } from 'react-toastify';
 import useUserSession from 'hooks/useUserSession';
 
@@ -7,10 +7,7 @@ import {
 	ModalOverlay,
 	ModalContent,
 	ModalHeader,
-	ModalCloseButton,
 	ModalBody,
-	ModalFooter,
-	VStack,
 	HStack,
 	Text,
 	Badge,
@@ -18,42 +15,47 @@ import {
 	Button,
 	Box,
 	Icon,
-	Flex,
-	Heading,
 	useColorModeValue,
-	CloseButton,
 } from '@chakra-ui/react';
-import {
-	FiClock,
-	FiAward,
-	FiDollarSign,
-	FiTarget,
-	FiGlobe,
-} from 'react-icons/fi';
+import { FiAward } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
+import { useMemo } from 'react';
 
 import { useCreateItemMutation } from 'api/apiSlice';
-import FreshLeadCard from './FreshLeadCard';
-import { useMemo, useState } from 'react';
+import FreshLeadPoolCard from './FreshLeadPoolCard';
 
-const selectFreshLead = (state) => state.freshLead?.leads ?? [];
+const sampleLead = {
+	leadName: 'Abdul Qudos',
+	leadId: '69954ca67f933eec1cee84ac',
+	agentName: 'Test Hammad',
+	agentId: '676e5abb44f974166590fef0',
+	mangerName: 'Test Manager',
+	managerId: '676e5a6a44f974166590fe6a',
+	approvalStatus: 'pending',
+	leadPhoneNumber: '+923243432433',
+	leadEmail: 'qu3ul569@gmail.com',
+	nationality: 'Albania',
+	interest: null,
+	leadStatus: 'fresh_lead',
+	eLeadStatus: 'new',
+	createdDate: '2026-02-18T05:22:46.106Z',
+	_id: '69954cb67f933eec1cee84be',
+	createdAt: '2026-02-18T05:23:02.997Z',
+	updatedAt: '2026-02-18T05:23:02.997Z',
+	__v: 0,
+	id: '69954cb67f933eec1cee84be',
+	expiresAt: 1771392244984,
+};
 
-const NewFreshLeadModal = () => {
+const selectFreshLead = (state) => state.freshLeadPool?.leads ?? [];
+
+const NewFreshLeadPoolModal = () => {
 	const dispatch = useDispatch();
-
-	const webrtc = useSelector((state) => state.webrtc);
-	const userSettings = webrtc?.userSettings;
-
-	const isDialerEnabled = Boolean(
-		userSettings?.status?.wss || userSettings?.modes?.wss?.cid,
-	);
 
 	const leads = useSelector(selectFreshLead);
 
 	const isOpen = useMemo(() => leads.length > 0, [leads]);
 
-	// const isOpen = useSelector(selectFreshLeadOpen);
-	const leadPurchaseStatus = useSelector((state) => state.freshLead.ownedByMe);
 	const { user } = useUserSession();
 
 	const [createItem, { isLoading: isSubmitting }] = useCreateItemMutation();
@@ -61,32 +63,23 @@ const NewFreshLeadModal = () => {
 	const bgColor = useColorModeValue('white', 'gray.800');
 	const borderColor = useColorModeValue('purple.100', 'purple.700');
 
-	if (!leads || !isOpen) return null;
+	if (!leads?.length || !isOpen) return null;
 
-	const handleBuy = async (leadId) => {
+	const handleSubmit = async (leadId, type) => {
 		try {
-			await createItem({ path: `/lead/purchase/${leadId}` }).unwrap();
+			await createItem({
+				path: `/adminApproval/real-time/response/${leadId}`,
+				body: { type },
+			}).unwrap();
 
-			toast.success('🎉 Lead purchased successfully!');
-			dispatch(removeFreshLead(leadId));
+			toast.success(`Lead ${type} successfully!`);
+			// dispatch(removeFreshLeadPool(leadId));
 		} catch (err) {
 			toast.error(err?.data?.message || 'Something went wrong');
+		} finally {
+			dispatch(removeFreshLeadPool(leadId));
 		}
 	};
-
-	if (typeof leadPurchaseStatus === 'boolean') {
-		const message = leadPurchaseStatus
-			? 'You successfully purchased this lead.'
-			: 'Oops! This lead has already been purchased by another user.';
-
-		return toast.info(message);
-		// return (
-		// 	<LeadPurchaseMessage
-		// 		purchaseStatus={leadPurchaseStatus}
-		// 		onClose={() => dispatch(clearFreshLead())}
-		// 	/>
-		// );
-	}
 
 	return (
 		<Modal
@@ -110,10 +103,13 @@ const NewFreshLeadModal = () => {
 					<HStack justify='space-between' align='center'>
 						<HStack>
 							<Icon as={FiAward} color='brand.500' w={6} h={6} />
-							<Text color='brand.400'>Exclusive Lead!</Text>
+							<Text color='brand.400'>
+								Fresh Lead Request ({leads?.length || 1})
+							</Text>
 						</HStack>
 					</HStack>
 				</ModalHeader>
+				{/* <ModalCloseButton top={4} right={4} /> */}
 
 				<ModalBody
 					py={6}
@@ -125,21 +121,22 @@ const NewFreshLeadModal = () => {
 					}}
 				>
 					{leads?.map((lead) => (
-						<FreshLeadCard
+						<FreshLeadPoolCard
 							key={lead._id}
 							lead={lead}
-							user={user}
 							isSubmitting={isSubmitting}
-							handleBuy={handleBuy}
-							isDialerEnabled={isDialerEnabled}
+							handleSubmit={handleSubmit}
 						/>
 					))}
+					{/* <FreshLeadPoolCard
+						lead={sampleLead}
+						isSubmitting={isSubmitting}
+						handleSubmit={handleSubmit}
+					/> */}
 				</ModalBody>
-
-				{/* <ModalFooter flexDirection='column' spacing={3}></ModalFooter> */}
 			</ModalContent>
 		</Modal>
 	);
 };
 
-export default NewFreshLeadModal;
+export default NewFreshLeadPoolModal;

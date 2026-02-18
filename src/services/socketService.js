@@ -4,11 +4,8 @@ import store from '../redux/store';
 import { appendMessage, addContact } from '../redux/whatsappSlice';
 import { updateAllUsers } from '../redux/usersSlice';
 import { setOnlineUsers } from '../redux/onlineUsersSlice';
-import {
-	addFreshLead,
-	markLeadClaimed,
-	removeFreshLead,
-} from '../redux/freshLeadSlice';
+import { addFreshLead, markLeadClaimed } from '../redux/freshLeadSlice';
+import { addFreshLeadPool } from '../redux/freshLeadPoolSlice';
 import keys from 'config/keys';
 
 class SocketService {
@@ -32,15 +29,15 @@ class SocketService {
 		}
 
 		// Default options with merging
+		// transports: ['socket.io'],
 		const defaultOptions = {
 			path: '/socket.io',
-			// transports: ['socket.io'],
 			reconnection: true,
 			reconnectionAttempts: Infinity || this.maxReconnectionAttempts,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			autoConnect: true,
-			forceNew: true, // <-- don’t force new connection
+			forceNew: true,
 			timeout: 5000,
 		};
 
@@ -77,6 +74,11 @@ class SocketService {
 				console.log('Lead Claimed:', payload);
 				// store.dispatch(setLeadClaimed(payload));
 				store.dispatch(markLeadClaimed(payload));
+			});
+
+			this.socket.on('leadApprovalRequest', (payload) => {
+				console.log('Lead Approval Request:', payload);
+				store.dispatch(addFreshLeadPool(payload));
 			});
 
 			this.socket.on('newContact', (contact) => {
