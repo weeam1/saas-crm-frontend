@@ -27,13 +27,13 @@ const freshLeadPoolSlice = createSlice({
 			state.leads = state.leads.filter((l) => l._id !== leadId);
 		},
 
-		markLeadPoolResolved(state, action) {
-			const { leadId, isResolved = true } = action.payload;
+		markLeadDecisionFinalized(state, action) {
+			const { leadId, isFinalized = true } = action.payload;
 
 			const lead = state.leads.find((l) => l._id === leadId);
 
 			if (lead) {
-				lead.isResolved = isResolved;
+				lead.isFinalized = isFinalized;
 			}
 		},
 
@@ -52,7 +52,7 @@ const freshLeadPoolSlice = createSlice({
 export const {
 	addFreshLeadPool,
 	removeFreshLeadPool,
-	markLeadPoolResolved,
+	markLeadDecisionFinalized,
 	clearExpiredLeadPool,
 	clearAllLeadPoolFreshLeads,
 } = freshLeadPoolSlice.actions;

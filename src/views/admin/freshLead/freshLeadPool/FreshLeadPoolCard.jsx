@@ -88,7 +88,7 @@ const FreshLeadPoolCard = ({ lead, isSubmitting, handleSubmit }) => {
 			/>
 
 			{/* Main Lead Card - Compact */}
-			{lead?.isResolved ? (
+			{lead?.isFinalized ? (
 				<Box>
 					<Alert
 						status='error'

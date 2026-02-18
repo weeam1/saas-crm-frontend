@@ -5,7 +5,10 @@ import { appendMessage, addContact } from '../redux/whatsappSlice';
 import { updateAllUsers } from '../redux/usersSlice';
 import { setOnlineUsers } from '../redux/onlineUsersSlice';
 import { addFreshLead, markLeadClaimed } from '../redux/freshLeadSlice';
-import { addFreshLeadPool } from '../redux/freshLeadPoolSlice';
+import {
+	addFreshLeadPool,
+	markLeadDecisionFinalized,
+} from '../redux/freshLeadPoolSlice';
 import keys from 'config/keys';
 
 class SocketService {
@@ -79,6 +82,11 @@ class SocketService {
 			this.socket.on('leadApprovalRequest', (payload) => {
 				console.log('Lead Approval Request:', payload);
 				store.dispatch(addFreshLeadPool(payload));
+			});
+
+			this.socket.on('leadDecisionFinalized', (payload) => {
+				console.log('leadDecisionFinalized:', payload);
+				store.dispatch(markLeadDecisionFinalized(payload));
 			});
 
 			this.socket.on('newContact', (contact) => {
