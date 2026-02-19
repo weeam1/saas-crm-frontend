@@ -76,15 +76,14 @@ const NewFreshLeadPoolModal = () => {
 
 	if (!leads?.length || !isOpen) return null;
 
-	const handleSubmit = async (leadId, type) => {
+	const handleSubmit = async (leadId, action) => {
 		try {
 			await createItem({
 				path: `/adminApproval/real-time/response/${leadId}`,
-				body: { type },
+				body: { action },
 			}).unwrap();
 
-			toast.success(`Lead ${type} successfully!`);
-			// dispatch(removeFreshLeadPool(leadId));
+			toast.success(`Lead ${action}ed successfully!`);
 		} catch (err) {
 			toast.error(err?.data?.message || 'Something went wrong');
 		} finally {

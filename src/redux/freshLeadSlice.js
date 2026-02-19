@@ -36,6 +36,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
 	leads: [],
+	approvalLeads: [],
 };
 
 const freshLeadSlice = createSlice({
@@ -53,6 +54,26 @@ const freshLeadSlice = createSlice({
 				...lead,
 				isClaimed: false,
 			});
+		},
+
+		addApprovalLead(state, action) {
+			const { lead } = action.payload;
+			if (!lead?._id) return;
+
+			const exists = state.approvalLeads.some((item) => item._id === lead._id);
+
+			if (!exists) {
+				state.approvalLeads.push(lead);
+			}
+		},
+
+		removeApprovalLead(state, action) {
+			const leadId = action.payload;
+			if (!leadId) return;
+
+			state.approvalLeads = state.approvalLeads.filter(
+				(lead) => lead._id !== leadId,
+			);
 		},
 
 		removeFreshLead(state, action) {
@@ -89,6 +110,8 @@ export const {
 	markLeadClaimed,
 	clearExpiredLeads,
 	clearAllLeads,
+	addApprovalLead,
+	removeApprovalLead,
 } = freshLeadSlice.actions;
 
 export default freshLeadSlice.reducer;

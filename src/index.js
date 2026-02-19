@@ -44,6 +44,7 @@ import { registerWhatsappSocket } from 'services/whatsapp/whatsappScoket';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import NewFreshLeadModal from 'views/admin/freshLead/NewFreshLeadModal';
 import NewFreshLeadPoolModal from 'views/admin/freshLead/freshLeadPool/FreshLeadPoolModal';
+import FreshApprovedLeadModal from 'views/admin/freshLead/freshApprovedLead/FreshApprovedLeadModal';
 // import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
@@ -342,7 +343,12 @@ function App() {
 	return (
 		<>
 			{/* Fresh lead modal */}
-			{userRoleName === 'Agent' && <NewFreshLeadModal />}
+			{userRoleName === 'Agent' && (
+				<>
+					<NewFreshLeadModal />
+					<FreshApprovedLeadModal />
+				</>
+			)}
 
 			{/* Admin lead pool modal real time */}
 			{['Admin', 'superAdmin'].includes(userRoleName) && (

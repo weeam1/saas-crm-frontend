@@ -1,4 +1,7 @@
-import { removeFreshLead } from '../../../redux/freshLeadSlice';
+import {
+	addApprovalLead,
+	removeFreshLead,
+} from '../../../redux/freshLeadSlice';
 import { toast } from 'react-toastify';
 import useUserSession from 'hooks/useUserSession';
 
@@ -76,9 +79,28 @@ const NewFreshLeadModal = () => {
 
 	const handleBuy = async (leadId) => {
 		try {
-			await createItem({ path: `/lead/purchase/${leadId}` }).unwrap();
+			const res = await createItem({
+				path: `/lead/purchase/${leadId}`,
+			}).unwrap();
 
-			toast.success('🎉 Lead purchased successfully!');
+			switch (res?.auto) {
+				case true:
+					if (res?.doc?._id) {
+						dispatch(addApprovalLead({ lead: res.doc }));
+					}
+					toast.success('🎉 Lead purchased successfully!');
+					break;
+
+				case false:
+					toast.success(
+						'Your lead purchase request has been submitted for approval.',
+					);
+					break;
+
+				default:
+					console.warn('Unexpected response:', res);
+			}
+
 			dispatch(removeFreshLead(leadId));
 		} catch (err) {
 			toast.error(err?.data?.message || 'Something went wrong');
