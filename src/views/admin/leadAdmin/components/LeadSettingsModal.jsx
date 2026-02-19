@@ -212,6 +212,7 @@ const LeadSettingsModal = () => {
 
 	const [autoAssign, setAutoAssign] = useState(false);
 	const [timeoutValue, setTimeoutValue] = useState(10000);
+	const [freshLeadNotification, setFreshLeadNotification] = useState(false);
 	const [timeUnit, setTimeUnit] = useState('seconds');
 	const [inputValue, setInputValue] = useState(10);
 
@@ -238,6 +239,7 @@ const LeadSettingsModal = () => {
 
 			setTimeoutValue(tierTimeout);
 			setAutoAssign(data?.doc?.freshLeadAutoAssign ?? false);
+			setFreshLeadNotification(data?.doc?.freshLeadNotification ?? false);
 		}
 	}, [data]);
 
@@ -307,7 +309,7 @@ const LeadSettingsModal = () => {
 			}).unwrap();
 
 			toast.success('Lead settings updated successfully');
-			refetch();
+			// refetch();
 			onClose();
 		} catch (error) {
 			toast.error('Failed to update settings');
@@ -360,6 +362,34 @@ const LeadSettingsModal = () => {
 							</Flex>
 						) : (
 							<VStack spacing={8} align='stretch'>
+								{/* Fresh lead notifcation */}
+								<Box p={4} borderWidth='1px' borderRadius='xl' bg='gray.50'>
+									<FormControl display='flex' alignItems='center'>
+										<VStack align='start' spacing={0} flex={1}>
+											<HStack>
+												<FormLabel mb='0' fontWeight='semibold'>
+													Fresh Lead Notifications
+												</FormLabel>
+												<Tooltip label='Enable to receive notifications whenever a new lead is available'>
+													<InfoIcon color='gray.400' boxSize={3} />
+												</Tooltip>
+											</HStack>
+											<FormHelperText mt={1}>
+												Toggle to receive alerts for new leads.
+											</FormHelperText>
+										</VStack>
+
+										<Switch
+											size='md'
+											colorScheme='brand'
+											isChecked={freshLeadNotification}
+											onChange={(e) =>
+												setFreshLeadNotification(e.target.checked)
+											}
+										/>
+									</FormControl>
+								</Box>
+
 								{/* Auto Assign Card */}
 								<Box p={4} borderWidth='1px' borderRadius='xl' bg='gray.50'>
 									<FormControl display='flex' alignItems='center'>
@@ -396,9 +426,9 @@ const LeadSettingsModal = () => {
 													Time before moving to next tier
 												</Text>
 											</VStack>
-											<Badge colorScheme='purple' p={2} borderRadius='md'>
+											{/* <Badge colorScheme='purple' p={2} borderRadius='md'>
 												Current: {getFormattedTime()}
-											</Badge>
+											</Badge> */}
 										</HStack>
 
 										<HStack spacing={3}>
