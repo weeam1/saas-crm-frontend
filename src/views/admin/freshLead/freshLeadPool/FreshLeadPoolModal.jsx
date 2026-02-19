@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react';
 import { FiAward } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { useCreateItemMutation } from 'api/apiSlice';
 import FreshLeadPoolCard from './FreshLeadPoolCard';
