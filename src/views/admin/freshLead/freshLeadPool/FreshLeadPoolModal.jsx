@@ -19,10 +19,11 @@ import {
 } from '@chakra-ui/react';
 import { FiAward } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { useCreateItemMutation } from 'api/apiSlice';
 import FreshLeadPoolCard from './FreshLeadPoolCard';
+import { playNewLeadNotification } from '../leadNotificationUtil';
 
 const sampleLead = {
 	leadName: 'Abdul Qudos',
@@ -62,6 +63,16 @@ const NewFreshLeadPoolModal = () => {
 
 	const bgColor = useColorModeValue('white', 'gray.800');
 	const borderColor = useColorModeValue('purple.100', 'purple.700');
+
+	const prevCountRef = useRef(leads.length);
+
+	useEffect(() => {
+		// Only play if length actually increased
+		if (leads.length > prevCountRef.current) {
+			playNewLeadNotification();
+		}
+		prevCountRef.current = leads.length;
+	}, [leads.length]);
 
 	if (!leads?.length || !isOpen) return null;
 

@@ -34,7 +34,11 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { useCreateItemMutation } from 'api/apiSlice';
 import FreshLeadCard from './FreshLeadCard';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import soundPlayer from 'utils/sound/soundUtil';
+
+// import notificationFile from 'assets/sounds/new-notification.mp3';
+import { playNewLeadNotification } from './leadNotificationUtil';
 
 const selectFreshLead = (state) => state.freshLead?.leads ?? [];
 
@@ -49,11 +53,18 @@ const NewFreshLeadModal = () => {
 	);
 
 	const leads = useSelector(selectFreshLead);
-
 	const isOpen = useMemo(() => leads.length > 0, [leads]);
+	const prevCountRef = useRef(leads.length);
+
+	useEffect(() => {
+		// Only play if length actually increased
+		if (leads.length > prevCountRef.current) {
+			playNewLeadNotification();
+		}
+		prevCountRef.current = leads.length;
+	}, [leads.length]);
 
 	// const isOpen = useSelector(selectFreshLeadOpen);
-	const leadPurchaseStatus = useSelector((state) => state.freshLead.ownedByMe);
 	const { user } = useUserSession();
 
 	const [createItem, { isLoading: isSubmitting }] = useCreateItemMutation();
@@ -73,20 +84,6 @@ const NewFreshLeadModal = () => {
 			toast.error(err?.data?.message || 'Something went wrong');
 		}
 	};
-
-	if (typeof leadPurchaseStatus === 'boolean') {
-		const message = leadPurchaseStatus
-			? 'You successfully purchased this lead.'
-			: 'Oops! This lead has already been purchased by another user.';
-
-		return toast.info(message);
-		// return (
-		// 	<LeadPurchaseMessage
-		// 		purchaseStatus={leadPurchaseStatus}
-		// 		onClose={() => dispatch(clearFreshLead())}
-		// 	/>
-		// );
-	}
 
 	return (
 		<Modal
