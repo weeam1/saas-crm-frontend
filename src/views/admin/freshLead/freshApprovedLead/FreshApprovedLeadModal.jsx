@@ -156,7 +156,7 @@ const FreshApprovedLeadModal = () => {
 		prevCountRef.current = leads.length;
 	}, [leads.length]);
 
-	if (!isOpen) return null;
+	if (!leads?.length || !isOpen) return null;
 
 	const handleDirectCall = (lead) => {
 		const validNum = formatWebRTCPhone(lead?.leadPhoneNumber);
