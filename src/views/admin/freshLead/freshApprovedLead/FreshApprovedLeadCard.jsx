@@ -49,7 +49,7 @@ const FreshApprovedLeadCard = ({ lead, handleCall, isDialerEnabled }) => {
 	const handleDetails = useCallback(() => {
 		if (!lead?._id || !lead?.intID) return;
 
-		dispatch(removeApprovalLead({ leadId: lead._id }));
+		dispatch(removeApprovalLead(lead?._id));
 
 		const query = new URLSearchParams({
 			page: 1,
