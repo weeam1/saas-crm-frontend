@@ -83,7 +83,9 @@ const NewFreshLeadPoolModal = () => {
 				body: { action },
 			}).unwrap();
 
-			toast.success(`Lead ${action}ed successfully!`);
+			toast.success(
+				`Lead ${action === 'approve' ? 'Approved' : 'Rejected'} successfully!`,
+			);
 		} catch (err) {
 			toast.error(err?.data?.message || 'Something went wrong');
 		} finally {
