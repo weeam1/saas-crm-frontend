@@ -28,9 +28,9 @@ const freshLeadPoolSlice = createSlice({
 		},
 
 		markLeadDecisionFinalized(state, action) {
-			const { leadId, isFinalized = true } = action.payload;
+			const { approvalLeadId, isFinalized = true } = action.payload;
 
-			const lead = state.leads.find((l) => l._id === leadId);
+			const lead = state.leads.find((l) => l._id === approvalLeadId);
 
 			if (lead) {
 				lead.isFinalized = isFinalized;

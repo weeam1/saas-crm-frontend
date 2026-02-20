@@ -98,7 +98,7 @@ const FreshLeadPoolCard = ({ lead, isSubmitting, handleSubmit }) => {
 					>
 						<AlertIcon />
 						<Box>
-							<AlertTitle>Lead Unavailable</AlertTitle>
+							<AlertTitle>Lead Finalized</AlertTitle>
 							<AlertDescription>
 								This lead has already been responsed by another admin.
 							</AlertDescription>
