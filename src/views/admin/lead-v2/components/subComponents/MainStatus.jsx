@@ -279,7 +279,7 @@ const MainStatus = ({ lead, role }) => {
 				}),
 			);
 
-			handleMetaFeedback(newStatus);
+			// handleMetaFeedback(newStatus);
 			logStatusChange(newStatus, 'success');
 		} catch (error) {
 			handleStatusError(error);
