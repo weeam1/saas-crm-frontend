@@ -26,6 +26,7 @@ import UserAvatarWithStatus from 'components/table/UserAvatarWithStatus';
 import { useNavigate } from 'react-router-dom';
 import UserStatusToggle from './UserStatusToogle';
 import { usePermissions } from 'hooks/usePermissions';
+import UserRankingSelect from './UserRankingSelect';
 
 const UserTable = ({
 	data = [],
@@ -40,6 +41,7 @@ const UserTable = ({
 		{ key: 'phoneNumber', label: 'Phone', width: '150px' },
 		{ key: 'agency', label: 'Agency', width: '200px' },
 		{ key: 'coins', label: 'Coins', width: '180px' },
+		{ key: 'ranking', label: 'Ranking', width: '180px' },
 		{ key: 'salaryType', label: 'Salary Type', width: '180px' },
 		{ key: 'createdAt', label: 'Joining Date', width: '100px' },
 		{ key: 'isActive', label: 'Status', width: '100px' },
@@ -203,6 +205,8 @@ const UserTable = ({
 											/>
 										) : column.key === 'coins' ? (
 											<UserCoinsView user={row} updateData={updateData} />
+										) : column.key === 'ranking' ? (
+											<UserRankingSelect user={row} />
 										) : column.key === 'isActive' ? (
 											<UserStatusToggle
 												user={row}
@@ -238,7 +242,7 @@ const UserTable = ({
 											<Text>
 												{formatCurrency(
 													row[column.key],
-													row['agency']?.currency || 'AED'
+													row['agency']?.currency || 'AED',
 												)}
 											</Text>
 										) : (
