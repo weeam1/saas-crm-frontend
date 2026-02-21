@@ -15,6 +15,7 @@ export const QualificationMainStatus = [
 	'show',
 	'unreachable_after_attempts',
 	'lost',
+	'new',
 ];
 export const QualificationSubStatus = [
 	'booked_by_himself',
