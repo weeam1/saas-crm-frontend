@@ -1,6 +1,7 @@
 import { Box, Text } from '@chakra-ui/react';
 import InfoItem from './InfoItem';
 import { leadlabelFontSize } from '../../constants';
+import { formatTimeToCall } from 'views/admin/lead-v2/leadUtil';
 
 const InfoSection = ({ lead }) => {
 	const hiddenFields = JSON.parse(
@@ -11,7 +12,11 @@ const InfoSection = ({ lead }) => {
 		{ key: 'nationality', label: 'Nationality', value: lead?.nationality },
 		{ key: 'budget', label: 'Budget', value: lead?.budget },
 		// { key: 'adset', label: 'Adset', value: lead?.adset },
-		{ key: 'timetocall', label: 'Time to call', value: lead?.timetocall },
+		{
+			key: 'timetocall',
+			label: 'Time to call',
+			value: formatTimeToCall(lead),
+		},
 		{ key: 'leadCampaign', label: 'Campaign Name', value: lead?.leadCampaign },
 		{ key: 'pageUrl', label: 'Campaign Url', value: lead?.pageUrl },
 		{
