@@ -1188,7 +1188,7 @@ const LeadsModal = ({
 									/>
 								</TabPanel>
 
-								{/* 2️⃣ Lead Cycle */}
+								{/*  Lead Cycle */}
 								{hasPermission('leads', 'viewLeadCycle') && (
 									<TabPanel py={6}>
 										{leadCycledata?.map((item, index) => (
