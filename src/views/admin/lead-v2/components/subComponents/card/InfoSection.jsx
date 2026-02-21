@@ -14,7 +14,7 @@ const InfoSection = ({ lead }) => {
 		// { key: 'adset', label: 'Adset', value: lead?.adset },
 		{
 			key: 'timetocall',
-			label: 'Time to call',
+			label: 'Time to Call',
 			value: formatTimeToCall(lead),
 		},
 		{ key: 'leadCampaign', label: 'Campaign Name', value: lead?.leadCampaign },

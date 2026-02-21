@@ -94,6 +94,7 @@ import CRMQualificationModal from './components/CrmQualificationModal';
 import { QualificationViewModal } from './components/QualificationViewModal';
 import { getUsernameByPriority } from './components/lead-note/AddNewNote';
 import CallFeedbackModal from './components/lead-note/CallFeedbackModal';
+import { formatTimeToCall } from './leadUtil';
 // const safeValue = (value) => {
 //   // treat these as "empty"
 //   if (
@@ -1174,8 +1175,8 @@ const LeadsModal = ({
 												value: safeValue(data?.nationality),
 											},
 											{
-												label: 'Preferred Time',
-												value: safeValue(data?.timetocall),
+												label: 'Time to Call',
+												value: safeValue(formatTimeToCall(data)),
 											},
 											{ label: 'In UAE?', value: safeValue(data?.r_u_in_uae) },
 											{ label: 'Interest', value: safeValue(data?.interest) },
