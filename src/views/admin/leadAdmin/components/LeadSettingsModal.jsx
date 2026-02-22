@@ -303,6 +303,7 @@ const LeadSettingsModal = () => {
 			await updateSettings({
 				path: '/lead-settings',
 				body: {
+					freshLeadNotification,
 					freshLeadAutoAssign: autoAssign,
 					freshLeadTierTimeout: timeoutMs,
 				},
