@@ -74,7 +74,10 @@ const NewFreshLeadModal = () => {
 	);
 
 	const leads = useSelector(selectFreshLead);
-	const isOpen = useMemo(() => leads.length > 0, [leads]);
+	const isOpen = useMemo(
+		() => leads.length > 0 || isErrorModalOpen,
+		[leads, isErrorModalOpen],
+	);
 	const prevCountRef = useRef(leads.length);
 
 	useEffect(() => {
@@ -170,7 +173,7 @@ const NewFreshLeadModal = () => {
 	return (
 		<>
 			<Modal
-				isOpen={isOpen}
+				isOpen={isOpen && leads?.length > 0}
 				isCentered
 				size='xl'
 				motionPreset='scale'
