@@ -87,6 +87,7 @@ const NewFreshLeadPoolModal = () => {
 				`Lead ${action === 'approve' ? 'Approved' : 'Rejected'} successfully!`,
 			);
 		} catch (err) {
+			console.log(err);
 			toast.error(err?.data?.message || 'Something went wrong');
 		} finally {
 			dispatch(removeFreshLeadPool(leadId));

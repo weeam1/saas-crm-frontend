@@ -38,21 +38,24 @@ const MotionVStack = motion(VStack);
 
 const FreshLeadCard = ({
 	lead,
-	user,
+	coins = 0,
 	handleBuy,
 	isDialerEnabled,
 	isSubmitting,
+	userLoading,
 }) => {
 	const dispatch = useDispatch();
 
-	const coins = user?.coins || 0;
+	// const coins = user?.coins || 0;
 
 	const userIsEligible = Boolean(coins >= 300);
 
 	const handleExpire = useCallback(() => {
 		dispatch(removeFreshLead(lead._id));
-		toast.info('Lead offer expired! New leads coming soon...');
-	}, [dispatch]);
+		if (!isSubmitting) {
+			toast.info('Lead offer expired! New leads coming soon...');
+		}
+	}, [dispatch, isSubmitting]);
 
 	const { remaining, percentage } = useTierCountdown(
 		lead?.expiresAt,
@@ -246,7 +249,7 @@ const FreshLeadCard = ({
 												color='white'
 												_hover={{ bg: 'green.700' }}
 												isLoading={isSubmitting}
-												isDisabled={isSubmitting}
+												isDisabled={isSubmitting || userLoading}
 												onClick={() => handleBuy(lead._id)}
 												size='sm'
 											>

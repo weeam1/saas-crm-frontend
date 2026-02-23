@@ -35,7 +35,7 @@ import {
 } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { useCreateItemMutation } from 'api/apiSlice';
+import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
 import FreshLeadCard from './FreshLeadCard';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import soundPlayer from 'utils/sound/soundUtil';
@@ -58,6 +58,21 @@ const NewFreshLeadModal = () => {
 		userSettings?.status?.wss || userSettings?.modes?.wss?.cid,
 	);
 
+	const { user } = useUserSession();
+
+	const {
+		data: userData,
+		isLoading: userLoading,
+		refetch: refetchUser,
+	} = useFetchItemsQuery(
+		{ path: `/v3/users/${user?._id}` },
+		{
+			skip: !user?._id,
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+		},
+	);
+
 	const leads = useSelector(selectFreshLead);
 	const isOpen = useMemo(() => leads.length > 0, [leads]);
 	const prevCountRef = useRef(leads.length);
@@ -66,12 +81,12 @@ const NewFreshLeadModal = () => {
 		// Only play if length actually increased
 		if (leads.length > prevCountRef.current) {
 			playNewLeadNotification();
+			refetchUser();
 		}
 		prevCountRef.current = leads.length;
-	}, [leads.length]);
+	}, [leads.length, refetchUser]);
 
 	// const isOpen = useSelector(selectFreshLeadOpen);
-	const { user } = useUserSession();
 
 	const [createItem, { isLoading: isSubmitting }] = useCreateItemMutation();
 
@@ -109,6 +124,7 @@ const NewFreshLeadModal = () => {
 
 			return true;
 		} catch (err) {
+			console.log(err);
 			toast.error(err?.data?.message || 'Failed to fetch user stats');
 			return false;
 		}
@@ -146,6 +162,7 @@ const NewFreshLeadModal = () => {
 
 			dispatch(removeFreshLead(leadId));
 		} catch (err) {
+			console.log(err);
 			toast.error(err?.data?.message || 'Something went wrong');
 		}
 	};
@@ -191,10 +208,12 @@ const NewFreshLeadModal = () => {
 							<FreshLeadCard
 								key={lead._id}
 								lead={lead}
-								user={user}
+								// user={user}
+								coins={userData?.doc?.coins || 0}
 								isSubmitting={isSubmitting || isFetchingUserStats}
 								handleBuy={handleBuy}
 								isDialerEnabled={isDialerEnabled}
+								userLoading={userLoading}
 							/>
 						))}
 					</ModalBody>
