@@ -32,7 +32,7 @@ jobs:
 
             echo "🔄 Resetting and pulling code..."
             git reset --hard
-            git pull origin new-code
+            git pull origin stage-saas
             
             # Load NVM + Node
             export NVM_DIR="$HOME/.nvm"
