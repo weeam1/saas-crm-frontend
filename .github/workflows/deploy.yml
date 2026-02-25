@@ -3,7 +3,7 @@ name: Deploy React Frontend
 on:
   push:
     branches:
-      - new-code
+      - stage-saas
 
 jobs:
   deploy:
@@ -28,7 +28,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /var/www/html/weeam-crm-frontend
+            cd /var/www/html/sas-stage-crm-frontend
 
             echo "🔄 Resetting and pulling code..."
             git reset --hard
