@@ -19,7 +19,7 @@ const Index = () => {
 
 	const iconBg = useColorModeValue(
 		'linear-gradient(135deg, #FFF7D6, #FDE9A9)',
-		'linear-gradient(135deg, #FAD87A, #E8C46A)'
+		'linear-gradient(135deg, #FAD87A, #E8C46A)',
 	);
 	const iconColor = useColorModeValue('#A67C00', '#F6E27F');
 	const cardBg = useColorModeValue('white', 'gray.800');
@@ -28,7 +28,7 @@ const Index = () => {
 	const textColor = useColorModeValue('gray.800', 'whiteAlpha.900');
 	const shadowColor = useColorModeValue(
 		'rgba(0, 0, 0, 0.05)',
-		'rgba(255, 255, 255, 0.06)'
+		'rgba(255, 255, 255, 0.06)',
 	);
 
 	const menuItems = [
@@ -45,13 +45,18 @@ const Index = () => {
 			icon: FaWhatsapp,
 			route: '/admin-setting/whatsapp/settings',
 		},
+		{
+			name: 'Configuration',
+			icon: MdSettings,
+			route: '/admin-setting/configuration',
+		},
 	];
 
 	return (
 		<Box w='100%' px={{ base: 2, md: 4 }} py={4}>
 			<SimpleGrid
-				templateColumns='repeat(auto-fit, minmax(clamp(180px, 22vw, 240px), 1fr))'
-				spacing={{ base: 3, md: 5 }}
+				columns={{ base: 1, md: 2, lg: 3 }}
+				spacing={{ base: 3, md: 4, lg: 6 }}
 				justifyItems='center'
 				alignItems='stretch'
 			>
