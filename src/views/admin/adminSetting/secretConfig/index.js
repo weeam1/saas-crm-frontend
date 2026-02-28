@@ -87,6 +87,7 @@ import SecretStatCard from './SecretStatCard';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 const SecretManager = () => {
 	const [searchTerm, setSearchTerm] = useState('');
@@ -108,7 +109,10 @@ const SecretManager = () => {
 	} = useFetchItemsQuery(
 		{
 			path: '/secrets',
-			params: { includeValue: true },
+			params: {
+				includeValue: true,
+				// environment: keys.nodeENV,
+			},
 		},
 		{
 			refetchOnMountOrArgChange: true,
@@ -119,40 +123,14 @@ const SecretManager = () => {
 
 	const [updateSecret, { isLoading: isUpdating }] = useUpdateItemMutation();
 
-	const secrets = secretsData?.doc || [];
-
-	// Group secrets by service
-	const groupedSecrets = useMemo(() => {
-		const filtered = secrets.filter((secret) => {
-			const matchesSearch =
-				secret.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				secret.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				(secret.description || '')
-					.toLowerCase()
-					.includes(searchTerm.toLowerCase());
-
-			const matchesEnv =
-				filterEnvironment === 'all' || secret.environment === filterEnvironment;
-
-			return matchesSearch && matchesEnv;
-		});
-
-		return filtered.reduce((groups, secret) => {
-			const service = secret.service;
-			if (!groups[service]) {
-				groups[service] = [];
-			}
-			groups[service].push(secret);
-			return groups;
-		}, {});
-	}, [secrets, searchTerm, filterEnvironment]);
+	const services = secretsData?.doc || [];
 
 	// Auto-expand services with content
 	useEffect(() => {
-		if (Object.keys(groupedSecrets).length > 0) {
-			setExpandedServices(Object.keys(groupedSecrets));
+		if (Object.keys(services).length > 0) {
+			setExpandedServices(Object.keys(services));
 		}
-	}, [groupedSecrets]);
+	}, [services]);
 
 	const handleEdit = (secret) => {
 		setSelectedSecret({ ...secret, newValue: secret.value });
@@ -208,8 +186,6 @@ const SecretManager = () => {
 		}));
 	};
 
-	console.log({ visibleValues });
-
 	const copyToClipboard = async (secret) => {
 		const value = secret?.value;
 
@@ -247,8 +223,6 @@ const SecretManager = () => {
 		}
 	};
 
-	const environments = ['all', 'development', 'staging', 'production'];
-
 	if (error) {
 		return (
 			<Container maxW='1400px' py={8}>
@@ -284,9 +258,8 @@ const SecretManager = () => {
 			>
 				Back
 			</AppButton>
-			<Container maxW='1400px' px={2}>
-				{/* Header with breadcrumb */}
-				<VStack spacing={6} align='stretch' mb={8}>
+			<Box p={8}>
+				<VStack spacing={2} align='stretch' mb={8}>
 					<Flex justify='space-between' align='center' wrap='wrap' gap={4}>
 						<Box>
 							<Heading size='lg' color='gray.800'>
@@ -311,29 +284,21 @@ const SecretManager = () => {
 					</Flex>
 
 					{/* Stats Overview */}
-					<SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+					<SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
 						<SecretStatCard
 							label='Total Secrets'
-							value={secrets.length}
+							value={secretsData?.totalKeys}
 							subtext='Across all services'
 							icon={FiDatabase}
 							color='cyan'
 						/>
 
 						<SecretStatCard
-							label='Active Services'
-							value={Object.keys(groupedSecrets).length}
-							subtext='With configured secrets'
+							label='Services'
+							value={secretsData?.totalServices}
+							subtext='With secret management enabled'
 							icon={FiLayers}
 							color='green'
-						/>
-
-						<SecretStatCard
-							label='Environments'
-							value={new Set(secrets.map((s) => s.environment)).size}
-							subtext='Active environments'
-							icon={FiGlobe}
-							color='orange'
 						/>
 					</SimpleGrid>
 					{/* Search and Filters */}
@@ -393,7 +358,7 @@ const SecretManager = () => {
 									flex={{ base: '1 1 100%', md: 'auto' }}
 									justify={{ base: 'space-between', md: 'flex-start' }}
 								>
-									<Select
+									{/* <Select
 										w={{ base: '48%', md: '180px' }}
 										value={filterEnvironment}
 										onChange={(e) => setFilterEnvironment(e.target.value)}
@@ -409,7 +374,7 @@ const SecretManager = () => {
 													: env.charAt(0).toUpperCase() + env.slice(1)}
 											</option>
 										))}
-									</Select>
+									</Select> */}
 
 									<Badge
 										colorScheme='brand'
@@ -418,7 +383,7 @@ const SecretManager = () => {
 										borderRadius='full'
 										ml={{ base: 0, md: 2 }}
 									>
-										{Object.values(groupedSecrets).flat().length} results
+										{secretsData?.total} results
 									</Badge>
 								</HStack>
 							</Flex>
@@ -442,122 +407,97 @@ const SecretManager = () => {
 						onChange={setExpandedServices}
 					>
 						<VStack spacing={4} align='stretch'>
-							{Object.entries(groupedSecrets).map(
-								([service, serviceSecrets]) => {
-									const { icon, color } = getServiceMeta(service);
+							{services?.map((service) => {
+								const { icon, color } = getServiceMeta(service.service);
 
-									return (
-										<AccordionItem
-											key={service}
-											border='1px solid'
-											borderRadius='2xl'
-											borderColor='blue.100'
-											bg='white'
-											boxShadow='sm'
-											transition='all 0.2s ease'
-											_hover={{
-												boxShadow: 'md',
-												transform: 'translateY(-2px)',
-											}}
-											_expanded={{
-												boxShadow: 'lg',
-												borderColor: 'blue.400',
-											}}
-											overflow='hidden'
-										>
-											<Box bg='gray.100' p={0}>
-												<AccordionButton
-													p={4}
-													_hover={{ bg: 'gray.100' }}
-													transition='background 0.2s'
-												>
-													<HStack flex='1' spacing={4}>
-														<Icon as={icon} boxSize={5} color={color} />
-														{/* <Text fontSize='2xl'>
-															{getServiceIcon(service)}
-														</Text> */}
-														<Box textAlign='left'>
-															<Text
-																fontWeight='bold'
-																fontSize='lg'
-																textTransform='capitalize'
-															>
-																{service} Service
-															</Text>
-															<Text fontSize='sm' color='gray.600'>
-																{serviceSecrets.length} secret
-																{serviceSecrets.length !== 1 ? 's' : ''} • Last
-																updated{' '}
-																{new Date(
-																	Math.max(
-																		...serviceSecrets.map(
-																			(s) => new Date(s.updatedAt),
-																		),
+								return (
+									<AccordionItem
+										key={service._id}
+										border='1px solid'
+										borderRadius='2xl'
+										borderColor='blue.100'
+										bg='white'
+										boxShadow='sm'
+										transition='all 0.2s ease'
+										_hover={{
+											boxShadow: 'md',
+											transform: 'translateY(-2px)',
+										}}
+										_expanded={{
+											boxShadow: 'lg',
+											borderColor: 'blue.400',
+										}}
+										overflow='hidden'
+									>
+										<Box bg='gray.100' p={0}>
+											<AccordionButton
+												p={4}
+												_hover={{ bg: 'gray.100' }}
+												transition='background 0.2s'
+											>
+												<HStack flex='1' spacing={4}>
+													<Icon as={icon} boxSize={5} color={color} />
+													<Box textAlign='left'>
+														<Text
+															fontWeight='bold'
+															fontSize='lg'
+															textTransform='capitalize'
+														>
+															{service.service}
+														</Text>
+														<Text fontSize='sm' color='gray.600'>
+															{service.keys.length} secret
+															{service.keys.length !== 1 ? 's' : ''} • Last
+															updated{' '}
+															{new Date(
+																Math.max(
+																	...service.keys.map(
+																		(s) => new Date(s.updatedAt),
 																	),
-																).toLocaleDateString()}
-															</Text>
-														</Box>
-													</HStack>
-													<HStack spacing={4}>
-														<HStack spacing={1}>
-															{['development', 'staging', 'production'].map(
-																(env) => {
-																	const hasEnv = serviceSecrets.some(
-																		(s) => s.environment === env,
-																	);
-																	return hasEnv ? (
-																		<Badge
-																			key={env}
-																			bg={getEnvironmentBadge(env).bg}
-																			color={getEnvironmentBadge(env).color}
-																			px={2}
-																			borderRadius='full'
-																			fontSize='xs'
-																		>
-																			{env.charAt(0).toUpperCase()}
-																		</Badge>
-																	) : null;
-																},
-															)}
-														</HStack>
-														<AccordionIcon />
-													</HStack>
-												</AccordionButton>
-											</Box>
+																),
+															).toLocaleDateString()}
+														</Text>
+													</Box>
+												</HStack>
+												<HStack spacing={4}>
+													<AccordionIcon />
+												</HStack>
+											</AccordionButton>
+										</Box>
 
-											<AccordionPanel p={0}>
-												<Box overflowX='auto'>
-													<Table variant='simple' size='md'>
-														<Thead bg='gray.50'>
-															<Tr>
-																<Th width='25%'>SECRET KEY</Th>
-																<Th width='15%'>ENVIRONMENT</Th>
-																<Th width='45%'>CURRENT VALUE</Th>
-																{/* <Th width='10%'>STATUS</Th> */}
-																<Th width='15%'>LAST UPDATED</Th>
-																<Th width='10%'>ACTIONS</Th>
-															</Tr>
-														</Thead>
-														<Tbody>
-															{serviceSecrets.map((secret) => (
-																<Tr
-																	key={secret._id}
-																	_hover={{ bg: 'gray.50' }}
-																	transition='background 0.2s'
-																>
-																	<Td>
-																		<VStack align='start' spacing={1}>
-																			<Text fontWeight='600' color='gray.800'>
-																				{secret.key}
+										<AccordionPanel p={0}>
+											<Box overflowX='auto'>
+												<Table variant='simple' size='md'>
+													<Thead bg='gray.50'>
+														<Tr>
+															<Th width='25%'>SECRET KEY</Th>
+															{/* <Th width='15%'>ENVIRONMENT</Th> */}
+															<Th width='45%'>CURRENT VALUE</Th>
+															{/* <Th width='10%'>STATUS</Th> */}
+															<Th width='35%'>LAST UPDATED</Th>
+															<Th width='10%'>ACTIONS</Th>
+														</Tr>
+													</Thead>
+													<Tbody>
+														{service?.keys?.map((secret) => (
+															<Tr
+																key={secret._id}
+																_hover={{ bg: 'gray.50' }}
+																transition='background 0.2s'
+															>
+																<Td>
+																	<VStack align='start' spacing={1}>
+																		<Text fontWeight='600' color='gray.800'>
+																			{secret.key}
+																		</Text>
+																		{secret.description && (
+																			<Text fontSize='xs' color='gray.500'>
+																				{secret.description}
 																			</Text>
-																			{secret.description && (
-																				<Text fontSize='xs' color='gray.500'>
-																					{secret.description}
-																				</Text>
-																			)}
-																		</VStack>
-																	</Td>
-
+																		)}
+																	</VStack>
+																</Td>
+																{/* 
 																	<Td>
 																		<Badge
 																			bg={
@@ -578,94 +518,94 @@ const SecretManager = () => {
 																					.label
 																			}
 																		</Badge>
-																	</Td>
-																	<Td>
-																		<HStack spacing={3} align='center'>
+																	</Td> */}
+																<Td>
+																	<HStack spacing={3} align='center'>
+																		<Box
+																			w='420px'
+																			minW='420px'
+																			maxW='420px'
+																			flexShrink={0}
+																			bg='gray.100'
+																			_hover={{ bg: 'white' }}
+																			p={2}
+																			borderRadius='md'
+																			fontFamily='mono'
+																			fontSize='sm'
+																			overflowX='auto'
+																			overflowY='hidden'
+																			sx={{
+																				'&::-webkit-scrollbar': {
+																					height: '6px',
+																				},
+																				'&::-webkit-scrollbar-track': {
+																					background: 'transparent',
+																				},
+																				'&::-webkit-scrollbar-thumb': {
+																					background: '#CBD5E0',
+																					borderRadius: '8px',
+																				},
+																				'&::-webkit-scrollbar-thumb:hover': {
+																					background: '#A0AEC0',
+																				},
+																				scrollbarWidth: 'thin',
+																			}}
+																		>
 																			<Box
-																				w='420px'
-																				minW='420px'
-																				maxW='420px'
-																				flexShrink={0}
-																				bg='gray.100'
-																				_hover={{ bg: 'white' }}
-																				p={2}
-																				borderRadius='md'
-																				fontFamily='mono'
-																				fontSize='sm'
-																				overflowX='auto'
-																				overflowY='hidden'
-																				sx={{
-																					'&::-webkit-scrollbar': {
-																						height: '6px',
-																					},
-																					'&::-webkit-scrollbar-track': {
-																						background: 'transparent',
-																					},
-																					'&::-webkit-scrollbar-thumb': {
-																						background: '#CBD5E0',
-																						borderRadius: '8px',
-																					},
-																					'&::-webkit-scrollbar-thumb:hover': {
-																						background: '#A0AEC0',
-																					},
-																					scrollbarWidth: 'thin',
-																				}}
-																			>
-																				<Box
-																					whiteSpace='nowrap'
-																					minW='100%'
-																					filter={
-																						visibleValues[secret._id]
-																							? 'none'
-																							: 'blur(6px)'
-																					}
-																					cursor={
-																						visibleValues[secret._id]
-																							? 'text'
-																							: 'default'
-																					}
-																					userSelect={
-																						visibleValues[secret._id]
-																							? 'text'
-																							: 'none'
-																					}
-																					color='gray.700'
-																				>
-																					{visibleValues[secret._id]
-																						? secret.value
-																						: '••••••••••••••••••••••••••••••••••'}
-																				</Box>
-																			</Box>
-
-																			<Tooltip
-																				label={
+																				whiteSpace='nowrap'
+																				minW='100%'
+																				filter={
 																					visibleValues[secret._id]
-																						? 'Hide value'
-																						: 'Reveal value'
+																						? 'none'
+																						: 'blur(6px)'
 																				}
-																				hasArrow
+																				cursor={
+																					visibleValues[secret._id]
+																						? 'text'
+																						: 'default'
+																				}
+																				userSelect={
+																					visibleValues[secret._id]
+																						? 'text'
+																						: 'none'
+																				}
+																				color='gray.700'
 																			>
-																				<IconButton
-																					size='sm'
-																					variant='ghost'
-																					colorScheme='brand'
-																					icon={
-																						visibleValues[secret._id] ? (
-																							<ViewOffIcon />
-																						) : (
-																							<ViewIcon />
-																						)
-																					}
-																					onClick={() =>
-																						toggleVisibility(secret._id)
-																					}
-																					aria-label='Toggle visibility'
-																					borderRadius='full'
-																				/>
-																			</Tooltip>
-																		</HStack>
-																	</Td>
-																	{/* 
+																				{visibleValues[secret._id]
+																					? secret.value
+																					: '••••••••••••••••••••••••••••••••••'}
+																			</Box>
+																		</Box>
+
+																		<Tooltip
+																			label={
+																				visibleValues[secret._id]
+																					? 'Hide value'
+																					: 'Reveal value'
+																			}
+																			hasArrow
+																		>
+																			<IconButton
+																				size='sm'
+																				variant='ghost'
+																				colorScheme='brand'
+																				icon={
+																					visibleValues[secret._id] ? (
+																						<ViewOffIcon />
+																					) : (
+																						<ViewIcon />
+																					)
+																				}
+																				onClick={() =>
+																					toggleVisibility(secret._id)
+																				}
+																				aria-label='Toggle visibility'
+																				borderRadius='full'
+																			/>
+																		</Tooltip>
+																	</HStack>
+																</Td>
+																{/* 
 																<Td>
 																	<HStack spacing={2}>
 																		<Box
@@ -733,7 +673,7 @@ const SecretManager = () => {
 																	</HStack>
 																</Td> */}
 
-																	{/* <Td>
+																{/* <Td>
 																	<HStack spacing={1}>
 																		<Box
 																			w='8px'
@@ -757,71 +697,57 @@ const SecretManager = () => {
 																	</HStack>
 																</Td> */}
 
-																	<Td>
-																		<Tooltip
-																			label={new Date(
-																				secret.updatedAt,
-																			).toLocaleString()}
-																			hasArrow
-																		>
-																			<Text fontSize='sm' color='gray.600'>
-																				{new Date(
-																					secret.updatedAt,
-																				).toLocaleDateString('en-US', {
-																					month: 'short',
-																					day: 'numeric',
-																					hour: '2-digit',
-																					minute: '2-digit',
-																				})}
-																			</Text>
+																<Td minW='200px'>
+																	<Text fontSize='sm' color='gray.600'>
+																		{format(
+																			new Date(secret?.updatedAt),
+																			'MMM d, yyyy',
+																		)}
+																	</Text>
+																</Td>
+
+																<Td>
+																	<HStack spacing={1}>
+																		<Tooltip label='Edit secret' hasArrow>
+																			<IconButton
+																				size='sm'
+																				variant='ghost'
+																				colorScheme='brand'
+																				icon={<EditIcon />}
+																				onClick={() => handleEdit(secret)}
+																				aria-label='Edit secret'
+																				borderRadius='full'
+																			/>
 																		</Tooltip>
-																	</Td>
 
-																	<Td>
-																		<HStack spacing={1}>
-																			<Tooltip label='Edit secret' hasArrow>
-																				<IconButton
-																					size='sm'
-																					variant='ghost'
-																					colorScheme='brand'
-																					icon={<EditIcon />}
-																					onClick={() => handleEdit(secret)}
-																					aria-label='Edit secret'
-																					borderRadius='full'
-																				/>
-																			</Tooltip>
-
-																			<Tooltip label='Copy value' hasArrow>
-																				<IconButton
-																					size='sm'
-																					variant='ghost'
-																					colorScheme='green'
-																					icon={<CopyIcon />}
-																					onClick={() =>
-																						copyToClipboard(secret)
-																					}
-																					aria-label='Copy value'
-																					borderRadius='full'
-																				/>
-																			</Tooltip>
-																		</HStack>
-																	</Td>
-																</Tr>
-															))}
-														</Tbody>
-													</Table>
-												</Box>
-											</AccordionPanel>
-										</AccordionItem>
-									);
-								},
-							)}
+																		<Tooltip label='Copy value' hasArrow>
+																			<IconButton
+																				size='sm'
+																				variant='ghost'
+																				colorScheme='green'
+																				icon={<CopyIcon />}
+																				onClick={() => copyToClipboard(secret)}
+																				aria-label='Copy value'
+																				borderRadius='full'
+																			/>
+																		</Tooltip>
+																	</HStack>
+																</Td>
+															</Tr>
+														))}
+													</Tbody>
+												</Table>
+											</Box>
+										</AccordionPanel>
+									</AccordionItem>
+								);
+							})}
 						</VStack>
 					</Accordion>
 				)}
 
 				{/* Empty State */}
-				{!isLoading && Object.keys(groupedSecrets).length === 0 && (
+				{!isLoading && secretsData?.total === 0 && (
 					<Box bg='white' p={12} textAlign='center'>
 						<VStack spacing={4}>
 							<Box bg='brand.50' p={6} borderRadius='full'>
@@ -835,28 +761,15 @@ const SecretManager = () => {
 									? "Try adjusting your search or filter to find what you're looking for."
 									: 'Get started by creating your first secret to securely store configuration values.'}
 							</Text>
-							{searchTerm || filterEnvironment !== 'all' ? (
-								<Button
-									variant='outline'
-									onClick={() => {
-										setSearchTerm('');
-										setFilterEnvironment('all');
-									}}
-								>
-									Clear Filters
-								</Button>
-							) : (
-								<Button
-									leftIcon={<AddIcon />}
-									colorScheme='brand'
-									onClick={() => {
-										setSelectedSecret(null);
-										onOpen();
-									}}
-								>
-									Create First Secret
-								</Button>
-							)}
+							<Button
+								variant='outline'
+								onClick={() => {
+									setSearchTerm('');
+									setFilterEnvironment('all');
+								}}
+							>
+								Clear Filters
+							</Button>
 						</VStack>
 					</Box>
 				)}
@@ -871,120 +784,6 @@ const SecretManager = () => {
 						setSelectedSecret={setSelectedSecret}
 					/>
 				)}
-
-				{/* Edit Modal */}
-				{/* <Modal isOpen={isOpen} onClose={onClose} size='xl'>
-					<ModalOverlay backdropFilter='blur(10px)' />
-					<ModalContent>
-						<ModalHeader borderBottomWidth='1px' pb={3}>
-							<HStack spacing={2}>
-								<EditIcon color='brand.500' />
-								<Text>
-									{selectedSecret ? 'Update Secret Value' : 'Create New Secret'}
-								</Text>
-							</HStack>
-						</ModalHeader>
-						<ModalCloseButton />
-
-						<ModalBody py={6}>
-							{selectedSecret && (
-								<VStack spacing={5} align='stretch'>
-									<Box
-										bg='brand.50'
-										p={4}
-										borderRadius='md'
-										borderLeftWidth='4px'
-										borderLeftColor='brand.500'
-									>
-										<Text
-											fontSize='sm'
-											color='brand.800'
-											fontWeight='500'
-											mb={1}
-										>
-											Updating Secret
-										</Text>
-										<Text fontWeight='600'>{selectedSecret.key}</Text>
-										<HStack spacing={2} mt={2}>
-											<Badge colorScheme='purple'>
-												{selectedSecret.service}
-											</Badge>
-											<Badge
-												colorScheme={
-													getEnvironmentBadge(selectedSecret.environment).color
-												}
-											>
-												{selectedSecret.environment}
-											</Badge>
-										</HStack>
-									</Box>
-
-									<FormControl isRequired>
-										<FormLabel fontWeight='600'>Secret Value</FormLabel>
-										<Textarea
-											placeholder='Enter the secret value...'
-											value={selectedSecret.newValue || ''}
-											onChange={(e) =>
-												setSelectedSecret({
-													...selectedSecret,
-													newValue: e.target.value,
-												})
-											}
-											minH='120px'
-											fontFamily='mono'
-											bg='gray.50'
-											borderColor='gray.200'
-											_hover={{ borderColor: 'brand.300' }}
-											_focus={{
-												borderColor: 'brand.500',
-												boxShadow: 'outline',
-											}}
-										/>
-										<Text fontSize='xs' color='gray.500' mt={1}>
-											This value will be encrypted before storage
-										</Text>
-									</FormControl>
-
-									{selectedSecret.isEnabled !== undefined && (
-										<FormControl display='flex' alignItems='center'>
-											<FormLabel mb='0' fontWeight='600'>
-												Secret Status
-											</FormLabel>
-											<HStack>
-												<Box
-													w='10px'
-													h='10px'
-													borderRadius='full'
-													bg={
-														selectedSecret.isEnabled ? 'green.500' : 'red.500'
-													}
-												/>
-												<Text>
-													{selectedSecret.isEnabled ? 'Active' : 'Inactive'}
-												</Text>
-											</HStack>
-										</FormControl>
-									)}
-								</VStack>
-							)}
-						</ModalBody>
-
-						<ModalFooter borderTopWidth='1px'>
-							<Button variant='ghost' mr={3} onClick={onClose}>
-								Cancel
-							</Button>
-							<Button
-								colorScheme='brand'
-								onClick={handleSave}
-								isLoading={isUpdating}
-								loadingText='Updating...'
-								leftIcon={<LockIcon />}
-							>
-								Update Secret
-							</Button>
-						</ModalFooter>
-					</ModalContent>
-				</Modal> */}
 
 				{/* Auto-refresh indicator */}
 				{isFetching && !isLoading && (
@@ -1008,7 +807,7 @@ const SecretManager = () => {
 						</HStack>
 					</Box>
 				)}
-			</Container>
+			</Box>
 		</Box>
 	);
 };

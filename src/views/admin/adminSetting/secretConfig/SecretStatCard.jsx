@@ -2,42 +2,48 @@ import { Box, Flex, Text, Icon, useColorModeValue } from '@chakra-ui/react';
 
 const SecretStatCard = ({ label, value, subtext, icon, color = 'blue' }) => {
 	const border = useColorModeValue('gray.100', 'gray.700');
-	const bgColor = useColorModeValue(`${color}.50`, `${color}.900/20`);
+	const bgColor = useColorModeValue(`${color}.50`, `${color}.900`);
 
 	return (
 		<Box
 			bg={bgColor}
 			border='1px solid'
 			borderColor={border}
-			borderRadius='2xl'
-			p={6}
+			borderRadius='xl'
+			p={{ base: 3, md: 4 }}
 			transition='all 0.2s ease'
 			_hover={{
 				transform: 'translateY(-2px)',
-				boxShadow: '0 12px 24px -12px rgba(0,0,0,0.2)',
-				borderColor: 'transparent',
+				boxShadow: 'lg',
 			}}
+			w='100%'
 		>
-			<Flex direction='column' gap={3}>
+			<Flex align='center' gap={3}>
 				<Box
-					p={2.5}
-					w='fit-content'
-					borderRadius='xl'
+					p={2}
+					borderRadius='lg'
 					bgGradient={`linear(to-br, ${color}.400, ${color}.600)`}
-					boxShadow={`0 4px 10px -4px var(--chakra-colors-${color}-400)`}
+					flexShrink={0}
 				>
-					<Icon as={icon} boxSize={5} color='white' />
+					<Icon as={icon} boxSize={{ base: 4, md: 5 }} color='white' />
 				</Box>
 
-				<Box>
-					<Text fontSize='sm' color='gray.500' letterSpacing='wide' mb={0.5}>
+				<Box flex='1' minW={0}>
+					<Text fontSize='xs' color='gray.500' letterSpacing='wide' isTruncated>
 						{label}
 					</Text>
-					<Text fontSize='3xl' fontWeight='bold' lineHeight='1.2'>
+
+					<Text
+						fontSize={{ base: 'lg', md: 'xl' }}
+						fontWeight='semibold'
+						lineHeight='short'
+						isTruncated
+					>
 						{value}
 					</Text>
+
 					{subtext && (
-						<Text fontSize='sm' color='gray.400' mt={2}>
+						<Text fontSize='xs' color='gray.400' mt={1} isTruncated>
 							{subtext}
 						</Text>
 					)}
