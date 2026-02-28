@@ -32,6 +32,7 @@ import LeadsModal from 'views/admin/lead-v2/LeadsModal';
 import { safeValue } from './../../../../utils/index';
 import { leadlabelFontSize } from '../components/constants';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
+import { format } from 'date-fns';
 
 // const getLabelByValue = (value) => {
 // 	const status = leadStatus.find((status) => status.value === value);
@@ -86,8 +87,12 @@ const LeadCard = ({
 	// Format dates with fallback
 	const safeFormattedDate = (date) => {
 		if (!date) return 'N/A';
+
 		const parsedDate = new Date(date);
-		return isNaN(parsedDate.getTime()) ? 'N/A' : formattedDate(date);
+		if (isNaN(parsedDate.getTime())) return 'N/A';
+
+		// Format: "Feb 23, 2026 10:00:45 AM"
+		return format(parsedDate, 'MMM d, yyyy hh:mm:ss a');
 	};
 
 	const formattedApprovedDate = safeFormattedDate(localApprovedDate);
@@ -338,8 +343,6 @@ const LeadCard = ({
 	const subStatus =
 		leadSubStatuses?.find((item) => item.value === leadStatusValue)?.label ??
 		(mainStatus === 'New' ? 'Fresh Lead' : null);
-
-	console.log({ mainStatus, leadStatusValue, subStatus });
 
 	return (
 		<Box
