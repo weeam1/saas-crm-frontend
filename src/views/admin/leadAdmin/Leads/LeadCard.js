@@ -57,7 +57,10 @@ const LeadCard = ({
 	_id,
 	refreshData,
 }) => {
-	const formattedCreatedDate = formattedDate(leadData?.createdDate);
+	const formattedCreatedDate = format(
+		new Date(createdDate),
+		'MMM d, yyyy h:mm a',
+	);
 
 	const { ip, country, city } = extractLocationData(leadData?.ip);
 
