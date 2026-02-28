@@ -11,19 +11,12 @@ import {
 } from '../constants';
 import { toast } from 'react-toastify';
 import { putApi } from 'services/api';
-import {
-	updateLeadField,
-	updateLeadFields,
-} from '../../../../../redux/leadsSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { updateLeadFields } from '../../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
 import InvitationModal from './InvitationModal';
-// import { eventLeadStatus } from 'utils/options';
-import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
-import { extractLocationData } from 'utils/helpers';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
-import CloseDealModal from '../deals/CloseDealModal';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 import CRMQualificationModal from '../CrmQualificationModal';
 
@@ -272,36 +265,36 @@ const Status = ({ lead }) => {
 		}
 	};
 
-	const handleMetaFeedback = (newStatus) => {
-		const statusData = leadSubStatuses?.find(
-			(item) => item.value === newStatus,
-		);
+	// const handleMetaFeedback = (newStatus) => {
+	// 	const statusData = leadSubStatuses?.find(
+	// 		(item) => item.value === newStatus,
+	// 	);
 
-		if (!statusData?.meta_id) return;
+	// 	if (!statusData?.meta_id) return;
 
-		const leadPhone =
-			typeof lead?.leadPhoneNumber === 'object'
-				? lead?.leadPhoneNumber?.result
-				: lead?.leadPhoneNumber;
+	// 	const leadPhone =
+	// 		typeof lead?.leadPhoneNumber === 'object'
+	// 			? lead?.leadPhoneNumber?.result
+	// 			: lead?.leadPhoneNumber;
 
-		const { ip, city, country } = extractLocationData(lead?.ip);
+	// 	const { ip, city, country } = extractLocationData(lead?.ip);
 
-		sendLeadFeedback({
-			email: lead?.leadEmail ?? '',
-			phone: leadPhone,
-			status: statusData,
-			action: 'Status',
-			ip,
-			fcblid: lead?.fcblid || null,
-			fbp: lead?.fbp || null,
-			country,
-			city,
-			zip: lead?.zip || null,
-			userAgent: lead?.userAgent || null,
-			leadName: lead?.leadName,
-			leadId: lead?.intID,
-		});
-	};
+	// 	sendLeadFeedback({
+	// 		email: lead?.leadEmail ?? '',
+	// 		phone: leadPhone,
+	// 		status: statusData,
+	// 		action: 'Status',
+	// 		ip,
+	// 		fcblid: lead?.fcblid || null,
+	// 		fbp: lead?.fbp || null,
+	// 		country,
+	// 		city,
+	// 		zip: lead?.zip || null,
+	// 		userAgent: lead?.userAgent || null,
+	// 		leadName: lead?.leadName,
+	// 		leadId: lead?.intID,
+	// 	});
+	// };
 
 	const handleSubStatus = (statusOrEvent) => {
 		const newStatus = resolveStatus(statusOrEvent);
