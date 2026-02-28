@@ -70,7 +70,7 @@ export const SERVICE_META = {
 	token: { icon: FiKey, color: 'orange.600' },
 
 	// Real-time
-	webrtc: { icon: FiVideo, color: 'blue.400' },
+	webrtc: { icon: FiPhone, color: 'blue.400' },
 	websocket: { icon: FiGlobe, color: 'cyan.600' },
 
 	// Enterprise CRM

@@ -59,6 +59,7 @@ import {
 	BreadcrumbLink,
 	Progress,
 	Icon,
+	Switch,
 } from '@chakra-ui/react';
 import {
 	EditIcon,
@@ -76,6 +77,7 @@ import {
 	InfoIcon,
 	StarIcon,
 	CloseIcon,
+	ExternalLinkIcon,
 } from '@chakra-ui/icons';
 import { FiDatabase, FiLayers, FiGlobe, FiActivity } from 'react-icons/fi';
 
@@ -86,7 +88,7 @@ import { getEnvironmentBadge, getServiceMeta } from './secretUtils';
 import SecretStatCard from './SecretStatCard';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 const SecretManager = () => {
@@ -111,7 +113,6 @@ const SecretManager = () => {
 			path: '/secrets',
 			params: {
 				includeValue: true,
-				// environment: keys.nodeENV,
 			},
 		},
 		{
@@ -139,10 +140,10 @@ const SecretManager = () => {
 
 	const handleSave = async () => {
 		try {
-			if (!selectedSecret?.newValue) {
-				toast.warning('Please enter a value for the secret');
-				return;
-			}
+			// if (!selectedSecret?.newValue) {
+			// 	toast.warning('Please enter a value for the secret');
+			// 	return;
+			// }
 
 			await updateSecret({
 				path: `/secrets/${selectedSecret._id}`,
@@ -178,8 +179,39 @@ const SecretManager = () => {
 		}
 	};
 
+	const handleToggleStatus = async (secret) => {
+		try {
+			await updateSecret({
+				path: `/secrets/${secret._id}`,
+				body: { isEnabled: !secret.isEnabled },
+			}).unwrap();
+
+			toast.success(
+				<Box>
+					<Text fontWeight='bold'>Status Updated</Text>
+					<Text fontSize='sm'>
+						{secret.key} is now {secret.isEnabled ? 'Inactive' : 'Active'}
+					</Text>
+				</Box>,
+				{
+					position: 'top-right',
+					autoClose: 3000,
+				},
+			);
+
+			refetch();
+		} catch (error) {
+			toast.error(
+				<Box>
+					<Text fontWeight='bold'>Update Failed</Text>
+					<Text fontSize='sm'>{error.data?.message || 'Please try again'}</Text>
+				</Box>,
+				{ position: 'top-right' },
+			);
+		}
+	};
+
 	const toggleVisibility = (id) => {
-		console.log({ id });
 		setVisibleValues((prev) => ({
 			...prev,
 			[id]: !prev[id],
@@ -431,6 +463,72 @@ const SecretManager = () => {
 									>
 										<Box bg='gray.100' p={0}>
 											<AccordionButton
+												p={{ base: 3, md: 4 }}
+												_hover={{ bg: 'gray.100' }}
+												transition='background 0.2s'
+											>
+												<HStack flex='1' spacing={3} align='flex-start'>
+													<Icon
+														as={icon}
+														boxSize={{ base: 4, md: 5 }}
+														color={color}
+														mt={1}
+														flexShrink={0}
+													/>
+
+													<Box textAlign='left' flex='1' minW={0}>
+														<Text
+															fontWeight='semibold'
+															fontSize={{ base: 'sm', md: 'md' }}
+															textTransform='capitalize'
+															isTruncated
+														>
+															{service.displayName}
+														</Text>
+
+														<Text
+															fontSize='xs'
+															color='gray.500'
+															mt={0.5}
+															noOfLines={2}
+														>
+															{service.description}
+														</Text>
+
+														{service.documentationUrl && (
+															<Button
+																as='a'
+																href={service.documentationUrl}
+																target='_blank'
+																rel='noopener noreferrer'
+																size='xs'
+																variant='outline'
+																colorScheme='brand'
+																leftIcon={<ExternalLinkIcon />}
+																mt={1}
+															>
+																Check Pricing & Docs
+															</Button>
+														)}
+
+														<Text fontSize='xs' color='gray.400' mt={1}>
+															{service.keys.length} secret
+															{service.keys.length !== 1 ? 's' : ''} • Last
+															updated{' '}
+															{new Date(
+																Math.max(
+																	...service.keys.map(
+																		(s) => new Date(s.updatedAt),
+																	),
+																),
+															).toLocaleDateString()}
+														</Text>
+													</Box>
+												</HStack>
+
+												<AccordionIcon />
+											</AccordionButton>
+											{/* <AccordionButton
 												p={4}
 												_hover={{ bg: 'gray.100' }}
 												transition='background 0.2s'
@@ -462,7 +560,7 @@ const SecretManager = () => {
 												<HStack spacing={4}>
 													<AccordionIcon />
 												</HStack>
-											</AccordionButton>
+											</AccordionButton> */}
 										</Box>
 
 										<AccordionPanel p={0}>
@@ -471,10 +569,9 @@ const SecretManager = () => {
 													<Thead bg='gray.50'>
 														<Tr>
 															<Th width='25%'>SECRET KEY</Th>
-															{/* <Th width='15%'>ENVIRONMENT</Th> */}
-															<Th width='45%'>CURRENT VALUE</Th>
-															{/* <Th width='10%'>STATUS</Th> */}
-															<Th width='35%'>LAST UPDATED</Th>
+															<Th width='40%'>CURRENT VALUE</Th>
+															<Th width='10%'>STATUS</Th>
+															<Th width='30%'>LAST UPDATED</Th>
 															<Th width='10%'>ACTIONS</Th>
 														</Tr>
 													</Thead>
@@ -572,8 +669,8 @@ const SecretManager = () => {
 																				color='gray.700'
 																			>
 																				{visibleValues[secret._id]
-																					? secret.value
-																					: '••••••••••••••••••••••••••••••••••'}
+																					? secret?.value || 'N/A'
+																					: '•••••••••••••••••••••••••••••'}
 																			</Box>
 																		</Box>
 
@@ -696,6 +793,15 @@ const SecretManager = () => {
 																		</Badge>
 																	</HStack>
 																</Td> */}
+
+																<Td>
+																	<Switch
+																		size='md'
+																		colorScheme='green'
+																		isChecked={secret.isEnabled}
+																		onChange={() => handleToggleStatus(secret)}
+																	/>
+																</Td>
 
 																<Td minW='200px'>
 																	<Text fontSize='sm' color='gray.600'>

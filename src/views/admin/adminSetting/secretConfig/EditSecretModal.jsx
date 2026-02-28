@@ -1,4 +1,4 @@
-import { EditIcon, LockIcon } from '@chakra-ui/icons';
+import { EditIcon, LockIcon, RepeatIcon } from '@chakra-ui/icons';
 import {
 	Box,
 	Text,
@@ -27,6 +27,15 @@ const EditSecretModal = ({
 	handleSave,
 	isUpdating,
 }) => {
+	const handleClearValue = () => {
+		if (!selectedSecret) return;
+
+		setSelectedSecret({
+			...selectedSecret,
+			newValue: '',
+		});
+	};
+
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='xl' isCentered>
 			<ModalOverlay backdropFilter='blur(10px)' />
@@ -88,9 +97,22 @@ const EditSecretModal = ({
 										boxShadow: 'outline',
 									}}
 								/>
-								<Text fontSize='xs' color='gray.500' mt={1}>
-									This value will be encrypted before storage
-								</Text>
+								<HStack justify='space-between' mt={2}>
+									<Text fontSize='xs' color='gray.500'>
+										This value will be encrypted before storage
+									</Text>
+
+									<Button
+										size='xs'
+										variant='ghost'
+										colorScheme='cyan'
+										leftIcon={<RepeatIcon />}
+										onClick={handleClearValue}
+										isDisabled={!selectedSecret?.newValue}
+									>
+										Clear
+									</Button>
+								</HStack>
 							</FormControl>
 
 							{/* {selectedSecret.isEnabled !== undefined && (
