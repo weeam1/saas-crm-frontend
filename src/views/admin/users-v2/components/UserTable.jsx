@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import UserStatusToggle from './UserStatusToogle';
 import { usePermissions } from 'hooks/usePermissions';
 import UserRankingSelect from './UserRankingSelect';
+import { FaUserShield } from 'react-icons/fa';
 
 const UserTable = ({
 	data = [],
@@ -222,6 +223,18 @@ const UserTable = ({
 														colorScheme='teal'
 														variant='ghost'
 														onClick={() => navigate(`/users-v2/${row?._id}`)}
+													/>
+												</CustomTooltip>
+												<CustomTooltip label='User Permissions'>
+													<IconButton
+														aria-label='User Permissions'
+														icon={<FaUserShield />}
+														size='sm'
+														colorScheme='teal'
+														variant='ghost'
+														onClick={() =>
+															navigate(`/users-v2/permissions/${row?._id}`)
+														}
 													/>
 												</CustomTooltip>
 

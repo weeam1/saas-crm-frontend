@@ -85,7 +85,7 @@ const PersonalInfoSection = ({ user }) => {
 								{item.label}
 							</Text>
 							<Text fontSize='md' fontWeight='normal' color='gray.800'>
-								{item.value}
+								{item.value || 'N/A'}
 							</Text>
 						</VStack>
 					</HStack>

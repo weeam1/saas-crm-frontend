@@ -57,10 +57,10 @@ export const useFetchUsers = () => {
 	const fetchResult = useFetchItemsQuery(
 		{ path: '/v3/users', params: queryParams },
 		{
-			refetchOnMountOrArgChange: false,
+			refetchOnMountOrArgChange: true,
 			refetchOnFocus: true,
 			refetchOnReconnect: true,
-		}
+		},
 	);
 
 	const { data, isLoading, isFetching, refetch } = fetchResult;
@@ -71,7 +71,7 @@ export const useFetchUsers = () => {
 			refetchOnMountOrArgChange: true,
 			refetchOnReconnect: true,
 			refetchOnFocus: true,
-		}
+		},
 	);
 
 	useEffect(() => {

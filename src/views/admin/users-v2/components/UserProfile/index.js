@@ -16,6 +16,7 @@ import {
 	IconButton,
 	Text,
 	useDisclosure,
+	HStack,
 } from '@chakra-ui/react';
 import { ChevronRightIcon, EditIcon } from '@chakra-ui/icons';
 import { useState, useEffect } from 'react';
@@ -29,6 +30,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { FiChevronLeft } from 'react-icons/fi';
 import UserModal from '../AddUserModal';
 import { usePermissions } from 'hooks/usePermissions';
+import { FaUserShield } from 'react-icons/fa';
 
 const UserDetailsPage = () => {
 	const { id: userId } = useParams();
@@ -53,7 +55,7 @@ const UserDetailsPage = () => {
 			skip: !userId,
 			refetchOnFocus: true,
 			refetchOnMountOrArgChange: true,
-		}
+		},
 	);
 
 	useEffect(() => {
@@ -150,24 +152,44 @@ const UserDetailsPage = () => {
 				>
 					User Profile
 				</Text>
-				<Button
-					onClick={handleEditProfile}
-					size='sm'
-					variant='outline'
-					colorScheme='gray'
-					borderWidth='1px'
-					borderColor='gray.300'
-					leftIcon={<EditIcon />}
-					_hover={{
-						bg: 'gray.50',
-						borderColor: 'gray.400',
-					}}
-					_active={{
-						bg: 'gray.100',
-					}}
-				>
-					Edit
-				</Button>
+				<HStack gap={2}>
+					<Button
+						onClick={() => navigate(`/users-v2/permissions/${userId}`)}
+						size='sm'
+						variant='outline'
+						colorScheme='gray'
+						borderWidth='1px'
+						borderColor='gray.300'
+						leftIcon={<FaUserShield />}
+						_hover={{
+							bg: 'gray.50',
+							borderColor: 'gray.400',
+						}}
+						_active={{
+							bg: 'gray.100',
+						}}
+					>
+						Permissions
+					</Button>
+					<Button
+						onClick={handleEditProfile}
+						size='sm'
+						variant='outline'
+						colorScheme='gray'
+						borderWidth='1px'
+						borderColor='gray.300'
+						leftIcon={<EditIcon />}
+						_hover={{
+							bg: 'gray.50',
+							borderColor: 'gray.400',
+						}}
+						_active={{
+							bg: 'gray.100',
+						}}
+					>
+						Edit
+					</Button>
+				</HStack>
 			</Flex>
 
 			{/* Main Content Grid */}
