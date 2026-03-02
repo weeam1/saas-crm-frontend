@@ -153,24 +153,26 @@ const UserDetailsPage = () => {
 					User Profile
 				</Text>
 				<HStack gap={2}>
-					<Button
-						onClick={() => navigate(`/users-v2/permissions/${userId}`)}
-						size='sm'
-						variant='outline'
-						colorScheme='gray'
-						borderWidth='1px'
-						borderColor='gray.300'
-						leftIcon={<FaUserShield />}
-						_hover={{
-							bg: 'gray.50',
-							borderColor: 'gray.400',
-						}}
-						_active={{
-							bg: 'gray.100',
-						}}
-					>
-						Permissions
-					</Button>
+					{hasPermission('users', 'custom_permissions') && (
+						<Button
+							onClick={() => navigate(`/users-v2/permissions/${userId}`)}
+							size='sm'
+							variant='outline'
+							colorScheme='gray'
+							borderWidth='1px'
+							borderColor='gray.300'
+							leftIcon={<FaUserShield />}
+							_hover={{
+								bg: 'gray.50',
+								borderColor: 'gray.400',
+							}}
+							_active={{
+								bg: 'gray.100',
+							}}
+						>
+							Permissions
+						</Button>
+					)}
 					<Button
 						onClick={handleEditProfile}
 						size='sm'
