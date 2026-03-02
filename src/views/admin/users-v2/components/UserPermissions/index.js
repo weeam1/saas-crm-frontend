@@ -7,6 +7,7 @@ import {
 	HStack,
 	Flex,
 	IconButton,
+	Stack,
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
@@ -22,6 +23,8 @@ import PermissionCard from 'views/admin/userPermission/components/PermissionCard
 import LeadpoolSelector from 'views/admin/userPermission/components/LeadpoolSelector';
 import PermissionSkeletonLoading from 'views/admin/userPermission/components/PermissionSkeletonLoading';
 import { FiChevronLeft } from 'react-icons/fi';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import { LuRotateCcw } from 'react-icons/lu';
 
 const getUserPermission = (user) => {
 	if (user?.isRolePermissions) {
@@ -239,8 +242,12 @@ const Permission = () => {
 			.filter((module) => module.isModuleEnabled === true);
 	};
 
-	const handleUpdatePermission = async () => {
-		const payloadModules = getPayloadModules();
+	const handleUpdatePermission = async ({ isDeleted = false }) => {
+		let payloadModules = [];
+
+		if (!isDeleted) {
+			payloadModules = getPayloadModules();
+		}
 
 		const { modified, added, removed } = getModifiedAndNewModules(
 			getUserPermission(userData),
@@ -301,9 +308,27 @@ const Permission = () => {
 
 			<Box borderRadius='xl' boxShadow='lg' bg={cardBg} p={6}>
 				{/* Header */}
-				<Heading mb={6} size='md' color='brand.600'>
-					User Permissions
-				</Heading>
+				<Stack
+					flexDir={{ base: 'column', md: 'row' }}
+					justifyContent='space-between'
+					alignItems='center'
+					mb={6}
+				>
+					<Heading size='md' color='brand.600'>
+						User Permissions
+					</Heading>
+					<CustomTooltip label='Revert custom permission override'>
+						<Button
+							aria-label='Revert to role permissions'
+							onClick={() => handleUpdatePermission({ isDeleted: true })}
+							size='sm'
+							variant='outline'
+							leftIcon={<LuRotateCcw />}
+						>
+							Revert to Default
+						</Button>
+					</CustomTooltip>
+				</Stack>
 
 				{/* Permission Cards */}
 				{loadingRole || loadingUser || loading ? (
