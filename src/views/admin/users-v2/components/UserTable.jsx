@@ -225,18 +225,20 @@ const UserTable = ({
 														onClick={() => navigate(`/users-v2/${row?._id}`)}
 													/>
 												</CustomTooltip>
-												<CustomTooltip label='User Permissions'>
-													<IconButton
-														aria-label='User Permissions'
-														icon={<FaUserShield />}
-														size='sm'
-														colorScheme='teal'
-														variant='ghost'
-														onClick={() =>
-															navigate(`/users-v2/permissions/${row?._id}`)
-														}
-													/>
-												</CustomTooltip>
+												{hasPermission('users', 'custom_permissions') && (
+													<CustomTooltip label='User Permissions'>
+														<IconButton
+															aria-label='User Permissions'
+															icon={<FaUserShield />}
+															size='sm'
+															colorScheme='teal'
+															variant='ghost'
+															onClick={() =>
+																navigate(`/users-v2/permissions/${row?._id}`)
+															}
+														/>
+													</CustomTooltip>
+												)}
 
 												{hasPermission('users', 'edit') && (
 													<CustomTooltip label='Edit'>
