@@ -283,6 +283,9 @@ const Agency = React.lazy(() => import('views/admin/agencies'));
 const OfficeSettings = React.lazy(
 	() => import('views/admin/agencies/OfficeSetting'),
 );
+const Configuration = React.lazy(
+	() => import('views/admin/adminSetting/secretConfig/index'),
+);
 
 // Others
 const TaskV2 = React.lazy(() => import('views/admin/taskV2'));
@@ -317,14 +320,14 @@ const UserView = React.lazy(() => import('views/admin/users/View'));
 
 // Users V2 (By Arslan)
 const UserV2 = React.lazy(() => import('views/admin/users-v2'));
+const UserPermissions = React.lazy(
+	() => import('views/admin/users-v2/components/UserPermissions'),
+);
 
 // Auth
 const SignInCentered = React.lazy(() => import('views/auth/signIn'));
 const BulkMessage = React.lazy(
 	() => import('views/admin/whatsapp/BulkMessage'),
-);
-const Configuration = React.lazy(
-	() => import('views/admin/adminSetting/secretConfig/index'),
 );
 
 const routes = [
@@ -765,13 +768,6 @@ const routes = [
 		under: 'admin',
 		path: '/admin-setting',
 		component: AdminSetting,
-	},
-
-	{
-		name: 'Configuration',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		path: '/admin-setting/configuration',
-		component: Configuration,
 	},
 
 	// ------------- Task Routes ------------------------
@@ -1556,6 +1552,15 @@ const routes = [
 		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
 		component: UserProfileDetails,
 	},
+	{
+		// moduleId: 'users',
+		name: 'User Permissions',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/users-v2/permissions/:id',
+		under: 'user',
+		icon: <Icon as={HiUsers} width='20px' height='20px' color='inherit' />,
+		component: UserPermissions,
+	},
 
 	{
 		moduleId: 'admin_settings',
@@ -1588,6 +1593,12 @@ const routes = [
 		path: '/office-settings/:id',
 		under: 'office-settings',
 		component: OfficeSettings,
+	},
+	{
+		name: 'Configuration',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/admin-setting/configuration',
+		component: Configuration,
 	},
 	// ========================== auth layout ==========================
 	{

@@ -12,6 +12,7 @@ import useUserSession from 'hooks/useUserSession';
 import CardShimmer from 'components/loading/CardShimmer';
 import OnlineUsersCard from './components/OnlineUsersCard';
 import { usePermissions } from 'hooks/usePermissions';
+import OnlineUsers from './components/OnlineUsers';
 
 export default function AppDashboard() {
 	const { colorMode } = useColorMode();
@@ -38,7 +39,7 @@ export default function AppDashboard() {
 		{
 			refetchOnMountOrArgChange: true,
 			skip: !userRoleName === 'superAdmin',
-		}
+		},
 	);
 
 	const { data: todaySummary = {}, isLoading: todaySummaryLoading } =
@@ -47,7 +48,7 @@ export default function AppDashboard() {
 			{
 				refetchOnMountOrArgChange: true,
 				skip: !userRoleName === 'superAdmin',
-			}
+			},
 		);
 
 	const { data: leadStatusData = {}, isLoading: leadStatusLoading } =
@@ -56,7 +57,7 @@ export default function AppDashboard() {
 			{
 				refetchOnMountOrArgChange: true,
 				skip: !userRoleName === 'superAdmin',
-			}
+			},
 		);
 
 	// const salesQueryParmas =
@@ -79,7 +80,7 @@ export default function AppDashboard() {
 		},
 		{
 			refetchOnMountOrArgChange: true,
-		}
+		},
 	);
 
 	return isLoading ||
@@ -97,7 +98,8 @@ export default function AppDashboard() {
 	) : (
 		<Box>
 			{/* <Header /> */}
-			{hasPermission('dashboard', 'online_users_count') && <OnlineUsersCard />}
+			{/* {hasPermission('dashboard', 'online_users_count') && <OnlineUsersCard />} */}
+			{hasPermission('dashboard', 'online_users_count') && <OnlineUsers />}
 
 			{hasPermission('deal') && <SalesDashboard data={sales} />}
 

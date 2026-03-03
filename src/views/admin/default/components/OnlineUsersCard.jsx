@@ -20,6 +20,7 @@ const OnlineUsersCard = () => {
 	const dispatch = useDispatch();
 
 	const onlineUsers = useSelector((state) => state.onlineUsers);
+	const allUsers = useSelector((state) => state.user.users || []);
 
 	const { data, isLoading } = useFetchItemsQuery(
 		{ path: '/v2/user/online-users' },
@@ -27,7 +28,7 @@ const OnlineUsersCard = () => {
 			refetchOnMountOrArgChange: true,
 			refetchOnReconnect: true,
 			refetchOnFocus: true,
-		}
+		},
 	);
 
 	useEffect(() => {
@@ -38,7 +39,7 @@ const OnlineUsersCard = () => {
 
 	const onlineCount = useMemo(
 		() => onlineUsers?.count || 0,
-		[onlineUsers?.count]
+		[onlineUsers?.count],
 	);
 
 	const bg = useColorModeValue('white', 'gray.800');
@@ -151,19 +152,6 @@ const OnlineUsersCard = () => {
 				</Tooltip>
 			</Flex>
 
-			{/* <Flex
-				align='center'
-				bg={useColorModeValue('gray.50', 'gray.700')}
-				p={2}
-				rounded='lg'
-				fontSize='sm'
-			>
-				<Icon as={FaRegClock} mr={2} color='gray.500' boxSize={3} />
-				<Text color='gray.500' fontSize='xs'>
-					Updated just now
-				</Text>
-			</Flex> */}
-
 			<style>
 				{`
           .pulse-dot {
@@ -185,45 +173,6 @@ const OnlineUsersCard = () => {
 			</style>
 		</Box>
 	);
-
-	// return (
-	// 	<Box bg={bg} p={6} my={4} rounded='2xl' shadow='sm'>
-	// 		<Flex align='center' justify='space-between'>
-	// 			<Flex align='center' gap={3}>
-	// 				<Box
-	// 					p={3}
-	// 					rounded='full'
-	// 					bg='green.100'
-	// 					color='green.600'
-	// 					display='flex'
-	// 					alignItems='center'
-	// 					justifyContent='center'
-	// 				>
-	// 					<Icon as={FaUsers} boxSize={6} />
-	// 				</Box>
-	// 				<Box>
-	// 					<Text fontSize='md' color='gray.600'>
-	// 						Online Users
-	// 					</Text>
-	// 					{isLoading ? (
-	// 						<Spinner size='sm' />
-	// 					) : (
-	// 						<Text fontSize='2xl' fontWeight='bold' color='green.600'>
-	// 							{onlineCount}
-	// 						</Text>
-	// 					)}
-	// 				</Box>
-	// 			</Flex>
-	// 			<Text fontSize='sm' color='gray.400'>
-	// 				Live
-	// 			</Text>
-	// 			{/* <Tooltip
-	// 				label='Users currently active in the system'
-	// 				aria-label='online users tooltip'
-	// 			></Tooltip> */}
-	// 		</Flex>
-	// 	</Box>
-	// );
 };
 
 export default OnlineUsersCard;
