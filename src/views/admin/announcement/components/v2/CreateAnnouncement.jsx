@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { getApi } from 'services/api';
 import { toast } from 'react-toastify';
 import keys from 'config/keys';
 
@@ -20,18 +19,18 @@ import RadioCard from './RadioCard';
 import { MdAnnouncement, MdSend } from 'react-icons/md';
 import MessageSuccessModal from './MessageSuccessModal';
 import SelectManager from './SelectManager';
-import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
 import { buttonStyle } from 'utils/btn';
 import { HiSpeakerphone } from 'react-icons/hi';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
+import { useRoles } from 'hooks/user/userRoles';
 
 const CreateAnnouncement = () => {
 	const { user } = useUserSession();
 
-	// Fetch the all users data from hook
-	const { allUsers, managers, agents } = useFetchUserHierarchy(user);
+	const { team } = useTeamStructure();
+	const { roles } = useRoles();
 
 	const { createUserLog } = useUserActivityLog();
 	const { hasPermission } = usePermissions();
@@ -43,51 +42,12 @@ const CreateAnnouncement = () => {
 	const [message, setMessage] = useState('');
 	const [selectedRole, setSelectedRole] = useState('');
 	const [receiverIds, setReceiverIds] = useState([]);
-	// const [managerList, setManagerList] = useState([]);
+
 	const [selectedManager, setSelectedManager] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [onlineUsers, setOnlineUsers] = useState(0);
 	const [offlineUsers, setOfflineUsers] = useState(0);
-
-	useEffect(() => {
-		if (isManager) {
-			fetchMangerAgents(user._id);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [isManager]);
-
-	const fetchMangerAgents = async (selectedValue = '') => {
-		try {
-			setSelectedManager(selectedValue);
-			setSelectedRole('team');
-
-			// Fetch the hierarchy data for the selected manager
-			const apiUrl = `api/v2/user/hierarchy?managerId=${selectedValue}`;
-			const { data } = await getApi((isManager || isSuperAdmin) && apiUrl);
-
-			if (data.results > 0) {
-				const managerAgentsList = data?.doc?.map((agent) => agent._id);
-				// If there are results, include the manager's own ID as well
-				const updatedReceiverIds = isManager
-					? [...managerAgentsList]
-					: [...managerAgentsList, selectedValue];
-
-				setReceiverIds(updatedReceiverIds);
-			} else {
-				// If no results, clear the receiver IDs (or just select the manager)
-
-				if (isManager) {
-					setReceiverIds([]);
-				} else setReceiverIds([selectedValue]);
-			}
-		} catch (error) {
-			// Handle any errors that occur during the API call
-			console.error('Error fetching manager hierarchy:', error);
-			// Optionally, reset or update state in case of an error
-			setReceiverIds([]);
-		}
-	};
 
 	const handleRoleChange = (selectedRole) => {
 		try {
@@ -102,7 +62,6 @@ const CreateAnnouncement = () => {
 					break;
 
 				case 'agents':
-					// setAgentsList(agents || []);
 					newReceiverIds = agents.map((agent) => agent._id); // Extract agent IDs
 					break;
 
@@ -134,15 +93,6 @@ const CreateAnnouncement = () => {
 		const managerReceiverIds = managers?.map((manager) => manager._id);
 
 		setReceiverIds(managerReceiverIds); // Set all manager IDs
-
-		// If "All Managers" is selected, set receiver IDs to all managers
-		// if (selectedValue === "allManagers") {
-		// console.log({ managerReceiverIds });
-		// setSelectedManager(selectedValue); // Update the selected manager state
-		// } else {
-		// fetchMangerAgents(selectedValue);
-		// setSelectedManager(selectedValue); // Set the selected manager
-		// }
 	};
 
 	const handleSend = async (e) => {
