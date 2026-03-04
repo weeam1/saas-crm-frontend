@@ -307,7 +307,7 @@ const SharedSipRecording = React.lazy(
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CreateAnnouncement = React.lazy(
-	() => import('views/admin/announcement/components/CreateAnnouncement'),
+	() => import('views/admin/announcement/components/v2/CreateAnnouncement'),
 );
 const AnnouncementHistory = React.lazy(
 	() => import('views/admin/announcement/components/History'),
