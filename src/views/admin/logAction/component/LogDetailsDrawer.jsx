@@ -24,6 +24,7 @@ import { toast } from 'react-toastify';
 
 import { CopyIcon } from '@chakra-ui/icons';
 import PermissionDisplay from './PermissionDisplay';
+import GeoNavigationButton from './GeoNavigationButton';
 
 const LeadIdDisplay = ({ leadId, type = 'single' }) => {
 	const handleCopy = () => {
@@ -83,7 +84,7 @@ const LogDetailsDrawer = ({
 	const isBulkLeads =
 		selectedLog?.entity === 'Lead' && selectedLog?.rawPayload?.leadIds;
 
-		console.log("selectedLog", selectedLog)
+	console.log('selectedLog', selectedLog);
 	return (
 		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size='lg'>
 			<DrawerOverlay />
@@ -189,10 +190,13 @@ const LogDetailsDrawer = ({
 								fontSize='xs'
 							>
 								<Text>{selectedLog.message}</Text>
-								<Text>{selectedLog?.rawPayload?.permission && (
-									<PermissionDisplay permission={selectedLog?.rawPayload?.permission}/>
-								)}</Text>
-
+								<Text>
+									{selectedLog?.rawPayload?.permission && (
+										<PermissionDisplay
+											permission={selectedLog?.rawPayload?.permission}
+										/>
+									)}
+								</Text>
 							</Text>
 							{isLeadId ? (
 								<LeadIdDisplay leadId={selectedLog?.rawPayload?.leadId} />
@@ -262,6 +266,14 @@ const LogDetailsDrawer = ({
 									</Text>
 								</Box>
 							</SimpleGrid>
+
+							{selectedLog.metadata?.latitude &&
+								selectedLog.metadata?.longitude && (
+									<GeoNavigationButton
+										latitude={selectedLog.metadata.latitude}
+										longitude={selectedLog.metadata.longitude}
+									/>
+								)}
 						</Box>
 						<Divider borderColor={borderColor} />
 						<Box>
