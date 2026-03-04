@@ -58,6 +58,10 @@ class SocketService {
 				resolve(this.socket.id);
 			});
 
+			this.socket.on('notification', (payload) => {
+				console.log('New Notification:', payload);
+			});
+
 			this.socket.on('chatMessage', (msg) => {
 				console.log('Message received:', msg);
 				if (msg.roomId) {
