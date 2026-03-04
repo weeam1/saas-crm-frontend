@@ -619,7 +619,6 @@ const LeadScreen = () => {
 				}).unwrap();
 
 				if (fetchUserStatsError) {
-					setIsPurchasing(false);
 					return toast.error(
 						fetchUserStatsError?.message || 'Failed to fetch user stats',
 					);
