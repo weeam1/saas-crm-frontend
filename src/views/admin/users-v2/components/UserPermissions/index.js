@@ -27,11 +27,7 @@ import CustomTooltip from 'components/shared/CustomTooltip';
 import { LuRotateCcw } from 'react-icons/lu';
 
 const getUserPermission = (user) => {
-	if (user?.isRolePermissions) {
-		return user?.roles?.[0]?.permissions || [];
-	} else {
-		return user?.permissionOverrides || [];
-	}
+	return user?.roles?.[0]?.permissions || [];
 };
 
 function getModifiedAndNewModules(oldPermissions, newModules) {
