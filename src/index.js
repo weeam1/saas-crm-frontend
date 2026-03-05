@@ -45,6 +45,7 @@ import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import NewFreshLeadModal from 'views/admin/freshLead/NewFreshLeadModal';
 import NewFreshLeadPoolModal from 'views/admin/freshLead/freshLeadPool/FreshLeadPoolModal';
 import FreshApprovedLeadModal from 'views/admin/freshLead/freshApprovedLead/FreshApprovedLeadModal';
+import AnnouncementNotification from 'views/notification/announcementNotification';
 // import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
@@ -355,7 +356,11 @@ function App() {
 				<NewFreshLeadPoolModal />
 			)}
 
+			{/* Announcment notification real time */}
+			<AnnouncementNotification />
+
 			<Notifications />
+
 			{isModalOpen && (
 				<AnnouncementsModal
 					isOpen={isModalOpen}

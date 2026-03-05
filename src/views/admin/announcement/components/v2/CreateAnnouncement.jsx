@@ -397,7 +397,6 @@ export default function CreateAnnouncement() {
 	const validateForm = () => {
 		const newErrors = {};
 
-		
 		if (!formData.message.trim()) {
 			newErrors.message = 'Message is required';
 		}
@@ -491,14 +490,14 @@ export default function CreateAnnouncement() {
 			toast.success('Your announcement has been sent successfully.');
 
 			// Reset form
-			setFormData({
-				title: '',
-				message: '',
-				priority: '1',
-				recipientTarget: 'ALL',
-				selectedRoleId: '',
-				selectedManagerId: '',
-			});
+			// setFormData({
+			// 	title: '',
+			// 	message: '',
+			// 	priority: '1',
+			// 	recipientTarget: 'ALL',
+			// 	selectedRoleId: '',
+			// 	selectedManagerId: '',
+			// });
 			setErrors({});
 			setTouched({});
 			onClose();

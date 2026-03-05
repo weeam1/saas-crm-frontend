@@ -13,7 +13,7 @@ class SoundPlayer {
 	 * @param {string} options.id - Unique ID for the sound (useful for stopping specific sounds)
 	 * @returns {Promise<HTMLAudioElement>} - The audio element being played
 	 */
-	async play(src, options = {}) {
+	play(src, options = {}) {
 		const { volume = 1, loop = false, id = src } = options;
 
 		try {

@@ -22,7 +22,7 @@ const AnnouncementSlider = ({
 
 	const handlePrev = () => {
 		setCurrentIndex((prev) =>
-			prev === 0 ? announcements.length - 1 : prev - 1
+			prev === 0 ? announcements.length - 1 : prev - 1,
 		);
 	};
 
@@ -31,7 +31,7 @@ const AnnouncementSlider = ({
 		if (currentId) {
 			onAcknowledge(currentId);
 			const updatedAnnouncements = announcements.filter(
-				(announcement) => announcement.id !== currentId
+				(announcement) => announcement.id !== currentId,
 			);
 
 			// Update announcements and manage currentIndex
@@ -50,18 +50,22 @@ const AnnouncementSlider = ({
 			textAlign='center'
 			bg='white'
 			borderRadius='md'
-			maxW='xl'
+			maxW='2xl'
 			mx='auto'
 		>
 			{/* Announcement Content */}
+
 			{announcements.length > 0 ? (
 				<Text
-					fontSize='lg'
+					fontSize={{ base: 'xs', md: 'sm', lg: 'lg' }}
 					fontWeight='medium'
-					textAlign='justify'
+					textAlign={{ base: 'left', md: 'justify' }}
 					mb={6}
-					color='gray.800'
 					mt={4}
+					p={2}
+					lineHeight='1.6'
+					color='gray.700'
+					whiteSpace='pre-line'
 				>
 					{announcements[currentIndex]?.message}
 				</Text>
@@ -119,7 +123,7 @@ const AnnouncementSlider = ({
 			)}
 
 			{/* Acknowledge Button */}
-			{announcements.length > 0 && (
+			{/* {announcements.length > 0 && (
 				<Button
 					mt={6}
 					py={4}
@@ -136,6 +140,35 @@ const AnnouncementSlider = ({
 					onClick={handleAcknowledge}
 				>
 					Acknowledged
+				</Button>
+			)} */}
+			{announcements.length > 0 && (
+				<Button
+					mt={6}
+					py={4}
+					mb={4}
+					px={8}
+					variant='outline'
+					borderWidth='2px'
+					borderColor='brand.500'
+					color='brand.500'
+					borderRadius='lg'
+					fontWeight='medium'
+					fontSize='sm'
+					letterSpacing='wide'
+					textTransform='uppercase'
+					transition='all 0.2s'
+					_hover={{
+						bg: 'brand.50',
+						borderColor: 'brand.600',
+						color: 'brand.600',
+					}}
+					_active={{
+						bg: 'brand.100',
+					}}
+					onClick={handleAcknowledge}
+				>
+					✓ Acknowledged
 				</Button>
 			)}
 

@@ -14,6 +14,8 @@ import {
 	markLeadDecisionFinalized,
 } from '../redux/freshLeadPoolSlice';
 import keys from 'config/keys';
+import { addAnnouncement } from '../redux/announcementsSlice';
+import { NOTIFICATION_TYPES } from 'constants/notification.contants';
 
 class SocketService {
 	constructor() {
@@ -60,6 +62,9 @@ class SocketService {
 
 			this.socket.on('notification', (payload) => {
 				console.log('New Notification:', payload);
+				if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
+					store.dispatch(addAnnouncement(payload));
+				}
 			});
 
 			this.socket.on('chatMessage', (msg) => {
