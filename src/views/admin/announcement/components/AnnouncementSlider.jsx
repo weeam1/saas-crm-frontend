@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 import { Box, Flex, Text, IconButton, Button } from '@chakra-ui/react';
+import { useUpdateItemMutation } from 'api/apiSlice';
 
 const AnnouncementSlider = ({
 	announcements: initialAnnouncements,
@@ -9,6 +10,9 @@ const AnnouncementSlider = ({
 }) => {
 	const [announcements, setAnnouncements] = useState(initialAnnouncements);
 	const [currentIndex, setCurrentIndex] = useState(0);
+
+	const [updateAnnouncement, { isLoading: isUpdatingAnnouncement }] =
+		useUpdateItemMutation();
 
 	useEffect(() => {
 		if (initialAnnouncements) {
@@ -26,7 +30,17 @@ const AnnouncementSlider = ({
 		);
 	};
 
-	const handleAcknowledge = () => {
+	const markAnnouncementAsRead = async (id) => {
+		try {
+			await updateAnnouncement({
+				path: `notifications/${id}/read`,
+			}).unwrap();
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const handleAcknowledge = async () => {
 		const currentId = announcements[currentIndex]?.id;
 		if (currentId) {
 			onAcknowledge(currentId);
@@ -41,6 +55,8 @@ const AnnouncementSlider = ({
 			} else if (currentIndex >= updatedAnnouncements.length) {
 				setCurrentIndex(updatedAnnouncements.length - 1); // Adjust index if out of bounds
 			}
+
+			await markAnnouncementAsRead(currentId);
 		}
 	};
 

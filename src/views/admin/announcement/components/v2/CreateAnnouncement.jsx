@@ -490,14 +490,14 @@ export default function CreateAnnouncement() {
 			toast.success('Your announcement has been sent successfully.');
 
 			// Reset form
-			// setFormData({
-			// 	title: '',
-			// 	message: '',
-			// 	priority: '1',
-			// 	recipientTarget: 'ALL',
-			// 	selectedRoleId: '',
-			// 	selectedManagerId: '',
-			// });
+			setFormData({
+				title: '',
+				message: '',
+				priority: '1',
+				recipientTarget: 'ALL',
+				selectedRoleId: '',
+				selectedManagerId: '',
+			});
 			setErrors({});
 			setTouched({});
 			onClose();
@@ -563,7 +563,7 @@ export default function CreateAnnouncement() {
 	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	return (
-		<Box maxW='800px' m='auto' p={{ base: 4, md: 8 }}>
+		<Box maxW='1000px' m='auto' p={{ base: 2, md: 4 }}>
 			<Box
 				bg={bgColor}
 				borderRadius='2xl'
@@ -684,7 +684,7 @@ export default function CreateAnnouncement() {
 									<Radio value='ALL' colorScheme='brand' size='lg' spacing={3}>
 										<HStack>
 											<Icon as={FaUsers} color='brand.500' />
-											<Text>All Users</Text>
+											<Text fontSize={{ base: 'xs', md: 'sm' }}>All Users</Text>
 										</HStack>
 									</Radio>
 								</WrapItem>
@@ -697,7 +697,7 @@ export default function CreateAnnouncement() {
 									>
 										<HStack>
 											<Icon as={FaUserTag} color='purple.500' />
-											<Text>By Role</Text>
+											<Text fontSize={{ base: 'xs', md: 'sm' }}>By Role</Text>
 										</HStack>
 									</Radio>
 								</WrapItem>
@@ -710,7 +710,7 @@ export default function CreateAnnouncement() {
 									>
 										<HStack>
 											<Icon as={FaUserTie} color='orange.500' />
-											<Text>By Team</Text>
+											<Text fontSize={{ base: 'xs', md: 'sm' }}>By Team</Text>
 										</HStack>
 									</Radio>
 								</WrapItem>
@@ -722,16 +722,21 @@ export default function CreateAnnouncement() {
 					{/* Role Selection Dropdown */}
 					{formData.recipientTarget === 'ROLE' && (
 						<FormControl>
-							<FormLabel>Select Role</FormLabel>
+							<FormLabel
+								fontSize={{ base: 'xs', md: 'sm' }}
+								fontWeight='semibold'
+							>
+								Select Role
+							</FormLabel>
 							<Select
 								placeholder='Choose a role'
-								size='lg'
+								size='md'
 								value={formData.selectedRoleId}
 								onChange={(e) =>
 									handleFieldChange('selectedRoleId', e.target.value)
 								}
 								borderRadius='lg'
-								focusBorderColor='purple.400'
+								focusBorderColor='brand.400'
 								bg='white'
 							>
 								{/* <option value='ALL_ROLES' style={{ fontWeight: 'bold' }}>
@@ -743,7 +748,7 @@ export default function CreateAnnouncement() {
 									</option>
 								))}
 							</Select>
-							<Text fontSize='sm' color='gray.500' mt={2}>
+							<Text fontSize='xs' color='gray.500' mt={2}>
 								Select a specific role or choose "All Roles" to target everyone
 							</Text>
 						</FormControl>
@@ -752,16 +757,21 @@ export default function CreateAnnouncement() {
 					{/* Team Selection Dropdown */}
 					{formData.recipientTarget === 'TEAM' && (
 						<FormControl>
-							<FormLabel>Select Team (Manager)</FormLabel>
+							<FormLabel
+								fontSize={{ base: 'xs', md: 'sm' }}
+								fontWeight='semibold'
+							>
+								Select Team (Manager)
+							</FormLabel>
 							<Select
 								placeholder='Choose a team'
-								size='lg'
+								size='md'
 								value={formData.selectedManagerId}
 								onChange={(e) =>
 									handleFieldChange('selectedManagerId', e.target.value)
 								}
 								borderRadius='lg'
-								focusBorderColor='orange.400'
+								focusBorderColor='brand.400'
 								bg='white'
 							>
 								{managers.map((manager) => (
@@ -770,7 +780,7 @@ export default function CreateAnnouncement() {
 									</option>
 								))}
 							</Select>
-							<Text fontSize='sm' color='gray.500' mt={2}>
+							<Text fontSize='xs' color='gray.500' mt={2}>
 								Select a team manager to send announcement to their team members
 							</Text>
 						</FormControl>
@@ -787,7 +797,11 @@ export default function CreateAnnouncement() {
 							borderColor='gray.200'
 						>
 							<HStack justify='space-between' mb={2}>
-								<Text fontWeight='bold' fontSize='sm' color='gray.600'>
+								<Text
+									fontWeight='bold'
+									fontSize={{ base: 'xs', md: 'sm' }}
+									color='gray.600'
+								>
 									RECIPIENT PREVIEW
 								</Text>
 								<Tooltip label='This shows who will receive the announcement'>
@@ -797,14 +811,17 @@ export default function CreateAnnouncement() {
 							<HStack spacing={4}>
 								<Icon
 									as={recipientPreview.icon}
-									boxSize={8}
+									boxSize={{ base: 4, md: 6 }}
 									color={`${recipientPreview.color}.500`}
 								/>
 								<VStack align='start' spacing={1}>
-									<Text fontWeight='bold' fontSize='lg'>
+									<Text fontWeight='bold' fontSize={{ base: 'xs', md: 'sm' }}>
 										{recipientPreview.label}
 									</Text>
-									<Badge colorScheme={recipientPreview.color}>
+									<Badge
+										colorScheme={recipientPreview.color}
+										fontSize={{ base: 'xs', md: 'sm' }}
+									>
 										{recipientPreview.count}
 									</Badge>
 								</VStack>
@@ -814,8 +831,8 @@ export default function CreateAnnouncement() {
 
 					{/* Submit Button */}
 					<Button
-						size='lg'
-						height='60px'
+						size='md'
+						height={{ base: '30px', md: '40px' }}
 						colorScheme='brand'
 						onClick={handleSubmit}
 						isLoading={isCreating}
@@ -832,7 +849,7 @@ export default function CreateAnnouncement() {
 							transform: 'translateY(0)',
 						}}
 						transition='all 0.2s'
-						fontSize='lg'
+						fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
 						leftIcon={<BellIcon />}
 					>
 						Send Announcement
