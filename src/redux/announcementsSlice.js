@@ -7,13 +7,23 @@ const announcementsSlice = createSlice({
 	},
 	reducers: {
 		addAnnouncement: (state, action) => {
-			console.log({ data: action.payload });
 			state.list.unshift(action.payload);
 		},
+		addAnnouncements: (state, action) => {
+			const newAnnouncements = action.payload?.data || [];
+
+			// Prevent duplicates by id
+			const existingIds = new Set(state.list.map((a) => a.id));
+
+			const filtered = newAnnouncements.filter((a) => !existingIds.has(a.id));
+
+			state.list = [...filtered, ...state.list];
+		},
+
 		clearAnnouncement: (state, action) => {
 			const idToRemove = action.payload; // The ID of the announcement to remove
 			state.list = state.list.filter(
-				(announcement) => announcement.id !== idToRemove
+				(announcement) => announcement.id !== idToRemove,
 			);
 		},
 		clearAnnouncements: (state) => {
@@ -22,6 +32,10 @@ const announcementsSlice = createSlice({
 	},
 });
 
-export const { addAnnouncement, clearAnnouncement, clearAnnouncements } =
-	announcementsSlice.actions;
+export const {
+	addAnnouncement,
+	addAnnouncements,
+	clearAnnouncement,
+	clearAnnouncements,
+} = announcementsSlice.actions;
 export default announcementsSlice.reducer;

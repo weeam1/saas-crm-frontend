@@ -14,7 +14,7 @@ import {
 	markLeadDecisionFinalized,
 } from '../redux/freshLeadPoolSlice';
 import keys from 'config/keys';
-import { addAnnouncement } from '../redux/announcementsSlice';
+import { addAnnouncement, addAnnouncements } from '../redux/announcementsSlice';
 import { NOTIFICATION_TYPES } from 'constants/notification.contants';
 
 class SocketService {
@@ -65,6 +65,15 @@ class SocketService {
 				if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
 					store.dispatch(addAnnouncement(payload));
 				}
+			});
+
+			this.socket.on('unread_notifications', (payload) => {
+				console.log('Unread Notifications:', payload);
+
+				store.dispatch(addAnnouncements(payload));
+				// if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
+				// 	store.dispatch(addAnnouncement(payload));
+				// }
 			});
 
 			this.socket.on('chatMessage', (msg) => {
