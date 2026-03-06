@@ -1,313 +1,3 @@
-// import {
-// 	Box,
-// 	Button,
-// 	FormControl,
-// 	FormLabel,
-// 	Input,
-// 	Select,
-// 	Textarea,
-// 	RadioGroup,
-// 	Radio,
-// 	Stack,
-// 	HStack,
-// 	Text,
-// 	Badge,
-// 	useToast,
-// 	useDisclosure,
-// 	Modal,
-// 	ModalOverlay,
-// 	ModalContent,
-// 	ModalHeader,
-// 	ModalBody,
-// 	ModalFooter,
-// } from '@chakra-ui/react';
-// import { useState, useMemo } from 'react';
-// import { useCreateItemMutation } from 'api/apiSlice';
-// import { useTeamStructure } from 'hooks/user/useTeamStructure';
-// import { useRoles } from 'hooks/user/userRoles';
-// import useUserSession from 'hooks/useUserSession';
-
-// export default function CreateAnnouncement({}) {
-// 	const toast = useToast();
-// 	const { isOpen, onOpen, onClose } = useDisclosure();
-
-// 	const { team: managers } = useTeamStructure();
-// 	const { roles } = useRoles();
-
-// 	const { user: currentUser } = useUserSession();
-
-// 	const [createItemMutation, { isLoading: isCreating }] =
-// 		useCreateItemMutation();
-
-// 	const [title, setTitle] = useState('');
-// 	const [message, setMessage] = useState('');
-// 	const [priority, setPriority] = useState(1);
-
-// 	const [recipientTarget, setRecipientTarget] = useState('ALL');
-// 	const [selectedRoleIds, setSelectedRoleIds] = useState([]);
-// 	const [selectedManagerId, setSelectedManagerId] = useState('');
-
-// 	const isSubmitDisabled = useMemo(() => {
-// 		if (!title.trim() || !message.trim()) return true;
-
-// 		if (recipientTarget === 'ROLE' && selectedRoleIds.length === 0) return true;
-
-// 		if (recipientTarget === 'TEAM' && !selectedManagerId) return true;
-
-// 		return false;
-// 	}, [title, message, recipientTarget, selectedRoleIds, selectedManagerId]);
-
-// 	function buildPayload() {
-// 		let recipientType = 'ALL';
-// 		let receivers = [];
-
-// 		if (recipientTarget === 'ROLE') {
-// 			if (selectedRoleIds.includes('ALL_ROLES')) {
-// 				recipientType = 'ALL';
-// 			} else {
-// 				recipientType = 'ROLE';
-// 				receivers = selectedRoleIds;
-// 			}
-// 		}
-
-// 		if (recipientTarget === 'TEAM') {
-// 			recipientType = 'INDIVIDUAL';
-// 			receivers = selectedManagerId ? [selectedManagerId] : [];
-// 		}
-
-// 		return {
-// 			priority,
-// 			recipientType,
-// 			type: 'ANNOUNCEMENT',
-// 			sender: currentUser?._id,
-// 			title: title.trim(),
-// 			message: message.trim(),
-// 			metadata: {},
-// 			...(receivers.length > 0 && { receivers }),
-// 		};
-// 	}
-
-// 	async function handleSubmit() {
-// 		const payload = buildPayload();
-
-// 		if (payload.recipientType === 'ALL') {
-// 			onOpen();
-// 			return;
-// 		}
-
-// 		await submit(payload);
-// 	}
-
-// 	async function submit(payload) {
-// 		try {
-// 			await createItemMutation({
-// 				path: '/notifications',
-// 				body: payload,
-// 			}).unwrap();
-
-// 			toast({
-// 				title: 'Announcement created',
-// 				status: 'success',
-// 				duration: 3000,
-// 				isClosable: true,
-// 			});
-
-// 			setTitle('');
-// 			setMessage('');
-// 			setSelectedRoleIds([]);
-// 			setSelectedManagerId('');
-// 			setRecipientTarget('ALL');
-// 			setPriority(1);
-
-// 			onClose();
-// 		} catch (err) {
-// 			toast({
-// 				title: 'Failed to create announcement',
-// 				description: err?.data?.message || 'Something went wrong',
-// 				status: 'error',
-// 				duration: 4000,
-// 				isClosable: true,
-// 			});
-// 		}
-// 	}
-
-// 	const previewLabel = useMemo(() => {
-// 		if (recipientTarget === 'ALL') return 'All Users';
-
-// 		if (recipientTarget === 'ROLE') {
-// 			if (selectedRoleIds.includes('ALL_ROLES')) return 'All Users';
-// 			if (selectedRoleIds.length === 0) return 'No role selected';
-// 			return `${selectedRoleIds.length} role(s) selected`;
-// 		}
-
-// 		if (recipientTarget === 'TEAM') {
-// 			const manager = managers.find((m) => m._id === selectedManagerId);
-// 			return manager ? `${manager.fullName} Team` : 'No team selected';
-// 		}
-
-// 		return '';
-// 	}, [recipientTarget, selectedRoleIds, selectedManagerId, managers]);
-
-// 	return (
-// 		<Box p={6} bg='white' rounded='xl' shadow='md' maxW='700px'>
-// 			<Text fontSize='xl' fontWeight='bold' mb={4}>
-// 				Create Announcement
-// 			</Text>
-
-// 			<Stack spacing={5}>
-// 				<FormControl isRequired>
-// 					<FormLabel>Title</FormLabel>
-// 					<Input
-// 						placeholder='Enter announcement title'
-// 						value={title}
-// 						onChange={(e) => setTitle(e.target.value)}
-// 					/>
-// 				</FormControl>
-
-// 				<FormControl isRequired>
-// 					<FormLabel>Message</FormLabel>
-// 					<Textarea
-// 						placeholder='Write your message...'
-// 						rows={5}
-// 						value={message}
-// 						onChange={(e) => setMessage(e.target.value)}
-// 					/>
-// 				</FormControl>
-
-// 				<FormControl>
-// 					<FormLabel>Priority</FormLabel>
-// 					<HStack>
-// 						<Button
-// 							variant={priority === 1 ? 'solid' : 'outline'}
-// 							onClick={() => setPriority(1)}
-// 						>
-// 							Normal
-// 						</Button>
-// 						<Button
-// 							variant={priority === 2 ? 'solid' : 'outline'}
-// 							onClick={() => setPriority(2)}
-// 						>
-// 							Important
-// 						</Button>
-// 						<Button
-// 							variant={priority === 3 ? 'solid' : 'outline'}
-// 							colorScheme='red'
-// 							onClick={() => setPriority(3)}
-// 						>
-// 							Critical
-// 						</Button>
-// 					</HStack>
-// 				</FormControl>
-
-// 				<FormControl>
-// 					<FormLabel>Who should receive this?</FormLabel>
-// 					<RadioGroup
-// 						value={recipientTarget}
-// 						onChange={(val) => {
-// 							setRecipientTarget(val);
-// 							setSelectedRoleIds([]);
-// 							setSelectedManagerId('');
-// 						}}
-// 					>
-// 						<Stack direction='row'>
-// 							<Radio value='ALL'>All Users</Radio>
-// 							<Radio value='ROLE'>By Role</Radio>
-// 							<Radio value='TEAM'>By Team</Radio>
-// 						</Stack>
-// 					</RadioGroup>
-// 				</FormControl>
-
-// 				{recipientTarget === 'ROLE' && (
-// 					<FormControl>
-// 						<FormLabel>Select Role(s)</FormLabel>
-// 						<Select
-// 							multiple
-// 							value={selectedRoleIds}
-// 							onChange={(e) => {
-// 								const values = Array.from(
-// 									e.target.selectedOptions,
-// 									(option) => option.value,
-// 								);
-// 								if (values.includes('ALL_ROLES')) {
-// 									setSelectedRoleIds(['ALL_ROLES']);
-// 								} else {
-// 									setSelectedRoleIds(values);
-// 								}
-// 							}}
-// 						>
-// 							<option value='ALL_ROLES'>All Roles</option>
-// 							{roles.map((role) => (
-// 								<option key={role._id} value={role._id}>
-// 									{role.roleName}
-// 								</option>
-// 							))}
-// 						</Select>
-// 					</FormControl>
-// 				)}
-
-// 				{recipientTarget === 'TEAM' && (
-// 					<FormControl>
-// 						<FormLabel>Select Team</FormLabel>
-// 						<Select
-// 							placeholder='Select manager team'
-// 							value={selectedManagerId}
-// 							onChange={(e) => setSelectedManagerId(e.target.value)}
-// 						>
-// 							{managers.map((manager) => (
-// 								<option key={manager._id} value={manager._id}>
-// 									{manager.fullName} Team
-// 								</option>
-// 							))}
-// 						</Select>
-// 					</FormControl>
-// 				)}
-
-// 				<Box>
-// 					<Text fontSize='sm' color='gray.500'>
-// 						Preview:
-// 					</Text>
-// 					<Badge mt={1} colorScheme='brand'>
-// 						{previewLabel}
-// 					</Badge>
-// 				</Box>
-
-// 				<Button
-// 					colorScheme='brand'
-// 					onClick={handleSubmit}
-// 					isLoading={isCreating}
-// 					isDisabled={isSubmitDisabled}
-// 				>
-// 					Create Announcement
-// 				</Button>
-// 			</Stack>
-
-// 			{/* Confirmation Modal */}
-// 			<Modal isOpen={isOpen} onClose={onClose} isCentered>
-// 				<ModalOverlay />
-// 				<ModalContent>
-// 					<ModalHeader>Confirm Global Announcement</ModalHeader>
-// 					<ModalBody>
-// 						This will notify all users in the system. Are you sure you want to
-// 						continue?
-// 					</ModalBody>
-// 					<ModalFooter>
-// 						<Button mr={3} onClick={onClose}>
-// 							Cancel
-// 						</Button>
-// 						<Button
-// 							colorScheme='red'
-// 							onClick={() => submit(buildPayload())}
-// 							isLoading={isCreating}
-// 						>
-// 							Yes, Send to All
-// 						</Button>
-// 					</ModalFooter>
-// 				</ModalContent>
-// 			</Modal>
-// 		</Box>
-// 	);
-// }
-
 import {
 	Box,
 	Button,
@@ -362,17 +52,30 @@ import {
 } from '@chakra-ui/icons';
 import { FaUsers, FaUserTag, FaUserTie } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { usePermissions } from 'hooks/usePermissions';
+import MessageSuccessModal from '../MessageSuccessModal';
 
 export default function CreateAnnouncement() {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [showPreview, setShowPreview] = useState(false);
+	const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+	const [successMessage, setSuccessMessage] = useState({
+		onlineUsers: 0,
+		offlineUsers: 0,
+	});
 
 	const { team: managers } = useTeamStructure();
 	const { roles } = useRoles();
-	const { user: currentUser } = useUserSession();
+	const { user: currentUser, userRoleName } = useUserSession();
+	const { hasPermission } = usePermissions();
 
 	const [createItemMutation, { isLoading: isCreating }] =
 		useCreateItemMutation();
+
+	const [errors, setErrors] = useState({});
+	const [touched, setTouched] = useState({});
+
+	const isManager = userRoleName === 'Manager';
 
 	const [formData, setFormData] = useState({
 		title: '',
@@ -383,8 +86,24 @@ export default function CreateAnnouncement() {
 		selectedManagerId: '',
 	});
 
-	const [errors, setErrors] = useState({});
-	const [touched, setTouched] = useState({});
+	// Handle field changes
+	const handleFieldChange = (field, value) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+		setTouched((prev) => ({ ...prev, [field]: true }));
+		if (errors[field]) {
+			setErrors((prev) => ({ ...prev, [field]: '' }));
+		}
+	};
+
+	useEffect(() => {
+		if (isManager) {
+			setFormData((prev) => ({
+				...prev,
+				recipientTarget: 'TEAM',
+				selectedManagerId: currentUser?._id,
+			}));
+		}
+	}, [isManager]);
 
 	// Colors for priority levels
 	const priorityColors = {
@@ -409,15 +128,6 @@ export default function CreateAnnouncement() {
 
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
-	};
-
-	// Handle field changes
-	const handleFieldChange = (field, value) => {
-		setFormData((prev) => ({ ...prev, [field]: value }));
-		setTouched((prev) => ({ ...prev, [field]: true }));
-		if (errors[field]) {
-			setErrors((prev) => ({ ...prev, [field]: '' }));
-		}
 	};
 
 	// Handle recipient target change
@@ -482,14 +192,24 @@ export default function CreateAnnouncement() {
 
 	async function submit(payload) {
 		try {
-			await createItemMutation({
+			const res = await createItemMutation({
 				path: '/notifications',
 				body: payload,
 			}).unwrap();
 
 			toast.success('Your announcement has been sent successfully.');
 
+			console.log(res);
+
+			setSuccessMessage({
+				totalReceivers: res?.doc?.stats?.totalReceivers,
+				onlineUsers: res?.doc?.stats?.online,
+				offlineUsers: res?.doc?.stats?.disconnected,
+			});
+
 			// Reset form
+			setIsSuccessOpen(true);
+
 			setFormData({
 				title: '',
 				message: '',
@@ -671,53 +391,62 @@ export default function CreateAnnouncement() {
 					<Divider />
 
 					{/* Recipient Selection */}
-					<FormControl
-						isInvalid={touched.recipientTarget && !!errors.recipientTarget}
-					>
-						<FormLabel fontWeight='semibold'>Send To</FormLabel>
-						<RadioGroup
-							value={formData.recipientTarget}
-							onChange={handleRecipientChange}
+					{hasPermission('announcement', 'all_users') && (
+						<FormControl
+							isInvalid={touched.recipientTarget && !!errors.recipientTarget}
 						>
-							<Wrap spacing={4}>
-								<WrapItem>
-									<Radio value='ALL' colorScheme='brand' size='lg' spacing={3}>
-										<HStack>
-											<Icon as={FaUsers} color='brand.500' />
-											<Text fontSize={{ base: 'xs', md: 'sm' }}>All Users</Text>
-										</HStack>
-									</Radio>
-								</WrapItem>
-								<WrapItem>
-									<Radio
-										value='ROLE'
-										colorScheme='purple'
-										size='lg'
-										spacing={3}
-									>
-										<HStack>
-											<Icon as={FaUserTag} color='purple.500' />
-											<Text fontSize={{ base: 'xs', md: 'sm' }}>By Role</Text>
-										</HStack>
-									</Radio>
-								</WrapItem>
-								<WrapItem>
-									<Radio
-										value='TEAM'
-										colorScheme='orange'
-										size='lg'
-										spacing={3}
-									>
-										<HStack>
-											<Icon as={FaUserTie} color='orange.500' />
-											<Text fontSize={{ base: 'xs', md: 'sm' }}>By Team</Text>
-										</HStack>
-									</Radio>
-								</WrapItem>
-							</Wrap>
-						</RadioGroup>
-						<FormErrorMessage>{errors.recipientTarget}</FormErrorMessage>
-					</FormControl>
+							<FormLabel fontWeight='semibold'>Send To</FormLabel>
+							<RadioGroup
+								value={formData.recipientTarget}
+								onChange={handleRecipientChange}
+							>
+								<Wrap spacing={4}>
+									<WrapItem>
+										<Radio
+											value='ALL'
+											colorScheme='brand'
+											size='lg'
+											spacing={3}
+										>
+											<HStack>
+												<Icon as={FaUsers} color='brand.500' />
+												<Text fontSize={{ base: 'xs', md: 'sm' }}>
+													All Users
+												</Text>
+											</HStack>
+										</Radio>
+									</WrapItem>
+									<WrapItem>
+										<Radio
+											value='ROLE'
+											colorScheme='purple'
+											size='lg'
+											spacing={3}
+										>
+											<HStack>
+												<Icon as={FaUserTag} color='purple.500' />
+												<Text fontSize={{ base: 'xs', md: 'sm' }}>By Role</Text>
+											</HStack>
+										</Radio>
+									</WrapItem>
+									<WrapItem>
+										<Radio
+											value='TEAM'
+											colorScheme='orange'
+											size='lg'
+											spacing={3}
+										>
+											<HStack>
+												<Icon as={FaUserTie} color='orange.500' />
+												<Text fontSize={{ base: 'xs', md: 'sm' }}>By Team</Text>
+											</HStack>
+										</Radio>
+									</WrapItem>
+								</Wrap>
+							</RadioGroup>
+							<FormErrorMessage>{errors.recipientTarget}</FormErrorMessage>
+						</FormControl>
+					)}
 
 					{/* Role Selection Dropdown */}
 					{formData.recipientTarget === 'ROLE' && (
@@ -904,6 +633,17 @@ export default function CreateAnnouncement() {
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
+
+			{/* Success Modal */}
+			{isSuccessOpen && successMessage && (
+				<MessageSuccessModal
+					isOpen={isSuccessOpen}
+					onClose={() => setIsSuccessOpen(false)}
+					onlineUsers={successMessage?.onlineUsers}
+					offlineUsers={successMessage?.offlineUsers}
+					totalReceivers={successMessage?.totalReceivers}
+				/>
+			)}
 		</Box>
 	);
 }
