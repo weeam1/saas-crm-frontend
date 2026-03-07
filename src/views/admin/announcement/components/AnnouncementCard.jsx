@@ -74,7 +74,7 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 				{/* Left Section */}
 				<Flex align='center' justifyContent='space-between' gap={4}>
 					<Flex flex={1} align='center' gap={2}>
-						<Badge colorScheme={getBadgeColor(item.type)}>{item.type}</Badge>
+						{/* <Badge colorScheme={getBadgeColor(item.type)}>{item.type}</Badge> */}
 
 						<Text
 							flex='1'
@@ -129,7 +129,7 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 						</Tooltip>
 
 						<StatusBadge
-							status={`${item.pending_count} Pending`}
+							status={`${item.unread_count} Pending`}
 							color='orange'
 							Icon={MdMarkEmailUnread}
 							size={16}
@@ -144,7 +144,7 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 
 					{/* Formatted Date */}
 					<Text fontSize='sm' color='gray.500'>
-						{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}
+						{format(new Date(item.createdAt), 'MMM d, yyyy h:mm a')}
 						{/* {format(new Date(item.created_at), "PPPpp")} */}
 					</Text>
 				</Flex>

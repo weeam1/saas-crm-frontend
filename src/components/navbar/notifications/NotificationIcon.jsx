@@ -1,12 +1,11 @@
 import { Menu, MenuButton, IconButton, Badge, Box } from '@chakra-ui/react';
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 import useNotificationHistory from 'hooks/notification/useNotificationHistory';
 import NotificationDropDown from './NotificaitonDropDown';
 import { BellIcon } from '@chakra-ui/icons';
-import { useSelector } from 'react-redux';
-import { getNotificationCount } from 'api';
+// import { useSelector } from 'react-redux';
+// import { getNotificationCount } from 'api';
 
 const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 	const [currentPage, setCurrentPage] = useState(1);

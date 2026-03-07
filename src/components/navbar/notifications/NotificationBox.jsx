@@ -107,10 +107,7 @@ const NotificationBox = ({ data, users }) => {
 			return onOpen();
 		}
 
-		if (
-			type === NOTIFICATION_TYPES.LEAD_ASSIGNED ||
-			type === NOTIFICATION_TYPES.LEAD_BULK_ASSIGNED
-		) {
+		if (type === NOTIFICATION_TYPES.LEAD_ASSIGNED) {
 			if (!data?.notification) return;
 			navigate(
 				`/lead?page=1&pageSize=40&lead=${data?.notification?.metadata?.leadId}`,
