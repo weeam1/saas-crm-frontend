@@ -5,15 +5,18 @@ import NotificationView from './NotificationView';
 import { MdEventAvailable } from 'react-icons/md';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { readNotification } from 'api';
+// import { readNotification } from 'api';
 import { useDispatch } from 'react-redux';
 import { newNotifyItem } from './../../../redux/webSocketReducer';
 import { NOTIFICATION_TYPES } from 'constants/notification.contants';
+import { useReadNotification } from 'hooks/notification/useReadNotification';
 
-const NotificationBox = ({ notification, users }) => {
-	const { type, message, createdAt } = notification;
+const NotificationBox = ({ data, users }) => {
+	const { type, message, createdAt } = data?.notification;
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const { readNotification } = useReadNotification();
 
 	const [messageType, setMessageType] = useState('notification');
 	// const [message, setMessage] = useState('');
@@ -83,10 +86,18 @@ const NotificationBox = ({ notification, users }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
+	const markAsRead = async (id) => {
+		try {
+			await readNotification(id);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	const handleNotificationOpen = async () => {
-		if (notification?.sent === 0) {
-			readNotification(notification._id, type);
-			dispatch(newNotifyItem({ type: messageType, message }));
+		if (!data?.read) {
+			await markAsRead(data?.notification?._id);
+			// dispatch(newNotifyItem({ type: messageType, message }));
 		}
 
 		if (
@@ -100,9 +111,9 @@ const NotificationBox = ({ notification, users }) => {
 			type === NOTIFICATION_TYPES.LEAD_ASSIGNED ||
 			type === NOTIFICATION_TYPES.LEAD_BULK_ASSIGNED
 		) {
-			if (!notification) return;
+			if (!data?.notification) return;
 			navigate(
-				`/lead?page=1&pageSize=40&lead=${notification?.metadata?.leadId}`,
+				`/lead?page=1&pageSize=40&lead=${data?.notification?.metadata?.leadId}`,
 			);
 		}
 	};
@@ -116,7 +127,7 @@ const NotificationBox = ({ notification, users }) => {
 				display='flex'
 				alignItems='center'
 				gap={3}
-				bg={notification?.sent === 0 && 'green.100'}
+				bg={data?.read ? 'transparent' : 'green.100'}
 				border='none'
 				outline='none'
 				cursor='pointer'
@@ -162,7 +173,7 @@ const NotificationBox = ({ notification, users }) => {
 			{isOpen && (
 				<NotificationView
 					title={title}
-					item={notification}
+					item={data?.notification}
 					type={messageType}
 					isOpen={isOpen}
 					onClose={onClose}

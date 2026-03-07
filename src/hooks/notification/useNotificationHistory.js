@@ -1,14 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import axios from 'axios';
-import { toast } from 'react-toastify'; // Ensure you have the react-toastify library
-import keys from 'config/keys';
+// import axios from 'axios';
+// import { toast } from 'react-toastify'; // Ensure you have the react-toastify library
+// import keys from 'config/keys';
 import { useDispatch, useSelector } from 'react-redux';
 // import { clearNotifyItem } from './../redux/webSocketReducer';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import {
 	updateNotificationList,
 	clearNotifyItem,
-} from '../redux/notificationSlice';
+	setUnreadCount,
+} from '../../redux/notificationSlice';
 
 // const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 // 	const [list, setList] = useState([]); // Active list
@@ -115,6 +116,7 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 	// Read notifications from Redux
 	const list = useSelector((state) => state.notifications.list);
 	const hasNew = useSelector((state) => state.notifications.hasNew);
+	const unreadCount = useSelector((state) => state.notifications.unreadCount);
 
 	const queryParams = useMemo(
 		() => ({
@@ -125,12 +127,26 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 		[userId, currentPage, itemsPerPage],
 	);
 
-	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
+	const {
+		data,
+		isLoading,
+		isFetching,
+		refetch: refetchNotificaitons,
+	} = useFetchItemsQuery(
 		{ path: '/notifications', params: queryParams },
 		{
 			skip: !userId,
 			refetchOnMountOrArgChange: true,
 			refetchOnFocus: true,
+		},
+	);
+
+	const { data: notificationCount, refetch: refetchCount } = useFetchItemsQuery(
+		{ path: '/notifications/unread_count' },
+		{
+			refetchOnMountOrArgChange: true,
+			refetchOnFocus: true,
+			refetchOnReconnect: true,
 		},
 	);
 
@@ -147,18 +163,26 @@ const useNotificationHistory = (userId, currentPage, itemsPerPage) => {
 		dispatch(clearNotifyItem());
 	}, [data, currentPage, dispatch]);
 
+	useEffect(() => {
+		if (notificationCount?.count !== undefined) {
+			dispatch(setUnreadCount(notificationCount.count || 0));
+		}
+	}, [notificationCount, dispatch]);
+
 	// auto refetch when new notification flag appears
 	useEffect(() => {
 		if (hasNew) {
-			refetch();
+			refetchNotificaitons();
 		}
-	}, [hasNew, refetch]);
+	}, [hasNew, refetchNotificaitons, refetchCount]);
 
 	return {
 		list,
+		unreadNotificationCount: unreadCount || 0,
+		hasMore: data?.hasMore || false,
 		totalPages: data?.total_pages || 0,
 		loading: isLoading || isFetching,
-		refetch,
+		refetchNotificaitons,
 	};
 };
 

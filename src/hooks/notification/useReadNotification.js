@@ -1,6 +1,9 @@
 import { useCallback } from 'react';
 import { useUpdateItemMutation } from 'api/apiSlice';
-import { updateNotification } from '../../redux/notificationSlice';
+import {
+	decrementUnreadCount,
+	updateNotification,
+} from '../../redux/notificationSlice';
 import { useDispatch } from 'react-redux';
 
 export function useReadNotification() {
@@ -23,9 +26,11 @@ export function useReadNotification() {
 					dispatch(
 						updateNotification({
 							id,
-							updates: { isRead: true },
+							updates: { read: true, readAt: new Date().toISOString() },
 						}),
 					);
+
+					dispatch(decrementUnreadCount());
 				}
 
 				return res;

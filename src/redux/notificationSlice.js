@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
 	list: [],
+	unreadCount: 0,
 	hasNew: false,
 };
 
@@ -36,6 +37,7 @@ const notificationSlice = createSlice({
 			if (!notification) return;
 
 			const exists = state.list.some((n) => n._id === notification._id);
+
 			if (exists) return;
 
 			state.list = [notification, ...state.list];
@@ -47,7 +49,10 @@ const notificationSlice = createSlice({
 			const { id, updates } = action.payload || {};
 			if (!id) return;
 
-			const index = state.list.findIndex((n) => n._id === id);
+			const index = state.list.findIndex(
+				(item) => item?.notification?._id === id,
+			);
+			console.log({ index });
 			if (index === -1) return;
 
 			state.list[index] = {
@@ -55,12 +60,25 @@ const notificationSlice = createSlice({
 				...updates,
 			};
 		},
+		setUnreadCount(state, action) {
+			state.unreadCount = action.payload;
+		},
+
+		incrementUnreadCount(state) {
+			state.unreadCount += 1;
+		},
+
+		decrementUnreadCount(state) {
+			console.log('decrement count');
+			state.unreadCount = Math.max(0, state.unreadCount - 1);
+		},
 
 		clearNotifyItem(state) {
 			state.hasNew = false;
 		},
 		setNotifyItem(state) {
-			state.hasNew = false;
+			state.hasNew = true;
+			state.unreadCount += 1;
 		},
 	},
 });
@@ -70,6 +88,9 @@ export const {
 	updateNotificationList,
 	addNewNotification,
 	setNotifyItem,
+	setUnreadCount,
+	incrementUnreadCount,
+	decrementUnreadCount,
 	clearNotifyItem,
 	updateNotification,
 } = notificationSlice.actions;

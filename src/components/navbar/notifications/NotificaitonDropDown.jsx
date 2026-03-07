@@ -17,6 +17,7 @@ const NotificationDropDown = ({
 	loadMoreNotifications,
 	hideLoadMoreBtn,
 	notificationCount,
+	hasMore,
 }) => {
 	const users = useSelector((state) => state.user.users);
 
@@ -72,7 +73,7 @@ const NotificationDropDown = ({
 										_focus={{ bg: 'gray.100' }}
 									>
 										<NotificationBox
-											notification={item.notification}
+											data={item}
 											users={users}
 											fontSize={{ base: 'sm', md: 'md' }}
 										/>
@@ -102,8 +103,7 @@ const NotificationDropDown = ({
 					{loading ? (
 						<Spinner color='brand.400' />
 					) : (
-						notificationList.length > 0 &&
-						!hideLoadMoreBtn && (
+						hasMore && (
 							<Button
 								size='sm'
 								colorScheme='gray'

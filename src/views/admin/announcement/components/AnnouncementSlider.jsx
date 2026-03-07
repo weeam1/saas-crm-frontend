@@ -3,6 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 import { Box, Flex, Text, IconButton, Button } from '@chakra-ui/react';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import { useReadNotification } from 'hooks/notification/useReadNotification';
 
 const AnnouncementSlider = ({
 	announcements: initialAnnouncements,
@@ -13,6 +14,8 @@ const AnnouncementSlider = ({
 
 	const [updateAnnouncement, { isLoading: isUpdatingAnnouncement }] =
 		useUpdateItemMutation();
+
+	const { readNotification } = useReadNotification();
 
 	useEffect(() => {
 		if (initialAnnouncements) {
@@ -32,9 +35,11 @@ const AnnouncementSlider = ({
 
 	const markAnnouncementAsRead = async (id) => {
 		try {
-			await updateAnnouncement({
-				path: `notifications/${id}/read`,
-			}).unwrap();
+			await readNotification(id);
+
+			// await updateAnnouncement({
+			// 	path: `notifications/${id}/read`,
+			// }).unwrap();
 		} catch (error) {
 			console.log(error);
 		}
