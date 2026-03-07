@@ -1,9 +1,9 @@
 import soundPlayer from 'utils/sound/soundUtil';
 import notificationFile from 'assets/sounds/new-notification.mp3';
 
-export const playNotificationSound = () => {
+export const playNotificationSound = async () => {
 	try {
-		soundPlayer.play(notificationFile, {
+		await soundPlayer.play(notificationFile, {
 			volume: 1,
 			loop: false,
 			id: 'notification-1',

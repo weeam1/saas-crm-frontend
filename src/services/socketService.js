@@ -16,6 +16,8 @@ import {
 import keys from 'config/keys';
 import { addAnnouncement, addAnnouncements } from '../redux/announcementsSlice';
 import { NOTIFICATION_TYPES } from 'constants/notification.contants';
+import { triggerBrowserNotification } from './notification/browserNotification';
+import { setNotifyItem } from '../redux/notificationSlice';
 
 class SocketService {
 	constructor() {
@@ -62,6 +64,14 @@ class SocketService {
 
 			this.socket.on('notification', (payload) => {
 				console.log('New Notification:', payload);
+
+				triggerBrowserNotification({
+					title: payload?.title || 'Notification',
+					message: payload?.title || 'You received a new notification',
+				});
+
+				store.dispatch(setNotifyItem());
+
 				if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
 					store.dispatch(addAnnouncement(payload));
 				}

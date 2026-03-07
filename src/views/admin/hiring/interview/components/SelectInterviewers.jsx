@@ -1,4 +1,4 @@
-import { useFetchItemsQuery } from 'api/apiSlice';
+import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
@@ -19,6 +19,8 @@ import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
 import SelectInterviewOwner from './SelectInterviewOwner';
+import { NOTIFICATION_TYPES } from 'constants/notification.contants';
+import { useSendNotification } from 'hooks/notification/useSendNotification';
 
 const SelectInterviewers = ({
 	interview,
@@ -34,6 +36,8 @@ const SelectInterviewers = ({
 	});
 
 	const navigate = useNavigate();
+
+	const { sendNotification } = useSendNotification();
 
 	useEffect(() => {
 		if (isInvitedInterviewer && interview?._id) {
@@ -190,22 +194,40 @@ const SelectInterviewers = ({
 				// 		? [...selectedIds]
 				// 		: selectedIds;
 
-				const sender_name = user?.fullName;
+				// const sender_name = user?.fullName;
+
+				// const interviewData2 = {
+				// 	sender_id: user._id,
+				// 	sender_name,
+				// 	sender_role: userRole,
+				// 	receiver_ids: selectedIds,
+				// 	interview_id: interview._id,
+				// 	candidate_name: interview?.candidate?.name,
+				// 	candidate_job_type: interview?.candidate?.position.name,
+				// };
 
 				const interviewData = {
-					sender_id: user._id,
-					sender_name,
-					sender_role: userRole,
-					receiver_ids: selectedIds,
-					interview_id: interview._id,
-					candidate_name: interview?.candidate?.name,
-					candidate_job_type: interview?.candidate?.position.name,
+					recipientType: 'INTERVIEWER',
+					type: NOTIFICATION_TYPES.INTERVIEW_INVITE,
+					sender: user?._id,
+					title: 'Interview Invite',
+					metadata: {
+						interviewId: interview._id,
+					},
+					...(selectedIds.length > 0 && { receivers: selectedIds }),
 				};
 
-				const { data } = await axios.post(
-					`${keys.socketUrl}/interview_invite`,
-					interviewData
-				);
+				await sendNotification(interviewData);
+
+				// await createItemMutation({
+				// 	path: '/notifications',
+				// 	body: interviewData,
+				// }).unwrap();
+
+				// const { data } = await axios.post(
+				// 	`${keys.socketUrl}/interview_invite`,
+				// 	interviewData,
+				// );
 
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,

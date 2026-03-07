@@ -15,6 +15,8 @@ import { ASSIGNMENT_BY_PERMISSION, formatList } from './constants';
 import { usePermissions } from 'hooks/usePermissions';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import { useCreateItemMutation } from 'api/apiSlice';
+import { useSendNotification } from 'hooks/notification/useSendNotification';
+import { NOTIFICATION_TYPES } from 'constants/notification.contants';
 
 const {
 	Modal,
@@ -86,6 +88,8 @@ const BulkAssignModal = (props) => {
 
 	const [fetchUserStats, { error: fetchUserStatsError }] =
 		useCreateItemMutation();
+
+	const { sendNotification } = useSendNotification();
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -219,8 +223,25 @@ const BulkAssignModal = (props) => {
 					}),
 				);
 
-				sendBulkLeadNotification(user?._id, finalValues, selectedLeads);
+				// sendBulkLeadNotification(user?._id, finalValues, selectedLeads);
 				toast.success('Leads updated successfully');
+
+				const userIds = Object.values(finalValues).filter(Boolean);
+
+				if (userIds?.length > 0) {
+					await sendNotification({
+						recipientType: 'INDIVIDUAL',
+						type: NOTIFICATION_TYPES.LEAD_BULK_ASSIGNED,
+						sender: user?._id,
+						title: 'Bulk Leads Assigned',
+						receivers: userIds, // manager / teamLead / agent
+						metadata: {
+							leadIds: selectedLeads.map((lead) => lead._id),
+							assignedBy: user?._id,
+							totalLeads: selectedLeads.length,
+						},
+					});
+				}
 
 				formikResetForm();
 				setSelectedValues([]);

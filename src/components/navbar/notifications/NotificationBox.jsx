@@ -8,59 +8,56 @@ import { useNavigate } from 'react-router-dom';
 import { readNotification } from 'api';
 import { useDispatch } from 'react-redux';
 import { newNotifyItem } from './../../../redux/webSocketReducer';
+import { NOTIFICATION_TYPES } from 'constants/notification.contants';
 
 const NotificationBox = ({ notification, users }) => {
-	const { type, created_at } = notification;
+	const { type, message, createdAt } = notification;
+
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
 	const [messageType, setMessageType] = useState('notification');
-	const [message, setMessage] = useState('');
+	// const [message, setMessage] = useState('');
 
 	const getSender = useCallback(
 		(sender_id) => {
 			return users?.find((user) => user._id === sender_id);
 		},
-		[users]
+		[users],
 	);
 
 	useEffect(() => {
 		let messageType = '';
-		let message = '';
 
 		switch (type) {
-			case 1:
+			case NOTIFICATION_TYPES.ANNOUNCEMENT:
 				messageType = 'announcement';
-				message = notification?.message;
 				break;
 
-			case 2:
+			case NOTIFICATION_TYPES.INTERVIEW_INVITE:
 				messageType = 'invite';
-				message = notification?.message;
+
 				break;
 
-			case 0:
-				const sender_id = notification?.sender_id;
-				const sender = getSender(sender_id);
+			case NOTIFICATION_TYPES.LEAD_ASSIGNED:
+			case NOTIFICATION_TYPES.LEAD_BULK_ASSIGNED:
+				// const sender_id = notification?.sender_id;
+				// const sender = getSender(sender_id);
 
 				messageType = 'notification';
-				message = `The lead '${notification?.lead_name}' has been assigned ${
-					sender?.fullName ? `by the ${sender.fullName}` : ''
-				}.`;
+
+				// message = `The lead '${notification?.lead_name}' has been assigned ${
+				// 	sender?.fullName ? `by the ${sender.fullName}` : ''
+				// }.`;
 				break;
 
 			default:
-				return;
+				messageType = 'notification';
+				break;
 		}
 
 		setMessageType(messageType);
-		setMessage(message);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		type,
-		notification?.sender_id,
-		notification?.lead_name,
-		notification?.message,
-	]);
+	}, [type]);
 
 	const getIconProps = () => {
 		if (messageType === 'announcement') {
@@ -81,24 +78,32 @@ const NotificationBox = ({ notification, users }) => {
 	};
 
 	const { icon, bg, title } = getIconProps();
-	const formattedDate = format(new Date(created_at), ' h:mm a MMM d, yyyy');
+	const formattedDate = format(new Date(createdAt), ' h:mm a MMM d, yyyy');
 
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 
 	const handleNotificationOpen = async () => {
 		if (notification?.sent === 0) {
-			readNotification(notification.id, type);
+			readNotification(notification._id, type);
 			dispatch(newNotifyItem({ type: messageType, message }));
 		}
 
-		if (type === 1 || type === 2) {
+		if (
+			type === NOTIFICATION_TYPES.ANNOUNCEMENT ||
+			type === NOTIFICATION_TYPES.INTERVIEW_INVITE
+		) {
 			return onOpen();
 		}
 
-		if (type === 0) {
+		if (
+			type === NOTIFICATION_TYPES.LEAD_ASSIGNED ||
+			type === NOTIFICATION_TYPES.LEAD_BULK_ASSIGNED
+		) {
 			if (!notification) return;
-			navigate(`/lead?page=1&pageSize=40&lead=${notification?.lead_id}`);
+			navigate(
+				`/lead?page=1&pageSize=40&lead=${notification?.metadata?.leadId}`,
+			);
 		}
 	};
 

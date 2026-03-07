@@ -22,6 +22,8 @@ const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 		getHistory,
 	} = useNotificationHistory(userId, currentPage, itemsPerPage);
 
+	console.log({ notificationList });
+
 	const newNotifyItem = useSelector((state) => state.webSocket.newNotifyItem);
 
 	// Using useCallback to memoize getHistory call
@@ -59,7 +61,7 @@ const NotificationIcon = React.forwardRef(({ userId }, ref) => {
 				handleClose(); // Close the dropdown if clicked outside
 			}
 		},
-		[handleClose]
+		[handleClose],
 	);
 
 	useEffect(() => {
