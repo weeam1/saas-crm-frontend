@@ -65,8 +65,6 @@ const ExportPayrollModal = ({ isOpen, onClose, type }) => {
 
 	const allAgenciesEnabled = hasPermission('payroll', 'all_agencies');
 
-	const [selectedDate, setSelectedDate] = useState(new Date());
-
 	const [progress, setProgress] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
 
@@ -100,6 +98,12 @@ const ExportPayrollModal = ({ isOpen, onClose, type }) => {
 				setProgress((prev) => (prev < 90 ? prev + 5 : prev));
 			}, 250);
 
+			let agencyFilter = user?.agency?._id;
+
+			if (selectedAgency && allAgenciesEnabled) {
+				agencyFilter = selectedAgency;
+			}
+
 			const payload = {
 				agency: selectedAgency ?? user?.agency?._id,
 				month,
@@ -112,12 +116,16 @@ const ExportPayrollModal = ({ isOpen, onClose, type }) => {
 			clearInterval(interval);
 			setProgress(100);
 
-			const monthLabel = selectedDate.toLocaleString('default', {
+			const monthName = new Date(year, month - 1).toLocaleString('default', {
 				month: 'long',
-				year: 'numeric',
 			});
 
-			const fileName = `payroll-${monthLabel}.csv`;
+			const agencyName =
+				agencies?.doc?.find((a) => a._id === selectedAgency)?.name ||
+				user?.agency?.name ||
+				'All Agencies';
+
+			const fileName = `${agencyName} Payroll - ${monthName} ${year}.csv`;
 
 			const url = URL.createObjectURL(blob);
 
@@ -309,6 +317,9 @@ const ExportPayrollModal = ({ isOpen, onClose, type }) => {
 										}}
 										isDisabled={loadingAgencies}
 									>
+										<option key='all' value={null}>
+											All Agencies
+										</option>
 										{agencies?.doc?.map((agency) => (
 											<option key={agency._id} value={agency._id}>
 												{agency.name}
