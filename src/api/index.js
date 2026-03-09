@@ -482,6 +482,61 @@ export const generateReportApi = async (payload) => {
 	}
 };
 
+export const generatePayrollReportApi = async (payload) => {
+	const { agency, month, year, type = 1 } = payload;
+
+	if (!agency || !month || !year) {
+		throw new Error(
+			'Missing required parameters: agency, month and year are required.',
+		);
+	}
+
+	const params = new URLSearchParams();
+	params.append('agency', agency);
+	params.append('month', month);
+	params.append('year', year);
+	params.append('type', type);
+
+	const url = `${constant[server]}api/payroll/export/csv?${params.toString()}`;
+
+	const headers = {};
+	setAuthHeader(headers);
+
+	try {
+		const response = await axios.get(url, {
+			headers,
+			responseType: 'blob',
+			validateStatus: (status) => status >= 200 && status < 300,
+		});
+
+		const contentType =
+			response.headers['content-type'] || 'application/octet-stream';
+
+		return {
+			blob: response.data,
+			contentType,
+		};
+	} catch (error) {
+		let message = 'Failed to generate payroll report';
+
+		console.log(error);
+
+		if (error.response && error.response.data instanceof Blob) {
+			try {
+				const text = await error.response.data.text();
+				const parsed = JSON.parse(text);
+				message = parsed?.message || message;
+			} catch {
+				// ignore parse errors
+			}
+		} else if (error.message) {
+			message = error.message;
+		}
+
+		throw new Error(message);
+	}
+};
+
 export const generateEmployeeAttendanceReport = async (payload) => {
 	const { employeeId, format, type = 'month', month, year } = payload;
 
