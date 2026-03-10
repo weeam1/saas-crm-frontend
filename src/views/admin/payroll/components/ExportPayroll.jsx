@@ -176,89 +176,6 @@ const ExportPayrollModal = ({
 	};
 
 	return (
-		// <Modal isOpen={isOpen} onClose={onClose} isCentered size='md'>
-		// 	<ModalOverlay backdropFilter='blur(4px)' />
-
-		// 	<ModalContent borderRadius='xl'>
-		// 		<ModalHeader>Export Payroll</ModalHeader>
-		// 		<ModalCloseButton isDisabled={isGenerating} />
-
-		// 		<ModalBody>
-		// 			<VStack spacing={5}>
-		// 				<Text fontSize='sm' color='gray.500'>
-		// 					Select payroll month to export CSV
-		// 				</Text>
-
-		// 				<FormControl>
-		// 					<FormLabel>Payroll Month</FormLabel>
-
-		// 					<DateFilter onFilterChange={monthFilterHandler} />
-		// 				</FormControl>
-
-		// 				{/* Agency */}
-		// 				{allAgenciesEnabled && (
-		// 					<FormControl>
-		// 						<FormLabel>Agency</FormLabel>
-
-		// 						<Select
-		// 							value={selectedAgency}
-		// 							onChange={(e) => setSelectedAgency(e.target.value)}
-		// 							placeholder={
-		// 								loadingAgencies ? 'Loading agencies...' : 'Select Agency'
-		// 							}
-		// 						>
-		// 							{/* <option value='All'>All Agencies</option> */}
-
-		// 							{agencies?.doc?.map((agency) => (
-		// 								<option key={agency._id} value={agency._id}>
-		// 									{agency.name}
-		// 								</option>
-		// 							))}
-		// 						</Select>
-		// 					</FormControl>
-		// 				)}
-
-		// 				{isGenerating && (
-		// 					<MotionBox w='100%'>
-		// 						<Text mb={2} fontSize='sm'>
-		// 							Generating Payroll ({progress}%)
-		// 						</Text>
-
-		// 						<Box
-		// 							h='8px'
-		// 							bg='gray.100'
-		// 							borderRadius='full'
-		// 							overflow='hidden'
-		// 						>
-		// 							<MotionBox
-		// 								h='100%'
-		// 								bg='green.400'
-		// 								initial={{ width: 0 }}
-		// 								animate={{ width: `${progress}%` }}
-		// 							/>
-		// 						</Box>
-		// 					</MotionBox>
-		// 				)}
-		// 			</VStack>
-		// 		</ModalBody>
-
-		// 		<ModalFooter>
-		// 			<Flex w='100%'>
-		// 				<Button
-		// 					{...buttonStyle}
-		// 					colorScheme='green'
-		// 					leftIcon={<DownloadIcon />}
-		// 					onClick={handleExport}
-		// 					isLoading={isGenerating}
-		// 					loadingText='Exporting'
-		// 					w='100%'
-		// 				>
-		// 					Download CSV
-		// 				</Button>
-		// 			</Flex>
-		// 		</ModalFooter>
-		// 	</ModalContent>
-		// </Modal>
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
@@ -452,7 +369,7 @@ const ExportPayrollModal = ({
 								boxShadow='md'
 								_hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
 								transition='all 0.2s'
-								isDisabled={!selectedAgency} // Add month validation
+								isDisabled={!selectedAgency && allAgenciesEnabled} // Add month validation
 							>
 								Download CSV
 							</Button>
