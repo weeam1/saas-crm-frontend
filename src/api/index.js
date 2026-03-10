@@ -485,14 +485,16 @@ export const generateReportApi = async (payload) => {
 export const generatePayrollReportApi = async (payload) => {
 	const { agency, month, year, type = 1 } = payload;
 
-	if (!agency || !month || !year) {
+	if (!month || !year) {
 		throw new Error(
-			'Missing required parameters: agency, month and year are required.',
+			'Missing required parameters: month and year are required.',
 		);
 	}
 
 	const params = new URLSearchParams();
-	params.append('agency', agency);
+	if (agency) {
+		params.append('agency', agency);
+	}
 	params.append('month', month);
 	params.append('year', year);
 	params.append('type', type);

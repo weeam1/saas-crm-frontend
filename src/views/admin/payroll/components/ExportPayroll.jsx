@@ -39,8 +39,17 @@ const MotionBox = motion(Box);
 // type 1: Salaried users
 // type 2: commision based users
 
+function resolveAgency(selectedAgency, user, allAgenciesEnabled) {
+	if (selectedAgency && selectedAgency !== 'All') return selectedAgency;
+	if (!allAgenciesEnabled) return user?.agency?._id;
+	return null;
+}
+
 const ExportPayrollReport = ({ type = 1 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const [month, setMonth] = useState(new Date().getMonth() + 1);
+	const [year, setYear] = useState(new Date().getFullYear());
+	const [selectedAgency, setSelectedAgency] = useState('');
 
 	return (
 		<>
@@ -54,24 +63,45 @@ const ExportPayrollReport = ({ type = 1 }) => {
 				Export Payroll
 			</Button>
 
-			<ExportPayrollModal isOpen={isOpen} onClose={onClose} type={type} />
+			<ExportPayrollModal
+				isOpen={isOpen}
+				onClose={onClose}
+				type={type}
+				month={month}
+				setMonth={setMonth}
+				year={year}
+				setYear={setYear}
+				selectedAgency={selectedAgency}
+				setSelectedAgency={setSelectedAgency}
+			/>
 		</>
 	);
 };
 
-const ExportPayrollModal = ({ isOpen, onClose, type }) => {
+const ExportPayrollModal = ({
+	isOpen,
+	onClose,
+	type,
+	month,
+	setMonth,
+	year,
+	setYear,
+	selectedAgency,
+	setSelectedAgency,
+}) => {
 	const { user } = useUserSession();
 	const { hasPermission } = usePermissions();
+
+	console.log({ type });
 
 	const allAgenciesEnabled = hasPermission('payroll', 'all_agencies');
 
 	const [progress, setProgress] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
 
-	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
-	const [year, setYear] = useState(() => new Date().getFullYear());
-
-	const [selectedAgency, setSelectedAgency] = useState('');
+	// const [month, setMonth] = useState(() => new Date().getMonth() + 1);
+	// const [year, setYear] = useState(() => new Date().getFullYear());
+	// const [selectedAgency, setSelectedAgency] = useState('');
 
 	const { data: agencies = [], isLoading: loadingAgencies } =
 		useFetchItemsQuery({
@@ -98,17 +128,13 @@ const ExportPayrollModal = ({ isOpen, onClose, type }) => {
 				setProgress((prev) => (prev < 90 ? prev + 5 : prev));
 			}, 250);
 
-			let agencyFilter = user?.agency?._id;
-
-			if (selectedAgency && allAgenciesEnabled) {
-				agencyFilter = selectedAgency;
-			}
+			const agency = resolveAgency(selectedAgency, user, allAgenciesEnabled);
 
 			const payload = {
-				agency: selectedAgency ?? user?.agency?._id,
 				month,
 				year,
 				type,
+				...(agency && { agency }),
 			};
 
 			const { blob } = await generatePayrollReportApi(payload);
@@ -317,9 +343,7 @@ const ExportPayrollModal = ({ isOpen, onClose, type }) => {
 										}}
 										isDisabled={loadingAgencies}
 									>
-										<option key='all' value={null}>
-											All Agencies
-										</option>
+										<option value={'All'}>All Agencies</option>
 										{agencies?.doc?.map((agency) => (
 											<option key={agency._id} value={agency._id}>
 												{agency.name}
