@@ -145,9 +145,10 @@ const ExportPayrollModal = ({
 			});
 
 			const agencyName =
-				agencies?.doc?.find((a) => a._id === selectedAgency)?.name ||
-				user?.agency?.name ||
-				'All Agencies';
+				selectedAgency === 'All'
+					? 'All Agencies'
+					: agencies?.doc?.find((a) => a._id === selectedAgency)?.name ||
+						user?.agency?.name;
 
 			const fileName = `${agencyName} Payroll - ${monthName} ${year}.csv`;
 
