@@ -92,8 +92,6 @@ const ExportPayrollModal = ({
 	const { user } = useUserSession();
 	const { hasPermission } = usePermissions();
 
-	console.log({ type });
-
 	const allAgenciesEnabled = hasPermission('payroll', 'all_agencies');
 
 	const [progress, setProgress] = useState(0);
@@ -166,6 +164,7 @@ const ExportPayrollModal = ({
 			setTimeout(() => URL.revokeObjectURL(url), 2000);
 
 			toast.success('Payroll CSV downloaded');
+			onClose();
 		} catch (error) {
 			console.error(error);
 			toast.error('Failed to export payroll');
