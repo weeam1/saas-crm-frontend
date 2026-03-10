@@ -115,6 +115,12 @@ const ExportPayrollModal = ({
 		setYear(newYear);
 	};
 
+	const resetForm = () => {
+		setMonth(new Date().getMonth() + 1);
+		setYear(new Date().getFullYear());
+		setSelectedAgency('');
+	};
+
 	const handleExport = async () => {
 		let interval;
 
@@ -165,6 +171,7 @@ const ExportPayrollModal = ({
 			setTimeout(() => URL.revokeObjectURL(url), 2000);
 
 			toast.success('Payroll CSV downloaded');
+			resetForm();
 			onClose();
 		} catch (error) {
 			console.error(error);
