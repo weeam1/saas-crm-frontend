@@ -33,6 +33,7 @@ import DateFilter from 'views/admin/attendance/components/DateFilter';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { hasPermission } from 'utils';
 import { usePermissions } from 'hooks/usePermissions';
+import { useSearchParams } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
@@ -47,9 +48,25 @@ function resolveAgency(selectedAgency, user, allAgenciesEnabled) {
 
 const ExportPayrollReport = ({ type = 1 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
-	const [month, setMonth] = useState(new Date().getMonth() + 1);
-	const [year, setYear] = useState(new Date().getFullYear());
+
+	const now = new Date();
+
+	const defaultMonth = now.getMonth() + 1;
+	const defaultYear = now.getFullYear();
+
+	const [searchParams] = useSearchParams();
+
+	const selectedMonth = Number(searchParams.get('month')) || defaultMonth;
+	const selectedYear = Number(searchParams.get('year')) || defaultYear;
+
+	const [month, setMonth] = useState(selectedMonth);
+	const [year, setYear] = useState(selectedYear);
 	const [selectedAgency, setSelectedAgency] = useState('');
+
+	useEffect(() => {
+		setMonth(selectedMonth);
+		setYear(selectedYear);
+	}, [selectedMonth, selectedYear]);
 
 	return (
 		<>
