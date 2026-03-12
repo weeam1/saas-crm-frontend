@@ -28,6 +28,7 @@ import { useEmployeePayroll } from '../hooks/usePayroll';
 import { useCommissionEmployeePayroll } from '../hooks/useCommissionPayroll';
 import { AddHistoryModal } from '../components/AddWarningHistoryModal';
 import { ViewWarningsModal } from '../components/ViewWarningsModal';
+import ExportPayrollReport from '../components/ExportPayroll';
 
 const Payroll = () => {
 	const {
@@ -230,6 +231,9 @@ const Payroll = () => {
 					>
 						<DateFilter onFilterChange={onDateFilterChange} />
 					</Box>
+
+					<ExportPayrollReport type={2} />
+
 					<ViewToggle
 						moduleView='payrollView'
 						view={view}

@@ -23,7 +23,9 @@ const AttendanceMark = ({
 }) => {
 	const [status, setStatus] = useState(null);
 
-	const [time, setTime] = useState(moment().tz(timezone));
+	const [time, setTime] = useState(
+		moment().tz(officeSettings?.timezone || timezone),
+	);
 	const [selectedTime, setSelectedTime] = useState(time.format('hh:mm A'));
 
 	const {

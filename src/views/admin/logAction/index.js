@@ -160,21 +160,21 @@ const LogTable = () => {
 			path: '/logs/user_activities',
 			params: buildQueryParams(),
 		},
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: true },
 	);
 
 	const { data: usersData } = useFetchItemsQuery(
 		{
 			path: '/v2/user/search_users',
 		},
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: true },
 	);
 
 	const { data: roleData } = useFetchItemsQuery(
 		{
 			path: '/role-access/v2',
 		},
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: true },
 	);
 
 	useEffect(() => {
@@ -328,6 +328,8 @@ const LogTable = () => {
 		securityLevel: log?.securityLevel || 1,
 		metadata: {
 			ip: log.metadata?.ip || 'N/A',
+			latitude: log.metadata?.latitude || null,
+			longitude: log.metadata?.longitude || null,
 			device: log.metadata?.device || 'Unknown Device',
 			browser: log.metadata?.browser || 'Unknown Browser',
 			os: log.metadata?.os || 'Unknown OS',

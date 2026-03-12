@@ -21,6 +21,7 @@ import { FiChevronLeft } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import LeadSettingsModal from '../leadAdmin/components/LeadSettingsModal';
 
 const UserLeadLimit = () => {
 	const {
@@ -171,17 +172,21 @@ const UserLeadLimit = () => {
 					</Flex>
 
 					{/* Right: Edit button */}
-					<IconButton
-						icon={<FaEdit />}
-						size='md'
-						colorScheme='brand'
-						variant='outline'
-						borderColor='gray.300'
-						aria-label='Edit default lead limit'
-						alignSelf={{ base: 'flex-start', md: 'center' }}
-						_hover={{ bg: 'brand.50' }}
-						onClick={defaultLimitOpen}
-					/>
+					<HStack gap='2'>
+						<IconButton
+							icon={<FaEdit />}
+							size='md'
+							colorScheme='brand'
+							variant='outline'
+							borderColor='gray.300'
+							aria-label='Edit default lead limit'
+							alignSelf={{ base: 'flex-start', md: 'center' }}
+							_hover={{ bg: 'brand.50' }}
+							onClick={defaultLimitOpen}
+						/>
+
+						<LeadSettingsModal />
+					</HStack>
 				</Flex>
 			</Box>
 

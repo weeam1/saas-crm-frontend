@@ -80,6 +80,8 @@ const UserEvaluationTable = ({
 		return () => clearTimeout(timer);
 	}, [isLoading]);
 
+	console.log({ selectedRow });
+
 	const formatValue = (key, value) => {
 		switch (key) {
 			case 'hasEvaluted':
@@ -169,7 +171,7 @@ const UserEvaluationTable = ({
 							colorScheme='red'
 							onClick={() =>
 								confirmDelete(
-									loggedInUser?._id,
+									selectedRow?._id,
 									month,
 									year,
 									onClose,

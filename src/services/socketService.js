@@ -4,6 +4,15 @@ import store from '../redux/store';
 import { appendMessage, addContact } from '../redux/whatsappSlice';
 import { updateAllUsers } from '../redux/usersSlice';
 import { setOnlineUsers } from '../redux/onlineUsersSlice';
+import {
+	addFreshLead,
+	markLeadClaimed,
+	addApprovalLead,
+} from '../redux/freshLeadSlice';
+import {
+	addFreshLeadPool,
+	markLeadDecisionFinalized,
+} from '../redux/freshLeadPoolSlice';
 import keys from 'config/keys';
 
 class SocketService {
@@ -27,15 +36,15 @@ class SocketService {
 		}
 
 		// Default options with merging
+		// transports: ['socket.io'],
 		const defaultOptions = {
 			path: '/socket.io',
-			// transports: ['socket.io'],
 			reconnection: true,
 			reconnectionAttempts: Infinity || this.maxReconnectionAttempts,
 			reconnectionDelay: 1000,
 			reconnectionDelayMax: 5000,
 			autoConnect: true,
-			forceNew: true, // <-- don’t force new connection
+			forceNew: true,
 			timeout: 5000,
 		};
 
@@ -56,9 +65,37 @@ class SocketService {
 						appendMessage({
 							chatId: msg.roomId,
 							message: msg,
-						})
+						}),
 					);
 				}
+			});
+
+			// Lead evnts
+			this.socket.on('freshLead', (lead) => {
+				console.log('Fresh Lead:', lead);
+				// store.dispatch(setFreshLead(lead));
+				store.dispatch(addFreshLead(lead));
+			});
+
+			this.socket.on('leadClaimed', (payload) => {
+				console.log('Lead Claimed:', payload);
+				// store.dispatch(setLeadClaimed(payload));
+				store.dispatch(markLeadClaimed(payload));
+			});
+
+			this.socket.on('leadApprovalRequest', (payload) => {
+				console.log('Lead Approval Request:', payload);
+				store.dispatch(addFreshLeadPool(payload));
+			});
+
+			this.socket.on('leadDecisionFinalized', (payload) => {
+				console.log('leadDecisionFinalized:', payload);
+				store.dispatch(markLeadDecisionFinalized(payload));
+			});
+
+			this.socket.on('leadApproved', (payload) => {
+				console.log('leadApproved:', payload);
+				store.dispatch(addApprovalLead(payload));
 			});
 
 			this.socket.on('newContact', (contact) => {
@@ -70,7 +107,7 @@ class SocketService {
 			this.socket.on('user_online', (data) => {
 				console.log('User online:', data);
 				store.dispatch(
-					updateAllUsers({ id: data.userId, updates: { isOnline: true } })
+					updateAllUsers({ id: data.userId, updates: { isOnline: true } }),
 				);
 				store.dispatch(setOnlineUsers(data));
 			});
@@ -78,7 +115,7 @@ class SocketService {
 			this.socket.on('user_offline', (data) => {
 				console.log('User offline:', data);
 				store.dispatch(
-					updateAllUsers({ id: data.userId, updates: { isOnline: false } })
+					updateAllUsers({ id: data.userId, updates: { isOnline: false } }),
 				);
 
 				store.dispatch(setOnlineUsers(data));
@@ -131,7 +168,7 @@ class SocketService {
 		} else {
 			if (!this.connectionPromise) {
 				console.warn(
-					'Socket not connected, registration will be attempted when connection is established'
+					'Socket not connected, registration will be attempted when connection is established',
 				);
 			}
 		}
@@ -146,7 +183,7 @@ class SocketService {
 		} else {
 			if (!this.connectionPromise) {
 				console.warn(
-					'Socket not connected, whatsapp registration will be attempted when connection is established'
+					'Socket not connected, whatsapp registration will be attempted when connection is established',
 				);
 			}
 		}
@@ -162,7 +199,23 @@ class SocketService {
 		} else {
 			if (!this.connectionPromise) {
 				console.warn(
-					'Socket not connected, user activity log will be attempted when connection is established'
+					'Socket not connected, user activity log will be attempted when connection is established',
+				);
+			}
+		}
+	}
+
+	/**
+	 * Register user with the server
+	 *  Registration payload
+	 */
+	buyFreshLead(payload) {
+		if (this.socket?.connected) {
+			this.socket.emit('buyLead', payload);
+		} else {
+			if (!this.connectionPromise) {
+				console.warn(
+					'Socket not connected, fresh lead purchase will be attempted when connection is established',
 				);
 			}
 		}

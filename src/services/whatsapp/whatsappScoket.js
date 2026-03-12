@@ -30,23 +30,23 @@ export const registerWhatsappSocket = (store) => {
 	listenersRegistered = true; // prevent double registration
 
 	socketService.on(WHATSAPP_EVENTS.QR_CODE, (payload) =>
-		store.dispatch(qrCode(payload))
+		store.dispatch(qrCode(payload)),
 	);
 	socketService.on(WHATSAPP_EVENTS.WHATSAPP_LOADING, (payload) =>
-		store.dispatch(whatsappLoading(payload))
+		store.dispatch(whatsappLoading(payload)),
 	);
 	socketService.on(WHATSAPP_EVENTS.AUTH_FAIL, (payload) =>
-		store.dispatch(authFail(payload))
+		store.dispatch(authFail(payload)),
 	);
 	socketService.on(WHATSAPP_EVENTS.AUTHENTICATED, () =>
-		store.dispatch(authenticated())
+		store.dispatch(authenticated()),
 	);
 	socketService.on(WHATSAPP_EVENTS.READY, () => store.dispatch(ready()));
 	socketService.on(WHATSAPP_EVENTS.FAIL, (payload) =>
-		store.dispatch(fail(payload))
+		store.dispatch(fail(payload)),
 	);
 	socketService.on(WHATSAPP_EVENTS.ERROR, (payload) =>
-		store.dispatch(error(payload))
+		store.dispatch(error(payload)),
 	);
 	socketService.on(WHATSAPP_EVENTS.CHATS_LOADED, (payload) => {
 		store.dispatch(chatsLoaded(payload));
@@ -56,7 +56,7 @@ export const registerWhatsappSocket = (store) => {
 		store.dispatch(chatLoaded(payload));
 	});
 	socketService.on(WHATSAPP_EVENTS.MESSAGE_SENT, (payload) =>
-		store.dispatch(newMessage(payload))
+		store.dispatch(newMessage(payload)),
 	);
 	socketService.on(WHATSAPP_EVENTS.NEW_MESSAGE, (payload) => {
 		store.dispatch(newMessage(payload));
@@ -67,14 +67,12 @@ export const registerWhatsappSocket = (store) => {
 			const { mediaKey, media, action = 'open' } = payload || {};
 			if (!mediaKey || !media) return;
 
-			console.log('DOWNLOAD_MEDIA_RESPONSE received: ', payload);
-
 			store.dispatch(saveDownloadedMedia({ media, mediaKey }));
 
 			const mimeType = media?.mimetype || '';
 
 			const isImageVideoAudio = ['image/', 'video/', 'audio/'].some((prefix) =>
-				mimeType.startsWith(prefix)
+				mimeType.startsWith(prefix),
 			);
 
 			// // perform requested action (open or download)
@@ -86,9 +84,9 @@ export const registerWhatsappSocket = (store) => {
 		}
 	});
 	socketService.on(WHATSAPP_EVENTS.MESSAGE_ACK, (payload) =>
-		store.dispatch(messageAck(payload))
+		store.dispatch(messageAck(payload)),
 	);
 	socketService.on(WHATSAPP_EVENTS.DISCONNECT, (payload) =>
-		store.dispatch(disconnect(payload))
+		store.dispatch(disconnect(payload)),
 	);
 };

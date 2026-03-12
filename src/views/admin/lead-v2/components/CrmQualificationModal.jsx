@@ -65,6 +65,8 @@ import {
 	FiHelpCircle,
 } from 'react-icons/fi';
 import { RiWhatsappLine, RiWhatsappFill } from 'react-icons/ri';
+import { updateLeadField } from '../../../../redux/leadsSlice';
+import { useDispatch } from 'react-redux';
 
 const buildQualificationPayload = ({ leadId, values }) => {
 	const payload = {
@@ -1057,6 +1059,8 @@ export const CRMQualificationModal = ({
 		}
 	}, [step]);
 
+	const dispatch = useDispatch();
+
 	const getInitialValues = () => {
 		// If editing and data exists, populate from data
 		if (isEditMode && data) {
@@ -1158,6 +1162,16 @@ export const CRMQualificationModal = ({
 						createdBy: userId,
 						body: payload,
 					}).unwrap();
+				}
+
+				if (!isEditMode) {
+					dispatch(
+						updateLeadField({
+							id: leadId,
+							key: 'isQualification',
+							value: true,
+						}),
+					);
 				}
 
 				handleClose();

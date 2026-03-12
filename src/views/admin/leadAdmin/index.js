@@ -13,6 +13,8 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
+import { useCreateItemMutation } from 'api/apiSlice';
+import ErrorLeadLimitMessage from 'components/Message/ErrorLeadLimitMessage';
 // lead for admin
 const LeadScreen = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
@@ -31,6 +33,12 @@ const LeadScreen = () => {
 	const isAgent = user?.roles?.some((role) => role.roleName === 'agent');
 	const users = useSelector((state) => state.user?.users) || [];
 	const location = useLocation();
+
+	const [fetchUserStats, { error: fetchUserStatsError }] =
+		useCreateItemMutation();
+
+	const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+	const [errorLeadData, setErrorLeadData] = useState(null);
 
 	const defaultPage = 1;
 	const defaultPageSize = 25;
@@ -601,6 +609,28 @@ const LeadScreen = () => {
 		const agentDetails = users?.find((user) => user?._id === agentId);
 
 		try {
+			if (isApproved) {
+				const userStats = await fetchUserStats({
+					path: '/lead/v2/leads-stats',
+					body: {
+						userIds: [agentDetails._id],
+						type: 'purchase',
+					},
+				}).unwrap();
+
+				if (fetchUserStatsError) {
+					return toast.error(
+						fetchUserStatsError?.message || 'Failed to fetch user stats',
+					);
+				}
+
+				if (!userStats?.doc?.canAddLeads) {
+					setErrorLeadData(userStats?.doc);
+					setIsErrorModalOpen(true);
+					return;
+				}
+			}
+
 			const res = await axios.put(
 				`${constant.baseUrl}api/adminApproval/update`,
 				{
@@ -864,6 +894,15 @@ const LeadScreen = () => {
 				approveChangeHandler={approveChangeHandler}
 				// searchNotFound={searchNotFound}
 			/>
+
+			{isErrorModalOpen && (
+				<ErrorLeadLimitMessage
+					isOpen={isErrorModalOpen}
+					onClose={() => setIsErrorModalOpen(false)}
+					errorLeadData={errorLeadData}
+					// type='purchase'
+				/>
+			)}
 		</div>
 	);
 };
