@@ -34,6 +34,8 @@ const OfficeTiming = ({
 	setGracePeriod,
 	monthlyLateLimit,
 	setMonthlyLateLimit,
+	monthlyEarlyCheckoutLimit,
+	setMonthlyEarlyCheckoutLimit,
 }) => {
 	const fontSize = useBreakpointValue({ base: '14px', md: '17px' });
 	const boxHeight = useBreakpointValue({ base: 'fit-content', lg: '560px' });
@@ -148,9 +150,12 @@ const OfficeTiming = ({
 						</NumberInputStepper>
 					</NumberInput>
 				</FormControl>
-				<FormControl maxW='220px'>
+			</HStack>
+
+			<HStack mb='2'>
+				<FormControl>
 					<FormLabel mb={1} fontWeight='500' fontSize={fontSize}>
-						Monthly Late Limit
+						Late Limit
 					</FormLabel>
 
 					<NumberInput
@@ -174,10 +179,35 @@ const OfficeTiming = ({
 							<NumberDecrementStepper />
 						</NumberInputStepper>
 					</NumberInput>
+				</FormControl>
+				<FormControl>
+					<FormLabel mb={1} fontWeight='500' fontSize={fontSize}>
+						Early Checkout Limit
+					</FormLabel>
 
-					{/* <FormHelperText fontSize='xs' color='gray.500'>
-						Number of allowed late arrivals per month before deductions apply.
-					</FormHelperText> */}
+					<NumberInput
+						value={monthlyEarlyCheckoutLimit}
+						min={0}
+						max={30}
+						size='sm'
+						isDisabled={isDisabled}
+						onChange={(valueString, valueNumber) =>
+							setMonthlyEarlyCheckoutLimit(
+								Number.isNaN(valueNumber) ? 0 : valueNumber,
+							)
+						}
+					>
+						<NumberInputField
+							borderRadius='6px'
+							textAlign='center'
+							pr='2.5rem'
+						/>
+
+						<NumberInputStepper>
+							<NumberIncrementStepper />
+							<NumberDecrementStepper />
+						</NumberInputStepper>
+					</NumberInput>
 				</FormControl>
 			</HStack>
 

@@ -58,6 +58,7 @@ const OfficeSettings = ({ userId }) => {
 	const [officeOffDays, setOfficeOffDays] = useState([0]);
 	const [officeGracePeriod, setOfficeGracePeriod] = useState(0);
 	const [monthlyLateLimit, setMonthlyLateLimit] = useState(0);
+	const [monthlyEarlyCheckoutLimit, setMonthlyEarlyCheckoutLimit] = useState(0);
 
 	// const [isMobile, setIsMobile] = useState(false);
 
@@ -178,6 +179,7 @@ const OfficeSettings = ({ userId }) => {
 			setOfficeGracePeriod(settings?.gracePeriod || 0);
 			setSpecialUsers(settings?.specialUsers || []);
 			setMonthlyLateLimit(settings?.monthlyLateLimit || 0);
+			setMonthlyEarlyCheckoutLimit(settings?.monthlyEarlyCheckoutLimit || 0);
 			setLateDeductionSettings({
 				importantDay: settings?.importantDay?.[0] || null,
 				lateDeductionRules: settings?.lateDeductionRules || [],
@@ -412,6 +414,8 @@ const OfficeSettings = ({ userId }) => {
 							setGracePeriod={setOfficeGracePeriod}
 							monthlyLateLimit={monthlyLateLimit}
 							setMonthlyLateLimit={setMonthlyLateLimit}
+							monthlyEarlyCheckoutLimit={monthlyEarlyCheckoutLimit}
+							setMonthlyEarlyCheckoutLimit={setMonthlyEarlyCheckoutLimit}
 						/>
 					</Box>
 				</Flex>
