@@ -271,6 +271,7 @@ const OfficeSettings = ({ userId }) => {
 				agency: agencyId,
 				rules: transformedRules,
 				monthlyLateLimit,
+				monthlyEarlyCheckoutLimit,
 				...lateDeductionSettings,
 				...earlyCheckoutDeductionSettings,
 				// specialUsers,
