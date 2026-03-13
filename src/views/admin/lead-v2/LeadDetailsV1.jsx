@@ -31,6 +31,7 @@ import { toast } from 'react-toastify';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
 import { safeValue } from './../../../utils/index';
+import { formatTimeToCall } from './leadUtil';
 
 const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 	// const user = JSON.parse(localStorage.getItem('user'));
@@ -57,7 +58,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 
 			const { ip, city, country } = extractLocationData(
 				response?.data?.lead?.ip,
-				countries
+				countries,
 			);
 
 			setLeadIp({ ip, city, country });
@@ -138,7 +139,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 		return typeof value === 'object' ? value.result || value.text : value;
 	};
 
-	console.log("data",data)
+	console.log('data', data);
 	return (
 		<Grid
 			templateColumns={{
@@ -210,7 +211,7 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 										data?.createdDate
 											? format(
 													new Date(data?.createdDate),
-													'd MMM, yyyy h:mm a'
+													'd MMM, yyyy h:mm a',
 												)
 											: 'N/A'
 									}
@@ -253,8 +254,8 @@ const LeadDetails = ({ leadId, reFreshData, isInLeadPool }) => {
 							value={safeValue(data?.nationality)}
 						/>
 						<DetailItem
-							label='Preferred Time'
-							value={safeValue(data?.timetocall)}
+							label='Time To Call'
+							value={safeValue(formatTimeToCall(data))}
 						/>
 						<DetailItem label='In UAE?' value={safeValue(data?.r_u_in_uae)} />
 						<DetailItem label='Interest' value={safeValue(data?.interest)} />

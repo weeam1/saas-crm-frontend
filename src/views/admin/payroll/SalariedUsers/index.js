@@ -27,6 +27,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { useEmployeePayroll } from '../hooks/usePayroll';
 import { ViewWarningsModal } from '../components/ViewWarningsModal';
 import { AddHistoryModal } from '../components/AddWarningHistoryModal';
+import ExportPayrollReport from '../components/ExportPayroll';
 
 const Payroll = () => {
 	const {
@@ -156,6 +157,8 @@ const Payroll = () => {
 
 	return (
 		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
+			{/* <Flex justifyContent={'flex-end'}></Flex> */}
+
 			<Flex
 				flexDir={{ base: 'column', md: 'row' }}
 				justify='space-between'
@@ -230,11 +233,15 @@ const Payroll = () => {
 					>
 						<DateFilter onFilterChange={onDateFilterChange} />
 					</Box>
+
+					<ExportPayrollReport type={1} />
+
 					<ViewToggle
 						moduleView='payrollView'
 						view={view}
 						handleView={handleViewChange}
 					/>
+
 					{/* {clearFilters && (
             <Button
               {...buttonStyle}

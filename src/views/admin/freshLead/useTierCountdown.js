@@ -48,6 +48,11 @@ export const useTierCountdown = (expiresAt, onExpire, leadId) => {
 
 	console.log({ percentage });
 
+	// return {
+	// 	remaining: 200,
+	// 	percentage: 100,
+	// 	isExpired: false,
+	// };
 	return {
 		remaining: Math.ceil(remaining / 1000),
 		percentage,

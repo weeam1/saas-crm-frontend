@@ -23,6 +23,7 @@ import Managers from "../Managers";
 import TeamLeaders from "../TeamLeaders";
 import LeadTypeBadge from "../LeadTypeBadge";
 import ErrorLeadLimitMessage from "components/Message/ErrorLeadLimitMessage";
+import ContactBox from "./ContactBox";
 
 const LeftCard = ({
   lead,
@@ -243,23 +244,8 @@ const LeftCard = ({
               <Status lead={lead} refreshLeads={refreshLeads} />
             </GridItem>
           )}
-        {hasPermission("leads", "contactDetails") && (
-          <GridItem
-            colSpan={2}
-            display="flex"
-            sx={{
-              display: "flex",
-              flexDirection: "row", // base (0px+)
-
-              "@media (min-width: 1280px)": {
-                flexDirection: "column", // xl
-              },
-
-              "@media (min-width: 1784px)": {
-                flexDirection: "row", // 2xl
-              },
-            }}
-          >
+        {hasPermission("leads", "contactDetails") ? (
+          <GridItem colSpan={2} display="flex" justifyContent="space-between">
             {/* Phone */}
             {!hiddenFields.includes("leadPhoneNumber") && (
               <EntityField
@@ -288,6 +274,8 @@ const LeftCard = ({
               />
             )}
           </GridItem>
+        ) : (
+          <ContactBox lead={lead} />
         )}
         {/* Last Note (occupy full width) */}
         {!hiddenFields.includes("lastNote") && (

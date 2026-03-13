@@ -258,7 +258,7 @@ const Status = ({ lead }) => {
 				}),
 			);
 
-			handleMetaFeedback(newStatus);
+			// handleMetaFeedback(newStatus);
 			logSubStatusChange(newStatus, 'success');
 
 			if (newStatus === 'will_attend_the_show') {

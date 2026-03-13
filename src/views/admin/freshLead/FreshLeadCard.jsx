@@ -36,17 +36,26 @@ import { FaCoins, FaStar } from 'react-icons/fa';
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
 
-const FreshLeadCard = ({ lead, user, handleBuy, onClose, isDialerEnabled }) => {
+const FreshLeadCard = ({
+	lead,
+	coins = 0,
+	handleBuy,
+	isDialerEnabled,
+	isSubmitting,
+	userLoading,
+}) => {
 	const dispatch = useDispatch();
 
-	const coins = user?.coins || 0;
+	// const coins = user?.coins || 0;
 
 	const userIsEligible = Boolean(coins >= 300);
 
 	const handleExpire = useCallback(() => {
 		dispatch(removeFreshLead(lead._id));
-		toast.info('Lead offer expired! New leads coming soon...');
-	}, [dispatch]);
+		if (!isSubmitting) {
+			toast.info('Lead offer expired! New leads coming soon...');
+		}
+	}, [dispatch, isSubmitting]);
 
 	const { remaining, percentage } = useTierCountdown(
 		lead?.expiresAt,
@@ -239,6 +248,8 @@ const FreshLeadCard = ({ lead, user, handleBuy, onClose, isDialerEnabled }) => {
 												bg='green.600'
 												color='white'
 												_hover={{ bg: 'green.700' }}
+												isLoading={isSubmitting}
+												isDisabled={isSubmitting || userLoading}
 												onClick={() => handleBuy(lead._id)}
 												size='sm'
 											>
@@ -253,6 +264,7 @@ const FreshLeadCard = ({ lead, user, handleBuy, onClose, isDialerEnabled }) => {
 											borderRadius='lg'
 											variant='outline'
 											colorScheme='gray'
+											isDisabled={isSubmitting}
 											leftIcon={<Icon as={FiX} size={16} />}
 											onClick={handleSkip}
 											size='sm'
@@ -284,7 +296,7 @@ const FreshLeadCard = ({ lead, user, handleBuy, onClose, isDialerEnabled }) => {
 							</AnimatePresence>
 
 							{/* Agent Tip - Small Hint */}
-							{remaining > 0 && remaining < 10 && (
+							{userIsEligible && remaining > 0 && remaining < 10 && (
 								<Text fontSize='2xs' color='red.500' textAlign='center'>
 									⚡ Hurry! Only {remaining} seconds left to grab this new lead
 								</Text>
@@ -302,11 +314,11 @@ const CompactInfoItem = ({ icon, label, value, tooltip, color }) => (
 	<HStack spacing={1.5} align='center' bg='gray.50' p={1.5} borderRadius='md'>
 		<Icon as={icon} boxSize={3} color={color} />
 		<VStack spacing={0} align='start' flex={1}>
-			<Text fontSize='2xs' color='gray.500' lineHeight='1'>
+			<Text fontSize='xs' color='gray.500' lineHeight='1'>
 				{label}
 			</Text>
 			<Tooltip label={tooltip} hasArrow placement='top' openDelay={300}>
-				<Text fontSize='xs' fontWeight='medium' noOfLines={1} color='gray.700'>
+				<Text fontSize='sm' fontWeight='medium' noOfLines={1} color='gray.700'>
 					{value || 'N/A'}
 				</Text>
 			</Tooltip>

@@ -8,6 +8,7 @@ export const leadLabels = {
 	ip: 'IP',
 	city: 'City',
 	country: 'Country',
+	countryCode: 'Country Code',
 	attendanceDay: 'Attendance Day',
 	leadAddress: 'Lead Address',
 	// leadCampaign: 'Lead Campaign',

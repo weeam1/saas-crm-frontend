@@ -6,6 +6,13 @@ import {
 	FormControl,
 	FormLabel,
 	Input,
+	NumberInput,
+	NumberInputField,
+	NumberInputStepper,
+	NumberIncrementStepper,
+	NumberDecrementStepper,
+	FormHelperText,
+	HStack,
 } from '@chakra-ui/react';
 import { ReactComponent as ClockIcon } from '../../../../assets/icons/Clock.svg';
 import { useBreakpointValue } from '@chakra-ui/react';
@@ -25,6 +32,10 @@ const OfficeTiming = ({
 	setOffDays,
 	gracePeriod,
 	setGracePeriod,
+	monthlyLateLimit,
+	setMonthlyLateLimit,
+	monthlyEarlyCheckoutLimit,
+	setMonthlyEarlyCheckoutLimit,
 }) => {
 	const fontSize = useBreakpointValue({ base: '14px', md: '17px' });
 	const boxHeight = useBreakpointValue({ base: 'fit-content', lg: '560px' });
@@ -88,8 +99,8 @@ const OfficeTiming = ({
 				</Box>
 			</Flex>
 
-			<Box mb={4}>
-				<FormControl>
+			<HStack flexDir={{ base: 'column', md: 'row' }} gap={2} mb={4}>
+				{/* <FormControl>
 					<FormLabel mb={2} fontWeight='400' fontSize={fontSize}>
 						Grace Period (minutes)
 					</FormLabel>
@@ -106,8 +117,99 @@ const OfficeTiming = ({
 						maxW='150px'
 						textAlign='center'
 					/>
+				</FormControl> */}
+				<FormControl maxW='220px'>
+					<FormLabel mb={1} fontWeight='500' fontSize={fontSize}>
+						Grace Period (minutes)
+					</FormLabel>
+
+					<NumberInput
+						value={gracePeriod}
+						min={0}
+						max={59}
+						size='sm'
+						isDisabled={isDisabled}
+						onChange={(valueString, valueNumber) =>
+							setGracePeriod(Number.isNaN(valueNumber) ? 0 : valueNumber)
+						}
+						// onChange={(valueString, valueNumber) =>
+						// 	handleGracePeriodChange(
+						// 		Number.isNaN(valueNumber) ? 0 : valueNumber,
+						// 	)
+						// }
+					>
+						<NumberInputField
+							borderRadius='6px'
+							textAlign='center'
+							pr='2.5rem'
+						/>
+
+						<NumberInputStepper>
+							<NumberIncrementStepper />
+							<NumberDecrementStepper />
+						</NumberInputStepper>
+					</NumberInput>
 				</FormControl>
-			</Box>
+			</HStack>
+
+			<HStack mb='2'>
+				<FormControl>
+					<FormLabel mb={1} fontWeight='500' fontSize={fontSize}>
+						Late Limit
+					</FormLabel>
+
+					<NumberInput
+						value={monthlyLateLimit}
+						min={0}
+						max={30}
+						size='sm'
+						isDisabled={isDisabled}
+						onChange={(valueString, valueNumber) =>
+							setMonthlyLateLimit(Number.isNaN(valueNumber) ? 0 : valueNumber)
+						}
+					>
+						<NumberInputField
+							borderRadius='6px'
+							textAlign='center'
+							pr='2.5rem'
+						/>
+
+						<NumberInputStepper>
+							<NumberIncrementStepper />
+							<NumberDecrementStepper />
+						</NumberInputStepper>
+					</NumberInput>
+				</FormControl>
+				<FormControl>
+					<FormLabel mb={1} fontWeight='500' fontSize={fontSize}>
+						Early Checkout Limit
+					</FormLabel>
+
+					<NumberInput
+						value={monthlyEarlyCheckoutLimit}
+						min={0}
+						max={30}
+						size='sm'
+						isDisabled={isDisabled}
+						onChange={(valueString, valueNumber) =>
+							setMonthlyEarlyCheckoutLimit(
+								Number.isNaN(valueNumber) ? 0 : valueNumber,
+							)
+						}
+					>
+						<NumberInputField
+							borderRadius='6px'
+							textAlign='center'
+							pr='2.5rem'
+						/>
+
+						<NumberInputStepper>
+							<NumberIncrementStepper />
+							<NumberDecrementStepper />
+						</NumberInputStepper>
+					</NumberInput>
+				</FormControl>
+			</HStack>
 
 			<Box mb={4}>
 				<TimeZoneSelect

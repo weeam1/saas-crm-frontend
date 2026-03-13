@@ -70,11 +70,13 @@ const AdvancedSearchModal = ({
 		timetocall: '',
 		leadLang: '',
 		lastNote: '',
+		country: '',
 		budget: '',
 		isReleased: '',
 		from: '', // start date
 		to: '', // end date
 		mainStatusSort: '',
+		countryCode: '',
 	};
 
 	const formik = useFormik({
@@ -103,10 +105,10 @@ const AdvancedSearchModal = ({
 
 						if (key === 'agentAssigned') {
 							const agentsArray = Object.values(tree.agents).flatMap(
-								(managerArray) => managerArray
+								(managerArray) => managerArray,
 							);
 							const assignedAgent = agentsArray.find(
-								(agent) => agent?._id?.toString() === value
+								(agent) => agent?._id?.toString() === value,
 							);
 							displayValue = assignedAgent
 								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
@@ -117,7 +119,7 @@ const AdvancedSearchModal = ({
 
 						if (key === 'managerAssigned') {
 							const assignedManager = tree.managers.find(
-								(user) => user?._id?.toString() === value
+								(user) => user?._id?.toString() === value,
 							);
 							displayValue = assignedManager
 								? `${assignedManager.firstName} ${assignedManager.lastName}`
@@ -136,7 +138,7 @@ const AdvancedSearchModal = ({
 					}
 					return acc;
 				},
-				{ cleanedData: {}, tags: [] }
+				{ cleanedData: {}, tags: [] },
 			);
 
 			updateAdvancedSearchQuery(cleanedData);

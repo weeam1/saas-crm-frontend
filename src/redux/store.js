@@ -22,6 +22,7 @@ import onlineUsersReducer from './onlineUsersSlice';
 import utilSliceReducer from './utilSlice';
 import webrtcSliceReducer from './webrtc/webrtcSlice';
 import freshLeadReducer from './freshLeadSlice';
+import freshLeadPoolReducer from './freshLeadPoolSlice';
 
 import { apiSlice } from 'api/apiSlice';
 import countriesData from 'data/countries.json';
@@ -52,6 +53,7 @@ const store = configureStore({
 		permissions: permissionReducer,
 		whatsappWeb: whatsappWebReducer,
 		freshLead: freshLeadReducer,
+		freshLeadPool: freshLeadPoolReducer,
 		[apiSlice.reducerPath]: apiSlice.reducer,
 	},
 	middleware: (getDefaultMiddleware) =>

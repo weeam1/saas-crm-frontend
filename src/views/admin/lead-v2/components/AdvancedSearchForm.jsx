@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import { toCapitalCase } from 'utils/helpers';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
+import countryCodes from 'data/countryCodes.json';
+
 const {
 	Grid,
 	GridItem,
@@ -277,6 +279,38 @@ const AdvancedSearchForm = (props) => {
 				</Select>
 				<Text mb='10px' color='red'>
 					{errors.eLeadStatus && touched.eLeadStatus && errors.eLeadStatus}
+				</Text>
+			</GridItem>
+
+			{/* Country Code Field */}
+			<GridItem colSpan={{ base: 12, md: 6 }}>
+				<FormLabel
+					display='flex'
+					ms='4px'
+					fontSize='sm'
+					fontWeight='600'
+					color='#000'
+					mb='0'
+					mt={2}
+				>
+					Country Code
+				</FormLabel>
+				<Select
+					name='countryCode'
+					value={values?.countryCode}
+					onChange={handleChange}
+					fontSize='sm'
+					fontWeight='500'
+					placeholder='Select Country Code'
+				>
+					{countryCodes.map((item) => (
+						<option key={item.code} value={item.dial_code}>
+							{item.name} ({item.dial_code})
+						</option>
+					))}
+				</Select>
+				<Text mb='10px' fontSize='xs' color='red'>
+					{errors.countryCode && touched.countryCode && errors.countryCode}
 				</Text>
 			</GridItem>
 

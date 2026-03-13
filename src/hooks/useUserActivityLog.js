@@ -12,32 +12,40 @@ export function useUserActivityLog() {
 				navigator.geolocation.getCurrentPosition(resolve, reject, {
 					enableHighAccuracy: true,
 					timeout: 5000,
-				})
+				}),
 			);
 
 			const lat = pos.coords.latitude;
 			const lon = pos.coords.longitude;
 
 			const res = await fetch(
-				`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+				`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`,
 			);
 			const data = await res.json();
+
+			console.log({ lat, lon });
 
 			const metadata = {
 				country: data.countryName || 'Unknown',
 				city: data.city || 'Unknown',
+				latitude: lat || null,
+				longitude: lon || null,
 			};
 
 			sessionStorage.setItem('user-metadata', JSON.stringify(metadata));
 			return metadata;
 		} catch (_) {
-			return { country: 'Unknown', city: 'Unknown' };
+			return {
+				country: 'Unknown',
+				city: 'Unknown',
+				latitude: null,
+				longitude: null,
+			};
 		}
 	}
 
 	// Register user payload
 	const createUserLog = useCallback(async (payload) => {
-		console.log('User activity log with payload:', payload);
 		const logData = {
 			...payload,
 			metadata: await getUserMetadata(),
@@ -50,6 +58,9 @@ export function useUserActivityLog() {
 			// 	timezone: 'Asia/Karachi',
 			// },
 		};
+
+		console.log('User activity log with payload:', logData);
+
 		socketService.createUserActivityLog(logData);
 	}, []);
 

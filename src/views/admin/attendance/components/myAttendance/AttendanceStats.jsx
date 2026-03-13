@@ -80,18 +80,22 @@ const AttendanceStats = ({ stats, employee }) => {
 
 			<Divider borderColor='#A07723' my={4} />
 			<VStack alignItems='flex-start'>
-				<StatsCard label='Total Days' value={stats.totalDaysInMonth} />
-				<StatsCard label='Working Days' value={stats.totalWorkingDays} />
-				<StatsCard label='Remaining Days' value={stats.remainingDays} />
-				<StatsCard label='Total Present' value={stats.totalPresent} />
-				<StatsCard label='Total Absent' value={stats.totalAbsent} />
-				<StatsCard label='Total Late' value={stats.totalLate} />
-				<StatsCard label='Total Leave' value={stats.totalLeave} />
-				<StatsCard label='Per Day Salary' value={stats?.perDaySalary} />
+				<StatsCard label='Total Days' value={stats.totalDaysInMonth ?? 0} />
+				<StatsCard label='Working Days' value={stats.totalWorkingDays ?? 0} />
+				<StatsCard label='Remaining Days' value={stats.remainingDays ?? 0} />
+				<StatsCard label='Total Present' value={stats.totalPresent ?? 0} />
+				<StatsCard label='Total Absent' value={stats.totalAbsent ?? 0} />
+				<StatsCard label='Total Late' value={stats.totalLate ?? 0} />
+				<StatsCard label='Total Leave' value={stats.totalLeave ?? 0} />
+				<StatsCard label='Per Day Salary' value={stats?.perDaySalary ?? 0} />
+				<StatsCard
+					label='Remaining Late Limit'
+					value={stats?.remainingLateLimit ?? 0}
+				/>
 
 				<StatsCard
 					label='Total Deduction'
-					value={stats?.totalAttendanceDeduction}
+					value={stats?.totalAttendanceDeduction ?? 0}
 				/>
 				{/* <StatsCard label='Attendance Earned' value={stats?.netSalary} /> */}
 			</VStack>

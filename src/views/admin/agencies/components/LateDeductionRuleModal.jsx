@@ -16,13 +16,40 @@ import {
 	Input,
 	Button,
 	useColorModeValue,
+	NumberInput,
+	NumberInputStepper,
+	NumberIncrementStepper,
+	NumberDecrementStepper,
+	NumberInputField,
 } from '@chakra-ui/react';
 import * as yup from 'yup';
 
+// const ruleValidationSchema = yup.object().shape({
+// 	name: yup.string().required('Rule name is required'),
+// 	from: yup.string().required('From time is required'),
+// 	to: yup.string().required('To time is required'),
+// 	deduction: yup
+// 		.number()
+// 		.typeError('Deduction must be a number')
+// 		.min(0, 'Deduction must be at least 0%')
+// 		.max(100, 'Deduction cannot exceed 100%')
+// 		.required('Deduction is required'),
+// });
 const ruleValidationSchema = yup.object().shape({
 	name: yup.string().required('Rule name is required'),
-	from: yup.string().required('From time is required'),
-	to: yup.string().required('To time is required'),
+
+	fromMinutes: yup
+		.number()
+		.typeError('From minutes must be a number')
+		.min(0, 'Minimum 0 minutes')
+		.required('From minutes is required'),
+
+	toMinutes: yup
+		.number()
+		.typeError('To minutes must be a number')
+		.moreThan(yup.ref('fromMinutes'), 'To must be greater than From')
+		.required('To minutes is required'),
+
 	deduction: yup
 		.number()
 		.typeError('Deduction must be a number')
@@ -59,34 +86,38 @@ const LateDeductionRuleModal = ({
 	const [realTimeErrors, setRealTimeErrors] = useState({});
 	const [touchedFields, setTouchedFields] = useState({});
 
-	const bgColor = useColorModeValue("white", "gray.800");
-	const headerBg = useColorModeValue("brand.300", "brand.100");
-	const headerText = useColorModeValue("brand.700", "brand.900");
-	const footerBg = useColorModeValue("gray.50", "gray.700");
-	const borderColor = useColorModeValue("gray.200", "gray.600");
+	const bgColor = useColorModeValue('white', 'gray.800');
+	const headerBg = useColorModeValue('brand.300', 'brand.100');
+	const headerText = useColorModeValue('brand.700', 'brand.900');
+	const footerBg = useColorModeValue('gray.50', 'gray.700');
+	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	useEffect(() => {
 		const validateField = async (fieldName, value) => {
 			if (!touchedFields[fieldName]) return;
 
 			try {
-				await ruleValidationSchema.validateAt(fieldName, { [fieldName]: value });
-				setRealTimeErrors(prev => ({ ...prev, [fieldName]: '' }));
+				// await ruleValidationSchema.validateAt(fieldName, {
+				// 	[fieldName]: value,
+				// });
+
+				await ruleValidationSchema.validateAt(fieldName, ruleForm);
+				setRealTimeErrors((prev) => ({ ...prev, [fieldName]: '' }));
 			} catch (error) {
-				setRealTimeErrors(prev => ({ ...prev, [fieldName]: error.message }));
+				setRealTimeErrors((prev) => ({ ...prev, [fieldName]: error.message }));
 			}
 		};
 
-		Object.keys(ruleForm).forEach(field => {
+		Object.keys(ruleForm).forEach((field) => {
 			validateField(field, ruleForm[field]);
 		});
 	}, [ruleForm, touchedFields]);
 
 	const handleFieldChange = (fieldName, value) => {
-		setRuleForm(prev => ({ ...prev, [fieldName]: value }));
-		
+		setRuleForm((prev) => ({ ...prev, [fieldName]: value }));
+
 		if (!touchedFields[fieldName]) {
-			setTouchedFields(prev => ({ ...prev, [fieldName]: true }));
+			setTouchedFields((prev) => ({ ...prev, [fieldName]: true }));
 		}
 	};
 
@@ -96,7 +127,7 @@ const LateDeductionRuleModal = ({
 	};
 
 	const handleFieldBlur = (fieldName) => {
-		setTouchedFields(prev => ({ ...prev, [fieldName]: true }));
+		setTouchedFields((prev) => ({ ...prev, [fieldName]: true }));
 	};
 
 	const getFieldError = (fieldName) => {
@@ -113,70 +144,72 @@ const LateDeductionRuleModal = ({
 		<Modal
 			isOpen={isOpen}
 			onClose={handleClose}
-			size="lg"
+			size='lg'
 			isCentered
-			scrollBehavior="inside"
-			motionPreset="slideInBottom"
+			scrollBehavior='inside'
+			motionPreset='slideInBottom'
 		>
 			<ModalOverlay />
 			<ModalContent
 				bg={bgColor}
-				borderRadius="2xl"
-				shadow="2xl"
-				maxW={{ base: "full", sm: "90vw", md: "500px" }}
-				overflow="hidden"
+				borderRadius='2xl'
+				shadow='2xl'
+				maxW={{ base: 'full', sm: '90vw', md: '500px' }}
+				overflow='hidden'
 				mx={{ base: 3, md: 0 }}
 			>
-				<ModalHeader p={0} borderBottom="1px solid" borderColor={borderColor}>
+				<ModalHeader p={0} borderBottom='1px solid' borderColor={borderColor}>
 					<Flex
 						bg={headerBg}
 						color={headerText}
 						px={6}
 						py={3}
-						position="sticky"
-						top="0"
-						zIndex="10"
-						boxShadow="md"
+						position='sticky'
+						top='0'
+						zIndex='10'
+						boxShadow='md'
 					>
-						<Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 							{editingRuleIndex !== null ? 'Edit Rule' : 'Add New Rule'}
 						</Text>
 						<ModalCloseButton
-							position="absolute"
-							right="12px"
-							top="10px"
+							position='absolute'
+							right='12px'
+							top='10px'
 							color={headerText}
-							_hover={{ bg: "whiteAlpha.200" }}
+							_hover={{ bg: 'whiteAlpha.200' }}
 						/>
 					</Flex>
 				</ModalHeader>
 
 				<ModalBody
 					p={5}
-					overflowY="auto"
-					maxH="65vh"
-					borderBottom="1px solid"
+					overflowY='auto'
+					maxH='65vh'
+					borderBottom='1px solid'
 					borderColor={borderColor}
 				>
-					<VStack spacing={4} align="stretch">
+					<VStack spacing={4} align='stretch'>
 						<FormControl isInvalid={!!getFieldError('name')}>
-							<FormLabel fontWeight="semibold">Rule Name</FormLabel>
+							<FormLabel fontWeight='semibold'>Rule Name</FormLabel>
 							<Input
 								value={ruleForm.name}
 								onChange={(e) => handleFieldChange('name', e.target.value)}
 								onBlur={() => handleFieldBlur('name')}
-								placeholder="e.g., Quarter Deduction Rule"
+								placeholder='e.g., Quarter Deduction Rule'
 								borderColor={getFieldError('name') ? 'red.300' : 'gray.200'}
-								focusBorderColor={getFieldError('name') ? 'red.300' : 'brand.500'}
+								focusBorderColor={
+									getFieldError('name') ? 'red.300' : 'brand.500'
+								}
 							/>
 							{getFieldError('name') && (
-								<Text color="red.500" fontSize="sm" mt={1}>
+								<Text color='red.500' fontSize='sm' mt={1}>
 									{getFieldError('name')}
 								</Text>
 							)}
 						</FormControl>
 
-						<HStack spacing={4}>
+						{/* <HStack spacing={4}>
 							<FormControl isInvalid={!!getFieldError('from')}>
 								<FormLabel fontWeight="semibold">From Time</FormLabel>
 								<TimePicker
@@ -202,28 +235,117 @@ const LateDeductionRuleModal = ({
 									</Text>
 								)}
 							</FormControl>
+						</HStack> */}
+
+						<HStack spacing={4} alignItems='flex-start'>
+							<FormControl isInvalid={!!getFieldError('fromMinutes')}>
+								<FormLabel fontWeight='semibold'>From Minutes</FormLabel>
+
+								<NumberInput
+									value={ruleForm.fromMinutes}
+									onChange={(valueString, valueNumber) =>
+										handleFieldChange('fromMinutes', valueNumber)
+									}
+									onBlur={() => handleFieldBlur('fromMinutes')}
+									min={0}
+									max={1440}
+									step={1}
+									clampValueOnBlur
+								>
+									<NumberInputField
+										placeholder='e.g. 15'
+										borderColor={
+											getFieldError('fromMinutes') ? 'red.300' : 'gray.200'
+										}
+										_focus={{
+											borderColor: getFieldError('fromMinutes')
+												? 'red.300'
+												: 'brand.500',
+										}}
+									/>
+									<NumberInputStepper>
+										<NumberIncrementStepper />
+										<NumberDecrementStepper />
+									</NumberInputStepper>
+								</NumberInput>
+
+								{getFieldError('fromMinutes') && (
+									<Text color='red.500' fontSize='sm' mt={1}>
+										{getFieldError('fromMinutes')}
+									</Text>
+								)}
+							</FormControl>
+
+							<FormControl isInvalid={!!getFieldError('toMinutes')}>
+								<FormLabel fontWeight='semibold'>To Minutes</FormLabel>
+
+								<NumberInput
+									value={ruleForm.toMinutes}
+									onChange={(valueString, valueNumber) =>
+										handleFieldChange('toMinutes', valueNumber)
+									}
+									onBlur={() => handleFieldBlur('toMinutes')}
+									min={ruleForm.fromMinutes + 1}
+									max={1440}
+									step={1}
+									clampValueOnBlur
+								>
+									<NumberInputField
+										placeholder='e.g. 60'
+										borderColor={
+											getFieldError('toMinutes') ? 'red.300' : 'gray.200'
+										}
+										_focus={{
+											borderColor: getFieldError('toMinutes')
+												? 'red.300'
+												: 'brand.500',
+										}}
+									/>
+
+									<NumberInputStepper>
+										<NumberIncrementStepper />
+										<NumberDecrementStepper />
+									</NumberInputStepper>
+								</NumberInput>
+
+								{getFieldError('toMinutes') && (
+									<Text color='red.500' fontSize='sm' mt={1}>
+										{getFieldError('toMinutes')}
+									</Text>
+								)}
+							</FormControl>
 						</HStack>
 
-						{formErrors.time && (
-							<Text color="red.500" fontSize="sm" mt={1}>
-								{formErrors.time}
+						{formErrors.range && (
+							<Text color='red.500' fontSize='sm' mt={1}>
+								{formErrors.range}
 							</Text>
 						)}
 
+						{ruleForm.fromMinutes !== '' && ruleForm.toMinutes !== '' && (
+							<Text fontSize='sm' color='gray.500'>
+								Late between <b>{ruleForm.fromMinutes}</b> and{' '}
+								<b>{ruleForm.toMinutes}</b> minutes
+							</Text>
+						)}
 						<FormControl isInvalid={!!getFieldError('deduction')}>
-							<FormLabel fontWeight="semibold">Deduction Percentage</FormLabel>
+							<FormLabel fontWeight='semibold'>Deduction Percentage</FormLabel>
 							<Input
-								type="number"
+								type='number'
 								value={ruleForm.deduction}
 								onChange={(e) => handleDeductionChange(e.target.value)}
 								onBlur={() => handleFieldBlur('deduction')}
 								min={0}
 								max={100}
-								borderColor={getFieldError('deduction') ? 'red.300' : 'gray.200'}
-								focusBorderColor={getFieldError('deduction') ? 'red.300' : 'brand.500'}
+								borderColor={
+									getFieldError('deduction') ? 'red.300' : 'gray.200'
+								}
+								focusBorderColor={
+									getFieldError('deduction') ? 'red.300' : 'brand.500'
+								}
 							/>
 							{getFieldError('deduction') && (
-								<Text color="red.500" fontSize="sm" mt={1}>
+								<Text color='red.500' fontSize='sm' mt={1}>
 									{getFieldError('deduction')}
 								</Text>
 							)}
@@ -232,30 +354,30 @@ const LateDeductionRuleModal = ({
 				</ModalBody>
 
 				<ModalFooter
-					position="sticky"
-					bottom="0"
+					position='sticky'
+					bottom='0'
 					bg={footerBg}
-					borderTop="1px solid"
+					borderTop='1px solid'
 					borderColor={borderColor}
 					py={3}
 					px={5}
-					zIndex="10"
-					justifyContent="flex-end"
+					zIndex='10'
+					justifyContent='flex-end'
 					gap={3}
 				>
 					<Button
-						variant="outline"
-						colorScheme="gray"
-						size="sm"
+						variant='outline'
+						colorScheme='gray'
+						size='sm'
 						onClick={handleClose}
-						borderRadius="md"
+						borderRadius='md'
 					>
 						Cancel
 					</Button>
 					<Button
-						colorScheme="brand"
-						size="sm"
-						borderRadius="md"
+						colorScheme='brand'
+						size='sm'
+						borderRadius='md'
 						onClick={handleSaveRule}
 					>
 						{editingRuleIndex !== null ? 'Update Rule' : 'Add Rule'}

@@ -15,6 +15,7 @@ export const QualificationMainStatus = [
 	'show',
 	'unreachable_after_attempts',
 	'lost',
+	'new',
 ];
 export const QualificationSubStatus = [
 	'booked_by_himself',
@@ -35,6 +36,7 @@ export const QualificationSubStatus = [
 	'test_lead',
 	'duplicate_confirmed',
 	'not_interested_anymore',
+	'broker',
 ];
 
 export const ASSIGNMENT_BY_PERMISSION = {
