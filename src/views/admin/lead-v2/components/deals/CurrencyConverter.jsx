@@ -295,7 +295,7 @@ const CurrencyConverterModal = ({ isOpen, onClose }) => {
                   top={2}
                   right={2}
                   onClick={handleCopyAmount}
-                  colorScheme={isCopied ? "green" : "blue"}
+                  colorScheme={isCopied ? "green" : "teal"}
                   leftIcon={isCopied ? <CheckIcon /> : <CopyIcon />}
                   isLoading={false}
                   minW="70px"
