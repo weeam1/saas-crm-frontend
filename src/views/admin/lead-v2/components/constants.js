@@ -36,6 +36,7 @@ export const QualificationSubStatus = [
 	'test_lead',
 	'duplicate_confirmed',
 	'not_interested_anymore',
+	'broker',
 ];
 
 export const ASSIGNMENT_BY_PERMISSION = {

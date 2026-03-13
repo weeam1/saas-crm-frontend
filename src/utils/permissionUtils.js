@@ -2,10 +2,8 @@ export const buildPermissionMap = (user) => {
 	if (!user?.roles?.length && !user?.permissionOverrides?.length) return {};
 
 	let permissions = [];
-	if (!user?.isRolePermissions && user?.permissionOverrides?.length > 0) {
-		permissions = user?.permissionOverrides;
-	} else if (user?.roles?.[0]?.permissions?.length > 0) {
-		permissions = user?.roles?.[0]?.permissions;
+	if (user?.roles?.[0]?.permissions?.length > 0) {
+		permissions = user?.roles?.[0]?.permissions || [];
 	} else {
 		return {};
 	}
