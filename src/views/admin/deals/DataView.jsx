@@ -10,6 +10,7 @@ import { useUpdateItemMutation, useDeleteItemMutation } from 'api/apiSlice';
 import ConfirmationModal from 'components/Message/ConfirmationModal';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import CloseDealModal from '../lead-v2/components/deals/CloseDealModal';
 
 const DataView = ({
 	view,
@@ -50,8 +51,8 @@ const DataView = ({
 	const updateDealsData = (deal) => {
 		setDeals((prevDeals) =>
 			prevDeals.map((item) =>
-				item._id === deal._id ? { ...item, ...deal } : item
-			)
+				item._id === deal._id ? { ...item, ...deal } : item,
+			),
 		);
 	};
 
@@ -222,12 +223,22 @@ const DataView = ({
 			)}
 
 			{editDealIsOpen && (
-				<EditDealModal
+				// <EditDealModal
+				// 	isOpen={editDealIsOpen}
+				// 	onClose={() => {
+				// 		editDealOnClose();
+				// 		setDeal(null);
+				// 	}}
+				// 	initialData={deal}
+				// 	onSuccess={updateDealsData}
+				// />
+				<CloseDealModal
 					isOpen={editDealIsOpen}
 					onClose={() => {
 						editDealOnClose();
 						setDeal(null);
 					}}
+					mode='edit'
 					initialData={deal}
 					onSuccess={updateDealsData}
 				/>

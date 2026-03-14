@@ -88,10 +88,10 @@ const AttendanceStats = ({ stats, employee }) => {
 				<StatsCard label='Total Late' value={stats.totalLate ?? 0} />
 				<StatsCard label='Total Leave' value={stats.totalLeave ?? 0} />
 				<StatsCard label='Per Day Salary' value={stats?.perDaySalary ?? 0} />
-				<StatsCard
+				{/* <StatsCard
 					label='Remaining Late Limit'
 					value={stats?.remainingLateLimit ?? 0}
-				/>
+				/> */}
 
 				<StatsCard
 					label='Total Deduction'
