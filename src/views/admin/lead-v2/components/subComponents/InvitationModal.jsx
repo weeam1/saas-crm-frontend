@@ -30,11 +30,12 @@ import AddEmailHistory from 'views/admin/emailHistory/components/AddEmail';
 // import { HasAccess } from '../../../../../redux/accessUtils';
 import { usePermissions } from 'hooks/usePermissions';
 import { useModalColors } from 'hooks/useModalColors';
+import { useCreateItemMutation } from 'api/apiSlice';
 
 const InvitationModal = ({ isOpen, onClose, lead }) => {
 	const { _id: leadId, leadName } = lead;
 
-	const [loading, setLoading] = useState(false);
+	// const [loading, setLoading] = useState(false);
 	const [files, setFiles] = useState(null);
 	const [sendEmail, setSendEmail] = useState(null);
 
@@ -42,12 +43,13 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 
 	const { headerBg, headerText } = useModalColors();
 
+	const [createItem, { isLoading: loading }] = useCreateItemMutation();
+
 	// const [emailAccess] = HasAccess(['Email']);
 
 	const handleInvite = async () => {
 		try {
-			setLoading(true);
-
+			// setLoading(true);
 			const QRCodeUrl = `${keys.clientUrl}lead?page=1&pageSize=40&invite=${leadId}`;
 
 			const inviteData = {
@@ -55,33 +57,69 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 				url: QRCodeUrl,
 			};
 
-			const { data } = await axios.post(
-				`${keys.socketUrl}/pdf/generate_invite`,
-				inviteData
-			);
+			// const { data } = await axios.post(
+			// 	`${keys.socketUrl}/pdf/generate_invite`,
+			// 	inviteData,
+			// );
 
-			if (data?.download_url) {
-				setFiles(data.download_url);
+			const data = await createItem({
+				path: '/lead/invite/generate',
+				body: inviteData,
+			}).unwrap();
+
+			if (data?.doc?.length > 0) {
+				setFiles(data.doc);
+			} else {
+				toast.error('Failed to generate invite.');
 			}
 		} catch (err) {
 			console.log(err);
 			toast.error(err.message || 'Failed to generate invite.');
 		} finally {
-			setLoading(false);
+			// setLoading(false);
 		}
 	};
 
-	const handleDownload = (filePath, lang) => {
+	// const handleDownload = (filePath, lang) => {
+	// 	try {
+	// 		const downloadURL = `${keys.baseApiUrl}/${filePath}`;
+	// 		const fileName = `${leadName.replace(/\s+/g, '_')}-invite-${lang}.pdf`;
+
+	// 		const link = document.createElement('a');
+	// 		link.href = downloadURL;
+	// 		link.setAttribute('download', fileName);
+	// 		document.body.appendChild(link);
+	// 		link.click();
+	// 		document.body.removeChild(link);
+	// 	} catch (error) {
+	// 		console.error(error);
+	// 		toast.error('Failed to download the file.');
+	// 	}
+	// };
+
+	const handleDownload = async (filename, lang) => {
 		try {
-			const downloadURL = `${keys.socketUrl}/pdf${filePath}`;
+			const url = `${keys.baseApiUrl}api/lead/invite/download/${filename}`;
+
+			const response = await axios.get(url, {
+				responseType: 'blob', // important for binary files
+				withCredentials: true, // if cookies/auth needed
+			});
+
+			const blob = new Blob([response.data], { type: 'application/pdf' });
+			const downloadUrl = window.URL.createObjectURL(blob);
+
 			const fileName = `${leadName.replace(/\s+/g, '_')}-invite-${lang}.pdf`;
 
 			const link = document.createElement('a');
-			link.href = downloadURL;
-			link.setAttribute('download', fileName);
+			link.href = downloadUrl;
+			link.download = fileName;
+
 			document.body.appendChild(link);
 			link.click();
-			document.body.removeChild(link);
+
+			link.remove();
+			window.URL.revokeObjectURL(downloadUrl);
 		} catch (error) {
 			console.error(error);
 			toast.error('Failed to download the file.');
@@ -102,93 +140,6 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 				closeOnOverlayClick={false}
 			>
 				<ModalOverlay backdropFilter='blur(2px)' />
-				{/* <ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
-					<ModalHeader
-						display='flex'
-						gap='2'
-						bg={headerBg}
-						color={headerText}
-						borderTopRadius='xl'
-						py={4}
-						alignItems='center'
-						w='100%'
-					>
-						VIP Invitation
-					</ModalHeader>
-					<ModalBody>
-						<Box mx='auto'>
-							{!files && (
-								<Button
-									{...buttonStyle}
-									bg='brand.400'
-									py='5'
-									px='8'
-									w='full'
-									fontSize='lg'
-									onClick={handleInvite}
-								>
-									{loading ? 'Loading...' : 'Generate Invitation'}
-								</Button>
-							)}
-
-							{files && (
-								<VStack alignItems='stretch' mt={4} spacing={3}>
-									{files.map((file, index) => {
-										const lang = file.includes('english')
-											? 'English'
-											: 'Arabic';
-										return (
-											<HStack key={index}>
-												<Button
-													{...buttonStyle}
-													bg='green.500'
-													py='5'
-													px='10'
-													fontSize='lg'
-													w='full'
-													_active={{ bg: 'green.400' }}
-													_hover={{ bg: 'green.400' }}
-													onClick={() => handleDownload(file, lang)}
-												>
-													Download {lang}
-												</Button>
-											</HStack>
-										);
-									})}
-									{hasPermission('leads', 'sendEmail') && (
-										<Button
-											{...buttonStyle}
-											py='5'
-											px='10'
-											w='full'
-											fontSize='lg'
-											bg='brand.400'
-											onClick={handleSendEmail}
-										>
-											Send Email
-										</Button>
-									)}
-								</VStack>
-							)}
-						</Box>
-					</ModalBody>
-					<ModalFooter>
-						<Button
-							{...buttonStyle}
-							bg='gray.200'
-							_hover={{ bg: 'gray.300' }}
-							_active={{ bg: 'gray.300' }}
-							color='gray.800'
-							py='5'
-							px='8'
-							fontSize='md'
-							onClick={onClose}
-						>
-							Close
-						</Button>
-					</ModalFooter>
-				</ModalContent> */}
-
 				<ModalContent
 					mx='2'
 					borderRadius='2xl'
@@ -217,25 +168,6 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 
 					<ModalBody py={6}>
 						<Box mx='auto' textAlign='center'>
-							{/* Informational Section */}
-							{/* <VStack spacing={4} mb={6} textAlign='left'>
-								<HStack spacing={3} align='flex-start'>
-									<Box color='blue.500' mt={1}>
-										<FiInfo size={18} />
-									</Box>
-									<VStack align='flex-start' spacing={1}>
-										<Text fontWeight='semibold' color='gray.700' fontSize='sm'>
-											What's Included:
-										</Text>
-										<Text color='gray.600' fontSize='sm'>
-											• Premium designed invitation cards • Multiple language
-											support • Ready-to-send email templates • High-resolution
-											PDF format
-										</Text>
-									</VStack>
-								</HStack>
-							</VStack> */}
-
 							{/* Status indicator */}
 							{!files && (
 								<VStack spacing={6}>
