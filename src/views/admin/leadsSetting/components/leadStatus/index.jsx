@@ -1364,7 +1364,7 @@ const LeadStatus = memo(() => {
           >
             Add Main Status
           </Button>
-          <Button
+          {/* <Button
             leftIcon={<AddIcon />}
             colorScheme="green"
             size="sm"
@@ -1372,7 +1372,7 @@ const LeadStatus = memo(() => {
             isDisabled={mainStatuses.length === 0}
           >
             Add Sub Status
-          </Button>
+          </Button> */}
         </Flex>
       </Flex>
 
