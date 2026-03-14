@@ -566,6 +566,25 @@ const CloseDealModal = React.memo(
 								</Text>
 							</HStack> */}
 
+							{watch('unitPrice') !== defaultValues.unitPrice && (
+								<HStack
+									spacing={2}
+									bg='blue.50'
+									p={2}
+									borderRadius='md'
+									align='start'
+									mt={2}
+								>
+									<InfoIcon color='blue.500' mt={1} />
+									<Text fontSize='sm' color='gray.600'>
+										Changing <b>Unit Price</b> will recalculate and affect{' '}
+										<b>Downpayment Paid</b>, <b>Booking Amount Paid</b>, and{' '}
+										<b>Company Commission</b>. Please ensure all values remain
+										correct after adjustment.
+									</Text>
+								</HStack>
+							)}
+
 							{/* Commission Details */}
 							<Box>
 								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
