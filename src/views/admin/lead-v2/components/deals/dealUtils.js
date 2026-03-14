@@ -258,6 +258,8 @@ export const getSharedUsersData = ({
 	const companyAmountNum = Number(companyCommissionAmount) || 0;
 	const companyPercentNum = Number(companyCommissionPercent) || 0;
 
+	console.log({ unitPriceNum, companyAmountNum, companyPercentNum });
+
 	const result = [];
 
 	// --- Commission calculation ---

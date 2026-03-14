@@ -240,6 +240,7 @@ const DataView = ({
 					}}
 					mode='edit'
 					initialData={deal}
+					lead={deal?.lead || null}
 					onSuccess={updateDealsData}
 				/>
 			)}
