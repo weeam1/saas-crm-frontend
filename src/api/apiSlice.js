@@ -156,6 +156,13 @@ export const apiSlice = createApi({
       },
       keepUnusedDataFor: 0,
     }),
+    downloadFile: builder.query({
+      query: ({ path }) => ({
+        url: path,
+        method: "GET",
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
   }),
 });
 
@@ -170,4 +177,5 @@ export const {
   useGetLeadQualificationQuery,
   useUpdateLeadQualificationMutation,
   useLazyFetchItemsV2Query,
+  useDownloadFileQuery,
 } = apiSlice;
