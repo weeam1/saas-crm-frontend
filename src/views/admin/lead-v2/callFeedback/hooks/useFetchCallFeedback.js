@@ -66,8 +66,8 @@ export const useFetchCallFeedback = () => {
   // --- Fetching Data ---
   const fetchResult = useFetchItemsQuery(
     {
-      path: "/sipSetting/feedback",
-      params: queryParams,
+      path: "/lead/main-status",
+      // params: queryParams,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -77,7 +77,7 @@ export const useFetchCallFeedback = () => {
   );
 
   const { data, isLoading, isFetching, refetch } = fetchResult;
-
+  console.log(data, "main status data");
   useEffect(() => {
     console.log("API Data:", data);
     if (data?.doc) {
