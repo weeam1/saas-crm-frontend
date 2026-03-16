@@ -97,33 +97,16 @@ const InvitationModal = ({ isOpen, onClose, lead }) => {
 	// 	}
 	// };
 
-	const handleDownload = async (filename, lang) => {
-		try {
-			const url = `${keys.baseApiUrl}api/lead/invite/download/${filename}`;
+	const handleDownload = (filename) => {
+		const url = `${keys.baseApiUrl}uploads/lead_invites/${filename}`;
 
-			const response = await axios.get(url, {
-				responseType: 'blob', // important for binary files
-				withCredentials: true, // if cookies/auth needed
-			});
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = filename;
 
-			const blob = new Blob([response.data], { type: 'application/pdf' });
-			const downloadUrl = window.URL.createObjectURL(blob);
-
-			const fileName = `${leadName.replace(/\s+/g, '_')}-invite-${lang}.pdf`;
-
-			const link = document.createElement('a');
-			link.href = downloadUrl;
-			link.download = fileName;
-
-			document.body.appendChild(link);
-			link.click();
-
-			link.remove();
-			window.URL.revokeObjectURL(downloadUrl);
-		} catch (error) {
-			console.error(error);
-			toast.error('Failed to download the file.');
-		}
+		document.body.appendChild(link);
+		link.click();
+		link.remove();
 	};
 
 	const handleSendEmail = async () => {
