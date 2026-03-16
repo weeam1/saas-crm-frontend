@@ -61,7 +61,7 @@ const LeadGridView = memo((props) => {
               gridTemplateColumns: "repeat(2, 1fr)",
             },
             // >= 1280px
-            "@media (min-width: 1180px)": {
+            "@media (min-width: 1332px)": {
               gridTemplateColumns: "repeat(3, 1fr)",
             },
             // >= 1664px

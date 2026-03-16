@@ -20,11 +20,16 @@ import {
 	HStack,
 	SimpleGrid,
 	Grid,
+	useDisclosure,
 } from '@chakra-ui/react';
 import { useForm, useWatch } from 'react-hook-form';
 import { FormInput } from 'components/fields/FormFields';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
+import {
+	useCreateItemMutation,
+	useFetchItemsQuery,
+	useUpdateItemMutation,
+} from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import {
 	ALLOWED_FILE_TYPES,
@@ -34,13 +39,14 @@ import {
 	roundTo2,
 } from './../../../deals/dealUtils';
 import { FormSelect } from 'components/fields/FormFields';
-import { FiUploadCloud } from 'react-icons/fi';
+import { FiRefreshCw, FiUploadCloud } from 'react-icons/fi';
 import useUserSession from 'hooks/useUserSession';
 import SearchUsers from './SearchUsers';
 import { InfoIcon } from '@chakra-ui/icons';
 import { currencies } from 'constants/currencies';
 import { getSharedUsersData } from './dealUtils';
 import CommissionSummary from './CommissionSummary';
+import CurrencyConverterModal from './CurrencyConverter';
 
 const CloseDealModal = React.memo(
 	({
@@ -59,11 +65,17 @@ const CloseDealModal = React.memo(
 			agentDetails,
 			managerDetails,
 			teamLeadDetails,
-		} = lead;
+		} = lead || {};
 
 		const { user, userRoleName, isSuperAdmin, isAdmin } = useUserSession();
 
 		const [selectedType, setSelectedType] = useState('amount');
+
+		const {
+			isOpen: isCurrencyConverterOpen,
+			onOpen: onCurrencyConverterOpen,
+			onClose: onCurrencyConverterClose,
+		} = useDisclosure();
 
 		// Fetch users data
 		const { data: usersData } = useFetchItemsQuery(
@@ -139,6 +151,39 @@ const CloseDealModal = React.memo(
 			reValidateMode: 'onChange',
 		});
 
+		useEffect(() => {
+			if (mode === 'edit' && initialData) {
+				reset({
+					...defaultValues,
+
+					developer: initialData?.developer || '',
+					salesPerson: initialData?.salesPerson || '',
+					projectName: initialData?.projectName || '',
+					unitNumber: initialData?.unitNumber || '',
+					unitType: initialData?.unitType || '',
+					unitPrice: initialData?.unitPrice || '',
+					lead: initialData?.lead?._id || '',
+
+					downpaymentPaid: initialData?.downpaymentPaid || 0,
+					bookingAmountPaid: initialData?.bookingAmountPaid || 0,
+
+					companyCommissionAmount: initialData?.companyCommissionAmount || 0,
+					companyCommissionPercent: initialData?.companyCommissionPercent || 0,
+
+					commissionStatus: initialData?.commissionStatus || '',
+					spaDone: initialData?.spaDone || false,
+					invoiceSent: initialData?.invoiceSent || false,
+
+					shareUser: initialData?.shareUser?._id || null,
+					sharePercent: initialData?.sharePercent || '',
+				});
+
+				setSelectedType(
+					initialData?.companyCommissionPercent ? 'percent' : 'amount',
+				);
+			}
+		}, [initialData, mode, reset, defaultValues]);
+
 		// inside component
 		const handleCommissionTypeChange = (e) => {
 			const value = e.target.value;
@@ -168,16 +213,40 @@ const CloseDealModal = React.memo(
 		const shareUser = useWatch({ control, name: 'shareUser' });
 		const sharePercent = useWatch({ control, name: 'sharePercent' });
 
-		const sharedUsers = getSharedUsersData({
+		// const sharedUsers = getSharedUsersData({
+		// 	lead,
+		// 	user,
+		// 	unitPrice,
+		// 	companyCommissionAmount,
+		// 	companyCommissionPercent,
+		// 	shareUserId: shareUser,
+		// 	sharePercent,
+		// 	users: usersData?.doc || [],
+		// });
+
+		const sharedUsers = useMemo(() => {
+			if (!lead || !unitPrice) return [];
+
+			return getSharedUsersData({
+				lead,
+				user,
+				unitPrice,
+				companyCommissionAmount,
+				companyCommissionPercent,
+				shareUserId: shareUser,
+				sharePercent,
+				users: usersData?.doc || [],
+			});
+		}, [
 			lead,
 			user,
 			unitPrice,
 			companyCommissionAmount,
 			companyCommissionPercent,
-			shareUserId: shareUser,
+			shareUser,
 			sharePercent,
-			users: usersData?.doc || [],
-		});
+			usersData?.doc,
+		]);
 
 		const downpaymentPercent = unitPrice
 			? roundTo2(((parseFloat(downpaymentPaid) || 0) / unitPrice) * 100)
@@ -188,6 +257,7 @@ const CloseDealModal = React.memo(
 			: 0;
 
 		const [createDeal, { isLoading: isCreating }] = useCreateItemMutation();
+		const [updateDeal, { isLoading: isUpdating }] = useUpdateItemMutation();
 
 		// Handle modal close
 		const handleClose = () => {
@@ -202,10 +272,28 @@ const CloseDealModal = React.memo(
 				toast.success('Deal was closed successfully');
 
 				reset();
-				onSuccess();
+				onSuccess?.();
+				handleClose();
 			} catch (error) {
 				console.log(error);
 				toast.error(error?.data?.message || 'Deal is not created!');
+			}
+		};
+		const handleEditDeal = async (data) => {
+			try {
+				const res = await updateDeal({
+					path: `/deals/${initialData?._id}`,
+					body: data,
+				}).unwrap();
+
+				toast.success('Deal was updated successfully');
+
+				reset();
+				onSuccess?.(res?.doc);
+				handleClose();
+			} catch (error) {
+				console.log(error);
+				toast.error(error?.data?.message || 'Deal is not updated!');
 			}
 		};
 
@@ -260,7 +348,8 @@ const CloseDealModal = React.memo(
 			// Optional file
 			if (data.file && data.invoiceSent) {
 				formData.append('file', data.file);
-			} else if (!data?.file && data.invoiceSent) {
+				// } else if (!data?.file && data.invoiceSent) {
+			} else if (!data?.file && data.invoiceSent && mode === 'add') {
 				return toast.error('Invoice document not uploaded!');
 			}
 
@@ -270,6 +359,8 @@ const CloseDealModal = React.memo(
 			// Submission
 			if (mode === 'add') {
 				handleCreateDeal(formData);
+			} else {
+				handleEditDeal(formData);
 			}
 		};
 
@@ -343,56 +434,57 @@ const CloseDealModal = React.memo(
 					>
 						<VStack spacing={6} align='stretch'>
 							{/* Lead Information */}
-							<Box>
-								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
-									Lead Information
-								</Text>
-								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-									<FormInput
-										label='Client Name'
-										name='clientName'
-										register={register}
-										errors={errors}
-										isRequired
-										isDisabled
-									/>
-
-									{userRoleName !== 'Manager' && (
+							{mode === 'add' && (
+								<Box>
+									<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+										Lead Information
+									</Text>
+									<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
 										<FormInput
-											label='Client Contact'
-											name='clientNumber'
+											label='Client Name'
+											name='clientName'
 											register={register}
 											errors={errors}
 											isRequired
 											isDisabled
 										/>
-									)}
 
-									<FormInput
-										label='Manager'
-										name='managerName'
-										register={register}
-										errors={errors}
-										isDisabled
-										isRequired
-									/>
-									<FormInput
-										label='Team Lead'
-										name='teamLeadName'
-										register={register}
-										errors={errors}
-										isDisabled
-										isRequired
-									/>
-									<FormInput
-										label='Agent'
-										name='agentName'
-										register={register}
-										errors={errors}
-										isDisabled
-										isRequired
-									/>
-									{/* <FormInput
+										{userRoleName !== 'Manager' && (
+											<FormInput
+												label='Client Contact'
+												name='clientNumber'
+												register={register}
+												errors={errors}
+												isRequired
+												isDisabled
+											/>
+										)}
+
+										<FormInput
+											label='Manager'
+											name='managerName'
+											register={register}
+											errors={errors}
+											isDisabled
+											isRequired
+										/>
+										<FormInput
+											label='Team Lead'
+											name='teamLeadName'
+											register={register}
+											errors={errors}
+											isDisabled
+											isRequired
+										/>
+										<FormInput
+											label='Agent'
+											name='agentName'
+											register={register}
+											errors={errors}
+											isDisabled
+											isRequired
+										/>
+										{/* <FormInput
 										label='Closed By'
 										name='closedBy'
 										register={register}
@@ -400,8 +492,9 @@ const CloseDealModal = React.memo(
 										isDisabled
 										isRequired
 									/> */}
-								</SimpleGrid>
-							</Box>
+									</SimpleGrid>
+								</Box>
+							)}
 
 							{/* Property Information */}
 							<Box>
@@ -457,7 +550,7 @@ const CloseDealModal = React.memo(
 							</Box>
 
 							{/* Info Message */}
-							<HStack
+							{/* <HStack
 								spacing={2}
 								bg='blue.50'
 								p={2}
@@ -471,7 +564,26 @@ const CloseDealModal = React.memo(
 									<b>Unit Price</b> and <b>Booking Amount</b> cannot be changed
 									after a deal is booked.
 								</Text>
-							</HStack>
+							</HStack> */}
+
+							{watch('unitPrice') !== defaultValues.unitPrice && (
+								<HStack
+									spacing={2}
+									bg='blue.50'
+									p={2}
+									borderRadius='md'
+									align='start'
+									mt={2}
+								>
+									<InfoIcon color='blue.500' mt={1} />
+									<Text fontSize='sm' color='gray.600'>
+										Changing <b>Unit Price</b> will recalculate and affect{' '}
+										<b>Downpayment Paid</b>, <b>Booking Amount Paid</b>, and{' '}
+										<b>Company Commission</b>. Please ensure all values remain
+										correct after adjustment.
+									</Text>
+								</HStack>
+							)}
 
 							{/* Commission Details */}
 							<Box>
@@ -612,7 +724,12 @@ const CloseDealModal = React.memo(
 									</VStack>
 								</SimpleGrid>
 
-								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
+								<SimpleGrid
+									columns={{ base: 1, md: 2 }}
+									alignItems='flex-end'
+									spacing={4}
+									mb={4}
+								>
 									<FormSelect
 										label='Currency'
 										name='currency'
@@ -622,6 +739,17 @@ const CloseDealModal = React.memo(
 										isRequired
 										options={currencies}
 									/>
+
+									<Button
+										leftIcon={<FiRefreshCw />}
+										size='sm'
+										colorScheme='blue'
+										variant='outline'
+										maxW='250px'
+										onClick={onCurrencyConverterOpen}
+									>
+										Convert
+									</Button>
 								</SimpleGrid>
 
 								{/* Extra Info & Upload */}
@@ -718,13 +846,19 @@ const CloseDealModal = React.memo(
 							onClick={handleSubmit(handleFormSubmit)}
 							colorScheme='brand'
 							size='sm'
-							isLoading={isCreating}
+							isLoading={isCreating || isUpdating}
 							isDisabled={!isValid || !isDirty}
 						>
 							{mode === 'add' ? 'Create Deal' : 'Save Changes'}
 						</Button>
 					</ModalFooter>
 				</ModalContent>
+
+				{/* Add this at the end of your ModalContent, after your existing form fields */}
+				<CurrencyConverterModal
+					isOpen={isCurrencyConverterOpen}
+					onClose={onCurrencyConverterClose}
+				/>
 			</Modal>
 		);
 	},
