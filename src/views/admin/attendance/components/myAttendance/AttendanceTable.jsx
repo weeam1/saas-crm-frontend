@@ -211,7 +211,7 @@ const AttendanceTable = ({
 											borderBottom='none'
 											minWidth='100px'
 											color={
-												entry.checkout === '00:00' ? 'red.500' : 'blue.500'
+												entry.earlyCheckoutMinutes > 0 ? 'red.500' : 'blue.500'
 											}
 										>
 											{entry.checkout ?? 'N/A'}

@@ -21,16 +21,51 @@ export const dealSchema = Yup.object().shape({
 		.min(1, 'Unit type is required')
 		.required('Unit type is required'),
 
+	// unitPrice: Yup.number()
+	// 	.typeError('Unit price must be a number')
+	// 	.min(1, 'Price must be positive')
+	// 	.required('Unit price is required'),
+
 	unitPrice: Yup.number()
 		.typeError('Unit price must be a number')
 		.min(1, 'Price must be positive')
-		.required('Unit price is required'),
+		.required('Unit price is required')
+		.test(
+			'greater-than-payments',
+			'Unit price must be greater than Downpayment, Booking Amount and Commission',
+			function (value) {
+				if (!value) return true;
+
+				const { downpaymentPaid, bookingAmountPaid, companyCommissionAmount } =
+					this.parent;
+
+				if (downpaymentPaid && downpaymentPaid > value) {
+					return this.createError({
+						message: 'Unit price must be greater than Downpayment',
+					});
+				}
+
+				if (bookingAmountPaid && bookingAmountPaid > value) {
+					return this.createError({
+						message: 'Unit price must be greater than Booking Amount',
+					});
+				}
+
+				if (companyCommissionAmount && companyCommissionAmount > value) {
+					return this.createError({
+						message: 'Unit price must be greater than Commission',
+					});
+				}
+
+				return true;
+			},
+		),
 
 	downpaymentPaid: Yup.number()
 		.typeError('Downpayment must be a number')
 		.nullable()
 		.transform((value, originalValue) =>
-			String(originalValue).trim() === '' ? null : value
+			String(originalValue).trim() === '' ? null : value,
 		)
 		.when('unitPrice', (unitPriceArr, schema) => {
 			const unitPrice = Array.isArray(unitPriceArr)
@@ -45,7 +80,7 @@ export const dealSchema = Yup.object().shape({
 				(value) => {
 					if (!unitPrice || isNaN(unitPrice)) return false;
 					return value == null || (value >= 0 && value <= unitPrice);
-				}
+				},
 			);
 		}),
 
@@ -66,7 +101,7 @@ export const dealSchema = Yup.object().shape({
 				(value) => {
 					if (!unitPrice || isNaN(unitPrice)) return false;
 					return value == null || (value >= 0 && value <= unitPrice);
-				}
+				},
 			);
 		})
 		.required('Booking amount is required'),
@@ -88,7 +123,7 @@ export const dealSchema = Yup.object().shape({
 				(value) => {
 					if (!unitPrice || isNaN(unitPrice)) return false;
 					return value == null || (value >= 0 && value <= unitPrice);
-				}
+				},
 			);
 		}),
 	// .required('Company commission is required'),
@@ -142,6 +177,11 @@ export const editDealSchema = Yup.object().shape({
 		.min(1, 'Unit number is required')
 		.required('Unit number is required'),
 
+	unitPrice: Yup.number()
+		.typeError('Unit price must be a number')
+		.min(1, 'Price must be positive')
+		.required('Unit price is required'),
+
 	unitType: Yup.string()
 		.min(1, 'Unit type is required')
 		.required('Unit type is required'),
@@ -155,7 +195,7 @@ export const editDealSchema = Yup.object().shape({
 		.typeError('Downpayment must be a number')
 		.nullable()
 		.transform((value, originalValue) =>
-			String(originalValue).trim() === '' ? null : value
+			String(originalValue).trim() === '' ? null : value,
 		)
 		.when('unitPrice', (unitPriceArr, schema) => {
 			const unitPrice = Array.isArray(unitPriceArr)
@@ -170,7 +210,7 @@ export const editDealSchema = Yup.object().shape({
 				(value) => {
 					if (!unitPrice || isNaN(unitPrice)) return false;
 					return value == null || (value >= 0 && value <= unitPrice);
-				}
+				},
 			);
 		}),
 
@@ -191,7 +231,7 @@ export const editDealSchema = Yup.object().shape({
 				(value) => {
 					if (!unitPrice || isNaN(unitPrice)) return false;
 					return value == null || (value >= 0 && value <= unitPrice);
-				}
+				},
 			);
 		})
 		.required('Booking amount is required'),
