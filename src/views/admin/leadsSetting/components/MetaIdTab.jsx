@@ -171,27 +171,6 @@ const MetaIdTab = ({ metaIds, isLoading, onAdd, onEdit, onDelete }) => {
 
   return (
     <Box>
-      {/* Header with Add Button */}
-      <Flex
-        p={4}
-        justify="space-between"
-        align="center"
-        borderBottom="1px"
-        borderColor={borderColor}
-      >
-        <Text fontSize="md" fontWeight="medium">
-          Meta ID Management
-        </Text>
-        <Button
-          leftIcon={<AddIcon />}
-          colorScheme="purple"
-          size="sm"
-          onClick={onAdd}
-        >
-          Add Meta ID
-        </Button>
-      </Flex>
-
       <Box maxHeight="60vh" overflowY="auto">
         <Table variant="striped" size="sm">
           <Thead position="sticky" top={0} bg={thBg} zIndex={1}>
@@ -225,7 +204,7 @@ const MetaIdTab = ({ metaIds, isLoading, onAdd, onEdit, onDelete }) => {
                     </Badge>
                   </Td>
                   <Td
-                    textAlign="left"
+                    textAlign="center"
                     maxW="400px"
                     whiteSpace="normal"
                     wordBreak="break-word"

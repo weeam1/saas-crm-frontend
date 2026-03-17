@@ -234,7 +234,7 @@ const MainStatusTab = ({ onEdit, onDelete, generateBgColor }) => {
   return (
     <Box>
       {/* Search Bar */}
-      <Box p={4} borderBottom="1px" borderColor={borderColor}>
+      {/* <Box p={4} borderBottom="1px" borderColor={borderColor}>
         <form onSubmit={handleSearchSubmit}>
           <InputGroup maxW="400px">
             <InputLeftElement pointerEvents="none">
@@ -249,7 +249,7 @@ const MainStatusTab = ({ onEdit, onDelete, generateBgColor }) => {
             />
           </InputGroup>
         </form>
-      </Box>
+      </Box> */}
 
       {/* Table */}
       <Box maxHeight="60vh" overflowY="auto" scrollBehavior="smooth">

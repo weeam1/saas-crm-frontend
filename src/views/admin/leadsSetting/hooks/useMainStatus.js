@@ -5,7 +5,7 @@ import {
   useUpdateItemMutation,
   useDeleteItemMutation,
 } from "api/apiSlice";
-import { useToast } from "@chakra-ui/react";
+import { toast } from "react-toastify"; // This is react-toastify
 import { useSearchParams } from "react-router-dom";
 import { cleanSearchParams } from "utils";
 import debounce from "lodash/debounce";
@@ -13,9 +13,9 @@ import debounce from "lodash/debounce";
 export const useMainStatus = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchString = searchParams.toString();
-  const toast = useToast();
   const isFirstRender = useRef(true);
   const isUpdatingFromEffect = useRef(false);
+  const prevParamsRef = useRef("");
 
   const [mainStatuses, setMainStatuses] = useState([]);
   const [subStatuses, setSubStatuses] = useState([]);
@@ -34,8 +34,8 @@ export const useMainStatus = () => {
   const [updateMainStatus, { isLoading: isUpdating }] = useUpdateItemMutation();
   const [deleteMainStatus, { isLoading: isDeleting }] = useDeleteItemMutation();
 
-  // Query params - memoize based on state
-  const queryParams = useMemo(() => {
+  // API Query params - includes all parameters needed for the API
+  const apiQueryParams = useMemo(() => {
     const raw = {
       page: pagination.page,
       limit: pagination.limit,
@@ -45,7 +45,17 @@ export const useMainStatus = () => {
     return cleanSearchParams(raw);
   }, [pagination.page, pagination.limit, filters.q]);
 
-  // Sync URL params - but only when queryParams actually change
+  // URL params - only parameters that should be in the URL (excludes includeSubStatuses)
+  const urlParams = useMemo(() => {
+    const raw = {
+      ...(pagination.page !== 1 && { page: pagination.page }),
+      ...(pagination.limit !== 20 && { limit: pagination.limit }),
+      ...(filters.q && { q: filters.q }),
+    };
+    return cleanSearchParams(raw);
+  }, [pagination.page, pagination.limit, filters.q]);
+
+  // Sync URL params - using urlParams instead of queryParams
   useEffect(() => {
     // Skip if this update is triggered by URL change
     if (isUpdatingFromEffect.current) {
@@ -53,24 +63,30 @@ export const useMainStatus = () => {
       return;
     }
 
-    const nextString = new URLSearchParams(queryParams).toString();
+    const nextString = new URLSearchParams(urlParams).toString();
 
-    // Only update if the string is different and not empty
-    if (nextString && nextString !== searchString) {
+    // Only update if the string is different
+    if (nextString !== prevParamsRef.current && nextString !== searchString) {
+      prevParamsRef.current = nextString;
       isUpdatingFromEffect.current = true;
-      setSearchParams(queryParams, { replace: true });
-    }
-  }, [queryParams, searchString, setSearchParams]);
 
-  // Fetch main statuses - use skip option to prevent unnecessary fetches
+      if (nextString) {
+        setSearchParams(urlParams, { replace: true });
+      } else {
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [urlParams, searchString, setSearchParams]);
+
+  // Fetch main statuses - using apiQueryParams
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
     {
       path: "/lead/main-status",
-      params: queryParams,
+      params: apiQueryParams,
     },
     {
-      refetchOnMountOrArgChange: false, // Changed to false
-      skip: !queryParams.page, // Skip if no page param
+      refetchOnMountOrArgChange: false,
+      skip: !apiQueryParams.page, // Skip if no page param
     },
   );
 
@@ -108,6 +124,22 @@ export const useMainStatus = () => {
     }
   }, [data]);
 
+  // Initialize from URL params on mount
+  useEffect(() => {
+    const page = Number(searchParams.get("page"));
+    const limit = Number(searchParams.get("limit"));
+    const q = searchParams.get("q");
+
+    setPagination({
+      page: page || 1,
+      limit: limit || 20,
+    });
+
+    if (q !== null) {
+      setFilters({ q });
+    }
+  }, []); // Run only on mount
+
   // Create main status
   const createStatus = async (statusData) => {
     try {
@@ -116,10 +148,31 @@ export const useMainStatus = () => {
         body: statusData,
       }).unwrap();
 
+      // CORRECT react-toastify syntax
+      toast.success("Main status created successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       refetch();
       return response;
     } catch (error) {
       console.error("Error creating main status:", error);
+
+      // CORRECT react-toastify syntax for error
+      toast.error(error?.data?.message || "Failed to create main status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       throw error;
     }
   };
@@ -139,9 +192,28 @@ export const useMainStatus = () => {
         ),
       );
 
+      toast.success("Main status updated successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       return response;
     } catch (error) {
       console.error("Error updating main status:", error);
+
+      toast.error(error?.data?.message || "Failed to update main status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       throw error;
     }
   };
@@ -157,9 +229,28 @@ export const useMainStatus = () => {
       setMainStatuses((prev) => prev.filter((item) => item._id !== id));
       setTotalCount((prev) => prev - 1);
 
+      toast.success("Main status deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       refetch();
     } catch (error) {
       console.error("Error deleting main status:", error);
+
+      toast.error(error?.data?.message || "Failed to delete main status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+
       throw error;
     }
   };

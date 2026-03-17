@@ -15,6 +15,7 @@ import {
   Flex,
   Box,
   Text,
+  Select,
 } from "@chakra-ui/react";
 import { FaPalette } from "react-icons/fa";
 
@@ -29,6 +30,7 @@ const StatusModal = ({
   onSubmit,
   getRandomColor,
   generateBgColor,
+  metaStatuses,
 }) => {
   const handleClose = () => {
     setFormErrors({});
@@ -129,6 +131,27 @@ const StatusModal = ({
                 </Flex>
               </Box>
             )}
+          </FormControl>
+          <FormControl mb={4}>
+            <FormLabel>Meta Status (Optional)</FormLabel>
+            <Select
+              size="sm"
+              value={formData.metaStatus || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, metaStatus: e.target.value || null })
+              }
+              placeholder="Select meta status (optional)"
+            >
+              <option value="">None</option>
+              {metaStatuses.map((status) => (
+                <option key={status._id} value={status._id}>
+                  {status.label} {status.key ? `(${status.key})` : ""}
+                </option>
+              ))}
+            </Select>
+            <Text fontSize="xs" color="gray.500" mt={1}>
+              Link to a meta status for additional categorization
+            </Text>
           </FormControl>
         </ModalBody>
 

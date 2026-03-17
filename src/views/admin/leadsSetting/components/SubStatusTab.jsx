@@ -13,7 +13,7 @@ import {
   useColorModeValue,
   Text,
 } from "@chakra-ui/react";
-import { EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import NoData from "components/Message/NoData";
 import TableSkeleton from "./TableSkeleton";
 import StatusBadge from "./StatusBadge";
@@ -34,11 +34,14 @@ const SubStatusTab = ({
       { Header: "Name", accessor: "label", width: 150 },
       { Header: "Color Preview", accessor: "colors", width: 150 },
       { Header: "Parent Status", accessor: "parentLabel", width: 150 },
-      { Header: "Meta ID", accessor: "meta_id", width: 150 },
+      { Header: "Meta", accessor: "meta", width: 150 },
       { Header: "Actions", accessor: "actions", width: 100 },
     ],
     [],
   );
+
+  // Check if we have data to display
+  const hasData = subStatuses && subStatuses.length > 0;
 
   return (
     <Box maxHeight="60vh" overflowY="auto">
@@ -65,67 +68,87 @@ const SubStatusTab = ({
         <Tbody>
           {isLoading ? (
             <TableSkeleton columns={columns} rowCount={5} />
-          ) : subStatuses ? (
-            subStatuses
-          ) : [].length > 0 ? (
-            subStatuses.map((status) => (
-              <Tr
-                key={`${status.parentValue}_${status.value}`}
-                _hover={{ bg: hoverBg }}
-              >
-                <Td textAlign="center">
-                  <StatusBadge
-                    status={status}
-                    generateBgColor={generateBgColor}
-                  />
-                </Td>
-                <Td textAlign="center" fontWeight="500">
-                  {status.label}
-                </Td>
+          ) : hasData ? (
+            subStatuses.map((status) => {
+              // Get parent info from mainStatus array
+              const parentMain = status.mainStatus && status.mainStatus[0];
 
-                <Td textAlign="center">
-                  <Flex align="center" justify="center" gap={2}>
-                    <Box
-                      w="20px"
-                      h="20px"
-                      borderRadius="md"
-                      bg={status.color}
+              return (
+                <Tr key={status._id} _hover={{ bg: hoverBg }}>
+                  <Td textAlign="center">
+                    <StatusBadge
+                      status={status}
+                      generateBgColor={generateBgColor}
                     />
-                    <Box
-                      w="20px"
-                      h="20px"
-                      borderRadius="md"
-                      bg={status.bgColor || generateBgColor(status.color)}
-                    />
-                    <Text fontSize="xs" color="gray.500">
-                      {status.color}
-                    </Text>
-                  </Flex>
-                </Td>
-                <Td textAlign="center">
-                  <Badge colorScheme="teal">{status.parentLabel}</Badge>
-                </Td>
-                <Td textAlign="center">
-                  {status.meta_id ? (
-                    <Badge colorScheme="purple">{status.meta_id}</Badge>
-                  ) : (
-                    "—"
-                  )}
-                </Td>
-                <Td textAlign="center">
-                  <Flex gap={1} justify="center">
-                    <IconButton
-                      icon={<EditIcon />}
-                      size="xs"
-                      colorScheme="blue"
-                      variant="ghost"
-                      onClick={() => onEdit(status)}
-                      aria-label="Edit substatus"
-                    />
-                  </Flex>
-                </Td>
-              </Tr>
-            ))
+                  </Td>
+                  <Td textAlign="center" fontWeight="500">
+                    {status.label}
+                  </Td>
+
+                  <Td textAlign="center">
+                    <Flex align="center" justify="center" gap={2}>
+                      <Box
+                        w="20px"
+                        h="20px"
+                        borderRadius="md"
+                        bg={status.color}
+                      />
+                      <Box
+                        w="20px"
+                        h="20px"
+                        borderRadius="md"
+                        bg={status.bgColor || generateBgColor(status.color)}
+                      />
+                      <Text fontSize="xs" color="gray.500">
+                        {status.color}
+                      </Text>
+                    </Flex>
+                  </Td>
+
+                  <Td textAlign="center">
+                    {parentMain ? (
+                      <Badge colorScheme="teal">{parentMain.label}</Badge>
+                    ) : (
+                      "—"
+                    )}
+                  </Td>
+
+                  <Td textAlign="center">
+                    {status.metaStatus ? (
+                      <Badge colorScheme="purple">
+                        {typeof status.metaStatus === "object"
+                          ? status.metaStatus.label || status.metaStatus.key
+                          : status.metaStatus}
+                      </Badge>
+                    ) : (
+                      "—"
+                    )}
+                  </Td>
+
+                  <Td textAlign="center">
+                    <Flex gap={1} justify="center">
+                      <IconButton
+                        icon={<EditIcon />}
+                        size="xs"
+                        colorScheme="blue"
+                        variant="ghost"
+                        onClick={() => onEdit(status)}
+                        aria-label="Edit substatus"
+                      />
+                      <IconButton
+                        icon={<DeleteIcon />}
+                        size="xs"
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={() => onDelete(status?._id)}
+                        aria-label="Delete substatus"
+                      />
+                      {/* Add delete button if needed */}
+                    </Flex>
+                  </Td>
+                </Tr>
+              );
+            })
           ) : (
             <Tr>
               <Td colSpan={columns.length} py="10">
