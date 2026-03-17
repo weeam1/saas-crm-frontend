@@ -220,6 +220,7 @@ const SubStatusModal = ({
   formErrors,
   setFormErrors,
   onSubmit,
+  isSubmitting,
   getRandomColor,
   generateBgColor,
   mainStatuses = [],
@@ -254,7 +255,7 @@ const SubStatusModal = ({
   const previewBgColor = formData.color + "20";
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -264,16 +265,14 @@ const SubStatusModal = ({
         <ModalBody>
           {/* Parent Main Status - Required */}
           <FormControl isInvalid={formErrors.mainStatus} mb={4} isRequired>
-            <FormLabel>
-              Parent Main Status <span style={{ color: "red" }}>*</span>
-            </FormLabel>
+            <FormLabel>Main Status</FormLabel>
             <Select
               size="sm"
               value={formData.mainStatus || ""}
               onChange={(e) =>
                 setFormData({ ...formData, mainStatus: e.target.value })
               }
-              placeholder="Select parent main status"
+              placeholder="Select main status"
             >
               {mainStatuses.map((status) => (
                 <option key={status._id} value={status._id}>
@@ -286,40 +285,16 @@ const SubStatusModal = ({
 
           {/* Label - Required */}
           <FormControl isInvalid={formErrors.label} mb={4} isRequired>
-            <FormLabel>
-              Label <span style={{ color: "red" }}>*</span>
-            </FormLabel>
+            <FormLabel>Name</FormLabel>
             <Input
               size="sm"
               value={formData.label}
               onChange={(e) =>
                 setFormData({ ...formData, label: e.target.value })
               }
-              placeholder="Enter display label (e.g., Contacted)"
+              placeholder="Enter Name"
             />
             <FormErrorMessage>{formErrors.label}</FormErrorMessage>
-          </FormControl>
-
-          {/* Value - Required */}
-          <FormControl isInvalid={formErrors.value} mb={4} isRequired>
-            <FormLabel>
-              Value <span style={{ color: "red" }}>*</span>
-            </FormLabel>
-            <Input
-              size="sm"
-              value={formData.value || ""}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  value: e.target.value.toLowerCase().replace(/\s+/g, "_"),
-                })
-              }
-              placeholder="e.g., contacted (auto-generated from label if empty)"
-            />
-            <Text fontSize="xs" color="gray.500" mt={1}>
-              Unique identifier. Will be auto-generated from label if empty.
-            </Text>
-            <FormErrorMessage>{formErrors.value}</FormErrorMessage>
           </FormControl>
 
           {/* Color */}
@@ -378,7 +353,7 @@ const SubStatusModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, metaStatus: e.target.value || null })
               }
-              placeholder="Select meta status (optional)"
+              placeholder="Select meta status"
             >
               <option value="">None</option>
               {metaStatuses.map((status) => (
@@ -388,7 +363,8 @@ const SubStatusModal = ({
               ))}
             </Select>
             <Text fontSize="xs" color="gray.500" mt={1}>
-              Link to a meta status for additional categorization
+              Link this lead status to a Meta Pixel event for better tracking
+              and categorization.
             </Text>
           </FormControl>
         </ModalBody>
@@ -397,7 +373,13 @@ const SubStatusModal = ({
           <Button variant="ghost" size="sm" mr={3} onClick={handleClose}>
             Cancel
           </Button>
-          <Button colorScheme="purple" size="sm" onClick={onSubmit}>
+          <Button
+            colorScheme="brand"
+            size="sm"
+            onClick={onSubmit}
+            isLoading={isSubmitting}
+            loadingText={editingItem ? "Updating..." : "Saving..."}
+          >
             {editingItem ? "Update" : "Save"}
           </Button>
         </ModalFooter>

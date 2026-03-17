@@ -11,6 +11,7 @@ const StatusBadge = ({ status, generateBgColor }) => (
     fontWeight="500"
     fontSize="sm"
     whiteSpace="nowrap"
+    textTransform="none"
   >
     {status.label}
   </Badge>

@@ -1,32 +1,25 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   useFetchItemsQuery,
   useCreateItemMutation,
   useUpdateItemMutation,
   useDeleteItemMutation,
 } from "api/apiSlice";
-import { toast } from "react-toastify"; // Changed to react-toastify
-import { useSearchParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { cleanSearchParams } from "utils";
 import debounce from "lodash/debounce";
 
-export const useMetaStatus = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const searchString = searchParams.toString();
-  const isUpdatingFromEffect = useRef(false);
-
+export const useMetaStatus = (initialPage = 1, initialLimit = 20) => {
   const [metaStatuses, setMetaStatuses] = useState([]);
   const [pagination, setPagination] = useState({
-    page: Number(searchParams.get("page")) || 1,
-    limit: Number(searchParams.get("limit")) || 20,
+    page: initialPage,
+    limit: initialLimit,
   });
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [filters, setFilters] = useState({
-    q: searchParams.get("q") || "",
-  });
+  const [filters, setFilters] = useState({ q: "" });
 
-  // Mutations
+  // Mutations with loading states
   const [createMetaStatus, { isLoading: isCreating }] = useCreateItemMutation();
   const [updateMetaStatus, { isLoading: isUpdating }] = useUpdateItemMutation();
   const [deleteMetaStatus, { isLoading: isDeleting }] = useDeleteItemMutation();
@@ -41,21 +34,6 @@ export const useMetaStatus = () => {
     return cleanSearchParams(raw);
   }, [pagination.page, pagination.limit, filters.q]);
 
-  // Sync URL params - but only when queryParams actually change
-  useEffect(() => {
-    if (isUpdatingFromEffect.current) {
-      isUpdatingFromEffect.current = false;
-      return;
-    }
-
-    const nextString = new URLSearchParams(queryParams).toString();
-
-    if (nextString && nextString !== searchString) {
-      isUpdatingFromEffect.current = true;
-      setSearchParams(queryParams, { replace: true });
-    }
-  }, [queryParams, searchString, setSearchParams]);
-
   // Fetch meta statuses
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
     {
@@ -64,26 +42,15 @@ export const useMetaStatus = () => {
     },
     {
       refetchOnMountOrArgChange: false,
-      skip: !queryParams.page,
     },
   );
 
   // Process data
   useEffect(() => {
     if (data?.doc) {
-      console.log("Meta Status Data:", data);
-
       setMetaStatuses(data.doc || []);
-
-      // Check if pagination exists in the response
-      if (data.pagination) {
-        setTotalCount(data.pagination.total || 0);
-        setTotalPages(data.pagination.pages || 0);
-      } else if (data.total) {
-        // Alternative structure
-        setTotalCount(data.total || 0);
-        setTotalPages(data.totalPages || 0);
-      }
+      setTotalCount(data.pagination?.total || 0);
+      setTotalPages(data.pagination?.pages || 0);
     }
   }, [data]);
 
@@ -95,31 +62,12 @@ export const useMetaStatus = () => {
         body: statusData,
       }).unwrap();
 
-      // React-Toastify success toast
-      toast.success("Meta status created successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
+      toast.success("Meta status created successfully");
       refetch();
       return response;
     } catch (error) {
       console.error("Error creating meta status:", error);
-
-      // React-Toastify error toast
-      toast.error(error?.data?.message || "Failed to create meta status", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
+      toast.error(error?.data?.message || "Failed to create meta status");
       throw error;
     }
   };
@@ -132,17 +80,7 @@ export const useMetaStatus = () => {
         body: statusData,
       }).unwrap();
 
-      // React-Toastify success toast
-      toast.success("Meta status updated successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      // Optimistic update
+      toast.success("Meta status updated successfully");
       setMetaStatuses((prev) =>
         prev.map((item) =>
           item._id === id ? { ...item, ...statusData } : item,
@@ -152,17 +90,7 @@ export const useMetaStatus = () => {
       return response;
     } catch (error) {
       console.error("Error updating meta status:", error);
-
-      // React-Toastify error toast
-      toast.error(error?.data?.message || "Failed to update meta status", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
+      toast.error(error?.data?.message || "Failed to update meta status");
       throw error;
     }
   };
@@ -174,35 +102,13 @@ export const useMetaStatus = () => {
         path: `/lead/meta-status/${id}`,
       }).unwrap();
 
-      // React-Toastify success toast
-      toast.success("Meta status deleted successfully", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      // Optimistic delete
+      toast.success("Meta status deleted successfully");
       setMetaStatuses((prev) => prev.filter((item) => item._id !== id));
       setTotalCount((prev) => prev - 1);
-
-      // Refetch to ensure data consistency
       refetch();
     } catch (error) {
       console.error("Error deleting meta status:", error);
-
-      // React-Toastify error toast
-      toast.error(error?.data?.message || "Failed to delete meta status", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
+      toast.error(error?.data?.message || "Failed to delete meta status");
       throw error;
     }
   };
@@ -225,31 +131,23 @@ export const useMetaStatus = () => {
     setPagination({ page: 1, limit });
   };
 
-  // Search handler
   const handleSearch = (searchTerm) => {
     debouncedSearch(searchTerm);
   };
 
   return {
-    // Data
     metaStatuses,
     isLoading: isLoading || isFetching,
     isCreating,
     isUpdating,
     isDeleting,
-
-    // Pagination
     pagination,
     totalPages,
     totalCount,
     handlePageChange,
     handlePageSizeChange,
-
-    // Filters
     filters,
     handleSearch,
-
-    // CRUD
     createStatus,
     updateStatus,
     deleteStatus,

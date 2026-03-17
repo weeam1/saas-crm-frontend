@@ -31,6 +31,7 @@ const StatusModal = ({
   getRandomColor,
   generateBgColor,
   metaStatuses,
+  isSubmitting, // Add this prop
 }) => {
   const handleClose = () => {
     setFormErrors({});
@@ -38,32 +39,28 @@ const StatusModal = ({
   };
 
   const handleColorChange = (color) => {
-    // Only store the valid hex color, not the modified version
     setFormData({
       ...formData,
       color: color,
-      // Don't set bgColor and textColor here - let the backend handle it
-      // or generate them only for display purposes
+      bgColor: generateBgColor(color, 80),
+      textColor: color,
     });
   };
 
   const handleRandomColor = () => {
-    const randomColor = getRandomColor(
-      formData.parentStatus !== undefined ? "sub" : "main",
-    );
+    const randomColor = getRandomColor("main");
     setFormData({
       ...formData,
       color: randomColor,
-      // Don't set bgColor and textColor here
+      bgColor: generateBgColor(randomColor, 80),
+      textColor: randomColor,
     });
   };
 
-  // Preview color (for display only)
-  const previewBgColor = formData.color + "20";
-  const previewTextColor = formData.color;
+  const previewBgColor = formData.bgColor;
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -72,16 +69,14 @@ const StatusModal = ({
         <ModalCloseButton />
         <ModalBody>
           <FormControl isInvalid={formErrors.label} mb={4} isRequired>
-            <FormLabel>
-              Label <span style={{ color: "red" }}>*</span>
-            </FormLabel>
+            <FormLabel>Name</FormLabel>
             <Input
               size="sm"
               value={formData.label}
               onChange={(e) =>
                 setFormData({ ...formData, label: e.target.value })
               }
-              placeholder="Enter display label"
+              placeholder="Enter Name"
             />
             <FormErrorMessage>{formErrors.label}</FormErrorMessage>
           </FormControl>
@@ -106,7 +101,6 @@ const StatusModal = ({
               </Button>
             </Flex>
 
-            {/* Color Preview - for display only */}
             {formData.color && (
               <Box mt={2} p={2} bg="gray.50" borderRadius="md">
                 <Text fontSize="sm" mb={1}>
@@ -132,6 +126,7 @@ const StatusModal = ({
               </Box>
             )}
           </FormControl>
+
           <FormControl mb={4}>
             <FormLabel>Meta Status (Optional)</FormLabel>
             <Select
@@ -140,7 +135,7 @@ const StatusModal = ({
               onChange={(e) =>
                 setFormData({ ...formData, metaStatus: e.target.value || null })
               }
-              placeholder="Select meta status (optional)"
+              placeholder="Select meta status"
             >
               <option value="">None</option>
               {metaStatuses.map((status) => (
@@ -150,7 +145,8 @@ const StatusModal = ({
               ))}
             </Select>
             <Text fontSize="xs" color="gray.500" mt={1}>
-              Link to a meta status for additional categorization
+              Link this lead status to a Meta Pixel event for better tracking
+              and categorization.
             </Text>
           </FormControl>
         </ModalBody>
@@ -159,7 +155,13 @@ const StatusModal = ({
           <Button variant="ghost" size="sm" mr={3} onClick={handleClose}>
             Cancel
           </Button>
-          <Button colorScheme="blue" size="sm" onClick={onSubmit}>
+          <Button
+            colorScheme="brand"
+            size="sm"
+            onClick={onSubmit}
+            isLoading={isSubmitting}
+            loadingText={editingItem ? "Updating..." : "Saving..."}
+          >
             {editingItem ? "Update" : "Save"}
           </Button>
         </ModalFooter>

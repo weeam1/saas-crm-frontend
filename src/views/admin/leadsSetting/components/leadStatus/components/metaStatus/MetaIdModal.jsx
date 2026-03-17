@@ -24,6 +24,7 @@ const MetaIdModal = ({
   metaFormErrors,
   setMetaFormErrors,
   onSubmit,
+  isSubmitting, // Add this prop for loading state
 }) => {
   const handleClose = () => {
     setMetaFormErrors({});
@@ -31,7 +32,7 @@ const MetaIdModal = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -39,41 +40,23 @@ const MetaIdModal = ({
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <FormControl isInvalid={metaFormErrors.label} mb={4}>
-            <FormLabel>Label Name</FormLabel>
+          {/* Label is now required */}
+          <FormControl isInvalid={metaFormErrors.label} mb={4} isRequired>
+            <FormLabel>Name</FormLabel>
             <Input
               size="sm"
               value={metaFormData.label}
               onChange={(e) =>
                 setMetaFormData({ ...metaFormData, label: e.target.value })
               }
-              placeholder="Enter label name (e.g., Interested)"
+              placeholder="Enter Name"
             />
             <FormErrorMessage>{metaFormErrors.label}</FormErrorMessage>
           </FormControl>
 
-          <FormControl isInvalid={metaFormErrors.key} mb={4} isRequired>
-            <FormLabel>
-              Key <span style={{ color: "red" }}>*</span>
-            </FormLabel>
-            <Input
-              size="sm"
-              value={metaFormData.key}
-              onChange={(e) =>
-                setMetaFormData({
-                  ...metaFormData,
-                  key: e.target.value,
-                })
-              }
-              placeholder="e.g., Lead_Interested"
-            />
-            <FormErrorMessage>{metaFormErrors.key}</FormErrorMessage>
-          </FormControl>
-
-          <FormControl isInvalid={metaFormErrors.description} mb={4} isRequired>
-            <FormLabel>
-              Description <span style={{ color: "red" }}>*</span>
-            </FormLabel>
+          {/* Description is now optional - removed isRequired */}
+          <FormControl isInvalid={metaFormErrors.description} mb={4}>
+            <FormLabel>Description (Optional)</FormLabel>
             <Textarea
               size="sm"
               value={metaFormData.description}
@@ -94,7 +77,13 @@ const MetaIdModal = ({
           <Button variant="ghost" size="sm" mr={3} onClick={handleClose}>
             Cancel
           </Button>
-          <Button colorScheme="purple" size="sm" onClick={onSubmit}>
+          <Button
+            colorScheme="brand"
+            size="sm"
+            onClick={onSubmit}
+            isLoading={isSubmitting}
+            loadingText={editingMetaId ? "Updating..." : "Saving..."}
+          >
             {editingMetaId ? "Update" : "Save"}
           </Button>
         </ModalFooter>
