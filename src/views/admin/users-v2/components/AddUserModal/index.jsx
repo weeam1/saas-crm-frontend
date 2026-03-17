@@ -36,7 +36,7 @@ import SecurityPasswordPermission from 'views/admin/users/components/PasswordPer
 import { useRoles } from 'hooks/user/userRoles';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import { useSelector } from 'react-redux';
-import { salaryTypes } from 'utils/options';
+import { salaryTypes, userCommissionTypes } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
 import ProfilePictureModal from './ProfilePicModal';
 
@@ -57,6 +57,8 @@ const getInitialValues = (userData = {}) => ({
 	countryHomeAddress: userData?.countryHomeAddress ?? '',
 	countryPhoneNum: userData?.countryPhoneNum ?? '',
 	salaryType: userData?.salaryType ?? salaryTypes?.[0]?.value ?? '',
+	commissionType:
+		userData?.commissionType ?? userCommissionTypes[0]?.value ?? '',
 	salary: userData?.salary ?? '',
 	commission: userData?.commission ?? '',
 	incentive: userData?.incentive ?? '',
