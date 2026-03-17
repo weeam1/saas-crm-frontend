@@ -5,7 +5,7 @@ import {
   useUpdateItemMutation,
   useDeleteItemMutation,
 } from "api/apiSlice";
-import { useToast } from "@chakra-ui/react";
+import { toast } from "react-toastify"; // Changed to react-toastify
 import { useSearchParams } from "react-router-dom";
 import { cleanSearchParams } from "utils";
 import debounce from "lodash/debounce";
@@ -13,7 +13,6 @@ import debounce from "lodash/debounce";
 export const useSubStatus = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchString = searchParams.toString();
-  const toast = useToast();
   const isUpdatingFromEffect = useRef(false);
 
   const [subStatuses, setSubStatuses] = useState([]);
@@ -67,16 +66,36 @@ export const useSubStatus = () => {
     },
     {
       refetchOnMountOrArgChange: false,
-      skip: !filters.parentId || !queryParams.page,
+      // skip: !filters.parentId || !queryParams.page,
     },
   );
 
   // Process data
   useEffect(() => {
     if (data?.doc) {
-      setSubStatuses(data.doc);
-      setTotalCount(data.total || 0);
-      setTotalPages(data.totalPages || 0);
+      // Process the data to make it easier to use in the UI
+      const processedData = data.doc.map((item) => ({
+        ...item,
+        // Extract the first mainStatus (since it's an array)
+        mainStatusId: item.mainStatus && item.mainStatus[0]?._id,
+        mainStatusLabel: item.mainStatus && item.mainStatus[0]?.label,
+        mainStatusValue: item.mainStatus && item.mainStatus[0]?.value,
+        // Format metaStatus for easier access
+        metaStatusId: item.metaStatus?._id,
+        metaStatusLabel: item.metaStatus?.label || item.metaStatus?.key,
+        metaStatusKey: item.metaStatus?.key,
+      }));
+
+      setSubStatuses(processedData);
+
+      // Handle pagination data
+      if (data.pagination) {
+        setTotalCount(data.pagination.total || 0);
+        setTotalPages(data.pagination.pages || 0);
+      } else {
+        setTotalCount(data.total || 0);
+        setTotalPages(data.totalPages || 0);
+      }
     } else {
       setSubStatuses([]);
     }
@@ -90,25 +109,31 @@ export const useSubStatus = () => {
         body: statusData,
       }).unwrap();
 
-      toast({
-        title: "Success",
-        description: "Sub status created successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+      // React-Toastify success toast
+      toast.success("Sub status created successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
       refetch();
       return response;
     } catch (error) {
       console.error("Error creating sub status:", error);
-      toast({
-        title: "Error",
-        description: error?.data?.message || "Failed to create sub status",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+
+      // React-Toastify error toast
+      toast.error(error?.data?.message || "Failed to create sub status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+
       throw error;
     }
   };
@@ -121,12 +146,14 @@ export const useSubStatus = () => {
         body: statusData,
       }).unwrap();
 
-      toast({
-        title: "Success",
-        description: "Sub status updated successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+      // React-Toastify success toast
+      toast.success("Sub status updated successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
       // Optimistic update
@@ -139,13 +166,17 @@ export const useSubStatus = () => {
       return response;
     } catch (error) {
       console.error("Error updating sub status:", error);
-      toast({
-        title: "Error",
-        description: error?.data?.message || "Failed to update sub status",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+
+      // React-Toastify error toast
+      toast.error(error?.data?.message || "Failed to update sub status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+
       throw error;
     }
   };
@@ -157,26 +188,35 @@ export const useSubStatus = () => {
         path: `/lead/sub-status/${id}`,
       }).unwrap();
 
-      toast({
-        title: "Success",
-        description: "Sub status deleted successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+      // React-Toastify success toast
+      toast.success("Sub status deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
       // Optimistic delete
       setSubStatuses((prev) => prev.filter((item) => item._id !== id));
       setTotalCount((prev) => prev - 1);
+
+      // Refetch to ensure data consistency
+      refetch();
     } catch (error) {
       console.error("Error deleting sub status:", error);
-      toast({
-        title: "Error",
-        description: error?.data?.message || "Failed to delete sub status",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+
+      // React-Toastify error toast
+      toast.error(error?.data?.message || "Failed to delete sub status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+
       throw error;
     }
   };

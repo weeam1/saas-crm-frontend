@@ -5,7 +5,7 @@ import {
   useUpdateItemMutation,
   useDeleteItemMutation,
 } from "api/apiSlice";
-import { useToast } from "@chakra-ui/react";
+import { toast } from "react-toastify"; // Changed to react-toastify
 import { useSearchParams } from "react-router-dom";
 import { cleanSearchParams } from "utils";
 import debounce from "lodash/debounce";
@@ -13,7 +13,6 @@ import debounce from "lodash/debounce";
 export const useMetaStatus = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchString = searchParams.toString();
-  const toast = useToast();
   const isUpdatingFromEffect = useRef(false);
 
   const [metaStatuses, setMetaStatuses] = useState([]);
@@ -26,7 +25,7 @@ export const useMetaStatus = () => {
   const [filters, setFilters] = useState({
     q: searchParams.get("q") || "",
   });
-  console.log("MetaStatus filters:", metaStatuses);
+
   // Mutations
   const [createMetaStatus, { isLoading: isCreating }] = useCreateItemMutation();
   const [updateMetaStatus, { isLoading: isUpdating }] = useUpdateItemMutation();
@@ -75,10 +74,18 @@ export const useMetaStatus = () => {
       console.log("Meta Status Data:", data);
 
       setMetaStatuses(data.doc || []);
-      setTotalCount(data.pagination.total || 0);
-      setTotalPages(data.pagination.pages || 0);
+
+      // Check if pagination exists in the response
+      if (data.pagination) {
+        setTotalCount(data.pagination.total || 0);
+        setTotalPages(data.pagination.pages || 0);
+      } else if (data.total) {
+        // Alternative structure
+        setTotalCount(data.total || 0);
+        setTotalPages(data.totalPages || 0);
+      }
     }
-  }, [data, pagination.limit]);
+  }, [data]);
 
   // Create meta status
   const createStatus = async (statusData) => {
@@ -88,25 +95,31 @@ export const useMetaStatus = () => {
         body: statusData,
       }).unwrap();
 
-      toast({
-        title: "Success",
-        description: "Meta status created successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+      // React-Toastify success toast
+      toast.success("Meta status created successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
       refetch();
       return response;
     } catch (error) {
       console.error("Error creating meta status:", error);
-      toast({
-        title: "Error",
-        description: error?.data?.message || "Failed to create meta status",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+
+      // React-Toastify error toast
+      toast.error(error?.data?.message || "Failed to create meta status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+
       throw error;
     }
   };
@@ -119,12 +132,14 @@ export const useMetaStatus = () => {
         body: statusData,
       }).unwrap();
 
-      toast({
-        title: "Success",
-        description: "Meta status updated successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+      // React-Toastify success toast
+      toast.success("Meta status updated successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
       // Optimistic update
@@ -137,13 +152,17 @@ export const useMetaStatus = () => {
       return response;
     } catch (error) {
       console.error("Error updating meta status:", error);
-      toast({
-        title: "Error",
-        description: error?.data?.message || "Failed to update meta status",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+
+      // React-Toastify error toast
+      toast.error(error?.data?.message || "Failed to update meta status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+
       throw error;
     }
   };
@@ -155,26 +174,35 @@ export const useMetaStatus = () => {
         path: `/lead/meta-status/${id}`,
       }).unwrap();
 
-      toast({
-        title: "Success",
-        description: "Meta status deleted successfully",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+      // React-Toastify success toast
+      toast.success("Meta status deleted successfully", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
 
       // Optimistic delete
       setMetaStatuses((prev) => prev.filter((item) => item._id !== id));
       setTotalCount((prev) => prev - 1);
+
+      // Refetch to ensure data consistency
+      refetch();
     } catch (error) {
       console.error("Error deleting meta status:", error);
-      toast({
-        title: "Error",
-        description: error?.data?.message || "Failed to delete meta status",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+
+      // React-Toastify error toast
+      toast.error(error?.data?.message || "Failed to delete meta status", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
       });
+
       throw error;
     }
   };

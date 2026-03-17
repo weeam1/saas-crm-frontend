@@ -44,15 +44,14 @@ const LeadStatus = memo(() => {
 
   // Main Status Form
   const [formData, setFormData] = useState({
-    value: "",
     label: "",
     color: "#06B6D4",
     order: 1,
     meta_id: "",
+    metaStatus: null,
   });
   // Sub Status Form - Updated to match backend schema
   const [subFormData, setSubFormData] = useState({
-    value: "",
     label: "",
     color: "#6366F1",
     bgColor: "#6366F120",
@@ -166,11 +165,10 @@ const LeadStatus = memo(() => {
   const handleAddNew = () => {
     setEditingItem(null);
     setFormData({
-      value: "",
       label: "",
       color: "#06B6D4",
       order: 1,
-      meta_id: "",
+      metaStatus: null,
     });
     onOpen();
   };
@@ -178,11 +176,10 @@ const LeadStatus = memo(() => {
   const handleEdit = (item) => {
     setEditingItem(item);
     setFormData({
-      value: item.value || "",
       label: item.label || "",
       color: item.color || "#06B6D4",
       order: item.order || 1,
-      meta_id: item.meta_id || "",
+      metaStatus: item.metaStatus?._id || item.metaStatus || null, // Handle both populated and ID
     });
     onOpen();
   };
@@ -239,12 +236,11 @@ const LeadStatus = memo(() => {
   const handleEditSub = (item) => {
     setEditingSubItem(item);
     setSubFormData({
-      value: item.value || "",
       label: item.label || "",
       color: item.color || "#6366F1",
       bgColor: item.bgColor || "#6366F1",
       textColor: item.textColor || "#6366F1",
-      mainStatus: item.mainStatus?._id || item.mainStatus || "", // Handle both populated and ID
+      mainStatus: item.mainStatus[0]?._id || item.mainStatus || "", // Handle both populated and ID
       metaStatus: item.metaStatus?._id || item.metaStatus || null, // Handle both populated and ID
     });
     onSubModalOpen();
@@ -417,6 +413,14 @@ const LeadStatus = memo(() => {
           >
             Add Sub Status
           </Button>
+          <Button
+            leftIcon={<AddIcon />}
+            colorScheme="purple"
+            size="sm"
+            onClick={handleAddMetaId}
+          >
+            Add Meta ID
+          </Button>
         </Flex>
       </Flex>
 
@@ -434,9 +438,9 @@ const LeadStatus = memo(() => {
 
       <Tabs onChange={(index) => setActiveTab(index)}>
         <TabList px={4} pt={2}>
-          <Tab>Main Status ({mainTotalCount})</Tab>
-          <Tab>Sub Status ({subTotalCount})</Tab>
-          <Tab>Meta IDs ({metaTotalCount})</Tab>
+          <Tab>Main Status </Tab>
+          <Tab>Sub Status </Tab>
+          <Tab>Meta IDs </Tab>
         </TabList>
 
         <TabPanels>
@@ -469,7 +473,6 @@ const LeadStatus = memo(() => {
             <MetaIdTab
               metaIds={metaStatuses}
               isLoading={isMetaLoading}
-              onAdd={handleAddMetaId}
               onEdit={handleEditMetaId}
               onDelete={handleDeleteMetaId}
             />
@@ -489,6 +492,7 @@ const LeadStatus = memo(() => {
         onSubmit={handleSubmit}
         getRandomColor={getRandomColor}
         generateBgColor={generateBgColor}
+        metaStatuses={metaStatuses}
       />
 
       {/* Sub Status Modal */}
