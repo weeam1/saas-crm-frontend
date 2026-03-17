@@ -1,6 +1,11 @@
 import { Box, Button, Flex, Text, Select, Input } from '@chakra-ui/react';
 
-const RulesSection = ({ rules, setRules }) => {
+const RulesSection = ({
+	rules,
+	setRules,
+	absenceDeductionDays,
+	setAbsenceDeductionDays,
+}) => {
 	const handleRuleChange = (index, field, value) => {
 		const updatedRules = [...rules];
 		updatedRules[index] = { ...updatedRules[index], [field]: value };
@@ -87,7 +92,7 @@ const RulesSection = ({ rules, setRules }) => {
 									handleRuleChange(
 										index,
 										'coins',
-										e.target.value === '' ? '' : Number(e.target.value)
+										e.target.value === '' ? '' : Number(e.target.value),
 									)
 								}
 								w={{ base: '100%', md: '60px' }}
@@ -124,6 +129,40 @@ const RulesSection = ({ rules, setRules }) => {
 						</Box>
 					</Flex>
 				))}
+
+				<Flex
+					align={{ base: 'flex-start', md: 'center' }}
+					direction={{ base: 'column', md: 'row' }}
+					gap={{ base: 2, md: 4 }}
+					mb={4}
+					justify='flex-start'
+				>
+					<Text
+						minW={{ base: '100%', md: '130px' }}
+						maxW={{ base: '100%', md: '130px' }}
+						fontWeight='500'
+						// isTruncated
+						fontSize='16px'
+					>
+						Absence Deduction Days
+					</Text>
+					<Input
+						size='sm'
+						value={absenceDeductionDays}
+						onChange={(e) =>
+							setAbsenceDeductionDays(
+								e.target.value === '' ? '' : Number(e.target.value),
+							)
+						}
+						w={{ base: '100%', md: '60px' }}
+						minW={{ base: '100%', md: '60px' }}
+						maxW={{ base: '100%', md: '60px' }}
+						type='number'
+						fontSize='16px'
+						fontWeight='400'
+						borderRadius='5px'
+					/>
+				</Flex>
 			</Box>
 		</Box>
 	);

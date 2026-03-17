@@ -58,6 +58,7 @@ const OfficeSettings = ({ userId }) => {
 	const [officeOffDays, setOfficeOffDays] = useState([0]);
 	const [officeGracePeriod, setOfficeGracePeriod] = useState(0);
 	const [monthlyLateLimit, setMonthlyLateLimit] = useState(0);
+	const [absenceDeductionDays, setAbsenceDeductionDays] = useState(1);
 	const [monthlyEarlyCheckoutLimit, setMonthlyEarlyCheckoutLimit] = useState(0);
 
 	// const [isMobile, setIsMobile] = useState(false);
@@ -188,6 +189,7 @@ const OfficeSettings = ({ userId }) => {
 				earlyCheckoutDeductionRules:
 					settings?.earlyCheckoutDeductionRules || [],
 			});
+			setAbsenceDeductionDays(settings?.absenceDeductionDays || 1);
 
 			if (settings?.rules) {
 				const transformedRules = settings?.rules.map((rule) => {
@@ -271,6 +273,7 @@ const OfficeSettings = ({ userId }) => {
 				agency: agencyId,
 				rules: transformedRules,
 				monthlyLateLimit,
+				absenceDeductionDays,
 				monthlyEarlyCheckoutLimit,
 				...lateDeductionSettings,
 				...earlyCheckoutDeductionSettings,
@@ -475,7 +478,12 @@ const OfficeSettings = ({ userId }) => {
 				</Box>
 
 				<Flex flexDir={{ base: 'column', lg: 'row' }}>
-					<RulesSection rules={rules} setRules={setRules} />
+					<RulesSection
+						rules={rules}
+						setRules={setRules}
+						absenceDeductionDays={absenceDeductionDays}
+						setAbsenceDeductionDays={setAbsenceDeductionDays}
+					/>
 				</Flex>
 
 				<Buttons
