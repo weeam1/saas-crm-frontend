@@ -87,7 +87,7 @@ const RulesSection = ({ rules, setRules }) => {
 									handleRuleChange(
 										index,
 										'coins',
-										e.target.value === '' ? '' : Number(e.target.value)
+										e.target.value === '' ? '' : Number(e.target.value),
 									)
 								}
 								w={{ base: '100%', md: '60px' }}

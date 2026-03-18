@@ -11,6 +11,12 @@ import {
 	Alert,
 	AlertIcon,
 	Divider,
+	NumberInput,
+	NumberInputField,
+	NumberInputStepper,
+	NumberIncrementStepper,
+	NumberDecrementStepper,
+	HStack,
 } from '@chakra-ui/react';
 import { CiEdit } from 'react-icons/ci';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -58,6 +64,7 @@ const OfficeSettings = ({ userId }) => {
 	const [officeOffDays, setOfficeOffDays] = useState([0]);
 	const [officeGracePeriod, setOfficeGracePeriod] = useState(0);
 	const [monthlyLateLimit, setMonthlyLateLimit] = useState(0);
+	const [absenceDeductionDays, setAbsenceDeductionDays] = useState(1);
 	const [monthlyEarlyCheckoutLimit, setMonthlyEarlyCheckoutLimit] = useState(0);
 
 	// const [isMobile, setIsMobile] = useState(false);
@@ -188,6 +195,7 @@ const OfficeSettings = ({ userId }) => {
 				earlyCheckoutDeductionRules:
 					settings?.earlyCheckoutDeductionRules || [],
 			});
+			setAbsenceDeductionDays(settings?.absenceDeductionDays || 1);
 
 			if (settings?.rules) {
 				const transformedRules = settings?.rules.map((rule) => {
@@ -271,6 +279,7 @@ const OfficeSettings = ({ userId }) => {
 				agency: agencyId,
 				rules: transformedRules,
 				monthlyLateLimit,
+				absenceDeductionDays,
 				monthlyEarlyCheckoutLimit,
 				...lateDeductionSettings,
 				...earlyCheckoutDeductionSettings,
@@ -474,8 +483,56 @@ const OfficeSettings = ({ userId }) => {
 					</VStack>
 				</Box>
 
-				<Flex flexDir={{ base: 'column', lg: 'row' }}>
+				<Flex alignItems='center' flexDir={{ base: 'column', lg: 'row' }}>
 					<RulesSection rules={rules} setRules={setRules} />
+
+					<Box
+						display='inline-flex'
+						flexDirection='column'
+						bg='white'
+						border='1px solid'
+						borderColor='gray.200'
+						borderRadius='lg'
+						p={6}
+						w={{ base: '100%', md: '420px' }}
+						// h='fit-content'
+					>
+						<HStack justify='space-between' align='center' gap={4}>
+							<VStack align='start' spacing={1} flex='1'>
+								<Text fontWeight='600' fontSize={{ base: 'sm', md: 'md' }}>
+									Salary Deduction per Absence
+								</Text>
+
+								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									Number of salary days deducted for one absence.
+								</Text>
+							</VStack>
+
+							<NumberInput
+								value={absenceDeductionDays}
+								onChange={(v) => setAbsenceDeductionDays(Number(v))}
+								min={1}
+								max={30}
+								step={1}
+								size='sm'
+								w='90px'
+								clampValueOnBlur
+								keepWithinRange
+								allowMouseWheel
+							>
+								<NumberInputField textAlign='center' fontWeight='600' />
+								<NumberInputStepper>
+									<NumberIncrementStepper />
+									<NumberDecrementStepper />
+								</NumberInputStepper>
+							</NumberInput>
+						</HStack>
+
+						<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.400' mt={2}>
+							Example: 1 absence → {absenceDeductionDays || 1} salary day(s)
+							deducted
+						</Text>
+					</Box>
 				</Flex>
 
 				<Buttons
