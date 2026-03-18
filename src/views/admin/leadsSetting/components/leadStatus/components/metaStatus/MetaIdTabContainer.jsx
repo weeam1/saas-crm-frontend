@@ -6,6 +6,7 @@ import MetaIdTab from "./MetaIdTab";
 import MetaIdModal from "./MetaIdModal";
 import TopPagination from "components/pagination/TopPagination";
 import DeleteConfirmationModal from "views/admin/payroll/components/DeleteConfirmationModal";
+import CountUpComponent from "components/countUpComponent/countUpComponent";
 
 const MetaIdTabContainer = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -130,8 +131,9 @@ const MetaIdTabContainer = () => {
   return (
     <Box>
       <Flex justify="space-between" align="center" p={4}>
-        <Text fontSize="lg" fontWeight="semibold">
-          Meta IDs
+        <Text color={"gray.900"} fontSize="20px" fontWeight="500">
+          <span style={{ marginRight: "4px" }}>Meta IDs</span>
+          <CountUpComponent targetNumber={totalCount} />
         </Text>
 
         <Button
@@ -189,7 +191,7 @@ const MetaIdTabContainer = () => {
         onConfirm={handleConfirmDelete}
         title="Delete Meta ID"
         itemName={deletingItem?.key}
-        extraText="This action cannot be undone"
+        extraText="Deleting this Meta ID will disconnect it from all leads and statuses (Main Status & Sub Status) that are currently using it. This action cannot be undone."
         confirmText="Delete"
         cancelText="Cancel"
         isLoading={isDeleting}

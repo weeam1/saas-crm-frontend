@@ -53,14 +53,14 @@ const MainStatusTab = ({
   // Fetch all main statuses for replacements
   const { data: replacementsData, isLoading: isLoadingReplacements } =
     useFetchItemsQuery(
-      deleteModalOpen && selectedStatus
-        ? {
-            path: "/lead/main-status",
-            params: { includeSubStatuses: true, limit: 100 }, // Fetch all for replacements
-          }
-        : { skip: true },
+      {
+        path: "/lead/main-status",
+        params: { includeSubStatuses: true, limit: 100 }, // Fetch all for replacements
+      },
+
       {
         refetchOnMountOrArgChange: false,
+        skip: !deleteModalOpen && !selectedStatus, // Only fetch when delete modal is open and a status is selected
       },
     );
 
@@ -190,7 +190,10 @@ const MainStatusTab = ({
                         onClick={() => onEdit(status)}
                         aria-label="Edit status"
                         isLoading={isUpdating && deletingId === status._id}
-                        isDisabled={isDeleting}
+                        isDisabled={
+                          isDeleting ||
+                          ["deal", "new", "show"].includes(status.value)
+                        }
                       />
                     </Tooltip>
 
@@ -203,7 +206,10 @@ const MainStatusTab = ({
                         onClick={() => handleDeleteClick(status)}
                         aria-label="Delete status"
                         isLoading={isDeleting && deletingId === status._id}
-                        isDisabled={isDeleting}
+                        isDisabled={
+                          isDeleting ||
+                          ["deal", "new", "show"].includes(status.value)
+                        }
                         _hover={{ bg: "red.50", color: "red.500" }}
                       />
                     </Tooltip>

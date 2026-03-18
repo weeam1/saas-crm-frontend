@@ -226,6 +226,7 @@ import { useMainStatus } from "../../../../hooks/useMainStatus";
 import MainStatusTab from "./MainStatusTab";
 import StatusModal from "./StatusModal";
 import TopPagination from "components/pagination/TopPagination";
+import CountUpComponent from "components/countUpComponent/countUpComponent";
 
 const MainStatusTabContainer = ({ metaStatuses }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -377,8 +378,9 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
   return (
     <Box>
       <Flex justify="space-between" align="center" p={4}>
-        <Text fontSize="lg" fontWeight="semibold">
-          Main Status
+        <Text color={"gray.900"} fontSize="20px" fontWeight="500">
+          <span style={{ marginRight: "4px" }}>Main Status</span>
+          <CountUpComponent targetNumber={totalCount} />
         </Text>
 
         <Button

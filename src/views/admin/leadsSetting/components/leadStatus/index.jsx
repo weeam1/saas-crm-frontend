@@ -5,10 +5,13 @@ import SubStatusTabContainer from "./components/subStatus/SubStatusTabContainer"
 import MetaIdTabContainer from "./components/metaStatus/MetaIdTabContainer";
 import { useMainStatus } from "../../hooks/useMainStatus";
 import { useMetaStatus } from "../../hooks/useMetaStatus";
-
+import { ArrowBackIcon } from "@chakra-ui/icons";
+import { useNavigate } from "react-router-dom";
+import { IoArrowBack } from "react-icons/io5";
+import AppButton from "components/shared/AppButton";
 const LeadStatus = memo(() => {
   const [activeTab, setActiveTab] = useState(0);
-
+  const navigate = useNavigate();
   // Only fetch main statuses and meta statuses once for the modals
   const { mainStatuses } = useMainStatus(1, 1000); // Get all for dropdown
   const { metaStatuses } = useMetaStatus(1, 1000); // Get all for dropdown
@@ -24,6 +27,9 @@ const LeadStatus = memo(() => {
   return (
     <Box>
       {/* Tabs */}
+      <AppButton mb="3" leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
+        Back
+      </AppButton>
       <Flex
         width="fit-content"
         overflowX="auto"

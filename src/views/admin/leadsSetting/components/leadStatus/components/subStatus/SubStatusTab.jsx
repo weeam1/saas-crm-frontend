@@ -54,14 +54,13 @@ const SubStatusTab = ({
     isSuccess,
     error,
   } = useFetchItemsQuery(
-    selectedStatus?.mainStatus?._id && deleteModalOpen
-      ? {
-          path: `/lead/main-status/${selectedStatus.mainStatus._id}`,
-          params: { includeSubStatuses: true }, // This should create ?includeSubStatuses=true
-        }
-      : { skip: true },
+    {
+      path: `/lead/main-status/${selectedStatus?.mainStatus?._id}`,
+      params: { includeSubStatuses: true },
+    },
     {
       refetchOnMountOrArgChange: false,
+      skip: !selectedStatus?.mainStatus?._id && !deleteModalOpen,
     },
   );
 
@@ -154,9 +153,10 @@ const SubStatusTab = ({
                 >
                   <Td textAlign="center">
                     {status?.mainStatus ? (
-                      <Badge colorScheme="teal" textTransform="none">
-                        {status.mainStatus.label}
-                      </Badge>
+                      <StatusBadge
+                        status={status?.mainStatus}
+                        generateBgColor={generateBgColor}
+                      />
                     ) : (
                       "—"
                     )}

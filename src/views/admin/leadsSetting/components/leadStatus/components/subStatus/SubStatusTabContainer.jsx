@@ -5,6 +5,7 @@ import { useSubStatus } from "../../../../hooks/useSubStatus";
 import SubStatusTab from "./SubStatusTab";
 import SubStatusModal from "./SubStatusModal";
 import TopPagination from "components/pagination/TopPagination";
+import CountUpComponent from "components/countUpComponent/countUpComponent";
 // Remove DeleteConfirmationModal import
 
 const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
@@ -121,13 +122,13 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
   };
 
   const generateBgColor = (hex, percent = 80) => {
-    const cleanHex = hex.replace("#", "");
-    const r = parseInt(cleanHex.substring(0, 2), 16);
-    const g = parseInt(cleanHex.substring(2, 4), 16);
-    const b = parseInt(cleanHex.substring(4, 6), 16);
-    const newR = Math.round(r + (255 - r) * (percent / 100));
-    const newG = Math.round(g + (255 - g) * (percent / 100));
-    const newB = Math.round(b + (255 - b) * (percent / 100));
+    const cleanHex = hex?.replace("#", "");
+    const r = parseInt(cleanHex?.substring(0, 2), 16);
+    const g = parseInt(cleanHex?.substring(2, 4), 16);
+    const b = parseInt(cleanHex?.substring(4, 6), 16);
+    const newR = Math?.round(r + (255 - r) * (percent / 100));
+    const newG = Math?.round(g + (255 - g) * (percent / 100));
+    const newB = Math?.round(b + (255 - b) * (percent / 100));
     return `#${[newR, newG, newB].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
   };
 
@@ -165,10 +166,10 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
   return (
     <Box>
       <Flex justify="space-between" align="center" p={4}>
-        <Text fontSize="lg" fontWeight="semibold">
-          Sub Status
+        <Text color={"gray.900"} fontSize="20px" fontWeight="500">
+          <span style={{ marginRight: "4px" }}> Sub Status</span>
+          <CountUpComponent targetNumber={totalCount} />
         </Text>
-
         <Button
           {...buttonStyle}
           leftIcon={<AddIcon />}
