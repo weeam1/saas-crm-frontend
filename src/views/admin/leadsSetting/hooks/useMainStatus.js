@@ -119,11 +119,26 @@ export const useMainStatus = (initialPage = 1, initialLimit = 20) => {
     }
   };
 
-  // Delete main status
-  const deleteStatus = async (id) => {
+  // In useMainStatus.js, update the deleteStatus function:
+
+  const deleteStatus = async (id, replacementStatusId = null) => {
     try {
+      console.log(
+        "Deleting main status with ID:",
+        id,
+        "and replacement ID:",
+        replacementStatusId,
+      );
+
+      // Prepare the request body
+      const requestBody = {};
+      if (replacementStatusId) {
+        requestBody.replacementStatusId = replacementStatusId;
+      }
+
       await deleteMainStatus({
         path: `/lead/main-status/${id}`,
+        body: requestBody, // Send replacement ID in body
       }).unwrap();
 
       setMainStatuses((prev) => prev.filter((item) => item._id !== id));

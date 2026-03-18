@@ -80,10 +80,10 @@ const DeleteConfirmationModal = ({
   const hasReplacements =
     availableReplacements && availableReplacements.length > 0;
 
+  // In DeleteConfirmationModal.jsx, make sure the onConfirm is called with the selectedReplacementId
   const handleConfirm = () => {
     onConfirm(selectedReplacementId);
   };
-
   const getWarningIcon = () => {
     switch (warningType) {
       case "error":
@@ -227,12 +227,15 @@ const DeleteConfirmationModal = ({
                     _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
                     mb={2}
                   >
-                    {availableReplacements.map((item) => (
-                      <option key={item._id} value={item._id}>
-                        {item.label}{" "}
-                        {item.mainStatus ? `(${item.mainStatus.label})` : ""}
-                      </option>
-                    ))}
+                    {availableReplacements.map((item) => {
+                      console.log("Available replacement item:", item); // Debug log to check the structure of replacement items
+                      return (
+                        <option key={item._id} value={item._id}>
+                          {item.label}{" "}
+                          {item.mainStatus ? `(${item.mainStatus.label})` : ""}
+                        </option>
+                      );
+                    })}
                   </Select>
                   <Text fontSize="sm" color="gray.500">
                     All tickets using "{itemName}" will be automatically updated

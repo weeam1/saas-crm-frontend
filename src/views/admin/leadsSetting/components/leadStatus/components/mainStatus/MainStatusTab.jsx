@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Box,
   Table,
@@ -13,11 +13,14 @@ import {
   useColorModeValue,
   Text,
   HStack,
+  Tooltip,
 } from "@chakra-ui/react";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import NoData from "components/Message/NoData";
 import TableSkeleton from "../../../TableSkeleton";
 import StatusBadge from "../../../StatusBadge";
+import DeleteConfirmationModal from "../../DeleteModal";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const MainStatusTab = ({
   mainStatuses,
@@ -32,15 +35,78 @@ const MainStatusTab = ({
   const hoverBg = useColorModeValue("gray.50", "gray.600");
   const thBg = useColorModeValue("brand.200", "gray.700");
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [availableReplacements, setAvailableReplacements] = useState([]);
+
   const columns = useMemo(
     () => [
       { Header: "Order", accessor: "order", width: 80 },
       { Header: "Name", accessor: "label", width: 150 },
+      { Header: "Coin Cost", accessor: "coinCost", width: 100 }, // New column
       { Header: "Meta Status", accessor: "metaStatus", width: 180 },
       { Header: "Actions", accessor: "actions", width: 100 },
     ],
     [],
   );
+
+  // Fetch all main statuses for replacements
+  const { data: replacementsData, isLoading: isLoadingReplacements } =
+    useFetchItemsQuery(
+      deleteModalOpen && selectedStatus
+        ? {
+            path: "/lead/main-status",
+            params: { includeSubStatuses: true, limit: 100 }, // Fetch all for replacements
+          }
+        : { skip: true },
+      {
+        refetchOnMountOrArgChange: false,
+      },
+    );
+
+  // Process the replacements data when it's received
+  useEffect(() => {
+    if (replacementsData?.doc && selectedStatus) {
+      console.log(
+        "Processing main status replacements data:",
+        replacementsData.doc,
+      );
+
+      // Filter out the current status from all main statuses
+      const filtered = replacementsData.doc.filter(
+        (status) => status._id !== selectedStatus._id,
+      );
+
+      console.log("Filtered main status replacements:", filtered);
+      setAvailableReplacements(filtered);
+    } else {
+      setAvailableReplacements([]);
+    }
+  }, [replacementsData, selectedStatus]);
+
+  const hasReplacements = availableReplacements.length > 0;
+
+  const handleDeleteClick = (status) => {
+    console.log("Delete clicked for main status:", status);
+    setSelectedStatus(status);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = (replacementId) => {
+    if (selectedStatus) {
+      // Pass both the ID and the replacement ID to the parent
+      onDelete(selectedStatus._id, selectedStatus.label, replacementId);
+    }
+    setDeleteModalOpen(false);
+    setSelectedStatus(null);
+    setAvailableReplacements([]);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setSelectedStatus(null);
+    setAvailableReplacements([]);
+  };
 
   return (
     <Box maxHeight="60vh" overflowY="auto" scrollBehavior="smooth">
@@ -69,13 +135,36 @@ const MainStatusTab = ({
             <TableSkeleton columns={columns} rowCount={5} />
           ) : mainStatuses.length > 0 ? (
             mainStatuses.map((status) => (
-              <Tr key={status._id} _hover={{ bg: hoverBg }}>
+              <Tr
+                key={status._id}
+                _hover={{ bg: hoverBg }}
+                opacity={isDeleting && deletingId === status._id ? 0.5 : 1}
+                transition="opacity 0.2s"
+              >
                 <Td textAlign="center">{status.order || "-"}</Td>
                 <Td textAlign="center">
                   <StatusBadge
                     status={status}
                     generateBgColor={generateBgColor}
                   />
+                </Td>
+
+                {/* New Coin Cost column */}
+                <Td textAlign="center">
+                  {status.coinCost ? (
+                    <Badge
+                      colorScheme="green"
+                      px={2}
+                      py={1}
+                      borderRadius="full"
+                    >
+                      {status.coinCost}
+                    </Badge>
+                  ) : (
+                    <Text fontSize="xs" color="gray.400">
+                      —
+                    </Text>
+                  )}
                 </Td>
 
                 <Td textAlign="center">
@@ -92,24 +181,32 @@ const MainStatusTab = ({
 
                 <Td textAlign="center">
                   <HStack spacing={1} justify="center">
-                    <IconButton
-                      icon={<EditIcon />}
-                      size="xs"
-                      colorScheme="blue"
-                      variant="ghost"
-                      onClick={() => onEdit(status)}
-                      aria-label="Edit status"
-                      isLoading={isUpdating && deletingId === status._id}
-                    />
-                    {/* <IconButton
-                      icon={<DeleteIcon />}
-                      size="xs"
-                      colorScheme="red"
-                      variant="ghost"
-                      onClick={() => onDelete(status._id, status.label)}
-                      aria-label="Delete status"
-                      isLoading={isDeleting && deletingId === status._id}
-                    /> */}
+                    <Tooltip label="Edit main status" hasArrow>
+                      <IconButton
+                        icon={<EditIcon />}
+                        size="xs"
+                        colorScheme="blue"
+                        variant="ghost"
+                        onClick={() => onEdit(status)}
+                        aria-label="Edit status"
+                        isLoading={isUpdating && deletingId === status._id}
+                        isDisabled={isDeleting}
+                      />
+                    </Tooltip>
+
+                    <Tooltip label="Delete main status" hasArrow>
+                      <IconButton
+                        icon={<DeleteIcon />}
+                        size="xs"
+                        colorScheme="red"
+                        variant="ghost"
+                        onClick={() => handleDeleteClick(status)}
+                        aria-label="Delete status"
+                        isLoading={isDeleting && deletingId === status._id}
+                        isDisabled={isDeleting}
+                        _hover={{ bg: "red.50", color: "red.500" }}
+                      />
+                    </Tooltip>
                   </HStack>
                 </Td>
               </Tr>
@@ -123,6 +220,21 @@ const MainStatusTab = ({
           )}
         </Tbody>
       </Table>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Delete Main Status"
+        itemName={selectedStatus?.label}
+        mainStatusName="Main Status"
+        itemType="main status"
+        availableReplacements={availableReplacements}
+        isLoading={isLoadingReplacements || isDeleting}
+        warningType={!hasReplacements ? "error" : "warning"}
+        confirmText="Delete Status"
+      />
     </Box>
   );
 };

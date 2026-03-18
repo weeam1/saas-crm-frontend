@@ -5,17 +5,11 @@ import { useSubStatus } from "../../../../hooks/useSubStatus";
 import SubStatusTab from "./SubStatusTab";
 import SubStatusModal from "./SubStatusModal";
 import TopPagination from "components/pagination/TopPagination";
-import DeleteConfirmationModal from "views/admin/payroll/components/DeleteConfirmationModal";
+// Remove DeleteConfirmationModal import
 
 const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
-  } = useDisclosure();
   const [editingItem, setEditingItem] = useState(null);
-  const [deletingItem, setDeletingItem] = useState(null);
   const [formData, setFormData] = useState({
     label: "",
     color: "#6366F1",
@@ -74,24 +68,16 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
     onOpen();
   };
 
-  // Handle delete button click - open confirmation modal
-  const handleDeleteClick = (id, label) => {
+  // This function will be called from SubStatusTab after confirmation
+  const handleDelete = async (id, label, replacementId) => {
+    console.log("Delete confirmed with ID:", id, "replacement:", replacementId);
     setDeletingId(id);
-    setDeletingItem({ id, label });
-    onDeleteOpen();
-  };
-
-  // Handle confirm delete
-  const handleConfirmDelete = async () => {
-    if (!deletingItem) return;
-
     try {
-      await deleteStatus(deletingItem.id);
-      onDeleteClose();
-      setDeletingItem(null);
-      setDeletingId(null);
+      await deleteStatus(id, replacementId);
     } catch (error) {
       console.error("Error deleting:", error);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -144,6 +130,7 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
     const newB = Math.round(b + (255 - b) * (percent / 100));
     return `#${[newR, newG, newB].map((x) => x.toString(16).padStart(2, "0")).join("")}`;
   };
+
   const buttonStyle = {
     size: "sm",
     borderRadius: "md",
@@ -158,8 +145,9 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
         borderRadius: "full",
         p: ".5px",
       },
-    }, // ✅ Only changes icon color
+    },
   };
+
   const getRandomColor = () => {
     const colors = [
       "#6366F1",
@@ -212,7 +200,7 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
         subStatuses={subStatuses}
         isLoading={isLoading}
         onEdit={handleEdit}
-        onDelete={handleDeleteClick} // Updated to use the new handler
+        onDelete={handleDelete} // Now this directly calls delete with replacement ID
         generateBgColor={generateBgColor}
         onFilterByParent={filterByParent}
         mainStatuses={mainStatuses}
@@ -236,18 +224,7 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
         isSubmitting={isSubmitting || isCreating || isUpdating}
       />
 
-      {/* Delete Confirmation Modal */}
-      <DeleteConfirmationModal
-        isOpen={isDeleteOpen}
-        onClose={onDeleteClose}
-        onConfirm={handleConfirmDelete}
-        title="Delete Sub Status"
-        itemName={deletingItem?.label}
-        extraText="This action cannot be undone"
-        confirmText="Delete"
-        cancelText="Cancel"
-        isLoading={isDeleting}
-      />
+      {/* DeleteConfirmationModal has been removed - SubStatusTab now handles the delete UI */}
     </Box>
   );
 };

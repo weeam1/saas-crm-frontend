@@ -109,11 +109,26 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
     }
   };
 
-  // Delete sub status
-  const deleteStatus = async (id) => {
+  // In useSubStatus.js, update the deleteStatus function:
+
+  const deleteStatus = async (id, replacementStatusId = null) => {
     try {
+      console.log(
+        "Deleting sub status with ID:",
+        id,
+        "and replacement ID:",
+        replacementStatusId,
+      );
+
+      // Prepare the request body
+      const requestBody = {};
+      if (replacementStatusId) {
+        requestBody.replacementStatusId = replacementStatusId;
+      }
+
       await deleteSubStatus({
         path: `/lead/sub-status/${id}`,
+        body: requestBody, // Send replacement ID in body, not in URL
       }).unwrap();
 
       toast.success("Sub status deleted successfully");
@@ -126,7 +141,6 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
       throw error;
     }
   };
-
   // Debounced search handler
   const debouncedSearch = useCallback(
     debounce((searchTerm) => {
