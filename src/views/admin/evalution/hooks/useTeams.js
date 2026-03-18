@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { cleanSearchParams } from "utils";
 
-export const useUserEvalution = () => {
+export const useTeams = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const agencies = useSelector((s) => (s.util && s.util.agencies) || []);
   const { hasPermission } = usePermissions();

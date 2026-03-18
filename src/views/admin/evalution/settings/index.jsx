@@ -9,7 +9,7 @@ import {
 import { FaEnvelopeOpenText, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-const LeadSettings = () => {
+const Setting = () => {
   const navigate = useNavigate();
 
   const iconBg = useColorModeValue(
@@ -25,19 +25,18 @@ const LeadSettings = () => {
     "rgba(255, 255, 255, 0.06)",
   );
 
-  // Array of card objects - just add new objects here
   const cards = [
     {
       id: 1,
-      title: "Lead Invitation",
+      title: "Evaluation Templates",
       icon: FaEnvelopeOpenText,
-      path: "/leads-settings/lead-invitation",
+      path: "/evaluation/templates",
     },
     {
       id: 2,
-      title: "Lead Status",
+      title: "Teams",
       icon: FaUserPlus,
-      path: "/leads-settings/lead-status",
+      path: "/evaluation/teams",
     },
   ];
 
@@ -95,4 +94,4 @@ const LeadSettings = () => {
   );
 };
 
-export default LeadSettings;
+export default Setting;

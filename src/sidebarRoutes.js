@@ -286,8 +286,8 @@ export const sidebarRoutes = [
       },
       {
         // id: "leads_setting",
-        name: "Leads Setting",
-        path: "/leads-settings",
+        name: "Setting",
+        path: "/lead_setting",
       },
     ],
   },

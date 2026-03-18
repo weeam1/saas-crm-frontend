@@ -140,6 +140,12 @@ const EditEvaluationForm = React.lazy(
 const EvaluateSettings = React.lazy(
   () => import("views/admin/evalution/settings/index"),
 );
+const TemplateSettings = React.lazy(
+  () => import("views/admin/evalution/evaluation-templates/index"),
+);
+const TeamsSettings = React.lazy(
+  () => import("views/admin/evalution/teams/index"),
+);
 
 // Finance
 const IncomingCash = React.lazy(
@@ -379,9 +385,9 @@ const routes = [
   {
     parent: "leads",
     // childId: "leads_setting",
-    name: "Leads Setting",
+    name: "Setting",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/leads-settings",
+    path: "/lead_setting",
     component: LeadsSetting,
   },
   {
@@ -709,6 +715,26 @@ const routes = [
     path: "/evaluation/settings",
     parentName: "evaluation",
     component: EvaluateSettings,
+  },
+  {
+    parent: "evaluation",
+    // childId: "settings",
+    name: "Template Settings",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "evaluation",
+    path: "/evaluation/templates",
+    parentName: "evaluation",
+    component: TemplateSettings,
+  },
+  {
+    parent: "evaluation",
+    // childId: "settings",
+    name: "Teams Settings",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    under: "evaluation",
+    path: "/evaluation/teams",
+    parentName: "evaluation",
+    component: TeamsSettings,
   },
 
   //****** Finance routes *********//
