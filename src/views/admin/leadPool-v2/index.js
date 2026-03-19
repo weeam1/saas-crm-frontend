@@ -11,10 +11,12 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { usePermissions } from 'hooks/usePermissions';
 import { fetchAgentLeadsStats } from 'api';
 import { useCreateItemMutation } from 'api/apiSlice';
+import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const Index = () => {
 	// const user = JSON.parse(localStorage.getItem('user'));
 	const { user } = useUserSession();
+	const { leadStatuses } = useLeadStatuses();
 	const { createUserLog } = useUserActivityLog();
 
 	const { hasPermission } = usePermissions();
@@ -344,7 +346,12 @@ const Index = () => {
 			const currentCoins = userResponse?.data?.coins || 0;
 
 			const lead = data.find((l) => l._id === leadId);
-			const coinCost = lead?.eLeadStatus === 'new' ? 300 : 50;
+			const leadStatus = leadStatuses.find(
+				(l) => l.value === lead?.eLeadStatus,
+			);
+			const coinCost = leadStatus?.coinCost || 50;
+
+			console.log({ leadStatus, coinCost });
 
 			if (currentCoins < coinCost) {
 				throw new Error(
