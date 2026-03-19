@@ -21,8 +21,11 @@ import TopPagination from "components/pagination/TopPagination";
 import TableLoading from "components/loading/TableLoading";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { toast } from "react-toastify";
-
+import AppButton from "components/shared/AppButton";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 const Templates = () => {
+  const navigate = useNavigate();
   const [tableData, setTableData] = useState();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -68,7 +71,7 @@ const Templates = () => {
 
   const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
     { path: `/evaluation/templates/roles`, params: buildQueryParams() },
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
   useEffect(() => {
     if (data) {
@@ -136,197 +139,202 @@ const Templates = () => {
   })();
 
   return (
-    <Box
-      overflowY="auto"
-      scrollBehavior="smooth"
-      boxShadow="sm"
-      bg="white"
-      px={2}
-      mt={"-16px"}
-    >
-      <Flex
-        justifyContent="space-between"
-        alignItems={{ base: "normal", sm: "normal", md: "center" }}
-        p={3}
-        flexDir={{ base: "column", sm: "column", md: "row" }}
-      >
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
-          Evaluation Templates
-        </Text>
-
-        <Box
-          gap={2}
-          display="flex"
-          alignItems="center"
-          flexDir={{ base: "column", sm: "column", md: "row" }}
-          justifyContent={{ base: "center", sm: "center", md: "normal" }}
-        >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh"
-            variant="outline"
-            onClick={() => refetch()}
-            loading={isLoading || isFetching}
-            size="sm"
-          />
-        </Box>
-      </Flex>
-      <Box my={2}>
-        <TopPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={totalItems}
-          itemsPerPage={pageSize}
-          setPageSize={setPageSize}
-          handlePageSize={handlePageSizeChange}
-          refetching={isLoading}
-          loading={isLoading}
-        />
-      </Box>
+    <>
+      <AppButton mb="6" leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
+        Back
+      </AppButton>
       <Box
-        borderRadius="lg"
+        overflowY="auto"
+        scrollBehavior="smooth"
         boxShadow="sm"
         bg="white"
-        maxH="85vh"
-        overflowY="auto"
+        px={2}
+        mt={"-16px"}
       >
-        <Table variant="striped" size="lg" bg="white">
-          <Thead
-            position="sticky"
-            top={0}
-            bg="white"
-            zIndex={2}
-            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
-            fontSize="16px"
-            borderRadius="lg"
+        <Flex
+          justifyContent="space-between"
+          alignItems={{ base: "normal", sm: "normal", md: "center" }}
+          p={3}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
+          <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+            Evaluation Templates
+          </Text>
+
+          <Box
+            gap={2}
+            display="flex"
+            alignItems="center"
+            flexDir={{ base: "column", sm: "column", md: "row" }}
+            justifyContent={{ base: "center", sm: "center", md: "normal" }}
           >
-            <Tr>
-              {columns.map((header, index) => (
-                <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text
-                      fontSize={{ base: "12px", md: "14px" }}
-                      fontWeight="600"
-                      color="gray.700"
-                      textTransform="capitalize"
+            <IconButton
+              icon={<FiRefreshCw />}
+              aria-label="Refresh"
+              variant="outline"
+              onClick={() => refetch()}
+              loading={isLoading || isFetching}
+              size="sm"
+            />
+          </Box>
+        </Flex>
+        <Box my={2}>
+          <TopPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            totalItems={totalItems}
+            itemsPerPage={pageSize}
+            setPageSize={setPageSize}
+            handlePageSize={handlePageSizeChange}
+            refetching={isLoading}
+            loading={isLoading}
+          />
+        </Box>
+        <Box
+          borderRadius="lg"
+          boxShadow="sm"
+          bg="white"
+          maxH="85vh"
+          overflowY="auto"
+        >
+          <Table variant="striped" size="lg" bg="white">
+            <Thead
+              position="sticky"
+              top={0}
+              bg="white"
+              zIndex={2}
+              boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
+              fontSize="16px"
+              borderRadius="lg"
+            >
+              <Tr>
+                {columns.map((header, index) => (
+                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
                     >
-                      {header}
-                    </Text>
-                  </Box>
-                </Th>
-              ))}
-            </Tr>
-          </Thead>
-          {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={7} py="4" />
-          ) : (
-            <Tbody>
-              {tableData && tableData.length > 0 ? (
-                tableData.map((template, index) => (
-                  <Tr key={template.id}>
-                    <Td textAlign="center">
-                      <Badge
-                        colorScheme={getRoleBadgeColor(template.roleName)}
-                        fontSize="12px"
-                        px={3}
-                        py={1}
-                        borderRadius="full"
-                        fontWeight="600"
-                        textTransform="capitalize"
-                      >
-                        {template.roleName}
-                      </Badge>
-                    </Td>
-                    <Td maxW="300px">
                       <Text
-                        fontSize="14px"
-                        color="gray.600"
-                        noOfLines={2}
-                        title={template.description}
-                      >
-                        {template.description}
-                      </Text>
-                    </Td>
-                    <Td textAlign="center">
-                      <Badge
-                        colorScheme={template.hasTemplate ? "green" : "red"}
-                        fontSize="12px"
-                        px={3}
-                        py={1}
-                        borderRadius="full"
+                        fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="600"
+                        color="gray.700"
                         textTransform="capitalize"
                       >
-                        {template.hasTemplate ? "Available" : "Not Available"}
-                      </Badge>
-                    </Td>
-                    <Td textAlign="center">
-                      {template.hasTemplate ? (
-                        <HStack justify="center" spacing={2}>
+                        {header}
+                      </Text>
+                    </Box>
+                  </Th>
+                ))}
+              </Tr>
+            </Thead>
+            {isLoading || isFetching ? (
+              <TableLoading columns={columns} length={7} py="4" />
+            ) : (
+              <Tbody>
+                {tableData && tableData.length > 0 ? (
+                  tableData.map((template, index) => (
+                    <Tr key={template.id}>
+                      <Td textAlign="center">
+                        <Badge
+                          colorScheme={getRoleBadgeColor(template.roleName)}
+                          fontSize="12px"
+                          px={3}
+                          py={1}
+                          borderRadius="full"
+                          fontWeight="600"
+                          textTransform="capitalize"
+                        >
+                          {template.roleName}
+                        </Badge>
+                      </Td>
+                      <Td maxW="300px">
+                        <Text
+                          fontSize="14px"
+                          color="gray.600"
+                          noOfLines={2}
+                          title={template.description}
+                        >
+                          {template.description}
+                        </Text>
+                      </Td>
+                      <Td textAlign="center">
+                        <Badge
+                          colorScheme={template.hasTemplate ? "green" : "red"}
+                          fontSize="12px"
+                          px={3}
+                          py={1}
+                          borderRadius="full"
+                          fontWeight="600"
+                          textTransform="capitalize"
+                        >
+                          {template.hasTemplate ? "Available" : "Not Available"}
+                        </Badge>
+                      </Td>
+                      <Td textAlign="center">
+                        {template.hasTemplate ? (
+                          <HStack justify="center" spacing={2}>
+                            <IconButton
+                              icon={<FiEye />}
+                              size="sm"
+                              colorScheme="teal"
+                              variant="ghost"
+                              aria-label="View"
+                              onClick={() => handleOpenModal(template, "view")}
+                            />
+                            <IconButton
+                              icon={<FiEdit2 />}
+                              size="sm"
+                              variant="ghost"
+                              colorScheme="teal"
+                              aria-label="Edit"
+                              onClick={() => handleOpenModal(template, "edit")}
+                            />
+                          </HStack>
+                        ) : (
                           <IconButton
-                            icon={<FiEye />}
+                            icon={<FiPlus />}
                             size="sm"
-                            colorScheme="teal"
+                            colorScheme="green"
                             variant="ghost"
-                            aria-label="View"
-                            onClick={() => handleOpenModal(template, "view")}
+                            aria-label="Add"
+                            onClick={() => handleOpenModal(template, "add")}
                           />
-                          <IconButton
-                            icon={<FiEdit2 />}
-                            size="sm"
-                            variant="ghost"
-                            colorScheme="teal"
-                            aria-label="Edit"
-                            onClick={() => handleOpenModal(template, "edit")}
-                          />
-                        </HStack>
-                      ) : (
-                        <IconButton
-                          icon={<FiPlus />}
-                          size="sm"
-                          colorScheme="green"
-                          variant="ghost"
-                          aria-label="Add"
-                          onClick={() => handleOpenModal(template, "add")}
-                        />
-                      )}
+                        )}
+                      </Td>
+                    </Tr>
+                  ))
+                ) : (
+                  <Tr borderColor="gray.200" textAlign="center">
+                    <Td
+                      borderBottom="none"
+                      colSpan="13"
+                      fontSize={{ base: "12px", md: "15px" }}
+                      fontWeight="500"
+                      color="gray.500"
+                      textAlign="center"
+                    >
+                      <NoData label="listing" />
                     </Td>
                   </Tr>
-                ))
-              ) : (
-                <Tr borderColor="gray.200" textAlign="center">
-                  <Td
-                    borderBottom="none"
-                    colSpan="13"
-                    fontSize={{ base: "12px", md: "15px" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
-                    <NoData label="listing" />
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          )}
-        </Table>
-      </Box>
+                )}
+              </Tbody>
+            )}
+          </Table>
+        </Box>
 
-      {selectedRole && (
-        <TemplateModal
-          isOpen={isOpen}
-          onClose={onClose}
-          role={selectedRole}
-          mode={modalMode}
-          onSave={handleSaveTemplate}
-        />
-      )}
-    </Box>
+        {selectedRole && (
+          <TemplateModal
+            isOpen={isOpen}
+            onClose={onClose}
+            role={selectedRole}
+            mode={modalMode}
+            onSave={handleSaveTemplate}
+          />
+        )}
+      </Box>
+    </>
   );
 };
 

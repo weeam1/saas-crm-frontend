@@ -1,5 +1,4 @@
-// TeamForm.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   VStack,
@@ -10,294 +9,400 @@ import {
   FormLabel,
   Input,
   Textarea,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
   useColorModeValue,
   Divider,
-  IconButton,
-  Avatar,
-  Badge,
-  Wrap,
-  WrapItem,
   FormErrorMessage,
 } from "@chakra-ui/react";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Select from "react-select";
-import { FiX } from "react-icons/fi";
-
-// Mock employees data - replace with your actual API call
-const mockEmployees = [
-  {
-    value: "emp1",
-    label: "John Doe",
-    role: "Team Lead",
-    avatar: "https://bit.ly/dan-abramov",
-  },
-  {
-    value: "emp2",
-    label: "Sarah Wilson",
-    role: "SDR",
-    avatar: "https://bit.ly/sage-adebayo",
-  },
-  {
-    value: "emp3",
-    label: "Mike Chen",
-    role: "AE",
-    avatar: "https://bit.ly/prosper-baba",
-  },
-  {
-    value: "emp4",
-    label: "Emily Davis",
-    role: "SDR",
-    avatar: "https://bit.ly/code-beast",
-  },
-  {
-    value: "emp5",
-    label: "Alex Kumar",
-    role: "AE",
-    avatar: "https://bit.ly/kent-c-dodds",
-  },
-  {
-    value: "emp6",
-    label: "Lisa Wang",
-    role: "CSM",
-    avatar: "https://bit.ly/ryan-florence",
-  },
-  {
-    value: "emp7",
-    label: "Tom Harris",
-    role: "SDR",
-    avatar: "https://bit.ly/prosper-baba",
-  },
-];
+import MultiSelectWithBox from "./components/MultiSelect";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const TeamForm = ({
+  modalType,
+  isOpen,
   onClose,
   onSubmit,
-  initialData = null,
-  isEditing = false,
+  initialData = null, // Add this
+  isEditing = false, // Add this
+  isSubmitting = false, // Add this
 }) => {
-  const [employees] = useState(mockEmployees);
-
-  // Colors
-  const cardBg = useColorModeValue("white", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");
-  const headerBg = useColorModeValue("gray.50", "gray.600");
 
-  // Validation schema
+  // Separate search states for leader and members
+  const [leaderSearch, setLeaderSearch] = useState("");
+  const [membersSearch, setMembersSearch] = useState("");
+
+  // Debounced search states
+  const [debouncedLeaderSearch, setDebouncedLeaderSearch] = useState("");
+  const [debouncedMembersSearch, setDebouncedMembersSearch] = useState("");
+
+  // Track if user is actively searching
+  const [isLeaderSearching, setIsLeaderSearching] = useState(false);
+  const [isMembersSearching, setIsMembersSearching] = useState(false);
+
+  // Debounce for leader search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedLeaderSearch(leaderSearch);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [leaderSearch]);
+
+  // Debounce for members search
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedMembersSearch(membersSearch);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [membersSearch]);
+
+  // Build params object without undefined values
+  const getLeaderParams = () => {
+    const params = {
+      page: 1,
+      limit: 50,
+    };
+
+    // Only add search param if it exists and user is searching
+    if (
+      isLeaderSearching &&
+      debouncedLeaderSearch &&
+      debouncedLeaderSearch.trim() !== ""
+    ) {
+      params.search = debouncedLeaderSearch;
+    }
+
+    return params;
+  };
+
+  // Build params object without undefined values
+  const getMembersParams = () => {
+    const params = {
+      page: 1,
+      limit: 50,
+    };
+
+    // Only add search param if it exists and user is searching
+    if (
+      isMembersSearching &&
+      debouncedMembersSearch &&
+      debouncedMembersSearch.trim() !== ""
+    ) {
+      params.search = debouncedMembersSearch;
+    }
+
+    return params;
+  };
+
+  // Fetch employees for team leader - only when modal is open
+  const {
+    data: leaderResponse,
+    isLoading: isLoadingLeaders,
+    isFetching: isFetchingLeaders,
+  } = useFetchItemsQuery(
+    {
+      path: "/evaluation/users",
+      params: getLeaderParams(),
+    },
+    {
+      skip: !isOpen, // Skip query when modal is closed
+    },
+  );
+
+  // Fetch employees for team members - only when modal is open
+  const {
+    data: membersResponse,
+    isLoading: isLoadingMembers,
+    isFetching: isFetchingMembers,
+  } = useFetchItemsQuery(
+    {
+      path: "/evaluation/users",
+      params: getMembersParams(),
+    },
+    {
+      skip: !isOpen, // Skip query when modal is closed
+    },
+  );
+
+  // Transform leader data based on your API response structure
+  const leaders =
+    leaderResponse?.doc?.map((user) => ({
+      value: user._id,
+      label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
+      role: user.roles?.[0]?.roleName || "",
+    })) || [];
+
+  // Transform members data based on your API response structure
+  const employees =
+    membersResponse?.doc?.map((user) => ({
+      value: user._id,
+      label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
+      role: user.roles?.[0]?.roleName || "",
+    })) || [];
+
   const teamSchema = yup.object().shape({
-    name: yup
-      .string()
-      .required("Team name is required")
-      .min(3, "Team name must be at least 3 characters")
-      .max(50, "Team name cannot exceed 50 characters"),
-    description: yup
-      .string()
-      .max(200, "Description cannot exceed 200 characters")
-      .required("Description is required"),
+    name: yup.string().required("Team name is required"),
+    description: yup.string().required("Description is required"),
     teamLeader: yup.mixed().required("Team leader is required"),
     employees: yup
       .array()
       .min(1, "At least one employee is required")
-      .required("Employees are required"),
+      .required(),
   });
+  // Prepare default values from initialData for edit mode
+  const getDefaultValues = () => {
+    if (initialData && isEditing) {
+      console.log("Initial data for edit:", initialData); // Add this to debug
+
+      return {
+        name: initialData.name || "",
+        description: initialData.description || "",
+        teamLeader: initialData.leader // Changed from initialData.teamLeader to initialData.leader
+          ? {
+              value: initialData.leader._id, // Use leader._id directly
+              label:
+                initialData.leader.fullName ||
+                (initialData.leader.firstName && initialData.leader.lastName
+                  ? `${initialData.leader.firstName} ${initialData.leader.lastName}`.trim()
+                  : initialData.leader.name || ""),
+            }
+          : null,
+        employees: initialData.members?.map((member) => member._id) || [], // Just map to IDs
+      };
+    }
+    return {
+      name: "",
+      description: "",
+      teamLeader: null,
+      employees: [],
+    };
+  };
 
   const {
     register,
     handleSubmit,
     control,
     watch,
+    reset,
     setValue,
     formState: { errors, isValid },
   } = useForm({
-    mode: "onChange",
     resolver: yupResolver(teamSchema),
-    defaultValues: {
-      name: initialData?.name || "",
-      description: initialData?.description || "",
-      teamLeader: initialData?.teamLeader || null,
-      employees: initialData?.employees || [],
-    },
+    mode: "onChange",
+    defaultValues: getDefaultValues(),
   });
 
+  // Reset form when modal opens or initialData changes
+  useEffect(() => {
+    if (isOpen) {
+      reset(getDefaultValues());
+      // Reset search states but keep showing initial data
+      setLeaderSearch("");
+      setMembersSearch("");
+      setIsLeaderSearching(false);
+      setIsMembersSearching(false);
+      setDebouncedLeaderSearch("");
+      setDebouncedMembersSearch("");
+    }
+  }, [isOpen, initialData, isEditing, reset]);
+
   const selectedTeamLeader = watch("teamLeader");
-  const selectedEmployees = watch("employees");
 
-  // Custom styles for react-select
-  const selectStyles = {
-    control: (base, state) => ({
-      ...base,
-      borderColor: state.isFocused ? "brand.500" : borderColor,
-      boxShadow: state.isFocused ? "0 0 0 1px brand.500" : "none",
-      "&:hover": {
-        borderColor: "brand.400",
-      },
-      minHeight: "40px",
-      backgroundColor: cardBg,
-    }),
-    option: (base, { isFocused, isSelected }) => ({
-      ...base,
-      backgroundColor: isSelected
-        ? "brand.500"
-        : isFocused
-          ? "brand.50"
-          : "white",
-      color: isSelected ? "white" : "gray.700",
-      "&:active": {
-        backgroundColor: "brand.600",
-      },
-    }),
-    multiValue: (base) => ({
-      ...base,
-      backgroundColor: "brand.50",
-      borderRadius: "20px",
-      padding: "2px",
-    }),
-    multiValueLabel: (base) => ({
-      ...base,
-      color: "brand.700",
-      fontSize: "0.85rem",
-    }),
-    multiValueRemove: (base) => ({
-      ...base,
-      color: "brand.500",
-      "&:hover": {
-        backgroundColor: "brand.100",
-        color: "brand.700",
-      },
-    }),
-  };
+  const availableEmployees = employees.filter(
+    (emp) => emp.value !== selectedTeamLeader?.value,
+  );
 
-  // Format option label with avatar
-  const formatOptionLabel = ({ label, role, avatar }) => (
-    <HStack spacing={2}>
-      <Avatar size="xs" name={label} src={avatar} />
-      <Box>
-        <Text fontSize="sm">{label}</Text>
+  // Simple format option label without avatar
+  const formatOptionLabel = ({ label, role }) => (
+    <Box>
+      <Text fontSize="sm">{label}</Text>
+      {role && (
         <Text fontSize="xs" color="gray.500">
           {role}
         </Text>
-      </Box>
-    </HStack>
+      )}
+    </Box>
   );
 
   const submitHandler = (formData) => {
-    onSubmit(formData);
+    const payload = {
+      name: formData.name,
+      description: formData.description,
+      leader: formData.teamLeader?.value,
+      members: formData.employees,
+    };
+
+    onSubmit(payload);
+    // Don't close here - let the parent component handle closing after successful API call
+  };
+
+  // Handle leader search with search mode tracking
+  const handleLeaderSearchChange = (value) => {
+    setLeaderSearch(value);
+    if (value && value.trim() !== "") {
+      setIsLeaderSearching(true);
+    } else {
+      setIsLeaderSearching(false);
+    }
+  };
+
+  // Handle members search with search mode tracking
+  const handleMembersSearchChange = (value) => {
+    setMembersSearch(value);
+    if (value && value.trim() !== "") {
+      setIsMembersSearching(true);
+    } else {
+      setIsMembersSearching(false);
+    }
+  };
+
+  // Handle leader menu close - reset search but keep data
+  const handleLeaderMenuClose = () => {
+    setLeaderSearch("");
+    setIsLeaderSearching(false);
+    setDebouncedLeaderSearch("");
+  };
+
+  // Handle members menu close - reset search but keep data
+  const handleMembersMenuClose = () => {
+    setMembersSearch("");
+    setIsMembersSearching(false);
+    setDebouncedMembersSearch("");
   };
 
   return (
-    <Box>
-      <Box as="form" onSubmit={handleSubmit(submitHandler)}>
-        <VStack spacing={6} align="stretch">
-          {/* Team Name */}
-          <FormControl isInvalid={!!errors.name} isRequired>
-            <FormLabel fontWeight="600" color="gray.700">
-              Team Name
-            </FormLabel>
-            <Input
-              placeholder="e.g., Sales Team Alpha"
-              {...register("name")}
-              focusBorderColor="brand.500"
-              borderColor={borderColor}
-              size="md"
-            />
-            {errors.name && (
-              <FormErrorMessage>{errors.name.message}</FormErrorMessage>
-            )}
-          </FormControl>
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+      <ModalOverlay />
+      <ModalContent maxW="800px">
+        <ModalHeader>
+          {modalType === "create" ? "Create Team" : "Edit Team"}
+        </ModalHeader>
 
-          {/* Description */}
-          <FormControl isInvalid={!!errors.description} isRequired>
-            <FormLabel fontWeight="600" color="gray.700">
-              Description
-            </FormLabel>
-            <Textarea
-              placeholder="Describe the team purpose and responsibilities..."
-              {...register("description")}
-              focusBorderColor="brand.500"
-              borderColor={borderColor}
-              resize="vertical"
-              size="md"
-            />
-            {errors.description && (
-              <FormErrorMessage>{errors.description.message}</FormErrorMessage>
-            )}
-            <Text fontSize="xs" color="gray.500" mt={1}>
-              {watch("description")?.length || 0}/200 characters
-            </Text>
-          </FormControl>
+        <ModalCloseButton />
 
-          {/* Team Leader Select */}
-          <FormControl isInvalid={!!errors.teamLeader} isRequired>
-            <FormLabel fontWeight="600" color="gray.700">
-              Team Leader
-            </FormLabel>
-            <Controller
-              name="teamLeader"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  options={employees}
-                  formatOptionLabel={formatOptionLabel}
-                  placeholder="Select team leader..."
-                  isClearable
-                  styles={selectStyles}
+        <ModalBody pb={6}>
+          <Box as="form" onSubmit={handleSubmit(submitHandler)}>
+            <VStack spacing={6} align="stretch">
+              <FormControl isInvalid={!!errors.name}>
+                <FormLabel>Team Name</FormLabel>
+                <Input
+                  {...register("name")}
+                  placeholder="Enter team name"
+                  focusBorderColor="brand.500"
                 />
-              )}
-            />
-            {errors.teamLeader && (
-              <FormErrorMessage>{errors.teamLeader.message}</FormErrorMessage>
-            )}
-          </FormControl>
+                <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+              </FormControl>
 
-          {/* Employees Multi-Select */}
-          <FormControl isInvalid={!!errors.employees} isRequired>
-            <FormLabel fontWeight="600" color="gray.700">
-              Team Members
-            </FormLabel>
-            <Controller
-              name="employees"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  isMulti
-                  options={employees.filter(
-                    (emp) => emp.value !== selectedTeamLeader?.value,
+              <FormControl isInvalid={!!errors.description}>
+                <FormLabel>Description</FormLabel>
+                <Textarea
+                  {...register("description")}
+                  placeholder="Enter team description"
+                  focusBorderColor="brand.500"
+                />
+                <FormErrorMessage>
+                  {errors.description?.message}
+                </FormErrorMessage>
+              </FormControl>
+
+              <FormControl isInvalid={!!errors.teamLeader}>
+                <FormLabel>Team Leader</FormLabel>
+
+                <Controller
+                  name="teamLeader"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={leaders}
+                      formatOptionLabel={formatOptionLabel}
+                      isLoading={isLoadingLeaders || isFetchingLeaders}
+                      placeholder="Search and select team leader..."
+                      isClearable
+                      onInputChange={handleLeaderSearchChange}
+                      onMenuClose={handleLeaderMenuClose}
+                      inputValue={leaderSearch}
+                      noOptionsMessage={({ inputValue }) => {
+                        if (isLoadingLeaders) return "Loading...";
+                        if (inputValue) return "No leaders found";
+                        if (leaders.length === 0) return "No leaders available";
+                        return "Type to search leaders";
+                      }}
+                      loadingMessage={() => "Loading leaders..."}
+                    />
                   )}
-                  formatOptionLabel={formatOptionLabel}
-                  placeholder="Select team members..."
-                  closeMenuOnSelect={false}
-                  styles={selectStyles}
                 />
-              )}
-            />
-            {errors.employees && (
-              <FormErrorMessage>{errors.employees.message}</FormErrorMessage>
-            )}
-          </FormControl>
 
-          <Divider />
+                <FormErrorMessage>
+                  {errors.teamLeader?.message}
+                </FormErrorMessage>
+              </FormControl>
 
-          {/* Action Buttons */}
-          <HStack justify="flex-end" spacing={4}>
-            <Button variant="outline" onClick={onClose} size="lg">
-              Cancel
-            </Button>
-            <Button
-              size="lg"
-              colorScheme="brand"
-              type="submit"
-              isDisabled={!isValid}
-              px={8}
-            >
-              {isEditing ? "Update Team" : "Create Team"}
-            </Button>
-          </HStack>
-        </VStack>
-      </Box>
-    </Box>
+              <FormControl isInvalid={!!errors.employees}>
+                <FormLabel>Team Members</FormLabel>
+
+                <Controller
+                  name="employees"
+                  control={control}
+                  render={({ field }) => (
+                    <MultiSelectWithBox
+                      options={availableEmployees}
+                      value={field.value}
+                      onChange={field.onChange}
+                      onSearch={handleMembersSearchChange}
+                      onMenuClose={handleMembersMenuClose}
+                      searchValue={membersSearch}
+                      placeholder="Search and select team members..."
+                      formatOptionLabel={formatOptionLabel}
+                      isLoading={isLoadingMembers || isFetchingMembers}
+                      noOptionsMessage={({ inputValue }) => {
+                        if (isLoadingMembers) return "Loading...";
+                        if (inputValue) return "No members found";
+                        if (employees.length === 0)
+                          return "No members available";
+                        return "Type to search members";
+                      }}
+                      loadingMessage={() => "Loading members..."}
+                    />
+                  )}
+                />
+
+                <FormErrorMessage>{errors.employees?.message}</FormErrorMessage>
+              </FormControl>
+
+              <Divider />
+
+              <HStack justify="flex-end" spacing={4}>
+                <Button variant="outline" onClick={onClose} size="lg">
+                  Cancel
+                </Button>
+
+                <Button
+                  colorScheme="brand"
+                  type="submit"
+                  isLoading={isSubmitting} // Use the prop instead of false
+                  loadingText={isEditing ? "Updating..." : "Creating..."}
+                  isDisabled={!isValid || isSubmitting}
+                  size="lg"
+                  px={8}
+                >
+                  {isEditing ? "Update Team" : "Create Team"}
+                </Button>
+              </HStack>
+            </VStack>
+          </Box>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 };
 
