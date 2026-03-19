@@ -31,13 +31,13 @@ const LeadSettings = () => {
       id: 1,
       title: "Lead Invitation",
       icon: FaEnvelopeOpenText,
-      path: "/leads-settings/lead-invitation",
+      path: "/lead_settings/invitation",
     },
     {
       id: 2,
       title: "Lead Status",
       icon: FaUserPlus,
-      path: "/leads-settings/lead-status",
+      path: "/lead_settings/status",
     },
   ];
 

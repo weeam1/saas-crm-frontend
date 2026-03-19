@@ -34,7 +34,9 @@ import {
   useCreateItemMutation,
   useLazyFetchItemsV2Query,
 } from "api/apiSlice";
-
+import AppButton from "components/shared/AppButton";
+import { IoArrowBack } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 const QRSettings = () => {
   // State for PDF files - English and Arabic
   const [englishPdf, setEnglishPdf] = useState(null);
@@ -56,7 +58,7 @@ const QRSettings = () => {
     refetch: refetchTemplates,
     error: templatesError,
   } = useFetchItemsQuery({ path: "/lead/invite/templates", params: {} });
-
+  const navigate = useNavigate();
   // Color mode values - ALL HOOKS AT THE TOP LEVEL
   const bgCard = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.700");
@@ -372,6 +374,9 @@ const QRSettings = () => {
 
   return (
     <Box w="100%" p={6}>
+      <AppButton mb="3" leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
+        Back
+      </AppButton>
       {/* Guidance/Info Message - Always visible */}
       <Alert
         status="info"

@@ -385,9 +385,9 @@ const routes = [
   {
     parent: "leads",
     // childId: "leads_setting",
-    name: "Setting",
+    name: "Settings",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/lead_setting",
+    path: "/lead_settings",
     component: LeadsSetting,
   },
   {
@@ -395,7 +395,7 @@ const routes = [
     // childId: "qr_settings",
     name: "Lead Invitation",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/leads-settings/lead-invitation",
+    path: "/lead_settings/invitation",
     component: LeadInvitation,
   },
   {
@@ -403,7 +403,7 @@ const routes = [
     // childId: "qr_settings",
     name: "Lead Status",
     layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-    path: "/leads-settings/lead-status",
+    path: "/lead_settings/status",
     component: LeadStatus,
   },
 

@@ -195,6 +195,7 @@ const MetaIdTabContainer = () => {
         confirmText="Delete"
         cancelText="Cancel"
         isLoading={isDeleting}
+        modalSize="lg"
       />
     </Box>
   );

@@ -21,6 +21,7 @@ const DeleteConfirmationModal = ({
   confirmText = "Delete",
   cancelText = "Cancel",
   isLoading = false,
+  modalSize = "md",
 }) => {
   return (
     <Modal
@@ -29,6 +30,7 @@ const DeleteConfirmationModal = ({
       isCentered
       closeOnOverlayClick={false}
       blockScrollOnMount={false}
+      size={modalSize}
     >
       <ModalOverlay />
       <ModalContent>

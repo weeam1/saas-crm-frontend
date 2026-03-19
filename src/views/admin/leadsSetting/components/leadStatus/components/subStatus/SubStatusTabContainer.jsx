@@ -85,7 +85,7 @@ const SubStatusTabContainer = ({ mainStatuses, metaStatuses }) => {
   const handleSubmit = async () => {
     const errors = {};
     if (!formData.mainStatus) errors.mainStatus = "Main status is required";
-    if (!formData.label?.trim()) errors.label = "Label is required";
+    if (!formData.label?.trim()) errors.label = "Name is required";
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
