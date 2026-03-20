@@ -7,7 +7,6 @@ import {
   Tr,
   Th,
   Td,
-  Flex,
   IconButton,
   Badge,
   useColorModeValue,
@@ -21,6 +20,7 @@ import TableSkeleton from "../../../TableSkeleton";
 import StatusBadge from "../../../StatusBadge";
 import DeleteConfirmationModal from "../../DeleteModal";
 import { useFetchItemsQuery } from "api/apiSlice";
+import MainStatusCoinEdit from "./MainStatsCoinEdit";
 
 const MainStatusTab = ({
   mainStatuses,
@@ -31,6 +31,8 @@ const MainStatusTab = ({
   isDeleting,
   deletingId,
   isUpdating,
+  updateData, // Add this prop
+  refetchMainStatuses,
 }) => {
   const hoverBg = useColorModeValue("gray.50", "gray.600");
   const thBg = useColorModeValue("brand.200", "gray.700");
@@ -43,7 +45,7 @@ const MainStatusTab = ({
     () => [
       { Header: "Order", accessor: "order", width: 80 },
       { Header: "Name", accessor: "label", width: 150 },
-      { Header: "Coin Cost", accessor: "coinCost", width: 100 }, // New column
+      { Header: "Coin Cost", accessor: "coinCost", width: 120 },
       { Header: "Meta Status", accessor: "metaStatus", width: 180 },
       { Header: "Actions", accessor: "actions", width: 100 },
     ],
@@ -55,29 +57,20 @@ const MainStatusTab = ({
     useFetchItemsQuery(
       {
         path: "/lead/main-status",
-        params: { includeSubStatuses: true, limit: 100 }, // Fetch all for replacements
+        params: { includeSubStatuses: true, limit: 100 },
       },
-
       {
         refetchOnMountOrArgChange: false,
-        skip: !deleteModalOpen && !selectedStatus, // Only fetch when delete modal is open and a status is selected
+        skip: !deleteModalOpen && !selectedStatus,
       },
     );
 
   // Process the replacements data when it's received
   useEffect(() => {
     if (replacementsData?.doc && selectedStatus) {
-      console.log(
-        "Processing main status replacements data:",
-        replacementsData.doc,
-      );
-
-      // Filter out the current status from all main statuses
       const filtered = replacementsData.doc.filter(
         (status) => status._id !== selectedStatus._id,
       );
-
-      console.log("Filtered main status replacements:", filtered);
       setAvailableReplacements(filtered);
     } else {
       setAvailableReplacements([]);
@@ -87,14 +80,12 @@ const MainStatusTab = ({
   const hasReplacements = availableReplacements.length > 0;
 
   const handleDeleteClick = (status) => {
-    console.log("Delete clicked for main status:", status);
     setSelectedStatus(status);
     setDeleteModalOpen(true);
   };
 
   const handleConfirmDelete = (replacementId) => {
     if (selectedStatus) {
-      // Pass both the ID and the replacement ID to the parent
       onDelete(selectedStatus._id, selectedStatus.label, replacementId);
     }
     setDeleteModalOpen(false);
@@ -149,28 +140,21 @@ const MainStatusTab = ({
                   />
                 </Td>
 
-                {/* New Coin Cost column */}
+                {/* Coin Cost column with edit functionality */}
                 <Td textAlign="center">
-                  {status.coinCost ? (
-                    <Badge
-                      colorScheme="green"
-                      px={2}
-                      py={1}
-                      borderRadius="full"
-                    >
-                      {status.coinCost}
-                    </Badge>
-                  ) : (
-                    <Text fontSize="xs" color="gray.400">
-                      —
-                    </Text>
-                  )}
+                  <MainStatusCoinEdit
+                    status={status}
+                    updateData={updateData}
+                    refetchMainStatuses={refetchMainStatuses}
+                  />
                 </Td>
 
                 <Td textAlign="center">
                   {status.metaStatus ? (
                     <Badge colorScheme="purple" textTransform="none">
-                      {status.metaStatus.label}
+                      {typeof status.metaStatus === "object"
+                        ? status.metaStatus.label
+                        : status.metaStatus}
                     </Badge>
                   ) : (
                     <Text fontSize="xs" color="gray.400">

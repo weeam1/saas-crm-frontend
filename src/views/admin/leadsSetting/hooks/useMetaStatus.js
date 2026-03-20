@@ -7,7 +7,6 @@ import {
 } from "api/apiSlice";
 import { toast } from "react-toastify";
 import { cleanSearchParams } from "utils";
-import debounce from "lodash/debounce";
 
 export const useMetaStatus = (initialPage = 1, initialLimit = 20) => {
   const [metaStatuses, setMetaStatuses] = useState([]);
@@ -18,6 +17,7 @@ export const useMetaStatus = (initialPage = 1, initialLimit = 20) => {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [filters, setFilters] = useState({ q: "" });
+  const [searchTerm, setSearchTerm] = useState(""); // Add searchTerm state
 
   // Mutations with loading states
   const [createMetaStatus, { isLoading: isCreating }] = useCreateItemMutation();
@@ -113,14 +113,27 @@ export const useMetaStatus = (initialPage = 1, initialLimit = 20) => {
     }
   };
 
-  // Debounced search handler
-  const debouncedSearch = useCallback(
-    debounce((searchTerm) => {
-      setFilters({ q: searchTerm });
-      setPagination((prev) => ({ ...prev, page: 1 }));
-    }, 500),
-    [],
-  );
+  // Handle search when button is clicked or Enter is pressed
+  const handleSearch = (searchQuery) => {
+    const trimmed = searchQuery?.trim() || "";
+
+    // Update filters with the search term
+    setFilters({ q: trimmed });
+    // Reset to first page when searching
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
+  // Update searchTerm state (for input value only, doesn't trigger search)
+  const handleSearchTermChange = (value) => {
+    setSearchTerm(value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm("");
+    setFilters({ q: "" });
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
 
   // Pagination handlers
   const handlePageChange = (page) => {
@@ -129,10 +142,6 @@ export const useMetaStatus = (initialPage = 1, initialLimit = 20) => {
 
   const handlePageSizeChange = (limit) => {
     setPagination({ page: 1, limit });
-  };
-
-  const handleSearch = (searchTerm) => {
-    debouncedSearch(searchTerm);
   };
 
   return {
@@ -147,10 +156,13 @@ export const useMetaStatus = (initialPage = 1, initialLimit = 20) => {
     handlePageChange,
     handlePageSizeChange,
     filters,
-    handleSearch,
     createStatus,
     updateStatus,
     deleteStatus,
     refetch,
+    searchTerm, // Add to return
+    handleSearchTermChange, // Add to return
+    handleSearch, // Add to return
+    clearSearch, // Add to return
   };
 };

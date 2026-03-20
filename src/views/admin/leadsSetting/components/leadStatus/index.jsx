@@ -12,9 +12,6 @@ import AppButton from "components/shared/AppButton";
 const LeadStatus = memo(() => {
   const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
-  // Only fetch main statuses and meta statuses once for the modals
-  const { mainStatuses } = useMainStatus(1, 1000); // Get all for dropdown
-  const { metaStatuses } = useMetaStatus(1, 1000); // Get all for dropdown
 
   const tabs = [
     { title: "Main Status", component: MainStatusTabContainer },
@@ -68,7 +65,7 @@ const LeadStatus = memo(() => {
 
       {/* Content Box */}
       <Box bg="white" shadow="sm" mt="-1px" borderRadius="0" p={4}>
-        <TabComponent mainStatuses={mainStatuses} metaStatuses={metaStatuses} />
+        <TabComponent />
       </Box>
     </Box>
   );

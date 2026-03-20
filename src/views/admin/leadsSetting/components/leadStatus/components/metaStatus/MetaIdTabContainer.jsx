@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Box, Flex, Text, Button, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Text,
+  Button,
+  useDisclosure,
+  HStack,
+} from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useMetaStatus } from "../../../../hooks/useMetaStatus";
 import MetaIdTab from "./MetaIdTab";
@@ -7,6 +14,8 @@ import MetaIdModal from "./MetaIdModal";
 import TopPagination from "components/pagination/TopPagination";
 import DeleteConfirmationModal from "views/admin/payroll/components/DeleteConfirmationModal";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
+import SearchBox from "views/admin/payroll/components/SearchBox"; // Import SearchBox
+import RefreshButton from "components/refresh/RefreshButton"; // Import RefreshButton
 
 const MetaIdTabContainer = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -41,6 +50,9 @@ const MetaIdTabContainer = () => {
     isCreating,
     isUpdating,
     isDeleting,
+    searchTerm, // Get searchTerm from hook
+    handleSearchTermChange, // Get search handler from hook
+    handleSearch, // Get search trigger from hook
   } = useMetaStatus(1, 20);
 
   const handleAddNew = () => {
@@ -112,6 +124,12 @@ const MetaIdTabContainer = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Wrapper for search to handle both search and clear
+  const handleSearchClick = (term) => {
+    handleSearch(term);
+  };
+
   const buttonStyle = {
     size: "sm",
     borderRadius: "md",
@@ -126,8 +144,9 @@ const MetaIdTabContainer = () => {
         borderRadius: "full",
         p: ".5px",
       },
-    }, // ✅ Only changes icon color
+    },
   };
+
   return (
     <Box>
       <Flex justify="space-between" align="center" p={4}>
@@ -136,21 +155,40 @@ const MetaIdTabContainer = () => {
           <CountUpComponent targetNumber={totalCount} />
         </Text>
 
-        <Button
-          {...buttonStyle}
-          leftIcon={<AddIcon />}
-          variant="solid"
-          bg="brand.500"
-          py="2"
-          px="5"
-          size="sm"
-          textColor={"white"}
-          onClick={handleAddNew}
-          isLoading={isCreating}
-          loadingText="Adding"
-        >
-          Add Meta ID
-        </Button>
+        <HStack spacing={4}>
+          <RefreshButton
+            aria-label="Refresh meta statuses"
+            isLoading={isLoading}
+            isFetching={isLoading}
+            onClick={refetch}
+          />
+
+          <Box>
+            <SearchBox
+              searchTerm={searchTerm}
+              setSearchTerm={handleSearchTermChange}
+              onSearchTermChange={handleSearchClick}
+              isLoading={isLoading}
+              placeholder="Search meta IDs..."
+            />
+          </Box>
+
+          <Button
+            {...buttonStyle}
+            leftIcon={<AddIcon />}
+            variant="solid"
+            bg="brand.500"
+            py="2"
+            px="5"
+            size="sm"
+            textColor={"white"}
+            onClick={handleAddNew}
+            isLoading={isCreating}
+            loadingText="Adding"
+          >
+            Add Meta ID
+          </Button>
+        </HStack>
       </Flex>
 
       <TopPagination
@@ -167,7 +205,7 @@ const MetaIdTabContainer = () => {
         metaIds={metaStatuses}
         isLoading={isLoading}
         onEdit={handleEdit}
-        onDelete={handleDeleteClick} // Updated to use the new handler
+        onDelete={handleDeleteClick}
         isDeleting={isDeleting}
         deletingId={deletingId}
       />

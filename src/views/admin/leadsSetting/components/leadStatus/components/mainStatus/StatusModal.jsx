@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -15,7 +15,6 @@ import {
   Flex,
   Box,
   Text,
-  Select,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
@@ -23,6 +22,8 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 import { FaPalette } from "react-icons/fa";
+import Select from "react-select";
+import { useFetchItemsQuery } from "api/apiSlice";
 
 const StatusModal = ({
   isOpen,
@@ -35,11 +36,94 @@ const StatusModal = ({
   onSubmit,
   getRandomColor,
   generateBgColor,
-  metaStatuses,
+  metaStatuses: initialMetaStatuses,
   isSubmitting,
 }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOption, setSelectedOption] = useState(null);
+  const searchTimeoutRef = useRef(null);
+
+  // Handle input change with debounce
+  const handleInputChange = (inputValue) => {
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout to search after 500ms of no typing
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchTerm(inputValue);
+    }, 500);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Fetch meta statuses with search
+  const { data, isLoading, isFetching } = useFetchItemsQuery(
+    {
+      path: "/lead/meta-status",
+      params: {
+        ...(searchTerm && { search: searchTerm }),
+        limit: 20,
+      },
+    },
+    {
+      skip: !isOpen, // Only fetch when modal is open
+      refetchOnMountOrArgChange: true,
+    },
+  );
+
+  // Prepare options from API data
+  const options = data?.doc
+    ? data.doc.map((status) => ({
+        value: status._id,
+        label: status.label || status.key,
+      }))
+    : [];
+
+  // Set initial selected option when editing
+  useEffect(() => {
+    if (editingItem?.metaStatus && initialMetaStatuses) {
+      // Try to find in initial data first
+      const metaStatus = initialMetaStatuses.find(
+        (ms) => ms._id === editingItem.metaStatus,
+      );
+
+      if (metaStatus) {
+        setSelectedOption({
+          value: metaStatus._id,
+          label: metaStatus.label || metaStatus.key,
+        });
+      }
+    } else if (!editingItem) {
+      setSelectedOption(null);
+      setSearchTerm("");
+    }
+  }, [editingItem, initialMetaStatuses]);
+
+  // Update formData when selected option changes
+  const handleChange = (option) => {
+    setSelectedOption(option);
+    setFormData({
+      ...formData,
+      metaStatus: option ? option.value : null,
+    });
+  };
+
   const handleClose = () => {
     setFormErrors({});
+    setSearchTerm("");
+    setSelectedOption(null);
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
     onClose();
   };
 
@@ -60,6 +144,53 @@ const StatusModal = ({
       bgColor: generateBgColor(randomColor, 80),
       textColor: randomColor,
     });
+  };
+
+  // Custom styles for react-select to match Chakra UI
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: state.isFocused ? "#3182CE" : "#E2E8F0",
+      boxShadow: state.isFocused ? "0 0 0 1px #3182CE" : "none",
+      minHeight: "32px",
+      fontSize: "14px",
+      "&:hover": {
+        borderColor: "#CBD5E0",
+      },
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#3182CE"
+        : state.isFocused
+          ? "#EBF8FF"
+          : "white",
+      color: state.isSelected ? "white" : "#1A202C",
+      fontSize: "14px",
+      cursor: "pointer",
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: "#A0AEC0",
+      fontSize: "14px",
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "#1A202C",
+      fontSize: "14px",
+    }),
+    input: (provided) => ({
+      ...provided,
+      fontSize: "14px",
+    }),
+    loadingIndicator: (provided) => ({
+      ...provided,
+      color: "#3182CE",
+    }),
   };
 
   const previewBgColor = formData.bgColor;
@@ -132,7 +263,7 @@ const StatusModal = ({
             )}
           </FormControl>
 
-          {/* Coin Cost Field - New */}
+          {/* Coin Cost Field */}
           <FormControl mb={4}>
             <FormLabel>Coin Cost</FormLabel>
             <NumberInput
@@ -161,20 +292,19 @@ const StatusModal = ({
           <FormControl mb={4}>
             <FormLabel>Meta Status (Optional)</FormLabel>
             <Select
-              size="sm"
-              value={formData.metaStatus || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, metaStatus: e.target.value || null })
+              options={options}
+              value={selectedOption}
+              onChange={handleChange}
+              onInputChange={handleInputChange}
+              isLoading={isFetching || isLoading}
+              placeholder="Search meta status..."
+              isClearable
+              styles={customStyles}
+              noOptionsMessage={({ inputValue }) =>
+                inputValue ? "No results found" : "Start typing to search"
               }
-              placeholder="Select meta status"
-            >
-              <option value="">None</option>
-              {metaStatuses.map((status) => (
-                <option key={status._id} value={status._id}>
-                  {status.label}
-                </option>
-              ))}
-            </Select>
+              loadingMessage={() => "Searching..."}
+            />
             <Text fontSize="xs" color="gray.500" mt={1}>
               Link this lead status to a Meta Pixel event for better tracking
               and categorization.

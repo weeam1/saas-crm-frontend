@@ -1,13 +1,24 @@
 import React, { useState } from "react";
-import { Box, Flex, Text, Button, useDisclosure } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Text,
+  Button,
+  useDisclosure,
+  HStack,
+} from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { useMainStatus } from "../../../../hooks/useMainStatus";
 import MainStatusTab from "./MainStatusTab";
 import StatusModal from "./StatusModal";
 import TopPagination from "components/pagination/TopPagination";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
+import SearchBox from "views/admin/payroll/components/SearchBox";
+import RefreshButton from "components/refresh/RefreshButton";
+import { useMetaStatus } from "views/admin/leadsSetting/hooks/useMetaStatus";
 
-const MainStatusTabContainer = ({ metaStatuses }) => {
+const MainStatusTabContainer = () => {
+  const { metaStatuses } = useMetaStatus();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
@@ -15,7 +26,7 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
     color: "#6366F1",
     bgColor: "#6366F1",
     textColor: "#6366F1",
-    coinCost: 0, // Add coinCost field
+    coinCost: 50,
     metaStatus: null,
   });
   const [formErrors, setFormErrors] = useState({});
@@ -24,6 +35,7 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
 
   const {
     mainStatuses,
+    setMainStatuses, // Make sure your hook returns setMainStatuses
     isLoading,
     pagination,
     totalPages,
@@ -37,7 +49,22 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
     isCreating,
     isUpdating,
     isDeleting,
+    searchTerm,
+    handleSearchTermChange,
+    handleSearch,
+    clearSearch,
   } = useMainStatus(1, 20);
+
+  // Function to update data locally after coin edit
+  const updateDataLocally = (id, updatedData, type = "update") => {
+    if (type === "update") {
+      setMainStatuses((prev) =>
+        prev.map((item) =>
+          item._id === id ? { ...item, ...updatedData } : item,
+        ),
+      );
+    }
+  };
 
   const handleAddNew = () => {
     setEditingItem(null);
@@ -46,7 +73,7 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
       color: "#6366F1",
       bgColor: generateBgColor("#6366F1", 80),
       textColor: "#6366F1",
-      coinCost: 0, // Add coinCost field
+      coinCost: 50,
       metaStatus: null,
     });
     setFormErrors({});
@@ -60,14 +87,13 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
       color: item.color || "#06B6D4",
       bgColor: item.bgColor || "#6366F1",
       textColor: item.textColor || "#6366F1",
-      coinCost: item.coinCost || 0, // Add coinCost field
+      coinCost: item.coinCost || 0,
       metaStatus: item.metaStatus?._id || item.metaStatus || null,
     });
     setFormErrors({});
     onOpen();
   };
 
-  // This function will be called from MainStatusTab after confirmation
   const handleDelete = async (id, label, replacementId) => {
     console.log("Delete confirmed with ID:", id, "replacement:", replacementId);
     setDeletingId(id);
@@ -154,6 +180,10 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
     },
   };
 
+  const handleSearchClick = (term) => {
+    handleSearch(term);
+  };
+
   return (
     <Box>
       <Flex justify="space-between" align="center" p={4}>
@@ -162,21 +192,39 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
           <CountUpComponent targetNumber={totalCount} />
         </Text>
 
-        <Button
-          {...buttonStyle}
-          leftIcon={<AddIcon />}
-          variant="solid"
-          bg="brand.500"
-          py="2"
-          px="5"
-          size="sm"
-          textColor={"white"}
-          onClick={handleAddNew}
-          isLoading={isCreating}
-          loadingText="Adding"
-        >
-          Add Main Status
-        </Button>
+        <HStack spacing={4}>
+          <RefreshButton
+            aria-label="Refresh main statuses"
+            isLoading={isLoading}
+            isFetching={isLoading}
+            onClick={refetch}
+          />
+
+          <Box>
+            <SearchBox
+              searchTerm={searchTerm}
+              setSearchTerm={handleSearchTermChange}
+              onSearchTermChange={handleSearchClick}
+              isLoading={isLoading}
+            />
+          </Box>
+
+          <Button
+            {...buttonStyle}
+            leftIcon={<AddIcon />}
+            variant="solid"
+            bg="brand.500"
+            py="2"
+            px="5"
+            size="sm"
+            textColor={"white"}
+            onClick={handleAddNew}
+            isLoading={isCreating}
+            loadingText="Adding"
+          >
+            Add Main Status
+          </Button>
+        </HStack>
       </Flex>
 
       <TopPagination
@@ -198,6 +246,8 @@ const MainStatusTabContainer = ({ metaStatuses }) => {
         isDeleting={isDeleting}
         deletingId={deletingId}
         isUpdating={isUpdating}
+        updateData={updateDataLocally}
+        refetchMainStatuses={refetch}
       />
 
       <StatusModal

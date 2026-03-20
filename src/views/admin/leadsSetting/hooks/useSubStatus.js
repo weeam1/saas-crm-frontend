@@ -7,7 +7,6 @@ import {
 } from "api/apiSlice";
 import { toast } from "react-toastify";
 import { cleanSearchParams } from "utils";
-import debounce from "lodash/debounce";
 
 export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
   const [subStatuses, setSubStatuses] = useState([]);
@@ -21,6 +20,7 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
     q: "",
     parentId: "",
   });
+  const [searchTerm, setSearchTerm] = useState(""); // Add searchTerm state
 
   // Mutations
   const [createSubStatus, { isLoading: isCreating }] = useCreateItemMutation();
@@ -109,8 +109,7 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
     }
   };
 
-  // In useSubStatus.js, update the deleteStatus function:
-
+  // Delete sub status
   const deleteStatus = async (id, replacementStatusId = null) => {
     try {
       console.log(
@@ -120,7 +119,6 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
         replacementStatusId,
       );
 
-      // Prepare the request body
       const requestBody = {};
       if (replacementStatusId) {
         requestBody.replacementStatusId = replacementStatusId;
@@ -128,7 +126,7 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
 
       await deleteSubStatus({
         path: `/lead/sub-status/${id}`,
-        body: requestBody, // Send replacement ID in body, not in URL
+        body: requestBody,
       }).unwrap();
 
       toast.success("Sub status deleted successfully");
@@ -141,14 +139,28 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
       throw error;
     }
   };
-  // Debounced search handler
-  const debouncedSearch = useCallback(
-    debounce((searchTerm) => {
-      setFilters((prev) => ({ ...prev, q: searchTerm }));
-      setPagination((prev) => ({ ...prev, page: 1 }));
-    }, 500),
-    [],
-  );
+
+  // Handle search when button is clicked or Enter is pressed
+  const handleSearch = (searchQuery) => {
+    const trimmed = searchQuery?.trim() || "";
+
+    // Update filters with the search term
+    setFilters((prev) => ({ ...prev, q: trimmed }));
+    // Reset to first page when searching
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
+  // Update searchTerm state (for input value only, doesn't trigger search)
+  const handleSearchTermChange = (value) => {
+    setSearchTerm(value);
+  };
+
+  // Clear search
+  const clearSearch = () => {
+    setSearchTerm("");
+    setFilters((prev) => ({ ...prev, q: "" }));
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
 
   // Pagination handlers
   const handlePageChange = (page) => {
@@ -164,10 +176,6 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
-  const handleSearch = (searchTerm) => {
-    debouncedSearch(searchTerm);
-  };
-
   return {
     subStatuses,
     isLoading: isLoading || isFetching,
@@ -181,10 +189,13 @@ export const useSubStatus = (initialPage = 1, initialLimit = 20) => {
     handlePageSizeChange,
     filters,
     filterByParent,
-    handleSearch,
     createStatus,
     updateStatus,
     deleteStatus,
     refetch,
+    searchTerm, // Add to return
+    handleSearchTermChange, // Add to return
+    handleSearch, // Add to return
+    clearSearch, // Add to return
   };
 };
