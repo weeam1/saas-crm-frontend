@@ -15,36 +15,23 @@ import {
   AvatarGroup,
 } from "@chakra-ui/react";
 import { FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
-import {
-  useToast,
-  useDisclosure,
-  ModalOverlay,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Button,
-} from "@chakra-ui/react";
+import { useToast, useDisclosure } from "@chakra-ui/react";
 import NoData from "components/Message/NoData";
 import TableLoading from "components/loading/TableLoading";
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import CustomTooltip from "components/shared/CustomTooltip";
 import { useNavigate } from "react-router-dom";
-import TeamForm from "./TeamForm";
 import { useTeams } from "../hooks/useTeams";
+import ViewTeamModal from "./ViewModal";
 
 const TeamsTable = ({ data = [], isLoading = false, onEdit, refetch }) => {
   const [selectedTeam, setSelectedTeam] = useState(null);
-  const [modalType, setModalType] = useState("create");
   const {
-    isOpen: isDeleteOpen,
-    onOpen: onDeleteOpen,
-    onClose: onDeleteClose,
+    isOpen: isViewOpen,
+    onOpen: onViewOpen,
+    onClose: onViewClose,
   } = useDisclosure();
-  const [selectedRow, setSelectedRow] = useState(null);
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
   const navigate = useNavigate();
   const { deleteTeam, isDeletingTeam } = useTeams();
@@ -55,7 +42,7 @@ const TeamsTable = ({ data = [], isLoading = false, onEdit, refetch }) => {
     { key: "teamLeader", label: "Team Leader", width: "200px" },
     { key: "members", label: "Members", width: "150px" },
     { key: "createdAt", label: "Created", width: "150px" },
-    { key: "actions", label: "Actions", width: "100px" },
+    { key: "actions", label: "Actions", width: "120px" },
   ];
 
   useEffect(() => {
@@ -70,15 +57,21 @@ const TeamsTable = ({ data = [], isLoading = false, onEdit, refetch }) => {
     return () => clearTimeout(timer);
   }, [isLoading]);
 
+  const handleView = (team, e) => {
+    e.stopPropagation();
+    setSelectedTeam(team);
+    onViewOpen();
+  };
+
   const handleEdit = (team, e) => {
-    e.stopPropagation(); // Prevent card click
+    e.stopPropagation();
     if (onEdit) {
-      // Call parent's edit handler which will open the modal with transformed data
       onEdit(team);
     }
   };
+
   const handleDelete = async (teamId, e) => {
-    e.stopPropagation(); // Prevent card click
+    e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this team?")) {
       try {
         await deleteTeam(teamId);
@@ -204,7 +197,7 @@ const TeamsTable = ({ data = [], isLoading = false, onEdit, refetch }) => {
               data.map((row, index) => (
                 <Tr
                   key={row._id || index}
-                  _hover={{ bg: "gray.50", cursor: "pointer" }}
+                  _hover={{ bg: "gray.50" }}
                   bg={index % 2 === 0 ? "white" : "gray.50"}
                 >
                   {columns.map((column) => (
@@ -229,11 +222,10 @@ const TeamsTable = ({ data = [], isLoading = false, onEdit, refetch }) => {
                           <CustomTooltip label="View Team">
                             <IconButton
                               size="sm"
-                              icon={<FiTrash2 />}
+                              icon={<FiEye />}
                               variant="ghost"
-                              colorScheme="red"
-                              isLoading={isDeletingTeam}
-                              onClick={(e) => handleDelete(row._id, e)}
+                              colorScheme="blue"
+                              onClick={(e) => handleView(row, e)}
                             />
                           </CustomTooltip>
 
@@ -245,6 +237,17 @@ const TeamsTable = ({ data = [], isLoading = false, onEdit, refetch }) => {
                               colorScheme="green"
                               variant="ghost"
                               onClick={(e) => handleEdit(row, e)}
+                            />
+                          </CustomTooltip>
+
+                          <CustomTooltip label="Delete Team">
+                            <IconButton
+                              size="sm"
+                              icon={<FiTrash2 />}
+                              variant="ghost"
+                              colorScheme="red"
+                              isLoading={isDeletingTeam}
+                              onClick={(e) => handleDelete(row._id, e)}
                             />
                           </CustomTooltip>
                         </Flex>
@@ -259,6 +262,13 @@ const TeamsTable = ({ data = [], isLoading = false, onEdit, refetch }) => {
           </Tbody>
         </Table>
       </Box>
+
+      {/* View Team Modal */}
+      <ViewTeamModal
+        isOpen={isViewOpen}
+        onClose={onViewClose}
+        team={selectedTeam}
+      />
     </>
   );
 };

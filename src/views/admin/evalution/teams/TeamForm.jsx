@@ -31,9 +31,9 @@ const TeamForm = ({
   isOpen,
   onClose,
   onSubmit,
-  initialData = null, // Add this
-  isEditing = false, // Add this
-  isSubmitting = false, // Add this
+  initialData = null,
+  isEditing = false,
+  isSubmitting = false,
 }) => {
   const borderColor = useColorModeValue("gray.200", "gray.600");
 
@@ -65,14 +65,13 @@ const TeamForm = ({
     return () => clearTimeout(handler);
   }, [membersSearch]);
 
-  // Build params object without undefined values
+  // Build params for leader search - using v2/user/search_users
   const getLeaderParams = () => {
     const params = {
       page: 1,
       limit: 50,
     };
 
-    // Only add search param if it exists and user is searching
     if (
       isLeaderSearching &&
       debouncedLeaderSearch &&
@@ -84,14 +83,13 @@ const TeamForm = ({
     return params;
   };
 
-  // Build params object without undefined values
+  // Build params for members search - using v2/user/search_users
   const getMembersParams = () => {
     const params = {
       page: 1,
       limit: 50,
     };
 
-    // Only add search param if it exists and user is searching
     if (
       isMembersSearching &&
       debouncedMembersSearch &&
@@ -103,51 +101,57 @@ const TeamForm = ({
     return params;
   };
 
-  // Fetch employees for team leader - only when modal is open
+  // Fetch users for team leader using v2/user/search_users
   const {
     data: leaderResponse,
     isLoading: isLoadingLeaders,
     isFetching: isFetchingLeaders,
   } = useFetchItemsQuery(
     {
-      path: "/evaluation/users",
+      path: "/v2/user/search_users",
       params: getLeaderParams(),
     },
     {
-      skip: !isOpen, // Skip query when modal is closed
+      skip: !isOpen,
     },
   );
 
-  // Fetch employees for team members - only when modal is open
+  // Fetch users for team members using v2/user/search_users
   const {
     data: membersResponse,
     isLoading: isLoadingMembers,
     isFetching: isFetchingMembers,
   } = useFetchItemsQuery(
     {
-      path: "/evaluation/users",
+      path: "/v2/user/search_users",
       params: getMembersParams(),
     },
     {
-      skip: !isOpen, // Skip query when modal is closed
+      skip: !isOpen,
     },
   );
 
-  // Transform leader data based on your API response structure
-  const leaders =
-    leaderResponse?.doc?.map((user) => ({
-      value: user._id,
-      label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
-      role: user.roles?.[0]?.roleName || "",
-    })) || [];
+  // Get users from response - handling different response structures
+  const getUsersFromResponse = (response) => {
+    if (response?.doc) return response.doc;
+    if (response?.data) return response.data;
+    if (Array.isArray(response)) return response;
+    return [];
+  };
 
-  // Transform members data based on your API response structure
-  const employees =
-    membersResponse?.doc?.map((user) => ({
-      value: user._id,
-      label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
-      role: user.roles?.[0]?.roleName || "",
-    })) || [];
+  // Transform leader data based on API response structure
+  const leaders = getUsersFromResponse(leaderResponse).map((user) => ({
+    value: user._id,
+    label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
+    role: user.roles?.[0]?.roleName || "",
+  }));
+
+  // Transform members data based on API response structure
+  const employees = getUsersFromResponse(membersResponse).map((user) => ({
+    value: user._id,
+    label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
+    role: user.roles?.[0]?.roleName || "",
+  }));
 
   const teamSchema = yup.object().shape({
     name: yup.string().required("Team name is required"),
@@ -158,17 +162,16 @@ const TeamForm = ({
       .min(1, "At least one employee is required")
       .required(),
   });
+
   // Prepare default values from initialData for edit mode
   const getDefaultValues = () => {
     if (initialData && isEditing) {
-      console.log("Initial data for edit:", initialData); // Add this to debug
-
       return {
         name: initialData.name || "",
         description: initialData.description || "",
-        teamLeader: initialData.leader // Changed from initialData.teamLeader to initialData.leader
+        teamLeader: initialData.leader
           ? {
-              value: initialData.leader._id, // Use leader._id directly
+              value: initialData.leader._id,
               label:
                 initialData.leader.fullName ||
                 (initialData.leader.firstName && initialData.leader.lastName
@@ -176,7 +179,7 @@ const TeamForm = ({
                   : initialData.leader.name || ""),
             }
           : null,
-        employees: initialData.members?.map((member) => member._id) || [], // Just map to IDs
+        employees: initialData.members?.map((member) => member._id) || [],
       };
     }
     return {
@@ -205,7 +208,6 @@ const TeamForm = ({
   useEffect(() => {
     if (isOpen) {
       reset(getDefaultValues());
-      // Reset search states but keep showing initial data
       setLeaderSearch("");
       setMembersSearch("");
       setIsLeaderSearching(false);
@@ -221,7 +223,7 @@ const TeamForm = ({
     (emp) => emp.value !== selectedTeamLeader?.value,
   );
 
-  // Simple format option label without avatar
+  // Simple format option label without avatar (keeping original UI)
   const formatOptionLabel = ({ label, role }) => (
     <Box>
       <Text fontSize="sm">{label}</Text>
@@ -242,7 +244,6 @@ const TeamForm = ({
     };
 
     onSubmit(payload);
-    // Don't close here - let the parent component handle closing after successful API call
   };
 
   // Handle leader search with search mode tracking
@@ -280,18 +281,35 @@ const TeamForm = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl" isCentered>
       <ModalOverlay />
-      <ModalContent maxW="800px">
+      <ModalContent maxW="800px" maxH="90vh" overflow="hidden">
+        {" "}
+        {/* Add overflow hidden */}
         <ModalHeader>
           {modalType === "create" ? "Create Team" : "Edit Team"}
         </ModalHeader>
-
         <ModalCloseButton />
-
-        <ModalBody pb={6}>
+        <ModalBody
+          pb={6}
+          overflowY="auto" // Make body scrollable
+          sx={{
+            "&::-webkit-scrollbar": {
+              width: "6px",
+            },
+            "&::-webkit-scrollbar-track": {
+              background: useColorModeValue("gray.100", "gray.700"),
+              borderRadius: "full",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: useColorModeValue("gray.400", "gray.500"),
+              borderRadius: "full",
+            },
+          }}
+        >
           <Box as="form" onSubmit={handleSubmit(submitHandler)}>
             <VStack spacing={6} align="stretch">
+              {/* All your form fields remain here */}
               <FormControl isInvalid={!!errors.name}>
                 <FormLabel>Team Name</FormLabel>
                 <Input
@@ -316,7 +334,6 @@ const TeamForm = ({
 
               <FormControl isInvalid={!!errors.teamLeader}>
                 <FormLabel>Team Leader</FormLabel>
-
                 <Controller
                   name="teamLeader"
                   control={control}
@@ -341,7 +358,6 @@ const TeamForm = ({
                     />
                   )}
                 />
-
                 <FormErrorMessage>
                   {errors.teamLeader?.message}
                 </FormErrorMessage>
@@ -349,7 +365,6 @@ const TeamForm = ({
 
               <FormControl isInvalid={!!errors.employees}>
                 <FormLabel>Team Members</FormLabel>
-
                 <Controller
                   name="employees"
                   control={control}
@@ -375,7 +390,6 @@ const TeamForm = ({
                     />
                   )}
                 />
-
                 <FormErrorMessage>{errors.employees?.message}</FormErrorMessage>
               </FormControl>
 
@@ -385,11 +399,10 @@ const TeamForm = ({
                 <Button variant="outline" onClick={onClose} size="lg">
                   Cancel
                 </Button>
-
                 <Button
                   colorScheme="brand"
                   type="submit"
-                  isLoading={isSubmitting} // Use the prop instead of false
+                  isLoading={isSubmitting}
                   loadingText={isEditing ? "Updating..." : "Creating..."}
                   isDisabled={!isValid || isSubmitting}
                   size="lg"

@@ -16,31 +16,39 @@ import {
   Icon,
   useDisclosure,
 } from "@chakra-ui/react";
-import { FiEdit, FiTrash2, FiUsers, FiPlus } from "react-icons/fi";
+import { FiEdit, FiEye, FiTrash2, FiUsers } from "react-icons/fi";
 import { FaUsers } from "react-icons/fa";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useTeams } from "../hooks/useTeams";
+import ViewTeamModal from "./ViewModal";
 
 const Teams = ({ data = [], onEdit }) => {
-  // Add onEdit prop
-  console.log("Teams data:", data);
   const navigate = useNavigate();
-
-  // Get team operations from your custom hook
   const { deleteTeam, isDeletingTeam } = useTeams();
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const {
+    isOpen: isViewOpen,
+    onOpen: onViewOpen,
+    onClose: onViewClose,
+  } = useDisclosure();
+
+  const handleView = (team, e) => {
+    e.stopPropagation();
+    setSelectedTeam(team);
+    onViewOpen();
+  };
 
   const handleEdit = (team, e) => {
-    e.stopPropagation(); // Prevent card click
+    e.stopPropagation();
     if (onEdit) {
-      // Call parent's edit handler which will open the modal with transformed data
       onEdit(team);
     }
   };
 
   const handleDelete = async (teamId, e) => {
-    e.stopPropagation(); // Prevent card click
+    e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this team?")) {
       try {
         await deleteTeam(teamId);
@@ -69,8 +77,6 @@ const Teams = ({ data = [], onEdit }) => {
           borderColor: "blue.300",
         }}
         position="relative"
-        cursor="pointer"
-        onClick={() => navigate(`/teams/${team._id}`)}
       >
         <Box
           position="absolute"
@@ -119,6 +125,15 @@ const Teams = ({ data = [], onEdit }) => {
           </Flex>
 
           <Flex gap={1}>
+            <Tooltip label="View">
+              <IconButton
+                size="sm"
+                icon={<FiEye />}
+                variant="ghost"
+                colorScheme="blue"
+                onClick={(e) => handleView(team, e)}
+              />
+            </Tooltip>
             <Tooltip label="Edit">
               <IconButton
                 size="sm"
@@ -194,13 +209,22 @@ const Teams = ({ data = [], onEdit }) => {
   };
 
   return (
-    <Box pt={6}>
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-        {data?.map((team) => (
-          <TeamCard key={team._id} team={team} />
-        ))}
-      </SimpleGrid>
-    </Box>
+    <>
+      <Box pt={6}>
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+          {data?.map((team) => (
+            <TeamCard key={team._id} team={team} />
+          ))}
+        </SimpleGrid>
+      </Box>
+
+      {/* View Team Modal */}
+      <ViewTeamModal
+        isOpen={isViewOpen}
+        onClose={onViewClose}
+        team={selectedTeam}
+      />
+    </>
   );
 };
 

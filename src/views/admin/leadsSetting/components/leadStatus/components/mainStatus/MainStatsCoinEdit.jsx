@@ -1,5 +1,4 @@
-// MainStatusCoinEdit.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Flex,
   Text,
@@ -27,6 +26,13 @@ const MainStatusCoinEdit = ({ status, updateData, refetchMainStatuses }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const [updateStatus, { isLoading: isUpdating }] = useUpdateItemMutation();
+
+  // Set the current coin value when popover opens
+  useEffect(() => {
+    if (isOpen && status.coinCost !== undefined && status.coinCost !== null) {
+      setNewCoins(String(status.coinCost));
+    }
+  }, [isOpen, status.coinCost]);
 
   const handleSaveCoins = async () => {
     if (newCoins === "" || newCoins === null) {
@@ -78,7 +84,10 @@ const MainStatusCoinEdit = ({ status, updateData, refetchMainStatuses }) => {
         isLazy
         closeOnBlur={!isUpdating}
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false);
+          setNewCoins(""); // Reset on close
+        }}
       >
         <PopoverTrigger>
           <IconButton
@@ -111,13 +120,6 @@ const MainStatusCoinEdit = ({ status, updateData, refetchMainStatuses }) => {
               <Flex direction="column" gap={4}>
                 <Text fontSize="sm" fontWeight="600" color="gray.700">
                   Update Coin Cost
-                </Text>
-
-                <Text fontSize="xs" color="gray.500">
-                  Current: {status.coinCost || 0} coins
-                </Text>
-                <Text fontSize="xs" color="gray.500" mt={-2}>
-                  Status: {status.label}
                 </Text>
 
                 {/* Number Input */}
