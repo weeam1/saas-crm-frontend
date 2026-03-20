@@ -1,4 +1,4 @@
-// useTeams.js - Updated version with proper caching
+// useTeams.js - Cleaned version without date filters
 import {
   useDeleteItemMutation,
   useFetchItemsQuery,
@@ -21,18 +21,12 @@ export const useTeams = () => {
   const isAgenciesAllowed = hasPermission("evaluation", "all_agencies");
 
   // --- Extract initial values from URL ---
-  const initialMonth =
-    Number(searchParams.get("month")) || new Date().getMonth() + 1;
-  const initialYear =
-    Number(searchParams.get("year")) || new Date().getFullYear();
   const initialAgencyId = isAgenciesAllowed ? searchParams.get("agency") : null;
   const initialPage = Number(searchParams.get("page")) || 1;
   const initialLimit = Number(searchParams.get("limit")) || 20;
   const initialSearch = searchParams.get("search") || "";
 
-  // --- State for main evaluations ---
-  const [month, setMonth] = useState(initialMonth);
-  const [year, setYear] = useState(initialYear);
+  // --- State ---
   const [agencyId, setAgencyId] = useState(initialAgencyId);
   const [filters, setFilters] = useState({});
 
@@ -62,8 +56,6 @@ export const useTeams = () => {
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      month,
-      year,
       agency: isAgenciesAllowed
         ? agencyId || undefined
         : user?.agency?._id || undefined,
@@ -80,8 +72,6 @@ export const useTeams = () => {
   }, [
     pagination.page,
     pagination.limit,
-    month,
-    year,
     isAgenciesAllowed,
     agencyId,
     user?.agency?._id,
@@ -109,8 +99,6 @@ export const useTeams = () => {
   useEffect(() => {
     const params = new URLSearchParams();
 
-    if (month) params.set("month", month);
-    if (year) params.set("year", year);
     if (agencyId && isAgenciesAllowed) params.set("agency", agencyId);
     if (pagination.page && pagination.page > 1)
       params.set("page", pagination.page);
@@ -134,8 +122,6 @@ export const useTeams = () => {
       setSearchParams(params);
     }
   }, [
-    month,
-    year,
     agencyId,
     isAgenciesAllowed,
     pagination,
@@ -150,10 +136,10 @@ export const useTeams = () => {
   const fetchResult = useFetchItemsQuery(
     { path: "/evaluation/teams", params: queryParams },
     {
-      refetchOnMountOrArgChange: false, // Don't refetch on mount if data exists
-      refetchOnFocus: false, // Don't refetch on focus
-      refetchOnReconnect: false, // Don't refetch on reconnect
-      keepUnusedDataFor: 300, // Keep data in cache for 5 minutes
+      refetchOnMountOrArgChange: false,
+      refetchOnFocus: false,
+      refetchOnReconnect: false,
+      keepUnusedDataFor: 300,
     },
   );
 
@@ -181,9 +167,9 @@ export const useTeams = () => {
   useEffect(() => {
     if (data?.doc) {
       setList(data.doc);
-      setTotalCount(data.pagination.total || 0);
+      setTotalCount(data.pagination?.total || 0);
     }
-  }, [data?.doc, data?.pagination.total]);
+  }, [data?.doc, data?.pagination?.total]);
 
   // --- Pagination handlers ---
   const handlePageChange = (page) => {
@@ -200,13 +186,6 @@ export const useTeams = () => {
 
   const handleMyPageSize = (limit) => {
     setMyPagination({ page: 1, limit: Number(limit) });
-  };
-
-  // --- Date filter change ---
-  const onDateFilterChange = (value) => {
-    setMonth(Number(value.month));
-    setYear(Number(value.year));
-    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   // --- Search handlers ---
@@ -368,13 +347,9 @@ export const useTeams = () => {
     // Main evaluations
     data: list ?? [],
     setData: setList,
-    totalPages: data?.pagination.totalPages ?? 0,
+    totalPages: data?.pagination?.totalPages ?? 0,
     totalRecords: totalCount ?? 0,
-    month,
-    year,
     agencyId,
-    setMonth,
-    setYear,
     setAgencyId,
     filters,
     setFilters,
@@ -384,7 +359,6 @@ export const useTeams = () => {
     handlePageSize,
     handleSearchChange,
     handleSearchTermChange: handleSearchChange,
-    onDateFilterChange,
 
     // My evaluations
     myEvaluations,

@@ -30,8 +30,6 @@ import { useNavigate } from "react-router-dom";
 const Team = () => {
   const navigate = useNavigate();
   const {
-    month,
-    year,
     refetchEvaluations,
     isAgenciesAllowed,
     agencies,
@@ -309,8 +307,6 @@ const Team = () => {
             data={data || []}
             isLoading={isLoading || isFetching}
             setView={setViewEvaluation}
-            month={month}
-            year={year}
             onEdit={handleEditTeam} // You'll need to pass this to your table component
           />
         ) : (
@@ -319,8 +315,6 @@ const Team = () => {
             data={data || []}
             isLoading={isLoading || isFetching}
             setView={setViewEvaluation}
-            month={month}
-            year={year}
             onEdit={handleEditTeam} // You'll need to pass this to your cards component
           />
         )}
@@ -331,8 +325,6 @@ const Team = () => {
             isOpen={viewEvaluation?.modal}
             onClose={() => setViewEvaluation({ modal: false, data: null })}
             data={viewEvaluation?.data}
-            selectedMonth={month}
-            selectedYear={year}
           />
         )}
 
