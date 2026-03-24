@@ -143,14 +143,12 @@ const TeamForm = ({
   const leaders = getUsersFromResponse(leaderResponse).map((user) => ({
     value: user._id,
     label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
-    role: user.roles?.[0]?.roleName || "",
   }));
 
   // Transform members data based on API response structure
   const employees = getUsersFromResponse(membersResponse).map((user) => ({
     value: user._id,
     label: user.fullName || `${user.firstName} ${user.lastName}`.trim(),
-    role: user.roles?.[0]?.roleName || "",
   }));
 
   const teamSchema = yup.object().shape({
@@ -224,14 +222,9 @@ const TeamForm = ({
   );
 
   // Simple format option label without avatar (keeping original UI)
-  const formatOptionLabel = ({ label, role }) => (
+  const formatOptionLabel = ({ label }) => (
     <Box>
       <Text fontSize="sm">{label}</Text>
-      {role && (
-        <Text fontSize="xs" color="gray.500">
-          {role}
-        </Text>
-      )}
     </Box>
   );
 
