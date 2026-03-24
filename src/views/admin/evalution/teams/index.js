@@ -26,6 +26,7 @@ import { toast } from "react-toastify";
 import AppButton from "components/shared/AppButton";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import CountUpComponent from "components/countUpComponent/countUpComponent";
 
 const Team = () => {
   const navigate = useNavigate();
@@ -222,7 +223,15 @@ const Team = () => {
             justify={{ base: "center", md: "flex-start" }}
             w={{ base: "100%", md: "auto" }}
           >
-            <Text textAlign={{ base: "center", md: "left" }}>Teams</Text>
+            <HStack gap="1" fontWeight="bold">
+              <Text fontSize="20px" fontWeight={"bold"}>
+                Teams
+              </Text>
+              <CountUpComponent
+                key={totalRecords}
+                targetNumber={totalRecords}
+              />
+            </HStack>
 
             {/* Show refresh button next to text only on mobile */}
             <Box display={{ base: "inline-block", md: "none" }}>
