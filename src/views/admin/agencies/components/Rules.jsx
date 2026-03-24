@@ -9,16 +9,11 @@ const RulesSection = ({ rules, setRules }) => {
 
 	return (
 		<Box p={5} borderRadius='lg' w={{ base: '100%', md: '460px' }}>
-			<Text
-				fontFamily='Poppins'
-				fontWeight='300'
-				fontSize={{ base: '18px', md: '20px' }}
-				mb={4}
-			>
-				Rules
+			<Text fontWeight='600' fontSize={{ base: 'md', md: 'lg' }} mb={4}>
+				Agent Rules
 			</Text>
 
-			<Button
+			{/* <Button
 				bg='#EDC270'
 				w={{ base: '100%', md: '156px' }}
 				fontFamily='Poppins'
@@ -29,7 +24,7 @@ const RulesSection = ({ rules, setRules }) => {
 				_hover={{ bg: '#EDC270' }}
 			>
 				Agent
-			</Button>
+			</Button> */}
 
 			<Box
 				borderWidth='1px'
