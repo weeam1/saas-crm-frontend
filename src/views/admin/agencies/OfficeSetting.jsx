@@ -195,6 +195,7 @@ const OfficeSettings = ({ userId }) => {
 				earlyCheckoutDeductionRules:
 					settings?.earlyCheckoutDeductionRules || [],
 			});
+
 			setAbsenceDeductionDays(settings?.absenceDeductionDays || 1);
 
 			if (settings?.rules) {
@@ -279,7 +280,7 @@ const OfficeSettings = ({ userId }) => {
 				agency: agencyId,
 				rules: transformedRules,
 				monthlyLateLimit,
-				absenceDeductionDays,
+				absenceDeductionDays: parseFloat(absenceDeductionDays),
 				monthlyEarlyCheckoutLimit,
 				...lateDeductionSettings,
 				...earlyCheckoutDeductionSettings,
@@ -337,6 +338,27 @@ const OfficeSettings = ({ userId }) => {
 			return newParams;
 		});
 		setSearchClear(false);
+	};
+
+	const handleAbsenceChange = (e) => {
+		const value = e.target.value;
+
+		// 1. Allow the user to actually type the decimal point
+		// The regex is correct, but we must store the string 'value' directly
+		if (value === '' || /^\d*\.?\d{0,2}$/.test(value)) {
+			setAbsenceDeductionDays(value); // Store the string, not Number(value)
+		}
+	};
+
+	const handleAbsenceBlur = () => {
+		// 2. Convert to number only when the user stops typing
+		let num = parseFloat(absenceDeductionDays);
+
+		if (isNaN(num) || num < 1) num = 1;
+		if (num > 30) num = 30;
+
+		// 3. Finalize the state as a clean number or formatted string
+		setAbsenceDeductionDays(num.toFixed(2));
 	};
 
 	return officeSettingsLoading ? (
@@ -495,7 +517,8 @@ const OfficeSettings = ({ userId }) => {
 						borderRadius='lg'
 						p={6}
 						w={{ base: '100%', md: '420px' }}
-						// h='fit-content'
+						transition='all .2s'
+						_hover={{ borderColor: 'gray.300', shadow: 'sm' }}
 					>
 						<HStack justify='space-between' align='center' gap={4}>
 							<VStack align='start' spacing={1} flex='1'>
@@ -504,34 +527,55 @@ const OfficeSettings = ({ userId }) => {
 								</Text>
 
 								<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
-									Number of salary days deducted for one absence.
+									Number of salary days deducted for each absence.
 								</Text>
 							</VStack>
-
-							<NumberInput
+							<Input
 								value={absenceDeductionDays}
-								onChange={(v) => setAbsenceDeductionDays(Number(v))}
-								min={1}
-								max={30}
-								step={1}
+								onChange={handleAbsenceChange}
+								onBlur={handleAbsenceBlur}
+								inputMode='decimal'
+								textAlign='center'
+								fontWeight='600'
 								size='sm'
 								w='90px'
-								clampValueOnBlur
-								keepWithinRange
-								allowMouseWheel
-							>
-								<NumberInputField textAlign='center' fontWeight='600' />
-								<NumberInputStepper>
-									<NumberIncrementStepper />
-									<NumberDecrementStepper />
-								</NumberInputStepper>
-							</NumberInput>
+							/>
 						</HStack>
 
+						{/* Example */}
 						<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.400' mt={2}>
-							Example: 1 absence → {absenceDeductionDays || 1} salary day(s)
-							deducted
+							Example: 1 absence → <b>{absenceDeductionDays || 1}</b> salary
+							day(s) deducted
 						</Text>
+
+						{/* Important Day Notice */}
+						<Box
+							mt={3}
+							bg='orange.50'
+							border='1px solid'
+							borderColor='orange.200'
+							borderRadius='md'
+							p={3}
+						>
+							<Text
+								fontSize={{ base: 'xs', md: 'sm' }}
+								color='orange.700'
+								fontWeight='500'
+							>
+								Important Day Rule
+							</Text>
+
+							<Text
+								fontSize={{ base: 'xs', md: 'sm' }}
+								color='orange.600'
+								mt={1}
+							>
+								Absence on an important day results in <b>double deduction</b>.
+								<br />
+								Example: {absenceDeductionDays || 1} × 2 ={' '}
+								{(absenceDeductionDays || 1) * 2} salary days deducted.
+							</Text>
+						</Box>
 					</Box>
 				</Flex>
 
