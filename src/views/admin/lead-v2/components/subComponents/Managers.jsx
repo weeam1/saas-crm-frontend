@@ -22,8 +22,6 @@ import { useTeamStructure } from 'hooks/user/useTeamStructure';
 
 import SelectInput from 'components/shared/SelectInput';
 import CustomTooltip from 'components/shared/CustomTooltip';
-import { useSendNotification } from 'hooks/notification/useSendNotification';
-import { NOTIFICATION_TYPES } from 'constants/notification.contants';
 
 const Managers = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { managerAssigned } = lead;
@@ -38,8 +36,6 @@ const Managers = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { createUserLog } = useUserActivityLog();
 	const [fetchUserStats, { error: fetchUserStatsError }] =
 		useCreateItemMutation();
-
-	const { sendNotification } = useSendNotification();
 
 	useEffect(() => {
 		setSelected(managerAssigned);
@@ -131,15 +127,7 @@ const Managers = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 
 				// send lead notification
 				if (managerAssignedValue) {
-					await sendNotification({
-						recipientType: 'INDIVIDUAL',
-						type: NOTIFICATION_TYPES.LEAD_ASSIGNED,
-						sender: user?._id,
-						title: 'New Lead Assigned',
-						receivers: [managerAssignedValue],
-						metadata: { leadId: lead?._id },
-					});
-					// sendLeadNotification(user?._id, managerAssignedValue, lead);
+					sendLeadNotification(user?._id, managerAssignedValue, lead);
 				}
 
 				let message;

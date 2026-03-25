@@ -14,16 +14,15 @@ export const useLeadStatuses = () => {
 		useFetchItemsQuery(
 			{ path: '/lead/statuses' },
 			{
-				// skip: leadStatuses?.length > 0,
-				refetchOnMountOrArgChange: true,
+				skip: leadStatuses?.length > 0,
+				refetchOnMountOrArgChange: false,
 				refetchOnFocus: true,
-				refetchOnReconnect: true,
 			},
 		);
 
 	// Store in Redux when first loaded
 	useEffect(() => {
-		if (data?.data?.length) {
+		if (!leadStatuses?.length && data?.data?.length) {
 			dispatch(setLeadStatuses(data));
 		}
 	}, [data, dispatch]);

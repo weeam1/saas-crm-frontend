@@ -18,8 +18,6 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import { useCreateItemMutation } from 'api/apiSlice';
-import { useSendNotification } from 'hooks/notification/useSendNotification';
-import { NOTIFICATION_TYPES } from 'constants/notification.contants';
 
 const Agents = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { agentAssigned, managerAssigned, teamLeadAssigned } = lead;
@@ -35,9 +33,6 @@ const Agents = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 	const { team } = useTeamStructure();
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
-
-	const { sendNotification } = useSendNotification();
-
 	const [fetchUserStats, { error: fetchUserStatsError }] =
 		useCreateItemMutation();
 
@@ -114,15 +109,7 @@ const Agents = ({ lead, setIsErrorModalOpen, setErrorLeadData }) => {
 
 				// send lead notification
 				if (agentAssignedValue) {
-					await sendNotification({
-						recipientType: 'INDIVIDUAL',
-						type: NOTIFICATION_TYPES.LEAD_ASSIGNED,
-						sender: user?._id,
-						title: 'New Lead Assigned',
-						receivers: [agentAssignedValue],
-						metadata: { leadId: lead?._id },
-					});
-					// sendLeadNotification(user?._id, agentAssignedValue, lead);
+					sendLeadNotification(user?._id, agentAssignedValue, lead);
 				}
 
 				let message;

@@ -9,8 +9,6 @@ import {
 	useLocation,
 	useSearchParams,
 } from 'react-router-dom';
-import { Notifications } from 'react-push-notification';
-
 import AuthLayout from './layouts/auth';
 import AdminLayout from 'layouts/admin';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
@@ -28,6 +26,7 @@ import webSocketService from 'services/WebSocketService';
 import { newNotifyItem } from './redux/webSocketReducer';
 import { addAnnouncement } from './redux/announcementsSlice';
 import AnnouncementsModal from 'views/admin/announcement/components/AnnouncementsModal';
+import addNotification, { Notifications } from 'react-push-notification';
 import WeeamLoadingPage from './components/welcome/WeeamLoadingPage';
 
 import logo from 'assets/img/app-logo.jpeg';
@@ -46,8 +45,6 @@ import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import NewFreshLeadModal from 'views/admin/freshLead/NewFreshLeadModal';
 import NewFreshLeadPoolModal from 'views/admin/freshLead/freshLeadPool/FreshLeadPoolModal';
 import FreshApprovedLeadModal from 'views/admin/freshLead/freshApprovedLead/FreshApprovedLeadModal';
-import AnnouncementNotification from 'views/notification/announcementNotification';
-import soundPlayer from 'utils/sound/soundUtil';
 // import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 // import { normalizePhone } from 'utils/phoneValidation';
 
@@ -63,7 +60,7 @@ function App() {
 	useEffect(() => {
 		getSmartTimezone();
 
-		soundPlayer.preload('/assets/notification.mp3');
+		// register whatsapp socket
 	}, []);
 
 	// initilzed the team Structure
@@ -87,18 +84,18 @@ function App() {
 	// initilize the web sockets
 	const { isConnected } = useSocketEvents();
 
-	// const showNotification = (customOptions) => {
-	// 	const notificationOptions = {
-	// 		theme: 'darkblue',
-	// 		native: true,
-	// 		duration: 20000,
-	// 		icon: logo,
-	// 		...customOptions,
-	// 	};
+	const showNotification = (customOptions) => {
+		const notificationOptions = {
+			theme: 'darkblue',
+			native: true,
+			duration: 20000,
+			icon: logo,
+			...customOptions,
+		};
 
-	// 	Notification.requestPermission();
-	// 	addNotification(notificationOptions);
-	// };
+		Notification.requestPermission();
+		addNotification(notificationOptions);
+	};
 
 	const user2 = useSelector((state) => state.user.user);
 
@@ -165,72 +162,72 @@ function App() {
 
 		webSocketService.connect(user._id);
 
-		// webSocketService.socket.onmessage = async (event) => {
-		// 	try {
-		// 		const socketData = JSON.parse(event.data);
-		// 		// console.log('WebSocket message:', socketData);
+		webSocketService.socket.onmessage = async (event) => {
+			try {
+				const socketData = JSON.parse(event.data);
+				// console.log('WebSocket message:', socketData);
 
-		// 		let notificationDetails = {};
-		// 		const { type, data } = socketData;
-		// 		const message = data?.message
-		// 			? data?.message
-		// 			: data?.lead_id
-		// 				? `You have been assigned a new lead${data?.lead_name && `: ${data?.lead_name}`}`
-		// 				: 'Check out the latest updates!';
+				let notificationDetails = {};
+				const { type, data } = socketData;
+				const message = data?.message
+					? data?.message
+					: data?.lead_id
+						? `You have been assigned a new lead${data?.lead_name && `: ${data?.lead_name}`}`
+						: 'Check out the latest updates!';
 
-		// 		// Handle announcements (type === 1)
-		// 		// if (type === 1) {
-		// 		// 	if (Array.isArray(data) && data.length > 0) {
-		// 		// 		data.forEach((announcement) =>
-		// 		// 			dispatch(addAnnouncement(announcement)),
-		// 		// 		);
-		// 		// 	} else {
-		// 		// 		dispatch(addAnnouncement(data));
-		// 		// 	}
-		// 		// }
+				// Handle announcements (type === 1)
+				if (type === 1) {
+					if (Array.isArray(data) && data.length > 0) {
+						data.forEach((announcement) =>
+							dispatch(addAnnouncement(announcement)),
+						);
+					} else {
+						dispatch(addAnnouncement(data));
+					}
+				}
 
-		// 		// Push notification if type is valid
-		// 		if (type !== -1 && message) {
-		// 			dispatch(newNotifyItem(socketData));
+				// Push notification if type is valid
+				if (type !== -1 && message) {
+					dispatch(newNotifyItem(socketData));
 
-		// 			notificationDetails = {
-		// 				title:
-		// 					type === 1
-		// 						? 'New Announcement'
-		// 						: type === 2
-		// 							? 'Interview Invite'
-		// 							: 'New Notification',
-		// 				message,
-		// 			};
-		// 		}
+					notificationDetails = {
+						title:
+							type === 1
+								? 'New Announcement'
+								: type === 2
+									? 'Interview Invite'
+									: 'New Notification',
+						message,
+					};
+				}
 
-		// 		// Request and send notifications
-		// 		const isGranted = await requestNotificationPermission();
-		// 		if (isGranted) {
-		// 			showNotification({
-		// 				title: notificationDetails.title,
-		// 				message: notificationDetails.message,
-		// 			});
-		// 		}
-		// 		// else {
-		// 		// 	toast.success('Check out the latest updates!');
-		// 		// }
+				// Request and send notifications
+				const isGranted = await requestNotificationPermission();
+				if (isGranted) {
+					showNotification({
+						title: notificationDetails.title,
+						message: notificationDetails.message,
+					});
+				}
+				// else {
+				// 	toast.success('Check out the latest updates!');
+				// }
 
-		// 		// Play notification sound
-		// 		// await announcementSound
-		// 		// 	.play()
-		// 		// 	.catch((error) => console.error('Error playing sound:', error));
+				// Play notification sound
+				await announcementSound
+					.play()
+					.catch((error) => console.error('Error playing sound:', error));
 
-		// 		// Open the modal and clear previous notification
-		// 		// setIsModalOpen(true);
-		// 	} catch (error) {
-		// 		console.error('Error handling WebSocket message:', error);
-		// 	}
-		// };
+				// Open the modal and clear previous notification
+				setIsModalOpen(true);
+			} catch (error) {
+				console.error('Error handling WebSocket message:', error);
+			}
+		};
 
-		// return () => {
-		// 	webSocketService.socket.onmessage = null;
-		// };
+		return () => {
+			webSocketService.socket.onmessage = null;
+		};
 	}, [dispatch, user]);
 
 	// const getToken = () => {
@@ -345,9 +342,6 @@ function App() {
 
 	return (
 		<>
-			{/* Browser Notifications */}
-			<Notifications />
-
 			{/* Fresh lead modal */}
 			{userRoleName === 'Agent' && (
 				<>
@@ -361,9 +355,7 @@ function App() {
 				<NewFreshLeadPoolModal />
 			)}
 
-			{/* Announcment notification real time */}
-			<AnnouncementNotification />
-
+			<Notifications />
 			{isModalOpen && (
 				<AnnouncementsModal
 					isOpen={isModalOpen}

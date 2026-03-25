@@ -14,10 +14,6 @@ import {
 	markLeadDecisionFinalized,
 } from '../redux/freshLeadPoolSlice';
 import keys from 'config/keys';
-import { addAnnouncement, addAnnouncements } from '../redux/announcementsSlice';
-import { NOTIFICATION_TYPES } from 'constants/notification.contants';
-import { triggerBrowserNotification } from './notification/browserNotification';
-import { setNotifyItem } from '../redux/notificationSlice';
 
 class SocketService {
 	constructor() {
@@ -60,30 +56,6 @@ class SocketService {
 				this.connectionStatus = 'connected';
 				// this.reconnectionAttempts = 0;
 				resolve(this.socket.id);
-			});
-
-			this.socket.on('notification', (payload) => {
-				console.log('New Notification:', payload);
-
-				triggerBrowserNotification({
-					title: payload?.title || 'Notification',
-					message: payload?.title || 'You received a new notification',
-				});
-
-				store.dispatch(setNotifyItem());
-
-				if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
-					store.dispatch(addAnnouncement(payload));
-				}
-			});
-
-			this.socket.on('unread_notifications', (payload) => {
-				console.log('Unread Notifications:', payload);
-
-				store.dispatch(addAnnouncements(payload));
-				// if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
-				// 	store.dispatch(addAnnouncement(payload));
-				// }
 			});
 
 			this.socket.on('chatMessage', (msg) => {

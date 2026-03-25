@@ -3,30 +3,30 @@
 // ====================================================================
 // import { Icon } from '@chakra-ui/react';
 import {
-  MdHome,
-  MdLeaderboard,
-  MdOutlineLaptopMac,
-  MdInsertChartOutlined,
-  MdOutlineAdminPanelSettings,
-  MdPeopleOutline,
-  MdCampaign,
-  MdInsights,
-  MdOutlinePayments,
-} from "react-icons/md";
+	MdHome,
+	MdLeaderboard,
+	MdOutlineLaptopMac,
+	MdInsertChartOutlined,
+	MdOutlineAdminPanelSettings,
+	MdPeopleOutline,
+	MdCampaign,
+	MdInsights,
+	MdOutlinePayments,
+} from 'react-icons/md';
 import {
-  FaTasks,
-  FaRegCalendarCheck,
-  FaList,
-  FaWhatsapp,
-  FaHandshake,
-  FaPhone,
-  FaRegCopy,
-  FaFileAlt,
-  FaFileInvoiceDollar,
-  FaMoneyCheckAlt,
-} from "react-icons/fa";
-import { HiOutlineDocumentReport, HiUsers } from "react-icons/hi";
-import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
+	FaTasks,
+	FaRegCalendarCheck,
+	FaList,
+	FaWhatsapp,
+	FaHandshake,
+	FaPhone,
+	FaRegCopy,
+	FaFileAlt,
+	FaFileInvoiceDollar,
+	FaMoneyCheckAlt,
+} from 'react-icons/fa';
+import { HiOutlineDocumentReport, HiUsers } from 'react-icons/hi';
+import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 
 // const sidebarRoutes = [
 // 	// -------- Dashboard --------
@@ -250,471 +250,466 @@ import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
 // ];
 
 export const sidebarRoutes = [
-  // -------- Dashboard --------
-  {
-    name: "Dashboard",
-    path: "/default",
-    icon: MdHome,
-    isNested: false,
-    color: "#6366F1", // Indigo
-  },
+	// -------- Dashboard --------
+	{
+		name: 'Dashboard',
+		path: '/default',
+		icon: MdHome,
+		isNested: false,
+		color: '#6366F1', // Indigo
+	},
 
-  // -------- Leads --------
-  {
-    moduleId: "leads",
-    name: "Lead",
-    path: "/lead",
-    icon: MdLeaderboard,
-    isNested: true,
-    color: "#9333EA", // Emerald
-    children: [
-      {
-        // id: "leads",
-        name: "Leads",
-        path: "/lead",
-      },
-      {
-        id: "lead_analytics",
-        name: "Analytics",
-        path: "/lead_analytics",
-        version: "Beta",
-      },
-      {
-        id: "call_feedbacks",
-        name: "Call Feedback",
-        path: "/call-feedback",
-      },
-      {
-        // id: "leads_setting",
-        name: "Settings",
-        path: "/lead_settings",
-      },
-    ],
-  },
-  {
-    moduleId: "leadpool_admin",
-    name: "Lead Pool",
-    path: "/pool",
-    isNested: false,
-    icon: MdOutlineAdminPanelSettings,
-    color: "#F59E0B", // Amber
-  },
-  {
-    moduleId: "leadpool_agents",
-    name: "Lead Pool",
-    path: "/agent_pool",
-    isNested: false,
-    icon: MdPeopleOutline,
-    color: "#FBBF24", // Yellow
-  },
+	// -------- Leads --------
+	{
+		moduleId: 'leads',
+		name: 'Lead',
+		path: '/lead',
+		icon: MdLeaderboard,
+		isNested: true,
+		color: '#9333EA', // Emerald
+		children: [
+			{
+				// id: "leads",
+				name: 'Leads',
+				path: '/lead',
+			},
+			{
+				id: 'lead_analytics',
+				name: 'Analytics',
+				path: '/lead_analytics',
+				version: 'Beta',
+			},
+			{
+				id: 'call_feedbacks',
+				name: 'Call Feedback',
+				path: '/call-feedback',
+			},
+		],
+	},
+	{
+		moduleId: 'leadpool_admin',
+		name: 'Lead Pool',
+		path: '/pool',
+		isNested: false,
+		icon: MdOutlineAdminPanelSettings,
+		color: '#F59E0B', // Amber
+	},
+	{
+		moduleId: 'leadpool_agents',
+		name: 'Lead Pool',
+		path: '/agent_pool',
+		isNested: false,
+		icon: MdPeopleOutline,
+		color: '#FBBF24', // Yellow
+	},
 
-  // -------- Deals --------
-  {
-    moduleId: "deal",
-    name: "Deals",
-    path: "/deals",
-    icon: FaHandshake,
-    isNested: true,
-    color: "#22C55E", // Green
-    children: [
-      {
-        id: "closed_deals",
-        name: "Close Deals",
-        path: "/deals/close-deal",
-      },
-      {
-        id: "shared_deals",
-        name: "Shared Deals",
-        path: "/deals/shared-deals",
-      },
-    ],
-  },
+	// -------- Deals --------
+	{
+		moduleId: 'deal',
+		name: 'Deals',
+		path: '/deals',
+		icon: FaHandshake,
+		isNested: true,
+		color: '#22C55E', // Green
+		children: [
+			{
+				id: 'closed_deals',
+				name: 'Close Deals',
+				path: '/deals/close-deal',
+			},
+			{
+				id: 'shared_deals',
+				name: 'Shared Deals',
+				path: '/deals/shared-deals',
+			},
+		],
+	},
 
-  // ------- Announcement ------
-  {
-    moduleId: "announcement",
-    name: "Announcement",
-    path: "/announcements",
-    icon: MdCampaign,
-    isNested: true,
-    color: "#EC4899", // Pink
-    children: [
-      {
-        id: "create",
-        name: "Announcement",
-        path: "/announcement/create",
-      },
-      {
-        name: "History",
-        path: "/announcement/history",
-      },
-    ],
-  },
+	// ------- Announcement ------
+	{
+		moduleId: 'announcement',
+		name: 'Announcement',
+		path: '/announcements',
+		icon: MdCampaign,
+		isNested: true,
+		color: '#EC4899', // Pink
+		children: [
+			{
+				id: 'create',
+				name: 'Announcement',
+				path: '/announcement/create',
+			},
+			{
+				name: 'History',
+				path: '/announcement/history',
+			},
+		],
+	},
 
-  // -------- Hiring --------
-  {
-    moduleId: "hiring",
-    name: "Hiring",
-    path: "/hiring",
-    isNested: true,
-    icon: FaClipboardUser,
-    color: "#0EA5E9", // Sky
-    children: [
-      {
-        name: "Dashboard",
-        path: "/hiring/dasboard",
-      },
-      {
-        name: "Candidates",
-        path: "/hiring/candidates",
-      },
-      {
-        name: "Short Listed",
-        path: "/hiring/short-listed",
-      },
-      {
-        name: "Multi-Round",
-        path: "/hiring/multi-round",
-      },
-      {
-        name: "Interviewed Candidates",
-        path: "/hiring/interviewed-candidates",
-      },
-      {
-        name: "Settings",
-        path: "/hiring/settings",
-      },
-    ],
-  },
+	// -------- Hiring --------
+	{
+		moduleId: 'hiring',
+		name: 'Hiring',
+		path: '/hiring',
+		isNested: true,
+		icon: FaClipboardUser,
+		color: '#0EA5E9', // Sky
+		children: [
+			{
+				name: 'Dashboard',
+				path: '/hiring/dasboard',
+			},
+			{
+				name: 'Candidates',
+				path: '/hiring/candidates',
+			},
+			{
+				name: 'Short Listed',
+				path: '/hiring/short-listed',
+			},
+			{
+				name: 'Multi-Round',
+				path: '/hiring/multi-round',
+			},
+			{
+				name: 'Interviewed Candidates',
+				path: '/hiring/interviewed-candidates',
+			},
+			{
+				name: 'Settings',
+				path: '/hiring/settings',
+			},
+		],
+	},
 
-  // -------- Attendance --------
-  {
-    moduleId: "attendance",
-    name: "Attendance",
-    path: "/attendance",
-    isNested: true,
-    icon: FaRegCalendarCheck,
-    color: "#A855F7", // Violet
-    children: [
-      {
-        id: "dashboard",
-        name: "Dashboard",
-        path: "/attendance/dashboard",
-      },
-      {
-        id: "employees",
-        name: "Employees",
-        path: "/attendance/employees",
-      },
-      {
-        id: "record",
-        name: "Record",
-        path: "/attendance/record",
-      },
-      {
-        id: "my_attendance",
-        name: "My Attendence",
-        path: "/attendance/my_attendance",
-      },
-    ],
-  },
+	// -------- Attendance --------
+	{
+		moduleId: 'attendance',
+		name: 'Attendance',
+		path: '/attendance',
+		isNested: true,
+		icon: FaRegCalendarCheck,
+		color: '#A855F7', // Violet
+		children: [
+			{
+				id: 'dashboard',
+				name: 'Dashboard',
+				path: '/attendance/dashboard',
+			},
+			{
+				id: 'employees',
+				name: 'Employees',
+				path: '/attendance/employees',
+			},
+			{
+				id: 'record',
+				name: 'Record',
+				path: '/attendance/record',
+			},
+			{
+				id: 'my_attendance',
+				name: 'My Attendence',
+				path: '/attendance/my_attendance',
+			},
+		],
+	},
 
-  // -------- Invoices --------
-  {
-    moduleId: "invoice",
-    name: "Invoice",
-    path: "/invoice",
-    isNested: true,
-    icon: HiOutlineDocumentReport,
-    color: "#3B82F6", // Blue
-    children: [
-      {
-        name: "Bank Accounts",
-        path: "/invoice/bank-account",
-      },
-      {
-        name: "Developer",
-        path: "/invoice/developer",
-      },
-      {
-        name: "Project",
-        path: "/invoice/project",
-      },
-    ],
-  },
+	// -------- Invoices --------
+	{
+		moduleId: 'invoice',
+		name: 'Invoice',
+		path: '/invoice',
+		isNested: true,
+		icon: HiOutlineDocumentReport,
+		color: '#3B82F6', // Blue
+		children: [
+			{
+				name: 'Bank Accounts',
+				path: '/invoice/bank-account',
+			},
+			{
+				name: 'Developer',
+				path: '/invoice/developer',
+			},
+			{
+				name: 'Project',
+				path: '/invoice/project',
+			},
+		],
+	},
 
-  // -------- Expenses --------
-  // {
-  // 	moduleId: 'expense',
-  // 	name: 'Expenses',
-  // 	path: '/expenses',
-  // 	isNested: true,
-  // 	icon: FaRegCopy,
-  // 	color: '#F97316', // Orange
-  // 	children: [
-  // 		{
-  // 			name: 'Balance',
-  // 			path: '/expenses/balance',
-  // 		},
-  // 		{
-  // 			name: 'Outgoing Cash',
-  // 			path: '/expenses/outgoing-cash',
-  // 		},
-  // 	],
-  // },
+	// -------- Expenses --------
+	// {
+	// 	moduleId: 'expense',
+	// 	name: 'Expenses',
+	// 	path: '/expenses',
+	// 	isNested: true,
+	// 	icon: FaRegCopy,
+	// 	color: '#F97316', // Orange
+	// 	children: [
+	// 		{
+	// 			name: 'Balance',
+	// 			path: '/expenses/balance',
+	// 		},
+	// 		{
+	// 			name: 'Outgoing Cash',
+	// 			path: '/expenses/outgoing-cash',
+	// 		},
+	// 	],
+	// },
 
-  // -------- Finance --------
-  {
-    moduleId: "expense",
-    name: "Expenses",
-    path: "/finance",
-    isNested: true,
-    icon: FaRegCopy,
-    color: "#F97316", // Orange
-    children: [
-      {
-        id: "incoming_cash",
-        name: "Incomming Cash",
-        path: "/finance/incoming-cash",
-      },
-      {
-        id: "outgoing_cash",
-        name: "Outgoing Cash",
-        path: "/finance/outgoing-cash",
-      },
-      {
-        id: "employee_loans",
-        name: "Employee Loans",
-        path: "/finance/employee-loans",
-      },
-      {
-        id: "settings",
-        name: "Settings",
-        path: "/finance/settings",
-      },
-    ],
-  },
+	// -------- Finance --------
+	{
+		moduleId: 'expense',
+		name: 'Expenses',
+		path: '/finance',
+		isNested: true,
+		icon: FaRegCopy,
+		color: '#F97316', // Orange
+		children: [
+			{
+				id: 'incoming_cash',
+				name: 'Incomming Cash',
+				path: '/finance/incoming-cash',
+			},
+			{
+				id: 'outgoing_cash',
+				name: 'Outgoing Cash',
+				path: '/finance/outgoing-cash',
+			},
+			{
+				id: 'employee_loans',
+				name: 'Employee Loans',
+				path: '/finance/employee-loans',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/finance/settings',
+			},
+		],
+	},
 
-  // ------- Evaluation ---------
-  {
-    moduleId: "evaluation",
-    name: "Evaluation",
-    path: "/evaluation",
-    icon: FaFileAlt,
-    color: "#86f17dff", // Gray
-    children: [
-      {
-        id: "evaluation_users",
-        name: "Evalute User",
-        path: "/evaluation/user-evaluation",
-      },
-      {
-        id: "my_evaluations",
-        name: "My Evaluation",
-        path: "/evaluation/my-evaluation",
-      },
-      {
-        id: "settings",
-        name: "Settings",
-        path: "/evaluation/settings",
-      },
-    ],
-  },
+	// ------- Evaluation ---------
+	{
+		moduleId: 'evaluation',
+		name: 'Evaluation',
+		path: '/evaluation',
+		icon: FaFileAlt,
+		color: '#86f17dff', // Gray
+		children: [
+			{
+				id: 'evaluation_users',
+				name: 'Evalute User',
+				path: '/evaluation/user-evaluation',
+			},
+			{
+				id: 'my_evaluations',
+				name: 'My Evaluation',
+				path: '/evaluation/my-evaluation',
+			},
+			{
+				id: 'settings',
+				name: 'Settings',
+				path: '/evaluation/settings',
+			},
+		],
+	},
 
-  // ---------- Payroll -----------
-  {
-    moduleId: "payroll",
-    name: "Payroll",
-    path: "/payroll",
-    icon: MdOutlinePayments,
-    // icon: FaMoneyCheckAlt,
-    isNested: false,
-    color: "#36ce6dff", // Teal
-    children: [
-      {
-        // id: 'all_users',
-        name: "Salaried Users",
-        path: "/payroll/users",
-      },
-      {
-        // id: 'commission_users',
-        name: "Commission Users",
-        path: "/payroll/commission-users",
-      },
-    ],
-  },
+	// ---------- Payroll -----------
+	{
+		moduleId: 'payroll',
+		name: 'Payroll',
+		path: '/payroll',
+		icon: MdOutlinePayments,
+		// icon: FaMoneyCheckAlt,
+		isNested: false,
+		color: '#36ce6dff', // Teal
+		children: [
+			{
+				// id: 'all_users',
+				name: 'Salaried Users',
+				path: '/payroll/users',
+			},
+			{
+				// id: 'commission_users',
+				name: 'Commission Users',
+				path: '/payroll/commission-users',
+			},
+		],
+	},
 
-  // -------- Tasks --------
-  {
-    moduleId: "task",
-    name: "Task",
-    path: "/task",
-    icon: FaTasks,
-    isNested: false,
-    color: "#14B8A6", // Teal
-  },
+	// -------- Tasks --------
+	{
+		moduleId: 'task',
+		name: 'Task',
+		path: '/task',
+		icon: FaTasks,
+		isNested: false,
+		color: '#14B8A6', // Teal
+	},
 
-  // -------- Listing --------
-  {
-    moduleId: "listing",
-    name: "Listing",
-    path: "/listing",
-    icon: FaList,
-    isNested: true,
+	// -------- Listing --------
+	{
+		moduleId: 'listing',
+		name: 'Listing',
+		path: '/listing',
+		icon: FaList,
+		isNested: true,
 
-    color: "#64748B", // Slate
-    children: [
-      {
-        id: "client_listing",
-        name: "Client Listings",
-        path: "/listing/client-listings",
-      },
-      {
-        id: "all_listing",
-        name: "All Listings",
-        path: "/listing/all-listings",
-      },
-      {
-        id: "my_listing",
-        name: "My Listings",
-        path: "/listing/my-listings",
-      },
-      {
-        id: "pending_listing",
-        name: "Pendings Listing",
-        path: "/listing/pending-listing",
-      },
-      {
-        id: "view_requests",
-        name: "View Requests",
-        path: "/listing/view-request-listing",
-      },
-      {
-        id: "settings",
-        name: "Listing Setting",
-        path: "/listing/settings",
-      },
-    ],
-  },
+		color: '#64748B', // Slate
+		children: [
+			{
+				id: 'client_listing',
+				name: 'Client Listings',
+				path: '/listing/client-listings',
+			},
+			{
+				id: 'all_listing',
+				name: 'All Listings',
+				path: '/listing/all-listings',
+			},
+			{
+				id: 'my_listing',
+				name: 'My Listings',
+				path: '/listing/my-listings',
+			},
+			{
+				id: 'pending_listing',
+				name: 'Pendings Listing',
+				path: '/listing/pending-listing',
+			},
+			{
+				id: 'view_requests',
+				name: 'View Requests',
+				path: '/listing/view-request-listing',
+			},
+			{
+				id: 'settings',
+				name: 'Listing Setting',
+				path: '/listing/settings',
+			},
+		],
+	},
 
-  // -------- Survey --------
-  {
-    moduleId: "survey",
-    name: "Survey",
-    path: "/survey",
-    isNested: true,
-    icon: FaSquarePlus,
-    color: "#8B5CF6", // Violet
-    children: [
-      {
-        name: "Dashboard",
-        path: "/survey/dashboard",
-      },
-      {
-        name: "All Surveys",
-        path: "/survey/all-surveys",
-      },
-      { id: "create", name: "Create Survey", path: "/survey/create" },
-    ],
-  },
+	// -------- Survey --------
+	{
+		moduleId: 'survey',
+		name: 'Survey',
+		path: '/survey',
+		isNested: true,
+		icon: FaSquarePlus,
+		color: '#8B5CF6', // Violet
+		children: [
+			{
+				name: 'Dashboard',
+				path: '/survey/dashboard',
+			},
+			{
+				name: 'All Surveys',
+				path: '/survey/all-surveys',
+			},
+			{ id: 'create', name: 'Create Survey', path: '/survey/create' },
+		],
+	},
 
-  // -------- Call Logs (SIP) --------
-  {
-    moduleId: "sip",
-    name: "Call Logs",
-    path: "/sip",
-    isNested: true,
-    icon: FaPhone,
-    color: "#06B6D4", // Cyan
-    children: [
-      { name: "Dashboard", path: "/sip/dashboard" },
-      { id: "call_history", name: "Call History", path: "/sip/history" },
-      {
-        id: "user_analytics",
-        name: "User Analytics",
-        path: "/sip/user-analytics",
-      },
-      { id: "user_settings", name: "Call Settings", path: "/sip/settings" },
-      {
-        id: "shared_recordings",
-        name: "Shared Recording",
-        path: "/sip/shared-recording",
-      },
-    ],
-  },
+	// -------- Call Logs (SIP) --------
+	{
+		moduleId: 'sip',
+		name: 'Call Logs',
+		path: '/sip',
+		isNested: true,
+		icon: FaPhone,
+		color: '#06B6D4', // Cyan
+		children: [
+			{ name: 'Dashboard', path: '/sip/dashboard' },
+			{ id: 'call_history', name: 'Call History', path: '/sip/history' },
+			{
+				id: 'user_analytics',
+				name: 'User Analytics',
+				path: '/sip/user-analytics',
+			},
+			{ id: 'user_settings', name: 'Call Settings', path: '/sip/settings' },
+			{
+				id: 'shared_recordings',
+				name: 'Shared Recording',
+				path: '/sip/shared-recording',
+			},
+		],
+	},
 
-  // -------- Reports --------
-  {
-    moduleId: "reports",
-    name: "Reports",
-    isNested: false,
-    path: "/reporting-analytics",
-    icon: MdInsertChartOutlined,
-    color: "#2e6f77ff", // Lime
-  },
+	// -------- Reports --------
+	{
+		moduleId: 'reports',
+		name: 'Reports',
+		isNested: false,
+		path: '/reporting-analytics',
+		icon: MdInsertChartOutlined,
+		color: '#2e6f77ff', // Lime
+	},
 
-  // -------- Whatsapp --------
-  {
-    moduleId: "whatsapp",
-    name: "Whatsapp",
-    path: "/whatsapp",
-    isNested: true,
-    icon: FaWhatsapp,
-    color: "#25D366", // WhatsApp Green
-    children: [
-      {
-        id: "whatsapp_chats",
-        name: "Chats",
-        path: "/whatsapp/chats",
-      },
-      {
-        id: "whatsapp_beta",
-        name: "WhatsApp",
-        version: "Beta",
-        path: "/whatsapp/instances",
-      },
-      {
-        id: "whatsapp_campaigns",
-        name: "Whatsapp Campaigns",
-        path: "/whatsapp/bulk-messages",
-      },
-      {
-        id: "whatsapp_settings",
-        name: "Settings",
-        path: "/whatsapp/settings",
-      },
-    ],
-  },
+	// -------- Whatsapp --------
+	{
+		moduleId: 'whatsapp',
+		name: 'Whatsapp',
+		path: '/whatsapp',
+		isNested: true,
+		icon: FaWhatsapp,
+		color: '#25D366', // WhatsApp Green
+		children: [
+			{
+				id: 'whatsapp_chats',
+				name: 'Chats',
+				path: '/whatsapp/chats',
+			},
+			{
+				id: 'whatsapp_beta',
+				name: 'WhatsApp',
+				version: 'Beta',
+				path: '/whatsapp/instances',
+			},
+			{
+				id: 'whatsapp_campaigns',
+				name: 'Whatsapp Campaigns',
+				path: '/whatsapp/bulk-messages',
+			},
+			{
+				id: 'whatsapp_settings',
+				name: 'Settings',
+				path: '/whatsapp/settings',
+			},
+		],
+	},
 
-  // -------- Users --------
-  // {
-  // 	moduleId: 'users',
-  // 	name: 'Users',
-  // 	isNested: false,
-  // 	path: '/users',
-  // 	icon: HiUsers,
-  // 	color: '#8B5CF6', // Violet
-  // },
+	// -------- Users --------
+	// {
+	// 	moduleId: 'users',
+	// 	name: 'Users',
+	// 	isNested: false,
+	// 	path: '/users',
+	// 	icon: HiUsers,
+	// 	color: '#8B5CF6', // Violet
+	// },
 
-  // -------- Users V2 --------
-  {
-    moduleId: "users",
-    name: "Users",
-    isNested: false,
-    path: "/users-v2",
-    icon: HiUsers,
-    color: "#8B5CF6", // Violet
-  },
+	// -------- Users V2 --------
+	{
+		moduleId: 'users',
+		name: 'Users',
+		isNested: false,
+		path: '/users-v2',
+		icon: HiUsers,
+		color: '#8B5CF6', // Violet
+	},
 
-  // -------- System Log --------
-  {
-    moduleId: "system_log",
-    name: "System Log",
-    path: "/system-log",
-    isNested: false,
-    icon: MdOutlineLaptopMac,
-    color: "#c03910ff", // Gray
-  },
+	// -------- System Log --------
+	{
+		moduleId: 'system_log',
+		name: 'System Log',
+		path: '/system-log',
+		isNested: false,
+		icon: MdOutlineLaptopMac,
+		color: '#c03910ff', // Gray
+	},
 ];
 
 export default sidebarRoutes;

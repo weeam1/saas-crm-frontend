@@ -14,12 +14,16 @@ import { putApi } from 'services/api';
 import { toast } from 'react-toastify';
 import { updateLeadFields } from '../../../../../redux/leadsSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { sendLeadFeedback } from 'api';
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { extractLocationData } from 'utils/helpers';
 import CloseDealModal from '../deals/CloseDealModal';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 import CRMQualificationModal from '../CrmQualificationModal';
+
+// const AdminStatus = ['deal'];
 
 const MainStatus = ({ lead, role }) => {
 	const [selected, setSelected] = useState('' || lead?.eLeadStatus);
@@ -31,6 +35,8 @@ const MainStatus = ({ lead, role }) => {
 	const [openQualification, setOpenQualification] = useState(false);
 
 	const layoutView = localStorage.getItem('leadView') || 'grid';
+
+	// const countries = useSelector((state) => state.countries.countryNames);
 
 	const dispatch = useDispatch();
 
@@ -283,36 +289,36 @@ const MainStatus = ({ lead, role }) => {
 		}
 	};
 
-	// const handleMetaFeedback = (newStatus) => {
-	// 	const mainStatusData = leadStatuses?.find(
-	// 		(status) => status.value === newStatus,
-	// 	);
+	const handleMetaFeedback = (newStatus) => {
+		const mainStatusData = leadStatuses?.find(
+			(status) => status.value === newStatus,
+		);
 
-	// 	if (!mainStatusData?.meta_id) return;
+		if (!mainStatusData?.meta_id) return;
 
-	// 	const leadPhone =
-	// 		typeof lead?.leadPhoneNumber === 'object'
-	// 			? lead?.leadPhoneNumber?.result
-	// 			: lead?.leadPhoneNumber;
+		const leadPhone =
+			typeof lead?.leadPhoneNumber === 'object'
+				? lead?.leadPhoneNumber?.result
+				: lead?.leadPhoneNumber;
 
-	// 	const { ip, city, country } = extractLocationData(lead?.ip);
+		const { ip, city, country } = extractLocationData(lead?.ip);
 
-	// 	sendLeadFeedback({
-	// 		email: lead?.leadEmail ?? '',
-	// 		phone: leadPhone,
-	// 		status: mainStatusData,
-	// 		action: 'MStatus',
-	// 		fcblid: lead?.fcblid || null,
-	// 		fbp: lead?.fbp || null,
-	// 		ip,
-	// 		country,
-	// 		city,
-	// 		zip: lead?.zip || null,
-	// 		userAgent: lead?.userAgent || null,
-	// 		leadName: lead?.leadName,
-	// 		leadId: lead?.intID,
-	// 	});
-	// };
+		sendLeadFeedback({
+			email: lead?.leadEmail ?? '',
+			phone: leadPhone,
+			status: mainStatusData,
+			action: 'MStatus',
+			fcblid: lead?.fcblid || null,
+			fbp: lead?.fbp || null,
+			ip,
+			country,
+			city,
+			zip: lead?.zip || null,
+			userAgent: lead?.userAgent || null,
+			leadName: lead?.leadName,
+			leadId: lead?.intID,
+		});
+	};
 
 	const logStatusChange = (newStatus, status) => {
 		createUserLog({

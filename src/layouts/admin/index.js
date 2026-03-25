@@ -82,7 +82,7 @@ export default function DashboardLayout({ defaultRoute = '/default' }) {
 		isError,
 		isLoading,
 	} = useFetchItemsQuery({
-		path: keys.baseApiUrl,
+		path: keys.baseLocalUrl,
 	});
 
 	const whatsappActive = user?.whatsappDetails?.isActive || false;

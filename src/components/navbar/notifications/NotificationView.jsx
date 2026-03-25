@@ -34,14 +34,14 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 		{
 			skip: !item?.interview_id,
 			refetchOnMountOrArgChange: true,
-		},
+		}
 	);
 
 	const currentRound = getCurrentInterviewRound(interview?.doc);
 
 	const isInterviewerSubmittedPoints = useMemo(() => {
 		const points = currentRound?.evaluations?.find(
-			(item) => item.interviewer?._id === user?._id,
+			(item) => item.interviewer?._id === user?._id
 		);
 		return points?.status ?? false;
 	}, [currentRound?.evaluations, user?._id]);
@@ -56,8 +56,7 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 		error?.status === 404;
 
 	const handleJoinInterview = () => {
-		// navigate(`/hiring/interview/${item.interview_id}`);
-		navigate(`/hiring/interview/${item.metadata?.interviewId}`);
+		navigate(`/hiring/interview/${item.interview_id}`);
 		// window.location.href = `/hiring/interview/${item.interview_id}?phase=evaluation-points`;
 		onClose();
 	};
@@ -89,7 +88,7 @@ const NotificationView = ({ title, item, type, isOpen, onClose }) => {
 						</Box>
 						{/* Created At */}
 						<Text fontSize='sm' color='gray.500'>
-							{format(new Date(item.createdAt), 'MMM d, yyyy h:mm a')}
+							{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}
 						</Text>
 					</Flex>
 				</ModalBody>

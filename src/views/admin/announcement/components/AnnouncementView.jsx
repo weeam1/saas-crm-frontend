@@ -103,7 +103,7 @@ const AnnouncementView = ({
 							</Tooltip>
 
 							<StatusBadge
-								status={`${item.unread_count} Pending`}
+								status={`${item.pending_count} Pending`}
 								color='orange'
 								Icon={MdMarkEmailUnread}
 								size={16}
@@ -118,7 +118,7 @@ const AnnouncementView = ({
 
 						{/* Created At */}
 						<Text fontSize='sm' color='gray.500'>
-							{format(new Date(item.createdAt), 'MMM d, yyyy h:mm a')}
+							{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}
 						</Text>
 					</Flex>
 				</ModalBody>
