@@ -236,10 +236,12 @@ const SharedSipRecording = () => {
 										minWidth='200px'
 										textAlign={'center'}
 									>
-										{format(
-											new Date(call.calldate + '+04:00'),
-											'MMM d, yyyy h:mm a',
-										)}
+										{call?.callData?.calldate
+											? format(
+													new Date(call?.callData?.calldate + '+04:00'),
+													'MMM d, yyyy h:mm a',
+												)
+											: 'N/A'}
 									</Td>
 									<Td
 										py={4}
