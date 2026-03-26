@@ -323,26 +323,28 @@ const EmployeePayrollDetails = ({
 
 	return (
 		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
-			<HStack mb='3' align='center' justify='space-between'>
-				{!isMyPayslip && (
-					<>
-						<IconButton
-							aria-label='Go back'
-							icon={<FiChevronLeft />}
-							onClick={() => navigate(-1)}
-							size='md'
-							isRound
-						/>
+			{!isMyPayslip && (
+				<HStack mb='3' align='center' justify='space-between'>
+					<IconButton
+						aria-label='Go back'
+						icon={<FiChevronLeft />}
+						onClick={() => navigate(-1)}
+						size='md'
+						isRound
+					/>
 
-						<PayrollStatus
-							initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
-							payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
-						/>
-					</>
-				)}
-				<Spacer />
-				{isMyPayslip && <DateFilter onFilterChange={onDateFilterChange} />}
-			</HStack>
+					<PayrollStatus
+						initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
+						payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
+					/>
+				</HStack>
+			)}
+
+			{isMyPayslip && (
+				<HStack mb='3' align='center' justify='flex-end'>
+					<DateFilter onFilterChange={onDateFilterChange} />
+				</HStack>
+			)}
 
 			<Container maxW='container.4xl'>
 				{/* Header Section */}
