@@ -19,6 +19,7 @@ import {
 	IconButton,
 	useDisclosure,
 	Flex,
+	Spacer,
 } from '@chakra-ui/react';
 import {
 	FiDollarSign,
@@ -43,6 +44,7 @@ import { ImageModal } from '../components/ImageModal';
 import { formatAmount, formatCurrency } from 'utils/helpers';
 import { useState } from 'react';
 import { SalarySummaryRow } from '../components/PayrollResuable';
+import DateFilter from 'views/admin/attendance/components/DateFilter';
 
 // Custom components for better organization
 const StatCard = ({
@@ -143,9 +145,14 @@ const ProgressIndicator = ({ label, value, max, color = 'blue', currency }) => (
 	</Box>
 );
 
-const EmployeePayrollDetails = () => {
-	const { userId } = useParams();
+const ComissionEmployeePayrollDetails = ({
+	userId: propUserId,
+	isMyPayslip = false,
+}) => {
+	const { userId: paramUserId } = useParams();
 	const navigate = useNavigate();
+
+	const userId = propUserId || paramUserId;
 
 	const [skipPendingSummary, setSkipPendingSummary] = useState(false);
 
@@ -153,13 +160,7 @@ const EmployeePayrollDetails = () => {
 	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
 	const defaultYear = String(now.getFullYear());
 
-	const [searchParams] = useSearchParams();
-
-	const {
-		isOpen: profileIsOpen,
-		onOpen: profileOnOpen,
-		onClose: profileOnClose,
-	} = useDisclosure();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const month = searchParams.get('month') || defaultMonth;
 	const year = searchParams.get('year') || defaultYear;
@@ -181,6 +182,22 @@ const EmployeePayrollDetails = () => {
 			skip: !userId,
 		},
 	);
+
+	const onDateFilterChange = (value) => {
+		const newMonth = String(value.month).padStart(2, '0');
+		const newYear = String(value.year);
+
+		setSearchParams({
+			month: newMonth,
+			year: newYear,
+		});
+	};
+
+	const {
+		isOpen: profileIsOpen,
+		onOpen: profileOnOpen,
+		onClose: profileOnClose,
+	} = useDisclosure();
 
 	const bgColor = useColorModeValue('gray.50', 'gray.900');
 	const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -314,20 +331,27 @@ const EmployeePayrollDetails = () => {
 
 	return (
 		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
-			<HStack justify='space-between' mb='3'>
-				<IconButton
-					aria-label='Go back'
-					icon={<FiChevronLeft />}
-					onClick={() => navigate(-1)}
-					// variant='ghost'
-					size='md'
-					isRound
-				/>
+			<HStack mb='3' align='center'>
+				{!isMyPayslip && (
+					<>
+						<IconButton
+							aria-label='Go back'
+							icon={<FiChevronLeft />}
+							onClick={() => navigate(-1)}
+							size='md'
+							isRound
+						/>
 
-				<PayrollStatus
-					initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
-					payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
-				/>
+						<PayrollStatus
+							initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
+							payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
+						/>
+					</>
+				)}
+
+				<Spacer />
+
+				{isMyPayslip && <DateFilter onFilterChange={onDateFilterChange} />}
 			</HStack>
 
 			<Container maxW='container.4xl'>
@@ -781,4 +805,4 @@ const PayrollSkeleton = () => (
 	</Box>
 );
 
-export default EmployeePayrollDetails;
+export default ComissionEmployeePayrollDetails;
