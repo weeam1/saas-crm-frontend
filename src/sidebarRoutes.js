@@ -539,7 +539,7 @@ export const sidebarRoutes = [
 			{
 				id: 'my_payslip',
 				name: 'My Payslip',
-				path: '/payroll/users/my-payslip',
+				path: '/payroll/my-payslip',
 			},
 		],
 	},
