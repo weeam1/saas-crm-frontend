@@ -323,7 +323,7 @@ const EmployeePayrollDetails = ({
 
 	return (
 		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
-			<HStack mb='3' align='center'>
+			<HStack mb='3' align='center' justify='space-between'>
 				{!isMyPayslip && (
 					<>
 						<IconButton
