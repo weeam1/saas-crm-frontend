@@ -14,7 +14,7 @@ import TopPagination from "components/pagination/TopPagination";
 import OutgoingTable from "./OutgoingTable";
 import UpsertExpense from "./UpsertOutgoingExpense";
 import DateFilter from "views/admin/attendance/components/DateFilter";
-import { FiFilter } from "react-icons/fi";
+import { FiFilter, FiRefreshCw } from "react-icons/fi";
 import AgencyFilterModal from "../components/AgencyFilterModal";
 import { buttonStyle } from "utils/btn";
 import { BiX } from "react-icons/bi";
@@ -40,6 +40,7 @@ const OutgoingExpense = () => {
     setAgencyId,
     isLoading,
     isFetching,
+    refetch,
     handlePageChange,
     handlePageSize,
     onDateFilterChange,
@@ -128,6 +129,14 @@ const OutgoingExpense = () => {
         </Flex>
 
         <HStack gap="2" alignItems="center">
+          <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh"
+            onClick={() => refetch()}
+            isLoading={isLoading || isFetching}
+            variant="outline"
+            size="sm"
+          />
           {isAgenciesAllowed && (
             <IconButton
               icon={<FiFilter />}
