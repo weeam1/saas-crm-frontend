@@ -93,10 +93,10 @@ const AttendanceStats = ({ stats, employee }) => {
 					value={stats?.remainingLateLimit ?? 0}
 				/> */}
 
-				<StatsCard
+				{/* <StatsCard
 					label='Total Deduction'
 					value={stats?.totalAttendanceDeduction ?? 0}
-				/>
+				/> */}
 				{/* <StatsCard label='Attendance Earned' value={stats?.netSalary} /> */}
 			</VStack>
 		</Box>
