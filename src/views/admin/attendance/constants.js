@@ -9,16 +9,50 @@ export const buttonStyle = {
 	px: '8',
 };
 
+// export const ATTENDANCE_STATUS_CONFIG = {
+// 	0: { bg: '#FFE5EE', text: '#AA0000', label: 'Absent' },
+// 	1: {
+// 		bg: '#E6EFFC',
+// 		text: '#0764E6',
+// 		label: 'Office',
+// 		gradient: 'linear(to-r, #E0F7FF, white)',
+// 	},
+// 	2: { bg: '#FFF8E7', text: '#D5B500', label: 'Late' },
+// 	3: { bg: '#E8F9F1', text: '#2E8B57', label: 'Leave' },
+// };
+
 export const ATTENDANCE_STATUS_CONFIG = {
 	0: { bg: '#FFE5EE', text: '#AA0000', label: 'Absent' },
+
 	1: {
 		bg: '#E6EFFC',
 		text: '#0764E6',
 		label: 'Office',
 		gradient: 'linear(to-r, #E0F7FF, white)',
 	},
+
 	2: { bg: '#FFF8E7', text: '#D5B500', label: 'Late' },
-	3: { bg: '#E8F9F1', text: '#2E8B57', label: 'Leave' },
+
+	3: {
+		label: 'Leave',
+		variants: {
+			paid: {
+				bg: '#E6F4EA',
+				text: '#1E7E34',
+				label: 'Paid Leave',
+			},
+			unpaid: {
+				bg: '#FFF4E5',
+				text: '#B45309',
+				label: 'Unpaid Leave',
+			},
+			default: {
+				bg: '#E8F9F1',
+				text: '#2E8B57',
+				label: 'Leave',
+			},
+		},
+	},
 };
 
 export const attendanceStatusFilters = [

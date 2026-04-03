@@ -43,6 +43,7 @@ import { ImageModal } from './ImageModal';
 import { formatAmount, formatCurrency } from 'utils/helpers';
 import { SalarySummaryRow } from './PayrollResuable';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
+import { DeductionRow } from './PayrollShared';
 
 // Custom components for better organization
 const StatCard = ({
@@ -601,7 +602,80 @@ const EmployeePayrollDetails = ({
 										{attendanceSummary?.totalLate}
 									</Text>
 								</HStack>
+								<HStack justify='space-between'>
+									<Text color='gray.600'>Early Checkouts</Text>
+									<Text fontWeight='semibold' color='orange.600'>
+										{attendanceSummary?.totalEarlyCheckoutDays}
+									</Text>
+								</HStack>
 							</SimpleGrid>
+						</SectionCard>
+
+						<SectionCard title='Salary Deductions' icon={FiDollarSign}>
+							{/* Optional context */}
+							<Text fontSize='sm' color='gray.500' mb={3}>
+								Based on attendance and company policy
+							</Text>
+
+							{/* Breakdown */}
+							<VStack spacing={3} align='stretch'>
+								<DeductionRow
+									label='Late Arrival Dedcution'
+									value={attendanceSummary?.lateDaysDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Absence Dedcution'
+									value={attendanceSummary?.absentDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Unpaid Leave Deduction'
+									value={attendanceSummary?.unpaidLeaveDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Early Checkout Dedcution'
+									value={attendanceSummary?.earlyCheckoutDaysDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Important Absent Days Dedcution'
+									value={attendanceSummary?.importantDayAbsentDeduction}
+									currency={payrollSummary?.currency}
+								/>
+								<DeductionRow
+									label='Important Unpaid Leave Dedcution'
+									value={attendanceSummary?.importantDayUnpaidLeaveDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Unworked Days Dedcution'
+									value={attendanceSummary?.remainingDaysDeduction}
+									currency={payrollSummary?.currency}
+								/>
+							</VStack>
+
+							<Divider />
+
+							{/* Total */}
+							<HStack justify='space-between' mt={5}>
+								<Text fontSize='md' fontWeight='bold'>
+									Total Deductions
+								</Text>
+
+								<Text fontSize='md' fontWeight='bold' color='red.500'>
+									{formatCurrency(
+										attendanceSummary?.totalAttendanceDeduction,
+										payrollSummary?.currency,
+									)}
+								</Text>
+							</HStack>
 						</SectionCard>
 					</VStack>
 
