@@ -471,11 +471,7 @@ const EmployeePayrollDetails = ({
 					gap={8}
 				>
 					{/* Left Column - Main Details */}
-					<VStack
-						// flexDir={{ base: 'column', md: 'row' }}
-						spacing={6}
-						align='stretch'
-					>
+					<VStack spacing={6} align='stretch'>
 						{/* Earnings & Deductions */}
 						<SectionCard title='Earnings & Deductions' icon={FiDollarSign}>
 							<SimpleGrid
