@@ -39,6 +39,7 @@ import { useSelector } from 'react-redux';
 import { salaryTypes, userCommissionTypes } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
 import ProfilePictureModal from './ProfilePicModal';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
 const getInitialValues = (userData = {}) => ({
 	firstName: userData?.firstName ?? '',
@@ -92,7 +93,14 @@ const UserModal = ({
 	const [currentUser, setCurrentUser] = useState(null);
 
 	const { roles: allRoles } = useRoles();
-	const { isSuperAdmin, isAdmin, userRoleName } = useUserSession();
+	const { createUserLog } = useUserActivityLog();
+
+	const {
+		user: loggedInUser,
+		isSuperAdmin,
+		isAdmin,
+		userRoleName,
+	} = useUserSession();
 	const {
 		team: managers,
 		getTeamLeadsByManager,
@@ -274,14 +282,43 @@ const UserModal = ({
 			// 	setIsProfileModalOpen(true); // <-- open profile picture modal
 			// }
 
+			// update user activity log
+			createUserLog({
+				userId: loggedInUser?._id,
+				action: mode === 'add' ? 'CREATE' : 'UPDATE',
+				entity: 'User',
+				enityType: 'User',
+				entityId: res?.doc?._id || null,
+				status: 'success',
+				message: `User ${mode === 'add' ? 'created' : 'updated'} successfully by ${loggedInUser?.fullName}`,
+				rawPayload: {
+					mode,
+					updatedFields: formData,
+				},
+			});
+
 			// Don't call onClose()
 		} catch (error) {
 			toast.error(
-				error?.data?.message || 'Failed to save user. Please try again.',
+				error?.data?.message || 'Failed to save user Please try again.',
 			);
 			if (error?.data?.message.toLowerCase().includes('password')) {
 				passwordOnOpen();
 			}
+
+			// update user activity log
+			createUserLog({
+				userId: loggedInUser?._id,
+				action: mode === 'add' ? 'CREATE' : 'UPDATE',
+				entity: 'User',
+				enityType: 'User',
+				entityId: null,
+				status: 'error',
+				message: `User ${mode === 'add' ? 'created' : 'updated'} failed by ${loggedInUser?.fullName}`,
+				rawPayload: {
+					mode,
+				},
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
