@@ -176,18 +176,16 @@ const RoleTabs = ({ updateFilters }) => {
 						>
 							All
 						</TabButton>
-
-						{roleData
-							?.filter((role) => role.roleName !== 'superAdmin')
-							?.map((role) => (
-								<TabButton
-									key={role._id}
-									isActive={currentRole === role.roleName}
-									onClick={() => handleRoleChange(role.roleName)}
-								>
-									<Text textTransform='capitalize'>{role.roleName}</Text>
-								</TabButton>
-							))}
+						{/* // ?.filter((role) => role.roleName !== 'superAdmin') */}
+						{roleData?.map((role) => (
+							<TabButton
+								key={role._id}
+								isActive={currentRole === role.roleName}
+								onClick={() => handleRoleChange(role.roleName)}
+							>
+								<Text textTransform='capitalize'>{role.roleName}</Text>
+							</TabButton>
+						))}
 					</>
 				)}
 			</Flex>
