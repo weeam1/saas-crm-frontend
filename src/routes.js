@@ -113,7 +113,13 @@ const EmployeePayslip = React.lazy(
 	() => import('views/admin/payroll/components/EmployeePayrollDetails'),
 );
 const CommissionEmployeePayslip = React.lazy(
-	() => import('views/admin/payroll/CommissionUsers/EmployeePayrollDetails'),
+	() =>
+		import(
+			'views/admin/payroll/CommissionUsers/ComissionEmployeePayrollDetails'
+		),
+);
+const UserPayroll = React.lazy(
+	() => import('views/admin/payroll/UserPayroll/index'),
 );
 
 //Evalution
@@ -597,32 +603,45 @@ const routes = [
 
 	// ********** Payrol routes ************** //
 	{
-		moduleId: 'payroll',
+		parent: 'payroll',
+		childId: 'salaried_users',
+
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/payroll/users',
 		component: PayrollSalariedUsers,
 	},
 	{
-		moduleId: 'payroll',
+		parent: 'payroll',
+		childId: 'commission_users',
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/payroll/commission-users',
 		component: PayrollCommissionUsers,
 	},
 	{
-		moduleId: 'payroll',
+		parent: 'payroll',
+		childId: 'salaried_users',
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/payroll/users/payslip/:userId',
 		component: EmployeePayslip,
 	},
 	{
-		moduleId: 'payroll',
+		parent: 'payroll',
+		childId: 'commission_users',
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/payroll/commission-users/payslip/:userId',
 		component: CommissionEmployeePayslip,
+	},
+	{
+		parent: 'payroll',
+		childId: 'my_payslip',
+		name: 'My Payroll',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/payroll/my-payslip',
+		component: UserPayroll,
 	},
 
 	{

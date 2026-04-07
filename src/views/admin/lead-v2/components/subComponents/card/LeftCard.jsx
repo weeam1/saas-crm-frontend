@@ -143,7 +143,7 @@ const LeftCard = ({
 							valueProps={{ color: 'green.600' }}
 						/>
 					)}
-					{/* 
+					{/*
 					{!hiddenFields.includes('timetocall') && (
 						<EntityField
 							label='Time to Call'

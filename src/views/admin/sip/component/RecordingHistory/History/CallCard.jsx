@@ -22,9 +22,11 @@ import {
   FiPhoneIncoming,
   FiPhoneOutgoing,
 } from "react-icons/fi";
+import { format } from "date-fns";
+
 import moment from "moment";
 import AudioPlayer from "./Component/AudioPlayer";
-import { formatCallDuration } from "utils/helpers";
+import { formatCallDuration, formattedLocalDateTime } from "utils/helpers";
 import { FiMoreVertical, FiShare2, FiActivity, FiUsers } from "react-icons/fi";
 import { usePermissions } from "hooks/usePermissions";
 
@@ -209,10 +211,24 @@ const CallCard = ({
                 Date & Time
               </Text>
               <Text fontSize="xs" isTruncated>
+                {/* {call.calldate
+									? format(
+											new Date(call.calldate + '+04:00'),
+											'MMM d, yyyy h:mm a',
+										)
+									: 'N/A'} */}
+                {call.calldate
+                  ? moment
+                      .utc(call.calldate)
+                      .local()
+                      .format("MMM D, YYYY h:mm A")
+                  : "no data found"}
+              </Text>
+              {/* <Text fontSize="xs" isTruncated>
                 {call.calldate
                   ? moment(call.calldate).format("MMM D, h:mm A")
                   : "N/A"}
-              </Text>
+              </Text> */}
             </Box>
             <Box width="48%" textAlign="right">
               <Text fontSize="2xs" color="gray.500" mb={1}>

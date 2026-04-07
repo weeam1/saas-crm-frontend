@@ -19,6 +19,7 @@ import {
 	IconButton,
 	useDisclosure,
 	Flex,
+	Spacer,
 } from '@chakra-ui/react';
 import {
 	FiDollarSign,
@@ -41,6 +42,8 @@ import PayrollStatus from './PayrollStatus';
 import { ImageModal } from './ImageModal';
 import { formatAmount, formatCurrency } from 'utils/helpers';
 import { SalarySummaryRow } from './PayrollResuable';
+import DateFilter from 'views/admin/attendance/components/DateFilter';
+import { DeductionRow } from './PayrollShared';
 
 // Custom components for better organization
 const StatCard = ({
@@ -141,26 +144,30 @@ const ProgressIndicator = ({ label, value, max, color = 'blue', currency }) => (
 	</Box>
 );
 
-const EmployeePayrollDetails = () => {
-	const { userId } = useParams();
+const EmployeePayrollDetails = ({
+	userId: propUserId,
+	isMyPayslip = false,
+}) => {
+	const { userId: paramUserId } = useParams();
 	const navigate = useNavigate();
+
+	const userId = propUserId || paramUserId;
 
 	const now = new Date();
 	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
 	const defaultYear = String(now.getFullYear());
 
-	const [searchParams] = useSearchParams();
-
-	const {
-		isOpen: profileIsOpen,
-		onOpen: profileOnOpen,
-		onClose: profileOnClose,
-	} = useDisclosure();
+	const [searchParams, setSearchParams] = useSearchParams();
 
 	const month = searchParams.get('month') || defaultMonth;
 	const year = searchParams.get('year') || defaultYear;
 
-	const { data: payrollData, isLoading: payrollLoading } = useFetchItemsQuery(
+	const {
+		data: payrollData,
+		isLoading: payrollLoading,
+		refetch: payrollRefetch,
+		isFetching: payrollIsFetching,
+	} = useFetchItemsQuery(
 		{
 			path: `/payroll/user/${userId}`,
 			params: { month, year },
@@ -173,10 +180,26 @@ const EmployeePayrollDetails = () => {
 		},
 	);
 
+	const onDateFilterChange = (value) => {
+		const newMonth = String(value.month).padStart(2, '0');
+		const newYear = String(value.year);
+
+		setSearchParams({
+			month: newMonth,
+			year: newYear,
+		});
+	};
+
+	const {
+		isOpen: profileIsOpen,
+		onOpen: profileOnOpen,
+		onClose: profileOnClose,
+	} = useDisclosure();
+
 	const bgColor = useColorModeValue('gray.50', 'gray.900');
 	const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-	if (payrollLoading) {
+	if (payrollLoading || payrollIsFetching) {
 		return <PayrollSkeleton />;
 	}
 
@@ -301,21 +324,28 @@ const EmployeePayrollDetails = () => {
 
 	return (
 		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
-			<HStack justify='space-between' mb='3'>
-				<IconButton
-					aria-label='Go back'
-					icon={<FiChevronLeft />}
-					onClick={() => navigate(-1)}
-					// variant='ghost'
-					size='md'
-					isRound
-				/>
+			{!isMyPayslip && (
+				<HStack mb='3' align='center' justify='space-between'>
+					<IconButton
+						aria-label='Go back'
+						icon={<FiChevronLeft />}
+						onClick={() => navigate(-1)}
+						size='md'
+						isRound
+					/>
 
-				<PayrollStatus
-					initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
-					payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
-				/>
-			</HStack>
+					<PayrollStatus
+						initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
+						payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
+					/>
+				</HStack>
+			)}
+
+			{isMyPayslip && (
+				<HStack mb='3' align='center' justify='flex-end'>
+					<DateFilter onFilterChange={onDateFilterChange} />
+				</HStack>
+			)}
 
 			<Container maxW='container.4xl'>
 				{/* Header Section */}
@@ -441,11 +471,7 @@ const EmployeePayrollDetails = () => {
 					gap={8}
 				>
 					{/* Left Column - Main Details */}
-					<VStack
-						// flexDir={{ base: 'column', md: 'row' }}
-						spacing={6}
-						align='stretch'
-					>
+					<VStack spacing={6} align='stretch'>
 						{/* Earnings & Deductions */}
 						<SectionCard title='Earnings & Deductions' icon={FiDollarSign}>
 							<SimpleGrid
@@ -572,7 +598,80 @@ const EmployeePayrollDetails = () => {
 										{attendanceSummary?.totalLate}
 									</Text>
 								</HStack>
+								<HStack justify='space-between'>
+									<Text color='gray.600'>Early Checkouts</Text>
+									<Text fontWeight='semibold' color='orange.600'>
+										{attendanceSummary?.totalEarlyCheckoutDays}
+									</Text>
+								</HStack>
 							</SimpleGrid>
+						</SectionCard>
+
+						<SectionCard title='Salary Deductions' icon={FiDollarSign}>
+							{/* Optional context */}
+							<Text fontSize='sm' color='gray.500' mb={3}>
+								Based on attendance and company policy
+							</Text>
+
+							{/* Breakdown */}
+							<VStack spacing={3} align='stretch'>
+								<DeductionRow
+									label='Late Arrival Dedcution'
+									value={attendanceSummary?.lateDaysDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Absence Dedcution'
+									value={attendanceSummary?.absentDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Unpaid Leave Deduction'
+									value={attendanceSummary?.unpaidLeaveDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Early Checkout Dedcution'
+									value={attendanceSummary?.earlyCheckoutDaysDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Important Absent Days Dedcution'
+									value={attendanceSummary?.importantDayAbsentDeduction}
+									currency={payrollSummary?.currency}
+								/>
+								<DeductionRow
+									label='Important Unpaid Leave Dedcution'
+									value={attendanceSummary?.importantDayUnpaidLeaveDeduction}
+									currency={payrollSummary?.currency}
+								/>
+
+								<DeductionRow
+									label='Unworked Days Dedcution'
+									value={attendanceSummary?.remainingDaysDeduction}
+									currency={payrollSummary?.currency}
+								/>
+							</VStack>
+
+							<Divider />
+
+							{/* Total */}
+							<HStack justify='space-between' mt={5}>
+								<Text fontSize='md' fontWeight='bold'>
+									Total Deductions
+								</Text>
+
+								<Text fontSize='md' fontWeight='bold' color='red.500'>
+									{formatCurrency(
+										attendanceSummary?.totalAttendanceDeduction,
+										payrollSummary?.currency,
+									)}
+								</Text>
+							</HStack>
 						</SectionCard>
 					</VStack>
 

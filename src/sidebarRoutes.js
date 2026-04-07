@@ -527,14 +527,19 @@ export const sidebarRoutes = [
 		color: '#36ce6dff', // Teal
 		children: [
 			{
-				// id: 'all_users',
+				id: 'salaried_users',
 				name: 'Salaried Users',
 				path: '/payroll/users',
 			},
 			{
-				// id: 'commission_users',
+				id: 'commission_users',
 				name: 'Commission Users',
 				path: '/payroll/commission-users',
+			},
+			{
+				id: 'my_payslip',
+				name: 'My Payslip',
+				path: '/payroll/my-payslip',
 			},
 		],
 	},

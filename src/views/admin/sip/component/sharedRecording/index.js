@@ -16,6 +16,8 @@ import {
 } from '@chakra-ui/react';
 import { FiCopy } from 'react-icons/fi';
 import moment from 'moment';
+import { format } from 'date-fns';
+
 import { toast } from 'react-toastify';
 
 import AudioPlayer from '../RecordingHistory/History/Component/AudioPlayer';
@@ -119,7 +121,7 @@ const SharedSipRecording = () => {
 		isFetching,
 	} = useFetchItemsQuery(
 		{ path: '/sipSetting/sharedSipRecording/active' },
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: true },
 	);
 
 	const [createItemMutation] = useCreateItemMutation();
@@ -148,7 +150,7 @@ const SharedSipRecording = () => {
 				console.error('Play log failed:', err);
 			}
 		},
-		[createItemMutation]
+		[createItemMutation],
 	);
 
 	const handleOpenTranscribe = (call) => {
@@ -234,7 +236,12 @@ const SharedSipRecording = () => {
 										minWidth='200px'
 										textAlign={'center'}
 									>
-										{moment(call.callData.calldate).format('MMM D, h:mm A')}
+										{call?.callData?.calldate
+											? format(
+													new Date(call?.callData?.calldate + '+04:00'),
+													'MMM d, yyyy h:mm a',
+												)
+											: 'N/A'}
 									</Td>
 									<Td
 										py={4}

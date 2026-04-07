@@ -121,7 +121,7 @@ const Reports = () => {
 			<AttendanceReport />
 
 			{/*  */}
-			<OrganizationalChart teamData={teamData} />
+			{/* <OrganizationalChart teamData={teamData} /> */}
 		</Box>
 	);
 };

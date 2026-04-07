@@ -70,6 +70,27 @@ const AttendanceTable = ({
 		onClose: onEditClose,
 	} = useDisclosure();
 
+	const getStatusConfig = (entry) => {
+		const base = ATTENDANCE_STATUS_CONFIG[entry.status];
+
+		if (!base) {
+			return {
+				bg: '#F0F0F0',
+				text: '#000',
+				label: 'Unknown',
+			};
+		}
+
+		// handle leave variants
+		if (entry.status === 3) {
+			const type = entry.leaveType?.toLowerCase();
+
+			return base.variants?.[type] || base.variants?.default || base;
+		}
+
+		return base;
+	};
+
 	const handleEdit = (data) => {
 		setEditData(data);
 		onEditOpen();
@@ -120,11 +141,13 @@ const AttendanceTable = ({
 								// let statusBgColor = 'transparent';
 								// let statusText = '';
 
-								const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
-									bg: '#F0F0F0',
-									text: '#000',
-									label: 'Unknown',
-								};
+								// const baseConfig = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
+								// 	bg: '#F0F0F0',
+								// 	text: '#000',
+								// 	label: 'Unknown',
+								// };
+
+								const config = getStatusConfig(entry);
 
 								const {
 									bg: statusBgColor,
@@ -192,12 +215,14 @@ const AttendanceTable = ({
 												minWidth='fit-content'
 												mr={2}
 											>
-												{entry?.status === 3 && entry?.leaveType
+												{/* {entry?.status === 3 && entry?.leaveType
 													? entry.leaveType.charAt(0).toUpperCase() +
 														entry.leaveType.slice(1) +
 														' ' +
 														statusText
-													: statusText}
+													: statusText} */}
+
+												{statusText}
 											</Box>
 										</Td>
 										<Td
@@ -211,7 +236,7 @@ const AttendanceTable = ({
 											borderBottom='none'
 											minWidth='100px'
 											color={
-												entry.checkout === '00:00' ? 'red.500' : 'blue.500'
+												entry.earlyCheckoutMinutes > 0 ? 'red.500' : 'blue.500'
 											}
 										>
 											{entry.checkout ?? 'N/A'}
