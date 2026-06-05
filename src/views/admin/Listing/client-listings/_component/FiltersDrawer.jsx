@@ -1,3 +1,4 @@
+
 import React, {
 	useState,
 	useEffect,
@@ -26,6 +27,7 @@ import {
 	useDisclosure,
 	Grid,
 	GridItem,
+	IconButton,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -39,10 +41,11 @@ import { MdApartment } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import { capitalizeWords } from 'utils/helpers';
 import { getNameById } from 'utils/filters';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import { useModalColors } from 'hooks/useModalColors';
+import FilterButton from 'components/base/FilterButton';
 
 const MotionDrawerContent = motion(DrawerContent);
-const MotionBadge = motion(Badge);
-const MotionButton = motion(Button);
 
 const initialFilters = {
 	listingNumber: '',
@@ -65,21 +68,23 @@ const initialFilters = {
 };
 
 const FilterSection = React.memo(({ title, icon, children }) => {
+	const mc = useModalColors();
+
 	return (
 		<Box>
 			<HStack mb={3} spacing={2}>
-				<Box color='brand.500'>{icon}</Box>
-				<Text fontWeight='semibold' fontSize='sm' color='gray.700'>
+				<Box color='accent.gold'>{icon}</Box>
+				<Text fontWeight='semibold' fontSize='sm' color={mc.labelColor}>
 					{title}
 				</Text>
 			</HStack>
 
 			<Box
 				p={4}
-				bg='gray.50'
+				bg={mc.bgDeep}
 				borderRadius='lg'
-				border='1px'
-				borderColor='gray.200'
+				border='1px solid'
+				borderColor={mc.borderColor}
 			>
 				{children}
 			</Box>
@@ -95,6 +100,7 @@ const FilterDrawer = ({
 	unitTypes,
 	onReset,
 }) => {
+	const mc = useModalColors();
 	const countries = useSelector((state) => state.countries.countryNames);
 
 	const countryOptions = useMemo(
@@ -102,7 +108,7 @@ const FilterDrawer = ({
 			countries.map((c) => {
 				return capitalizeWords(c);
 			}),
-		[countries]
+		[countries],
 	);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -132,28 +138,24 @@ const FilterDrawer = ({
 	const handleApply = () => {
 		const active = Object.fromEntries(
 			Object.entries(localFilters).filter(
-				([_, value]) => value !== '' && value !== undefined && value !== null
-			)
+				([_, value]) => value !== '' && value !== undefined && value !== null,
+			),
 		);
 		onFilterChange(active);
 
 		const uiActiveFilters = {
 			...active,
-
 			...(active.listingType && {
 				listingType: getNameById(listingTypes, active.listingType),
 			}),
-
 			...(active.unitType && {
 				unitType: getNameById(unitTypes, active.unitType),
 			}),
-
 			...(active.subUnitType && {
 				subUnitType: getNameById(subUnitTypes, active.subUnitType),
 			}),
 		};
 
-		// if unitType, subUnitType, listingType --> fetch name from thier list
 		setActiveFilters(uiActiveFilters);
 		onClose();
 	};
@@ -168,23 +170,21 @@ const FilterDrawer = ({
 
 	return (
 		<>
-			{/* Trigger */}
-			<MotionButton
-				leftIcon={<FiFilter />}
-				variant='outline'
-				colorScheme='brand'
-				onClick={onOpen}
-				whileHover={{ scale: 1.05 }}
-				whileTap={{ scale: 0.95 }}
-			>
-				Filters
-			</MotionButton>
+			{/* Trigger Button */}
+		<FilterButton
+	label="Filters"
+	onClick={onOpen}
+	size="sm"
+/>
 
 			{/* Drawer */}
 			<Drawer isOpen={isOpen} placement='left' onClose={onClose} size='md'>
-				<DrawerOverlay />
+				<DrawerOverlay backdropFilter='blur(3px)' bg={mc.overlayBg} />
 
 				<MotionDrawerContent
+					bg={mc.bg}
+					borderRight='1px solid'
+					borderColor={mc.borderColor}
 					initial={hasAnimatedRef.current ? false : { x: '-100%' }}
 					animate={{ x: 0 }}
 					transition={{ type: 'spring', stiffness: 260, damping: 30 }}
@@ -192,31 +192,62 @@ const FilterDrawer = ({
 						hasAnimatedRef.current = true;
 					}}
 				>
-					<DrawerCloseButton />
-					<DrawerHeader borderBottomWidth='1px'>
+					<DrawerCloseButton
+						bg={mc.closeBtnBg}
+						color={mc.closeBtnColor}
+						borderRadius='full'
+						_hover={{ bg: mc.closeBtnHoverBg }}
+						_focus={{ boxShadow: 'none' }}
+					/>
+
+					{/* Header — Gold Gradient */}
+					<DrawerHeader
+						background={mc.headerBg}
+						color={mc.headerText}
+						borderBottomWidth='1px'
+						borderBottomColor={mc.headerBg}
+						py={4}
+						px={6}
+						boxShadow='0 2px 10px rgba(0,0,0,0.15)'
+					>
 						<HStack spacing={3}>
-							<Box color='brand.500'>
+							<Box color={mc.headerText}>
 								<FiFilter size={20} />
 							</Box>
 							<Box>
-								<Text fontSize='lg' fontWeight='bold'>
+								<Text fontSize='lg' color={mc.headerText} fontWeight='bold'>
 									Advanced Filters
 								</Text>
-								<Text fontSize='xs' color='gray.500'>
+								<Text fontSize='xs' color={mc.headerText} opacity={0.8}>
 									Refine your search results
 								</Text>
 							</Box>
 						</HStack>
 					</DrawerHeader>
 
-					<DrawerBody py={1}>
+					<DrawerBody py={1} px={0}>
 						<VStack
 							spacing={6}
 							p={2}
 							align='stretch'
 							overflow='scroll'
 							maxH={{ base: '60vh', md: '70vh', lg: '85vh' }}
+							sx={{
+								'&::-webkit-scrollbar': {
+									width: '6px',
+								},
+								'&::-webkit-scrollbar-track': {
+									background: mc.bgDeep,
+									borderRadius: '3px',
+								},
+								'&::-webkit-scrollbar-thumb': {
+									background: mc.borderColor,
+									borderRadius: '3px',
+									_hover: { background: mc.borderFocus },
+								},
+							}}
 						>
+							{/* Basic Information */}
 							<FilterSection title='Basic Information' icon={<MdApartment />}>
 								<Grid templateColumns='repeat(2, 1fr)' gap={3}>
 									<Input
@@ -226,6 +257,16 @@ const FilterDrawer = ({
 										onChange={(e) =>
 											handleInputChange('listingNumber', e.target.value)
 										}
+										bg={mc.bgInput}
+										borderColor={mc.borderColor}
+										color={mc.headingText}
+										_hover={{ borderColor: mc.borderFocus }}
+										_focus={{
+											borderColor: mc.borderFocus,
+											boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+										}}
+										_placeholder={{ color: mc.mutedText }}
+										borderRadius='md'
 									/>
 									<Input
 										size='sm'
@@ -234,6 +275,16 @@ const FilterDrawer = ({
 										onChange={(e) =>
 											handleInputChange('unitNumber', e.target.value)
 										}
+										bg={mc.bgInput}
+										borderColor={mc.borderColor}
+										color={mc.headingText}
+										_hover={{ borderColor: mc.borderFocus }}
+										_focus={{
+											borderColor: mc.borderFocus,
+											boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+										}}
+										_placeholder={{ color: mc.mutedText }}
+										borderRadius='md'
 									/>
 								</Grid>
 
@@ -245,9 +296,20 @@ const FilterDrawer = ({
 									onChange={(e) =>
 										handleInputChange('projectName', e.target.value)
 									}
+									bg={mc.bgInput}
+									borderColor={mc.borderColor}
+									color={mc.headingText}
+									_hover={{ borderColor: mc.borderFocus }}
+									_focus={{
+										borderColor: mc.borderFocus,
+										boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+									}}
+									_placeholder={{ color: mc.mutedText }}
+									borderRadius='md'
 								/>
 							</FilterSection>
 
+							{/* Price Range */}
 							<FilterSection title='Price Range' icon={<FiDollarSign />}>
 								<Grid templateColumns='repeat(2, 1fr)' gap={3}>
 									<Input
@@ -258,6 +320,16 @@ const FilterDrawer = ({
 										onChange={(e) =>
 											handleInputChange('minPrice', e.target.value)
 										}
+										bg={mc.bgInput}
+										borderColor={mc.borderColor}
+										color={mc.headingText}
+										_hover={{ borderColor: mc.borderFocus }}
+										_focus={{
+											borderColor: mc.borderFocus,
+											boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+										}}
+										_placeholder={{ color: mc.mutedText }}
+										borderRadius='md'
 									/>
 									<Input
 										type='number'
@@ -267,10 +339,21 @@ const FilterDrawer = ({
 										onChange={(e) =>
 											handleInputChange('maxPrice', e.target.value)
 										}
+										bg={mc.bgInput}
+										borderColor={mc.borderColor}
+										color={mc.headingText}
+										_hover={{ borderColor: mc.borderFocus }}
+										_focus={{
+											borderColor: mc.borderFocus,
+											boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+										}}
+										_placeholder={{ color: mc.mutedText }}
+										borderRadius='md'
 									/>
 								</Grid>
 							</FilterSection>
 
+							{/* Date Range */}
 							<FilterSection title='Date Range' icon={<FiCalendar />}>
 								<Grid templateColumns='repeat(2, 1fr)' gap={3}>
 									<Input
@@ -281,6 +364,15 @@ const FilterDrawer = ({
 										onChange={(e) =>
 											handleInputChange('dateFrom', e.target.value)
 										}
+										bg={mc.bgInput}
+										borderColor={mc.borderColor}
+										color={mc.headingText}
+										_hover={{ borderColor: mc.borderFocus }}
+										_focus={{
+											borderColor: mc.borderFocus,
+											boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+										}}
+										borderRadius='md'
 									/>
 									<Input
 										type='date'
@@ -291,15 +383,25 @@ const FilterDrawer = ({
 										onChange={(e) =>
 											handleInputChange('dateTo', e.target.value)
 										}
+										bg={mc.bgInput}
+										borderColor={mc.borderColor}
+										color={mc.headingText}
+										_hover={{ borderColor: mc.borderFocus }}
+										_focus={{
+											borderColor: mc.borderFocus,
+											boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+										}}
+										borderRadius='md'
 									/>
 								</Grid>
 							</FilterSection>
 
+							{/* Area Range */}
 							<FilterSection title='Area Range' icon={<FiMaximize2 />}>
 								<Grid templateColumns='repeat(2, 1fr)' gap={3}>
 									<GridItem>
 										<FormControl>
-											<FormLabel fontSize='xs' color='gray.600'>
+											<FormLabel fontSize='xs' color={mc.labelColor}>
 												Min Area (sq ft)
 											</FormLabel>
 											<Input
@@ -310,12 +412,22 @@ const FilterDrawer = ({
 													handleInputChange('minArea', e.target.value)
 												}
 												placeholder='Min area'
+												bg={mc.bgInput}
+												borderColor={mc.borderColor}
+												color={mc.headingText}
+												_hover={{ borderColor: mc.borderFocus }}
+												_focus={{
+													borderColor: mc.borderFocus,
+													boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+												}}
+												_placeholder={{ color: mc.mutedText }}
+												borderRadius='md'
 											/>
 										</FormControl>
 									</GridItem>
 									<GridItem>
 										<FormControl>
-											<FormLabel fontSize='xs' color='gray.600'>
+											<FormLabel fontSize='xs' color={mc.labelColor}>
 												Max Area (sq ft)
 											</FormLabel>
 											<Input
@@ -326,12 +438,23 @@ const FilterDrawer = ({
 													handleInputChange('maxArea', e.target.value)
 												}
 												placeholder='Max area'
+												bg={mc.bgInput}
+												borderColor={mc.borderColor}
+												color={mc.headingText}
+												_hover={{ borderColor: mc.borderFocus }}
+												_focus={{
+													borderColor: mc.borderFocus,
+													boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+												}}
+												_placeholder={{ color: mc.mutedText }}
+												borderRadius='md'
 											/>
 										</FormControl>
 									</GridItem>
 								</Grid>
 							</FilterSection>
 
+							{/* Categories */}
 							<FilterSection title='Categories' icon={<FiFilter />}>
 								<Select
 									size='sm'
@@ -340,6 +463,18 @@ const FilterDrawer = ({
 									onChange={(e) =>
 										handleInputChange('listingType', e.target.value)
 									}
+									bg={mc.bgInput}
+									borderColor={mc.borderColor}
+									color={
+										localFilters.listingType ? mc.headingText : mc.mutedText
+									}
+									_hover={{ borderColor: mc.borderFocus }}
+									_focus={{
+										borderColor: mc.borderFocus,
+										boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+									}}
+									borderRadius='md'
+									iconColor={mc.labelColor}
 								>
 									{listingTypes.map((t) => (
 										<option key={t._id} value={t._id}>
@@ -356,6 +491,16 @@ const FilterDrawer = ({
 									onChange={(e) =>
 										handleInputChange('unitType', e.target.value)
 									}
+									bg={mc.bgInput}
+									borderColor={mc.borderColor}
+									color={localFilters.unitType ? mc.headingText : mc.mutedText}
+									_hover={{ borderColor: mc.borderFocus }}
+									_focus={{
+										borderColor: mc.borderFocus,
+										boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+									}}
+									borderRadius='md'
+									iconColor={mc.labelColor}
 								>
 									{unitTypes.map((t) => (
 										<option key={t._id} value={t._id}>
@@ -372,6 +517,18 @@ const FilterDrawer = ({
 									onChange={(e) =>
 										handleInputChange('subUnitType', e.target.value)
 									}
+									bg={mc.bgInput}
+									borderColor={mc.borderColor}
+									color={
+										localFilters.subUnitType ? mc.headingText : mc.mutedText
+									}
+									_hover={{ borderColor: mc.borderFocus }}
+									_focus={{
+										borderColor: mc.borderFocus,
+										boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+									}}
+									borderRadius='md'
+									iconColor={mc.labelColor}
 								>
 									{subUnitTypes.map((t) => (
 										<option key={t._id} value={t._id}>
@@ -381,6 +538,7 @@ const FilterDrawer = ({
 								</Select>
 							</FilterSection>
 
+							{/* Location */}
 							{countries.length > 0 && (
 								<FilterSection title='Location' icon={<MdApartment />}>
 									<Select
@@ -390,6 +548,16 @@ const FilterDrawer = ({
 										onChange={(e) =>
 											handleInputChange('country', e.target.value)
 										}
+										bg={mc.bgInput}
+										borderColor={mc.borderColor}
+										color={localFilters.country ? mc.headingText : mc.mutedText}
+										_hover={{ borderColor: mc.borderFocus }}
+										_focus={{
+											borderColor: mc.borderFocus,
+											boxShadow: `0 0 0 1px ${mc.borderFocus}`,
+										}}
+										borderRadius='md'
+										iconColor={mc.labelColor}
 									>
 										{countryOptions.map((c) => (
 											<option key={c} value={c}>
@@ -400,11 +568,52 @@ const FilterDrawer = ({
 								</FilterSection>
 							)}
 						</VStack>
-						<HStack>
-							<Button flex={1} variant='outline' onClick={handleReset}>
+
+						{/* Action Buttons */}
+						<HStack
+							spacing={3}
+							mt={4}
+							px={2}
+							pb={4}
+							position='sticky'
+							bottom='0'
+							bg={mc.bg}
+							pt={3}
+							borderTop='1px solid'
+							borderColor={mc.borderColor}
+						>
+							<Button
+								flex={1}
+								variant='ghost'
+								onClick={handleReset}
+								color={mc.secondaryBtnText}
+								_hover={{
+									bg: mc.secondaryBtnHoverBg,
+									color: mc.secondaryBtnHoverText,
+								}}
+								borderRadius='md'
+								leftIcon={<FiX />}
+							>
 								Reset
 							</Button>
-							<Button flex={1} colorScheme='brand' onClick={handleApply}>
+							<Button
+								flex={1}
+								onClick={handleApply}
+								background={mc.primaryBtnBg}
+								color={mc.primaryBtnText}
+								fontWeight='bold'
+								borderRadius='md'
+								_hover={{
+									background: mc.primaryBtnHoverBg,
+									boxShadow: mc.primaryBtnShadow,
+									transform: 'translateY(-1px)',
+								}}
+								_active={{
+									background: mc.primaryBtnActiveBg,
+									transform: 'translateY(0)',
+								}}
+								leftIcon={<FiFilter />}
+							>
 								Apply
 							</Button>
 						</HStack>

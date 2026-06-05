@@ -1,30 +1,38 @@
 import React from 'react';
-import { Box } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const ExperienceDetails = ({ experience }) => {
+	const colors = useModalColors();
+
 	return (
 		<Box width='full' fontSize='sm' py='2'>
-			<Box fontWeight='500' fontSize='md' mb={1}>
+			<Text fontWeight='500' fontSize='md' mb={1} color={colors.headingText}>
 				Experience Details
-			</Box>
+			</Text>
 			<Box
-				bg='#F2F2F2'
+				bg={colors.bgInput}
 				p='3'
 				rounded='md'
-				shadown='xs'
+				boxShadow='xs'
 				textAlign='justify'
-				height='100px' /* Set a fixed height */
-				overflowY='auto' /* Enable vertical scrolling */
+				height='100px'
+				overflowY='auto'
+				color={colors.bodyText}
 				sx={{
 					'::-webkit-scrollbar': {
-						width: '8px' /* Custom scrollbar width */,
+						width: '8px',
+					},
+					'::-webkit-scrollbar-track': {
+						background: colors.bgDeep,
+						borderRadius: '4px',
 					},
 					'::-webkit-scrollbar-thumb': {
-						background: '#4A5568' /* Custom scrollbar color */,
+						background: colors.accentGold,
 						borderRadius: '4px',
 					},
 					'::-webkit-scrollbar-thumb:hover': {
-						background: '#2D3748' /* Change color on hover */,
+						background: colors.goldLight,
 					},
 				}}
 			>

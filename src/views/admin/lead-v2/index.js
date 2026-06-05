@@ -2,7 +2,6 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Box,
-	Button,
 	Flex,
 	HStack,
 	IconButton,
@@ -29,16 +28,21 @@ import { usePermissions } from 'hooks/usePermissions';
 import LeadsLayout from './layout/LeadLayout';
 import useUserSession from 'hooks/useUserSession';
 import { useNavigate } from 'react-router-dom';
-import { FiRefreshCw } from 'react-icons/fi';
 import { useWhatsapp } from 'hooks/whatsapp/useWhatsapp';
 import { FiDownload } from 'react-icons/fi';
 import ExportModal from './components/subComponents/ExportModal';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import Button from 'components/base/Button';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const Index = () => {
 	const { user } = useUserSession();
 
 	const whatsappAccountId = user?.whatsappDetails?.businessId || null;
 	const whatsappSessionId = user?.whatsappInstance?.sessionId || null;
+
+	const isWhatsappInstanceActive =
+		(whatsappSessionId && user?.whatsappInstance?.isActive) || false;
 
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
@@ -70,7 +74,7 @@ const Index = () => {
 		useWhatsapp();
 	const [isOpenExport, setIsOpenExport] = useState(false);
 	useEffect(() => {
-		if (whatsappSessionId) {
+		if (isWhatsappInstanceActive) {
 			const delay = Math.floor(Math.random() * 8000 + 2000);
 
 			setTimeout(async () => {
@@ -79,7 +83,7 @@ const Index = () => {
 				});
 			}, delay);
 		}
-	}, [whatsappInitialize, whatsappSessionId]);
+	}, [whatsappInitialize, whatsappSessionId, isWhatsappInstanceActive]);
 
 	// ---------------------------
 	// 3. Fetch chats when ready (only once per ready state)
@@ -235,13 +239,13 @@ const Index = () => {
 	};
 
 	return (
-		<Box py='8' px='4' rounded='md' shadow='sm' bg='white' width='100%'>
+<Box py='8' px='4' rounded='md' shadow='sm' bg='bg.surface' width='100%'>
 			<Flex
 				justifyContent='space-between'
 				flexDirection={{ base: 'column', xl: 'row' }}
 				mb='4'
 			>
-				<Text color={'gray.900'} fontSize='22px' fontWeight='600'>
+<Text color='text.heading' fontSize='22px' fontWeight='600'>
 					<span style={{ marginRight: '4px' }}>Leads</span>
 					<CountUpComponent targetNumber={totalLeads} />
 				</Text>
@@ -265,27 +269,19 @@ const Index = () => {
 						/>
 						{/* Button */}
 						<Button
-							{...buttonStyle}
-							bg='brand.500'
-							color='white'
-							py='2'
-							px='5'
 							onClick={openManageColumns}
-							_hover={{ bg: 'brand.600' }}
-							_active={{ bg: 'brand.700' }}
+variant='outline'
+
 						>
+
 							Quick Filter
 						</Button>
 						{whatsappAccountId && hasPermission('leads', 'bulkWhatsapp') && (
 							<Button
-								{...buttonStyle}
+
 								onClick={openWhatsappModal}
 								isDisabled={!(selectedValues && selectedValues?.length > 1)}
-								variant='solid'
-								bg='whatsapp.500'
-								_active={{ bg: 'whatsapp.600' }}
-								py='2'
-								px='5'
+								variant='brand'
 								aria-label='Bulk Whatsapp Message'
 							>
 								Bulk Whatsapp
@@ -296,13 +292,10 @@ const Index = () => {
 						)}
 						{bulkAssingPermissionAllowed && (
 							<Button
-								{...buttonStyle}
+
 								onClick={() => setBulkAssign(true)}
 								isDisabled={!(selectedValues && selectedValues?.length > 1)}
-								variant='solid'
-								bg='brand.400'
-								py='2'
-								px='5'
+								variant='brand'
 								aria-label='Bulk Assign'
 							>
 								Bulk Assign
@@ -313,11 +306,9 @@ const Index = () => {
 						)}
 						{hasPermission('leads', 'create') && (
 							<Button
-								{...buttonStyle}
-								variant='solid'
-								bg='brand.500'
-								py='2'
-								px='5'
+
+								variant='brand'
+
 								leftIcon={<FaPlus active={{ bg: 'brand.600' }} />}
 								aria-label='New lead'
 								onClick={() => setAddLead(true)}
@@ -327,21 +318,9 @@ const Index = () => {
 						)}
 						{hasPermission('leads', 'export') && (
 							<Button
-								{...buttonStyle}
+
 								leftIcon={<FiDownload />}
-								colorScheme='teal'
-								bgGradient='linear(to-r, teal.400, teal.500, teal.600)'
-								_hover={{
-									bgGradient: 'linear(to-r, teal.500, teal.600, teal.700)',
-									transform: 'scale(1.05)',
-								}}
-								_active={{
-									bgGradient: 'linear(to-r, teal.600, teal.700, teal.800)',
-								}}
-								boxShadow='xl'
-								borderRadius='md'
-								py='2'
-								px='5'
+								variant='outline'
 								transition='all 0.3s ease'
 								onClick={() => {
 									setIsOpenExport(true);
@@ -353,28 +332,27 @@ const Index = () => {
 					</Flex>
 
 					<HStack>
-						<IconButton
-							icon={<MdSettings />}
-							onClick={() => setManageCols(true)}
-							aria-label='Filter Date'
-							colorScheme='brand'
-							variant='solid'
-							size='sm'
-							borderRadius='full'
-							boxShadow='md'
-						/>
+					<CustomTooltip label='Setting' hasArrow>
+	<IconButton
+		icon={<MdSettings />}
+		onClick={() => setManageCols(true)}
+		aria-label='Filter Date'
+		variant='solid'
+		colorScheme='brand'
+		size='sm'
+		borderRadius='full'
+		boxShadow='md'
+	/>
+</CustomTooltip>
 
 						<DateFilterButton onClick={dateTimeOnOpen} />
-						<IconButton
-							icon={<FiRefreshCw />}
-							aria-label='Refresh logs'
-							onClick={() => {
-								leadsRefetch();
-							}}
+						<RefreshButton
+							label='Refresh'
+							onClick={() => leadsRefetch()}
 							isLoading={leadsRefetching}
-							variant='outline'
+							isFetching={leadsRefetching}
 							size='sm'
-						/>
+							/>
 
 						<ViewToggle
 							handleView={handleViewChange}

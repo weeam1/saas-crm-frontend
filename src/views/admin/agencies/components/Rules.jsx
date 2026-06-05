@@ -1,6 +1,9 @@
 import { Box, Button, Flex, Text, Select, Input } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const RulesSection = ({ rules, setRules }) => {
+	const colors = useModalColors();
+
 	const handleRuleChange = (index, field, value) => {
 		const updatedRules = [...rules];
 		updatedRules[index] = { ...updatedRules[index], [field]: value };
@@ -9,31 +12,20 @@ const RulesSection = ({ rules, setRules }) => {
 
 	return (
 		<Box p={5} borderRadius='lg' w={{ base: '100%', md: '460px' }}>
-			<Text fontWeight='600' fontSize={{ base: 'md', md: 'lg' }} mb={4}>
+			<Text fontWeight='600' fontSize={{ base: 'md', md: 'lg' }} mb={4} color={colors.headingText}>
 				Agent Rules
 			</Text>
-
-			{/* <Button
-				bg='#EDC270'
-				w={{ base: '100%', md: '156px' }}
-				fontFamily='Poppins'
-				fontWeight='300'
-				fontSize={{ base: '18px', md: '20px' }}
-				mb={4}
-				borderRadius='8px'
-				_hover={{ bg: '#EDC270' }}
-			>
-				Agent
-			</Button> */}
 
 			<Box
 				borderWidth='1px'
 				borderRadius='lg'
-				bg='white'
+				bg={colors.bg}
 				p={4}
-				border='1px solid #cacaca'
+				border='1px solid'
+				borderColor={colors.borderColor}
 				h={{ base: 'auto', lg: '320px' }}
 				pr='5px'
+				boxShadow={colors.cardShadow}
 			>
 				{rules.map((rule, index) => (
 					<Flex
@@ -50,6 +42,7 @@ const RulesSection = ({ rules, setRules }) => {
 							fontWeight='500'
 							isTruncated
 							fontSize='16px'
+							color={colors.bodyText}
 						>
 							{rule.label}
 						</Text>
@@ -62,17 +55,25 @@ const RulesSection = ({ rules, setRules }) => {
 							w={{ base: '100%', md: '100px' }}
 							minW={{ base: '100%', md: '100px' }}
 							maxW={{ base: '100%', md: '100px' }}
-							bg='#EEEEEE'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
 							mt={{ base: 0, md: '18px' }}
 							fontSize='16px'
 							fontWeight='400'
 							borderRadius='5px'
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						>
-							<option value='Plus'>Plus</option>
-							<option value='Minus'>Minus</option>
+							<option value='Plus' style={{ background: colors.bg, color: colors.headingText }}>Plus</option>
+							<option value='Minus' style={{ background: colors.bg, color: colors.headingText }}>Minus</option>
 						</Select>
+
 						<Box flexShrink={0}>
-							<Text fontSize='16px' fontWeight='400'>
+							<Text fontSize='16px' fontWeight='400' color={colors.labelColor}>
 								Coins
 							</Text>
 							<Input
@@ -92,13 +93,22 @@ const RulesSection = ({ rules, setRules }) => {
 								fontSize='16px'
 								fontWeight='400'
 								borderRadius='5px'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
+								_hover={{ borderColor: colors.accentGold }}
+								_focus={{
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
+								}}
 							/>
 						</Box>
+
 						<Box
 							display={rule.label === 'Late Check In' ? 'block' : 'none'}
 							flexShrink={0}
 						>
-							<Text fontSize='16px' fontWeight='400'>
+							<Text fontSize='16px' fontWeight='400' color={colors.labelColor}>
 								Per Min
 							</Text>
 							<Input
@@ -115,6 +125,15 @@ const RulesSection = ({ rules, setRules }) => {
 								fontSize='16px'
 								fontWeight='400'
 								borderRadius='5px'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
+								_hover={{ borderColor: colors.accentGold }}
+								_focus={{
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
+								}}
+								_disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
 							/>
 						</Box>
 					</Flex>

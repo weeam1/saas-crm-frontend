@@ -874,6 +874,7 @@ const LeadScreen = () => {
 				totalPages={totalPages}
 				totalItems={totalLeads}
 				pageSize={pageSize}
+				setPageSize={setPageSize}
 				onPageSizeChange={handlePageSizeChange}
 				activeTab={activeTab}
 				setActiveTab={handleTabChange}

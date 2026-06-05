@@ -19,12 +19,12 @@ import {
   Box,
   Text,
   useBreakpointValue,
-  useColorModeValue,
   Divider,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import moment from "moment";
 import CustomDatePicker from "components/datetime/CustomDatePicker";
+import { useModalColors } from "hooks/useModalColors";
 
 const AdvancedSearchModal = ({
   isOpen,
@@ -36,12 +36,8 @@ const AdvancedSearchModal = ({
   clearFilter,
   countries,
 }) => {
+  const colors = useModalColors();
   const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
-  const bgColor = useColorModeValue("white", "gray.800");
-  const headerBg = useColorModeValue("brand.300", "brand.100");
-  const headerText = useColorModeValue("brand.700", "brand.900");
-  const footerBg = useColorModeValue("gray.50", "gray.700");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const months = [
     { value: "1", label: "January" },
@@ -216,64 +212,92 @@ const AdvancedSearchModal = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
-      <ModalOverlay />
+      <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
       <ModalContent
         mx={{ base: 3, md: 8 }}
         w={{ base: "95vw", md: "600px", lg: "650px" }}
         maxW="95vw"
-        bg={bgColor}
+        bg={colors.viewBg}
         borderRadius="2xl"
-        boxShadow="xl"
+        boxShadow={colors.modalShadow}
+        border="1px solid"
+        borderColor={colors.borderColor}
+        overflow="hidden"
       >
         <ModalHeader
-          bg={headerBg}
-          color={headerText}
+          bg={colors.viewHeaderBg}
+          color={colors.viewHeaderText}
           py={3}
           px={5}
           borderTopRadius="2xl"
           fontWeight="semibold"
+          borderBottom="1px solid"
+          borderColor={colors.viewHeaderBorder}
         >
           Advanced Search
         </ModalHeader>
-        <ModalCloseButton color={headerText} top={3} right={3} />
+        <ModalCloseButton color={colors.viewHeaderText} top={3} right={3} _hover={{ bg: colors.closeBtnHoverBg }} />
 
         <form onSubmit={formik.handleSubmit}>
-          <ModalBody px={6} pt={5} pb={2} maxH="65vh" overflowY="auto">
+          <ModalBody px={6} pt={5} pb={2} maxH="65vh" overflowY="auto" bg={colors.viewBg}>
             <VStack spacing={3} align="stretch">
               <FormControl>
-                <FormLabel fontWeight="medium">Project Name</FormLabel>
+                <FormLabel fontWeight="medium" color={colors.labelColor}>Project Name</FormLabel>
                 <Input
                   name="projectName"
                   placeholder="e.g. project name"
                   value={formik.values.projectName}
                   onChange={formik.handleChange}
-                  focusBorderColor="brand.500"
+                  bg={colors.bgInput}
+                  borderColor={colors.borderColor}
+                  color={colors.headingText}
+                  _placeholder={{ color: colors.mutedText }}
+                  _hover={{ borderColor: colors.accentGold }}
+                  _focus={{
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                  }}
                 />
               </FormControl>
 
               <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel fontWeight="medium">Location</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Location</FormLabel>
                   <Input
                     name="location"
                     placeholder="e.g. location"
                     value={formik.values.location}
                     onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
+                    bg={colors.bgInput}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _placeholder={{ color: colors.mutedText }}
+                    _hover={{ borderColor: colors.accentGold }}
+                    _focus={{
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                    }}
                   />
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel fontWeight="medium">Country</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Country</FormLabel>
                   <Select
                     name="country"
                     placeholder="Select Country"
                     value={formik.values.country}
                     onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
+                    bg={colors.bgInput}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
+                    _focus={{
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                    }}
                   >
                     {countries?.map((country) => (
-                      <option key={country.code} value={country.name}>
+                      <option key={country.code} value={country.name} style={{ background: colors.viewBg, color: colors.headingText }}>
                         {country.name}
                       </option>
                     ))}
@@ -283,16 +307,23 @@ const AdvancedSearchModal = ({
 
               <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel fontWeight="medium">Listing Type</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Listing Type</FormLabel>
                   <Select
                     name="listingType"
                     placeholder="All Listing Types"
                     value={formik.values.listingType}
                     onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
+                    bg={colors.bgInput}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
+                    _focus={{
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                    }}
                   >
                     {listingTypes?.map((type) => (
-                      <option key={type._id} value={type._id}>
+                      <option key={type._id} value={type._id} style={{ background: colors.viewBg, color: colors.headingText }}>
                         {type.name}
                       </option>
                     ))}
@@ -300,16 +331,23 @@ const AdvancedSearchModal = ({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel fontWeight="medium">Unit Type</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Unit Type</FormLabel>
                   <Select
                     name="unitType"
                     placeholder="All Unit Types"
                     value={formik.values.unitType}
                     onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
+                    bg={colors.bgInput}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
+                    _focus={{
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                    }}
                   >
                     {unitTypes?.map((type) => (
-                      <option key={type._id} value={type._id}>
+                      <option key={type._id} value={type._id} style={{ background: colors.viewBg, color: colors.headingText }}>
                         {type.name}
                       </option>
                     ))}
@@ -317,16 +355,16 @@ const AdvancedSearchModal = ({
                 </FormControl>
               </SimpleGrid>
 
-              <Divider my={2} />
+              <Divider my={2} borderColor={colors.borderColor} />
 
-               {/* Date Range Section */}
+              {/* Date Range Section */}
               <Box>
-                <Text fontSize="md" fontWeight="semibold" mb={2}>
+                <Text fontSize="md" fontWeight="semibold" mb={2} color={colors.headingText}>
                   Date Range
                 </Text>
                 <SimpleGrid columns={colSpan} gap={3}>
                   <FormControl>
-                    <FormLabel fontWeight="medium">Start Date</FormLabel>
+                    <FormLabel fontWeight="medium" color={colors.labelColor}>Start Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startFrom}
                       handleDateChange={(date) =>
@@ -340,7 +378,7 @@ const AdvancedSearchModal = ({
                   </FormControl>
 
                   <FormControl>
-                    <FormLabel fontWeight="medium">End Date</FormLabel>
+                    <FormLabel fontWeight="medium" color={colors.labelColor}>End Date</FormLabel>
                     <CustomDatePicker
                       selectedDate={formik.values.startTo}
                       handleDateChange={(date) =>
@@ -356,107 +394,165 @@ const AdvancedSearchModal = ({
                 </SimpleGrid>
               </Box>
 
-              <Divider my={2} />
+              <Divider my={2} borderColor={colors.borderColor} />
 
               <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel fontWeight="medium">Month</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Month</FormLabel>
                   <Select
                     name="month"
                     placeholder="Select Month"
                     value={formik.values.month}
                     onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
+                    bg={colors.bgInput}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
+                    _focus={{
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                    }}
                   >
                     {months.map((month) => (
-                      <option key={month.value} value={month.value}>
+                      <option key={month.value} value={month.value} style={{ background: colors.viewBg, color: colors.headingText }}>
                         {month.label}
                       </option>
                     ))}
                   </Select>
                 </FormControl>
                 <FormControl>
-                  <FormLabel fontWeight="medium">Year</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Year</FormLabel>
                   <Input
                     type="number"
                     name="year"
                     placeholder="e.g. year "
                     value={formik.values.year}
                     onChange={formik.handleChange}
-                    focusBorderColor="brand.500"
+                    bg={colors.bgInput}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _placeholder={{ color: colors.mutedText }}
+                    _hover={{ borderColor: colors.accentGold }}
+                    _focus={{
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                    }}
                   />
                 </FormControl>
               </SimpleGrid>
 
-              <Divider my={2} />
+              <Divider my={2} borderColor={colors.borderColor} />
+
               <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel fontWeight="medium">Min Price (AED)</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Min Price (AED)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.minPrice}
                     onChange={(value) =>
                       formik.setFieldValue("minPrice", value)
                     }
-                    focusBorderColor="brand.500"
                   >
-                    <NumberInputField placeholder="Minimum price" />
+                    <NumberInputField
+                      placeholder="Minimum price"
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _placeholder={{ color: colors.mutedText }}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
+                    />
                   </NumberInput>
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel fontWeight="medium">Max Price (AED)</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Max Price (AED)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.maxPrice}
                     onChange={(value) =>
                       formik.setFieldValue("maxPrice", value)
                     }
-                    focusBorderColor="brand.500"
                   >
-                    <NumberInputField placeholder="Maximum price" />
+                    <NumberInputField
+                      placeholder="Maximum price"
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _placeholder={{ color: colors.mutedText }}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
+                    />
                   </NumberInput>
                 </FormControl>
               </SimpleGrid>
 
               <SimpleGrid columns={colSpan} gap={3}>
                 <FormControl>
-                  <FormLabel fontWeight="medium">Min Area (sqft)</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Min Area (sqft)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.minArea}
                     onChange={(value) => formik.setFieldValue("minArea", value)}
-                    focusBorderColor="brand.500"
                   >
-                    <NumberInputField placeholder="Minimum area" />
+                    <NumberInputField
+                      placeholder="Minimum area"
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _placeholder={{ color: colors.mutedText }}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
+                    />
                   </NumberInput>
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel fontWeight="medium">Max Area (sqft)</FormLabel>
+                  <FormLabel fontWeight="medium" color={colors.labelColor}>Max Area (sqft)</FormLabel>
                   <NumberInput
                     min={0}
                     value={formik.values.maxArea}
                     onChange={(value) => formik.setFieldValue("maxArea", value)}
-                    focusBorderColor="brand.500"
                   >
-                    <NumberInputField placeholder="Maximum area" />
+                    <NumberInputField
+                      placeholder="Maximum area"
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _placeholder={{ color: colors.mutedText }}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
+                    />
                   </NumberInput>
                 </FormControl>
               </SimpleGrid>
             </VStack>
           </ModalBody>
 
-          <ModalFooter position="sticky"
+          <ModalFooter
+            position="sticky"
             bottom="0"
-            bg={footerBg}
+            bg={colors.viewFooterBg}
             borderTop="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.viewFooterBorder}
             py={3}
             px={5}
             zIndex="10"
             justifyContent="flex-end"
-            gap={3}>
+            gap={3}
+          >
             <Button
               variant="outline"
               onClick={handleClear}
@@ -466,7 +562,7 @@ const AdvancedSearchModal = ({
               Clear Search
             </Button>
             <Button
-              colorScheme="brand"
+              variant="brand"
               type="submit"
               isDisabled={isFilterUnchanged}
               borderRadius={"md"}

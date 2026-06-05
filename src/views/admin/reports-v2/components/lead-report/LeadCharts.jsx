@@ -28,6 +28,7 @@ import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
 import RefButton from '../RefButton';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const normalizeBarData = (doc) => [
 	{
@@ -76,6 +77,7 @@ const normalizeAssignmentsData = (doc) => [
 ];
 
 export default function LeadsCharts() {
+	const colors = useModalColors();
 	const [period, setPeriod] = useState('weekly');
 
 	const { hasPermission } = usePermissions();
@@ -84,20 +86,6 @@ export default function LeadsCharts() {
 		analytics: [],
 		assignments: [],
 	});
-
-	// Add this at the start of your component
-	// useEffect(() => {
-	// 	const originalError = console.error;
-	// 	console.error = (...args) => {
-	// 		if (/ResizeObserver/.test(args[0])) {
-	// 			return;
-	// 		}
-	// 		originalError(...args);
-	// 	};
-	// 	return () => {
-	// 		console.error = originalError;
-	// 	};
-	// }, []);
 
 	const { data, isLoading, isSuccess } = useFetchItemsQuery(
 		{
@@ -110,17 +98,14 @@ export default function LeadsCharts() {
 	useEffect(() => {
 		if (data?.doc) {
 			const analyticData = normalizeBarData(data?.doc);
-			// const percentData = normalizePercentData(data?.doc);
 			const assignmentsData = normalizeAssignmentsData(data?.doc);
 
 			setChartData({ analytics: analyticData, assignments: assignmentsData });
 		}
 	}, [data?.doc]);
 
-	// if (!isSuccess || !data?.doc) return <NoData label='data' />;
-
 	return (
-		<VStack spacing={6} w='full' bg='white' rounded='md' shadow='sm' p='6'>
+		<VStack spacing={6} w='full' bg={colors.bg} rounded='md' shadow={colors.cardShadow} p='6' border="1px solid" borderColor={colors.borderColor}>
 			{isLoading ? (
 				<CardShimmer
 					count={2}
@@ -134,6 +119,7 @@ export default function LeadsCharts() {
 							<Text
 								fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
 								fontWeight='bold'
+								color={colors.headingText}
 							>
 								Lead Report
 							</Text>
@@ -160,7 +146,7 @@ export default function LeadsCharts() {
 							<Text
 								fontSize='sm'
 								textAlign='center'
-								color='gray.600'
+								color={colors.bodyText}
 								fontWeight='bold'
 								mb='2'
 							>
@@ -171,30 +157,37 @@ export default function LeadsCharts() {
 									<CartesianGrid
 										strokeDasharray='3 3'
 										vertical={false}
-										stroke='#e2e8f0'
+										stroke={colors.borderColor}
 									/>
-									<XAxis dataKey='label' fontSize='12px' />
+									<XAxis
+										dataKey='label'
+										fontSize='12px'
+										tick={{ fill: colors.bodyText }}
+										axisLine={{ stroke: colors.borderColor }}
+									/>
 									<YAxis
 										allowDecimals={false}
 										fontSize='12px'
 										domain={[0, (dataMax) => Math.ceil(dataMax * 1.1)]}
+										tick={{ fill: colors.bodyText }}
+										axisLine={{ stroke: colors.borderColor }}
 									/>
-									<Tooltip cursor={{ fill: '#ebf8ff' }} />
+									<Tooltip cursor={{ fill: `${colors.accentGold}15` }} />
 									<Legend />
 									<Bar
 										dataKey='current'
-										fill='#D99A36'
+										fill={colors.accentGold}
 										name='Current'
 										radius={[4, 4, 0, 0]}
 										animationDuration={500}
-									></Bar>
+									/>
 									<Bar
 										dataKey='previous'
-										fill='#EDD199'
+										fill={`${colors.accentGold}60`}
 										name='Previous'
 										radius={[4, 4, 0, 0]}
 										animationDuration={500}
-									></Bar>
+									/>
 								</BarChart>
 							</SafeResponsiveChart>
 						</Box>
@@ -204,7 +197,7 @@ export default function LeadsCharts() {
 							<Text
 								fontSize='sm'
 								textAlign='center'
-								color='gray.600'
+								color={colors.bodyText}
 								fontWeight='bold'
 								mb='2'
 							>
@@ -220,22 +213,32 @@ export default function LeadsCharts() {
 									<CartesianGrid
 										strokeDasharray='3 3'
 										vertical={false}
-										stroke='#e2e8f0'
+										stroke={colors.borderColor}
 									/>
-									<XAxis dataKey='role' fontSize='12px' />
-									<YAxis allowDecimals={false} fontSize='12px' />
-									<Tooltip cursor={{ fill: '#ebf8ff' }} />
+									<XAxis
+										dataKey='role'
+										fontSize='12px'
+										tick={{ fill: colors.bodyText }}
+										axisLine={{ stroke: colors.borderColor }}
+									/>
+									<YAxis
+										allowDecimals={false}
+										fontSize='12px'
+										tick={{ fill: colors.bodyText }}
+										axisLine={{ stroke: colors.borderColor }}
+									/>
+									<Tooltip cursor={{ fill: `${colors.accentGold}15` }} />
 									<Legend />
 									<Bar
 										dataKey='current'
-										fill='#D99A36'
+										fill={colors.accentGold}
 										name='Current'
 										radius={[4, 4, 0, 0]}
 										animationDuration={500}
 									/>
 									<Bar
 										dataKey='previous'
-										fill='#EDD199'
+										fill={`${colors.accentGold}60`}
 										name='Previous'
 										radius={[4, 4, 0, 0]}
 										animationDuration={500}

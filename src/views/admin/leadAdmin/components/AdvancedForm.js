@@ -148,7 +148,7 @@ const AdvancedSearchForm = (props) => {
 				ms='4px'
 				fontSize='sm'
 				fontWeight='600'
-				color='#000'
+				color='gray.100'
 				mb='0'
 				mt={2}
 			>
@@ -171,7 +171,8 @@ const AdvancedSearchForm = (props) => {
 
 	return (
 		<Grid
-			overflow='scroll'
+			overflowY='scroll'
+			scrollBehavior='smooth'
 			height={isSuperAdmin ? '30vh' : '45vh'}
 			p='2'
 			templateColumns={{
@@ -243,7 +244,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='gray.100'
 					mb='0'
 					mt={2}
 				>
@@ -278,7 +279,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='gray.100'
 					mb='0'
 					mt={2}
 				>
@@ -310,7 +311,7 @@ const AdvancedSearchForm = (props) => {
 						ms='4px'
 						fontSize='sm'
 						fontWeight='600'
-						color='#000'
+						color='gray.100'
 						mb='0'
 						mt={2}
 					>

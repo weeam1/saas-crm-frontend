@@ -1,12 +1,318 @@
-import { useEffect, useState } from "react";
+
+// import { useEffect, useState, useRef } from "react";
+// import { toast } from "react-toastify";
+// import {
+//   Box,
+//   Button,
+//   Heading,
+//   HStack,
+//   IconButton,
+//   Flex,
+// } from "@chakra-ui/react";
+// import { FaUserCheck } from "react-icons/fa";
+
+// import CandidateView from "views/admin/hiring/candidates/components/CandidateView";
+// import CountUpComponent from "components/countUpComponent/countUpComponent";
+// import TopPagination from "components/pagination/TopPagination";
+// import { constant } from "constant";
+
+// import { useDispatch, useSelector } from "react-redux";
+// import { addMissingFile } from "./../../../../../redux/missingFilesSlice";
+// import InterviewResult from "./../InterviewResult";
+// import { useNavigate } from "react-router-dom";
+// import InterviewedRoundTable from "./InterviewRoundTable";
+// import useUserSession from "hooks/useUserSession";
+// import { useUserActivityLog } from "hooks/useUserActivityLog";
+// import SearchBox from "views/admin/lead-v2/components/SearchBox";
+// import CustomTooltip from "components/shared/CustomTooltip";
+
+// const InterviewedRound = ({
+//   data,
+//   allData,
+//   loading,
+//   totalDocs,
+//   handleSort,
+//   sortConfig,
+//   refetch,
+//   totalPages,
+//   currentPage,
+//   pageSize,
+//   handleGotoPage,
+//   handlePageSizeChange,
+//   gopageValue,
+//   setGopageValue,
+//   setAdvanceSearch,
+//   isFetching,
+// }) => {
+//   const [isApplicationOpen, setApplicationOpen] = useState(false);
+//   const [searchData, setSearchData] = useState([]);
+//   const [interview, setInterview] = useState(null);
+//   const [interviewId, setInterviewId] = useState(null);
+//   const [isSearch, setIsSearch] = useState(false);
+
+//   // Search ref for SearchBox component
+//   const searchTermRef = useRef("");
+
+//   const [resultModalOpen, setResultModalOpen] = useState(false);
+
+//   const headers = [
+//     { key: "name", label: "Name", width: "250px" },
+//     { key: "email", label: "Email", width: "250px" },
+//     { key: "agency", label: "Agency", width: "100px" },
+//     { key: "position", label: "Job Role", width: "150px" },
+//     { key: "phone", label: "Phone No", width: "150px" },
+//     { key: "whatsApp", label: "WhatsApp No", width: "150px" },
+//     { key: "type", label: "Type", width: "150px" },
+//     { key: "percentageSocre", label: "T.Percentage", width: "150px" },
+//     { key: "action", label: "Action", width: "200px" },
+//   ];
+
+//   const dispatch = useDispatch();
+//   const missingFiles = useSelector((state) => state.missingFiles.missingFiles);
+
+//   const { user } = useUserSession();
+//   const { createUserLog } = useUserActivityLog();
+
+//   // Handle search from SearchBox
+//   const handleSearchByName = () => {
+//     const term = searchTermRef.current.trim();
+
+//     if (!term) {
+//       setIsSearch(false);
+//       setSearchData([]);
+//       return;
+//     }
+
+//     const candidatesToSearch = data || [];
+
+//     const filteredData = candidatesToSearch.filter((item) =>
+//       item.candidate?.name?.toLowerCase().includes(term.toLowerCase()),
+//     );
+
+//     setIsSearch(true);
+//     setSearchData(filteredData);
+//   };
+
+//   const handleViewCV = async (resume) => {
+//     try {
+//       const pdfURL = `${constant["baseUrl"]}${resume}`;
+
+//       if (missingFiles.includes(resume)) {
+//         toast.error("CV not found!");
+//         return;
+//       }
+
+//       const response = await fetch(pdfURL, { method: "HEAD" });
+
+//       if (!response.ok) {
+//         dispatch(addMissingFile(resume));
+//         toast.error("CV not found!");
+//         return;
+//       }
+
+//       window.open(pdfURL, "_blank");
+
+//       createUserLog({
+//         userId: user?._id,
+//         action: "VIEW",
+//         entity: "Hiring",
+//         entityType: "Application",
+//         entityId: interview?.candidate._id,
+//         status: "success",
+//         message: `Candidate ${interview?.candidate.name}’s CV viewed by ${user?.fullName}.`,
+//       });
+//     } catch (error) {
+//       console.error("Error viewing CV:", error);
+//       toast.error("Failed to retrieve the CV. Please try again later.");
+//     }
+//   };
+
+//   const handleDownloadCV = async (resume) => {
+//     try {
+//       const pdfURL = `${constant["baseUrl"]}${resume}`;
+//       if (missingFiles.includes(resume)) {
+//         toast.error("CV could not be downloaded");
+//         return;
+//       }
+
+//       const response = await fetch(pdfURL, { method: "HEAD" });
+
+//       if (!response.ok) {
+//         dispatch(addMissingFile(resume));
+//         toast.error("CV could not be downloaded");
+//         return;
+//       }
+
+//       const link = document.createElement("a");
+//       link.href = pdfURL;
+//       link.download = pdfURL.split("/").pop();
+//       document.body.appendChild(link);
+//       link.click();
+//       document.body.removeChild(link);
+
+//       createUserLog({
+//         userId: user?._id,
+//         action: "VIEW",
+//         entity: "Hiring",
+//         entityType: "Application",
+//         entityId: interview?.candidate._id,
+//         status: "success",
+//         message: `Candidate ${interview?.candidate.name}’s CV downloaded by ${user?.fullName}.`,
+//       });
+//     } catch (error) {
+//       console.error("Error viewing CV:", error);
+//       toast.error("Failed to retrieve the CV. Please try again later.");
+//     }
+//   };
+
+//   const handleViewCandidate = async (id) => {
+//     const selectedInterview = data.find((item) => item.candidate._id === id);
+//     setInterview(selectedInterview);
+//     setApplicationOpen(true);
+
+//     createUserLog({
+//       userId: user?._id,
+//       action: "VIEW",
+//       entity: "Hiring",
+//       entityType: "Application",
+//       entityId: selectedInterview.candidate._id,
+//       status: "success",
+//       message: `Candidate ${selectedInterview.candidate.name}’s details viewed by ${user?.fullName}.`,
+//     });
+//   };
+
+//   const handleViewResult = (interview) => {
+//     setInterview(interview);
+//     setInterviewId(interview._id);
+//     setResultModalOpen(true);
+//   };
+
+//   const navigate = useNavigate();
+
+//   const handleSendOffer = (interviewId, offerType) => {
+//     navigate(
+//       `/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`,
+//     );
+//   };
+
+//   // Get the data to display (search results or original data)
+//   const displayData = isSearch ? searchData : data;
+
+//   return (
+//     <Box w="full" p={6} bg="white" rounded="md" shadow="sm">
+//       {/* Header with Search and Actions */}
+//       <Flex
+//         justifyContent="space-between"
+//         alignItems={{ base: "flex-start", xl: "center" }}
+//         flexDirection={{ base: "column", md: "row" }}
+//         gap={{ base: 4, xl: 0 }}
+//         mb={4}
+//       >
+//         <HStack gap="2">
+//           <FaUserCheck />
+//           <Heading size="20px" color="gray.800" fontWeight={"bold"}>
+//             Multi-Round Interviewed
+//             <span style={{ marginLeft: "6px" }}>
+//               (
+//               {
+//                 <CountUpComponent
+//                   targetNumber={isSearch ? searchData.length : totalDocs || 0}
+//                 />
+//               }
+//               )
+//             </span>
+//           </Heading>
+//         </HStack>
+
+//         <Flex gap={2} alignItems="center">
+//           {/* Search Box - This includes Advanced Search button inside */}
+//           <SearchBox
+//             setQueryParams={() => {}}
+//             setAdvanceSearch={setAdvanceSearch}
+//             handleSearchByName={handleSearchByName}
+//             searchTermRef={searchTermRef}
+//           />
+
+//           {/* Refresh Button */}
+//
+//         </Flex>
+//       </Flex>
+
+//       <Box display={"flex"} flexDirection={"column"} gap="4">
+//         {/* Top Pagination */}
+//         <TopPagination
+//           currentPage={currentPage}
+//           totalPages={totalPages}
+//           onPageChange={(page) => handleGotoPage(page)}
+//           totalItems={isSearch ? searchData.length : totalDocs}
+//           itemsPerPage={pageSize}
+//           refetching={isFetching}
+//           loading={loading}
+//           handlePageSize={handlePageSizeChange}
+//         />
+
+//         {/* Table */}
+//         <InterviewedRoundTable
+//           headers={headers}
+//           data={displayData}
+//           handleSort={handleSort}
+//           sortConfig={sortConfig}
+//           loading={loading}
+//           handleViewResult={handleViewResult}
+//           handleViewCandidate={handleViewCandidate}
+//           handleSendOffer={handleSendOffer}
+//           refetch={refetch}
+//           isFetching={isFetching}
+//         />
+//       </Box>
+
+//       {/* Modals */}
+//       {isApplicationOpen && (
+//         <CandidateView
+//           isOpen={isApplicationOpen}
+//           onClose={() => setApplicationOpen(false)}
+//           candidate={interview?.candidate}
+//           missingFiles={missingFiles}
+//           onViewCV={handleViewCV}
+//           onDownloadCV={handleDownloadCV}
+//           refetch={refetch}
+//         />
+//       )}
+
+//       {resultModalOpen && (
+//         <InterviewResult
+//           onClose={() => setResultModalOpen(false)}
+//           isOpen={resultModalOpen}
+//           data={interview}
+//           interviewId={interviewId}
+//           refetch={refetch}
+//           mode="running"
+//           title="Previous Result"
+//         />
+//       )}
+//     </Box>
+//   );
+// };
+
+// export default InterviewedRound;
+
+
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
-import { Box, Button, Heading, HStack, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Heading,
+  HStack,
+  IconButton,
+  Flex,
+  Text,
+} from "@chakra-ui/react";
 import { FaUserCheck } from "react-icons/fa";
 
 import CandidateView from "views/admin/hiring/candidates/components/CandidateView";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
-import SearchBar from "components/search/SearchBar";
-import TablePagination from "components/pagination/TablePagination";
+import TopPagination from "components/pagination/TopPagination";
 import { constant } from "constant";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -16,7 +322,10 @@ import { useNavigate } from "react-router-dom";
 import InterviewedRoundTable from "./InterviewRoundTable";
 import useUserSession from "hooks/useUserSession";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
-import { FiRefreshCw } from "react-icons/fi";
+import SearchBox from "views/admin/lead-v2/components/SearchBox";
+import CustomTooltip from "components/shared/CustomTooltip";
+import { useModalColors } from "hooks/useModalColors";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const InterviewedRound = ({
   data,
@@ -36,24 +345,27 @@ const InterviewedRound = ({
   setAdvanceSearch,
   isFetching,
 }) => {
+  const colors = useModalColors();
   const [isApplicationOpen, setApplicationOpen] = useState(false);
   const [searchData, setSearchData] = useState([]);
   const [interview, setInterview] = useState(null);
   const [interviewId, setInterviewId] = useState(null);
   const [isSearch, setIsSearch] = useState(false);
 
+  const searchTermRef = useRef("");
+
   const [resultModalOpen, setResultModalOpen] = useState(false);
 
   const headers = [
-    { key: "name", label: "Name", width: "250px" }, // Name column width
-    { key: "email", label: "Email", width: "250px" }, // Email column width
-    { key: "agency", label: "Agency", width: "100px" }, // Email column width
-    { key: "position", label: "Job Role", width: "150px" }, // Job Role column width
-    { key: "phone", label: "Phone No", width: "150px" }, // Phone No column width
-    { key: "whatsApp", label: "WhatsApp No", width: "150px" }, // WhatsApp No column width
-    { key: "type", label: "Type", width: "150px" }, // WhatsApp No column width
-    { key: "percentageSocre", label: "T.Percentage", width: "150px" }, // WhatsApp No column width
-    { key: "action", label: "Action", width: "200px" }, // Action column width
+    { key: "name", label: "Name", width: "250px" },
+    { key: "email", label: "Email", width: "250px" },
+    { key: "agency", label: "Agency", width: "100px" },
+    { key: "position", label: "Job Role", width: "150px" },
+    { key: "phone", label: "Phone No", width: "150px" },
+    { key: "whatsApp", label: "WhatsApp No", width: "150px" },
+    { key: "type", label: "Type", width: "150px" },
+    { key: "percentageSocre", label: "T.Percentage", width: "150px" },
+    { key: "action", label: "Action", width: "200px" },
   ];
 
   const dispatch = useDispatch();
@@ -62,27 +374,42 @@ const InterviewedRound = ({
   const { user } = useUserSession();
   const { createUserLog } = useUserActivityLog();
 
+  const handleSearchByName = () => {
+    const term = searchTermRef.current.trim();
+
+    if (!term) {
+      setIsSearch(false);
+      setSearchData([]);
+      return;
+    }
+
+    const candidatesToSearch = data || [];
+
+    const filteredData = candidatesToSearch.filter((item) =>
+      item.candidate?.name?.toLowerCase().includes(term.toLowerCase()),
+    );
+
+    setIsSearch(true);
+    setSearchData(filteredData);
+  };
+
   const handleViewCV = async (resume) => {
     try {
       const pdfURL = `${constant["baseUrl"]}${resume}`;
 
-      // Check if this file was already marked as missing
       if (missingFiles.includes(resume)) {
         toast.error("CV not found!");
-        return; // Stop further execution
+        return;
       }
 
-      // Send a single HEAD request to check if the file exists
       const response = await fetch(pdfURL, { method: "HEAD" });
 
       if (!response.ok) {
-        // Store the missing file to prevent future requests
         dispatch(addMissingFile(resume));
         toast.error("CV not found!");
         return;
       }
 
-      // Open the PDF if it exists
       window.open(pdfURL, "_blank");
 
       createUserLog({
@@ -99,32 +426,29 @@ const InterviewedRound = ({
       toast.error("Failed to retrieve the CV. Please try again later.");
     }
   };
+
   const handleDownloadCV = async (resume) => {
     try {
       const pdfURL = `${constant["baseUrl"]}${resume}`;
-      // Check if this file was already marked as missing
       if (missingFiles.includes(resume)) {
         toast.error("CV could not be downloaded");
         return;
       }
 
-      // Check if the file exists using a HEAD request
       const response = await fetch(pdfURL, { method: "HEAD" });
 
       if (!response.ok) {
-        // Store the missing file to prevent future requests
         dispatch(addMissingFile(resume));
         toast.error("CV could not be downloaded");
         return;
       }
 
-      // Create an anchor element for the download
       const link = document.createElement("a");
       link.href = pdfURL;
-      link.download = pdfURL.split("/").pop(); // Extract the file name from the URL
+      link.download = pdfURL.split("/").pop();
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link); // Clean up the DOM
+      document.body.removeChild(link);
 
       createUserLog({
         userId: user?._id,
@@ -142,8 +466,8 @@ const InterviewedRound = ({
   };
 
   const handleViewCandidate = async (id) => {
-    const interview = data.find((item) => item.candidate._id === id);
-    setInterview(interview);
+    const selectedInterview = data.find((item) => item.candidate._id === id);
+    setInterview(selectedInterview);
     setApplicationOpen(true);
 
     createUserLog({
@@ -151,16 +475,10 @@ const InterviewedRound = ({
       action: "VIEW",
       entity: "Hiring",
       entityType: "Application",
-      entityId: interview.candidate._id,
+      entityId: selectedInterview.candidate._id,
       status: "success",
-      message: `Candidate ${interview.candidate.name}’s details viewed by ${user?.fullName}.`,
+      message: `Candidate ${selectedInterview.candidate.name}’s details viewed by ${user?.fullName}.`,
     });
-  };
-
-  // Update filtered data on search change
-  const handleFilteredData = (filtered) => {
-    setIsSearch(true);
-    setSearchData(filtered);
   };
 
   const handleViewResult = (interview) => {
@@ -173,115 +491,92 @@ const InterviewedRound = ({
 
   const handleSendOffer = (interviewId, offerType) => {
     navigate(
-      `/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`
+      `/hiring/interviewed-candidates/offer-letter/${interviewId}?type=${offerType}`,
     );
   };
 
-  // Update filtered data on search change
-  const handleSearchTermChange = (term) => {
-    if (!term) {
-      setIsSearch(false);
-      setSearchData(data); // Reset to original data
-      return;
-    }
-
-    const filteredData = data.filter((item) =>
-      item.candidate.name.toLowerCase().includes(term.toLowerCase())
-    );
-
-    setIsSearch(true);
-    setSearchData(filteredData);
-  };
+  const displayData = isSearch ? searchData : data;
 
   return (
-    <Box w="full" p={6} bg="white" rounded="md" shadow="sm">
-      <Box
-        display="flex"
+    <Box w="full" p={6} bg={colors.bg} rounded="md" shadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
+      <Flex
         justifyContent="space-between"
-        alignItems={{ base: "flex-start", md: "center" }}
+        alignItems={{ base: "flex-start", xl: "center" }}
         flexDirection={{ base: "column", md: "row" }}
-        px=".5rem"
-        mb="4"
-        shadow="none"
-        gap="2"
+        gap={{ base: 4, xl: 0 }}
+        mb={4}
       >
         <HStack gap="2">
-          <FaUserCheck w="14" h="14" />
-          <Heading size="20px" color="gray.800" fontWeight={"bold"}>
+          <FaUserCheck color={colors.accentGold} />
+          <Text fontSize="20px" color={colors.headingText} fontWeight={"bold"}>
             Multi-Round Interviewed
-            {data && (
-              <span style={{ marginLeft: "6px" }}>
-                ({<CountUpComponent targetNumber={totalDocs || 0} />})
-              </span>
-            )}
-          </Heading>
+            <span style={{ marginLeft: "6px" }}>
+              (
+              {
+                <CountUpComponent
+                  targetNumber={isSearch ? searchData.length : totalDocs || 0}
+                />
+              }
+              )
+            </span>
+          </Text>
         </HStack>
 
-        <HStack
-          w={{ base: "100%", md: "fit-content" }}
-          justify="flex-end"
-          flexDir={{ base: "column", md: "row" }}
-          gap="2"
-        >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh"
-            onClick={() => refetch()}
-            isLoading={loading || isFetching}
-            variant="outline"
-            size="sm"
+        <Flex gap={2} alignItems="center">
+          <SearchBox
+            setQueryParams={() => {}}
+            setAdvanceSearch={setAdvanceSearch}
+            handleSearchByName={handleSearchByName}
+            searchTermRef={searchTermRef}
           />
-          {/* <SearchBar data={allData?.doc} onFilteredData={handleFilteredData} /> */}
-          <SearchBar onSearchTermChange={handleSearchTermChange} />
 
-          <Button
-            colorScheme="brand"
-            rounded="md"
-            size={"sm"} // Adjusts the size
-            py={3}
-            px={6}
-            onClick={() => setAdvanceSearch(true)}
-          >
-            Advanced Search
-          </Button>
-        </HStack>
-      </Box>
+ <RefreshButton
+                                label="Refresh"
+                                 onClick={() => {
+                setIsSearch(false);
+                setSearchData([]);
+                searchTermRef.current = "";
+                refetch();
+              }}
+                                isLoading={loading}
+                                isFetching={isFetching}
+                                size="sm"
+                              />
 
-      <InterviewedRoundTable
-        headers={headers}
-        data={isSearch ? searchData : data}
-        handleSort={handleSort}
-        sortConfig={sortConfig}
-        loading={loading}
-        handleViewResult={handleViewResult}
-        handleViewCandidate={handleViewCandidate}
-        handleSendOffer={handleSendOffer}
-        refetch={refetch}
-		isFetching ={isFetching}
-      />
-      {data?.length > 0 && (
-        <TablePagination
-          gotoPage={handleGotoPage}
-          gopageValue={gopageValue}
-          setGopageValue={setGopageValue}
-          pageCount={totalPages}
-          canPreviousPage={currentPage > 1}
-          previousPage={() => handleGotoPage(currentPage - 2)}
-          canNextPage={currentPage < totalPages}
-          nextPage={() => handleGotoPage(currentPage)}
-          pageOptions={Array.from({ length: totalPages })}
-          setPageSize={handlePageSizeChange}
-          pageSize={pageSize}
-          pageIndex={currentPage - 1}
-          totalDocs={totalDocs}
+        </Flex>
+      </Flex>
+
+      <Box display={"flex"} flexDirection={"column"} gap="4">
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => handleGotoPage(page)}
+          totalItems={isSearch ? searchData.length : totalDocs}
+          itemsPerPage={pageSize}
+          refetching={isFetching}
+          loading={loading}
+          handlePageSize={handlePageSizeChange}
         />
-      )}
+
+        <InterviewedRoundTable
+          headers={headers}
+          data={displayData}
+          handleSort={handleSort}
+          sortConfig={sortConfig}
+          loading={loading}
+          handleViewResult={handleViewResult}
+          handleViewCandidate={handleViewCandidate}
+          handleSendOffer={handleSendOffer}
+          refetch={refetch}
+          isFetching={isFetching}
+        />
+      </Box>
 
       {isApplicationOpen && (
         <CandidateView
           isOpen={isApplicationOpen}
           onClose={() => setApplicationOpen(false)}
-          candidate={interview.candidate}
+          candidate={interview?.candidate}
           missingFiles={missingFiles}
           onViewCV={handleViewCV}
           onDownloadCV={handleDownloadCV}

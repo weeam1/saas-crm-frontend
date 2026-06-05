@@ -18,6 +18,7 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
+import { useModalColors } from 'hooks/useModalColors';
 
 const InterviewTabs = memo(
 	({
@@ -31,6 +32,7 @@ const InterviewTabs = memo(
 		setInterviewersSelected,
 		isInterviewerSubmittedPoints,
 	}) => {
+		const colors = useModalColors();
 		const [hiringData, setHiringData] = useState();
 		const [updateItemMutation, { isLoading: updatingInterview }] =
 			useUpdateItemMutation();
@@ -44,13 +46,9 @@ const InterviewTabs = memo(
 				const timer = setTimeout(() => {
 					setLoading(false);
 				}, 2000);
-
 				return () => clearTimeout(timer);
 			}
 		}, [loading]);
-		// const interviewerEvaluationPoints = interview?.evaluations?.filter(
-		// 	(item) => item.interviewer._id === user._id
-		// )[0];
 
 		const { data: positionOptions, isLoading: positionsLoading } =
 			useFetchItemsQuery(
@@ -60,7 +58,6 @@ const InterviewTabs = memo(
 				{ refetchOnMountOrArgChange: true }
 			);
 
-		// Memoize computed values
 		const isInvitedInterviewer = useMemo(
 			() =>
 				interview?.isMultiRound
@@ -99,7 +96,6 @@ const InterviewTabs = memo(
 
 				toast.success('Interview updated successfully');
 
-				// Redirect to the appropriate page based on the interviewer
 				const redirectUrl = hiringInfo.isNextRound
 					? `/hiring/multi-round`
 					: isLeadInterviewer
@@ -114,137 +110,144 @@ const InterviewTabs = memo(
 			}
 		};
 
+		// Helper function to get tab text color
+		const getTabTextColor = (index, isDisabled) => {
+			if (activeTabIndex === index) return colors.headerText;
+			if (isDisabled) return colors.mutedText;
+			return colors.bodyText;
+		};
+
 		return positionsLoading || loading ? (
 			<Loader />
 		) : (
 			<Box
 				display='flex'
-				bg='white'
+				bg={colors.bg}
 				p={{ base: 4, lg: 8 }}
 				rounded='md'
-				shadow='sm'
+				shadow={colors.cardShadow}
 				justifyContent='center'
 				width='full'
 				alignItems='center'
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
 				{isLeadInterviewer ? (
 					<Tabs
-						colorScheme='brand'
-						variant='enclosed'
-						onChange={handleTabChange}
 						index={activeTabIndex}
+						onChange={handleTabChange}
 						width={{ base: 'full', md: '700px' }}
+						variant="unstyled"
 					>
-						{/* Tab List */}
 						<TabList
-							bg='softGray.100'
+							bg={colors.bgInput}
 							width='full'
 							mx='auto'
 							py={{ base: '1', md: '2' }}
 							px={{ base: '2', md: '4' }}
-							rounded='md'
-							shadow='sm'
+							rounded='lg'
 							display='flex'
 							flexDirection={{ base: 'column', sm: 'row' }}
 							gap={{ base: '1', sm: '2' }}
 						>
-							{/* Conditionally render the "Select Interviewers" tab separately if not invited */}
-							{/* {isCreatedBy && ( */}
 							<Tab
 								isDisabled={isInvitedInterviewer}
-								_selected={{ bg: 'brand.400', color: 'white' }}
-								_focus={{ boxShadow: 'none' }}
+								px={4}
+								py={2}
 								rounded='md'
-								color={isInvitedInterviewer ? 'brand.500' : 'gray.800'}
-								flex='1'
-								minWidth='0'
 								fontSize={{ base: 'xs', sm: 'sm', md: 'md' }}
-								py={{ base: '1', md: '2' }}
+								fontWeight="medium"
+								transition="all 0.2s"
+								bg={activeTabIndex === 0 ? colors.accentGold : 'transparent'}
+								_hover={{
+									bg: activeTabIndex === 0 ? colors.goldLight : colors.bgInputHover,
+								}}
+								_disabled={{
+									opacity: 0.6,
+									cursor: 'not-allowed',
+								}}
 							>
 								<HStack spacing={{ base: '1', md: '2' }}>
 									<Box
 										as={LuUsers}
 										fontSize={{ base: '14px', sm: '16px', md: '18px' }}
+										color={getTabTextColor(0, isInvitedInterviewer)}
 									/>
-									<Text whiteSpace='nowrap'>Select Interviewers</Text>
+									<Text
+										whiteSpace='nowrap'
+										color={getTabTextColor(0, isInvitedInterviewer)}
+									>
+										Select Interviewers
+									</Text>
 								</HStack>
 							</Tab>
-							{/* )} */}
 
 							<Tab
-								isDisabled={
-									!isInvitedInterviewer || isInterviewerSubmittedPoints
-								}
-								_selected={{ bg: 'brand.400', color: 'white' }}
-								_focus={{ boxShadow: 'none' }}
+								isDisabled={!isInvitedInterviewer || isInterviewerSubmittedPoints}
+								px={4}
+								py={2}
 								rounded='md'
-								color={isInterviewerSubmittedPoints ? 'brand.500' : 'gray.800'}
-								flex='1'
-								minWidth='0'
 								fontSize={{ base: 'xs', sm: 'sm', md: 'md' }}
-								py={{ base: '1', md: '2' }}
+								fontWeight="medium"
+								transition="all 0.2s"
+								bg={activeTabIndex === 1 ? colors.accentGold : 'transparent'}
+								_hover={{
+									bg: activeTabIndex === 1 ? colors.goldLight : colors.bgInputHover,
+								}}
+								_disabled={{
+									opacity: 0.6,
+									cursor: 'not-allowed',
+								}}
 							>
 								<HStack spacing={{ base: '1', md: '2' }}>
 									<Box
 										as={LuCheckSquare}
 										fontSize={{ base: '14px', sm: '16px', md: '18px' }}
+										color={getTabTextColor(1, !isInvitedInterviewer || isInterviewerSubmittedPoints)}
 									/>
-									<Text whiteSpace='nowrap'>Evaluation Points</Text>
+									<Text
+										whiteSpace='nowrap'
+										color={getTabTextColor(1, !isInvitedInterviewer || isInterviewerSubmittedPoints)}
+									>
+										Evaluation Points
+									</Text>
 								</HStack>
 							</Tab>
+
 							<Tab
-								isDisabled={
-									!isInvitedInterviewer || !isInterviewerSubmittedPoints
-								}
-								_selected={{ bg: 'brand.400', color: 'white' }}
-								_focus={{ boxShadow: 'none' }}
+								isDisabled={!isInvitedInterviewer || !isInterviewerSubmittedPoints}
+								px={4}
+								py={2}
 								rounded='md'
-								color={
-									!isInvitedInterviewer || !isInterviewerSubmittedPoints
-										? 'gray.500'
-										: 'gray.800'
-								}
-								flex='1'
-								minWidth='0'
 								fontSize={{ base: 'xs', sm: 'sm', md: 'md' }}
-								py={{ base: '1', md: '2' }}
+								fontWeight="medium"
+								transition="all 0.2s"
+								bg={activeTabIndex === 2 ? colors.accentGold : 'transparent'}
+								_hover={{
+									bg: activeTabIndex === 2 ? colors.goldLight : colors.bgInputHover,
+								}}
+								_disabled={{
+									opacity: 0.6,
+									cursor: 'not-allowed',
+								}}
 							>
 								<HStack spacing={{ base: '1', md: '2' }}>
 									<Box
 										as={LuFileText}
 										fontSize={{ base: '14px', sm: '16px', md: '18px' }}
+										color={getTabTextColor(2, !isInvitedInterviewer || !isInterviewerSubmittedPoints)}
 									/>
-									<Text whiteSpace='nowrap'>Hiring Info</Text>
+									<Text
+										whiteSpace='nowrap'
+										color={getTabTextColor(2, !isInvitedInterviewer || !isInterviewerSubmittedPoints)}
+									>
+										Hiring Info
+									</Text>
 								</HStack>
 							</Tab>
-							{/* Other tabs */}
-							{/* {[
-								{ label: 'Evaluation Points', icon: LuCheckSquare },
-								{ label: 'Hiring Info', icon: LuFileText },
-							].map((tab, index) => (
-								<Tab
-									key={index}
-									isDisabled={!isInvitedInterviewer} // Disable all tabs if not invited
-									_selected={{ bg: 'brand.400', color: 'white' }}
-									_focus={{ boxShadow: 'none' }} // Removes focus outline
-									rounded='md'
-									width='full'
-								>
-									<HStack>
-										<tab.icon />
-										<Text>{tab.label}</Text>
-									</HStack>
-								</Tab>
-							))} */}
 						</TabList>
 
-						{/* Tab Panels */}
-						<TabPanels
-							p={{ base: 4, md: 8 }}
-							width={{ base: '100%', md: '700px' }}
-							mx='auto'
-						>
-							{/* {isCreatedBy && ( */}
+						<TabPanels p={{ base: 4, md: 8 }} width={{ base: '100%', md: '700px' }} mx='auto'>
 							<TabPanel p={{ base: 4, md: 8 }}>
 								<SelectInterviewers
 									user={user}
@@ -256,28 +259,18 @@ const InterviewTabs = memo(
 									setLoading={setLoading}
 								/>
 							</TabPanel>
-							{/* )} */}
 
-							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
+							<TabPanel p={{ base: 4, md: 8 }}>
 								<EvaluationPoints
-									// onSubmit={handleSubmit}
 									interview={interview}
 									isLeadInterviewer={isLeadInterviewer}
 									handleTabChange={handleTabChange}
 									interviewRefetch={interviewRefetch}
 									isInterviewerSubmittedPoints={isInterviewerSubmittedPoints}
 								/>
-
-								{/* <InterviewEvaluationTabs
-									interviewDoc={interview}
-									nextRoundDoc={interview?.nextRound}
-									isLeadInterviewer={isLeadInterviewer}
-									handleTabChange={handleTabChange}
-									interviewRefetch={interviewRefetch}
-									isInterviewerSubmittedPoints={isInterviewerSubmittedPoints}
-								/> */}
 							</TabPanel>
-							<TabPanel bg='softGray.100' p={{ base: 4, md: 8 }} rounded='md'>
+
+							<TabPanel p={{ base: 4, md: 8 }}>
 								<HiringInfo
 									interview={interview}
 									hiringData={hiringData}
@@ -292,13 +285,14 @@ const InterviewTabs = memo(
 				) : (
 					<Box
 						width={{ base: '100%', md: '700px' }}
-						bg='softGray.100'
+						bg={colors.bgInput}
 						p={{ base: 4, md: 8 }}
 						mx='auto'
 						rounded='md'
+						border="1px solid"
+						borderColor={colors.borderColor}
 					>
 						<EvaluationPoints
-							// onSubmit={handleSubmit}
 							interview={interview}
 							isLeadInterviewer={isLeadInterviewer}
 							handleTabChange={handleTabChange}

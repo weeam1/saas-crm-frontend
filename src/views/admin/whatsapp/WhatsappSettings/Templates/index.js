@@ -1,7 +1,6 @@
 import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import { FiPlus } from 'react-icons/fi';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { buttonStyle } from 'utils/btn';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import AppButton from 'components/shared/AppButton';
 import { FaChevronLeft } from 'react-icons/fa';
@@ -11,8 +10,10 @@ import Loader from 'components/loading/Loader';
 import { useEffect } from 'react';
 import { setTemplates } from '../../../../../redux/whatsappSlice';
 import { useDispatch } from 'react-redux';
+import { useModalColors } from 'hooks/useModalColors';
 
 const Templates = () => {
+	const colors = useModalColors();
 	const { businessId } = useParams();
 	const dispatch = useDispatch();
 
@@ -42,23 +43,24 @@ const Templates = () => {
 
 	if (isError) {
 		return (
-			<Box bg='red.100' color='red.500' p='6' w='full' m='auto'>
-				Something went wrong. please try again letter!
+			<Box bg={colors.badgeErrorBg} color={colors.badgeErrorText} p='6' w='full' m='auto' borderRadius='lg'>
+				Something went wrong. Please try again later!
 			</Box>
 		);
 	}
+
 	return isTemplatesLoading ? (
 		<Loader />
 	) : (
 		<>
 			<AppButton
 				leftIcon={<FaChevronLeft />}
-				onClick={() => navigate('/whatsapp/settings')}
+				onClick={() => navigate(-1)}
 				mb='4'
 			>
 				Back
 			</AppButton>
-			<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
+			<Box p={6} bg={colors.bg} borderRadius='lg' boxShadow={colors.cardShadow} border='1px solid' borderColor={colors.borderColor}>
 				<Flex
 					justify='space-between'
 					align='center'
@@ -66,17 +68,15 @@ const Templates = () => {
 					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
 				>
 					<Flex gap='2' fontSize='lg' fontWeight='bold'>
-						<Text>Whatsapp Templates</Text>
+						<Text color={colors.headingText}>Whatsapp Templates</Text>
 						<CountUpComponent
 							key={templates?.results}
 							targetNumber={templates?.results}
 						/>
 					</Flex>
 					<Button
-						{...buttonStyle}
 						leftIcon={<Icon as={FiPlus} />}
-						colorScheme='brand'
-						variant='solid'
+						variant='brand'
 						size='sm'
 						onClick={() =>
 							navigate(
@@ -87,19 +87,6 @@ const Templates = () => {
 						Create Template
 					</Button>
 				</Flex>
-
-				{/* {!isTemplatesLoading && (
-					<TopPagination
-						currentPage={queryParams.page}
-						totalPages={templates?.totalPages}
-						onPageChange={handlePageChange}
-						totalItems={templates?.totalItems}
-						itemsPerPage={queryParams.limit}
-						refetching={isTemplatesFetching}
-						loading={isTemplatesLoading}
-						handlePageSize={handlePageSize}
-					/>
-				)} */}
 
 				<TemplatesTable
 					data={templates?.doc}

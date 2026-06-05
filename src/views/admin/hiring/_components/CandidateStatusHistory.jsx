@@ -32,6 +32,7 @@ import {
 	FiChevronRight,
 } from 'react-icons/fi';
 import { formatPostDate } from 'utils/helpers';
+import { useModalColors } from 'hooks/useModalColors';
 
 const statusConfig = {
 	'not eligible': {
@@ -101,10 +102,8 @@ const statusOrder = [
 ];
 
 const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
+	const colors = useModalColors();
 	const history = candidate?.statusHistory || [];
-	const cardBg = useColorModeValue('white', 'gray.800');
-	const subtleBg = useColorModeValue('gray.50', 'gray.700');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	// Sort history by date, most recent first
 	const sortedHistory = [...history].sort(
@@ -135,40 +134,46 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 			scrollBehavior='inside'
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay backdropFilter='blur(5px)' />
-			<ModalContent rounded='xl' overflow='hidden' shadow='2xl'>
-				<ModalHeader py={4} bg={subtleBg}>
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(5px)' />
+			<ModalContent rounded='xl' overflow='hidden' shadow={colors.modalShadow} bg={colors.viewBg}>
+				<ModalHeader py={4} bg={colors.viewHeaderBg}>
 					<VStack align='flex-start' spacing={1}>
 						<HStack>
-							<Text fontSize='lg' fontWeight='bold'>
+							<Text fontSize='lg' fontWeight='bold' color={colors.viewHeaderText}>
 								{candidate?.name || 'Candidate'}
 							</Text>
 						</HStack>
-						<Text fontSize='sm' color='gray.500' fontWeight='normal'>
+						<Text fontSize='sm' color={colors.mutedText} fontWeight='normal'>
 							Status History Timeline
 						</Text>
 					</VStack>
 				</ModalHeader>
-				<ModalCloseButton top={4} right={4} />
+				<ModalCloseButton
+					color={colors.closeBtnColor}
+					_hover={{ bg: colors.closeBtnHoverBg }}
+					top={4}
+					right={4}
+				/>
 
 				<ModalBody py={4}>
 					{/* Current Status Overview */}
 					{/* <Box
 						p={4}
 						mb={6}
-						bg={cardBg}
+						bg={colors.bgInput}
 						rounded='lg'
 						borderWidth='1px'
-						borderColor={borderColor}
+						borderColor={colors.borderColor}
 						shadow='sm'
 					>
 						<HStack justify='space-between' mb={2}>
 							<HStack>
-								<Icon as={statusInfo.icon} color={`${statusInfo.color}.500`} />
-								<Text fontWeight='medium'>Current Status</Text>
+								<Icon as={statusInfo.icon} color={colors.accentGold} />
+								<Text fontWeight='medium' color={colors.headingText}>Current Status</Text>
 							</HStack>
 							<Badge
-								colorScheme={statusInfo.color}
+								bg={`rgba(212, 175, 55, 0.15)`}
+								color={colors.accentGold}
 								px={2}
 								py={1}
 								rounded='md'
@@ -178,27 +183,28 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 							</Badge>
 						</HStack>
 
-						<Text fontSize='sm' color='gray.600' mb={3}>
+						<Text fontSize='sm' color={colors.bodyText} mb={3}>
 							{statusInfo.description}
 						</Text>
 
 						<Box mt={4}>
 							<HStack justify='space-between' mb={1}>
-								<Text fontSize='xs' fontWeight='medium'>
+								<Text fontSize='xs' fontWeight='medium' color={colors.bodyText}>
 									Application Progress
 								</Text>
-								<Text fontSize='xs' color='gray.500'>
+								<Text fontSize='xs' color={colors.mutedText}>
 									{progressValue}%
 								</Text>
 							</HStack>
 							<Progress
 								value={progressValue}
 								size='sm'
-								colorScheme={statusInfo.color}
+								colorScheme='yellow'
 								rounded='full'
 								hasStripe={
 									currentStatus !== 'hired' && currentStatus !== 'rejected'
 								}
+								bg={colors.bgDeep}
 							/>
 						</Box>
 					</Box> */}
@@ -211,7 +217,7 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 							top='0'
 							bottom='0'
 							width='2px'
-							bg={borderColor}
+							bg={colors.borderColor}
 							zIndex={1}
 						/>
 
@@ -219,13 +225,13 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 							<Box
 								p={6}
 								textAlign='center'
-								bg={cardBg}
+								bg={colors.bgInput}
 								rounded='lg'
 								borderWidth='1px'
-								borderColor={borderColor}
+								borderColor={colors.borderColor}
 							>
-								<Icon as={FiClock} boxSize={6} color='gray.400' mb={2} />
-								<Text color='gray.500'>No status history available</Text>
+								<Icon as={FiClock} boxSize={6} color={colors.mutedText} mb={2} />
+								<Text color={colors.bodyText}>No status history available</Text>
 							</Box>
 						) : (
 							sortedHistory.map((item, idx) => {
@@ -264,12 +270,13 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 
 										<Box
 											flex='1'
-											bg={isLatest ? `${config.color}.50` : cardBg}
+											bg={colors.bgInput}
+											// bg={isLatest ? `${config.color}.50` : colors.bgInput}
 											p={4}
 											rounded='lg'
 											borderWidth='1px'
 											borderColor={
-												isLatest ? `${config.color}.200` : borderColor
+												isLatest ? `${config.color}.200` : colors.borderColor
 											}
 											shadow={isLatest ? 'sm' : 'none'}
 										>
@@ -282,7 +289,7 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 													{config.label}
 												</Badge>
 
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color={colors.mutedText}>
 													{formatPostDate(item.changedAt)}
 												</Text>
 											</HStack>
@@ -293,17 +300,17 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 														<Icon
 															as={FiMessageSquare}
 															boxSize={3}
-															color='gray.500'
+															color={colors.mutedText}
 														/>
 														<Text
 															fontSize='xs'
 															fontWeight='medium'
-															color='gray.600'
+															color={colors.headingText}
 														>
 															Note:
 														</Text>
 													</HStack>
-													<Text fontSize='sm' color='gray.700' pl={4}>
+													<Text fontSize='sm' color={colors.bodyText} pl={4}>
 														{item.note}
 													</Text>
 												</>
@@ -311,8 +318,8 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 
 											{item.interviewer && (
 												<HStack spacing={2} mt={2}>
-													<Icon as={FiUser} boxSize={3} color='gray.500' />
-													<Text fontSize='xs' color='gray.600'>
+													<Icon as={FiUser} boxSize={3} color={colors.mutedText} />
+													<Text fontSize='xs' color={colors.bodyText}>
 														With {item.interviewer}
 													</Text>
 												</HStack>
@@ -325,7 +332,7 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 					</VStack>
 				</ModalBody>
 
-				<Divider />
+				<Divider borderColor={colors.borderColor} />
 
 				<ModalFooter py={3}>
 					<Button
@@ -333,7 +340,10 @@ const CandidateStatusHistory = ({ isOpen, onClose, candidate }) => {
 						rounded='lg'
 						px={6}
 						variant='outline'
-						colorScheme='blue'
+						_hover={{
+							bg: colors.secondaryBtnHoverBg,
+							color: colors.accentGold,
+						}}
 					>
 						Close
 					</Button>

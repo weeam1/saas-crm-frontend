@@ -47,29 +47,172 @@ export const DealCard = ({
 	} = deal;
 
 	return (
+		// <Box
+		// 	position='relative'
+		// 	borderLeft='4px solid'
+		// 	borderLeftColor={
+		// 		commissionStatus.toLowerCase() === 'fully paid'
+		// 			? 'green.500'
+		// 			: 'brand.500'
+		// 	}
+		// 	borderRightColor='gray.600'
+		// 	borderBottomColor='gray.600'
+		// 	borderTopColor='gray.600'
+		// 	borderRadius='md'
+		// 	p={4}
+		// 	bg='white'
+		// 	shadow='md'
+		// 	_hover={{
+		// 		bg: 'gray.100',
+		// 		boxShadow: 'md',
+		// 		transform: 'translateY(-2px)',
+		// 	}}
+		// 	transition='all 0.2s ease'
+		// >
+		// 	{/* Status badge */}
+		// 	<Flex position='absolute' gap='2' align='center' top={3} right={3}>
+		// 		<StatusBadge status={commissionStatus} />
+		// 		<MenuOptions
+		// 			user={user}
+		// 			deal={deal}
+		// 			isSuperAdmin={isSuperAdmin}
+		// 			handleView={handleView}
+		// 			handleDelete={handleDelete}
+		// 			handleCancelled={handleCancelled}
+		// 			handleEdit={handleEdit}
+		// 		/>
+		// 	</Flex>
+
+		// 	<Stack justify='space-between' h='full' spacing={3}>
+		// 		{/* Lead info with priority styling */}
+		// 		<Box>
+		// 			<Flex align='center' gap={2}>
+		// 				<Flex flex='1' align='center' gap='2'>
+		// 					<Icon
+		// 						as={FiEye}
+		// 						boxSize='10px'
+		// 						onClick={() => handleView(deal)}
+		// 						color='gray.600'
+		// 						_hover={{ color: 'brand.400' }}
+		// 						cursor='pointer'
+		// 					/>
+		// 					<Text fontWeight='bold' fontSize='sm' maxW='200px' isTruncated>
+		// 						{lead?.leadName}
+		// 					</Text>
+		// 				</Flex>
+		// 				{/* <Box mr='14'>
+		// 					{spaDone && (
+		// 						<CustomTooltip label='SPA Signed'>
+		// 							<Icon as={CheckCircleIcon} color='green.500' boxSize={4} />
+		// 						</CustomTooltip>
+		// 					)}
+		// 				</Box> */}
+		// 			</Flex>
+		// 		</Box>
+
+		// 		{/* Property info with icon */}
+		// 		<Flex align='center' gap={2}>
+		// 			<Icon as={FaBuilding} color='brand.500' boxSize={4} />
+		// 			<Box>
+		// 				<Text fontSize='xs' fontWeight='semibold' color='gray.800'>
+		// 					{projectName}
+		// 				</Text>
+		// 				<Text fontSize='x-small' color='gray.600'>
+		// 					{unitType} · Unit #{unitNumber}
+		// 				</Text>
+		// 			</Box>
+		// 		</Flex>
+
+		// 		{/* Team information in compact format */}
+		// 		<SimpleGrid columns={2} spacing={2}>
+		// 			{/* Destructures each [key, value] into role and person */}
+		// 			{Object.entries({ manager, agent, closedBy, salesPerson }).map(
+		// 				([role, person]) =>
+		// 					person && <TeamMember key={role} role={role} person={person} />,
+		// 			)}
+		// 		</SimpleGrid>
+
+		// 		{/* Financial highlights */}
+		// 		<SimpleGrid columns={2} spacing={3}>
+		// 			<Box bg='gray.50' p={2} borderRadius='md'>
+		// 				<Text fontSize='x-small' color='gray.500' mb={1}>
+		// 					Unit Price
+		// 				</Text>
+		// 				<Text fontSize='xs' fontWeight='medium' color='brand.600'>
+		// 					{formatCurrency(unitPrice, currency)}
+		// 				</Text>
+		// 			</Box>
+		// 			<Box bg='gray.50' p={2} borderRadius='md'>
+		// 				<Text fontSize='x-small' color='gray.500' mb={1}>
+		// 					Deal Amount
+		// 				</Text>
+		// 				<Flex align='baseline' gap={1}>
+		// 					<Text fontSize='xs' fontWeight='medium'>
+		// 						{formatCurrency(bookingAmountPaid, currency)}
+		// 					</Text>
+		// 					{/* <Text fontSize='xs' color='gray.500'>
+		// 						({bookingPercent}%)
+		// 					</Text> */}
+		// 				</Flex>
+		// 			</Box>
+		// 			<Box bg='gray.50' p={2} borderRadius='md'>
+		// 				<Text fontSize='x-small' color='gray.500' mb={1}>
+		// 					Downpayment
+		// 				</Text>
+		// 				<Flex align='baseline' gap={1}>
+		// 					<Text fontSize='xs' fontWeight='medium'>
+		// 						{formatCurrency(downpaymentPaid, currency)}
+		// 					</Text>
+		// 					{/* <Text fontSize='xs' color='gray.500'>
+		// 						({downpaymentPercent}%)
+		// 					</Text> */}
+		// 				</Flex>
+		// 			</Box>
+		// 			<Box bg='gray.50' p={2} borderRadius='md'>
+		// 				<Text fontSize='x-small' color='gray.500' mb={1}>
+		// 					Deal Closed On
+		// 				</Text>
+		// 				<Text fontSize='xs' fontWeight='medium'>
+		// 					{formatPostDate(createdAt)}
+		// 				</Text>
+		// 			</Box>
+		// 		</SimpleGrid>
+		// 	</Stack>
+		// </Box>
+
 		<Box
 			position='relative'
-			borderLeft='4px solid'
-			borderLeftColor={
-				commissionStatus.toLowerCase() === 'fully paid'
+			// borderLeft='4px solid'
+			borderTop='2px solid'
+			// borderLeftColor={
+			// 	commissionStatus?.toLowerCase() === 'fully paid'
+			// 		? 'green.500'
+			// 		: 'gold.primary'
+			// }
+			borderTopColor={
+				commissionStatus?.toLowerCase() === 'fully paid'
 					? 'green.500'
-					: 'brand.500'
+					: 'border.focus'
 			}
-			borderRightColor='gray.600'
-			borderBottomColor='gray.600'
-			borderTopColor='gray.600'
-			borderRadius='md'
+			// borderWidth='1px'
+			// borderStyle='solid'
+			// borderColor='border.default'
+			// borderTopWidth='1px'
+			// borderRightWidth='1px'
+			// borderBottomWidth='1px'
+			borderRadius='xl'
 			p={4}
-			bg='white'
-			shadow='md'
+			bg='bg.surface'
+			boxShadow='card'
+			transition='all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
 			_hover={{
-				bg: 'gray.100',
-				boxShadow: 'md',
-				transform: 'translateY(-2px)',
+				// transform: 'translateY(-4px)',
+				boxShadow: 'goldGlow',
+				// bg: 'brand.700',
+				// borderColor: 'border.focus',
 			}}
-			transition='all 0.2s ease'
 		>
-			{/* Status badge */}
+			{/* Status badge and actions */}
 			<Flex position='absolute' gap='2' align='center' top={3} right={3}>
 				<StatusBadge status={commissionStatus} />
 				<MenuOptions
@@ -83,136 +226,134 @@ export const DealCard = ({
 				/>
 			</Flex>
 
-			<Stack justify='space-between' h='full' spacing={3}>
-				{/* Lead info with priority styling */}
+			<Stack justify='space-between' h='full' spacing={4}>
+				{/* Lead info */}
 				<Box>
 					<Flex align='center' gap={2}>
 						<Flex flex='1' align='center' gap='2'>
-							<Icon
-								as={FiEye}
-								boxSize='10px'
-								onClick={() => handleView(deal)}
-								color='gray.600'
-								_hover={{ color: 'brand.400' }}
-								cursor='pointer'
-							/>
-							<Text fontWeight='bold' fontSize='sm' maxW='200px' isTruncated>
+							<CustomTooltip label='View deal details'>
+								<Icon
+									as={FiEye}
+									boxSize='12px'
+									onClick={() => handleView(deal)}
+									color='text.muted'
+									_hover={{
+										color: 'gold.primary',
+										cursor: 'pointer',
+										transform: 'scale(1.1)',
+									}}
+									transition='all 0.2s'
+								/>
+							</CustomTooltip>
+							<Text
+								fontWeight='bold'
+								fontSize='sm'
+								maxW='200px'
+								isTruncated
+								color='text.heading'
+							>
 								{lead?.leadName}
 							</Text>
 						</Flex>
-						{/* <Box mr='14'>
-							{spaDone && (
-								<CustomTooltip label='SPA Signed'>
-									<Icon as={CheckCircleIcon} color='green.500' boxSize={4} />
-								</CustomTooltip>
-							)}
-						</Box> */}
 					</Flex>
 				</Box>
 
-				{/* Property info with icon */}
+				{/* Property info */}
 				<Flex align='center' gap={2}>
-					<Icon as={FaBuilding} color='brand.500' boxSize={4} />
+					<Box
+						p={1.5}
+						bg='rgba(212, 175, 55, 0.1)'
+						borderRadius='lg'
+						display='flex'
+						alignItems='center'
+						justifyContent='center'
+					>
+						<Icon as={FaBuilding} color='gold.primary' boxSize={3.5} />
+					</Box>
 					<Box>
-						<Text fontSize='xs' fontWeight='semibold' color='gray.800'>
+						<Text fontSize='xs' fontWeight='semibold' color='text.accent'>
 							{projectName}
 						</Text>
-						<Text fontSize='x-small' color='gray.600'>
+						<Text fontSize='x-small' color='text.muted'>
 							{unitType} · Unit #{unitNumber}
 						</Text>
 					</Box>
 				</Flex>
 
-				{/* Team information in compact format */}
+				{/* Team information */}
 				<SimpleGrid columns={2} spacing={2}>
-					{/* Destructures each [key, value] into role and person */}
 					{Object.entries({ manager, agent, closedBy, salesPerson }).map(
 						([role, person]) =>
-							person && <TeamMember key={role} role={role} person={person} />
+							person && <TeamMember key={role} role={role} person={person} />,
 					)}
 				</SimpleGrid>
 
 				{/* Financial highlights */}
-				<SimpleGrid columns={2} spacing={3}>
-					<Box bg='gray.50' p={2} borderRadius='md'>
-						<Text fontSize='x-small' color='gray.500' mb={1}>
+				<SimpleGrid columns={2} spacing={2}>
+					<Box
+						bg='bg.elevated'
+						p={2}
+						borderRadius='lg'
+						borderWidth='1px'
+						borderColor='border.subtle'
+					>
+						<Text fontSize='x-small' color='text.muted' mb={1}>
 							Unit Price
 						</Text>
-						<Text fontSize='xs' fontWeight='medium' color='brand.600'>
+						<Text fontSize='xs' fontWeight='medium' color='text.white'>
 							{formatCurrency(unitPrice, currency)}
 						</Text>
 					</Box>
-					<Box bg='gray.50' p={2} borderRadius='md'>
-						<Text fontSize='x-small' color='gray.500' mb={1}>
+
+					<Box
+						bg='bg.elevated'
+						p={2}
+						borderRadius='lg'
+						borderWidth='1px'
+						borderColor='border.subtle'
+					>
+						<Text fontSize='x-small' color='text.muted' mb={1}>
 							Deal Amount
 						</Text>
 						<Flex align='baseline' gap={1}>
-							<Text fontSize='xs' fontWeight='medium'>
+							<Text fontSize='xs' fontWeight='bold' color='gold.primary'>
 								{formatCurrency(bookingAmountPaid, currency)}
 							</Text>
-							{/* <Text fontSize='xs' color='gray.500'>
-								({bookingPercent}%)
-							</Text> */}
 						</Flex>
 					</Box>
-					<Box bg='gray.50' p={2} borderRadius='md'>
-						<Text fontSize='x-small' color='gray.500' mb={1}>
+
+					<Box
+						bg='bg.elevated'
+						p={2}
+						borderRadius='lg'
+						borderWidth='1px'
+						borderColor='border.subtle'
+					>
+						<Text fontSize='x-small' color='text.muted' mb={1}>
 							Downpayment
 						</Text>
 						<Flex align='baseline' gap={1}>
-							<Text fontSize='xs' fontWeight='medium'>
+							<Text fontSize='xs' fontWeight='medium' color='text.body'>
 								{formatCurrency(downpaymentPaid, currency)}
 							</Text>
-							{/* <Text fontSize='xs' color='gray.500'>
-								({downpaymentPercent}%)
-							</Text> */}
 						</Flex>
 					</Box>
-					<Box bg='gray.50' p={2} borderRadius='md'>
-						<Text fontSize='x-small' color='gray.500' mb={1}>
+
+					<Box
+						bg='bg.elevated'
+						p={2}
+						borderRadius='lg'
+						borderWidth='1px'
+						borderColor='border.subtle'
+					>
+						<Text fontSize='x-small' color='text.muted' mb={1}>
 							Deal Closed On
 						</Text>
-						<Text fontSize='xs' fontWeight='medium'>
+						<Text fontSize='xs' fontWeight='medium' color='text.body'>
 							{formatPostDate(createdAt)}
 						</Text>
 					</Box>
 				</SimpleGrid>
-
-				{/* Bottom row with date and action */}
-				{/* <Flex justify='flex-end' gap='2' align='center'>
-					<Button
-						size='xs'
-						variant='outline'
-						colorScheme='green'
-						rightIcon={<FaPen size={14} />}
-						onClick={() => handleEdit(deal)}
-					>
-						Edit
-					</Button>
-					<Button
-						size='xs'
-						variant='outline'
-						colorScheme='brand'
-						rightIcon={<FiChevronRight size={14} />}
-						onClick={() => handleView(deal)}
-					>
-						Details
-					</Button>
-					{dealStatus !== 'Cancelled' &&
-						(isAdmin || closedBy._id === loginedUser._id) && (
-							<>
-								<Button
-									size='xs'
-									variant='outline'
-									colorScheme='red'
-									rightIcon={<FiX size={14} />}
-									onClick={() => handleCancelled(deal._id)}
-								>
-									Cancelled
-								</Button>
-							</>
-						)}
-				</Flex> */}
 			</Stack>
 		</Box>
 	);

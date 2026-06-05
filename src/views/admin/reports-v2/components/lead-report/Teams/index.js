@@ -3,8 +3,10 @@ import TeamCard from './TeamCard';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import NoData from 'components/Message/NoData';
 import CardShimmer from 'components/loading/CardShimmer';
+import { useModalColors } from 'hooks/useModalColors';
 
 const TeamList = () => {
+	const colors = useModalColors();
 	const { data, isLoading } = useFetchItemsQuery(
 		{
 			path: '/v2/reporting/team',
@@ -13,11 +15,12 @@ const TeamList = () => {
 	);
 
 	return (
-		<Box bg='white' rounded='md' shadow='sm' p='6'>
+		<Box bg={colors.bg} rounded='md' shadow={colors.cardShadow} p='6' border="1px solid" borderColor={colors.borderColor}>
 			<Text
 				fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
 				mb='4'
 				fontWeight='bold'
+				color={colors.headingText}
 			>
 				Team Report
 			</Text>
@@ -62,8 +65,6 @@ const TeamList = () => {
 					}}
 					spacing={6}
 					p={2}
-					// px={{ base: 4, md: 6 }}
-					// py={{ base: 6, md: 8 }}
 				>
 					{data?.doc?.map((manager, idx) => (
 						<TeamCard key={manager._id} index={idx} manager={manager} />

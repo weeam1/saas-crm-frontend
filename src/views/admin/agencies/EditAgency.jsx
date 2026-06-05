@@ -8,6 +8,7 @@ import {
 	DrawerFooter,
 	Grid,
 	Select,
+	Button,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -23,6 +24,8 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 		name: data?.name || '',
 		email: data?.email || '',
 		location: data?.location || '',
+		website: data?.website || '',
+		locationLink: data?.locationLink || '',
 		TRN: data?.TRN || '',
 		contactNumberPrimary: data?.contactNumberPrimary || '',
 		contactNumberAlternate: data?.contactNumberAlternate || '',
@@ -41,6 +44,8 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 		{ name: 'name', label: 'Name', type: 'text', required: true },
 		{ name: 'email', label: 'Email', type: 'text', required: true },
 		{ name: 'location', label: 'Location', type: 'textarea', required: true },
+		{ name: 'locationLink', label: 'Location Link', type: 'text' }, // Add this
+
 		{ name: 'TRN', label: 'TRN', type: 'text' },
 		{
 			name: 'contactNumberPrimary',
@@ -52,6 +57,7 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 			label: 'Alternate Contact',
 			type: 'text',
 		},
+		{ name: 'website', label: 'Website', type: 'text' },
 	];
 
 	const [updateItemMuation, { isLoading }] = useUpdateItemMutation();
@@ -105,17 +111,17 @@ const EditAgency = ({ isOpen, onClose, refreshData, size, data }) => {
 								</Grid>
 							</DrawerBody>
 							<DrawerFooter>
-								<AppButton mr='2' onClick={onClose}>
+								<Button variant='ghost' mr='2' onClick={onClose}>
 									Close
-								</AppButton>
-								<AppButton
-									colorScheme='brand'
+								</Button>
+								<Button
+									variant='brand'
 									isLoading={isLoading}
 									loadingText='Updating'
 									type='submit'
 								>
 									Update
-								</AppButton>
+								</Button>
 							</DrawerFooter>
 						</Form>
 					)}

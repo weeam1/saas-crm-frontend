@@ -1,31 +1,37 @@
 import {
   Box,
   VStack,
-  useColorModeValue,
   Text,
   Badge,
   Flex,
   HStack,
 } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
-// hi
+import { useModalColors } from "hooks/useModalColors";
+
 export const CallFeedbackSummary = ({ data, month, year }) => {
-  const bgColor = useColorModeValue("white", "gray.700");
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const textColor = useColorModeValue("gray.600", "gray.400");
-
   const [growthPercentage, setGrowthPercentage] = useState(0);
-  const [previousMonthData, setPreviousMonthData] = useState(null);
 
-  console.log("Summary Data from API:", data); // Debug log
+  const {
+    bg,
+    bgDeep,
+    bodyText,
+    headingText,
+    mutedText,
+    borderColor,
+    cardShadow,
+    badgeSuccessText,
+    badgeSuccessBg,
+    badgeErrorText,
+    badgeErrorBg,
+    accentGold,
+  } = useModalColors();
 
-  // Extract data from API response
   const stats = data?.stats || {};
   const totalCalls = data?.total || 0;
   const averageRating = stats?.averageRating || 0;
   const qualityStats = stats?.qualityStats || {};
 
-  // Get star counts from API stats
   const starCounts = {
     5: qualityStats?.excellent?.count || 0,
     4: qualityStats?.good?.count || 0,
@@ -34,33 +40,15 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
     1: qualityStats?.very_bad?.count || 0,
   };
 
-  console.log("Star Counts:", starCounts);
-
-  // Calculate growth percentage (you would need to fetch previous month data)
-  // For now, let's calculate based on the current data distribution
   useEffect(() => {
-    // This is a placeholder calculation - you would need actual previous month data
-    // from your API or state management
     if (totalCalls > 0) {
-      // Example: Calculate growth based on distribution of ratings
-      // Higher percentage of good/excellent ratings = positive growth
       const positiveRatings = starCounts[5] + starCounts[4];
       const totalRatings = totalCalls;
       const positivePercentage = (positiveRatings / totalRatings) * 100;
-
-      // Simple calculation: positive ratings percentage * 2 as growth indicator
-      // You can replace this with actual month-over-month comparison
       const calculatedGrowth = Math.round(positivePercentage / 2);
       setGrowthPercentage(calculatedGrowth);
     }
   }, [totalCalls, starCounts]);
-
-  // If you have access to previous month data, use this function:
-  const calculateRealGrowth = (currentTotal, previousTotal) => {
-    if (previousTotal === 0) return 100; // If no previous data, show 100% growth
-    const growth = ((currentTotal - previousTotal) / previousTotal) * 100;
-    return Math.round(growth);
-  };
 
   const renderStars = (count, size = "lg") => (
     <HStack spacing={0.5}>
@@ -68,7 +56,8 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
         <Text
           key={star}
           fontSize={size}
-          color={star <= count ? "yellow.400" : "gray.300"}
+          color={star <= count ? accentGold : mutedText}
+          fontWeight="bold"
         >
           ★
         </Text>
@@ -83,54 +72,40 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
   };
 
   const MONTH_NAMES = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
 
   let monthLabel;
-
   if (typeof month === "number") {
-    // If month is a number (0-11)
     monthLabel = MONTH_NAMES[month];
   } else if (typeof month === "string" && /^\d{4}-\d{2}$/.test(month)) {
-    // If month is in "YYYY-MM" format
     const [year, monthNum] = month.split("-");
     monthLabel = `${MONTH_NAMES[parseInt(monthNum, 10) - 1]} ${year}`;
   } else {
-    // fallback
     monthLabel = month;
   }
-  // Determine growth text and color based on percentage
+
   const getGrowthInfo = () => {
     if (growthPercentage > 0) {
       return {
         text: `↑ ${growthPercentage}%`,
-        color: "green.500",
-        bg: "green.50",
+        color: badgeSuccessText,
+        bg: badgeSuccessBg,
         label: "Growth since last quarter",
       };
     } else if (growthPercentage < 0) {
       return {
         text: `↓ ${Math.abs(growthPercentage)}%`,
-        color: "red.500",
-        bg: "red.50",
+        color: badgeErrorText,
+        bg: badgeErrorBg,
         label: "Decline since last quarter",
       };
     } else {
       return {
         text: `→ 0%`,
-        color: "gray.500",
-        bg: "gray.50",
+        color: mutedText,
+        bg: bgDeep,
         label: "No change since last quarter",
       };
     }
@@ -140,10 +115,10 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
 
   return (
     <Box
-      bg={bgColor}
+      bg={bg}
       p={6}
       borderRadius="xl"
-      shadow="sm"
+      shadow={cardShadow}
       borderWidth="1px"
       borderColor={borderColor}
       w="100%"
@@ -151,12 +126,12 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
     >
       <Flex position={"absolute"} align="center" mb={4}>
         <Badge
-          bg="blue.50"
-          color="blue.400"
+          bg={accentGold}
+          color={headingText}
           fontSize="md"
           fontWeight="bold"
-          px={1}
-          py={2}
+          px={3}
+          py={1}
           borderRadius="md"
         >
           Call Feedback
@@ -170,67 +145,45 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
         gap={{ base: 6, md: 4 }}
       >
         <VStack align="flex-start" spacing={2} flex="1">
-          <Text fontSize="sm" color={textColor} fontWeight="medium">
+          <Text fontSize="sm" color={mutedText} fontWeight="medium">
             Total Reviews
           </Text>
           <HStack align="baseline" spacing={3}>
-            <Text
-              fontSize="3xl"
-              fontWeight="bold"
-              color="gray.800"
-              _dark={{ color: "white" }}
-            >
+            <Text fontSize="3xl" fontWeight="bold" color={headingText}>
               {formatNumber(totalCalls)}
             </Text>
-            <Flex
-              align="center"
-              bg={growthInfo.bg}
-              _dark={{
-                bg: growthInfo.color.includes("green")
-                  ? "green.900"
-                  : growthInfo.color.includes("red")
-                    ? "red.900"
-                    : "gray.700",
-              }}
-              px={2}
-              py={1}
-              borderRadius="md"
-            >
+            <Flex align="center" bg={growthInfo.bg} px={2} py={1} borderRadius="md">
               <Text fontSize="xs" color={growthInfo.color} fontWeight="bold">
                 {growthInfo.text}
               </Text>
             </Flex>
           </HStack>
-          <Text fontSize="xs" color={textColor}>
+          <Text fontSize="xs" color={mutedText}>
             {growthInfo.label}
           </Text>
         </VStack>
 
         <VStack align="flex-start" spacing={2} flex="1">
-          <Text fontSize="sm" color={textColor} fontWeight="medium">
+          <Text fontSize="sm" color={mutedText} fontWeight="medium">
             Average Rating
           </Text>
           <HStack align="baseline" spacing={3}>
             {renderStars(Math.round(averageRating), "xl")}
             <VStack align="flex-start" spacing={0}>
-              <Text
-                fontSize="2xl"
-                fontWeight="bold"
-                color="gray.800"
-                _dark={{ color: "white" }}
-              >
+              <Text fontSize="2xl" fontWeight="bold" color={headingText}>
                 {averageRating.toFixed(1)}
               </Text>
             </VStack>
           </HStack>
-          <Text fontSize="xs" color={textColor}>
+          <Text fontSize="xs" color={mutedText}>
             Based on {totalCalls} reviews
           </Text>
         </VStack>
 
         <VStack align="flex-start" spacing={3} flex="2" minW="320px">
           <Badge
-            colorScheme="gray"
+            bg={accentGold}
+            color={headingText}
             borderRadius="lg"
             px={3}
             py={2}
@@ -256,18 +209,13 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
             return (
               <Flex key={stars} align="center" w="100%" gap={3}>
                 <HStack spacing={1} w="60px">
-                  <Text
-                    fontSize="sm"
-                    fontWeight="medium"
-                    color="gray.700"
-                    _dark={{ color: "gray.300" }}
-                  >
+                  <Text fontSize="sm" fontWeight="medium" color={bodyText}>
                     {stars}
                   </Text>
-                  <Text fontSize="sm" color="yellow.400">
+                  <Text fontSize="sm" color={accentGold}>
                     ★
                   </Text>
-                  <Text fontSize="xs" color={textColor}>
+                  <Text fontSize="xs" color={mutedText}>
                     ({percentage.toFixed(0)}%)
                   </Text>
                 </HStack>
@@ -276,8 +224,7 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
                   <Box
                     w="100%"
                     h="100%"
-                    bg="gray.100"
-                    _dark={{ bg: "gray.700" }}
+                    bg={bgDeep}
                     borderRadius="full"
                     overflow="hidden"
                   />
@@ -297,7 +244,7 @@ export const CallFeedbackSummary = ({ data, month, year }) => {
                     top="50%"
                     transform="translateY(-50%)"
                     fontSize="10px"
-                    color="white"
+                    color={headingText}
                     fontWeight="bold"
                     zIndex={1}
                   >

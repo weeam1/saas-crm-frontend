@@ -20,7 +20,7 @@ import {
 	Badge,
 	Box,
 } from '@chakra-ui/react';
-import { FiChevronLeft, FiChevronRight, FiRefreshCw } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight} from 'react-icons/fi';
 import { useFetchItemsQuery } from 'api/apiSlice'; // adjust path
 import { safeValue } from 'utils';
 import TableLoading from 'components/loading/TableLoading';

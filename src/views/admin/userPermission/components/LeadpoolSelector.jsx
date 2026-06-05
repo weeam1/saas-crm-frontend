@@ -7,7 +7,7 @@ import {
 
 export default function LeadpoolSelector({ modules, setModules }) {
 	const leadPoolModules = modules.filter((m) =>
-		m.moduleId.toLowerCase().includes('leadpool')
+		m.moduleId.toLowerCase().includes('leadpool'),
 	);
 
 	const handleModuleToggle = (moduleId) => {
@@ -21,17 +21,18 @@ export default function LeadpoolSelector({ modules, setModules }) {
 				}
 				// all others off
 				return { ...m, isModuleEnabled: false };
-			})
+			}),
 		);
 	};
 
 	return (
 		<Box
 			mb='6'
-			bg='white'
+			bg='bg.elevated'
 			rounded='md'
 			p='6'
 			borderWidth='1px'
+			borderColor='gold.400'
 			boxShadow='base'
 			fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
 		>
@@ -44,13 +45,13 @@ export default function LeadpoolSelector({ modules, setModules }) {
 				/>
 			</Flex> */}
 			<Flex align='center' mb={4}>
-				<Icon as={MdOutlineGroup} w={6} h={6} color='brand.500' mr={2} />
-				<Text fontWeight='semibold' color='brand.600'>
+				<Icon as={MdOutlineGroup} w={6} h={6} color='orange.500' mr={2} />
+				<Text fontWeight='semibold' color='orange.500'>
 					Leadpool Access
 				</Text>
 			</Flex>
 
-			<Text color='gray.600' mb={4} fontSize='sm'>
+			<Text color='text.muted' mb={4} fontSize='sm'>
 				Select one leadpool access type (only one can be active at a time)
 			</Text>
 
@@ -68,7 +69,7 @@ export default function LeadpoolSelector({ modules, setModules }) {
 					>
 						<Flex align='center' justify='space-between'>
 							<Text
-								color='brand.600'
+								color='orange.500'
 								// fontSize='md'
 								fontWeight='semibold'
 								display='flex'

@@ -12,28 +12,33 @@ import {
 import TableLoading from 'components/loading/TableLoading';
 import NoData from 'components/Message/NoData';
 import { templatesLanguages } from '../../components/helpers';
+import { useModalColors } from 'hooks/useModalColors';
 
 const TemplatesTable = ({ data, isLoading, isFetching }) => {
+	const colors = useModalColors();
 	const columns = ['Name', 'Category', 'Status', 'Language'];
 
 	return (
 		<Box
-			maxH={'70vh'}
+		      maxHeight="70vh"
+      minH="70vh"
 			overflowY='auto'
 			borderRadius='md'
-			boxShadow='sm'
-			bg='white'
+			boxShadow={colors.cardShadow}
+			bg={colors.bg}
 			py='2'
+			border='1px solid'
+			borderColor={colors.borderColor}
 		>
-			<Table variant='striped' size='md'>
-				<Thead position='sticky' top={0} bg='white' zIndex={2}>
+			<Table variant='simple' size='md'>
+				<Thead position='sticky' top={0} bg={colors.bgDeep} zIndex={2}>
 					<Tr>
 						{columns.map((header, index) => (
-							<Th key={index} bg='brand.200' py={4}>
+							<Th key={index} bg={colors.bgDeep} py={4} borderColor={colors.borderColor}>
 								<Text
 									fontSize='sm'
 									fontWeight='600'
-									color='gray.700'
+									color={colors.headingText}
 									textAlign='center'
 									textTransform='capitalize'
 								>
@@ -49,17 +54,18 @@ const TemplatesTable = ({ data, isLoading, isFetching }) => {
 						<TableLoading columns={columns} length={10} py='4' />
 					) : data?.length > 0 ? (
 						data.map((item, index) => (
-							<Tr key={item?.name + index} textAlign='center'>
-								<Td minW='200px' isTruncated>
+							<Tr key={item?.name + index} textAlign='center' borderColor={colors.borderColor}>
+								<Td minW='200px' isTruncated color={colors.bodyText} borderColor={colors.borderColor}>
 									{item?.name}
 								</Td>
-								<Td minW='100px' textAlign='center' isTruncated>
+								<Td minW='100px' textAlign='center' isTruncated color={colors.bodyText} borderColor={colors.borderColor}>
 									{item?.category}
 								</Td>
 
-								<Td textAlign='center'>
+								<Td textAlign='center' borderColor={colors.borderColor}>
 									<Badge
-										colorScheme={item?.status === 'APPROVED' ? 'green' : 'red'}
+										bg={item?.status === 'APPROVED' ? colors.badgeSuccessBg : colors.badgeErrorBg}
+										color={item?.status === 'APPROVED' ? colors.badgeSuccessText : colors.badgeErrorText}
 										variant='subtle'
 										px={3}
 										py={1}
@@ -69,7 +75,7 @@ const TemplatesTable = ({ data, isLoading, isFetching }) => {
 										{item?.status}
 									</Badge>
 								</Td>
-								<Td minW='50px' isTruncated textAlign='center'>
+								<Td minW='50px' isTruncated textAlign='center' color={colors.bodyText} borderColor={colors.borderColor}>
 									{templatesLanguages.find(
 										(lang) => lang.value === item?.language
 									)?.label || item?.language}
@@ -78,7 +84,7 @@ const TemplatesTable = ({ data, isLoading, isFetching }) => {
 						))
 					) : (
 						<Tr>
-							<Td colSpan={columns.length} textAlign='center' py={4}>
+							<Td colSpan={columns.length} textAlign='center' py={4} borderColor={colors.borderColor}>
 								<NoData label='templates' />
 							</Td>
 						</Tr>

@@ -1,26 +1,24 @@
 import ShortListed from "./ShortListed";
 import { useEffect, useState } from "react";
-import { Box, Tag, TagCloseButton } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useFetchItemsQuery } from "api/apiSlice";
 import ErrorMessage from "components/Message/ErrorMessage";
 import AdvancedSearch from "../candidates/components/AdvancedSearch";
 import SearchTags from "components/shared/SearchTags";
 import { experienceYearsOptions } from "../helpers";
 import useUserSession from "hooks/useUserSession";
+import { visaOptions, genderOptions } from "utils/options";
 
 const ShortListedData = ({ invitedRefetch }) => {
   const [advanceSearch, setAdvanceSearch] = useState(false);
-
   const [searchTags, setSearchTags] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({
     key: null,
     direction: null,
   });
 
-  
   const { isSuperAdmin } = useUserSession();
-
-  const [data, setData] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [gopageValue, setGopageValue] = useState(1);
@@ -56,11 +54,11 @@ const ShortListedData = ({ invitedRefetch }) => {
     },
     {
       skip: !isSuperAdmin,
-    }
+    },
   );
 
   const handleGotoPage = (page) => {
-    setCurrentPage(page + 1);
+    setCurrentPage(page);
   };
 
   const handlePageSizeChange = (size) => {
@@ -68,27 +66,37 @@ const ShortListedData = ({ invitedRefetch }) => {
     setCurrentPage(1);
   };
 
-  // Single useEffect for updating queryParams and fetching data
+  // Handle search from SearchBox - UPDATED: Don't create search tags
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+    // REMOVED: No longer creating search tags
+  };
+
+  // Update queryParams when page, pageSize, or searchTerm changes
   useEffect(() => {
-    setQueryParams((prev) => ({
-      ...prev, // Preserve existing query parameters
+    const newParams = {
       page: currentPage,
       limit: pageSize,
-    }));
-  }, [currentPage, pageSize]);
+      sort: "-updatedAt",
+    };
 
-  useEffect(() => {
-    refetch({
-      path: "/applications/short-listed",
-      params: queryParams,
-    });
-  }, [queryParams, refetch]);
-
-  useEffect(() => {
-    if (shortListedData?.doc) {
-      setData(shortListedData?.doc);
+    // Add search term to API call if present
+    if (searchTerm) {
+      newParams.search = searchTerm;
     }
-  }, [shortListedData?.doc]);
+
+    // Preserve advanced search if it exists
+    const currentQueryParams = queryParams;
+    if (
+      currentQueryParams.advancedSearch &&
+      currentQueryParams.advancedSearch !== "{}"
+    ) {
+      newParams.advancedSearch = currentQueryParams.advancedSearch;
+    }
+
+    setQueryParams(newParams);
+  }, [currentPage, pageSize, searchTerm]);
 
   const handleSort = (key) => {
     let direction = "asc";
@@ -97,12 +105,11 @@ const ShortListedData = ({ invitedRefetch }) => {
     }
     setSortConfig({ key, direction });
 
-    const sortedData = [...shortListedData?.doc].sort((a, b) => {
-      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
-      return 0;
-    });
-    setData(sortedData);
+    // Update queryParams with sort
+    setQueryParams((prev) => ({
+      ...prev,
+      sort: direction === "asc" ? key : `-${key}`,
+    }));
   };
 
   const handleSearch = (params) => {
@@ -116,115 +123,162 @@ const ShortListedData = ({ invitedRefetch }) => {
 
     let advancedSearch = { ...filteredParams };
 
-    // Generate UI tags and update advancedSearch
+    // Generate UI tags with both display value and original value
     const tags = Object.entries(filteredParams).map(([key, value]) => {
-      let formattedValue = value;
-      let originalKey = key; // Keep original lowercase key
+      let displayValue = value;
+      let originalValue = value;
+      let label = key.charAt(0).toUpperCase() + key.slice(1);
 
-      // If key is "position", replace value with label for UI, but keep ID in search
       if (key === "position") {
         const matchedOption = positionOptions?.doc?.find(
-          (option) => option._id === value
+          (option) => option._id === value,
         );
-
         if (matchedOption) {
-          formattedValue = matchedOption.label;
+          displayValue = matchedOption.value; // For display
+          originalValue = matchedOption._id; // For API
           advancedSearch.position = matchedOption._id;
         }
       }
 
       if (key === "agency") {
         const matchedOption = agencies?.doc?.find(
-          (option) => option._id === value
+          (option) => option._id === value,
         );
-
         if (matchedOption) {
-          formattedValue = matchedOption.name;
+          displayValue = matchedOption.name; // For display
+          originalValue = matchedOption._id; // For API
           advancedSearch.agency = matchedOption._id;
         }
       }
 
       if (key === "experienceYears") {
         const matchedOption = experienceYearsOptions?.find(
-          (option) => option.value === value
+          (option) => option.value === value,
         );
-
         if (matchedOption) {
-          formattedValue = matchedOption.label;
+          displayValue = matchedOption.label; // For display
+          originalValue = matchedOption.value; // For API
           advancedSearch.experienceYears = matchedOption.value;
         }
       }
 
+      if (key === "gender") {
+        const matchedOption = genderOptions?.find(
+          (option) => option.value === value,
+        );
+        if (matchedOption) {
+          displayValue = matchedOption.label;
+          originalValue = matchedOption.value;
+        }
+      }
+
+      if (key === "visaType") {
+        const matchedOption = visaOptions?.find(
+          (option) => option.value === value,
+        );
+        if (matchedOption) {
+          displayValue = matchedOption.label;
+          originalValue = matchedOption.value;
+        }
+      }
+
+      if (key === "status") {
+        originalValue = value;
+        displayValue = value;
+      }
+
+      if (key === "inviteAccepted") {
+        originalValue = value;
+        displayValue = value === "true" ? "Accepted" : "Not Accepted";
+      }
+
       return {
-        key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1),
-        value: formattedValue,
-        originalKey, // Store original key for removal reference
+        key: label,
+        value: displayValue, // For UI display
+        originalValue: originalValue, // For API calls
+        originalKey: key,
       };
     });
 
     setSearchTags(tags);
 
-    // Prepare query parameters
+    // Prepare query parameters for API
     const queryParams = {
       advancedSearch: JSON.stringify(advancedSearch),
       page: 1,
       limit: pageSize,
+      sort: "-updatedAt",
     };
 
-    // Update search query and pagination
-    setQueryParams((prev) => ({ ...prev, ...queryParams }));
+    // Clear regular search term when using advanced search
+    setSearchTerm("");
+    setQueryParams(queryParams);
     setCurrentPage(1);
   };
 
   const removeTag = (key) => {
-    // Find the exact key (case-sensitive)
     const removedTag = searchTags.find((tag) => tag.key === key);
-    if (!removedTag) return; // If tag is not found, exit
+    if (!removedTag) return;
 
     const updatedTags = searchTags.filter((tag) => tag.key !== key);
     setSearchTags(updatedTags);
 
-    // Rebuild search parameters after removal
-    const updatedParams = updatedTags.reduce((acc, { originalKey, value }) => {
-      acc[originalKey] = value; // Use originalKey to prevent case mismatches
+    // Handle advanced search tags - USE originalValue, not value!
+    const updatedParams = updatedTags.reduce((acc, tag) => {
+      acc[tag.originalKey] = tag.originalValue;
       return acc;
     }, {});
 
     let advancedSearch = { ...updatedParams };
 
-    // Ensure position stays as ID in search
-    if (advancedSearch.position) {
-      const matchedOption = positionOptions?.doc?.find(
-        (option) => option.label === advancedSearch.position
-      );
-      if (matchedOption) {
-        advancedSearch.position = matchedOption._id;
-      }
-    }
-
-    // Prepare updated query parameters
     const queryParams = {
       advancedSearch: JSON.stringify(advancedSearch),
       page: 1,
       limit: pageSize,
+      sort: "-updatedAt",
     };
 
-    // Update query and reset pagination
+    // Preserve search term if it exists
+    if (searchTerm) {
+      queryParams.search = searchTerm;
+    }
+
     setQueryParams(queryParams);
     setCurrentPage(1);
   };
+
+  // Clear search function - clears only the search input
+  const ClearSearch = () => {
+    setSearchTerm("");
+    setCurrentPage(1);
+
+    // Update query params to remove search
+    setQueryParams((prev) => {
+      const newParams = { ...prev };
+      delete newParams.search;
+      return newParams;
+    });
+  };
+
+  // Clear all tags - only clears advanced search tags, not search term
   const clearAllTags = () => {
     setSearchTags([]);
 
     const queryParams = {
-      advancedSearch: JSON.stringify({}),
       page: 1,
       limit: pageSize,
+      sort: "-updatedAt",
     };
+
+    // Preserve search term if it exists
+    if (searchTerm) {
+      queryParams.search = searchTerm;
+    }
 
     setQueryParams(queryParams);
     setCurrentPage(1);
   };
+
   if (error) {
     return (
       <ErrorMessage message={error?.data?.message || "Something went wrong!"} />
@@ -233,15 +287,9 @@ const ShortListedData = ({ invitedRefetch }) => {
 
   return (
     <Box>
-      <SearchTags
-        removeTag={removeTag}
-        searchTags={searchTags}
-        clearAllTags={clearAllTags}
-      />
-
       <ShortListed
         allData={allData}
-        data={data}
+        data={shortListedData?.doc || []}
         totalDocs={shortListedData?.totalDocs}
         loading={isLoading}
         isFetching={isFetching}
@@ -257,6 +305,12 @@ const ShortListedData = ({ invitedRefetch }) => {
         setGopageValue={setGopageValue}
         setAdvanceSearch={setAdvanceSearch}
         invitedRefetch={invitedRefetch}
+        onSearchChange={handleSearchChange}
+        searchTerm={searchTerm}
+        searchTags={searchTags}
+        removeTag={removeTag}
+        clearAllTags={clearAllTags}
+        onClear={ClearSearch}
       />
 
       {advanceSearch && (

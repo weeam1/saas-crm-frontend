@@ -1,8 +1,10 @@
 import { Box, Text, HStack, useRadioGroup, useRadio } from '@chakra-ui/react';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
+import { useModalColors } from 'hooks/useModalColors';
 
 // Custom radio button style
 function CustomRadio(props) {
+	const colors = useModalColors();
 	const { getInputProps, getCheckboxProps } = useRadio(props);
 	const input = getInputProps();
 	const checkbox = getCheckboxProps();
@@ -15,19 +17,25 @@ function CustomRadio(props) {
 				cursor='pointer'
 				borderWidth='1px'
 				borderRadius='md'
-				boxShadow='md'
+				boxShadow='sm'
 				_checked={{
-					bg: 'brand.500',
-					color: 'white',
-					borderColor: 'brand.600',
+					bg: colors.accentGold,
+					color: colors.headerText,
+					borderColor: colors.accentGold,
 				}}
 				_focus={{
-					boxShadow: 'outline',
+					boxShadow: 'none',
+				}}
+				_hover={{
+					borderColor: colors.accentGold,
 				}}
 				px={4}
 				py={2}
 				textAlign='center'
 				minW='80px'
+				bg={colors.bgInput}
+				color={colors.bodyText}
+				transition='all 0.2s ease'
 			>
 				{props.children}
 			</Box>
@@ -44,6 +52,7 @@ function AttendanceSelector({
 	setAttendanceStatus,
 	showCheckout = true,
 }) {
+	const colors = useModalColors();
 	const options = ['present', 'absent', 'leave'];
 
 	const { getRootProps, getRadioProps } = useRadioGroup({
@@ -56,7 +65,7 @@ function AttendanceSelector({
 
 	return (
 		<Box width='100%'>
-			<Text mb={2} color='gray.700' fontWeight='600'>
+			<Text mb={2} fontWeight='600' color={colors.headingText}>
 				Attendance Status
 			</Text>
 
@@ -79,16 +88,16 @@ function AttendanceSelector({
 					gap={3}
 					width='100%'
 				>
-					<Box bg='softGray.50' p={3} rounded='md' minW='200px'>
-						<Text mb={2} fontWeight='500'>
+					<Box bg={colors.bgInput} p={3} rounded='md' minW='200px' border="1px solid" borderColor={colors.borderColor}>
+						<Text mb={2} fontWeight='500' color={colors.headingText}>
 							Check In
 						</Text>
 						<NormalTimePicker value={checkInTime} onChange={setCheckInTime} />
 					</Box>
 
 					{showCheckout && (
-						<Box bg='softGray.50' p={3} rounded='md' minW='200px'>
-							<Text mb={2} fontWeight='500'>
+						<Box bg={colors.bgInput} p={3} rounded='md' minW='200px' border="1px solid" borderColor={colors.borderColor}>
+							<Text mb={2} fontWeight='500' color={colors.headingText}>
 								Check Out
 							</Text>
 							<NormalTimePicker

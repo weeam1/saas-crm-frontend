@@ -25,7 +25,8 @@ const AnnouncementView = ({
 	getBadgeColor,
 	handleReadByOpen,
 }) => {
-	const { headerBg, headerText } = useModalColors();
+	const colors = useModalColors();
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -34,51 +35,63 @@ const AnnouncementView = ({
 			isCentered
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay backdropFilter='blur(2px)' />
-			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow={colors.modalShadow} bg={colors.viewBg}>
 				<ModalHeader
 					display='flex'
 					gap='2'
-					bg={headerBg}
-					color={headerText}
+					bg={colors.viewHeaderBg}
+					color={colors.viewHeaderText}
+					borderBottom={`1px solid ${colors.viewHeaderBorder}`}
 					borderTopRadius='xl'
 					py={4}
+					px={6}
 					alignItems='center'
 					w='100%'
 				>
 					Announcement Details
 				</ModalHeader>
-				<ModalBody>
+				<ModalBody bg={colors.viewBg} width='100%' p={4}>
 					<Flex direction='column' gap={4}>
 						{/* Announcement Type */}
 						<div>
-							<Badge colorScheme={getBadgeColor(item.type)}>{item.type}</Badge>
+							<Badge
+								bg={`rgba(212, 175, 55, 0.15)`}
+								color={colors.accentGold}
+								px={2}
+								py={1}
+								borderRadius='full'
+								textTransform='capitalize'
+							>
+								{item.type}
+							</Badge>
 						</div>
 
 						{/* Announcement Message */}
 						<Box
-							backgroundColor='gray.100'
+							bg={colors.bgInput}
 							p={3}
 							rounded='md'
 							width='100%'
 							m='0'
-							background='brand'
-							maxH='200px' // Set max height for the modal body
-							overflowY='auto' // Enable vertical scrolling when content exceeds max height
+							maxH='200px'
+							overflowY='auto'
+							border="1px solid"
+							borderColor={colors.borderColor}
 							sx={{
 								'&::-webkit-scrollbar': {
-									width: '6px', // Custom scrollbar width
+									width: '6px',
 								},
 								'&::-webkit-scrollbar-thumb': {
-									background: 'gray.200', // Custom brand color (adjust according to your theme)
+									background: colors.accentGold,
 									borderRadius: '8px',
 								},
 								'&::-webkit-scrollbar-thumb:hover': {
-									background: 'gray.300', // Slightly darker on hover
+									background: colors.goldLight,
 								},
 							}}
 						>
-							<Text fontSize='md' wordBreak='break-word'>
+							<Text fontSize='md' wordBreak='break-word' color={colors.bodyText}>
 								{item.message}
 							</Text>
 						</Box>
@@ -88,10 +101,12 @@ const AnnouncementView = ({
 							<Tooltip label='Read by' hasArrow cursor='pointer'>
 								<Button
 									bg='transparent'
-									_hover='transparent'
-									_focus='transparent'
-									_active='transparent'
-									onClick={handleReadByOpen} // This should set `isOpen` to true for the drawer.
+									p={0}
+									h='auto'
+									_hover={{ bg: 'transparent' }}
+									_focus={{ bg: 'transparent' }}
+									_active={{ bg: 'transparent' }}
+									onClick={handleReadByOpen}
 								>
 									<StatusBadge
 										status={`${item.read_count} Read`}
@@ -103,28 +118,42 @@ const AnnouncementView = ({
 							</Tooltip>
 
 							<StatusBadge
-								status={`${item.pending_count} Pending`}
+								status={`${item.unread_count} Pending`}
 								color='orange'
 								Icon={MdMarkEmailUnread}
 								size={16}
 							/>
 							<StatusBadge
 								status={`${item.total_count} Total`}
-								color='purple'
+								color='gold'
 								Icon={MdAllInbox}
 								size={16}
 							/>
 						</Flex>
 
 						{/* Created At */}
-						<Text fontSize='sm' color='gray.500'>
-							{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}
+						<Text fontSize='sm' color={colors.mutedText}>
+							{format(new Date(item.createdAt), 'MMM d, yyyy h:mm a')}
 						</Text>
 					</Flex>
 				</ModalBody>
 
-				<ModalFooter>
-					<Button onClick={onClose} colorScheme='gray' rounded='md'>
+				<ModalFooter
+					bg={colors.viewFooterBg}
+					borderTop={`1px solid ${colors.viewFooterBorder}`}
+					py={3}
+					px={6}
+				>
+					<Button
+						onClick={onClose}
+						rounded='md'
+						variant='ghost'
+						color={colors.bodyText}
+						_hover={{
+							bg: colors.secondaryBtnHoverBg,
+							color: colors.headingText,
+						}}
+					>
 						Close
 					</Button>
 				</ModalFooter>

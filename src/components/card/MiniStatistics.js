@@ -3,7 +3,6 @@ import {
   Text,
   Stat,
   StatNumber,
-  useColorModeValue,
   Box,
 } from "@chakra-ui/react";
 // Custom components
@@ -12,42 +11,42 @@ import CountUpComponent from "components/countUpComponent/countUpComponent";
 // Custom icons
 import React from "react";
 import { formattedValue } from "utils/helpers";
+import { useModalColors } from "hooks/useModalColors";
 
 export default function MiniStatistics(props) {
   const { startContent, name, value, growth, active, onClick } = props;
+  const colors = useModalColors();
 
   const formatValue = formattedValue(value);
-  const cardBg = useColorModeValue("white", "gray.800");
-  const hoverBg = useColorModeValue("gray.50", "gray.700");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const textColor = useColorModeValue("gray.800", "white");
-  const brandColor = useColorModeValue("brand.500", "brand.300");
 
   return (
     <Card
       onClick={onClick}
       cursor="pointer"
       borderRadius="xl"
-      bg={cardBg}
+      bg={colors.bg}
       borderWidth="1px"
-      borderColor={borderColor}
+      borderColor={colors.borderColor}
       shadow="sm"
       transition="all 0.3s ease"
       _hover={{
         transform: "translateY(-4px)",
-        shadow: "xl",
-        bg: hoverBg,
+        shadow: colors.cardShadow,
+        bg: colors.bgInputHover,
+        borderColor: colors.accentGold,
       }}
       p={6}
     >
       <Flex direction="column" align="flex-start" justify="center" h="100%">
         <Flex align="center" gap={3}>
-          {startContent}
+          <Box flexShrink={0}>
+            {startContent}
+          </Box>
           <Text
             fontSize="lg"
             fontWeight="600"
-            color={textColor}
-            _hover={{ color: brandColor }}
+            color={colors.headingText}
+            _hover={{ color: colors.accentGold }}
           >
             {name}
           </Text>
@@ -55,7 +54,7 @@ export default function MiniStatistics(props) {
 
         {value && (
           <Stat mt={4}>
-            <StatNumber fontSize="2xl" color={textColor}>
+            <StatNumber fontSize="2xl" color={colors.headingText}>
               <CountUpComponent targetNumber={formatValue} />
             </StatNumber>
           </Stat>
@@ -63,7 +62,7 @@ export default function MiniStatistics(props) {
 
         {growth && (
           <Box mt={2}>
-            <Text fontSize="xs" color="green.500" fontWeight="600">
+            <Text fontSize="xs" color={colors.accentGold} fontWeight="600">
               {growth} since last month
             </Text>
           </Box>

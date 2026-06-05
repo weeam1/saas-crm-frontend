@@ -29,7 +29,6 @@ import CustomInput from 'components/shared/CustomInput';
 import { useSelector } from 'react-redux';
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { toast } from 'react-toastify';
-import { buttonStyle } from 'utils/btn';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { useMemo } from 'react';
@@ -60,7 +59,7 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 	const [updateCandidate, { isLoading }] = useUpdateItemMutation();
 
 	const countries = useSelector((state) => state.countries.countryNames);
-	const { headerBg, headerText } = useModalColors();
+	const colors = useModalColors();
 
 	const { data: positionOptions, isLoading: positionsLoading } =
 		useFetchItemsQuery({
@@ -140,18 +139,22 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
-			<ModalOverlay backdropFilter='blur(2px)' />
-			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow={colors.modalShadow} bg={colors.bg}>
 				<ModalHeader
-					bg={headerBg}
-					color={headerText}
+					bg={colors.headerBg}
+					color={colors.headerText}
 					borderTopRadius='xl'
 					py={4}
+					px={6}
 					w='100%'
 				>
 					Edit Candidate Information
 				</ModalHeader>
-				<ModalCloseButton />
+				<ModalCloseButton
+					color={colors.closeBtnColor}
+					_hover={{ bg: colors.closeBtnHoverBg }}
+				/>
 				<ModalBody pb={6}>
 					{positionsLoading || agencyLoading ? (
 						<Loader />
@@ -195,23 +198,23 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 											<FormControl
 												isInvalid={errors.position && touched.position}
 											>
-												<FormLabel fontSize='sm'>Position</FormLabel>
+												<FormLabel fontSize='sm' color={colors.labelColor}>Position</FormLabel>
 												<Select
 													name='position'
 													value={values.position}
 													onChange={handleChange}
 													onBlur={handleBlur}
-													// placeholder='Select position'
-													bg='gray.100'
-													borderColor='gray.300'
+													bg={colors.bgInput}
+													borderColor={colors.borderColor}
+													color={colors.headingText}
 													fontSize='sm'
 													borderRadius='md'
 													_focus={{
-														borderColor: '#D99A36',
-														boxShadow: '0 0 0 1px #D99A36',
+														borderColor: colors.accentGold,
+														boxShadow: `0 0 0 1px ${colors.accentGold}`,
 													}}
-													textTransform='capitalize'
-													icon={<ChevronDownIcon color='gray.500' />}
+													_hover={{ borderColor: colors.accentGold }}
+													icon={<ChevronDownIcon color={colors.mutedText} />}
 													sx={{
 														appearance: 'none',
 														WebkitAppearance: 'none',
@@ -219,15 +222,12 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 													}}
 												>
 													{positionOptions?.doc?.map((option, index) => (
-														<option
-															key={`${option}-${index}`}
-															value={option._id}
-														>
+														<option key={`${option}-${index}`} value={option._id} style={{ background: colors.bg, color: colors.headingText }}>
 															{option.label}
 														</option>
 													))}
 												</Select>
-												<FormErrorMessage>
+												<FormErrorMessage color={colors.badgeErrorText}>
 													{errors.position && touched.position}
 												</FormErrorMessage>
 											</FormControl>
@@ -294,23 +294,23 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 											<FormControl
 												isInvalid={errors.nationality && touched.nationality}
 											>
-												<FormLabel fontSize='sm'>Nationality</FormLabel>
+												<FormLabel fontSize='sm' color={colors.labelColor}>Nationality</FormLabel>
 												<Select
 													name='nationality'
 													value={values.nationality}
 													onChange={handleChange}
 													onBlur={handleBlur}
-													// placeholder='Nationality'
-													bg='gray.100'
-													borderColor='gray.300'
+													bg={colors.bgInput}
+													borderColor={colors.borderColor}
+													color={colors.headingText}
 													fontSize='sm'
 													borderRadius='md'
 													_focus={{
-														borderColor: '#D99A36',
-														boxShadow: '0 0 0 1px #D99A36',
+														borderColor: colors.accentGold,
+														boxShadow: `0 0 0 1px ${colors.accentGold}`,
 													}}
-													textTransform='capitalize'
-													icon={<ChevronDownIcon color='gray.500' />}
+													_hover={{ borderColor: colors.accentGold }}
+													icon={<ChevronDownIcon color={colors.mutedText} />}
 													sx={{
 														appearance: 'none',
 														WebkitAppearance: 'none',
@@ -318,12 +318,12 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 													}}
 												>
 													{countries?.map((option, index) => (
-														<option key={`${option}-${index}`} value={option}>
+														<option key={`${option}-${index}`} value={option} style={{ background: colors.bg, color: colors.headingText }}>
 															{option}
 														</option>
 													))}
 												</Select>
-												<FormErrorMessage>
+												<FormErrorMessage color={colors.badgeErrorText}>
 													{errors.nationality && touched.nationality}
 												</FormErrorMessage>
 											</FormControl>
@@ -405,19 +405,22 @@ const EditCandidate = ({ isOpen, onClose, candidate, refetch }) => {
 
 									<HStack w='full' justify='flex-end' pt={4}>
 										<Button
-											{...buttonStyle}
-											bg='gray.200'
-											color='gray.800'
+											variant='outline'
 											py='2'
 											px='4'
 											onClick={onClose}
 											mr={3}
+											borderColor={colors.borderColor}
+											color={colors.bodyText}
+											_hover={{
+												bg: colors.secondaryBtnHoverBg,
+												color: colors.headingText,
+											}}
 										>
 											Cancel
 										</Button>
 										<Button
-											{...buttonStyle}
-											colorScheme='brand'
+											variant='brand'
 											py='2'
 											px='4'
 											type='submit'

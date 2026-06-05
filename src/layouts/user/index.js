@@ -34,7 +34,7 @@ export default function User(props) {
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(true);
 
-  const { user, isSuperAdmin, userRoleName } = useUserSession();
+  const { user, isSuperAdmin, userRoleName, agencyName } = useUserSession();
   const { hasPermission } = usePermissions();
 
   const { data: whatsappUser } = useFetchItemsQuery(
@@ -339,7 +339,6 @@ export default function User(props) {
   const largeLogo = useSelector((state) =>
     state?.images?.image?.filter((item) => item.isActive === true),
   );
-
   return (
     <Box>
       <Box>
@@ -387,7 +386,7 @@ export default function User(props) {
               <Box className="header">
                 <Navbar
                   onOpen={onOpen}
-                  logoText={"Weam CRM"}
+                  logoText={agencyName ? `${agencyName} CRM` : "Weam CRM"}
                   brandText={getActiveRoute(finalRoutes)}
                   secondary={getActiveNavbar(finalRoutes)}
                   message={getActiveNavbarText(finalRoutes)}

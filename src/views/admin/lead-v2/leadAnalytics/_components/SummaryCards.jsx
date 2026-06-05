@@ -3,7 +3,6 @@ import {
 	Box,
 	Flex,
 	Text,
-	useColorModeValue,
 	Tooltip,
 	Badge,
 	HStack,
@@ -60,6 +59,7 @@ const iconConfig = {
 	'Avg Response Time': { icon: FiActivity, color: 'purple' },
 	default: { icon: MdOutlineAnalytics, color: 'brand' },
 };
+
 const TrendIndicator = ({ trend, isPositive }) => (
 	<HStack spacing={1}>
 		<Icon
@@ -114,15 +114,6 @@ export const StatCard = ({
 	format = 'number',
 	threshold = 0,
 }) => {
-	const bgColor = useColorModeValue('white', 'navy.700');
-	const borderColor = useColorModeValue('softGray.200', 'navy.600');
-	const hoverBorderColor = useColorModeValue(
-		`${colorScheme}.300`,
-		`${colorScheme}.500`
-	);
-	const textColor = useColorModeValue('gray.800', 'white');
-	const labelColor = useColorModeValue('gray.600', 'gray.400');
-
 	const { icon: IconComponent, color: iconColor } =
 		iconConfig[label] || iconConfig.default;
 
@@ -144,19 +135,19 @@ export const StatCard = ({
 
 	return (
 		<Box
-			bg={bgColor}
+			bg='bg.surface'
 			p={3}
 			borderRadius='2xl'
 			border='1px solid'
-			borderColor={borderColor}
-			boxShadow='sm'
+			borderColor='border.default'
+			boxShadow='card'
 			position='relative'
 			overflow='hidden'
 			transition='all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
 			_hover={{
 				transform: 'translateY(-4px)',
-				boxShadow: 'xl',
-				borderColor: hoverBorderColor,
+				boxShadow: 'goldGlow',
+				borderColor: 'border.gold',
 			}}
 			cursor='pointer'
 			role='group'
@@ -194,7 +185,7 @@ export const StatCard = ({
 						<Text
 							fontSize='sm'
 							fontWeight='semibold'
-							color={labelColor}
+							color='text.muted'
 							textTransform='uppercase'
 							letterSpacing='wider'
 						>
@@ -212,43 +203,15 @@ export const StatCard = ({
 					<Text
 						fontSize='xl'
 						fontWeight='bold'
-						color={textColor}
+						color='text.heading'
 						lineHeight='1.1'
 						mb={2}
-						bgGradient={
-							isLoading
-								? undefined
-								: `linear(45deg, ${textColor}, ${colorScheme}.600)`
-						}
-						bgClip={isLoading ? undefined : 'text'}
+						className={!isLoading ? 'gold-text' : undefined}
 						opacity={isLoading ? 0.6 : 1}
 					>
 						{formattedValue}
 					</Text>
 				</Box>
-
-				{/* Help Text Section */}
-				{/* {helpText && (
-					<Text
-						mt='auto'
-						mb={0}
-						fontSize='sm'
-						color={trend ? (isPositive ? 'green.500' : 'red.500') : labelColor}
-						display='flex'
-						alignItems='center'
-						gap={2}
-						fontWeight='medium'
-					>
-						<Icon
-							as={isPositive ? FiTrendingUp : FiTrendingDown}
-							color={
-								trend ? (isPositive ? 'green.500' : 'red.500') : labelColor
-							}
-							boxSize={3}
-						/>
-						{helpText}
-					</Text>
-				)} */}
 			</Flex>
 
 			{/* Animated Accent Bar */}
@@ -258,7 +221,7 @@ export const StatCard = ({
 				left={0}
 				width='100%'
 				height='4px'
-				bgGradient={`linear(to-r, ${colorScheme}.400, ${colorScheme}.600, ${colorScheme}.400)`}
+				bgGradient='gradient.primary'
 				backgroundSize='200% 100%'
 				animation={shimmerAnimation}
 				borderTopRadius='2xl'
@@ -273,7 +236,7 @@ export const StatCard = ({
 				height='20px'
 				borderRight='2px solid'
 				borderBottom='2px solid'
-				borderColor={`${colorScheme}.300`}
+				borderColor='border.gold'
 				opacity={0.5}
 				borderRadius='0 0 8px 0'
 			/>
@@ -283,18 +246,16 @@ export const StatCard = ({
 
 // Skeleton Loader Component
 export const StatCardSkeleton = () => {
-	const bgColor = useColorModeValue('white', 'navy.700');
-	const borderColor = useColorModeValue('softGray.200', 'navy.600');
 	const pulseAnimation = `${pulse} 1.5s infinite`;
 
 	return (
 		<Box
-			bg={bgColor}
+			bg='bg.surface'
 			p={6}
 			borderRadius='2xl'
 			border='1px solid'
-			borderColor={borderColor}
-			boxShadow='sm'
+			borderColor='border.default'
+			boxShadow='card'
 			position='relative'
 			overflow='hidden'
 			height='110px'
@@ -302,17 +263,17 @@ export const StatCardSkeleton = () => {
 		>
 			<Flex direction='column' height='full' gap={3}>
 				<Flex justify='space-between' align='center'>
-					<Box width='120px' height='4px' bg='gray.200' borderRadius='full' />
-					<Box width='60px' height='4px' bg='gray.200' borderRadius='full' />
+					<Box width='120px' height='4px' bg='bg.input' borderRadius='full' />
+					<Box width='60px' height='4px' bg='bg.input' borderRadius='full' />
 				</Flex>
 				<Box
 					width='80%'
 					height='8px'
-					bg='gray.200'
+					bg='bg.input'
 					borderRadius='full'
 					mt={4}
 				/>
-				<Box width='60%' height='6px' bg='gray.200' borderRadius='full' />
+				<Box width='60%' height='6px' bg='bg.input' borderRadius='full' />
 			</Flex>
 		</Box>
 	);
@@ -364,55 +325,13 @@ export const SummaryCards = ({ summary, isLoading }) => {
 			colorScheme: 'orange',
 			format: 'number',
 		},
-
-		// {
-		// 	label: 'Interested Leads',
-		// 	value: summary?.interestedLeads,
-		// 	helpText: 'Hot leads ready to engage',
-		// 	tooltip: 'Leads actively interested and qualified for follow-up',
-		// 	colorScheme: 'pink',
-		// 	format: 'number',
-		// 	threshold: 100,
-		// },
-		// {
-		// 	label: 'Not Interested',
-		// 	value: summary?.notInterestedLeads,
-		// 	helpText: 'Requires re-engagement',
-		// 	tooltip: 'Leads that declined or need different approach',
-		// 	colorScheme: 'red',
-		// 	format: 'number',
-		// },
-		// {
-		// 	label: 'Released Leads',
-		// 	value: summary?.releasedLeads,
-		// 	helpText: 'Returned to pool',
-		// 	tooltip: 'Leads released back to the system for reassignment',
-		// 	colorScheme: 'gray',
-		// 	format: 'number',
-		// },
-		// {
-		// 	label: 'Monthly Leads',
-		// 	value: summary?.currentMonthLeads,
-		// 	helpText: 'Current monthly leads',
-		// 	tooltip: 'Leads generated during the current month',
-		// 	colorScheme: 'cyan',
-		// 	format: 'number',
-		// },
-		// {
-		// 	label: 'Prev Month Leads',
-		// 	value: summary?.prevMonthLeads,
-		// 	helpText: 'Last month’s performance',
-		// 	tooltip: 'Total leads captured during the previous month',
-		// 	colorScheme: 'teal',
-		// 	format: 'number',
-		// },
 	];
 
 	if (isLoading) {
 		return (
 			<Box mb={8}>
 				<SimpleGrid mb={1} columns={{ base: 1, md: 2, lg: 3, xl: 5 }} gap={4}>
-					{[...Array(10)].map((_, index) => (
+					{[...Array(5)].map((_, index) => (
 						<StatCardSkeleton key={index} />
 					))}
 				</SimpleGrid>
@@ -422,15 +341,6 @@ export const SummaryCards = ({ summary, isLoading }) => {
 
 	return (
 		<Box>
-			{/* <Flex justify='space-between' align='center' mb={4}>
-				<Text fontSize='lg' fontWeight='bold' color='gray.700'>
-					Overview
-				</Text>
-				<Badge colorScheme='brand' variant='subtle' fontSize='sm'>
-					Perfomance Overview
-				</Badge>
-			</Flex> */}
-
 			<SimpleGrid mb='1' columns={{ base: 1, md: 2, lg: 3, xl: 5 }} spacing={4}>
 				{cards.map((card, index) => (
 					<StatCard key={index} isLoading={isLoading} {...card} />

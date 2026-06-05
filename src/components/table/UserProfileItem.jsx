@@ -42,7 +42,7 @@ const UserProfileItem = ({ user, onClick, linkTo, cursor = true }) => {
 					</Text>
 
 					{user?.username && (
-						<Text fontSize='xs' color='gray.500'>
+						<Text fontSize='xs' color='gray.400'>
 							{user.username}
 						</Text>
 					)}

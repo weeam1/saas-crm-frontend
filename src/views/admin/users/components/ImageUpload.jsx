@@ -14,6 +14,7 @@ import {
 	Spinner,
 } from '@chakra-ui/react';
 import { useCreateItemMutation } from 'api/apiSlice';
+import useUserSession from 'hooks/useUserSession';
 
 const compressImage = async (file) => {
 	const options = {
@@ -25,8 +26,8 @@ const compressImage = async (file) => {
 };
 
 const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
-	const [preview, setPreview] = useState(DefaultUserImage);
-
+	const {agencyLogo}=useUserSession()
+	const [preview, setPreview] = useState(agencyLogo);
 	const [createItemMutation, { isLoading }] = useCreateItemMutation();
 
 	useEffect(() => {
@@ -37,9 +38,9 @@ const ImageUpload = ({ profileImage, formik, user, setUploadImage }) => {
 			img.src = imageUrl;
 
 			img.onload = () => setPreview(imageUrl);
-			img.onerror = () => setPreview(DefaultUserImage);
+			img.onerror = () => setPreview(agencyLogo);
 		} else {
-			setPreview(DefaultUserImage);
+			setPreview(agencyLogo);
 		}
 	}, [profileImage]);
 

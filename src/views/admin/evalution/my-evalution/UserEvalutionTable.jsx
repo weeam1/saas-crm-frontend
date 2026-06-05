@@ -36,8 +36,10 @@ import { getBadgeColors } from "utils/colorUtils";
 import UserProfileItem from "components/table/UserProfileItem";
 import { FaPlus } from "react-icons/fa6";
 import useUserSession from "hooks/useUserSession";
+import { useModalColors } from "hooks/useModalColors";
 
 import { toast } from "react-toastify";
+
 const UserEvaluationTable = ({
   data = [],
   isLoading,
@@ -46,6 +48,7 @@ const UserEvaluationTable = ({
   month,
   year,
 }) => {
+  const colors = useModalColors();
   const columns = [
     { key: "monthYear", label: "Month", width: "150px" },
     { key: "totalEvaluators", label: "Total Evaluators", width: "80px" },
@@ -53,8 +56,6 @@ const UserEvaluationTable = ({
     { key: "finalAvg", label: "Average", width: "80px" },
     { key: "actions", label: "Actions", width: "80px" },
   ];
-
-  console.log(month, "check month");
 
   const [delayedLoading, setDelayedLoading] = useState(isLoading);
 
@@ -93,7 +94,6 @@ const UserEvaluationTable = ({
         const roleName = value?.[0]?.roleName.replace(/^./, (c) =>
           c.toUpperCase(),
         );
-        // ?.replace(/([A-Z])/g, ' $1')
 
         const { bg, text } = getBadgeColors(roleName);
 
@@ -144,21 +144,23 @@ const UserEvaluationTable = ({
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedRow, setSelectedRow] = useState(null);
+
   return (
     <>
       <Box
         my="2"
         overflowX="auto"
         overflowY="auto"
-        maxH="calc(100vh - 200px)"
+            maxHeight="80vh"
+      minH="70vh"
         borderWidth="1px"
-        borderColor="gray.200"
+        borderColor={colors.borderColor}
         rounded="xl"
-        boxShadow="sm"
-        bg="white"
+        boxShadow={colors.cardShadow}
+        bg={colors.bg}
       >
-        <Table variant="striped" size="sm">
-          <Thead bg="brand.200" position="sticky" top={0} zIndex={1}>
+        <Table variant="simple" size="sm">
+          <Thead bg={colors.bgDeep} position="sticky" top={0} zIndex={1}>
             <Tr>
               {columns.map((column) => (
                 <Th
@@ -169,8 +171,10 @@ const UserEvaluationTable = ({
                   py="4"
                   textAlign={["user"].includes(column.key) ? "left" : "center"}
                   fontWeight="semibold"
-                  color="gray.700"
+                  color={colors.headingText}
                   minW={column.width}
+                  bg={colors.bgDeep}
+                  borderColor={colors.borderColor}
                 >
                   {column.label}
                 </Th>
@@ -183,7 +187,7 @@ const UserEvaluationTable = ({
               <TableLoading columns={columns} length={10} py="4" />
             ) : data.length === 0 ? (
               <Tr>
-                <Td colSpan={columns.length} py={10}>
+                <Td colSpan={columns.length} py={10} borderColor={colors.borderColor}>
                   <Center>
                     <NoData label="user evaluation" />
                   </Center>
@@ -194,24 +198,38 @@ const UserEvaluationTable = ({
                 return (
                   <Tr
                     key={row._id || index}
-                    _hover={{ bg: "gray.50" }}
-                    bg={index % 2 === 0 ? "white" : "gray.25"}
+                    _hover={{ bg: colors.bgDeep }}
+                    bg={index % 2 === 0 ? colors.bg : colors.bgInput}
+                    borderColor={colors.borderColor}
                   >
                     {columns.map((column) => (
-                      <Td key={column.key} textAlign="center">
+                      <Td
+                        key={column.key}
+                        textAlign="center"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
+                        py={3}
+                        px={3}
+                      >
                         {column.key === "monthYear" ? (
-                          <Text>
+                          <Text color={colors.bodyText}>
                             {format(
                               new Date(row.year, row.month - 1),
                               "MMM yyyy",
                             )}
                           </Text>
                         ) : column.key === "totalEvaluators" ? (
-                          <Text>{row.totalEvaluators}</Text>
+                          <Text color={colors.bodyText}>{row.totalEvaluators}</Text>
                         ) : column.key === "finalAvg" ? (
-                          <Text>{row.finalAvg}</Text>
+                          <Text color={colors.bodyText}>{row.finalAvg}</Text>
                         ) : column.key === "finalPercentage" ? (
-                          <Badge colorScheme="green">
+                          <Badge
+                            bg={colors.badgeSuccessBg}
+                            color={colors.badgeSuccessText}
+                            px={3}
+                            py={1}
+                            borderRadius="full"
+                          >
                             {row.finalPercentage}%
                           </Badge>
                         ) : column.key === "actions" ? (
@@ -225,22 +243,10 @@ const UserEvaluationTable = ({
                                 onClick={() =>
                                   setView({ modal: true, data: row })
                                 }
+                                color={colors.bodyText}
+                                _hover={{ color: colors.accentGold, bg: colors.bgDeep }}
                               />
                             </CustomTooltip>
-
-                            {/* <CustomTooltip label="Delete Evaluation">
-                              <IconButton
-                                aria-label="Delete"
-                                icon={<FiTrash2 />}
-                                size="sm"
-                                colorScheme="red"
-                                variant="ghost"
-                                onClick={() => {
-                                  setSelectedRow(row);
-                                  onOpen();
-                                }}
-                              />
-                            </CustomTooltip> */}
                           </Flex>
                         ) : (
                           "—"
@@ -253,6 +259,8 @@ const UserEvaluationTable = ({
             )}
           </Tbody>
         </Table>
+
+        {/* Delete Confirmation Modal */}
         <Modal
           isOpen={isOpen}
           onClose={onClose}
@@ -260,26 +268,27 @@ const UserEvaluationTable = ({
           closeOnOverlayClick={false}
           blockScrollOnMount={false}
         >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Delete Evaluation</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              Are you sure you want to delete this user's evaluation for this
-              month?
+          <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+          <ModalContent bg={colors.bg} borderRadius="xl" boxShadow={colors.modalShadow}>
+            <ModalHeader bg={colors.headerBg} color={colors.headerText} borderTopRadius="xl">
+              Delete Evaluation
+            </ModalHeader>
+            <ModalCloseButton color={colors.headerText} _hover={{ bg: colors.closeBtnHoverBg }} />
+            <ModalBody color={colors.bodyText}>
+              Are you sure you want to delete this user's evaluation for this month?
             </ModalBody>
 
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>
+            <ModalFooter bg={colors.footerBg} borderTop="1px solid" borderColor={colors.borderColor}>
+              <Button variant="ghost" mr={3} onClick={onClose} color={colors.bodyText}>
                 Cancel
               </Button>
               <Button
-                colorScheme="red"
+                variant="brand"
                 onClick={() =>
                   confirmDelete(
                     loggedInUser?._id,
-                    selectedRow.month,
-                    selectedRow.year,
+                    selectedRow?.month,
+                    selectedRow?.year,
                     onClose,
                     "MYEVAL",
                   )

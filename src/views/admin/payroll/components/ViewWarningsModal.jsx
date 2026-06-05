@@ -20,7 +20,6 @@ import {
 	AlertDialogOverlay,
 	Flex,
 	Button,
-	useColorModeValue,
 	Avatar,
 	Icon,
 	Skeleton,
@@ -44,10 +43,11 @@ import {
 import { toast } from 'react-toastify';
 import { formatPostDate } from 'utils/helpers';
 import { constant } from 'constant';
+import { useModalColors } from 'hooks/useModalColors';
 
 const statusConfig = {
 	active: {
-		color: 'greenish',
+		color: 'yellow',
 		icon: FiAlertTriangle,
 		label: 'Active',
 		description: 'Warning is currently active',
@@ -68,6 +68,7 @@ export const ViewWarningsModal = ({
 	month,
 	year,
 }) => {
+	const colors = useModalColors();
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 	const [selectedWarningId, setSelectedWarningId] = useState(null);
 	const cancelRef = useRef();
@@ -75,11 +76,12 @@ export const ViewWarningsModal = ({
 	const [revokingId, setRevokingId] = useState(null);
 	const [warningsData, setWarningsData] = useState(null);
 	const [isLoading, setIsLoading] = useState(false);
+
 	const handleClose = () => {
 		setWarningsData(null);
 		setIsLoading(false);
 		setRevokingId(null);
-		onClose(); // call the parent onClose
+		onClose();
 	};
 
 	const fetchWarnings = async (signal) => {
@@ -111,6 +113,7 @@ export const ViewWarningsModal = ({
 			setIsLoading(false);
 		}
 	};
+
 	useEffect(() => {
 		if (!isOpen || !employeeId || !month || !year) return;
 
@@ -131,10 +134,6 @@ export const ViewWarningsModal = ({
 		? `${warningsData.data[0].month}/${warningsData.data[0].year}`
 		: `${month}/${year}`;
 
-	const cardBg = useColorModeValue('white', 'gray.800');
-	const subtleBg = useColorModeValue('gray.50', 'gray.700');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
-
 	// Sort warnings by issued date, most recent first
 	const sortedWarnings = [...warningsList].sort(
 		(a, b) => new Date(b.issuedAt) - new Date(a.issuedAt),
@@ -149,7 +148,7 @@ export const ViewWarningsModal = ({
 
 	const handleRevokeWarning = async (warningId) => {
 		try {
-			setRevokingId(warningId); // start loader for this button
+			setRevokingId(warningId);
 			await updateWarning({
 				path: `/payroll/employee-warnings/${warningsData?.data[0]?._id}/revoke-warning`,
 				body: { warningId },
@@ -162,7 +161,7 @@ export const ViewWarningsModal = ({
 			console.error('Failed to revoke warning:', error);
 			toast.error(error?.data?.message || 'Failed to revoke warning');
 		} finally {
-			setRevokingId(null); // stop loader
+			setRevokingId(null);
 		}
 	};
 
@@ -179,24 +178,43 @@ export const ViewWarningsModal = ({
 				scrollBehavior='inside'
 				motionPreset='slideInBottom'
 			>
-				<ModalOverlay backdropFilter='blur(5px)' />
-				<ModalContent rounded='xl' overflow='hidden' shadow='2xl'>
-					<ModalHeader py={4} bg={subtleBg}>
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
+				<ModalContent
+					rounded='xl'
+					overflow='hidden'
+					boxShadow={colors.modalShadow}
+					bg={colors.bg}
+					border='1px solid'
+					borderColor={colors.borderColor}
+				>
+					<ModalHeader py={4} bg={colors.bgInput} borderBottom='1px solid' borderColor={colors.borderColor}>
 						<VStack align='flex-start' spacing={1}>
 							<HStack>
-								<Text fontSize='lg' fontWeight='bold'>
+								<Text fontSize='lg' fontWeight='bold' color={colors.headingText}>
 									Employee Warnings
 								</Text>
-								<Badge colorScheme='blue' fontSize='sm'>
+								<Badge
+									bg={colors.badgeInfoBg}
+									color={colors.badgeInfoText}
+									fontSize='sm'
+									px={2}
+									py={1}
+									borderRadius='full'
+								>
 									{monthYear}
 								</Badge>
 							</HStack>
-							<Text fontSize='sm' color='gray.500' fontWeight='normal'>
+							<Text fontSize='sm' color={colors.mutedText} fontWeight='normal'>
 								Warning History and Deductions
 							</Text>
 						</VStack>
 					</ModalHeader>
-					<ModalCloseButton top={4} right={4} />
+					<ModalCloseButton
+						top={4}
+						right={4}
+						color={colors.mutedText}
+						_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
+					/>
 
 					<ModalBody py={4}>
 						{isLoading || !warningsData ? (
@@ -207,67 +225,44 @@ export const ViewWarningsModal = ({
 							</>
 						) : (
 							<>
-								{/* <Box
-									p={4}
-									mb={6}
-									bg={cardBg}
-									rounded='lg'
-									borderWidth='1px'
-									borderColor={borderColor}
-									shadow='sm'
-								>
-									<Box>
-										<HStack justify='space-between' mt={2}>
-											<HStack spacing={2}>
-												<Text fontSize='sm' color='gray.600'>
-													Total Active Warning Deductions
-												</Text>
-											</HStack>
-											<Text fontSize='lg' fontWeight='bold' color='orange.300'>
-												{`${data?.agency?.currency} ${totalDeduction.toLocaleString()}`}
-											</Text>
-										</HStack>
-									</Box>
-								</Box> */}
-								<Box p={5} mb={6} bg='cyan.50' rounded='lg'>
+								{/* Total Deductions Card */}
+								<Box p={5} mb={6} bg={colors.badgeInfoBg} rounded='lg' border='1px solid' borderColor={colors.badgeInfoBorder}>
 									<HStack justify='space-between' align='center'>
-										{/* Label */}
 										<HStack spacing={2}>
 											<Box
 												w='36px'
 												h='36px'
 												rounded='full'
-												bg='cyan.50'
+												bg={colors.badgeInfoBg}
 												display='flex'
 												alignItems='center'
 												justifyContent='center'
 											>
 												<Icon
 													as={FiAlertTriangle}
-													color='cyan.400'
+													color={colors.badgeInfoText}
 													boxSize={4}
 												/>
 											</Box>
 
 											<VStack align='start' spacing={0}>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color={colors.mutedText}>
 													Payroll Impact
 												</Text>
-												<Text fontSize='sm' fontWeight='500'>
+												<Text fontSize='sm' fontWeight='500' color={colors.bodyText}>
 													Active Warning Deductions
 												</Text>
 											</VStack>
 										</HStack>
 
-										{/* Amount */}
 										<VStack align='end' spacing={0}>
-											<Text fontSize='xs' color='gray.500'>
+											<Text fontSize='xs' color={colors.mutedText}>
 												Total
 											</Text>
 											<Text
 												fontSize='xl'
 												fontWeight='700'
-												color='cyan.500'
+												color={colors.accentGold}
 												lineHeight='1'
 											>
 												{data?.agency?.currency}{' '}
@@ -285,21 +280,20 @@ export const ViewWarningsModal = ({
 										px={2}
 										py={3}
 										mb={4}
-										bg='green.50'
+										bg={colors.badgeSuccessBg}
 										border='1px solid'
-										borderColor='green.200'
+										borderColor={colors.badgeSuccessBorder}
 										rounded='md'
 									>
-										<Icon as={FiCheckCircle} color='green.500' boxSize={4} />
-										<Text fontSize='sm' fontWeight='medium' color='green.800'>
+										<Icon as={FiCheckCircle} color={colors.badgeSuccessText} boxSize={4} />
+										<Text fontSize='sm' fontWeight='medium' color={colors.badgeSuccessText}>
 											All warning deductions have been successfully applied for
 											this period.
 										</Text>
 									</Box>
 								)}
 
-								{/* History Timeline - Same structure as commented code */}
-
+								{/* History Timeline */}
 								<VStack align='stretch' spacing={0} position='relative'>
 									<Box
 										position='absolute'
@@ -307,7 +301,7 @@ export const ViewWarningsModal = ({
 										top='0'
 										bottom='0'
 										width='2px'
-										bg={borderColor}
+										bg={colors.borderColor}
 										zIndex={1}
 									/>
 
@@ -317,13 +311,13 @@ export const ViewWarningsModal = ({
 											minH='400px'
 											textAlign='center'
 											justify='center'
-											bg={cardBg}
+											bg={colors.bgInput}
 											rounded='lg'
 											borderWidth='1px'
-											borderColor={borderColor}
+											borderColor={colors.borderColor}
 										>
-											<Icon as={FiClock} boxSize={6} color='gray.400' mb={2} />
-											<Text color='gray.500'>No warnings for this period</Text>
+											<Icon as={FiClock} boxSize={6} color={colors.mutedText} mb={2} />
+											<Text color={colors.mutedText}>No warnings for this period</Text>
 										</Box>
 									) : (
 										sortedWarnings.map((warning, idx) => {
@@ -331,6 +325,10 @@ export const ViewWarningsModal = ({
 											const config =
 												statusConfig[statusKey] || statusConfig.active;
 											const isLatest = true;
+											const statusColor = statusKey === 'active' ? colors.badgeWarningText : colors.badgeErrorText;
+											const statusBg = statusKey === 'active' ? colors.badgeWarningBg : colors.badgeErrorBg;
+											const statusBorder = statusKey === 'active' ? colors.badgeWarningBorder : colors.badgeErrorBorder;
+
 											return (
 												<HStack
 													key={warning._id}
@@ -345,20 +343,16 @@ export const ViewWarningsModal = ({
 															w='32px'
 															h='32px'
 															rounded='full'
-															bg={
-																isLatest ? `${config.color}.500` : 'transparent'
-															}
+															bg={isLatest ? statusBg : 'transparent'}
 															borderWidth={isLatest ? '0' : '2px'}
-															borderColor={`${config.color}.500`}
+															borderColor={statusColor}
 															display='flex'
 															alignItems='center'
 															justifyContent='center'
 														>
 															<Icon
 																as={config.icon}
-																color={
-																	isLatest ? 'white' : `${config.color}.500`
-																}
+																color={isLatest ? colors.headerText : statusColor}
 																boxSize={4}
 															/>
 														</Box>
@@ -366,33 +360,31 @@ export const ViewWarningsModal = ({
 
 													<Box
 														flex='1'
-														bg={isLatest ? `${config.color}.50` : cardBg}
+														bg={isLatest ? statusBg : colors.bg}
 														p={4}
 														rounded='lg'
 														borderWidth='1px'
-														borderColor={
-															isLatest ? `${config.color}.200` : borderColor
-														}
-														shadow={isLatest ? 'sm' : 'none'}
+														borderColor={isLatest ? statusBorder : colors.borderColor}
+														shadow={isLatest ? colors.cardShadow : 'none'}
 													>
 														<HStack justify='space-between' mb={2}>
 															{warning.issuedBy && (
 																<HStack spacing={2}>
 																	<VStack align='start' spacing={0}>
-																		<Text fontSize='xs' color='gray.600'>
+																		<Text fontSize='xs' color={colors.mutedText}>
 																			Issued By
 																		</Text>
 																		<Text
 																			fontSize='xs'
 																			fontWeight='medium'
-																			color='gray.600'
+																			color={colors.bodyText}
 																		>
 																			{warning.issuedBy.fullName}
 																		</Text>
 																	</VStack>
 																</HStack>
 															)}
-															<Text fontSize='xs' color='gray.500'>
+															<Text fontSize='xs' color={colors.mutedText}>
 																{formatPostDate(warning.issuedAt)}
 															</Text>
 														</HStack>
@@ -403,7 +395,7 @@ export const ViewWarningsModal = ({
 																<Text
 																	fontSize='xs'
 																	fontWeight='medium'
-																	color='gray.600'
+																	color={colors.mutedText}
 																>
 																	Warning Deduction:
 																</Text>
@@ -411,7 +403,7 @@ export const ViewWarningsModal = ({
 															<Text
 																fontSize='lg'
 																fontWeight='bold'
-																color='orange.300'
+																color={colors.accentGold}
 															>
 																{`${data?.agency?.currency} ${warning.amount.toLocaleString()}`}
 															</Text>
@@ -424,25 +416,25 @@ export const ViewWarningsModal = ({
 																	<Icon
 																		as={FiMessageSquare}
 																		boxSize={3}
-																		color='gray.500'
+																		color={colors.mutedText}
 																	/>
 																	<Text
 																		fontSize='xs'
 																		fontWeight='medium'
-																		color='gray.600'
+																		color={colors.mutedText}
 																	>
 																		Note
 																	</Text>
 																</HStack>
 
 																<Box
-																	bg={'gray.100'}
+																	bg={colors.bgInput}
 																	border='1px solid'
-																	borderColor='gray.200'
+																	borderColor={colors.borderColor}
 																	rounded='md'
 																	p={3}
 																	fontSize='sm'
-																	color='gray.700'
+																	color={colors.bodyText}
 																	mb={3}
 																>
 																	{warning.note}
@@ -456,13 +448,15 @@ export const ViewWarningsModal = ({
 																<Flex justify='right'>
 																	<Button
 																		size='sm'
-																		colorScheme='blue'
 																		variant='outline'
 																		onClick={() => {
 																			setSelectedWarningId(warning._id);
 																			setIsConfirmOpen(true);
 																		}}
-																		isLoading={revokingId === warning._id} // only show loader for this button
+																		isLoading={revokingId === warning._id}
+																		borderColor={colors.accentGold}
+																		color={colors.accentGold}
+																		_hover={{ bg: colors.bgDeep, color: colors.goldLight }}
 																	>
 																		Revoke
 																	</Button>
@@ -478,82 +472,81 @@ export const ViewWarningsModal = ({
 						)}
 					</ModalBody>
 
-					<Divider />
+					<Divider borderColor={colors.borderColor} />
 
-					<ModalFooter py={3}>
+					<ModalFooter py={3} bg={colors.footerBg} borderTop='1px solid' borderColor={colors.borderColor}>
 						<Button
 							onClick={handleClose}
 							rounded='lg'
 							px={6}
 							variant='outline'
-							colorScheme='blue'
 						>
 							Close
 						</Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
+
 			<AlertDialog
 				isOpen={isConfirmOpen}
 				leastDestructiveRef={cancelRef}
 				onClose={() => setIsConfirmOpen(false)}
 				isCentered
 			>
-				<AlertDialogOverlay>
-					<AlertDialogContent>
-						<AlertDialogHeader fontSize='lg' fontWeight='bold'>
-							Revoke Warning Deduction
-						</AlertDialogHeader>
+				<AlertDialogOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
+				<AlertDialogContent bg={colors.bg} borderRadius='2xl' boxShadow={colors.modalShadow}>
+					<AlertDialogHeader fontSize='lg' fontWeight='bold' bg={colors.headerBg} color={colors.headerText}>
+						Revoke Warning Deduction
+					</AlertDialogHeader>
 
-						<AlertDialogBody>
-							Are you sure you want to revoke this warning deduction?
-							<br />
-							<Text mt={2} fontSize='sm' color='gray.600'>
-								If you confirm, it will not be applied in the payroll, and this
-								action cannot be undone.
-							</Text>
-						</AlertDialogBody>
+					<AlertDialogBody color={colors.bodyText}>
+						Are you sure you want to revoke this warning deduction?
+						<br />
+						<Text mt={2} fontSize='sm' color={colors.mutedText}>
+							If you confirm, it will not be applied in the payroll, and this
+							action cannot be undone.
+						</Text>
+					</AlertDialogBody>
 
-						<AlertDialogFooter>
-							<Button ref={cancelRef} onClick={() => setIsConfirmOpen(false)}>
-								Cancel
-							</Button>
-							<Button
-								colorScheme='red'
-								ml={3}
-								onClick={() => {
-									setIsConfirmOpen(false);
-									handleRevokeWarning(selectedWarningId);
-								}}
-							>
-								Confirm Revoke
-							</Button>
-						</AlertDialogFooter>
-					</AlertDialogContent>
-				</AlertDialogOverlay>
+					<AlertDialogFooter bg={colors.footerBg} borderTop='1px solid' borderColor={colors.borderColor}>
+						<Button
+							ref={cancelRef}
+							onClick={() => setIsConfirmOpen(false)}
+							variant='outline'
+						>
+							Cancel
+						</Button>
+						<Button
+							variant='brand'
+							ml={3}
+							onClick={() => {
+								setIsConfirmOpen(false);
+								handleRevokeWarning(selectedWarningId);
+							}}
+						>
+							Confirm Revoke
+						</Button>
+					</AlertDialogFooter>
+				</AlertDialogContent>
 			</AlertDialog>
 		</>
 	);
 };
 
 const WarningSkeleton = () => {
+	const colors = useModalColors();
 	return (
 		<HStack align='flex-start' spacing={4} py={2}>
-			{/* Timeline icon */}
 			<SkeletonCircle size='8' />
-
-			{/* Card */}
-			<Box flex='1' p={4} rounded='lg' borderWidth='1px'>
+			<Box flex='1' p={4} rounded='lg' borderWidth='1px' borderColor={colors.borderColor}>
 				<HStack justify='space-between' mb={3}>
 					<Skeleton height='10px' width='120px' />
 					<Skeleton height='10px' width='80px' />
 				</HStack>
-
 				<HStack justify='space-between' mb={3}>
 					<Skeleton height='12px' width='180px' />
 					<Skeleton height='20px' width='80px' />
 				</HStack>
-
 				<SkeletonText mt='2' noOfLines={3} spacing='3' />
 			</Box>
 		</HStack>

@@ -37,7 +37,7 @@ const LeadGrid = ({
 					gridTemplateColumns: {
 						base: 'repeat(auto-fit, minmax(280px, 1fr))',
 						md: 'repeat(auto-fit, minmax(320px, 1fr))',
-						lg: 'repeat(auto-fit, minmax(350px, 1fr))',
+						lg: 'repeat(auto-fit, minmax(200px, 1fr))',
 					},
 					gap: { base: 3, md: 4, lg: 4 },
 					p: { base: 2, md: 4 },
@@ -78,7 +78,7 @@ const LeadGrid = ({
 				: {
 						base: 'repeat(auto-fit, minmax(280px, 1fr))',
 						md: 'repeat(auto, minmax(320px, 1fr))',
-						lg: 'repeat(auto-fit, minmax(340px, 1fr))',
+						lg: 'repeat(auto-fit, minmax(300px, 1fr))',
 					};
 
 	return (
@@ -87,7 +87,7 @@ const LeadGrid = ({
 				sx={{
 					gridTemplateColumns: gridColumns,
 					gap: { base: 2 },
-					p: { base: 2, md: 4 },
+					// p: { base: 2, md: 4 },
 					width: '100%',
 					maxW: '100%',
 					overflowX: 'hidden',

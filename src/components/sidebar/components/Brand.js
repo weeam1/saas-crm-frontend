@@ -8,12 +8,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchImage } from '../../../redux/imageSlice';
 
 import BrandLogo from 'assets/logo/logo.png';
+import useUserSession from 'hooks/useUserSession';
 
 // import BrandLogo from 'logo.png';
 
 export function SidebarBrand(props) {
 	const { setOpenSidebar, openSidebar, from, largeLogo } = props;
-
+const {agencyLogo}=useUserSession()
 	//   Chakra color mode
 	let logoColor = useColorModeValue('navy.700', 'white');
 
@@ -30,10 +31,10 @@ export function SidebarBrand(props) {
 			}}
 		>
 			{/* {largeLogo && (largeLogo[0]?.logoLgImg || largeLogo[0]?.logoSmImg) ? ( */}
-			{BrandLogo ? (
+			{agencyLogo ? (
 				<Image
 					style={{ height: '52px' }}
-					src={BrandLogo} // Set the source path of your image
+					src={agencyLogo} // Set the source path of your image
 					alt='Logo' // Set the alt text for accessibility
 					cursor='pointer'
 					onClick={() => !from && setOpenSidebar(!openSidebar)}

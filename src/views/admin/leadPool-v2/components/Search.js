@@ -69,105 +69,88 @@ const SearchBox = ({
 
 	return (
 		<Flex
-			display='flex'
-			height={{ base: '80px', md: '30px' }}
-			justifyContent={{ base: 'center', md: 'center' }}
-			alignItems='center'
-			width='100%'
+			width={{ base: '100%', xl: 'fit-content' }}
+			bg='bg.surface'
+			border='1px solid'
+			borderColor='border.default'
+			p='1'
+			borderRadius='md'
 		>
-			<Box width={{ base: '100%', md: 'fit-content' }} p='2' borderRadius='md'>
-				<HStack
-					spacing={1}
-					flexDirection={{ base: 'column', md: 'row' }}
-					justifyContent='center'
+			<HStack
+				spacing={1}
+				flexDirection={{ base: 'column', md: 'row' }}
+				justifyContent='center'
+			>
+				<InputGroup
+					bg='white'
+					border='1px solid'
+					borderColor='softGray.600'
+					borderRadius='md'
+					w={{ base: '100%', md: '280px', lg: '310px' }}
+					pr='0'
+					overflow='hidden'
 				>
-					<InputGroup
-						bg='white'
-						border='1px solid'
-						borderColor='softGray.600'
-						borderRadius='md'
-						w={{ base: '100%', md: '280px', lg: '310px' }}
-						pr='0'
-						overflow='hidden'
-					>
-						<Input
-							placeholder='Search by lead name...'
-							border='none'
-							fontSize='xs'
-							height='2.5rem'
-							_focus={{ boxShadow: 'none' }}
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							onKeyPress={handleKeyPress}
-							pr='4.5rem'
-							fontFamily="'DM Sans', sans-serif"
-						/>
-						<InputRightElement width='auto' height='100%' alignItems='center'>
-							<Button
-								size='sm'
-								w='80px'
-								bg='softGray.700'
-								borderLeft='1px solid'
-								borderColor='softGray.600'
-								px={4}
-								borderRadius='0'
-								fontSize='xs'
-								display='flex'
-								alignItems='center'
-								height='100%'
-								_hover={{ bg: 'gray.50' }}
-								_active={{ bg: 'gray.100' }}
-								onClick={handleSearch}
-								isDisabled={isLoading}
-								fontFamily="'DM Sans', sans-serif"
-							>
-								<Flex align='center' display='inline-flex' alignItems='center'>
-									Search <SearchIcon fontSize='xs' color='brand.500' ml={1} />
-								</Flex>
-							</Button>
-						</InputRightElement>
-					</InputGroup>
-					<HStack>
+					<Input
+						placeholder='Search by lead name...'
+						border='none'
+						fontSize='xs'
+						height='2.5rem'
+						_focus={{ boxShadow: 'none' }}
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						onKeyPress={handleKeyPress}
+						pr='4.5rem'
+						fontFamily="'DM Sans', sans-serif"
+					/>
+					<InputRightElement width='auto' height='100%' alignItems='center'>
 						<Button
-							border='1px solid'
-							borderColor='softGray.600'
-							bg='white'
-							borderRadius='md'
+							size='md'
+							variant='ghost'
 							px={4}
 							fontSize='xs'
-							w='auto'
-							minW='max-content'
-							height='2.2rem'
-							_hover={{ bg: 'gray.50' }}
-							_active={{ bg: 'gray.100' }}
-							onClick={() => setIsModalOpen(true)}
+							onClick={handleSearch}
 							isDisabled={isLoading}
 						>
-							Advance Search
+							<Flex align='center' gap={1}>
+								Search
+								<SearchIcon fontSize='xs' color='text.accent' />
+							</Flex>
 						</Button>
-					</HStack>
+					</InputRightElement>
+				</InputGroup>
+				<HStack>
+					<Button
+						variant='outline'
+						px={4}
+						fontSize='xs'
+						height='2.2rem'
+						onClick={() => setIsModalOpen(true)}
+						isDisabled={isLoading}
+					>
+						Advance Search
+					</Button>
 				</HStack>
+			</HStack>
 
-				<AdvancedSearchModal
-					setAdvanceSearch={setIsModalOpen}
-					advanceSearch={isModalOpen}
-					isLoading={isLoading}
-					fetchAdvancedSearch={fetchAdvancedSearch}
-					setSearchClear={setSearchClear}
-					setFormValues={setFormValues}
-					isFormReset={isFormReset}
-					setIsFormReset={setIsFormReset}
-					pageSize={pageSize}
-					setGetTagValues={(tags) => {
-						setGetTagValues(tags);
-						setTags(tags);
-						setParentSearchTerm('');
-					}}
-					setDisplaySearchData={setDisplaySearchData}
-					onClearSearch={handleClear}
-					setQueryData={setQueryData}
-				/>
-			</Box>
+			<AdvancedSearchModal
+				setAdvanceSearch={setIsModalOpen}
+				advanceSearch={isModalOpen}
+				isLoading={isLoading}
+				fetchAdvancedSearch={fetchAdvancedSearch}
+				setSearchClear={setSearchClear}
+				setFormValues={setFormValues}
+				isFormReset={isFormReset}
+				setIsFormReset={setIsFormReset}
+				pageSize={pageSize}
+				setGetTagValues={(tags) => {
+					setGetTagValues(tags);
+					setTags(tags);
+					setParentSearchTerm('');
+				}}
+				setDisplaySearchData={setDisplaySearchData}
+				onClearSearch={handleClear}
+				setQueryData={setQueryData}
+			/>
 		</Flex>
 	);
 };

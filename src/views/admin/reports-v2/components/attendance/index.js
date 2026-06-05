@@ -14,8 +14,10 @@ import DashboardShimmer from 'views/admin/attendance/components/dashboard/Dashbo
 import AttendanceStats from './AttendanceStats';
 import RefButton from '../RefButton';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AttendanceReport = () => {
+	const colors = useModalColors();
 	const [selectedView, setSelectedView] = useState('weekly');
 	const { hasPermission } = usePermissions();
 
@@ -46,7 +48,7 @@ const AttendanceReport = () => {
 				data?.newEmployeesToday > 0
 					? `${data?.newEmployeesToday} new employees added`
 					: '',
-			changeColor: 'green.500',
+			changeColor: colors.accentGold,
 			link: '/attendance/employees',
 		},
 		{
@@ -54,9 +56,8 @@ const AttendanceReport = () => {
 			value: data?.onTime?.count,
 			icon: FaClock,
 			changePercentage: data?.onTime?.changePercentage ?? 0,
-
 			change: `${data?.onTime?.changePercentage} ${data?.onTime?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'green.500',
+			changeColor: colors.accentGold,
 			link: '/attendance/record?status=1',
 		},
 		{
@@ -64,9 +65,8 @@ const AttendanceReport = () => {
 			value: data?.absent?.count,
 			icon: FaUserSlash,
 			changePercentage: data?.absent?.changePercentage ?? 0,
-
 			change: `${data?.absent?.changePercentage} ${data?.absent?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'red.500',
+			changeColor: colors.badgeErrorText,
 			link: '/attendance/record?status=0',
 		},
 		{
@@ -77,7 +77,7 @@ const AttendanceReport = () => {
 			change: `${data?.lateArrival?.changePercentage} ${
 				data?.lateArrival?.change > 0 ? 'more' : 'less'
 			} than yesterday`,
-			changeColor: 'red.500',
+			changeColor: colors.badgeErrorText,
 			link: '/attendance/record?status=2',
 		},
 		{
@@ -86,7 +86,7 @@ const AttendanceReport = () => {
 			changePercentage: data?.earlyDeparture?.changePercentage ?? 0,
 			icon: FaMoon,
 			change: `${data?.earlyDeparture?.changePercentage} ${data?.earlyDeparture?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'green.500',
+			changeColor: colors.accentGold,
 			link: '/attendance/record?status=1',
 		},
 		{
@@ -95,8 +95,8 @@ const AttendanceReport = () => {
 			changePercentage: data?.timeOff?.changePercentage ?? 0,
 			icon: FaFileAlt,
 			change: `${data?.timeOff?.changePercentage} ${data?.timeOff?.change > 0 ? 'more' : 'less'} than yesterday`,
-			changeColor: 'blue.500',
-			link: '/attendance/record', // time off skip direct link
+			changeColor: colors.accentGold,
+			link: '/attendance/record',
 		},
 	];
 
@@ -106,16 +106,17 @@ const AttendanceReport = () => {
 				type: 'line',
 				toolbar: { show: false },
 				zoom: { enabled: false },
+				background: 'transparent',
 			},
 			stroke: {
 				curve: 'smooth',
 				width: 4,
-				colors: ['#D99A36'],
+				colors: [colors.accentGold],
 			},
 			markers: {
 				size: 6,
-				colors: ['#fff'],
-				strokeColors: '#D99A36',
+				colors: [colors.bg],
+				strokeColors: colors.accentGold,
 				strokeWidth: 3,
 				hover: { size: 8 },
 			},
@@ -128,7 +129,7 @@ const AttendanceReport = () => {
 					opacityTo: 0,
 					stops: [0, 100],
 					colorStops: [
-						{ offset: 0, color: '#D99A36', opacity: 0.3 },
+						{ offset: 0, color: colors.accentGold, opacity: 0.3 },
 						{ offset: 100, color: 'rgba(255, 255, 255, 0)', opacity: 0 },
 					],
 				},
@@ -137,13 +138,13 @@ const AttendanceReport = () => {
 				categories: data?.labels ?? [],
 				labels: {
 					style: {
-						colors: '#555',
+						colors: colors.bodyText,
 						fontSize: '14px',
 						fontWeight: 500,
 					},
 				},
-				axisBorder: { color: '#ccc' },
-				axisTicks: { color: '#ccc' },
+				axisBorder: { color: colors.borderColor },
+				axisTicks: { color: colors.borderColor },
 			},
 			yaxis: {
 				min: 0,
@@ -152,13 +153,12 @@ const AttendanceReport = () => {
 				labels: {
 					formatter: (val) => `${Math.round(val)}%`,
 					style: {
-						colors: '#555',
+						colors: colors.bodyText,
 						fontSize: '14px',
 						fontWeight: 500,
 					},
 				},
 			},
-
 			tooltip: {
 				enabled: true,
 				theme: 'dark',
@@ -166,12 +166,12 @@ const AttendanceReport = () => {
 				style: { fontSize: '14px' },
 			},
 			grid: {
-				borderColor: '#EAEAEA',
+				borderColor: colors.borderColor,
 				strokeDashArray: 4,
 			},
 			legend: { show: false },
 		}),
-		[data?.labels]
+		[data?.labels, colors]
 	);
 
 	const lineChartData = useMemo(
@@ -179,40 +179,63 @@ const AttendanceReport = () => {
 		[data?.attendancePercentages]
 	);
 
-	const barChartOptions = {
-		chart: { type: 'bar' },
-		plotOptions: {
-			bar: {
-				columnWidth: '50%',
-				distributed: false,
+	const barChartOptions = useMemo(
+		() => ({
+			chart: { type: 'bar', background: 'transparent' },
+			plotOptions: {
+				bar: {
+					columnWidth: '50%',
+					distributed: false,
+				},
 			},
-		},
-		colors: ['#D99A36'],
-		xaxis: { categories: data?.roleNames ?? [] },
-		yaxis: {
-			labels: { formatter: (val) => `${Math.round(val)}%` },
-		},
-		tooltip: { enabled: true, theme: 'light' },
-	};
+			colors: [colors.accentGold],
+			xaxis: {
+				categories: data?.roleNames ?? [],
+				labels: {
+					style: {
+						colors: colors.bodyText,
+					},
+				},
+				axisBorder: { color: colors.borderColor },
+			},
+			yaxis: {
+				labels: {
+					formatter: (val) => `${Math.round(val)}%`,
+					style: {
+						colors: colors.bodyText,
+					},
+				},
+			},
+			tooltip: { enabled: true, theme: 'dark' },
+			grid: {
+				borderColor: colors.borderColor,
+			},
+		}),
+		[data?.roleNames, colors]
+	);
 
-	const barChartData = [
-		{
-			name: 'Attendance',
-			data: data?.roleCounts ?? [],
-		},
-	];
+	const barChartData = useMemo(
+		() => [
+			{
+				name: 'Attendance',
+				data: data?.roleCounts ?? [],
+			},
+		],
+		[data?.roleCounts]
+	);
 
 	return isLoading ? (
-		<Box h='100vh'>
+		<Box h='100vh' bg={colors.bgDeep}>
 			<DashboardShimmer />
 		</Box>
 	) : (
-		<>
-			<Box bg='white' rounded='md' shadow='sm' p='8' mb='4' mx='2'>
+		<Box bg={colors.bgDeep} minH='100vh' p={4}>
+			<Box bg={colors.bg} rounded='md' shadow={colors.cardShadow} p='6' mb='4' mx='2' border="1px solid" borderColor={colors.borderColor}>
 				<HStack>
 					<Text
 						fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
 						fontWeight='bold'
+						color={colors.headingText}
 					>
 						Attendance Report
 					</Text>
@@ -234,7 +257,7 @@ const AttendanceReport = () => {
 					setQueryParams={setQueryParams}
 				/>
 			</Box>
-		</>
+		</Box>
 	);
 };
 

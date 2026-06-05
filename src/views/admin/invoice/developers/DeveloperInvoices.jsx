@@ -80,10 +80,10 @@ const DeveloperInvoices = () => {
 
 	const role = user?.roles?.[0]?.roleName || 'Agent';
 	const [dynamicColumns, setDynamicColumns] = useState(
-		roleColumns[role] || tableColumns
+		roleColumns[role] || tableColumns,
 	);
 	const [selectedColumns, setSelectedColumns] = useState(
-		roleColumns[role] || tableColumns
+		roleColumns[role] || tableColumns,
 	);
 	const [action, setAction] = useState(false);
 	const [dateTime, setDateTime] = useState({ from: '', to: '' });
@@ -92,7 +92,7 @@ const DeveloperInvoices = () => {
 		{ path: `/developer/get/${developer_id}` },
 		{
 			refetchOnMountOrArgChange: true,
-		}
+		},
 	);
 
 	const {
@@ -110,9 +110,9 @@ const DeveloperInvoices = () => {
 	const dataColumn = useMemo(
 		() =>
 			dynamicColumns.filter((item) =>
-				selectedColumns.some((col) => col.Header === item.Header)
+				selectedColumns.some((col) => col.Header === item.Header),
 			),
-		[dynamicColumns, selectedColumns]
+		[dynamicColumns, selectedColumns],
 	);
 
 	useEffect(() => {
@@ -180,7 +180,7 @@ const DeveloperInvoices = () => {
 				path: `/invoice/developers/invoices/${developer_id}`,
 			},
 		],
-		[]
+		[],
 	);
 
 	useEffect(() => {
@@ -190,51 +190,47 @@ const DeveloperInvoices = () => {
 	const navigate = useNavigate();
 
 	return (
-		<Box fontFamily="'DM Sans', sans-serif">
+		<Box>
 			<BreadCrumb items={breadcrumbItems} />
 
-			<AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
+			{/* <AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
 				Back
-			</AppButton>
+			</AppButton> */}
 
 			{developerLoading ? (
 				<Loader />
 			) : (
-				<Grid templateColumns='repeat(6, 1fr)' mb={3} gap={4}>
-					<GridItem colSpan={6}>
-						<CheckTable
-							developer={developer}
-							dateTime={dateTime}
-							setDateTime={setDateTime}
-							isLoading={isLoading}
-							setIsLoading={setIsLoading}
-							columnsData={roleColumns[role] || tableColumns}
-							setAction={setAction}
-							dataColumn={dataColumn}
-							action={action}
-							setSearchedData={setSearchedData}
-							allData={data}
-							displaySearchData={displaySearchData}
-							tableData={displaySearchData ? searchedData : data}
-							fetchData={fetchData}
-							setDisplaySearchData={setDisplaySearchData}
-							setDynamicColumns={setDynamicColumns}
-							dynamicColumns={dynamicColumns}
-							selectedColumns={selectedColumns}
-							access={permission}
-							setSelectedColumns={setSelectedColumns}
-							emailAccess={emailAccess}
-							callAccess={callAccess}
-							pageIndex={pageIndex}
-							pageSize={pageSize}
-							totalItems={invoiceData?.totalDocs || 0}
-							totalPages={invoiceData?.totalPages || 1}
-							currentPage={invoiceData?.currentPage || 1}
-							searchTerm={searchTerm}
-							setSearchTerm={setSearchTerm}
-						/>
-					</GridItem>
-				</Grid>
+				<CheckTable
+					developer={developer}
+					dateTime={dateTime}
+					setDateTime={setDateTime}
+					isLoading={isLoading}
+					setIsLoading={setIsLoading}
+					columnsData={roleColumns[role] || tableColumns}
+					setAction={setAction}
+					dataColumn={dataColumn}
+					action={action}
+					setSearchedData={setSearchedData}
+					allData={data}
+					displaySearchData={displaySearchData}
+					tableData={displaySearchData ? searchedData : data}
+					fetchData={fetchData}
+					setDisplaySearchData={setDisplaySearchData}
+					setDynamicColumns={setDynamicColumns}
+					dynamicColumns={dynamicColumns}
+					selectedColumns={selectedColumns}
+					access={permission}
+					setSelectedColumns={setSelectedColumns}
+					emailAccess={emailAccess}
+					callAccess={callAccess}
+					pageIndex={pageIndex}
+					pageSize={pageSize}
+					totalItems={invoiceData?.totalDocs || 0}
+					totalPages={invoiceData?.totalPages || 1}
+					currentPage={invoiceData?.currentPage || 1}
+					searchTerm={searchTerm}
+					setSearchTerm={setSearchTerm}
+				/>
 			)}
 		</Box>
 	);

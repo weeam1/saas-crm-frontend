@@ -1,10 +1,10 @@
 import { Box, Text, Flex, useBreakpointValue, Button } from '@chakra-ui/react';
 import { ReactComponent as ClockIcon } from '../../../../assets/icons/Clock.svg';
-import { buttonStyle } from 'views/admin/attendance/constants';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import moment from 'moment';
 import NormalTimePicker from 'components/customDatePicker/Simple/NormalTimePicker';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AdminSetting = ({
 	agencyId,
@@ -16,6 +16,7 @@ const AdminSetting = ({
 	setSpecialUsers,
 	setSelectedUser,
 }) => {
+	const colors = useModalColors();
 	const fontSize = useBreakpointValue({ base: '14px', md: '17px' });
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
@@ -75,34 +76,28 @@ const AdminSetting = ({
 					gap={2}
 					fontWeight='400'
 					fontSize={fontSize}
+					color={colors.headingText}
 				>
-					<ClockIcon color='blue.400' />{' '}
+					<ClockIcon color={colors.accentGold} />{' '}
 					{`${selectedUser?.fullName ?? 'Special'}`} Timing
 				</Text>
 			</Flex>
 			<Flex
 				flexDirection='column'
 				justifyContent='space-between'
-				// alignItems={{ base: 'flex-start', md: 'flex-end' }}
 				opacity={!selectedUser ? 0.5 : 1}
 				pointerEvents={!selectedUser ? 'none' : 'auto'}
 			>
 				<Flex justify='space-between' mb={4} flexDirection='column' gap={4}>
-					<Box flex='1' maxW='200px' bg='softGray.50' rounded='md' p='2'>
-						<Text mb={2} fontWeight='400' fontSize={fontSize}>
+					<Box flex='1' maxW='200px' bg={colors.bgInput} rounded='md' p='2' border='1px solid' borderColor={colors.borderColor}>
+						<Text mb={2} fontWeight='400' fontSize={fontSize} color={colors.labelColor}>
 							In timing
 						</Text>
-						{/* <CustomTimePicker
-							value={checkinTime}
-							onChange={setCheckinTime}
-							isDisabled={!selectedUser}
-						/> */}
-
 						<NormalTimePicker value={checkinTime} onChange={setCheckinTime} />
 					</Box>
 
-					<Box flex='1' maxW='200px' bg='softGray.50' rounded='md' p='2'>
-						<Text mb={2} fontWeight='400' fontSize={fontSize}>
+					<Box flex='1' maxW='200px' bg={colors.bgInput} rounded='md' p='2' border='1px solid' borderColor={colors.borderColor}>
+						<Text mb={2} fontWeight='400' fontSize={fontSize} color={colors.labelColor}>
 							Out timing
 						</Text>
 						<NormalTimePicker value={checkoutTime} onChange={setCheckoutTime} />
@@ -110,9 +105,7 @@ const AdminSetting = ({
 				</Flex>
 
 				<Button
-					{...buttonStyle}
-					variant='solid'
-					bg='brand.400'
+					variant='brand'
 					py='5'
 					px='8'
 					fontSize='lg'

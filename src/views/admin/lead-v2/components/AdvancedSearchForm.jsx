@@ -169,7 +169,7 @@ const AdvancedSearchForm = (props) => {
 				ms='4px'
 				fontSize='sm'
 				fontWeight='600'
-				color='#000'
+				color='text.body'
 				mb='0'
 				mt={2}
 			>
@@ -182,7 +182,7 @@ const AdvancedSearchForm = (props) => {
 				value={values[field.name]}
 				name={field.name}
 				placeholder={field.placeholder}
-				fontWeight='500'
+				// fontWeight='500'
 			/>
 			<Text mb='10px' color='red'>
 				{errors[field.name] && touched[field.name] && errors[field.name]}
@@ -204,7 +204,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='text.body'
 					mb='0'
 					mt={2}
 				>
@@ -229,7 +229,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='text.body'
 					mb='0'
 					mt={2}
 				>
@@ -257,7 +257,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='text.body'
 					mb='0'
 					mt={2}
 				>
@@ -289,7 +289,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='text.body'
 					mb='0'
 					mt={2}
 				>
@@ -321,7 +321,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='text.body'
 					mb='0'
 					mt={2}
 				>
@@ -348,7 +348,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='text.body'
 					mb='0'
 					mt={2}
 				>
@@ -381,7 +381,7 @@ const AdvancedSearchForm = (props) => {
 					ms='4px'
 					fontSize='sm'
 					fontWeight='600'
-					color='#000'
+					color='text.body'
 					mb='0'
 					mt={2}
 				>
@@ -413,7 +413,7 @@ const AdvancedSearchForm = (props) => {
 						ms='4px'
 						fontSize='sm'
 						fontWeight='600'
-						color='#000'
+						color='text.body'
 						mb='0'
 						mt={2}
 					>

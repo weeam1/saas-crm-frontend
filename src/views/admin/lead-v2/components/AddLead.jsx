@@ -8,7 +8,6 @@ import {
 	ModalFooter,
 	Button,
 	Grid,
-	useColorModeValue,
 	HStack,
 	Text,
 } from '@chakra-ui/react';
@@ -16,7 +15,6 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import { useCreateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
-import { mainLeadStatus, leadStatus } from 'utils/options';
 import RenderFields from 'components/shared/RenderFields';
 import { useDispatch, useSelector } from 'react-redux';
 import { addOrUpdateLead } from '../../../../redux/leadsSlice';
@@ -25,16 +23,12 @@ import { toCapitalCase } from 'utils/helpers';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { FiUserPlus } from 'react-icons/fi';
-import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
 
 const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 	const { user } = useUserSession();
 	const dispatch = useDispatch();
 	const { createUserLog } = useUserActivityLog();
 	const countries = useSelector((state) => state.countries.countryNames);
-	const bg = useColorModeValue('white', 'gray.800');
-	const headerColor = useColorModeValue('brand.300', 'brand.100');
-	const textColor = useColorModeValue('brand.700', 'brand.900');
 
 	const initialValues = {
 		leadName: '',
@@ -63,16 +57,6 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 		adset: '',
 	};
 
-	// const { leadStatuses, getSubStatuses } = useLeadStatuses();
-
-	// const leadSubStatuses = useMemo(() => {
-	// 	if (!values?.eLeadStatus) return [];
-
-	// 	setFieldValue('leadStatus', '');
-
-	// 	return getSubStatuses(values.eLeadStatus) || [];
-	// }, [values?.eLeadStatus]);
-
 	const validationSchema = Yup.object({
 		leadName: Yup.string().required('Name is required'),
 	});
@@ -100,23 +84,10 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 		{ name: 'leadSourceChannel', label: 'Channel', type: 'text' },
 		{ name: 'leadCampaign', label: 'Campaign Name', type: 'text' },
 		{ name: 'leadSourceMedium', label: 'Placement', type: 'text' },
-		// { name: 'pageUrl', label: 'Page URL', type: 'url' },
 		{ name: 'r_u_in_uae', label: 'Are you In UAE?', type: 'text' },
 		{ name: 'leadAddress', label: 'Address', type: 'text' },
 		{ name: 'attendanceDay', label: 'Attendance Day', type: 'text' },
 		{ name: 'adset', label: 'Adset', type: 'text' },
-		// {
-		// 	name: 'eLeadStatus',
-		// 	label: 'Select Main Status',
-		// 	type: 'select',
-		// 	options: leadStatuses,
-		// },
-		// {
-		// 	name: 'leadStatus',
-		// 	label: 'Select Lead Status',
-		// 	type: 'select',
-		// 	options: leadSubStatuses,
-		// },
 	];
 
 	const [createItemMutation, { isLoading }] = useCreateItemMutation();
@@ -177,33 +148,38 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 			isCentered
 			scrollBehavior='inside'
 		>
-			<ModalOverlay />
+			<ModalOverlay bg='bg.overlay' />
 			<ModalContent
-				bg={bg}
+				bg='bg.surface'
 				borderRadius='lg'
 				overflow='hidden'
 				maxH='90vh'
 				mx={{ base: 2, sm: 2, md: 0 }}
 				maxW={{ base: 'full', sm: 'full', md: '70vw' }}
 				w='full'
+				boxShadow='deep'
 			>
 				<ModalHeader
-					bg={headerColor}
-					color={textColor}
+					bg='accent.gold'
+					color='text.inverse'
 					py={{ base: 3, md: 4 }}
 					px={{ base: 4, md: 6 }}
+					borderBottom='1px solid'
+					borderColor='border.default'
 				>
 					<HStack justify='space-between' align='center'>
 						<HStack spacing='2' align='center'>
 							<FiUserPlus size='20' />
-							<Text
-								fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
-								fontWeight='600'
-							>
+							<Text  color='text.inverse' fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} fontWeight='600'>
 								Add New Lead
 							</Text>
 						</HStack>
-						<ModalCloseButton color={textColor} position='relative' top='0' />
+						<ModalCloseButton
+							color='text.inverse'
+							position='relative'
+							top='0'
+							// _hover={{ bg: 'rgba(0,0,0,0.1)' }}
+						/>
 					</HStack>
 				</ModalHeader>
 
@@ -219,6 +195,7 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 								py={6}
 								maxH='60vh'
 								overflowY='auto'
+								bg='bg.app'
 							>
 								<Grid
 									templateColumns={{
@@ -253,21 +230,25 @@ const AddLead = ({ isOpen, onClose, size = '6xl' }) => {
 								</Grid>
 							</ModalBody>
 
-							<ModalFooter gap={3} borderTop='1px solid' borderColor='gray.200'>
+							<ModalFooter
+								gap={3}
+								borderTop='1px solid'
+								borderColor='border.default'
+								bg='bg.surface'
+							>
 								<Button
 									variant='outline'
-									colorScheme='gray'
 									size='sm'
 									onClick={onClose}
-									borderRadius={'md'}
+									borderRadius='md'
 								>
 									Close
 								</Button>
 								<Button
 									size='sm'
-									colorScheme='brand'
+									variant='brand'
 									type='submit'
-									borderRadius={'md'}
+									borderRadius='md'
 									isLoading={isLoading}
 								>
 									Add Lead

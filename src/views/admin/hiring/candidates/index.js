@@ -5,10 +5,12 @@ import {
   Heading,
   HStack,
   Text,
+  Flex,
   IconButton,
 } from "@chakra-ui/react";
 import { useFetchItemsQuery } from "api/apiSlice";
-
+import ViewToggle from "components/toggle/ViewToggle";
+import CandidateTable from "./components/CandidatesTable";
 import Applications from "./components/Applications";
 import AdvancedSearch from "./components/AdvancedSearch";
 import Pagination from "./components/Pagination";
@@ -20,15 +22,27 @@ import Loader from "components/loading/Loader";
 import SearchTags from "components/shared/SearchTags";
 import { experienceYearsOptions } from "../helpers";
 import useUserSession from "hooks/useUserSession";
-import { FiRefreshCw } from "react-icons/fi";
+import TopPagination from "components/pagination/TopPagination";
+import CustomTooltip from "components/shared/CustomTooltip";
+import { useModalColors } from "hooks/useModalColors";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const Candidates = () => {
+  const colors = useModalColors();
   const [advanceSearch, setAdvanceSearch] = useState(false);
   const [searchTags, setSearchTags] = useState([]);
   const navigate = useNavigate();
 
   const { user, isSuperAdmin } = useUserSession();
+  const [view, setView] = useState(() => {
+    return localStorage.getItem("candidateView") || "grid";
+  });
 
+  // Add view change handler
+  const handleViewChange = (newView) => {
+    setView(newView);
+    localStorage.setItem("candidateView", newView);
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12); // Items per page
   const [queryParams, setQueryParams] = useState({
@@ -46,7 +60,7 @@ const Candidates = () => {
     },
     {
       skip: !isSuperAdmin,
-    }
+    },
   );
 
   const { data, error, isLoading, refetch, isFetching } = useFetchItemsQuery({
@@ -82,58 +96,6 @@ const Candidates = () => {
     setCurrentPage(page);
   };
 
-  // const handleSearch = (params) => {
-  // 	// Filter out empty or undefined values
-  // 	const filteredParams = Object.entries(params)
-  // 		.filter(([_, value]) => value !== '' && value !== undefined)
-  // 		.reduce((acc, [key, value]) => {
-  // 			acc[key] = value;
-  // 			return acc;
-  // 		}, {});
-
-  // 	// Separate status from the filteredParams
-  // 	// const { status, ...advancedSearch } = filteredParams;
-  // 	const { ...advancedSearch } = filteredParams;
-
-  // 	// Update tags for UI display (all filtered params including status)
-  // 	const tags = Object.entries(filteredParams).map(([key, value]) => {
-  // 		let formattedValue = value;
-
-  // 		// If the key is "position", map value through positionOptions
-  // 		if (key === 'position') {
-  // 			const matchedOption = positionOptions?.doc?.find(
-  // 				(option) => option._id === value
-  // 			);
-
-  // 			formattedValue = matchedOption ? matchedOption.label : value; // Use label if found, else fallback to value
-  // 		}
-
-  // 		return {
-  // 			key: key.charAt(0).toUpperCase() + key.slice(1), // Capitalize first letter
-  // 			value: formattedValue,
-  // 		};
-  // 	});
-
-  // 	setSearchTags(tags);
-
-  // 	// Prepare the query parameters
-  // 	const queryParams = {
-  // 		advancedSearch: JSON.stringify(advancedSearch),
-  // 		page: 1,
-  // 		limit: pageSize,
-  // 	};
-
-  // 	// Add status directly to queryParams if it exists
-  // 	// if (status) {
-  // 	// 	queryParams.status = status;
-  // 	// }
-
-  // 	// Merge and update query parameters for refetch
-  // 	setQueryParams((prev) => ({ ...prev, ...queryParams }));
-  // 	// set current page 1
-  // 	setCurrentPage(1);
-  // };
-
   const handleSearch = (params) => {
     // Filter out empty or undefined values
     const filteredParams = Object.entries(params)
@@ -153,7 +115,7 @@ const Candidates = () => {
       // If key is "position", replace value with label for UI, but keep ID in search
       if (key === "position") {
         const matchedOption = positionOptions?.doc?.find(
-          (option) => option._id === value
+          (option) => option._id === value,
         );
 
         if (matchedOption) {
@@ -165,7 +127,7 @@ const Candidates = () => {
       // If key is "agency", replace value with label for UI, but keep ID in search
       if (key === "agency") {
         const matchedOption = agencies?.doc?.find(
-          (option) => option._id === value
+          (option) => option._id === value,
         );
 
         if (matchedOption) {
@@ -176,7 +138,7 @@ const Candidates = () => {
 
       if (key === "experienceYears") {
         const matchedOption = experienceYearsOptions?.find(
-          (option) => option.value === value
+          (option) => option.value === value,
         );
 
         if (matchedOption) {
@@ -205,6 +167,12 @@ const Candidates = () => {
     setQueryParams((prev) => ({ ...prev, ...queryParams }));
     setCurrentPage(1);
   };
+
+  const handlePageSizeChange = (size) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
+
   const removeTag = (key) => {
     // Find the exact key (case-sensitive)
     const removedTag = searchTags.find((tag) => tag.key === key);
@@ -224,7 +192,7 @@ const Candidates = () => {
     // Ensure position stays as ID in search
     if (advancedSearch.position) {
       const matchedOption = positionOptions?.doc?.find(
-        (option) => option.label === advancedSearch.position
+        (option) => option.label === advancedSearch.position,
       );
       if (matchedOption) {
         advancedSearch.position = matchedOption._id;
@@ -263,97 +231,94 @@ const Candidates = () => {
   }
 
   return (
-    <Box>
-      {/* <Button
-				colorScheme='gray'
-				borderRadius='5px'
-				size={{ base: 'sm', md: 'md' }}
-				px={{ base: 4, md: 6 }}
-				py={{ base: 2, md: 3 }}
-				fontSize={{ base: 'sm', md: 'md' }}
-				leftIcon={<Icon as={IoArrowBack} boxSize={4} />}
-				onClick={() => navigate('/hiring')}
-				mb={4}
-			>
-				Back
-			</Button> */}
+    <Box bg={colors.bgDeep} minH="100vh" p={4}>
       {/* Header */}
       <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems={{ base: "start", md: "center" }}
-        flexDir={{ base: "column", md: "row" }}
         mb={6}
-        bg="white"
-        // rounded='md'
-        shadow="sm"
+        bg={colors.bg}
+        shadow={colors.cardShadow}
         p="1rem"
         gap="2"
-        marginTop={"-16px"}
-        fontFamily="'DM Sans', sans-serif"
+        borderRadius="lg"
+        border="1px solid"
+        borderColor={colors.borderColor}
       >
-        <Heading size="20px" color="gray.800" fontWeight={"bold"}>
-          Candidates
-          {data && (
-            <span style={{ marginLeft: "6px" }}>
-              ({<CountUpComponent targetNumber={data?.totalDocs} />})
-            </span>
-          )}
-        </Heading>
-        <HStack alignSelf="flex-end">
-          {data?.results && (
-            <Text fontSize="sm" color="gray.500">
-              ({data?.results} showing)
-            </Text>
-          )}
+        <Flex
+          justifyContent="space-between"
+          alignItems="center"
+          flexDirection={{ base: "column", md: "row" }}
+          gap={4}
+          mb={4}
+        >
+          <Text size="20px" color={colors.headingText} fontWeight={"bold"}>
+            Candidates
+            {data && (
+              <span style={{ marginLeft: "6px" }}>
+                (<CountUpComponent targetNumber={data?.totalDocs} />)
+              </span>
+            )}
+          </Text>
+          <HStack>
+            <Button
+           variant="outline"
+              rounded="md"
+              size="sm"
+              onClick={() => setAdvanceSearch(true)}
 
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
-          <Button
-            colorScheme="brand"
-            rounded="md"
-            size="sm"
-            onClick={() => setAdvanceSearch(true)}
-          >
-            Advanced Search
-          </Button>
-        </HStack>
+              _active={{ bg: colors.goldDark }}
+              transition="all 0.2s ease"
+            >
+              Advanced Search
+            </Button>
+            <RefreshButton
+                                label="Refresh"
+                                onClick={() => refetch()}
+                                isLoading={isLoading}
+                                isFetching={isFetching}
+                                size="sm"
+                              />
+
+            <ViewToggle
+              moduleView="candidateView"
+              view={view}
+              handleView={handleViewChange}
+            />
+          </HStack>
+        </Flex>
+
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={data?.totalPages || 1}
+          onPageChange={handlePageChange}
+          totalItems={data?.totalDocs || 0}
+          itemsPerPage={pageSize}
+          setPageSize={setPageSize}
+          refetching={isFetching}
+          loading={isLoading}
+          handlePageSize={handlePageSizeChange}
+        />
+
+        <SearchTags
+          removeTag={removeTag}
+          searchTags={searchTags}
+          clearAllTags={clearAllTags}
+        />
       </Box>
 
-      <SearchTags
-        removeTag={removeTag}
-        searchTags={searchTags}
-        clearAllTags={clearAllTags}
-      />
-
-      {/* Display Search Tags */}
-      {isLoading || isFetching? (
-        <Loader />
+      {data?.doc?.length ? (
+        view !== "grid" ? (
+          <CandidateTable
+            candidates={data?.doc || []}
+            isLoading={isLoading || isFetching}
+            refetch={refetch}
+          />
+        ) : (
+          <Applications candidates={data?.doc || []} refetch={refetch} />
+        )
       ) : (
-        <>
-          {/* Content */}
-          {data?.doc?.length ? (
-            <>
-              <Applications candidates={data.doc} refetch={refetch} />
-              <Pagination
-                currentPage={currentPage}
-                totalPages={data.totalPages}
-                onPageChange={handlePageChange}
-              />
-            </>
-          ) : (
-            <NotFoundMessage message="No candidates found!" />
-          )}
-        </>
+        <NotFoundMessage message="No candidates found!" />
       )}
 
-      {/* Advanced Search Modal */}
       {advanceSearch && (
         <AdvancedSearch
           isOpen={advanceSearch}

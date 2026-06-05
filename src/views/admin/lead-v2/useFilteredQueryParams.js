@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
-import { shallowEqual, useSelector } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
-import { formattedDate } from './../../../utils/helpers';
-import { leadLabels } from 'utils/searchLabels';
-import { mainLeadStatusLabels, leadStatusLabels } from 'utils/searchLabels';
-import { useTeamStructure } from 'hooks/user/useTeamStructure';
-import { useLeadStatuses } from 'hooks/leads/useLeadStatuses';
+import { useState, useEffect, useRef } from "react";
+import { shallowEqual, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import { formattedDate } from "./../../../utils/helpers";
+import { leadLabels } from "utils/searchLabels";
+import { mainLeadStatusLabels, leadStatusLabels } from "utils/searchLabels";
+import { useTeamStructure } from "hooks/user/useTeamStructure";
+import { useLeadStatuses } from "hooks/leads/useLeadStatuses";
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PAGE_SIZE = 40;
@@ -48,354 +48,451 @@ const MAX_PAGE_SIZE = 200;
 // *******************
 
 const safeJSONParse = (value) => {
-	try {
-		return JSON.parse(value);
-	} catch (error) {
-		// fallback: check for pipe-delimited dates
-		if (typeof value === 'string' && value.includes('|')) {
-			return value.split('|').map((v) => v.trim());
-		}
-		console.error('Invalid JSON format:', value, error);
-		return null; // Return null if parsing fails
-	}
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    // fallback: check for pipe-delimited dates
+    if (typeof value === "string" && value.includes("|")) {
+      return value.split("|").map((v) => v.trim());
+    }
+    console.error("Invalid JSON format:", value, error);
+    return null; // Return null if parsing fails
+  }
 };
 
 export const useFilteredQueryParams = () => {
-	const [searchParams, setSearchParams] = useSearchParams();
-	const isEffectTriggered = useRef(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isEffectTriggered = useRef(false);
 
-	const getPageParams = () => {
-		try {
-			const page = parseInt(searchParams.get('page'), 10);
-			const pageSize = parseInt(searchParams.get('pageSize'), 10);
+  const getPageParams = () => {
+    try {
+      const page = parseInt(searchParams.get("page"), 10);
+      const pageSize = parseInt(searchParams.get("pageSize"), 10);
 
-			return {
-				page: Number.isNaN(page) || page < 1 ? DEFAULT_PAGE : page,
-				pageSize:
-					Number.isNaN(pageSize) || pageSize < 1 || pageSize > MAX_PAGE_SIZE
-						? DEFAULT_PAGE_SIZE
-						: pageSize,
-			};
-		} catch (error) {
-			console.error('Error parsing pagination params:', error);
-			return { page: DEFAULT_PAGE, pageSize: DEFAULT_PAGE_SIZE };
-		}
-	};
+      return {
+        page: Number.isNaN(page) || page < 1 ? DEFAULT_PAGE : page,
+        pageSize:
+          Number.isNaN(pageSize) || pageSize < 1 || pageSize > MAX_PAGE_SIZE
+            ? DEFAULT_PAGE_SIZE
+            : pageSize,
+      };
+    } catch (error) {
+      console.error("Error parsing pagination params:", error);
+      return { page: DEFAULT_PAGE, pageSize: DEFAULT_PAGE_SIZE };
+    }
+  };
 
-	const initialParams = getPageParams();
-	const [currentPage, setCurrentPage] = useState(initialParams.page);
-	const [pageSize, setPageSize] = useState(initialParams.pageSize);
-	const [queryParams, setQueryParams] = useState(null);
-	const [searchTags, setSearchTags] = useState([]);
-	const [searchClear, setSearchClear] = useState(false);
-	const [refetchLoading, setRefetchLoading] = useState(false);
+  const initialParams = getPageParams();
+  const [currentPage, setCurrentPage] = useState(initialParams.page);
+  const [pageSize, setPageSize] = useState(initialParams.pageSize);
+  const [queryParams, setQueryParams] = useState(null);
+  const [searchTags, setSearchTags] = useState([]);
+  const [searchClear, setSearchClear] = useState(false);
+  const [refetchLoading, setRefetchLoading] = useState(false);
 
-	const { leadStatusMaps } = useLeadStatuses();
+  const { leadStatusMaps } = useLeadStatuses();
 
-	const leads = useSelector((state) => state.leads, shallowEqual);
-	const { team: managers, allAgents, allTeamLeaders } = useTeamStructure();
+  const leads = useSelector((state) => state.leads, shallowEqual);
+  const { team: managers, allAgents, allTeamLeaders } = useTeamStructure();
 
-	const tree = useSelector((state) => state.user.tree);
+  const tree = useSelector((state) => state.user.tree);
 
-	const updateSearchParams = (params) => {
-		setSearchParams(() => {
-			const updatedParams = new URLSearchParams();
+  const updateSearchParams = (params) => {
+    setSearchParams(() => {
+      const updatedParams = new URLSearchParams();
 
-			// Only add keys that exist in new params
-			Object.entries(params).forEach(([key, value]) => {
-				if (value !== undefined && value !== null) {
-					updatedParams.set(
-						key,
-						typeof value === 'object' ? JSON.stringify(value) : value,
-					);
-				}
-			});
+      // Only add keys that exist in new params
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          updatedParams.set(
+            key,
+            typeof value === "object" ? JSON.stringify(value) : value,
+          );
+        }
+      });
 
-			return updatedParams;
-		});
+      return updatedParams;
+    });
 
-		setQueryParams(params);
-	};
+    setQueryParams(params);
+  };
 
-	useEffect(() => {
-		const { page, pageSize } = getPageParams();
-		let updatedParams = { page, pageSize };
+  useEffect(() => {
+    const { page, pageSize } = getPageParams();
+    let updatedParams = { page, pageSize };
 
-		const lead = searchParams.get('lead');
+    const lead = searchParams.get("lead");
 
-		if (lead) {
-			updatedParams.lead = lead;
-			setSearchClear(true);
-		}
+    if (lead) {
+      updatedParams.lead = lead;
+      setSearchClear(true);
+    }
 
-		const invite = searchParams.get('invite');
+    const invite = searchParams.get("invite");
 
-		if (invite) {
-			updatedParams.invite = invite;
-			setSearchClear(true);
-		}
+    if (invite) {
+      updatedParams.invite = invite;
+      setSearchClear(true);
+    }
 
-		// Handle 'data' parameter
-		const dataParam = searchParams.get('data');
-		if (dataParam) {
-			const parsedData = safeJSONParse(dataParam);
-			if (parsedData) {
-				updatedParams.data = dataParam;
-				setSearchTags(
-					generateSearchTags(
-						parsedData,
-						searchTags,
-						managers,
-						allTeamLeaders,
-						allAgents,
-						leadStatusMaps,
-					),
-				);
-				setSearchClear(true);
-			} else {
-				searchParams.delete('data');
-			}
-		}
+    // Handle 'data' parameter
+    const dataParam = searchParams.get("data");
+    if (dataParam) {
+      const parsedData = safeJSONParse(dataParam);
+      if (parsedData) {
+        updatedParams.data = dataParam;
+        setSearchTags(
+          generateSearchTags(
+            parsedData,
+            searchTags,
+            managers,
+            allTeamLeaders,
+            allAgents,
+            leadStatusMaps,
+          ),
+        );
+        setSearchClear(true);
+      } else {
+        searchParams.delete("data");
+      }
+    }
 
-		const statusFilters = searchParams.get('statusFilters');
-		if (statusFilters) {
-			const parsedStatusFilters = safeJSONParse(statusFilters);
-			if (parsedStatusFilters.statuses || parsedStatusFilters.mainStatuses) {
-				updatedParams.statusFilters = statusFilters;
-				setSearchTags([]);
-				setSearchClear(false);
-			} else {
-				searchParams.delete('statusFilters');
-			}
-		}
+    const statusFilters = searchParams.get("statusFilters");
+    if (statusFilters) {
+      const parsedStatusFilters = safeJSONParse(statusFilters);
+      if (parsedStatusFilters.statuses || parsedStatusFilters.mainStatuses) {
+        updatedParams.statusFilters = statusFilters;
+        // DON'T clear tags here - remove this line
+        // setSearchTags([]);
+        // setSearchClear(false);
+      } else {
+        searchParams.delete("statusFilters");
+      }
+    }
 
-		// Handle 'search' parameter
-		const searchParam = searchParams.get('search');
-		if (searchParam) {
-			const parsedSearch = searchParam;
-			if (parsedSearch) {
-				updatedParams.search = searchParam;
-				setSearchTags(generateSearchTags(updatedParams, searchTags));
-				setSearchClear(true);
-			} else {
-				searchParams.delete('search');
-			}
-		}
+    const searchParam = searchParams.get("search");
+    if (searchParam) {
+      updatedParams.search = searchParam;
+      // Don't create tags for search
+      setSearchClear(true);
+    }
+    const dateTime = searchParams.get("dateTime");
+    if (dateTime) {
+      updatedParams.dateTime = dateTime;
+      setSearchClear(true);
+    }
+    // If parameters have changed, update state & URL
+    if (JSON.stringify(queryParams) !== JSON.stringify(updatedParams)) {
+      updateSearchParams(updatedParams);
+    }
+    if (dateTime) {
+      const [from, to] = dateTime.split("|");
 
-		// Handle 'dateTime' parameter
-		const datetimeParam = searchParams.get('dateTime');
-		if (datetimeParam) {
-			const parsedDatetime =
-				safeJSONParse(datetimeParam) || datetimeParam.split('|');
-			if (Array.isArray(parsedDatetime) && parsedDatetime.length === 2) {
-				updatedParams.dateTime = datetimeParam;
-				setSearchTags(
-					generateSearchTags(
-						{ from: parsedDatetime[0], to: parsedDatetime[1] },
-						searchTags,
-					),
-				);
-				setSearchClear(true);
-			} else {
-				searchParams.delete('dateTime');
-			}
-		}
+      setSearchTags([
+        {
+          key: "Start Date",
+          value: formattedDate(from),
+          originalKey: "dateTime",
+        },
+        {
+          key: "End Date",
+          value: formattedDate(to),
+          originalKey: "dateTime",
+        },
+      ]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
-		// If parameters have changed, update state & URL
-		if (JSON.stringify(queryParams) !== JSON.stringify(updatedParams)) {
-			updateSearchParams(updatedParams);
-		}
+  useEffect(() => {
+    const pageFromParams = Number(searchParams.get("page"));
+    const pageSizeFromParams = Number(searchParams.get("pageSize"));
 
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams]);
+    if (isEffectTriggered.current) {
+      isEffectTriggered.current = false;
+      return;
+    }
 
-	useEffect(() => {
-		const pageFromParams = Number(searchParams.get('page'));
-		const pageSizeFromParams = Number(searchParams.get('pageSize'));
+    // Only update searchParams if they are different
+    if (pageFromParams !== currentPage || pageSizeFromParams !== pageSize) {
+      // updateSearchParams({ page: currentPage, pageSize });
 
-		if (isEffectTriggered.current) {
-			isEffectTriggered.current = false;
-			return;
-		}
+      updateSearchParams({
+        ...Object.fromEntries(searchParams.entries()),
+        page: currentPage,
+        pageSize,
+      });
+    }
 
-		// Only update searchParams if they are different
-		if (pageFromParams !== currentPage || pageSizeFromParams !== pageSize) {
-			// updateSearchParams({ page: currentPage, pageSize });
+    // if (pageSizeFromParams !== pageSize) {
+    // 	setCurrentPage(1);
+    // 	setPageSize(pageSizeFromParams || DEFAULT_PAGE_SIZE);
+    // }
 
-			updateSearchParams({
-				...Object.fromEntries(searchParams.entries()),
-				page: currentPage,
-				pageSize,
-			});
-		}
+    // If pageSize changes, reset to page 1
+    // if (pageSizeFromParams !== pageSize) {
+    // 	// Use a callback to ensure state updates first
+    // 	setTimeout(() => {
+    // 		updateSearchParams({
+    // 			...Object.fromEntries(searchParams.entries()),
+    // 			page: 1,
+    // 			pageSize,
+    // 		});
+    // 	}, 0);
+    // } else if (pageFromParams !== currentPage) {
+    // 	updateSearchParams({
+    // 		...Object.fromEntries(searchParams.entries()),
+    // 		page: currentPage,
+    // 		pageSize,
+    // 	});
+    // }
 
-		// if (pageSizeFromParams !== pageSize) {
-		// 	setCurrentPage(1);
-		// 	setPageSize(pageSizeFromParams || DEFAULT_PAGE_SIZE);
-		// }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, pageSize]);
 
-		// If pageSize changes, reset to page 1
-		// if (pageSizeFromParams !== pageSize) {
-		// 	// Use a callback to ensure state updates first
-		// 	setTimeout(() => {
-		// 		updateSearchParams({
-		// 			...Object.fromEntries(searchParams.entries()),
-		// 			page: 1,
-		// 			pageSize,
-		// 		});
-		// 	}, 0);
-		// } else if (pageFromParams !== currentPage) {
-		// 	updateSearchParams({
-		// 		...Object.fromEntries(searchParams.entries()),
-		// 		page: currentPage,
-		// 		pageSize,
-		// 	});
-		// }
+  const setSearchQueryParams = (params) => {
+    // const updatedParams = { ...queryParams, ...params, page: 1, pageSize };
+    const updatedParams = {
+      ...params,
+      page: 1,
+      pageSize: params.pageSize || leads?.pageSize || pageSize,
+    };
+    isEffectTriggered.current = true;
 
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [currentPage, pageSize]);
+    setCurrentPage(1);
+    updateSearchParams(updatedParams);
+  };
 
-	const setSearchQueryParams = (params) => {
-		// const updatedParams = { ...queryParams, ...params, page: 1, pageSize };
-		const updatedParams = {
-			...params,
-			page: 1,
-			pageSize: params.pageSize || leads?.pageSize || pageSize,
-		};
-		isEffectTriggered.current = true;
+  const clearSearchParams = () => {
+    setSearchParams({
+      page: 1 || leads?.currentPage || DEFAULT_PAGE,
+      pageSize: leads?.pageSize || pageSize || DEFAULT_PAGE_SIZE,
+    });
+    setQueryParams({
+      page: 1 || leads?.currentPage || DEFAULT_PAGE,
+      pageSize: leads?.pageSize || pageSize || DEFAULT_PAGE_SIZE,
+    });
+  };
 
-		setCurrentPage(1);
-		updateSearchParams(updatedParams);
-	};
-
-	const clearSearchParams = () => {
-		setSearchParams({
-			page: 1 || leads?.currentPage || DEFAULT_PAGE,
-			pageSize: leads?.pageSize || pageSize || DEFAULT_PAGE_SIZE,
-		});
-		setQueryParams({
-			page: 1 || leads?.currentPage || DEFAULT_PAGE,
-			pageSize: leads?.pageSize || pageSize || DEFAULT_PAGE_SIZE,
-		});
-	};
-
-	return {
-		leads,
-		currentPage,
-		setCurrentPage,
-		pageSize,
-		setPageSize,
-		queryParams,
-		setQueryParams: updateSearchParams,
-		setSearchQueryParams,
-		searchTags,
-		setSearchTags,
-		searchClear,
-		setSearchClear,
-		clearSearchParams,
-		refetchLoading,
-		setRefetchLoading,
-	};
+  return {
+    leads,
+    currentPage,
+    setCurrentPage,
+    pageSize,
+    setPageSize,
+    queryParams,
+    setQueryParams: updateSearchParams,
+    setSearchQueryParams,
+    searchTags,
+    setSearchTags,
+    searchClear,
+    setSearchClear,
+    clearSearchParams,
+    refetchLoading,
+    setRefetchLoading,
+  };
 };
 
+// export const generateSearchTags = (
+//   filters,
+//   prevTags = [],
+//   managers,
+//   teamLeaders,
+//   agents,
+//   leadStatusMaps,
+// ) => {
+//   const tags = [];
+
+//   console.log({ leadStatusMaps });
+
+// //   if (filters.search) tags.push(`Search: ${filters.search}`);
+//   if (filters.from) tags.push(`Start Date: ${formattedDate(filters.from)}`);
+//   if (filters.to) tags.push(`End Date: ${formattedDate(filters.to)}`);
+
+//   if (managers) {
+//     Object.entries(filters).forEach(([key, value]) => {
+//       let displayValue = value;
+
+//       if (key === "fromLeadScore" || key === "toLeadScore") {
+//         displayValue = `${filters.fromLeadScore || 0}-${filters.toLeadScore || "max"}`;
+//       }
+//       if (key === "leadStatus") {
+//         displayValue =
+//           value === "active"
+//             ? "Interested"
+//             : value === "pending"
+//               ? "Not Interested"
+//               : leadStatusMaps?.subStatusMap[value];
+//       }
+//       if (key === "eLeadStatus") {
+//         displayValue =
+//           value === "-1" ? "No E.Status" : leadStatusMaps?.mainStatusMap[value];
+//       }
+//       if (key === "agentAssigned") {
+//         const assignedAgent = agents?.find(
+//           (agent) => agent?._id?.toString() === value,
+//         );
+//         displayValue = assignedAgent
+//           ? `${assignedAgent.fullName}`
+//           : value === "-1"
+//             ? "No Agent"
+//             : value;
+//       }
+//       if (key === "managerAssigned") {
+//         const assignedManager = managers?.find(
+//           (user) => user?._id?.toString() === value,
+//         );
+//         displayValue = assignedManager
+//           ? `${assignedManager.fullName}`
+//           : value === "-1"
+//             ? "No Manager"
+//             : value;
+//       }
+//       if (key === "teamLeadAssigned") {
+//         const assignedTeamLead = teamLeaders?.find(
+//           (user) => user?._id?.toString() === value,
+//         );
+//         displayValue = assignedTeamLead
+//           ? `${assignedTeamLead.fullName}`
+//           : value === "-1"
+//             ? "No Team Lead"
+//             : value;
+//       }
+
+//       if (key === "startDate") displayValue = filters.startDate;
+//       if (key === "endDate") displayValue = filters.endDate;
+//       if (key === "mainStatusSort") {
+//         switch (value) {
+//           case "-1":
+//             displayValue = "Latest to Oldest";
+//             break;
+//           case "1":
+//             displayValue = "Oldest to Latest";
+//             break;
+//           default:
+//             displayValue = "";
+//         }
+//       }
+
+//       if (key === "isReleased") {
+//         switch (value) {
+//           case "true":
+//             displayValue = "Released Leads";
+//             break;
+//           default:
+//             displayValue = "Unreleased Leads";
+//         }
+//       }
+
+//       // if (key === 'intID') key = 'Lead ID';
+
+//       tags.push(`${leadLabels[key]}: ${displayValue}`);
+//     });
+//   }
+
+//   return tags;
+// };
 export const generateSearchTags = (
-	filters,
-	prevTags = [],
-	managers,
-	teamLeaders,
-	agents,
-	leadStatusMaps,
+  filters,
+  prevTags = [],
+  managers,
+  teamLeaders,
+  agents,
+  leadStatusMaps,
 ) => {
-	const tags = [];
+  const tags = [];
 
-	console.log({ leadStatusMaps });
+  if (managers) {
+    Object.entries(filters).forEach(([key, value]) => {
+      if (!value && value !== 0) return;
 
-	if (filters.search) tags.push(`Search: ${filters.search}`);
-	if (filters.from) tags.push(`Start Date: ${formattedDate(filters.from)}`);
-	if (filters.to) tags.push(`End Date: ${formattedDate(filters.to)}`);
+      let displayValue = value;
+      let originalValue = value; // ← Store the original value
+      let label = key.charAt(0).toUpperCase() + key.slice(1);
 
-	if (managers) {
-		Object.entries(filters).forEach(([key, value]) => {
-			let displayValue = value;
+      // Format the display value based on key
+      if (key === "leadStatus") {
+        displayValue =
+          value === "active"
+            ? "Interested"
+            : value === "pending"
+              ? "Not Interested"
+              : leadStatusMaps?.subStatusMap[value] || value;
+        originalValue = value; // Keep the status value
+        label = "Lead Status";
+      } else if (key === "eLeadStatus") {
+        displayValue =
+          value === "-1"
+            ? "No E.Status"
+            : leadStatusMaps?.mainStatusMap[value] || value;
+        originalValue = value;
+        label = "E. Lead Status";
+      } else if (key === "agentAssigned") {
+        const assignedAgent = agents?.find(
+          (agent) => agent?._id?.toString() === value,
+        );
+        displayValue = assignedAgent
+          ? `${assignedAgent.fullName}`
+          : value === "-1"
+            ? "No Agent"
+            : value;
+        originalValue = value; // ← Store the actual ID
+        label = "Agent Assigned";
+      } else if (key === "managerAssigned") {
+        const assignedManager = managers?.find(
+          (user) => user?._id?.toString() === value,
+        );
+        displayValue = assignedManager
+          ? `${assignedManager.fullName}`
+          : value === "-1"
+            ? "No Manager"
+            : value;
+        originalValue = value; // ← Store the actual ID
+        label = "Manager Assigned";
+      } else if (key === "teamLeadAssigned") {
+        const assignedTeamLead = teamLeaders?.find(
+          (user) => user?._id?.toString() === value,
+        );
+        displayValue = assignedTeamLead
+          ? `${assignedTeamLead.fullName}`
+          : value === "-1"
+            ? "No Team Lead"
+            : value;
+        originalValue = value; // ← Store the actual ID
+        label = "Team Lead Assigned";
+      } else if (key === "from") {
+        label = "Start Date";
+        displayValue = formattedDate(value);
+        originalValue = value;
+      } else if (key === "to") {
+        label = "End Date";
+        displayValue = formattedDate(value);
+        originalValue = value;
+      } else if (key === "mainStatusSort") {
+        label = "Sort By";
+        displayValue = value === "-1" ? "Latest to Oldest" : "Oldest to Latest";
+        originalValue = value;
+      } else if (key === "isReleased") {
+        label = "Released Status";
+        displayValue = value === "true" ? "Released Leads" : "Unreleased Leads";
+        originalValue = value;
+      } else if (key === "fromLeadScore" || key === "toLeadScore") {
+        label = "Lead Score";
+        displayValue = `${filters.fromLeadScore || 0}-${filters.toLeadScore || "max"}`;
+        originalValue = value;
+      }
 
-			if (key === 'fromLeadScore' || key === 'toLeadScore') {
-				displayValue = `${filters.fromLeadScore || 0}-${filters.toLeadScore || 'max'}`;
-			}
-			if (key === 'leadStatus') {
-				displayValue =
-					value === 'active'
-						? 'Interested'
-						: value === 'pending'
-							? 'Not Interested'
-							: leadStatusMaps?.subStatusMap[value];
-			}
-			if (key === 'eLeadStatus') {
-				displayValue =
-					value === '-1' ? 'No E.Status' : leadStatusMaps?.mainStatusMap[value];
-			}
-			if (key === 'agentAssigned') {
-				const assignedAgent = agents?.find(
-					(agent) => agent?._id?.toString() === value,
-				);
-				displayValue = assignedAgent
-					? `${assignedAgent.fullName}`
-					: value === '-1'
-						? 'No Agent'
-						: value;
-			}
-			if (key === 'managerAssigned') {
-				const assignedManager = managers?.find(
-					(user) => user?._id?.toString() === value,
-				);
-				displayValue = assignedManager
-					? `${assignedManager.fullName}`
-					: value === '-1'
-						? 'No Manager'
-						: value;
-			}
-			if (key === 'teamLeadAssigned') {
-				const assignedTeamLead = teamLeaders?.find(
-					(user) => user?._id?.toString() === value,
-				);
-				displayValue = assignedTeamLead
-					? `${assignedTeamLead.fullName}`
-					: value === '-1'
-						? 'No Team Lead'
-						: value;
-			}
+      // Create tag with both display value and original value
+      tags.push({
+        key: label,
+        value: displayValue, // For display
+        originalValue: originalValue, // ← For API calls
+        originalKey: key,
+      });
+    });
+  }
 
-			if (key === 'startDate') displayValue = filters.startDate;
-			if (key === 'endDate') displayValue = filters.endDate;
-			if (key === 'mainStatusSort') {
-				switch (value) {
-					case '-1':
-						displayValue = 'Latest to Oldest';
-						break;
-					case '1':
-						displayValue = 'Oldest to Latest';
-						break;
-					default:
-						displayValue = '';
-				}
-			}
-
-			if (key === 'isReleased') {
-				switch (value) {
-					case 'true':
-						displayValue = 'Released Leads';
-						break;
-					default:
-						displayValue = 'Unreleased Leads';
-				}
-			}
-
-			// if (key === 'intID') key = 'Lead ID';
-
-			tags.push(`${leadLabels[key]}: ${displayValue}`);
-		});
-	}
-
-	return tags;
+  return tags;
 };
 // export const generateSearchTags = (filters, prevTags = [], tree) => {
 // 	const tags = [];

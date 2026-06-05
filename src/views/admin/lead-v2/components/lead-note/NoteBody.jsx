@@ -9,7 +9,7 @@ const NoteBody = ({ text }) => {
 					whiteSpace="pre-wrap"
 					overflowWrap="break-word"
 					wordBreak="break-word"
-					color="gray.700"
+					color="text.body"
 					fontWeight="500"
 					fontSize="clamp(0.95rem, 2vw, 1.1rem)"
 					fontFamily="'DM Sans', sans-serif"

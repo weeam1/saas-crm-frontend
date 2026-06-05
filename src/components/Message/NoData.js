@@ -1,7 +1,7 @@
 import { Box, Image, Text } from '@chakra-ui/react';
 import NoDataImg from 'assets/icons/not-found.png';
 
-const NoData = ({ label }) => {
+const NoData = ({ label = 'data' }) => {
 	return (
 		<Box
 			display='flex'

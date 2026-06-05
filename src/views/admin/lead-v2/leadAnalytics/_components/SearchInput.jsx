@@ -27,17 +27,6 @@ const SearchInput = memo(({ onSearch, isLoading }) => {
 		};
 	}, [onSearch]);
 
-	// useEffect(() => {
-	// 	const handleEnter = (e) => {
-	// 		if (e.key === 'Enter' && inputRef.current) {
-	// 			onSearch(inputRef.current.value.trim());
-	// 		}
-	// 	};
-	// 	const ref = inputRef.current;
-	// 	ref?.addEventListener('keydown', handleEnter);
-	// 	return () => ref?.removeEventListener('keydown', handleEnter);
-	// }, [onSearch]);
-
 	const clearSearch = () => {
 		if (inputRef.current) {
 			inputRef.current.value = '';
@@ -46,35 +35,38 @@ const SearchInput = memo(({ onSearch, isLoading }) => {
 	};
 
 	return (
-		<InputGroup minW='280px' position='relative'>
+		<InputGroup
+			minW={{ base: '100%', md: '240px' }}
+			position='relative'
+		>
 			<InputLeftElement pointerEvents='none' height='44px'>
-				<SearchIcon color='brand.400' />
+				<SearchIcon color='text.accent' />
 			</InputLeftElement>
 
 			<Input
 				ref={inputRef}
 				type='text'
 				placeholder='Search...'
-				// onChange={handleChange}
-				bg='white'
-				borderColor='softGray.400'
+				bg='bg.input'
+				borderColor='border.default'
 				borderWidth='2px'
 				borderRadius='lg'
+				color='text.heading'
 				pl={10}
 				fontSize='sm'
 				transition='all 0.15s ease'
 				_placeholder={{
-					color: 'gray.500',
+					color: 'text.muted',
 					fontSize: 'sm',
 				}}
 				_hover={{
-					borderColor: 'brand.300',
-					boxShadow: `0 0 0 1px brand.200`,
+					borderColor: 'border.gold',
+					boxShadow: 'goldGlow',
 				}}
 				_focus={{
-					borderColor: 'brand.500',
-					boxShadow: `0 0 0 2px brand.200`,
-					bg: 'white',
+					borderColor: 'border.focus',
+					boxShadow: 'goldGlow',
+					bg: 'bg.surface',
 				}}
 				_disabled={{
 					opacity: 0.6,
@@ -91,9 +83,10 @@ const SearchInput = memo(({ onSearch, isLoading }) => {
 					transform='translateY(-50%)'
 					cursor='pointer'
 					onClick={clearSearch}
-					color='gray.400'
-					_hover={{ color: 'brand.500' }}
+					color='text.muted'
+					_hover={{ color: 'text.accent' }}
 					zIndex={2}
+					transition='all 0.2s ease'
 				>
 					<MdClear />
 				</Box>

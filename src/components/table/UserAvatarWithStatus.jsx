@@ -63,7 +63,7 @@ const UserAvatarWithStatus = ({ user, onClick, linkTo, cursor = true }) => {
 				display='flex'
 				alignItems='center'
 				cursor={cursor ? 'pointer' : undefined}
-				_hover={{ bg: 'gray.100', transition: '0.2s' }}
+				// _hover={{ bg: 'brand.400', transition: '0.2s' }}
 				p={1}
 				borderRadius='md'
 				borderColor={status === 'online' ? 'green' : 'gray'}
@@ -171,7 +171,7 @@ const UserAvatarWithStatus = ({ user, onClick, linkTo, cursor = true }) => {
 					</Text>
 
 					{user?.username && (
-						<Text fontSize='xs' color='gray.500'>
+						<Text fontSize='xs' color='gray.400'>
 							{user.username}
 						</Text>
 					)}

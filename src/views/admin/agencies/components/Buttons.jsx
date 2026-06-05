@@ -1,6 +1,9 @@
 import { Button, Flex } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const Buttons = ({ onCancel, onSave, isUpdating }) => {
+	const colors = useModalColors();
+
 	return (
 		<Flex
 			justify={{ base: 'center', md: 'flex-end' }}
@@ -14,8 +17,6 @@ const Buttons = ({ onCancel, onSave, isUpdating }) => {
 				onClick={onCancel}
 				w={{ base: '100%', md: '159px' }}
 				maxW={{ base: '150px', md: '159px' }}
-				bg='#D9D9D9'
-				_hover={{ bg: '#D9D9D9' }}
 				borderRadius='5px'
 				fontSize='16px'
 				fontWeight='400'
@@ -25,8 +26,7 @@ const Buttons = ({ onCancel, onSave, isUpdating }) => {
 			<Button
 				w={{ base: '100%', md: '159px' }}
 				maxW={{ base: '150px', md: '159px' }}
-				bg='#EDC270'
-				_hover={{ bg: '#EDC270' }}
+				variant='brand'
 				onClick={onSave}
 				borderRadius='5px'
 				fontSize='16px'

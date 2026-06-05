@@ -18,42 +18,43 @@ import {
 	FiUsers,
 } from 'react-icons/fi';
 import { StatCard } from '../StatCard';
+import { useModalColors } from 'hooks/useModalColors';
 
 const statusData = [
 	{
 		label: 'Pending',
 		valueKey: 'totalPending',
 		icon: FiClock,
-		color: 'orange',
+		color: 'gold',
 	},
 	{
 		label: 'Shortlisted',
 		valueKey: 'totalShortListed',
 		icon: FiCheckCircle,
-		color: 'blue',
+		color: 'gold',
 	},
 	{
 		label: 'Invited',
 		valueKey: 'totalInvited',
 		icon: FiSend,
-		color: 'purple',
+		color: 'gold',
 	},
 	{
 		label: 'Invite Accepted',
 		valueKey: 'totalInviteAccepted',
 		icon: FiThumbsUp,
-		color: 'green',
+		color: 'gold',
 	},
 	{
 		label: 'Interviewed',
 		valueKey: 'totalInterviewed',
 		icon: FiUsers,
-		color: 'teal',
+		color: 'gold',
 	},
 ];
 
 const HiringStatusCards = ({ stats }) => {
-	const bgColor = useColorModeValue('white', 'gray.800');
+	const colors = useModalColors();
 
 	return (
 		<SimpleGrid
@@ -65,6 +66,7 @@ const HiringStatusCards = ({ stats }) => {
 		>
 			{statusData.map((item, index) => (
 				<StatCard
+					key={index}
 					title={item.label}
 					value={stats?.[item.valueKey] ?? 0}
 					icon={item.icon}

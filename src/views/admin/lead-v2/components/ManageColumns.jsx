@@ -12,7 +12,6 @@ import {
 	Checkbox,
 	Button,
 } from '@chakra-ui/react';
-import { useModalColors } from 'hooks/useModalColors';
 
 const columnList = [
 	{ accessor: 'intID', name: '#' },
@@ -62,8 +61,6 @@ const ManageCols = ({
 		[setHiddenCols]
 	);
 
-	const { headerBg, headerText } = useModalColors();
-
 	return (
 		<Modal
 			size='2xl'
@@ -71,51 +68,68 @@ const ManageCols = ({
 			onClose={() => setManageCols(false)}
 			isCentered
 		>
-			<ModalOverlay backdropFilter='blur(2px)' />
-			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+			<ModalOverlay bg='bg.overlay' backdropFilter='blur(2px)' />
+			<ModalContent
+				bg='bg.surface'
+				borderRadius='xl'
+				boxShadow='deep'
+				mx='2'
+				overflow='hidden'
+			>
 				<ModalHeader
-					display='flex'
-					gap='2'
-					bg={headerBg}
-					color={headerText}
+					bg='accent.gold'
+					color='text.inverse'
 					borderTopRadius='xl'
 					py={4}
-					alignItems='center'
-					w='100%'
+					px={6}
+					borderBottom='1px solid'
+					borderColor='border.default'
 				>
 					Manage Columns
 				</ModalHeader>
-				<ModalCloseButton />
-				<ModalBody maxH='75vh' overflow='scroll' p={6}>
+
+				<ModalCloseButton
+					color='text.inverse'
+					_focus={{ outline: 'none' }}
+					_hover={{ bg: 'rgba(0,0,0,0.1)' }}
+				/>
+
+				<ModalBody maxH='75vh' overflowY='auto' p={6} bg='bg.app'>
 					<Grid templateColumns='repeat(3, 1fr)' gap={3}>
 						{columnList.map(({ accessor, name }) => (
-							<Text key={accessor} display='flex' alignItems='center'>
+							<Text key={accessor} display='flex' alignItems='center' color='text.body'>
 								<Checkbox
 									isChecked={!hiddenCols.includes(accessor)}
 									onChange={() => handleToggle(accessor)}
 									mr={2}
+									sx={{
+										'.chakra-checkbox__control': {
+											_focus: { boxShadow: 'none' },
+										},
+									}}
 								/>
 								{name}
 							</Text>
 						))}
 					</Grid>
 				</ModalBody>
-				<ModalFooter>
+
+				<ModalFooter
+					borderTop='1px solid'
+					borderColor='border.default'
+					bg='bg.surface'
+					gap={3}
+				>
 					<Button
 						size='sm'
-						// variant='outline'
-						colorScheme='gray'
-						mr='2'
-						rounded='md'
+						variant='outline'
 						onClick={() => setManageCols(false)}
 					>
 						Close
 					</Button>
 					<Button
-						colorScheme='brand'
+						variant='brand'
 						size='sm'
-						rounded='md'
-						mr={2}
 						onClick={saveManageCols}
 					>
 						Save

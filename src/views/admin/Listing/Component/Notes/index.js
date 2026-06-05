@@ -14,7 +14,6 @@ import {
   Box,
   Grid,
   GridItem,
-  useColorModeValue,
   IconButton,
   Textarea,
   useDisclosure,
@@ -32,14 +31,10 @@ import {
 } from "api/apiSlice";
 import { toast } from "react-toastify";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
-import { buttonStyle } from "utils/btn";
+import { useModalColors } from "hooks/useModalColors";
 
 const NotesModal = ({ isOpen, onClose, listingId }) => {
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const headerBg = useColorModeValue("brand.300", "brand.100");
-  const headerText = useColorModeValue("brand.700", "brand.900");
-  const footerBg = useColorModeValue("gray.50", "gray.700");
-  const bodyBg = useColorModeValue("white", "gray.800");
+  const colors = useModalColors();
 
   const addNoteDisclosure = useDisclosure();
   const editNoteDisclosure = useDisclosure();
@@ -242,15 +237,17 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
         isCentered
         scrollBehavior="inside"
       >
-        <ModalOverlay backdropFilter="blur(3px)" />
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
         <ModalContent
           borderRadius="2xl"
-          shadow="2xl"
-          bg={bodyBg}
+          boxShadow={colors.modalShadow}
+          bg={colors.bg}
           overflow={"hidden"}
+          border="1px solid"
+          borderColor={colors.borderColor}
         >
           {/* Header */}
-          <ModalHeader px={4} py={4} bg={headerBg} color={headerText}>
+          <ModalHeader px={4} py={4} bg={colors.headerBg} color={colors.headerText} borderBottom="1px solid" borderColor={colors.borderColor}>
             <Flex
               direction={{ base: "column", sm: "row" }}
               justify="space-between"
@@ -265,6 +262,7 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
                   fontWeight="600"
                   noOfLines={1}
                   maxW={{ base: "200px", sm: "none" }}
+                  color={colors.headerText}
                 >
                   Listing Notes
                 </Text>
@@ -272,20 +270,21 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
 
               <HStack spacing={2} align="center" justify="flex-end">
                 <Button
-                  {...buttonStyle}
                   size="sm"
                   onClick={openAddNoteModal}
-                  bg="whiteAlpha.300"
-                  color={headerText}
+                  variant="ghost"
+                  color={colors.headerText}
+                  _hover={{ bg: colors.closeBtnHoverBg }}
                   outline={"none"}
                 >
                   Add New Note
                 </Button>
                 <ModalCloseButton
                   position="relative"
-                  color={headerText}
+                  color={colors.headerText}
                   top="0"
                   right="0"
+                  _hover={{ bg: colors.closeBtnHoverBg }}
                   _focus={{ outline: "none" }}
                 />
               </HStack>
@@ -293,25 +292,29 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
           </ModalHeader>
 
           {/* Body */}
-          <ModalBody pt={4} maxH="60vh" overflowY="auto">
+          <ModalBody pt={4} maxH="60vh" overflowY="auto" bg={colors.bg}>
             <VStack align="flex-start" spacing={3}>
               {notes?.data?.length > 0 ? (
                 <Grid templateColumns="repeat(12, 1fr)" gap={4} width="100%">
                   {notes.data.map((note) => (
                     <GridItem key={note._id} colSpan={{ base: 12, md: 6 }}>
                       <Box
-                        bg="whitesmoke"
+                        bg={colors.bgInput}
                         borderRadius="lg"
                         p={4}
                         h="100%"
                         position="relative"
-                        boxShadow="sm"
-                        _hover={{ boxShadow: "md" }}
+                        boxShadow={colors.cardShadow}
+                        _hover={{ boxShadow: colors.modalShadow }}
+                        border="1px solid"
+                        borderColor={colors.borderColor}
                       >
                         <Flex justify="space-between" mb={2}>
                           <Box>
-                            <Text fontWeight="bold">{note.user.fullName}</Text>
-                            <Text fontSize="xs" color="gray.600">
+                            <Text fontWeight="bold" color={colors.headingText}>
+                              {note.user.fullName}
+                            </Text>
+                            <Text fontSize="xs" color={colors.mutedText}>
                               {format(
                                 new Date(note.createdAt),
                                 "MMM d, yyyy h:mm a"
@@ -325,15 +328,17 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
                               size="sm"
                               variant="ghost"
                               onClick={() => handleEditClick(note)}
+                              color={colors.bodyText}
+                              _hover={{ color: colors.accentGold, bg: colors.bgDeep }}
                             />
                             <IconButton
                               aria-label="Delete Note"
                               icon={<FiTrash2 />}
                               size="sm"
                               variant="ghost"
-                              onClick={() =>
-                                handleDeleteClick(note._id.toString())
-                              }
+                              onClick={() => handleDeleteClick(note._id.toString())}
+                              color={colors.badgeErrorText}
+                              _hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
                             />
                           </Flex>
                         </Flex>
@@ -342,6 +347,7 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
                             as="pre"
                             whiteSpace="pre-wrap"
                             wordBreak="break-word"
+                            color={colors.bodyText}
                           >
                             {note.note}
                           </Text>
@@ -360,14 +366,13 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
 
           {/* Footer */}
           <ModalFooter
-            bg={footerBg}
+            bg={colors.footerBg}
             borderTop="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
           >
             <Button
               variant="outline"
               onClick={onClose}
-              colorScheme="gray"
               borderRadius="md"
             >
               Close
@@ -382,37 +387,54 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
         onClose={addNoteDisclosure.onClose}
         isCentered
       >
-        <ModalOverlay backdropFilter="blur(3px)" />
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
         <ModalContent
           borderRadius="2xl"
-          shadow="2xl"
-          bg={bodyBg}
+          boxShadow={colors.modalShadow}
+          bg={colors.bg}
           overflow={"hidden"}
+          border="1px solid"
+          borderColor={colors.borderColor}
         >
           <ModalHeader
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             position="sticky"
             top="0"
             zIndex="10"
             py={4}
+            borderBottom="1px solid"
+            borderColor={colors.borderColor}
           >
             Add New Note
-            <ModalCloseButton top="14px" right="16px" color={headerText} />
+            <ModalCloseButton
+              top="14px"
+              right="16px"
+              color={colors.headerText}
+              _hover={{ bg: colors.closeBtnHoverBg }}
+            />
           </ModalHeader>
-          <ModalBody>
+          <ModalBody bg={colors.bg}>
             <Textarea
               placeholder="Enter your note here..."
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
               minH="150px"
-              focusBorderColor="brand.500"
+              bg={colors.bgInput}
+              borderColor={colors.borderColor}
+              color={colors.headingText}
+              _placeholder={{ color: colors.mutedText }}
+              _hover={{ borderColor: colors.accentGold }}
+              _focus={{
+                borderColor: colors.accentGold,
+                boxShadow: `0 0 0 1px ${colors.accentGold}`,
+              }}
             />
           </ModalBody>
           <ModalFooter
-            bg={footerBg}
+            bg={colors.footerBg}
             borderTop="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
           >
             <Button
               variant="outline"
@@ -423,10 +445,9 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
               Cancel
             </Button>
             <Button
-              {...buttonStyle}
-              colorScheme="brand"
+              variant="brand"
               onClick={handleAddNote}
-              disabled={!newNote.trim()}
+              isDisabled={!newNote.trim()}
             >
               Save Note
             </Button>
@@ -440,25 +461,34 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
         onClose={editNoteDisclosure.onClose}
         isCentered
       >
-        <ModalOverlay backdropFilter="blur(3px)" />
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
         <ModalContent
           borderRadius="2xl"
-          shadow="2xl"
-          bg={bodyBg}
+          boxShadow={colors.modalShadow}
+          bg={colors.bg}
           overflow={"hidden"}
+          border="1px solid"
+          borderColor={colors.borderColor}
         >
           <ModalHeader
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             position="sticky"
             top="0"
             zIndex="10"
             py={4}
+            borderBottom="1px solid"
+            borderColor={colors.borderColor}
           >
             Edit Note
-            <ModalCloseButton top="14px" right="16px" color={headerText} />
+            <ModalCloseButton
+              top="14px"
+              right="16px"
+              color={colors.headerText}
+              _hover={{ bg: colors.closeBtnHoverBg }}
+            />
           </ModalHeader>
-          <ModalBody>
+          <ModalBody bg={colors.bg}>
             <Textarea
               placeholder="Edit your note here..."
               value={editingNote.text}
@@ -466,13 +496,21 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
                 setEditingNote({ ...editingNote, text: e.target.value })
               }
               minH="150px"
-              focusBorderColor="brand.500"
+              bg={colors.bgInput}
+              borderColor={colors.borderColor}
+              color={colors.headingText}
+              _placeholder={{ color: colors.mutedText }}
+              _hover={{ borderColor: colors.accentGold }}
+              _focus={{
+                borderColor: colors.accentGold,
+                boxShadow: `0 0 0 1px ${colors.accentGold}`,
+              }}
             />
           </ModalBody>
           <ModalFooter
-            bg={footerBg}
+            bg={colors.footerBg}
             borderTop="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
           >
             <Button
               variant="outline"
@@ -483,10 +521,9 @@ const NotesModal = ({ isOpen, onClose, listingId }) => {
               Cancel
             </Button>
             <Button
-              {...buttonStyle}
-              colorScheme="brand"
+              variant="brand"
               onClick={handleUpdateNote}
-              disabled={!editingNote.text.trim()}
+              isDisabled={!editingNote.text.trim()}
             >
               Update Note
             </Button>

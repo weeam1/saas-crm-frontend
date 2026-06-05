@@ -7,7 +7,6 @@ import {
   HStack,
   Flex,
   Divider,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import ConfirmationModal from "components/Message/ConfirmationModal";
 import { constant } from "constant";
@@ -25,9 +24,6 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
     setDeleteModalOpen(false);
   };
 
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-  const bgColor = useColorModeValue("whitesmoke", "gray.800");
-
   return (
     <>
       <GridItem
@@ -37,15 +33,15 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
         display="flex"
       >
         <Box
-          bg={bgColor}
+          bg="bg.surface"
           borderWidth="1px"
-          borderColor={borderColor}
+          borderColor="border.default"
           borderRadius="lg"
           p={{ base: 3, md: 4 }}
-          shadow="md"
+          shadow="card"
           w="full"
           transition="all 0.2s ease-in-out"
-          _hover={{ shadow: "lg", transform: "scale(1.01)" }}
+          _hover={{ shadow: "soft", transform: "scale(1.01)" }}
         >
           {/* Header */}
           <Flex justify="space-between" align="center" mb={2}>
@@ -58,8 +54,8 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
                 }
                 name={note.addedBy?.fullName ?? "User"}
                 boxSize={{ base: "28px", md: "34px" }}
-                bg="brand.200"
-                color="gray.800"
+                bg="accent.gold"
+                color="text.inverse"
                 imgProps={{
                   loading: "lazy",
                   referrerPolicy: "no-referrer",
@@ -73,11 +69,11 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
                 <Text
                   fontWeight="600"
                   fontSize="clamp(0.7rem, 1.5vw, 0.9rem)"
-                  color="gray.800"
+                  color="text.heading"
                 >
                   {note.addedBy?.fullName || "Unknown User"}
                 </Text>
-                <Text fontSize="clamp(0.65rem, 1.2vw, 0.8rem)" color="gray.500">
+                <Text fontSize="clamp(0.65rem, 1.2vw, 0.8rem)" color="text.muted">
                   {formatPostDate(new Date(note?.createdAt))}
                 </Text>
               </Box>
@@ -90,7 +86,8 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
                   icon={<FiEdit />}
                   size="xs"
                   variant="ghost"
-                  colorScheme="gray"
+                  color="text.body"
+                  _hover={{ color: "text.accent", bg: "bg.elevated" }}
                   onClick={() => onEdit(note)}
                 />
                 <IconButton
@@ -98,29 +95,17 @@ const NoteCard = ({ id, note, onEdit, onDelete }) => {
                   icon={<FiTrash2 />}
                   size="xs"
                   variant="ghost"
-                  colorScheme="red"
+                  color="text.body"
+                  _hover={{ color: "red.500", bg: "bg.elevated" }}
                   onClick={() => setDeleteModalOpen(true)}
                 />
               </HStack>
             )}
           </Flex>
 
-          <Divider mb={3} />
+          <Divider borderColor="border.subtle" mb={3} />
 
           {/* Note Body */}
-          {/* <Box overflowY='auto' maxH='200px' p='1'>
-						<Text
-							as='pre'
-							// fontWeight='semibold'
-							whiteSpace='pre-wrap'
-							overflowWrap='break-word'
-							wordBreak='break-word'
-							color='gray.600'
-							fontFamily='DM Sans, sans-serif'
-						>
-							{note?.note}
-						</Text>
-					</Box> */}
           <NoteBody text={note?.note} />
         </Box>
       </GridItem>

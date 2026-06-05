@@ -1,427 +1,437 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Button,
-  Flex,
-  Text,
-  IconButton,
-  Select,
-  useBreakpointValue,
-} from "@chakra-ui/react";
-import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiSearch, FiRefreshCw } from "react-icons/fi";
+	Box,
+	Table,
+	Thead,
+	Tbody,
+	Tr,
+	Th,
+	Td,
+	Button,
+	Flex,
+	Text,
+	IconButton,
+	Select,
+	useBreakpointValue,
+} from '@chakra-ui/react';
+import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from '@chakra-ui/icons';
+import { FiSearch } from 'react-icons/fi';
 import {
-  useFetchItemsQuery,
-  useDeleteItemMutation,
-  useUpdateItemMutation,
-} from "api/apiSlice";
-import { toast } from "react-toastify";
-import TopPagination from "components/pagination/TopPagination";
-import AdvancedSearchModal from "./components/AdvancedSearchModal";
-import ActiveFiltersDisplay from "./components/ActiveFiltersDisplay";
-import moment from "moment";
-import NoData from "views/admin/lead-v2/components/subComponents/NoData";
-import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
-import TableLoading from "components/loading/TableLoading";
-import AddTaskModal from "./components/AddTaskModal";
-import EditTaskModal from "./components/EditTaskModal";
-import TaskDetailsModal from "./components/TaskDetailsModal";
-import { getApi } from "services/api";
-import { useUserActivityLog } from "hooks/useUserActivityLog";
-import { usePermissions } from "hooks/usePermissions";
-import { useNavigate } from "react-router-dom";
+	useFetchItemsQuery,
+	useDeleteItemMutation,
+	useUpdateItemMutation,
+} from 'api/apiSlice';
+import { toast } from 'react-toastify';
+import TopPagination from 'components/pagination/TopPagination';
+import AdvancedSearchModal from './components/AdvancedSearchModal';
+import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
+import moment from 'moment';
+import NoData from 'views/admin/lead-v2/components/subComponents/NoData';
+import useFetchUserHierarchy from 'hooks/useFetchUserHierarchy';
+import TableLoading from 'components/loading/TableLoading';
+import AddTaskModal from './components/AddTaskModal';
+import EditTaskModal from './components/EditTaskModal';
+import TaskDetailsModal from './components/TaskDetailsModal';
+import { getApi } from 'services/api';
+import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { usePermissions } from 'hooks/usePermissions';
+import { useNavigate } from 'react-router-dom';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import {
+	PriorityBadgeSelect,
+	StatusBadgeSelect,
+} from './components/StatusesHelpers';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const TaskV2 = () => {
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalItems, setTotalItems] = useState(0);
-  const [deleteTaskMutation] = useDeleteItemMutation();
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedTaskForEdit, setSelectedTaskForEdit] = useState(null);
-  const [agents, setAgents] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user"));
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
+	const [totalPages, setTotalPages] = useState(0);
+	const [totalItems, setTotalItems] = useState(0);
+	const [deleteTaskMutation] = useDeleteItemMutation();
+	const [selectedTask, setSelectedTask] = useState(null);
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+	const [selectedTaskForEdit, setSelectedTaskForEdit] = useState(null);
+	const [agents, setAgents] = useState([]);
+	const user = JSON.parse(localStorage.getItem('user'));
 
-  const [updateStatus] = useUpdateItemMutation();
-  const [filters, setFilters] = useState({});
-  const [filterChanged, setFilterChanged] = useState(false);
-  const [tableData, setTableData] = useState([]);
-  const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+	const [updateStatus] = useUpdateItemMutation();
+	const [filters, setFilters] = useState({});
+	const [filterChanged, setFilterChanged] = useState(false);
+	const [tableData, setTableData] = useState([]);
+	const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
-  const { allUsers = [] } = useFetchUserHierarchy(user);
+	const { allUsers = [] } = useFetchUserHierarchy(user);
 
-  const { createUserLog } = useUserActivityLog();
-  const { hasPermission } = usePermissions();
-  const navigate = useNavigate();
+	const { createUserLog } = useUserActivityLog();
+	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!hasPermission("task")) return navigate("/default");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+	useEffect(() => {
+		if (!hasPermission('task')) return navigate('/default');
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
-  const columns = [
-    "SR.No",
-    "Title",
-    "Assigned To",
-    "Due Date",
-    "Priority",
-    "Type",
-    "Status",
-    "Created At",
-    "Actions",
-  ];
+	const columns = [
+		'SR.No',
+		'Title',
+		'Assigned To',
+		'Due Date',
+		'Priority',
+		'Type',
+		'Status',
+		'Created At',
+		'Actions',
+	];
 
-  const priorityColors = {
-    Low: "green",
-    Medium: "yellow",
-    High: "orange",
-    Urgent: "red",
-  };
+	const priorityColors = {
+		Low: 'green',
+		Medium: 'yellow',
+		High: 'orange',
+		Urgent: 'red',
+	};
 
-  const statusColors = {
-    Pending: "yellow",
-    "In Progress": "blue",
-    Completed: "green",
-    Overdue: "red",
-  };
+	const statusColors = {
+		Pending: 'yellow',
+		'In Progress': 'blue',
+		Completed: 'green',
+		Overdue: 'red',
+	};
 
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
-    refetch();
-  };
+	const handlePageSizeChange = (newPageSize) => {
+		setPageSize(newPageSize);
+		setCurrentPage(1);
+		refetch();
+	};
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
+	const handlePageChange = (newPage) => {
+		setCurrentPage(newPage);
+	};
 
-  const buildQueryParams = () => {
-    const params = {
-      page: currentPage,
-      limit: pageSize,
-    };
+	const buildQueryParams = () => {
+		const params = {
+			page: currentPage,
+			limit: pageSize,
+		};
 
-    if (Object.keys(filters).length > 0) {
-      if (filters.title) params.title = filters.title;
-      if (filters.assignedTo) params.assigned_to = filters.assignedTo;
-      if (filters.type) params.type = filters.type;
-      if (filters.status) params.status = filters.status;
-      if (filters.dueDateFrom)
-        params.dueDateFrom = moment(filters.dueDateFrom).format("YYYY-MM-DD");
-      if (filters.dueDateTo)
-        params.dueDateTo = moment(filters.dueDateTo).format("YYYY-MM-DD");
-      if (filters.overdue) params.overdue = true;
-      if (filters.todays) params.todays = true;
-    }
+		if (Object.keys(filters).length > 0) {
+			if (filters.title) params.title = filters.title;
+			if (filters.assignedTo) params.assigned_to = filters.assignedTo;
+			if (filters.type) params.type = filters.type;
+			if (filters.status) params.status = filters.status;
+			if (filters.dueDateFrom)
+				params.dueDateFrom = moment(filters.dueDateFrom).format('YYYY-MM-DD');
+			if (filters.dueDateTo)
+				params.dueDateTo = moment(filters.dueDateTo).format('YYYY-MM-DD');
+			if (filters.overdue) params.overdue = true;
+			if (filters.todays) params.todays = true;
+		}
 
-    return params;
-  };
+		return params;
+	};
 
-  const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
-    { path: "taskV2", params: buildQueryParams() },
-    { refetchOnMountOrArgChange: true }
-  );
+	const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
+		{ path: 'taskV2', params: buildQueryParams() },
+		{ refetchOnMountOrArgChange: true },
+	);
 
-  const agencyName = user?.roles[0]?.roleName === "HR" && user?.agency?.name;
+	const agencyName = user?.roles[0]?.roleName === 'HR' && user?.agency?.name;
 
-  const { data: usersData } = useFetchItemsQuery({
-    path: "/v2/user/search_users",
-    params: { agencyFilter: agencyName || "" },
-  });
+	const { data: usersData } = useFetchItemsQuery({
+		path: '/v2/user/search_users',
+		params: { agencyFilter: agencyName || '' },
+	});
 
-  const handleDeleteTask = async (task) => {
-    try {
-      await deleteTaskMutation({
-        path: `/taskV2/${task._id}`,
-        body: {},
-      }).unwrap();
-      toast.success("The task has been deleted successfully.", {
-        autoClose: 3000,
-      });
-      refetch();
-      createUserLog({
-        userId: user?._id,
-        action: "DELETE",
-        entity: "Task",
-        entityType: "TaskV2",
-        entityId: task._id,
-        status: "success",
-        message: `"${user?.fullName}" deleted task "${task?.title || "Untitled"}".`,
-      });
-    } catch (error) {
-      const errorMsg =
-        error?.data?.message || "Failed to delete the task. Please try again.";
+	const handleDeleteTask = async (task) => {
+		try {
+			await deleteTaskMutation({
+				path: `/taskV2/${task._id}`,
+				body: {},
+			}).unwrap();
+			toast.success('The task has been deleted successfully.', {
+				autoClose: 3000,
+			});
+			refetch();
+			createUserLog({
+				userId: user?._id,
+				action: 'DELETE',
+				entity: 'Task',
+				entityType: 'TaskV2',
+				entityId: task._id,
+				status: 'success',
+				message: `"${user?.fullName}" deleted task "${task?.title || 'Untitled'}".`,
+			});
+		} catch (error) {
+			const errorMsg =
+				error?.data?.message || 'Failed to delete the task. Please try again.';
 
-      console.error("Failed to delete task:", error);
-      toast.error(
-        error.data?.message || "Failed to delete the task. Please try again.",
-        { autoClose: 3000 }
-      );
-      createUserLog({
-        userId: user?._id,
-        action: "DELETE",
-        entity: "Task",
-        entityType: "TaskV2",
-        entityId: task._id,
-        status: error?.status === 500 ? "error" : "fail",
-        message: errorMsg,
-      });
-    }
-  };
+			console.error('Failed to delete task:', error);
+			toast.error(
+				error.data?.message || 'Failed to delete the task. Please try again.',
+				{ autoClose: 3000 },
+			);
+			createUserLog({
+				userId: user?._id,
+				action: 'DELETE',
+				entity: 'Task',
+				entityType: 'TaskV2',
+				entityId: task._id,
+				status: error?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
+		}
+	};
 
-  useEffect(() => {
-    if (data) {
-      setTotalPages(data.totalPages || 0);
-      setTotalItems(data.totalDocs || 0);
-      setTableData(data.doc || []);
-    }
-  }, [data]);
+	useEffect(() => {
+		if (data) {
+			setTotalPages(data.totalPages || 0);
+			setTotalItems(data.totalDocs || 0);
+			setTableData(data.doc || []);
+		}
+	}, [data]);
 
-  const handleStatusChange = async (task, status, previousStatus) => {
-    if (status === previousStatus) return;
-    await updateTaskStatus(task, status);
-  };
+	const handleStatusChange = async (task, status, previousStatus) => {
+		if (status === previousStatus) return;
+		await updateTaskStatus(task, status);
+	};
 
-  const updateTaskStatus = async (task, status) => {
-    try {
-      const response = await updateStatus({
-        path: `/taskV2/${task._id}/status`,
-        body: { status },
-      }).unwrap();
+	const updateTaskStatus = async (task, status) => {
+		try {
+			const response = await updateStatus({
+				path: `/taskV2/${task._id}/status`,
+				body: { status },
+			}).unwrap();
 
-      toast.success("Status updated successfully");
-      createUserLog({
-        userId: user?._id,
-        action: "UPDATE",
-        entity: "Task",
-        entityType: "TaskV2",
-        entityId: response._id,
-        status: "success",
-        message: `"${user?.fullName}" updated status of task "${response?.title || "Untitled"}".`,
-      });
-      setTableData((prevData) =>
-        prevData.map((oldTask) =>
-          oldTask._id === task._id ? { ...task, status } : task
-        )
-      );
-    } catch (error) {
-      const errorMsg =
-        error?.data?.message ||
-        "Failed to update the task status. Please try again.";
-      toast.error("Error updating status");
-      createUserLog({
-        userId: user?._id,
-        action: "UPDATE",
-        entity: "Task",
-        entityType: "TaskV2",
-        entityId: task?._id || null,
-        status: error?.status === "500" ? "error" : "fail",
-        message: errorMsg,
-      });
-    }
-  };
+			toast.success('Status updated successfully');
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Task',
+				entityType: 'TaskV2',
+				entityId: response._id,
+				status: 'success',
+				message: `"${user?.fullName}" updated status of task "${response?.title || 'Untitled'}".`,
+			});
+			// setTableData((prevData) =>
+			//   prevData.map((oldTask) =>
+			//     oldTask._id === task._id ? { ...task, status } : task,
+			//   ),
+			// );
+			setTableData((prevData) =>
+				prevData.map((oldTask) =>
+					oldTask._id === response._id ? response : oldTask,
+				),
+			);
+		} catch (error) {
+			const errorMsg =
+				error?.data?.message ||
+				'Failed to update the task status. Please try again.';
+			toast.error('Error updating status');
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Task',
+				entityType: 'TaskV2',
+				entityId: task?._id || null,
+				status: error?.status === '500' ? 'error' : 'fail',
+				message: errorMsg,
+			});
+		}
+	};
 
-  const handleApplyFilters = (newFilters) => {
-    const cleanedFilters = Object.fromEntries(
-      Object.entries(newFilters).filter(
-        ([_, value]) => value !== "" && value !== undefined && value !== null
-      )
-    );
+	const handleApplyFilters = (newFilters) => {
+		const cleanedFilters = Object.fromEntries(
+			Object.entries(newFilters).filter(
+				([_, value]) => value !== '' && value !== undefined && value !== null,
+			),
+		);
 
-    setFilters(cleanedFilters);
-    setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
-  };
+		setFilters(cleanedFilters);
+		setCurrentPage(1);
+		setFilterChanged(true);
+		refetch();
+	};
 
-  useEffect(() => {
-    if (filterChanged) {
-      setFilterChanged(false);
-    }
-  }, [filterChanged]);
+	useEffect(() => {
+		if (filterChanged) {
+			setFilterChanged(false);
+		}
+	}, [filterChanged]);
 
-  const handleClearFilters = (filterKey) => {
-    if (filterKey) {
-      const newFilters = { ...filters };
-      delete newFilters[filterKey];
-      setFilters(newFilters);
-    } else {
-      setFilters({});
-    }
-    setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
-  };
+	const handleClearFilters = (filterKey) => {
+		if (filterKey) {
+			const newFilters = { ...filters };
+			delete newFilters[filterKey];
+			setFilters(newFilters);
+		} else {
+			setFilters({});
+		}
+		setCurrentPage(1);
+		setFilterChanged(true);
+		refetch();
+	};
 
-  const formatDate = (date) => {
-    if (!date) return "N/A";
-    return moment(date).isValid() ? moment(date).format("MMM D, YYYY") : "N/A";
-  };
+	const formatDate = (date) => {
+		if (!date) return 'N/A';
+		return moment(date).isValid() ? moment(date).format('MMM D, YYYY') : 'N/A';
+	};
 
-  useEffect(() => {
-    async function fetchAgents() {
-      if (user?.roles[0]?.roleName === "Manager") {
-        const apiUrl = `api/v2/user/hierarchy?managerId=${user._id}`;
-        const { data } = await getApi(apiUrl);
-        setAgents(data.doc || []);
-      }
-    }
-    fetchAgents();
-  }, []);
+	useEffect(() => {
+		async function fetchAgents() {
+			if (user?.roles[0]?.roleName === 'Manager') {
+				const apiUrl = `api/v2/user/hierarchy?managerId=${user._id}`;
+				const { data } = await getApi(apiUrl);
+				setAgents(data.doc || []);
+			}
+		}
+		fetchAgents();
+	}, []);
 
-  const updateTaskPriority = async (taskId, priority) => {
-    try {
-      const response = await updateStatus({
-        path: `/taskV2/${taskId}`,
-        body: { priority },
-      }).unwrap();
+	const updateTaskPriority = async (taskId, priority) => {
+		try {
+			const response = await updateStatus({
+				path: `/taskV2/${taskId}`,
+				body: { priority },
+			}).unwrap();
 
-      toast.success("Priority updated successfully");
-      setTableData((prevData) =>
-        prevData.map((task) =>
-          task._id === taskId ? { ...task, priority } : task
-        )
-      );
-      createUserLog({
-        userId: user?._id,
-        action: "UPDATE",
-        entity: "Task",
-        entityType: "TaskV2",
-        entityId: response._id,
-        status: "success",
-        message: `"${user?.fullName}" update priority of task "${response?.title || "Untitled"}".`,
-      });
-    } catch (error) {
-      toast.error("Error updating priority");
-      const errorMsg =
-        error?.data?.message ||
-        "Failed to update the priority of task. Please try again.";
-      createUserLog({
-        userId: user?._id,
-        action: "UPDATE",
-        entity: "Task",
-        entityType: "TaskV2",
-        entityId: taskId,
-        status: error?.status === 500 ? "error" : "fail",
-        message: errorMsg,
-      });
-    }
-  };
+			toast.success('Priority updated successfully');
+			setTableData((prevData) =>
+				prevData.map((task) =>
+					task._id === taskId ? { ...task, priority } : task,
+				),
+			);
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Task',
+				entityType: 'TaskV2',
+				entityId: response._id,
+				status: 'success',
+				message: `"${user?.fullName}" update priority of task "${response?.title || 'Untitled'}".`,
+			});
+		} catch (error) {
+			toast.error('Error updating priority');
+			const errorMsg =
+				error?.data?.message ||
+				'Failed to update the priority of task. Please try again.';
+			createUserLog({
+				userId: user?._id,
+				action: 'UPDATE',
+				entity: 'Task',
+				entityType: 'TaskV2',
+				entityId: taskId,
+				status: error?.status === 500 ? 'error' : 'fail',
+				message: errorMsg,
+			});
+		}
+	};
 
-  const ViewHandler = (task) => {
-    setSelectedTask(task);
-    createUserLog({
-      userId: user?._id,
-      action: "VIEW",
-      entity: "Task",
-      entityType: "TaskV2",
-      entityId: task._id,
-      status: "success",
-      message: `"${user?.fullName}" View the task "${task?.title || "Untitled"}".`,
-    });
-  };
-  return (
-    <Box
-      overflowY="auto"
-      scrollBehavior="smooth"
-      boxShadow="sm"
-      bg="white"
-      px={2}
-    >
-      <Flex
-        justifyContent="space-between"
-        alignItems={{ base: "normal", sm: "normal", md: "center" }}
-        p={3}
-        flexDir={{ base: "column", sm: "column", md: "row" }}
-      >
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
-          Task Management
-        </Text>
-        <Box
-          gap={2}
-          display="flex"
-          alignItems="center"
-          flexDir={{ base: "column", sm: "column", md: "row" }}
-          justifyContent={{ base: "center", sm: "center", md: "normal" }}
-        >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isFetching}
-            isDisabled={isLoading}
-            variant="outline"
-            size="sm"
-          />
-          {hasPermission("task", "create") && (
-            <Button
-              size="sm"
-              borderRadius={"md"}
-              colorScheme="brand"
-              leftIcon={<AddIcon />}
-              py={3}
-              px={6}
-              onClick={() => setIsAddModalOpen(true)}
-            >
-              Add New
-            </Button>
-          )}
-          {isMobile ? (
-            <IconButton
-              icon={<FiSearch />}
-              onClick={() => setIsFilterOpen(true)}
-              aria-label="Search Tasks"
-              colorScheme="brand"
-              variant="solid"
-              size="sm"
-              borderRadius="full"
-              boxShadow="md"
-            />
-          ) : (
-            <Button
-              colorScheme="brand"
-              size="sm"
-              borderRadius={"md"}
-              py={3}
-              px={6}
-              onClick={() => setIsFilterOpen(true)}
-            >
-              Advanced Search
-            </Button>
-          )}
-        </Box>
-      </Flex>
+	const ViewHandler = (task) => {
+		setSelectedTask(task);
+		createUserLog({
+			userId: user?._id,
+			action: 'VIEW',
+			entity: 'Task',
+			entityType: 'TaskV2',
+			entityId: task._id,
+			status: 'success',
+			message: `"${user?.fullName}" View the task "${task?.title || 'Untitled'}".`,
+		});
+	};
+	return (
+		<Box
+			overflowY='auto'
+			scrollBehavior='smooth'
+			boxShadow='lg'
+			bg='bg.surface'
+			p={2}
+			borderRadius='lg'
+		>
+			<Flex
+				justifyContent='space-between'
+				alignItems={{ base: 'normal', sm: 'normal', md: 'center' }}
+				p={3}
+				flexDir={{ base: 'column', sm: 'column', md: 'row' }}
+			>
+				<Text fontSize='20px' fontWeight='bold' color='white' p={3}>
+					Task Management
+				</Text>
+				<Box
+					gap={2}
+					display='flex'
+					alignItems='center'
+					flexDir={{ base: 'column', sm: 'column', md: 'row' }}
+					justifyContent={{ base: 'center', sm: 'center', md: 'normal' }}
+				>
+					{hasPermission('task', 'create') && (
+						<Button
+							size='sm'
+							borderRadius={'md'}
+							colorScheme='brand'
+							leftIcon={<AddIcon />}
+							py={3}
+							px={6}
+							onClick={() => setIsAddModalOpen(true)}
+						>
+							Add New
+						</Button>
+					)}
+					{isMobile ? (
+						<IconButton
+							icon={<FiSearch />}
+							onClick={() => setIsFilterOpen(true)}
+							aria-label='Search Tasks'
+							colorScheme='brand'
+							variant='solid'
+							size='sm'
+							borderRadius='full'
+							boxShadow='md'
+						/>
+					) : (
+						<Button
+							variant='outline'
+							size='sm'
+							borderRadius={'md'}
+							py={3}
+							px={6}
+							onClick={() => setIsFilterOpen(true)}
+						>
+							Advanced Search
+						</Button>
+					)}
+					<RefreshButton
+	label="Refresh"
+	onClick={refetch}
+	isLoading={isLoading}
+	isFetching={isFetching}
+	size="sm"
+/>
+				</Box>
+			</Flex>
 
-      <ActiveFiltersDisplay
-        filters={filters}
-        onClearFilters={handleClearFilters}
-        users={allUsers}
-      />
+			<ActiveFiltersDisplay
+				filters={filters}
+				onClearFilters={handleClearFilters}
+				users={allUsers}
+			/>
 
-      <Box mb={1}>
-        <TopPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          totalItems={totalItems}
-          itemsPerPage={pageSize}
-          setPageSize={setPageSize}
-          handlePageSize={handlePageSizeChange}
-          refetching={isLoading}
-          loading={isLoading}
-        />
-      </Box>
+			<Box mb={1}>
+				<TopPagination
+					currentPage={currentPage}
+					totalPages={totalPages}
+					onPageChange={handlePageChange}
+					totalItems={totalItems}
+					itemsPerPage={pageSize}
+					setPageSize={setPageSize}
+					handlePageSize={handlePageSizeChange}
+					refetching={isLoading}
+					loading={isLoading}
+				/>
+			</Box>
 
-      <Box
+			{/* <Box
         borderRadius="lg"
         boxShadow="sm"
         bg="white"
@@ -618,73 +628,371 @@ const TaskV2 = () => {
             </Tbody>
           )}
         </Table>
-      </Box>
+      </Box> */}
 
-      <TaskDetailsModal
-        isOpen={!!selectedTask}
-        onClose={() => setSelectedTask(null)}
-        task={selectedTask}
-      />
+			<Box
+				borderRadius='xl'
+				boxShadow='card'
+				bg='bg.surface'
+				maxH={'85vh'}
+			minH='60vh'
+				overflowY='auto'
+				border='1px solid'
+				borderColor='border.default'
+			>
+				<Table variant='simple' size='lg'>
+					<Thead
+						position='sticky'
+						top={0}
+						bg='bg.elevated'
+						zIndex={2}
+						fontSize={'16px'}
+					>
+						<Tr>
+							{columns.map((header, index) => (
+								<Th key={index} py={4} whiteSpace='nowrap'>
+									<Box
+										display='flex'
+										alignItems='center'
+										justifyContent='center'
+									>
+										<Text
+											fontSize={{ base: '11px', md: '12px' }}
+											fontWeight='700'
+											color='gold.primary'
+											textTransform='uppercase'
+											letterSpacing='0.08em'
+										>
+											{header}
+										</Text>
+									</Box>
+								</Th>
+							))}
+						</Tr>
+					</Thead>
 
-      <AdvancedSearchModal
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        onApplyFilters={handleApplyFilters}
-        initialFilters={filters}
-        clearFilter={filterChanged}
-        users={
-          user?.role === "superAdmin"
-            ? allUsers
-            : user?.roles[0]?.roleName === "Manager"
-              ? agents
-              : []
-        }
-        user={user}
-        usersData={usersData}
-      />
+					{isLoading || isFetching ? (
+						<TableLoading columns={columns} length={20} py='4' />
+					) : (
+						<Tbody>
+							{tableData && tableData.length > 0 ? (
+								tableData.map((task, index) => (
+									<Tr
+										key={index}
+										_hover={{ bg: 'bg.elevated' }}
+										transition='background 0.15s'
+									>
+										<Td
+											py={4}
+											fontSize={{ base: '12px', md: '14px' }}
+											fontWeight='500'
+											minWidth='100px'
+											textAlign='center'
+											color='text.muted'
+										>
+											{index + 1}
+										</Td>
 
-      <AddTaskModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onSuccess={() => {
-          refetch();
-        }}
-        users={
-          user?.role === "superAdmin"
-            ? allUsers
-            : user?.roles[0]?.roleName === "Manager"
-              ? agents
-              : []
-        }
-        user={user}
-        usersData={usersData}
-      />
+										<Td
+											textAlign='center'
+											whiteSpace='nowrap'
+											minWidth='200px'
+											overflow='hidden'
+											textOverflow='ellipsis'
+											color='text.heading'
+											fontWeight='500'
+										>
+											{task.title || 'N/A'}
+										</Td>
 
-      {selectedTaskForEdit && (
-        <EditTaskModal
-          isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedTaskForEdit(null);
-          }}
-          onSuccess={() => {
-            refetch();
-          }}
-          task={selectedTaskForEdit}
-          users={
-            user?.role === "superAdmin"
-              ? allUsers
-              : user?.roles[0]?.roleName === "Manager" ||
-                  user?.roles[0]?.roleName === "HR"
-                ? agents
-                : []
-          }
-          user={user}
-          usersData={usersData}
-        />
-      )}
-    </Box>
-  );
+										<Td
+											textAlign='center'
+											whiteSpace='nowrap'
+											minWidth='100px'
+											overflow='hidden'
+											textOverflow='ellipsis'
+											color='text.body'
+										>
+											{task.assigned_to?.fullName || 'N/A'}
+										</Td>
+
+										<Td textAlign='center' minWidth='200px' color='text.body'>
+											{formatDate(task.due_date)}
+										</Td>
+
+										{/* <Td textAlign='center'>
+											<Select
+												value={task.priority}
+												onChange={(e) =>
+													updateTaskPriority(task._id, e.target.value)
+												}
+												size='sm'
+												width='150px'
+												borderRadius='lg'
+												bg={`rgba(212, 175, 55, 0.1)`}
+												borderColor='border.default'
+												color='text.body'
+												_focus={{
+													borderColor: 'gold.primary',
+													boxShadow: '0 0 0 1px #D4AF37',
+												}}
+												_hover={{ borderColor: 'gold.dark' }}
+											>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='Low'
+												>
+													Low
+												</option>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='Medium'
+												>
+													Medium
+												</option>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='High'
+												>
+													High
+												</option>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='Urgent'
+												>
+													Urgent
+												</option>
+											</Select>
+										</Td> */}
+
+										{/* Priority Column - Replace Select with PriorityBadgeSelect */}
+										<Td textAlign='center'>
+											<PriorityBadgeSelect
+												value={task.priority}
+												onChange={(newPriority) =>
+													updateTaskPriority(task._id, newPriority)
+												}
+											/>
+										</Td>
+
+										<Td
+											textAlign='center'
+											whiteSpace='nowrap'
+											minWidth='100px'
+											overflow='hidden'
+											textOverflow='ellipsis'
+											color='text.body'
+										>
+											{task.type || 'N/A'}
+										</Td>
+
+										{/* Status Column - Replace Select with StatusBadgeSelect */}
+										<Td textAlign='center'>
+											<StatusBadgeSelect
+												value={task.status}
+												onChange={(newStatus) =>
+													handleStatusChange(task, newStatus, task.status)
+												}
+											/>
+										</Td>
+										{/*
+										<Td textAlign='center'>
+											<Select
+												value={task.status}
+												onChange={(e) =>
+													handleStatusChange(task, e.target.value, task.status)
+												}
+												size='sm'
+												width='150px'
+												borderRadius='lg'
+												bg={`rgba(212, 175, 55, 0.1)`}
+												borderColor='border.default'
+												color='text.body'
+												_focus={{
+													borderColor: 'gold.primary',
+													boxShadow: '0 0 0 1px #D4AF37',
+												}}
+												_hover={{ borderColor: 'gold.dark' }}
+											>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='Pending'
+												>
+													Pending
+												</option>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='In Progress'
+												>
+													In Progress
+												</option>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='Completed'
+												>
+													Completed
+												</option>
+												<option
+													style={{ background: '#10273A', color: '#FFFFFF' }}
+													value='Overdue'
+												>
+													Overdue
+												</option>
+											</Select>
+										</Td> */}
+
+										<Td
+											textAlign='center'
+											minWidth='150px'
+											color='text.muted'
+											fontSize='sm'
+										>
+											{formatDate(task.createdAt)}
+										</Td>
+
+										<Td
+											py={4}
+											fontSize={{ base: '12px', md: '14px' }}
+											fontWeight='400'
+											minWidth='100px'
+										>
+											<Box
+												display='flex'
+												gap={2}
+												justifyContent='center'
+												alignItems='center'
+											>
+												{(user?.role === 'superAdmin' ||
+													user?._id === task.assigned_by?._id) && (
+													<>
+														<IconButton
+															aria-label='Edit'
+															icon={<EditIcon />}
+															size='sm'
+															onClick={() => {
+																setSelectedTaskForEdit(task);
+																setIsEditModalOpen(true);
+															}}
+															variant='ghost'
+															color='gold.primary'
+															_hover={{
+																bg: 'rgba(212, 175, 55, 0.1)',
+																color: 'green.400',
+																transform: 'scale(1.05)',
+															}}
+															transition='all 0.2s'
+														/>
+														<IconButton
+															aria-label='Delete'
+															icon={<DeleteIcon />}
+															size='sm'
+															variant='ghost'
+															color='red.400'
+															_hover={{
+																bg: 'rgba(245, 101, 101, 0.1)',
+																color: 'red.300',
+																transform: 'scale(1.05)',
+															}}
+															transition='all 0.2s'
+															onClick={() => handleDeleteTask(task)}
+														/>
+													</>
+												)}
+												<IconButton
+													aria-label='View'
+													icon={<ViewIcon />}
+													size='sm'
+													variant='ghost'
+													color='gold.primary'
+													_hover={{
+														bg: 'rgba(212, 175, 55, 0.1)',
+														color: 'gold.400',
+														transform: 'scale(1.05)',
+													}}
+													transition='all 0.2s'
+													onClick={() => ViewHandler(task)}
+												/>
+											</Box>
+										</Td>
+									</Tr>
+								))
+							) : (
+								<Tr>
+									<Td colSpan={columns.length} py={12} textAlign='center'>
+										<NoData label='tasks' />
+									</Td>
+								</Tr>
+							)}
+						</Tbody>
+					)}
+				</Table>
+			</Box>
+
+			<TaskDetailsModal
+				isOpen={!!selectedTask}
+				onClose={() => setSelectedTask(null)}
+				task={selectedTask}
+			/>
+
+			<AdvancedSearchModal
+				isOpen={isFilterOpen}
+				onClose={() => setIsFilterOpen(false)}
+				onApplyFilters={handleApplyFilters}
+				initialFilters={filters}
+				clearFilter={filterChanged}
+				users={
+					user?.role === 'superAdmin'
+						? allUsers
+						: user?.roles[0]?.roleName === 'Manager'
+							? agents
+							: []
+				}
+				user={user}
+				usersData={usersData}
+			/>
+
+			<AddTaskModal
+				isOpen={isAddModalOpen}
+				onClose={() => setIsAddModalOpen(false)}
+				onSuccess={() => {
+					refetch();
+				}}
+				users={
+					user?.role === 'superAdmin'
+						? allUsers
+						: user?.roles[0]?.roleName === 'Manager'
+							? agents
+							: []
+				}
+				user={user}
+				usersData={usersData}
+			/>
+
+			{selectedTaskForEdit && (
+				<EditTaskModal
+					isOpen={isEditModalOpen}
+					onClose={() => {
+						setIsEditModalOpen(false);
+						setSelectedTaskForEdit(null);
+					}}
+					onSuccess={() => {
+						refetch();
+					}}
+					task={selectedTaskForEdit}
+					users={
+						user?.role === 'superAdmin'
+							? allUsers
+							: user?.roles[0]?.roleName === 'Manager' ||
+								  user?.roles[0]?.roleName === 'HR'
+								? agents
+								: []
+					}
+					user={user}
+					usersData={usersData}
+				/>
+			)}
+		</Box>
+	);
 };
 
 export default TaskV2;

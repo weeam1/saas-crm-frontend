@@ -41,7 +41,8 @@ import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import { useModalColors } from "hooks/useModalColors";
-import { FiRefreshCw } from "react-icons/fi";
+import CustomTooltip from "components/shared/CustomTooltip";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const UnitTypeSchema = Yup.object().shape({
   name: Yup.string()
@@ -53,6 +54,7 @@ const UnitTypeSchema = Yup.object().shape({
 });
 
 const UnitType = () => {
+  const colors = useModalColors();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -65,14 +67,12 @@ const UnitType = () => {
   const { createUserLog } = useUserActivityLog();
   const navigate = useNavigate();
 
-  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
-
   const { data, isLoading, isError, refetch, isFetching } = useFetchItemsQuery(
     {
       path: `/listing/secondary/unit-types`,
       params: { page: currentPage, limit: pageSize },
     },
-    { refetchOnMountOrArgChange: true, skip: !user._id }
+    { refetchOnMountOrArgChange: true, skip: !user._id },
   );
 
   const [createItemMutation] = useCreateItemMutation();
@@ -222,7 +222,16 @@ const UnitType = () => {
   };
 
   return (
-    <Box overflowY="auto" bg="white" px={2} marginTop="-16px">
+    <Box
+      overflowY="auto"
+      bg={colors.bg}
+      px={2}
+      marginTop="-16px"
+      borderRadius="lg"
+      boxShadow={colors.cardShadow}
+      border="1px solid"
+      borderColor={colors.borderColor}
+    >
       <Flex
         justifyContent="space-between"
         alignItems={{ base: "flex-start", md: "center" }}
@@ -230,18 +239,10 @@ const UnitType = () => {
         p={3}
         gap={{ base: 3, md: 0 }}
       >
-        <Text fontSize={"20px"} fontWeight="bold">
+        <Text fontSize={"20px"} fontWeight="bold" color={colors.headingText}>
           Listing Unit Types
         </Text>
         <Stack direction={{ base: "column", sm: "row" }} spacing={4}>
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
           <Button
             size="sm"
             borderRadius={"md"}
@@ -263,6 +264,13 @@ const UnitType = () => {
           >
             Add New
           </Button>
+       <RefreshButton
+	label="Refresh"
+	onClick={() => refetch()}
+	isLoading={isLoading || isFetching}
+	isFetching={isLoading || isFetching}
+	size="sm"
+/>
         </Stack>
       </Flex>
 
@@ -280,17 +288,33 @@ const UnitType = () => {
         />
       </Box>
 
-      <Box borderRadius="4px" boxShadow="sm" borderWidth="1px" mx={1}>
+      <Box
+        borderRadius="lg"
+        boxShadow={colors.cardShadow}
+        borderWidth="1px"
+        borderColor={colors.borderColor}
+        mx={1}
+      >
         <Box position="relative" maxH="120vh" overflowY="auto">
-          <Table variant="striped" size="lg">
-            <Thead position="sticky" top={0} bg="white" zIndex={2}>
+          <Table variant="simple" size="lg">
+            <Thead position="sticky" top={0} bg={colors.bgDeep} zIndex={2}>
               <Tr>
                 {columns.map((header, index) => (
-                  <Th key={index} bg="brand.200" py={4}>
-                    <Text fontSize="14px" fontWeight="600">
-                      {header}
-                    </Text>
-                  </Th>
+                   <Th key={index} bg={colors.bgDeep} whiteSpace="nowrap" py={4} borderColor={colors.borderColor}>
+                                    <Box
+                                      display="flex"
+                                      alignItems="center"
+                                      justifyContent="center"
+                                    >
+                                      <Text
+                                        fontSize={{ base: "12px", md: "14px" }}
+                                        fontWeight="600"
+                                        color={colors.headingText}
+                                      >
+                                        {header}
+                                      </Text>
+                                    </Box>
+                                  </Th>
                 ))}
               </Tr>
             </Thead>
@@ -299,39 +323,37 @@ const UnitType = () => {
             ) : (
               <Tbody>
                 {data?.doc?.map((unitType) => (
-                  <Tr key={unitType._id}>
-                    <Td textAlign="center">{unitType.name || "N/A"}</Td>
-                    <Td textAlign="center">
+                  <Tr key={unitType._id} borderColor={colors.borderColor}>
+                    <Td textAlign="center" color={colors.bodyText} borderColor={colors.borderColor}>
+                      {unitType.name || "N/A"}
+                    </Td>
+                    <Td textAlign="center" borderColor={colors.borderColor}>
                       <Switch
-                        colorScheme="green"
+                        colorScheme="yellow"
                         isChecked={unitType.status}
                         onChange={() => handleStatusChange(unitType)}
                       />
                     </Td>
-                    <Td textAlign="center">
+                    <Td textAlign="center" color={colors.bodyText} borderColor={colors.borderColor}>
                       {new Date(unitType.createdAt).toLocaleDateString()}
                     </Td>
-                    <Td textAlign="center">
+                    <Td textAlign="center" borderColor={colors.borderColor}>
                       <IconButton
                         aria-label="Edit"
                         icon={<EditIcon />}
                         size="sm"
-                        color={"#c09f5f"}
-                        _hover={{
-                          backgroundColor: "#c09f5f",
-                          color: "white",
-                        }}
+                        variant="ghost"
+                        color={colors.accentGold}
+                        _hover={{ bg: colors.bgDeep, color: colors.goldLight }}
                         onClick={() => handleEdit(unitType)}
                       />
                       <IconButton
                         aria-label="Delete"
                         icon={<DeleteIcon />}
                         size="sm"
-                        color={"#c09f5f"}
-                        _hover={{
-                          backgroundColor: "#c09f5f",
-                          color: "white",
-                        }}
+                        variant="ghost"
+                        color={colors.badgeErrorText}
+                        _hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
                         onClick={() => handleDelete(unitType._id)}
                       />
                     </Td>
@@ -341,7 +363,7 @@ const UnitType = () => {
             )}
           </Table>
           {!isLoading && !isFetching && data?.doc?.length === 0 && (
-            <Text textAlign="center" color="gray.500" py={6}>
+            <Text textAlign="center" color={colors.mutedText} py={6}>
               No unit types found.
             </Text>
           )}
@@ -350,31 +372,40 @@ const UnitType = () => {
 
       {/* Add/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent w="500px" maxW="95%" borderRadius="2xl" overflow="hidden">
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+        <ModalContent
+          w="500px"
+          maxW="95%"
+          borderRadius="2xl"
+          overflow="hidden"
+          bg={colors.bg}
+          boxShadow={colors.modalShadow}
+          border="1px solid"
+          borderColor={colors.borderColor}
+        >
           <ModalHeader
             display="flex"
             align="center"
             justify="space-between"
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             px={6}
             py={3}
             borderBottom="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             top="0"
             zIndex="10"
           >
-            <Text fontSize="lg" fontWeight="bold">
+            <Text  color={colors.headerText} fontSize="lg" fontWeight="bold">
               {isEditMode ? "Edit Main Unit Type" : "Add New Main Unit Type"}
             </Text>
             <ModalCloseButton
               position="absolute"
               right="12px"
               top="10px"
-              color={headerText}
-              _hover={{ bg: "whiteAlpha.200" }}
+              color={colors.headerText}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </ModalHeader>
 
@@ -403,44 +434,55 @@ const UnitType = () => {
                   p={5}
                   overflowY="auto"
                   scrollBehavior="smooth"
+                  bg={colors.bg}
                   sx={{
                     "&::-webkit-scrollbar": { width: "6px" },
+                    "&::-webkit-scrollbar-track": { background: colors.bgInput, borderRadius: "10px" },
                     "&::-webkit-scrollbar-thumb": {
-                      background: "#c1c1c1",
+                      background: colors.accentGold,
                       borderRadius: "10px",
                     },
                   }}
                 >
                   <FormControl isInvalid={touched.name && errors.name}>
-                    <FormLabel>Unit Type Name</FormLabel>
+                    <FormLabel color={colors.labelColor}>Unit Type Name</FormLabel>
                     <Input
                       name="name"
                       value={values.name}
                       onChange={handleChange}
                       placeholder="Enter unit type name"
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _placeholder={{ color: colors.mutedText }}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
                     />
                     {touched.name && errors.name && (
-                      <Text color="red.500" fontSize="sm">
+                      <Text color={colors.badgeErrorText} fontSize="sm">
                         {errors.name}
                       </Text>
                     )}
                   </FormControl>
 
                   <FormControl mt={4}>
-                    <FormLabel>Active Status</FormLabel>
+                    <FormLabel color={colors.labelColor}>Active Status</FormLabel>
                     <Switch
                       name="status"
                       isChecked={values.status}
                       onChange={handleChange}
-                      colorScheme="green"
+                      colorScheme="yellow"
                     />
                   </FormControl>
                 </ModalBody>
 
                 <ModalFooter
-                  bg={footerBg}
+                  bg={colors.footerBg}
                   borderTop="1px solid"
-                  borderColor={borderColor}
+                  borderColor={colors.borderColor}
                   position="sticky"
                   bottom="0"
                   zIndex="10"
@@ -464,8 +506,7 @@ const UnitType = () => {
                   </Button>
                   <Button
                     type="submit"
-                    bg="#d99a36"
-                    color="white"
+                    variant="brand"
                     size="sm"
                     borderRadius="md"
                     isLoading={isSubmitting}

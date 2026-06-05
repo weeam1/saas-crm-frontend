@@ -7,9 +7,9 @@ import {
 	IconButton,
 	InputGroup,
 	InputRightElement,
-	useColorModeValue,
 } from '@chakra-ui/react';
 import { CloseIcon } from '@chakra-ui/icons';
+import { useModalColors } from 'hooks/useModalColors';
 
 const SearchUsers = ({
 	users = [],
@@ -17,14 +17,12 @@ const SearchUsers = ({
 	onSelectUser,
 	size = 'md',
 }) => {
+	const colors = useModalColors();
 	const [search, setSearch] = useState('');
 	const [selectedUser, setSelectedUser] = useState(null);
 	const [open, setOpen] = useState(false);
 
 	const wrapperRef = useRef();
-	const bg = useColorModeValue('white', 'gray.800');
-	const hoverBg = useColorModeValue('gray.100', 'gray.700');
-	const borderColor = useColorModeValue('gray.300', 'gray.600');
 
 	// ---- Pre Select User
 	useEffect(() => {
@@ -64,7 +62,7 @@ const SearchUsers = ({
 	};
 
 	return (
-		<Box ref={wrapperRef} position='relative'>
+		<Box ref={wrapperRef} position='relative' w='100%'>
 			<InputGroup>
 				<Input
 					size={size}
@@ -78,9 +76,16 @@ const SearchUsers = ({
 						setOpen(true);
 					}}
 					onFocus={() => setOpen(true)}
-					bg='gray.100'
-					borderColor='gray.300'
-					_focus={{ borderColor: '#D99A36', boxShadow: '0 0 0 1px #D99A36' }}
+					bg={colors.bgInput}
+					borderColor={colors.borderColor}
+					color={colors.headingText}
+					_placeholder={{ color: colors.mutedText }}
+					_hover={{ borderColor: colors.accentGold }}
+					_focus={{
+						borderColor: colors.accentGold,
+						boxShadow: `0 0 0 1px ${colors.accentGold}`
+					}}
+					transition='all 0.2s ease'
 				/>
 
 				{selectedUser && (
@@ -90,6 +95,13 @@ const SearchUsers = ({
 							variant='ghost'
 							icon={<CloseIcon boxSize='2' />}
 							onClick={handleClear}
+							aria-label='Clear selection'
+							color={colors.bodyText}
+							_hover={{
+								color: colors.accentGold,
+								bg: colors.secondaryBtnHoverBg
+							}}
+							_focus={{ outline: 'none' }}
 						/>
 					</InputRightElement>
 				)}
@@ -101,25 +113,31 @@ const SearchUsers = ({
 					top='100%'
 					left={0}
 					width='100%'
-					bg={bg}
+					bg={colors.bgDeep}
 					zIndex={20}
-					shadow='lg'
+					boxShadow={colors.modalShadow}
 					border='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.borderColor}
 					borderRadius='md'
 					maxH='260px'
 					overflowY='auto'
 					mt={1}
+					css={{
+						'&::-webkit-scrollbar': { width: '6px' },
+						'&::-webkit-scrollbar-track': { background: colors.bgInput, borderRadius: '3px' },
+						'&::-webkit-scrollbar-thumb': { background: colors.borderColor, borderRadius: '3px', '&:hover': { background: colors.accentGold } },
+					}}
 				>
 					{filtered.map((user) => (
 						<Flex
 							key={user._id}
 							p={2}
 							cursor='pointer'
-							_hover={{ bg: hoverBg }}
+							_hover={{ bg: colors.bgInputHover }}
 							onClick={() => handleSelect(user)}
+							transition='all 0.2s ease'
 						>
-							<Text fontSize='sm' fontWeight='medium'>
+							<Text fontSize='sm' fontWeight='medium' color={colors.bodyText}>
 								{user.fullName || user.name}
 							</Text>
 						</Flex>
@@ -133,16 +151,16 @@ const SearchUsers = ({
 					top='100%'
 					left={0}
 					width='100%'
-					bg={bg}
+					bg={colors.bgDeep}
 					border='1px solid'
-					borderColor={borderColor}
-					shadow='lg'
+					borderColor={colors.borderColor}
+					boxShadow={colors.cardShadow}
 					borderRadius='md'
 					mt={1}
 					p={3}
 					zIndex={20}
 				>
-					<Text fontSize='sm' color='gray.500'>
+					<Text fontSize='sm' color={colors.mutedText}>
 						No matching users
 					</Text>
 				</Box>

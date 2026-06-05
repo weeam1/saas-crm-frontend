@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Table,
@@ -28,7 +28,7 @@ import {
   Spinner,
 } from "@chakra-ui/react";
 import { AddIcon, DeleteIcon, EditIcon, ViewIcon } from "@chakra-ui/icons";
-import { FiSearch, FiRefreshCw } from "react-icons/fi";
+import { FiSearch} from "react-icons/fi";
 import {
   useFetchItemsQuery,
   useDeleteItemMutation,
@@ -40,14 +40,18 @@ import { useNavigate } from "react-router-dom";
 import NotesModal from "./Notes/index";
 import TopPagination from "components/pagination/TopPagination";
 import AdvancedSearchModal from "./AdvancedSearchModal";
-import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
+import SearchTags from "components/shared/SearchTags";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { usePermissions } from "hooks/usePermissions";
+import RefreshButton from "components/refresh/RefreshButton";
 import useUserSession from "hooks/useUserSession";
+import CustomTooltip from "components/shared/CustomTooltip";
+import { useModalColors } from "hooks/useModalColors";
 
 const MyListing = () => {
+  const colors = useModalColors();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -68,20 +72,22 @@ const MyListing = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [updateStatus] = useUpdateItemMutation();
   const [filters, setFilters] = useState({});
-  const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState();
+  const [searchTags, setSearchTags] = useState([]);
+  const [shouldRefetch, setShouldRefetch] = useState(false);
+
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
 
   const { hasPermission } = usePermissions();
 
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user?._id }
+    { refetchOnMountOrArgChange: true, skip: !user?._id },
   );
 
   const { data: listingUnitType } = useFetchItemsQuery(
     { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user?._id }
+    { refetchOnMountOrArgChange: true, skip: !user?._id },
   );
 
   const actionPermission =
@@ -113,17 +119,8 @@ const MyListing = () => {
   // check action permission then added
   if (actionPermission) columns.push("Action");
 
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
-    refetch();
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const buildQueryParams = () => {
+  // Build query params
+  const buildQueryParams = useCallback(() => {
     const params = {
       page: currentPage,
       limit: pageSize,
@@ -146,16 +143,129 @@ const MyListing = () => {
     }
 
     return params;
-  };
+  }, [currentPage, pageSize, filters]);
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/my-listings`, params: buildQueryParams() },
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
 
   const { data: countries } = useFetchItemsQuery({
     path: "/countries",
   });
+
+  // Trigger refetch when shouldRefetch changes
+  useEffect(() => {
+    if (shouldRefetch) {
+      refetch();
+      setShouldRefetch(false);
+    }
+  }, [shouldRefetch, refetch]);
+
+  // Generate search tags from filters
+  const generateSearchTags = useCallback((filterObj) => {
+    const tags = [];
+
+    const filterLabels = {
+      projectName: "Project Name",
+      location: "Location",
+      listingType: "Listing Type",
+      unitType: "Unit Type",
+      minPrice: "Min Price",
+      maxPrice: "Max Price",
+      minArea: "Min Area",
+      maxArea: "Max Area",
+      month: "Month",
+      year: "Year",
+      startFrom: "Start Date",
+      startTo: "End Date",
+      country: "Country",
+    };
+
+    Object.entries(filterObj).forEach(([key, value]) => {
+      if (!value) return;
+
+      let displayValue = value;
+      let displayLabel = filterLabels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+      let originalValue = value;
+
+      // Handle listing type
+      if (key === "listingType" && listingType?.doc) {
+        const listingTypeObj = listingType.doc.find(
+          (type) => type._id === value
+        );
+        if (listingTypeObj) {
+          displayValue = listingTypeObj.name;
+        }
+      }
+
+      // Handle unit type
+      if (key === "unitType" && listingUnitType?.doc) {
+        const unitTypeObj = listingUnitType.doc.find(
+          (type) => type._id === value
+        );
+        if (unitTypeObj) {
+          displayValue = unitTypeObj.name;
+        }
+      }
+
+      // Handle price formatting
+      if (key === "minPrice" || key === "maxPrice") {
+        displayValue = `AED ${Number(value).toLocaleString()}`;
+      }
+
+      // Handle area formatting
+      if (key === "minArea" || key === "maxArea") {
+        displayValue = `${Number(value).toLocaleString()} sqft`;
+      }
+
+      // Handle date formatting
+      if ((key === "startFrom" || key === "startTo") && value) {
+        displayValue = format(new Date(value), "d MMM, yyyy");
+      }
+
+      tags.push({
+        key: `${key}-${originalValue}`,
+        label: displayLabel,
+        value: displayValue,
+        originalKey: key,
+        originalValue: originalValue,
+      });
+    });
+
+    return tags;
+  }, [listingType, listingUnitType]);
+
+  // Update search tags when filters change
+  useEffect(() => {
+    if (Object.keys(filters).length > 0) {
+      const newTags = generateSearchTags(filters);
+      setSearchTags(newTags);
+    } else {
+      setSearchTags([]);
+    }
+  }, [filters, generateSearchTags]);
+
+  // Remove individual tag
+  const removeTag = useCallback((key) => {
+    const removedTag = searchTags.find((tag) => tag.key === key);
+    if (!removedTag) return;
+
+    // Create new filters without the removed tag
+    const newFilters = { ...filters };
+    delete newFilters[removedTag.originalKey];
+
+    setFilters(newFilters);
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, [searchTags, filters]);
+
+  // Clear all tags
+  const clearAllTags = useCallback(() => {
+    setFilters({});
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, []);
 
   const handleDeleteListing = async (listing) => {
     try {
@@ -175,7 +285,7 @@ const MyListing = () => {
         status: "success",
         message: `"${user?.fullName}" deleted own listing "${listing?.projectName || "Untitled"}".`,
       });
-      refetch();
+      setShouldRefetch(true);
     } catch (error) {
       const errorMsg =
         error?.data?.message || "Failed to delete the task. Please try again.";
@@ -183,7 +293,7 @@ const MyListing = () => {
       toast.error(
         error.data?.message ||
           "Failed to delete the listing. Please try again.",
-        { autoClose: 3000 }
+        { autoClose: 3000 },
       );
       createUserLog({
         userId: user?._id,
@@ -217,6 +327,7 @@ const MyListing = () => {
       await updateListingStatus(listingId, status);
     }
   };
+
   const handleStatusChange = async (listingId, status, previousStatus) => {
     if (status === previousStatus) {
       return;
@@ -230,6 +341,7 @@ const MyListing = () => {
       await updateListingStatus(listingId, status);
     }
   };
+
   const updateListingStatus = async (listingId, status) => {
     try {
       setStatusLoadingId(listingId);
@@ -258,10 +370,12 @@ const MyListing = () => {
       toast.success("Status updated successfully");
       setTableData((prevData) =>
         prevData.map((listing) =>
-          listing._id === listingId ? { ...listing, status } : listing
-        )
+          listing._id === listingId ? { ...listing, status } : listing,
+        ),
       );
       setIsRejectionModalOpen(false);
+      setRejectionReason("");
+      setAdminNotes("");
     } catch (error) {
       const errorMsg =
         error?.data?.message ||
@@ -284,33 +398,29 @@ const MyListing = () => {
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
       Object.entries(newFilters).filter(
-        ([_, value]) => value !== "" && value !== undefined
-      )
+        ([_, value]) => value !== "" && value !== undefined && value !== null,
+      ),
     );
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
+    setIsFilterOpen(false);
   };
 
-  useEffect(() => {
-    if (filterChanged) {
-      setFilterChanged(false);
-    }
-  }, [filterChanged]);
-
-  const handleClearFilters = (filterKey) => {
-    if (filterKey) {
-      const newFilters = { ...filters };
-      delete newFilters[filterKey];
-      setFilters(newFilters);
-    } else {
-      setFilters({});
-    }
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    setShouldRefetch(true);
+  };
+
+  const handleRefresh = () => {
+    setShouldRefetch(true);
   };
 
   const getStatusColor = (status) => {
@@ -329,14 +439,18 @@ const MyListing = () => {
         return "gray";
     }
   };
+
   return (
     <Box
       overflowY="auto"
       scrollBehavior="smooth"
-      boxShadow="sm"
-      bg="white"
+      boxShadow={colors.cardShadow}
+      bg={colors.bg}
       px={2}
       marginTop={"-16px"}
+      borderRadius="lg"
+      border="1px solid"
+      borderColor={colors.borderColor}
     >
       <Flex
         justifyContent="space-between"
@@ -344,7 +458,7 @@ const MyListing = () => {
         p={3}
         flexDir={{ base: "column", sm: "column", md: "row" }}
       >
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+        <Text fontSize="20px" fontWeight="bold" color={colors.headingText} p={3}>
           My Listings
         </Text>
         <Box
@@ -354,14 +468,6 @@ const MyListing = () => {
           flexDir={{ base: "column", sm: "column", md: "row" }}
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
           {hasPermission("listing", "create:any") && (
             <Button
               size="sm"
@@ -381,15 +487,12 @@ const MyListing = () => {
               icon={<FiSearch />}
               onClick={() => setIsFilterOpen(true)}
               aria-label="Search Listings"
-              colorScheme="brand"
-              variant="solid"
+              variant="ghost"
               size="sm"
-              borderRadius="full"
-              boxShadow="md"
             />
           ) : (
             <Button
-              colorScheme="brand"
+              variant="outline"
               size="sm"
               borderRadius={"md"}
               py={3}
@@ -399,15 +502,25 @@ const MyListing = () => {
               Advanced Search
             </Button>
           )}
+        <RefreshButton
+	label="Refresh"
+	onClick={handleRefresh}
+	isLoading={isLoading || isFetching}
+	isFetching={isLoading || isFetching}
+	size="sm"
+/>
         </Box>
       </Flex>
 
-      <ActiveFiltersDisplay
-        filters={filters}
-        onClearFilters={handleClearFilters}
-        listingTypes={listingType?.doc}
-        unitTypes={listingUnitType?.doc}
-      />
+      {/* Search Tags */}
+      {searchTags.length > 0 && (
+        <SearchTags
+          searchTags={searchTags}
+          removeTag={removeTag}
+          clearAllTags={clearAllTags}
+        />
+      )}
+
       <Box mb={1}>
         <TopPagination
           currentPage={currentPage}
@@ -417,22 +530,24 @@ const MyListing = () => {
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
           handlePageSize={handlePageSizeChange}
-          refetching={isLoading}
+          refetching={isFetching}
           loading={isLoading}
         />
       </Box>
+
       <Box
-        borderRadius="4px"
-        boxShadow="sm"
+        borderRadius="lg"
+        boxShadow={colors.cardShadow}
         borderWidth="1px"
+        borderColor={colors.borderColor}
         overflow="hidden"
       >
         <Box position="relative" maxH="120vh" overflowY="auto">
-          <Table variant="striped" size="lg">
+          <Table variant="simple" size="lg">
             <Thead
               position="sticky"
               top={0}
-              bg="white"
+              bg={colors.bgDeep}
               zIndex={2}
               boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
               fontSize={"16px"}
@@ -440,7 +555,7 @@ const MyListing = () => {
             >
               <Tr>
                 {columns.map((header, index) => (
-                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Th key={index} bg={colors.bgDeep} whiteSpace="nowrap" py={4} borderColor={colors.borderColor}>
                     <Box
                       display="flex"
                       alignItems="center"
@@ -449,7 +564,7 @@ const MyListing = () => {
                       <Text
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="600"
-                        color="gray.700"
+                        color={colors.headingText}
                         textTransform="capitalize"
                       >
                         {header}
@@ -465,15 +580,17 @@ const MyListing = () => {
               <Tbody>
                 {tableData && tableData.length > 0 ? (
                   tableData.map((listing, index) => (
-                    <Tr key={index}>
+                    <Tr key={listing._id || index} borderColor={colors.borderColor}>
                       <Td
                         py={4}
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
-                        {index + 1}
+                        {(currentPage - 1) * pageSize + index + 1}
                       </Td>
                       <Td
                         textAlign="center"
@@ -481,16 +598,18 @@ const MyListing = () => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.projectName}
                       </Td>
-                      <Td textAlign="center">
+                      <Td textAlign="center" color={colors.bodyText} borderColor={colors.borderColor}>
                         {listing.unitType?.name || "N/A"}
                       </Td>
-                      <Td textAlign="center">
+                      <Td textAlign="center" color={colors.bodyText} borderColor={colors.borderColor}>
                         {listing.subUnitType?.name || "N/A"}
                       </Td>
-                      <Td textAlign="center" minWidth="100px">
+                      <Td textAlign="center" minWidth="100px" color={colors.bodyText} borderColor={colors.borderColor}>
                         {listing.listingType?.name || "N/A"}
                       </Td>
                       <Td
@@ -499,6 +618,8 @@ const MyListing = () => {
                         minWidth="250px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.location || "N/A"}
                       </Td>
@@ -508,6 +629,8 @@ const MyListing = () => {
                         minWidth="250px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.country?.name || "N/A"}
                       </Td>
@@ -517,6 +640,8 @@ const MyListing = () => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.buildingAge
                           ? `${listing.buildingAge} Years`
@@ -528,6 +653,8 @@ const MyListing = () => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing?.developer ? listing?.developer : "N/A"}
                       </Td>
@@ -537,24 +664,26 @@ const MyListing = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.price
                           ? `AED ${listing.price.toLocaleString()}`
                           : "N/A"}
                       </Td>
-                      <Td textAlign="center">
+                      <Td textAlign="center" color={colors.bodyText} borderColor={colors.borderColor}>
                         {listing.brokerCommissionType === "AED"
                           ? "AED"
                           : listing.brokerCommissionType === "PERCENT"
                             ? "Percent"
                             : "N/A"}
                       </Td>
-                      <Td textAlign="center">
+                      <Td textAlign="center" color={colors.bodyText} borderColor={colors.borderColor}>
                         {listing.brokerCommissionValue
                           ? `${listing.brokerCommissionValue}${listing.brokerCommissionType === "PERCENT" ? " %" : listing.brokerCommissionType === "AED" ? " AED" : ""}`
                           : "0"}
                       </Td>
-                      <Td textAlign="center">
+                      <Td textAlign="center" color={colors.bodyText} borderColor={colors.borderColor}>
                         {listing.totalPrice
                           ? `AED ${listing.totalPrice.toLocaleString()}`
                           : listing.price
@@ -567,6 +696,8 @@ const MyListing = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.area ? listing.area.toLocaleString() : "N/A"}
                       </Td>
@@ -576,9 +707,10 @@ const MyListing = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         {statusLoadingId === listing._id ? (
-                          <Spinner size="sm" color="brand.500" />
+                          <Spinner size="sm" color={colors.accentGold} />
                         ) : listing.status === "rejected" ? (
                           <>
                             <Select
@@ -588,17 +720,22 @@ const MyListing = () => {
                                 handleStatusChange(
                                   listing._id,
                                   e.target.value,
-                                  listing.status
+                                  listing.status,
                                 )
                               }
                               size="sm"
                               width="150px"
-                              focusBorderColor="brand.500"
-                              bg={getStatusColor(listing.status) + ".100"}
-                              color={getStatusColor(listing.status) + ".800"}
+                              bg={colors.bgInput}
+                              borderColor={colors.borderColor}
+                              color={colors.headingText}
+                              _hover={{ borderColor: colors.accentGold }}
+                              _focus={{
+                                borderColor: colors.accentGold,
+                                boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                              }}
                             >
-                              <option value="rejected">Rejected</option>
-                              <option value="pending">Re-consider</option>
+                              <option value="rejected" style={{ background: colors.bg, color: colors.headingText }}>Rejected</option>
+                              <option value="pending" style={{ background: colors.bg, color: colors.headingText }}>Re-consider</option>
                             </Select>
                           </>
                         ) : listing.status === "pending" ? (
@@ -607,9 +744,9 @@ const MyListing = () => {
                             colorScheme="green"
                             size="sm"
                             width="150px"
-                            focusBorderColor="brand.500"
-                            bg={getStatusColor(listing.status) + ".100"}
-                            color={getStatusColor(listing.status) + ".800"}
+                            bg={colors.bgInput}
+                            borderColor={colors.borderColor}
+                            color={colors.headingText}
                             isDisabled={
                               ![
                                 "approved",
@@ -620,8 +757,8 @@ const MyListing = () => {
                               ].includes(listing.status)
                             }
                           >
-                            <option value="pending">Pending</option>
-                            <option value="draft">Draft</option>
+                            <option value="pending" style={{ background: colors.bg, color: colors.headingText }}>Pending</option>
+                            <option value="draft" style={{ background: colors.bg, color: colors.headingText }}>Draft</option>
                           </Select>
                         ) : listing.status === "draft" ? (
                           <Select
@@ -629,14 +766,14 @@ const MyListing = () => {
                             colorScheme="green"
                             size="sm"
                             width="150px"
-                            focusBorderColor="brand.500"
-                            bg={getStatusColor(listing.status) + ".100"}
-                            color={getStatusColor(listing.status) + ".800"}
+                            bg={colors.bgInput}
+                            borderColor={colors.borderColor}
+                            color={colors.headingText}
                             onChange={(e) =>
                               handleStatusChange(
                                 listing._id,
                                 e.target.value,
-                                listing.status
+                                listing.status,
                               )
                             }
                             isDisabled={
@@ -649,14 +786,14 @@ const MyListing = () => {
                               ].includes(listing.status)
                             }
                           >
-                            <option value={isSuperAdmin ? "active" : "pending"}>
+                            <option value={isSuperAdmin ? "active" : "pending"} style={{ background: colors.bg, color: colors.headingText }}>
                               Publish
                             </option>
-                            <option value="draft">Draft</option>
+                            <option value="draft" style={{ background: colors.bg, color: colors.headingText }}>Draft</option>
                           </Select>
                         ) : (
                           <Switch
-                            colorScheme="green"
+                            colorScheme="yellow"
                             isChecked={listing.status === "active"}
                             onChange={(e) =>
                               handleStatusToggle(listing._id, e.target.checked)
@@ -671,6 +808,8 @@ const MyListing = () => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.createdAt
                           ? format(listing.createdAt, "MMM d, yyyy h:mm a")
@@ -682,12 +821,14 @@ const MyListing = () => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.createdBy?.fullName}
                       </Td>
-                      <Td py={4} textAlign={"center"}>
+                      <Td py={4} textAlign={"center"} borderColor={colors.borderColor}>
                         <Button
-                          colorScheme="brand"
+                          variant="brand"
                           size="sm"
                           onClick={() => {
                             setSelectedListing(null);
@@ -704,6 +845,7 @@ const MyListing = () => {
                           fontSize={{ base: "12px", md: "14px" }}
                           fontWeight="400"
                           minWidth="100px"
+                          borderColor={colors.borderColor}
                         >
                           <Box
                             display="flex"
@@ -716,15 +858,16 @@ const MyListing = () => {
                                 aria-label="Edit"
                                 icon={<EditIcon />}
                                 size="sm"
+                                variant="ghost"
                                 onClick={() =>
                                   Navigate(
-                                    `/listing/my-listings/update/${listing._id}`
+                                    `/listing/my-listings/update/${listing._id}`,
                                   )
                                 }
-                                color={"#c09f5f"}
+                                color={colors.accentGold}
                                 _hover={{
-                                  backgroundColor: "#c09f5f",
-                                  color: "white",
+                                  bg: colors.bgDeep,
+                                  color: colors.goldLight,
                                 }}
                               />
                             )}
@@ -734,10 +877,11 @@ const MyListing = () => {
                                 aria-label="Delete"
                                 icon={<DeleteIcon />}
                                 size="sm"
-                                color={"#c09f5f"}
+                                variant="ghost"
+                                color={colors.badgeErrorText}
                                 _hover={{
-                                  backgroundColor: "#c09f5f",
-                                  color: "white",
+                                  bg: colors.badgeErrorBg,
+                                  color: colors.badgeErrorText,
                                 }}
                                 onClick={() => handleDeleteListing(listing)}
                               />
@@ -748,14 +892,15 @@ const MyListing = () => {
                                 aria-label="View"
                                 icon={<ViewIcon />}
                                 size="sm"
-                                color={"#c09f5f"}
+                                variant="ghost"
+                                color={colors.accentGold}
                                 _hover={{
-                                  backgroundColor: "#c09f5f",
-                                  color: "white",
+                                  bg: colors.bgDeep,
+                                  color: colors.goldLight,
                                 }}
                                 onClick={() =>
                                   Navigate(
-                                    `/listing/view-listing/${listing._id}`
+                                    `/listing/view-listing/${listing._id}`,
                                   )
                                 }
                               />
@@ -766,14 +911,15 @@ const MyListing = () => {
                     </Tr>
                   ))
                 ) : (
-                  <Tr borderColor="gray.200" textAlign="center">
+                  <Tr borderColor={colors.borderColor} textAlign="center">
                     <Td
                       borderBottom="none"
-                      colSpan="14"
+                      colSpan={columns.length}
                       fontSize={{ base: "12px", md: "15px" }}
                       fontWeight="500"
-                      color="gray.500"
+                      color={colors.mutedText}
                       textAlign="center"
+                      borderColor={colors.borderColor}
                     >
                       <NoData label="listing" />
                     </Td>
@@ -784,45 +930,70 @@ const MyListing = () => {
           </Table>
         </Box>
       </Box>
+
       {/* Rejection Reason Modal */}
       <Modal
         isOpen={isRejectionModalOpen}
-        onClose={() => setIsRejectionModalOpen(false)}
+        onClose={() => {
+          setIsRejectionModalOpen(false);
+          setRejectionReason("");
+          setAdminNotes("");
+        }}
       >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Rejection Details</ModalHeader>
-          <ModalCloseButton />
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+        <ModalContent bg={colors.bg} borderRadius="2xl" boxShadow={colors.modalShadow}>
+          <ModalHeader bg={colors.headerBg} color={colors.headerText}>Rejection Details</ModalHeader>
+          <ModalCloseButton color={colors.headerText} _hover={{ bg: colors.closeBtnHoverBg }} />
           <ModalBody>
             <Box mb={4}>
-              <FormLabel>Rejection Reason</FormLabel>
+              <FormLabel color={colors.labelColor}>Rejection Reason</FormLabel>
               <Input
                 placeholder="Enter reason for rejection"
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                focusBorderColor="brand.500"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _placeholder={{ color: colors.mutedText }}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               />
             </Box>
             <Box mb={4}>
-              <FormLabel>Admin Notes (Optional)</FormLabel>
+              <FormLabel color={colors.labelColor}>Admin Notes (Optional)</FormLabel>
               <Textarea
                 placeholder="Enter any additional notes"
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
-                focusBorderColor="brand.500"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _placeholder={{ color: colors.mutedText }}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               />
             </Box>
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter bg={colors.footerBg} borderTop="1px solid" borderColor={colors.borderColor}>
             <Button
               variant="outline"
               mr={3}
-              onClick={() => setIsRejectionModalOpen(false)}
+              onClick={() => {
+                setIsRejectionModalOpen(false);
+                setRejectionReason("");
+                setAdminNotes("");
+              }}
             >
               Cancel
             </Button>
             <Button
-              colorScheme="red"
+              variant="brand"
               onClick={() =>
                 updateListingStatus(currentListingId, selectedStatus)
               }
@@ -848,7 +1019,7 @@ const MyListing = () => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
-        clearFilter={filterChanged}
+        clearFilter={false}
         countries={countries?.doc || []}
       />
     </Box>

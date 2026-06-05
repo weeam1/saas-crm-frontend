@@ -1,16 +1,15 @@
+
 import { useCallback, useEffect, useState } from 'react';
 import { FaPen } from 'react-icons/fa';
 import { format } from 'date-fns';
-import { Box, Flex, Icon, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Flex, Icon, useBreakpointValue, Checkbox } from '@chakra-ui/react';
 import LeftCard from './subComponents/card/LeftCard';
 import RightCard from './subComponents/card/RightCard';
 import LeadMenu from './subComponents/card/LeadMenu';
 import { leadlabelFontSize } from './constants';
 
-import './checkbox.css';
 import LeadNotesModal from './lead-note/LeadNotesModal';
 import useUserSession from 'hooks/useUserSession';
-// import moment from 'moment';
 
 const LeadCard = ({
 	editSecondary,
@@ -35,13 +34,11 @@ const LeadCard = ({
 	setIsLeadCycle,
 }) => {
 	const cardWidth = useBreakpointValue({
-		base: '100%', // Full width on mobile
-		// sm: '48%', // Two cards per row on small screens
-		md: '33.33%', // Three cards per row on medium screens
-		lg: '25%', // Three cards per row on larger screens
+		base: '100%',
+		md: '33.33%',
+		lg: '25%',
 	});
 
-	// const user = useSelector((state) => state.user.user);
 	const { user, userRoleName } = useUserSession();
 
 	const [leadNotes, setLeadNotes] = useState(false);
@@ -51,9 +48,8 @@ const LeadCard = ({
 	);
 
 	const handleCheckboxChange = useCallback(
-		(event) => {
-			const isChecked = event.target.checked;
-
+		(e) => {
+			const isChecked = e.target.checked;
 			setLocalChecked(isChecked);
 
 			setTimeout(() => {
@@ -66,23 +62,17 @@ const LeadCard = ({
 					if (!Array.isArray(prev)) prev = [];
 
 					return isChecked
-						? [...prev, lead] // Add the lead
+						? [...prev, lead]
 						: prev.filter((item) => item._id !== lead._id);
 				});
 			}, 0);
 		},
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[setSelectedValues, lead],
 	);
 
 	useEffect(() => {
 		setLocalChecked(selectedValues.includes(lead?._id));
 	}, [selectedValues, lead?._id]);
-
-	// const role =
-	// 	user?.role === 'superAdmin'
-	// 		? 'superAdmin'
-	// 		: (user?.roles?.[0]?.roleName ?? 'unknown');
 
 	const hiddenFields = JSON.parse(
 		localStorage.getItem('userCustomColumns') || '[]',
@@ -92,41 +82,51 @@ const LeadCard = ({
 		<>
 			<Box
 				borderWidth='1px'
-				borderRadius='md'
-				p={2}
-				bg={localChecked ? 'gray.100' : 'white'}
+				borderRadius='lg'
+				p={3}
+				bg={localChecked ? 'bg.elevated' : 'bg.surface'}
+				borderColor={localChecked ? 'border.focus' : 'border.default'}
 				width='100%'
 				flexBasis={cardWidth}
-				boxShadow='sm'
-				_hover={{ boxShadow: 'lg', bg: 'gray.100' }}
+				boxShadow='card'
+				_hover={{
+					boxShadow: 'soft',
+					bg: 'bg.elevated',
+					borderColor: 'border.focus',
+				}}
 				transition='all 0.2s ease-in-out'
 				position='relative'
 			>
 				{/* Top-right controls */}
 				<Box
 					position='absolute'
-					top={1}
-					right={0}
+					top={2}
+					right={2}
 					display='flex'
 					alignItems='center'
 					gap={2}
+					zIndex={1}
 				>
 					<Icon
 						as={FaPen}
 						boxSize='14px'
 						onClick={() => setLeadNotes(true)}
-						color='gray.500'
+						color='text.accent'
 						cursor='pointer'
+						_hover={{ color: 'accent.goldLight' }}
 					/>
 
-					<label className='custom-checkbox'>
-						<input
-							type='checkbox'
-							checked={localChecked}
-							onChange={handleCheckboxChange}
-						/>
-						<span className='checkmark'></span>
-					</label>
+				<Checkbox
+  isChecked={localChecked}
+  onChange={handleCheckboxChange}
+  size='sm'
+  sx={{
+    ".chakra-checkbox__control": {
+      _focus: { boxShadow: "none" },
+      borderRadius: "2px"  // ← Makes it almost square
+    }
+  }}
+/>
 
 					<LeadMenu
 						editSecondary={editSecondary}
@@ -148,6 +148,7 @@ const LeadCard = ({
 						setIsLeadCycle={setIsLeadCycle}
 					/>
 				</Box>
+
 				<Flex
 					justifyContent='space-between'
 					align='stretch'
@@ -170,20 +171,20 @@ const LeadCard = ({
 						hiddenFields={hiddenFields}
 					/>
 				</Flex>
+
 				{!hiddenFields.includes('createdDate') && (
 					<Box
 						textAlign='right'
 						width='full'
 						fontSize={leadlabelFontSize}
-						color='gray.900'
+						color='text.muted'
+						mt={2}
+						pt={2}
+						borderTop='1px solid'
+						borderTopColor='border.subtle'
 					>
-						<span style={{ color: 'softGray.200', marginRight: '4px' }}>
-							Lead time
-						</span>
-
+						<span style={{ marginRight: '4px' }}>Lead time</span>
 						{format(new Date(lead?.createdDate), 'MMM d, yyyy h:mm a')}
-
-						{/* {moment.utc(lead.createdDate).format('MMM D, YYYY h:mm A')} */}
 					</Box>
 				)}
 			</Box>

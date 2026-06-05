@@ -11,40 +11,43 @@ import {
 	Legend,
 } from 'recharts';
 import { Box, Circle, Flex, Text } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 export const CustomTooltip = ({ active, payload }) => {
+	const colors = useModalColors();
+
 	if (active && payload && payload.length) {
 		const item = payload[0].payload;
 		return (
 			<Box
-				bg='white'
+				bg={colors.bg}
 				p={3}
 				rounded='md'
-				shadow='lg'
+				shadow={colors.modalShadow}
 				border='1px solid'
-				borderColor='gray.200'
+				borderColor={colors.borderColor}
 				minWidth='160px'
 			>
 				<Flex align='center' gap={2} mb={1}>
-					<Circle size='12px' bg={item.bgColor} />
-					<Text fontWeight='bold' fontSize='sm' color='gray.700'>
+					<Circle size='12px' bg={item.bgColor || colors.accentGold} />
+					<Text fontWeight='bold' fontSize='sm' color={colors.headingText}>
 						{item.label || item.name}
 					</Text>
 				</Flex>
 				<Flex justify='space-between'>
-					<Text fontSize='sm' color='gray.500'>
+					<Text fontSize='sm' color={colors.mutedText}>
 						Total:
 					</Text>
-					<Text fontSize='sm' fontWeight='600'>
+					<Text fontSize='sm' fontWeight='600' color={colors.headingText}>
 						{item.value}
 					</Text>
 				</Flex>
 				{item.percent && (
 					<Flex justify='space-between'>
-						<Text fontSize='sm' color='gray.500'>
+						<Text fontSize='sm' color={colors.mutedText}>
 							Percentage:
 						</Text>
-						<Text fontSize='sm' fontWeight='600'>
+						<Text fontSize='sm' fontWeight='600' color={colors.headingText}>
 							{(item.percent * 100).toFixed(1)}%
 						</Text>
 					</Flex>
@@ -70,12 +73,14 @@ const StatusBarChart = ({
 	axisFontSize = '12px',
 	customColors = [],
 	margin = { top: 20, right: 30, left: 5, bottom: 20 },
-	borderRadius = [4, 4, 0, 0], // horizontal layout
+	borderRadius = [4, 4, 0, 0],
 	barGap = 4,
 }) => {
-	// Default color palette if not provided
-	const defaultColors = ['#3182CE', '#38A169', '#DD6B20', '#805AD5', '#D53F8C'];
-	const colors = customColors.length > 0 ? customColors : defaultColors;
+	const colors = useModalColors();
+
+	// Default color palette with gold theme
+	const defaultColors = [colors.accentGold, colors.goldLight, colors.goldDark, '#4A7BA3', '#2E5C87'];
+	const barColors = customColors.length > 0 ? customColors : defaultColors;
 
 	return (
 		<ResponsiveContainer width={containerWidth} height={containerHeight}>
@@ -91,7 +96,7 @@ const StatusBarChart = ({
 						strokeDasharray='3 3'
 						vertical={layout === 'vertical' ? false : true}
 						horizontal={layout === 'vertical' ? true : false}
-						stroke='#e2e8f0'
+						stroke={colors.borderColor}
 					/>
 				)}
 
@@ -99,9 +104,8 @@ const StatusBarChart = ({
 					type={layout === 'vertical' ? 'number' : 'category'}
 					dataKey={layout === 'vertical' ? null : labelKey}
 					tickLine={false}
-					axisLine={true}
-					tick={{ fill: '#4a5568', fontSize: axisFontSize }}
-					// height={layout === 'vertical' ? 0 : 40}
+					axisLine={{ stroke: colors.borderColor }}
+					tick={{ fill: colors.bodyText, fontSize: axisFontSize }}
 					domain={[0, (dataMax) => Math.ceil(dataMax * 1.1)]}
 				/>
 
@@ -109,24 +113,11 @@ const StatusBarChart = ({
 					type={layout === 'vertical' ? 'category' : 'number'}
 					dataKey={layout === 'vertical' ? labelKey : null}
 					tickLine={false}
-					axisLine={true}
-					tick={{ fill: '#4a5568', fontSize: axisFontSize }}
-					// width={layout === 'vertical' ? 120 : 60}
+					axisLine={{ stroke: colors.borderColor }}
+					tick={{ fill: colors.bodyText, fontSize: axisFontSize }}
 				/>
 
-				<Tooltip content={<CustomTooltip />} cursor={{ fill: '#ebf8ff' }} />
-
-				{/* {showLegend && (
-					<Legend
-						verticalAlign='top'
-						height={36}
-						formatter={(value, entry, index) => (
-							<span style={{ color: '#4A5568', fontSize: '12px' }}>
-								{value}
-							</span>
-						)}
-					/>
-				)} */}
+				<Tooltip content={<CustomTooltip />} cursor={{ fill: `${colors.accentGold}15` }} />
 
 				<Bar
 					dataKey={dataKey}
@@ -140,7 +131,7 @@ const StatusBarChart = ({
 					{data.map((entry, index) => (
 						<Cell
 							key={`cell-${index}`}
-							fill={entry.bgColor || colors[index % colors.length]}
+							fill={entry.bgColor || barColors[index % barColors.length]}
 						/>
 					))}
 
@@ -157,7 +148,7 @@ const StatusBarChart = ({
 								}
 								return value;
 							}}
-							fill='#2D3748'
+							fill={colors.headingText}
 							fontSize={axisFontSize}
 							fontWeight={500}
 							offset={layout === 'vertical' ? 10 : 5}

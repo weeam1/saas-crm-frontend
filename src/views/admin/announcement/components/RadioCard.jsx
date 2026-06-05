@@ -1,7 +1,9 @@
 import React from 'react';
 import { Box, useRadio } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const RadioCard = (props) => {
+	const colors = useModalColors();
 	const { getInputProps, getCheckboxProps } = useRadio(props);
 
 	const input = getInputProps();
@@ -15,17 +17,22 @@ const RadioCard = (props) => {
 				cursor='pointer'
 				borderWidth='1px'
 				borderRadius='md'
-				boxShadow='md'
-				bg='softGray.100'
+				boxShadow='sm'
+				bg={colors.bgInput}
+				borderColor={colors.borderColor}
+				color={colors.bodyText}
 				_checked={{
-					bg: 'brand.500',
-					color: 'white',
-					borderColor: 'brand.500',
+					bg: colors.accentGold,
+					color: colors.headerText,
+					borderColor: colors.accentGold,
 				}}
 				_focus={{
-					// boxShadow: 'outline',
 					outline: 'none',
 				}}
+				_hover={{
+					borderColor: colors.accentGold,
+				}}
+				transition='all 0.2s ease'
 				fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
 				px={{ base: 2, md: 4, lg: 6 }}
 				py={2}

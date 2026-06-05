@@ -5,7 +5,7 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import { TeamStatsOverview } from './TeamStatsOverview';
 import { FaChevronLeft } from 'react-icons/fa';
 import AppButton from 'components/shared/AppButton';
-import TopAgentsByLeads from './TopAgentsByLeads';
+import TopUserByLeads from './TopUserByLeads';
 import TopAgentsByNotes from './TopAgentsByNotes';
 import AgentDetails from './AgentDetails';
 import NoData from 'components/Message/NoData';
@@ -28,7 +28,7 @@ const TeamDetailsScreen = () => {
 		},
 		{
 			refetchOnMountOrArgChange: true,
-		}
+		},
 	);
 
 	const { data: sales, isLoading: salesLoading } = useFetchItemsQuery(
@@ -39,7 +39,7 @@ const TeamDetailsScreen = () => {
 		{
 			skip: !id,
 			refetchOnMountOrArgChange: true,
-		}
+		},
 	);
 
 	useEffect(() => {
@@ -50,7 +50,7 @@ const TeamDetailsScreen = () => {
 				manager?.totalLeads,
 				manager?.totalAgents,
 				manager?.assignedLeads,
-				manager?.totalNotes
+				manager?.totalNotes,
 			);
 
 			setTeamPerfomance({ score, rating });
@@ -92,6 +92,7 @@ const TeamDetailsScreen = () => {
 								base: 'repeat(1, 1fr)',
 								md: 'repeat(2, 1fr)',
 								lg: 'repeat(3, 1fr)',
+								xl: 'repeat(5, 1fr)',
 							}}
 							// templateColumns='repeat(auto-fit, minmax(250px, 1fr))'
 							gap={6}
@@ -106,10 +107,19 @@ const TeamDetailsScreen = () => {
 							title='Manager Sales Perfomance'
 						/>
 
+						{/* Top team leaders */}
+						<TopUserByLeads
+							title='📊 Top Team Leaders by Leads'
+							users={data?.doc?.teamLeaders}
+						/>
+
 						{/* Main Content Area */}
 						{data?.doc?.agents && data?.doc?.agents?.length ? (
 							<Grid templateColumns={{ base: '1fr', lg: '1fr 1fr' }} gap={8}>
-								<TopAgentsByLeads agents={data?.doc?.agents} />
+								<TopUserByLeads
+									title='📊 Top Agents by Leads'
+									users={data?.doc?.agents}
+								/>
 								<TopAgentsByNotes agents={data?.doc?.agents} />
 							</Grid>
 						) : (

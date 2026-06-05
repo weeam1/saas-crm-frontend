@@ -27,8 +27,6 @@ import {
 	FiUsers,
 } from 'react-icons/fi';
 import moment from 'moment';
-import { format } from 'date-fns';
-
 import AudioPlayer from './Component/AudioPlayer';
 import { formatCallDuration } from 'utils/helpers';
 import Vector from 'assets/icons/Vector.png';
@@ -260,10 +258,7 @@ const CallTableView = ({
 										textAlign={'center'}
 									>
 										{call.calldate
-											? format(
-													new Date(call.calldate + '+04:00'),
-													'MMM d, yyyy h:mm a',
-												)
+											? moment(call.calldate).format('MMM D, h:mm A')
 											: 'no data found'}
 									</Td>
 

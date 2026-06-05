@@ -33,6 +33,9 @@ import {
   DrawerBody,
   Skeleton,
   SkeletonText,
+  Badge,
+  Divider,
+  Tooltip,
 } from "@chakra-ui/react";
 import {
   IoArrowBack,
@@ -319,20 +322,126 @@ const ViewSurveyResponse = () => {
       </Flex>
     );
 
+  // const SidebarContent = (
+  //   <>
+  //     <Box p={4}>
+  //       <InputGroup>
+  //         <InputLeftElement pointerEvents="none">
+  //           <Icon as={IoSearch} color="gray.400" />
+  //         </InputLeftElement>
+  //         <Input
+  //           placeholder="Search users..."
+  //           focusBorderColor="brand.500"
+  //           bg="#F4F4F4"
+  //           value={searchTerm}
+  //           onChange={(e) => setSearchTerm(e.target.value)}
+  //           fontWeight="700"
+  //         />
+  //       </InputGroup>
+  //     </Box>
+  //     <VStack
+  //       align="stretch"
+  //       spacing={2}
+  //       px={4}
+  //       pb={4}
+  //       flex="1"
+  //       overflowY="auto"
+  //       css={{
+  //         "&::-webkit-scrollbar": {
+  //           width: "6px",
+  //         },
+  //         "&::-webkit-scrollbar-track": {
+  //           background: "#f1f1f1",
+  //         },
+  //         "&::-webkit-scrollbar-thumb": {
+  //           background: "#888",
+  //           borderRadius: "3px",
+  //         },
+  //         "&::-webkit-scrollbar-thumb:hover": {
+  //           background: "#555",
+  //         },
+  //       }}
+  //     >
+  //       <Text fontWeight="bold" fontSize="lg" mb={2}>
+  //         Survey Users
+  //       </Text>
+  //       {filteredUsers.length === 0 ? (
+  //         <Box py={8} textAlign="center" color="gray.500" fontWeight="medium">
+  //           No user found
+  //         </Box>
+  //       ) : (
+  //         filteredUsers.map((userData) => (
+  //           <HStack
+  //             key={userData.user._id}
+  //             spacing={3}
+  //             bg={currentUserId === userData.user._id ? "#ABFF8D" : "gray.100"}
+  //             p={3}
+  //             borderRadius="md"
+  //             _hover={{
+  //               bg:
+  //                 currentUserId === userData.user._id ? "#ABFF8D" : "gray.200",
+  //             }}
+  //             cursor="pointer"
+  //             onClick={() => handleUserClick(userData.user._id)}
+  //           >
+  //             <Avatar
+  //               size="sm"
+  //               name={userData?.user?.fullName}
+  //               src={userData?.user?.profileImage}
+  //             />
+  //             <Box flex="1">
+  //               <Text fontWeight="medium">{userData?.user?.fullName || 'N/A'}</Text>
+  //               <Text fontSize="sm" color="gray.500">
+  //                 {userData.user.roles[0]?.roleName || "User"}
+  //               </Text>
+
+  //               <Text fontSize={"sm"} color={"#FF0000"}>
+  //                 {(userPoints[userData.user._id] ?? userData?.points ?? 0) ===
+  //                   0 && userData?.status === "pending"
+  //                   ? "Pending"
+  //                   : `${userPoints[userData.user._id] ?? userData?.points ?? 0}/${surveyData?.questionsCount}`}
+  //               </Text>
+  //             </Box>
+  //             <Box
+  //               bg="brand.500"
+  //               borderRadius="md"
+  //               p={1}
+  //               display="flex"
+  //               justifyContent="center"
+  //               alignItems="center"
+  //             >
+  //               <Icon as={IoEye} color="white" boxSize={4} />
+  //             </Box>
+  //           </HStack>
+  //         ))
+  //       )}
+  //     </VStack>
+  //   </>
+  // );
+
   const SidebarContent = (
     <>
       <Box p={4}>
         <InputGroup>
           <InputLeftElement pointerEvents="none">
-            <Icon as={IoSearch} color="gray.400" />
+            <Icon as={IoSearch} color="text.muted" />
           </InputLeftElement>
           <Input
             placeholder="Search users..."
-            focusBorderColor="brand.500"
-            bg="#F4F4F4"
+            borderColor="border.default"
+            bg="bg.input"
+            color="text.body"
+            _placeholder={{ color: "text.muted" }}
+            _hover={{ borderColor: "gold.dark" }}
+            _focus={{
+              borderColor: "gold.primary",
+              boxShadow: "0 0 0 1px #D4AF37",
+            }}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            fontWeight="700"
+            fontWeight="500"
+            fontSize="sm"
+            borderRadius="lg"
           />
         </InputGroup>
       </Box>
@@ -348,73 +457,191 @@ const ViewSurveyResponse = () => {
             width: "6px",
           },
           "&::-webkit-scrollbar-track": {
-            background: "#f1f1f1",
+            background: "rgba(212, 175, 55, 0.05)",
+            borderRadius: "3px",
           },
           "&::-webkit-scrollbar-thumb": {
-            background: "#888",
+            background: "navy.600",
             borderRadius: "3px",
           },
           "&::-webkit-scrollbar-thumb:hover": {
-            background: "#555",
+            background: "gold.dark",
           },
         }}
       >
-        <Text fontWeight="bold" fontSize="lg" mb={2}>
+        <Text fontWeight="bold" fontSize="md" color="text.heading" mb={2}>
           Survey Users
         </Text>
         {filteredUsers.length === 0 ? (
-          <Box py={8} textAlign="center" color="gray.500" fontWeight="medium">
+          <Box py={8} textAlign="center" color="text.muted" fontWeight="medium">
             No user found
           </Box>
         ) : (
-          filteredUsers.map((userData) => (
-            <HStack
-              key={userData.user._id}
-              spacing={3}
-              bg={currentUserId === userData.user._id ? "#ABFF8D" : "gray.100"}
-              p={3}
-              borderRadius="md"
-              _hover={{
-                bg:
-                  currentUserId === userData.user._id ? "#ABFF8D" : "gray.200",
-              }}
-              cursor="pointer"
-              onClick={() => handleUserClick(userData.user._id)}
-            >
-              <Avatar
-                size="sm"
-                name={userData?.user?.fullName}
-                src={userData?.user?.profileImage}
-              />
-              <Box flex="1">
-                <Text fontWeight="medium">{userData?.user?.fullName || 'N/A'}</Text>
-                <Text fontSize="sm" color="gray.500">
-                  {userData.user.roles[0]?.roleName || "User"}
-                </Text>
+          filteredUsers.map((userData) => {
+            const isCurrentUser = currentUserId === userData.user._id;
+            const userPointsValue = userPoints[userData.user._id] ?? userData?.points ?? 0;
+            const isPending = userPointsValue === 0 && userData?.status === "pending";
 
-                <Text fontSize={"sm"} color={"#FF0000"}>
-                  {(userPoints[userData.user._id] ?? userData?.points ?? 0) ===
-                    0 && userData?.status === "pending"
-                    ? "Pending"
-                    : `${userPoints[userData.user._id] ?? userData?.points ?? 0}/${surveyData?.questionsCount}`}
-                </Text>
-              </Box>
-              <Box
-                bg="brand.500"
-                borderRadius="md"
-                p={1}
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
+            return (
+              // <HStack
+              //   key={userData.user._id}
+              //   spacing={3}
+              //   bg={isCurrentUser ? "rgba(146, 147, 147, 0.5)" : "bg.elevated"}
+              //   p={3}
+              //   borderRadius="lg"
+              //   border="1px solid"
+              //   borderColor={isCurrentUser ? "gold.primary" : "border.subtle"}
+              //   transition="all 0.2s"
+              //   _hover={{
+              //     bg: isCurrentUser ? "rgba(212, 175, 55, 0.15)" : "bg.elevated",
+              //     borderColor: "gold.primary",
+              //     transform: "translateX(2px)",
+              //   }}
+              //   cursor="pointer"
+              //   onClick={() => handleUserClick(userData.user._id)}
+              // >
+              //   <Avatar
+              //     size="sm"
+              //     name={userData?.user?.fullName}
+              //     src={userData?.user?.profileImage}
+              //     bg="navy.600"
+              //   />
+              //   <Box flex="1">
+              //     <Text fontWeight="600" fontSize="sm" color="text.heading">
+              //       {userData?.user?.fullName || 'N/A'}
+              //     </Text>
+              //     <Text fontSize="xs" color="text.muted">
+              //       {userData.user.roles[0]?.roleName || "User"}
+              //     </Text>
+              //     <Text fontSize="xs" fontWeight="500" color={isPending ? "orange.400" : "gold.primary"}>
+              //       {isPending
+              //         ? "Pending"
+              //         : `${userPointsValue}/${surveyData?.questionsCount}`}
+              //     </Text>
+              //   </Box>
+              //   <Box
+              //     bg="rgba(212, 175, 55, 0.1)"
+              //     borderRadius="lg"
+              //     p={1.5}
+              //     display="flex"
+              //     justifyContent="center"
+              //     alignItems="center"
+              //     transition="all 0.2s"
+              //     _hover={{ bg: "rgba(212, 175, 55, 0.2)", transform: "scale(1.05)" }}
+              //   >
+              //     <Icon as={IoEye} color="gold.primary" boxSize={4} />
+              //   </Box>
+              // </HStack>
+
+              <HStack
+                key={userData.user._id}
+                spacing={3}
+                bg={isCurrentUser ? "rgba(212, 175, 55, 0.12)" : "bg.elevated"}
+                p={3}
+                borderRadius="xl"
+                border="1px solid"
+                borderColor={isCurrentUser ? "gold.primary" : "border.subtle"}
+                transition="all 0.2s cubic-bezier(0.4, 0, 0.2, 1)"
+                position="relative"
+                overflow="hidden"
+                _hover={{
+                  bg: isCurrentUser ? "rgba(212, 175, 55, 0.18)" : "bg.elevated",
+                  borderColor: "gold.primary",
+                  transform: "translateX(4px)",
+                  boxShadow: "goldGlow",
+                }}
+                cursor="pointer"
+                onClick={() => handleUserClick(userData.user._id)}
               >
-                <Icon as={IoEye} color="white" boxSize={4} />
-              </Box>
-            </HStack>
-          ))
+                {/* Active indicator dot for current user */}
+                {isCurrentUser && (
+                  <Box
+                    position="absolute"
+                    left={0}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    w="3px"
+                    h="40px"
+                    bg="gold.primary"
+                    borderTopRightRadius="full"
+                    borderBottomRightRadius="full"
+                  />
+                )}
+
+                {/* Avatar with status ring */}
+                <Box position="relative">
+                  <Avatar
+                    size="sm"
+                    name={userData?.user?.fullName}
+                    src={userData?.user?.profileImage}
+                  />
+                </Box>
+
+                <Box flex="1">
+                  <Flex align="center" gap={2}>
+                    <Text fontWeight="600" fontSize="sm" color="text.heading">
+                      {userData?.user?.fullName || 'N/A'}
+                    </Text>
+                    {isCurrentUser && (
+                      <Badge variant="gold" fontSize="9px" px={1.5} py={0.5} borderRadius="full">
+                        You
+                      </Badge>
+                    )}
+                  </Flex>
+                  <Text fontSize="xs" color="text.muted" mt={0.5}>
+                    {userData.user.roles[0]?.roleName || "User"}
+                  </Text>
+
+                  {/* Progress indicator */}
+                  {!isPending && (
+                    <Flex align="center" gap={2} mt={1.5}>
+                      <Box flex="1" bg="border.subtle" borderRadius="full" h="3px" maxW="60px">
+                        <Box
+                          w={`${(userPointsValue / (surveyData?.questionsCount || 1)) * 100}%`}
+                          bg="gold.primary"
+                          borderRadius="full"
+                          h="3px"
+                          transition="width 0.3s ease"
+                        />
+                      </Box>
+                      <Text fontSize="xs" fontWeight="600" color={isPending ? "orange.400" : "gold.primary"}>
+                        {`${userPointsValue}/${surveyData?.questionsCount}`}
+                      </Text>
+                    </Flex>
+                  )}
+
+                  {isPending && (
+                    <Text fontSize="xs" fontWeight="500" color="orange.400" mt={1.5}>
+                      ⏳ Pending
+                    </Text>
+                  )}
+                </Box>
+
+                {/* View button with tooltip */}
+                <Box
+                  bg="rgba(212, 175, 55, 0.1)"
+                  borderRadius="lg"
+                  p={2}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  transition="all 0.2s"
+                  _hover={{
+                    bg: "rgba(212, 175, 55, 0.25)",
+                    transform: "scale(1.1)",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Icon as={IoEye} color="gold.primary" boxSize={4} />
+                </Box>
+              </HStack>
+            );
+          })
         )}
       </VStack>
     </>
   );
+
 
   const items = [
     {
@@ -452,9 +679,11 @@ const ViewSurveyResponse = () => {
           {/* <Breadcrumb items={items} /> */}
           <Flex justify="flex-start" mb={4}>
             <AppButton
-              ml="2"
               leftIcon={<IoArrowBack />}
               onClick={() => navigate(-1)}
+              mb={4}
+              size='sm'
+              variant='ghost'
             >
               Back
             </AppButton>
@@ -462,35 +691,94 @@ const ViewSurveyResponse = () => {
           <Heading
             as="h1"
             mb={2}
-            color="black"
+            color="white"
             fontSize="24px"
             fontWeight="700"
           >
             {surveyData.title
               ? surveyData.title.charAt(0).toUpperCase() +
-                surveyData.title.slice(1).toLowerCase()
+              surveyData.title.slice(1).toLowerCase()
               : ""}
           </Heading>
 
           {/* Loading state when changing users */}
           {(isLoadingResponse || isFetchingResponse) && (
-            <Box bg="white" p={6} borderRadius="lg" boxShadow="sm">
-              {[1, 2, 3].map((i) => (
-                <Box key={i} mb={6}>
-                  <SkeletonText
-                    noOfLines={1}
-                    spacing="4"
-                    skeletonHeight="4"
-                    width="60%"
+            <Box
+              bg="bg.surface"
+              p={6}
+              borderRadius="xl"
+              boxShadow="card"
+              border="1px solid"
+              borderColor="border.default"
+            >
+              {/* User Profile Skeleton */}
+              <Flex align="center" gap={4} mb={6}>
+                <Skeleton
+                  boxSize="50px"
+                  borderRadius="full"
+                  startColor="rgba(212, 175, 55, 0.1)"
+                  endColor="rgba(26, 53, 80, 0.2)"
+                />
+                <Box flex="1">
+                  <Skeleton
+                    height="20px"
+                    width="200px"
                     mb={2}
+                    startColor="rgba(212, 175, 55, 0.1)"
+                    endColor="rgba(26, 53, 80, 0.2)"
                   />
-                  <Skeleton height="20px" width="90%" mb={2} />
-                  <Skeleton height="20px" width="80%" mb={2} />
-                  <Skeleton height="20px" width="70%" />
+                  <Skeleton
+                    height="14px"
+                    width="150px"
+                    startColor="rgba(212, 175, 55, 0.1)"
+                    endColor="rgba(26, 53, 80, 0.2)"
+                  />
+                </Box>
+              </Flex>
+
+              {/* Questions Skeleton */}
+              {[1, 2, 3].map((i) => (
+                <Box key={i} mb={5}>
+                  <Skeleton
+                    height="20px"
+                    width="250px"
+                    mb={3}
+                    startColor="rgba(212, 175, 55, 0.1)"
+                    endColor="rgba(26, 53, 80, 0.2)"
+                  />
+                  <Skeleton
+                    height="14px"
+                    width="90%"
+                    mb={2}
+                    startColor="rgba(212, 175, 55, 0.08)"
+                    endColor="rgba(26, 53, 80, 0.15)"
+                  />
+                  <Skeleton
+                    height="14px"
+                    width="80%"
+                    mb={2}
+                    startColor="rgba(212, 175, 55, 0.08)"
+                    endColor="rgba(26, 53, 80, 0.15)"
+                  />
+                  <Skeleton
+                    height="14px"
+                    width="70%"
+                    startColor="rgba(212, 175, 55, 0.08)"
+                    endColor="rgba(26, 53, 80, 0.15)"
+                  />
+                  {i < 3 && <Divider my={4} borderColor="border.subtle" />}
                 </Box>
               ))}
-              <Flex justify="flex-end" mt={8}>
-                <Skeleton height="32px" width="100px" borderRadius="4px" />
+
+              {/* Button Skeleton */}
+              <Flex justify="flex-end" mt={4}>
+                <Skeleton
+                  height="36px"
+                  width="100px"
+                  borderRadius="lg"
+                  startColor="rgba(212, 175, 55, 0.1)"
+                  endColor="rgba(26, 53, 80, 0.2)"
+                />
               </Flex>
             </Box>
           )}
@@ -498,18 +786,29 @@ const ViewSurveyResponse = () => {
           {/* Survey Questions and Responses */}
           {surveyResponseData && !isLoadingResponse && !isFetchingResponse && (
             <Box
-              bg="white"
+              bg="bg.surface"
               p={6}
-              borderRadius="lg"
-              boxShadow="md"
+              borderRadius="xl"
+              boxShadow="card"
+              border="1px solid"
+              borderColor="border.default"
               width="100%"
               mx="auto"
               mt={8}
             >
               {!surveyResponse?.doc && (
-                <Alert status="info" mb={6} borderRadius="md">
-                  <AlertIcon />
-                  This user hasn't submitted their survey response yet.
+                <Alert
+                  status="info"
+                  mb={6}
+                  borderRadius="lg"
+                  bg="rgba(66, 153, 225, 0.1)"
+                  borderLeft="3px solid"
+                  borderLeftColor="#4299E1"
+                >
+                  <AlertIcon color="#4299E1" />
+                  <Text color="text.body" fontSize="sm">
+                    This user hasn't submitted their survey response yet.
+                  </Text>
                 </Alert>
               )}
 
@@ -522,23 +821,25 @@ const ViewSurveyResponse = () => {
                   const currentEval = evaluations.find(
                     (e) => e.question === question._id
                   );
+
                   if (!surveyResponseData) {
                     return (
                       <Box
                         key={question._id}
-                        mb={index < surveyData.questions.length - 1 ? 8 : 0}
+                        mb={index < surveyData.questions.length - 1 ? 6 : 0}
+                        pb={index < surveyData.questions.length - 1 ? 4 : 0}
+                        borderBottom={index < surveyData.questions.length - 1 ? "1px solid" : "none"}
+                        borderBottomColor="border.subtle"
                       >
                         <FormLabel
                           fontSize="md"
-                          fontWeight="bold"
-                          mb={2}
-                          color="black"
+                          fontWeight="600"
+                          mb={3}
+                          color="text.heading"
                         >
-                          {index + 1}.
-                          {question.text.charAt(0).toUpperCase() +
-                            question.text.slice(1).toLowerCase()}
+                          {index + 1}. {question.text.charAt(0).toUpperCase() + question.text.slice(1).toLowerCase()}
                         </FormLabel>
-                        <FormControl mb={6}>
+                        <FormControl mb={4}>
                           {question.type === "radio" && (
                             <RadioGroup value="">
                               <Stack direction="column" spacing={2}>
@@ -546,10 +847,10 @@ const ViewSurveyResponse = () => {
                                   <Radio
                                     key={option.opId}
                                     value={option.opId.toString()}
-                                    colorScheme="blackAlpha"
+                                    colorScheme="brand"
                                     isReadOnly
                                     isDisabled
-                                    color="black"
+                                    color="text.body"
                                   >
                                     {option.text}
                                   </Radio>
@@ -565,10 +866,10 @@ const ViewSurveyResponse = () => {
                                   <Checkbox
                                     key={option.opId}
                                     value={option.opId.toString()}
-                                    colorScheme="blackAlpha"
+                                    colorScheme="brand"
                                     isReadOnly
                                     isDisabled
-                                    color="black"
+                                    color="text.body"
                                   >
                                     {option.text}
                                   </Checkbox>
@@ -581,10 +882,13 @@ const ViewSurveyResponse = () => {
                             <Textarea
                               value=""
                               isReadOnly
-                              bg="gray.50"
-                              focusBorderColor="brand.500"
+                              bg="bg.input"
+                              borderColor="border.default"
+                              focusBorderColor="gold.primary"
                               minH="100px"
                               placeholder="No answer submitted"
+                              color="text.muted"
+                              _placeholder={{ color: "text.muted" }}
                             />
                           )}
                         </FormControl>
@@ -595,53 +899,50 @@ const ViewSurveyResponse = () => {
                   return (
                     <Box
                       key={question._id}
-                      mb={index < surveyData.questions.length - 1 ? 8 : 0}
+                      mb={index < surveyData.questions.length - 1 ? 6 : 0}
+                      pb={index < surveyData.questions.length - 1 ? 4 : 0}
+                      borderBottom={index < surveyData.questions.length - 1 ? "1px solid" : "none"}
+                      borderBottomColor="border.subtle"
                     >
                       <Flex align="center" justify="space-between" mb={3}>
                         <FormLabel
                           fontSize="md"
-                          fontWeight="bold"
+                          fontWeight="600"
                           mb={0}
-                          color="black"
+                          color="text.heading"
                         >
                           {index + 1}. {question.text}
                         </FormLabel>
 
                         {answerData && (
-                          <Flex gap={2}>
-                            <Icon
-                              as={IoThumbsUp}
-                              boxSize={5}
-                              color={
-                                currentEval?.liked === true
-                                  ? "green.500"
-                                  : "gray.400"
-                              }
-                              cursor="pointer"
-                              onClick={() =>
-                                handleEvaluation(question._id, true)
-                              }
-                              _hover={{ color: "green.500" }}
-                            />
-                            <Icon
-                              as={IoThumbsDown}
-                              boxSize={5}
-                              color={
-                                currentEval?.liked === false
-                                  ? "red.400"
-                                  : "gray.400"
-                              }
-                              cursor="pointer"
-                              onClick={() =>
-                                handleEvaluation(question._id, false)
-                              }
-                              _hover={{ color: "red.500" }}
-                            />
-                          </Flex>
+                          <HStack spacing={2}>
+                            <Tooltip label="Helpful" placement="top" hasArrow>
+                              <Icon
+                                as={IoThumbsUp}
+                                boxSize={5}
+                                color={currentEval?.liked === true ? "green.400" : "text.muted"}
+                                cursor="pointer"
+                                onClick={() => handleEvaluation(question._id, true)}
+                                _hover={{ color: "green.400", transform: "scale(1.1)" }}
+                                transition="all 0.15s"
+                              />
+                            </Tooltip>
+                            <Tooltip label="Not Helpful" placement="top" hasArrow>
+                              <Icon
+                                as={IoThumbsDown}
+                                boxSize={5}
+                                color={currentEval?.liked === false ? "red.400" : "text.muted"}
+                                cursor="pointer"
+                                onClick={() => handleEvaluation(question._id, false)}
+                                _hover={{ color: "red.400", transform: "scale(1.1)" }}
+                                transition="all 0.15s"
+                              />
+                            </Tooltip>
+                          </HStack>
                         )}
                       </Flex>
 
-                      <FormControl mb={6}>
+                      <FormControl mb={4}>
                         {question.type === "radio" && (
                           <RadioGroup
                             value={answer ? answer.toString() : ""}
@@ -654,6 +955,7 @@ const ViewSurveyResponse = () => {
                                   value={option.opId.toString()}
                                   colorScheme="brand"
                                   isChecked={answer === option.opId.toString()}
+                                  color="text.body"
                                 >
                                   {option.text}
                                 </Radio>
@@ -677,6 +979,7 @@ const ViewSurveyResponse = () => {
                                     answer.includes(option.opId.toString())
                                   }
                                   isReadOnly
+                                  color="text.body"
                                 >
                                   {option.text}
                                 </Checkbox>
@@ -689,14 +992,18 @@ const ViewSurveyResponse = () => {
                           <Textarea
                             value={answer || ""}
                             isReadOnly
-                            bg="gray.50"
-                            focusBorderColor="brand.500"
+                            bg="bg.input"
+                            borderColor="border.default"
+                            _hover={{ borderColor: "gold.dark" }}
+                            focusBorderColor="gold.primary"
                             minH="100px"
                             placeholder={
                               hasSubmitted
                                 ? "No answer provided"
                                 : "User hasn't answered this question yet"
                             }
+                            color="text.body"
+                            _placeholder={{ color: "text.muted" }}
                           />
                         )}
                       </FormControl>
@@ -704,21 +1011,17 @@ const ViewSurveyResponse = () => {
                   );
                 })
               ) : (
-                <Text color="gray.500" textAlign="center">
+                <Text color="text.muted" textAlign="center" py={8}>
                   No questions found for this survey.
                 </Text>
               )}
 
               {/* Submit Evaluation Button - only show if response exists */}
               {surveyResponse?.doc && (
-                <Flex justify="flex-end" mt={8}>
+                <Flex justify="flex-end" mt={6}>
                   <AppButton
                     onClick={handleSubmitEvaluation}
-                    color="black"
-                    bg="#EDC270"
-                    borderRadius="4px"
-                    _hover={{ bg: "#e0b85c" }}
-                    _active={{ bg: "#d1a94b" }}
+                    variant="brand"
                     isDisabled={
                       !hasChangedEvaluation ||
                       !evaluations.some(
@@ -727,7 +1030,7 @@ const ViewSurveyResponse = () => {
                       isButtonDisable
                     }
                   >
-                    Submit
+                    Submit Evaluation
                   </AppButton>
                 </Flex>
               )}
@@ -741,13 +1044,13 @@ const ViewSurveyResponse = () => {
         width={SIDEBAR_WIDTH}
         height="calc(100vh - 78px)"
         borderLeft="1px solid"
-        borderColor="gray.200"
-        bg="white"
+        borderColor="brand.200"
+        bg='gray.800'
         overflowY="auto"
         position="fixed"
         top="80px"
         right="0"
-        zIndex="10"
+        zIndex="1"
         display="flex"
         flexDirection="column"
         sx={{

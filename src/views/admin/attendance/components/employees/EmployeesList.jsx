@@ -23,7 +23,7 @@ const EmployeesList = ({
 		<EmployeeLoading size={queryParams.pageSize} />
 	) : data && data?.doc ? (
 		data?.doc?.length > 0 ? (
-			<Box p='4'>
+			<Box p='4' minH={'60vh'}>
 				<Grid
 					templateColumns={{
 						base: '1fr',

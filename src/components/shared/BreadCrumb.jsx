@@ -9,9 +9,8 @@ const BreadCrumb = ({ items }) => {
 			wrap='wrap'
 			gap={2}
 			py={3}
-			fontFamily='DM Sans, sans-serif'
 			fontSize={{ base: 'sm', md: 'md' }}
-			color='gray.600'
+			color='gray.200'
 			aria-label='Breadcrumb'
 		>
 			{items.map((item, index) => (
@@ -30,10 +29,10 @@ const BreadCrumb = ({ items }) => {
 						<Link
 							as={RouterLink}
 							to={item.path}
-							color={index === items.length - 1 ? 'brand.500' : 'gray.600'}
+							color={index === items.length - 1 ? 'gray.200' : 'gray.300'}
 							fontWeight={index === items.length - 1 ? 'semibold' : 'normal'}
 							_hover={{
-								color: 'brand.600',
+								color: 'gray.400',
 								textDecoration: 'none',
 							}}
 							transition='color 0.2s'

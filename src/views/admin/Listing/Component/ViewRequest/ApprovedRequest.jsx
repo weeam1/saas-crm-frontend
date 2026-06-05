@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Table,
@@ -28,7 +28,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { ViewIcon } from "@chakra-ui/icons";
-import { FiChevronDown, FiRefreshCw } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
 import { useNavigate } from "react-router-dom";
@@ -36,14 +36,17 @@ import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
 import { FiSearch } from "react-icons/fi";
 import AdvancedSearchModal from "../AdvancedSearchModal";
-import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
+import SearchTags from "components/shared/SearchTags";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { usePermissions } from "hooks/usePermissions";
 import { useModalColors } from "hooks/useModalColors";
+import CustomTooltip from "components/shared/CustomTooltip";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const ApprovedRequests = ({ listingType, listingUnitType }) => {
+  const colors = useModalColors();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -53,7 +56,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
-  const [filterChanged, setFilterChanged] = useState(false);
+  const [searchTags, setSearchTags] = useState([]);
+  const [shouldRefetch, setShouldRefetch] = useState(false);
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -61,8 +65,6 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const { createUserLog } = useUserActivityLog();
 
   const { hasPermission } = usePermissions();
-
-  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const [currentApprovedId, setCurrentApprovedId] = useState(null);
   const columns = [
@@ -84,17 +86,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
 
   const [updateStatus] = useUpdateItemMutation();
 
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
-    refetch();
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const buildQueryParams = () => {
+  // Build query params
+  const buildQueryParams = useCallback(() => {
     const params = {
       page: currentPage,
       limit: pageSize,
@@ -121,16 +114,129 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
     }
 
     return params;
-  };
+  }, [currentPage, pageSize, filters, hasPermission]);
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/approved-listings`, params: buildQueryParams() },
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
 
   const { data: countries } = useFetchItemsQuery({
     path: "/countries",
   });
+
+  // Trigger refetch when shouldRefetch changes
+  useEffect(() => {
+    if (shouldRefetch) {
+      refetch();
+      setShouldRefetch(false);
+    }
+  }, [shouldRefetch, refetch]);
+
+  // Generate search tags from filters
+  const generateSearchTags = useCallback((filterObj) => {
+    const tags = [];
+
+    const filterLabels = {
+      projectName: "Project Name",
+      location: "Location",
+      listingType: "Listing Type",
+      unitType: "Unit Type",
+      minPrice: "Min Price",
+      maxPrice: "Max Price",
+      minArea: "Min Area",
+      maxArea: "Max Area",
+      month: "Month",
+      year: "Year",
+      startFrom: "Start Date",
+      startTo: "End Date",
+      country: "Country",
+    };
+
+    Object.entries(filterObj).forEach(([key, value]) => {
+      if (!value) return;
+
+      let displayValue = value;
+      let displayLabel = filterLabels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+      let originalValue = value;
+
+      // Handle listing type
+      if (key === "listingType" && listingType?.doc) {
+        const listingTypeObj = listingType.doc.find(
+          (type) => type._id === value
+        );
+        if (listingTypeObj) {
+          displayValue = listingTypeObj.name;
+        }
+      }
+
+      // Handle unit type
+      if (key === "unitType" && listingUnitType?.doc) {
+        const unitTypeObj = listingUnitType.doc.find(
+          (type) => type._id === value
+        );
+        if (unitTypeObj) {
+          displayValue = unitTypeObj.name;
+        }
+      }
+
+      // Handle price formatting
+      if (key === "minPrice" || key === "maxPrice") {
+        displayValue = `AED ${Number(value).toLocaleString()}`;
+      }
+
+      // Handle area formatting
+      if (key === "minArea" || key === "maxArea") {
+        displayValue = `${Number(value).toLocaleString()} sqft`;
+      }
+
+      // Handle date formatting
+      if ((key === "startFrom" || key === "startTo") && value) {
+        displayValue = format(new Date(value), "d MMM, yyyy");
+      }
+
+      tags.push({
+        key: `${key}-${originalValue}`,
+        label: displayLabel,
+        value: displayValue,
+        originalKey: key,
+        originalValue: originalValue,
+      });
+    });
+
+    return tags;
+  }, [listingType, listingUnitType]);
+
+  // Update search tags when filters change
+  useEffect(() => {
+    if (Object.keys(filters).length > 0) {
+      const newTags = generateSearchTags(filters);
+      setSearchTags(newTags);
+    } else {
+      setSearchTags([]);
+    }
+  }, [filters, generateSearchTags]);
+
+  // Remove individual tag
+  const removeTag = useCallback((key) => {
+    const removedTag = searchTags.find((tag) => tag.key === key);
+    if (!removedTag) return;
+
+    const newFilters = { ...filters };
+    delete newFilters[removedTag.originalKey];
+
+    setFilters(newFilters);
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, [searchTags, filters]);
+
+  // Clear all tags
+  const clearAllTags = useCallback(() => {
+    setFilters({});
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, []);
+
   const handleStatusChange = (listingId, status, approvedId) => {
     setSelectedStatus(status);
     setCurrentListingId(listingId);
@@ -154,7 +260,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         message: `"${user?.fullName}" ${selectedStatus} the view request for the secondary listing.`,
       });
       toast.success("Status updated successfully");
-      refetch();
+      setShouldRefetch(true);
       setIsStatusModalOpen(false);
     } catch (error) {
       toast.error("Error updating status");
@@ -202,52 +308,50 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
       Object.entries(newFilters).filter(
-        ([_, value]) => value !== "" && value !== undefined
-      )
+        ([_, value]) => value !== "" && value !== undefined && value !== null,
+      ),
     );
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
+    setIsFilterOpen(false);
   };
 
-  useEffect(() => {
-    if (filterChanged) {
-      setFilterChanged(false);
-    }
-  }, [filterChanged]);
-
-  const handleClearFilters = (filterKey) => {
-    if (filterKey) {
-      const newFilters = { ...filters };
-      delete newFilters[filterKey];
-      setFilters(newFilters);
-    } else {
-      setFilters({});
-    }
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    setShouldRefetch(true);
+  };
+
+  const handleRefresh = () => {
+    setShouldRefetch(true);
   };
 
   return (
     <Box
       overflowY="auto"
       scrollBehavior="smooth"
-      boxShadow="sm"
-      bg="white"
+      boxShadow={colors.cardShadow}
+      bg={colors.bg}
       px={2}
       marginTop={"-14px"}
       marginLeft={"0px"}
+      borderRadius="lg"
+      border="1px solid"
+      borderColor={colors.borderColor}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
         <Text
           fontSize="20px"
           fontWeight="bold"
-          color="black"
+          color={colors.headingText}
           p={3}
-          flexDir={{ base: "column", sm: "column", md: "row" }}
         >
           Approved Requests
         </Text>
@@ -256,28 +360,17 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
           gap={2}
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
           {isMobile ? (
             <IconButton
               icon={<FiSearch />}
               onClick={() => setIsFilterOpen(true)}
               aria-label="Search Listings"
-              colorScheme="brand"
-              variant="solid"
+              variant="ghost"
               size="sm"
-              borderRadius="full"
-              boxShadow="md"
             />
           ) : (
             <Button
-              colorScheme="brand"
+              variant="outline"
               size="sm"
               borderRadius={"md"}
               py={3}
@@ -286,15 +379,26 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
             >
               Advanced Search
             </Button>
-          )}{" "}
+          )}
+         <RefreshButton
+	label="Refresh"
+	onClick={handleRefresh}
+	isLoading={isLoading}
+	isFetching={isFetching}
+	size="sm"
+/>
         </Flex>
       </Flex>
-      <ActiveFiltersDisplay
-        filters={filters}
-        onClearFilters={handleClearFilters}
-        listingTypes={listingType?.doc}
-        unitTypes={listingUnitType?.doc}
-      />
+
+      {/* Search Tags */}
+      {searchTags.length > 0 && (
+        <SearchTags
+          searchTags={searchTags}
+          removeTag={removeTag}
+          clearAllTags={clearAllTags}
+        />
+      )}
+
       <Box my={2}>
         <TopPagination
           currentPage={currentPage}
@@ -304,22 +408,24 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
           handlePageSize={handlePageSizeChange}
-          refetching={isLoading}
+          refetching={isFetching}
           loading={isLoading}
         />
       </Box>
+
       <Box
-        borderRadius="4px"
-        boxShadow="sm"
+        borderRadius="lg"
+        boxShadow={colors.cardShadow}
         borderWidth="1px"
+        borderColor={colors.borderColor}
         overflow="hidden"
       >
         <Box position="relative" maxH="120vh" overflowY="auto">
-          <Table variant="striped" size="lg">
+          <Table variant="simple" size="lg">
             <Thead
               position="sticky"
               top={0}
-              bg="white"
+              bg={colors.bgDeep}
               zIndex={2}
               boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
               fontSize={"16px"}
@@ -327,7 +433,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
             >
               <Tr>
                 {columns.map((header, index) => (
-                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Th key={index} bg={colors.bgDeep} whiteSpace="nowrap" py={4} borderColor={colors.borderColor}>
                     <Box
                       display="flex"
                       alignItems="center"
@@ -336,7 +442,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                       <Text
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="600"
-                        color="gray.700"
+                        color={colors.headingText}
                         textTransform="capitalize"
                       >
                         {header}
@@ -350,17 +456,19 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
               <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
-                {data && data.data.length > 0 ? (
+                {data && data.data && data.data.length > 0 ? (
                   data.data.map((approval, index) => (
-                    <Tr key={index}>
+                    <Tr key={approval._id || index} borderColor={colors.borderColor}>
                       <Td
                         py={4}
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
-                        {index + 1}
+                        {(currentPage - 1) * pageSize + index + 1}
                       </Td>
                       <Td
                         textAlign="center"
@@ -368,6 +476,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.requester?.fullName || "N/A"}
                       </Td>
@@ -377,6 +487,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.requester?.phoneNumber || "N/A"}
                       </Td>
@@ -386,6 +498,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.listing?.projectName || "N/A"}
                       </Td>
@@ -395,6 +509,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="250px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.listing?.location || "N/A"}
                       </Td>
@@ -404,6 +520,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="250px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.listing?.country?.name || "N/A"}
                       </Td>
@@ -413,6 +531,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.listing?.area
                           ? approval.listing.area.toLocaleString()
@@ -424,6 +544,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.listing.buildingAge
                           ? `${approval.listing.buildingAge} Years`
@@ -435,6 +557,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.listing?.developer_name
                           ? approval.listing?.developer_name
@@ -446,6 +570,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.listing?.price
                           ? `AED ${approval.listing.price.toLocaleString()}`
@@ -457,11 +583,13 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval?.listing?.createdAt
                           ? format(
                               approval?.listing?.createdAt,
-                              "MMM d, yyyy h:mm a"
+                              "MMM d, yyyy h:mm a",
                             )
                           : "N/A"}
                       </Td>
@@ -471,6 +599,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {approval.createdBy?.fullName}
                       </Td>
@@ -480,6 +610,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         <Badge
                           colorScheme={getStatusColor(approval.status)}
@@ -495,9 +626,8 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
-                        display={"flex"}
-                        gap={2}
-                        justifyContent={"center"}
+                        textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         <Menu
                           placement="auto"
@@ -509,43 +639,49 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                           <MenuButton
                             as={Button}
                             rightIcon={<FiChevronDown />}
-                            colorScheme="brand"
+                            variant="brand"
                             size="sm"
                           >
                             Actions
                           </MenuButton>
-                          <MenuList zIndex="popover" minWidth="200px">
+                          <MenuList zIndex="popover" minWidth="200px" bg={colors.bg} borderColor={colors.borderColor}>
                             <MenuItem
                               icon={<ViewIcon />}
                               onClick={() =>
                                 Navigate(
-                                  `/listing/view-listing/${approval.listing?.id}`
+                                  `/listing/view-listing/${approval.listing?._id || approval.listing?.id}`,
                                 )
                               }
+                              color={colors.bodyText}
+                              _hover={{ bg: colors.bgDeep, color: colors.accentGold }}
                             >
                               View Listing
                             </MenuItem>
                             <MenuItem
                               onClick={() =>
                                 handleStatusChange(
-                                  approval.listing.id,
+                                  approval.listing?._id || approval.listing?.id,
                                   "pending",
-                                  approval.requester.id
+                                  approval.requester?._id || approval.requester?.id,
                                 )
                               }
                               isDisabled={approval.status === "pending"}
+                              color={colors.bodyText}
+                              _hover={{ bg: colors.bgDeep, color: colors.accentGold }}
                             >
                               Mark as Pending
                             </MenuItem>
                             <MenuItem
                               onClick={() =>
                                 handleStatusChange(
-                                  approval.listing.id,
+                                  approval.listing?._id || approval.listing?.id,
                                   "rejected",
-                                  approval.requester.id
+                                  approval.requester?._id || approval.requester?.id,
                                 )
                               }
                               isDisabled={approval.status === "rejected"}
+                              color={colors.badgeErrorText}
+                              _hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
                             >
                               Reject
                             </MenuItem>
@@ -555,14 +691,15 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
                     </Tr>
                   ))
                 ) : (
-                  <Tr borderColor="gray.200" textAlign="center">
+                  <Tr borderColor={colors.borderColor} textAlign="center">
                     <Td
                       borderBottom="none"
-                      colSpan="13"
+                      colSpan={columns.length}
                       fontSize={{ base: "12px", md: "15px" }}
                       fontWeight="500"
-                      color="gray.500"
+                      color={colors.mutedText}
                       textAlign="center"
+                      borderColor={colors.borderColor}
                     >
                       <NoData label="approved requests" />
                     </Td>
@@ -577,21 +714,24 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
       {/* Status Update Modal */}
       <Modal
         isOpen={isStatusModalOpen}
-        onClose={() => setIsStatusModalOpen(false)}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          setSelectedStatus("");
+        }}
         isCentered
       >
-        <ModalOverlay />
-        <ModalContent borderRadius="2xl" overflow="hidden">
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+        <ModalContent borderRadius="2xl" overflow="hidden" bg={colors.bg} boxShadow={colors.modalShadow} border="1px solid" borderColor={colors.borderColor}>
           <ModalHeader
             display="flex"
             align="center"
             justify="space-between"
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             px={6}
             py={3}
             borderBottom="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             top="0"
             zIndex="10"
@@ -603,37 +743,46 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
               position="absolute"
               right="12px"
               top="10px"
-              color={headerText}
-              _hover={{ bg: "whiteAlpha.200" }}
+              color={colors.headerText}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </ModalHeader>
           <ModalBody
             overflowY="auto"
             scrollBehavior="smooth"
+            bg={colors.bg}
             sx={{
               "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-track": { background: colors.bgInput, borderRadius: "10px" },
               "&::-webkit-scrollbar-thumb": {
-                background: "#c1c1c1",
+                background: colors.accentGold,
                 borderRadius: "10px",
               },
             }}
           >
             <Box mb={4}>
-              <FormLabel>New Status</FormLabel>
+              <FormLabel color={colors.labelColor}>New Status</FormLabel>
               <Select
                 value={selectedStatus || ""}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                focusBorderColor="brand.500"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               >
-                <option value="pending">Pending</option>
-                <option value="rejected">Rejected</option>
+                <option value="pending" style={{ background: colors.bg, color: colors.headingText }}>Pending</option>
+                <option value="rejected" style={{ background: colors.bg, color: colors.headingText }}>Rejected</option>
               </Select>
             </Box>
           </ModalBody>
           <ModalFooter
-            bg={footerBg}
+            bg={colors.footerBg}
             borderTop="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             bottom="0"
             zIndex="10"
@@ -645,14 +794,17 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
             <Button
               variant="outline"
               mr={3}
-              onClick={() => setIsStatusModalOpen(false)}
+              onClick={() => {
+                setIsStatusModalOpen(false);
+                setSelectedStatus("");
+              }}
               borderRadius="md"
               size="sm"
             >
               Cancel
             </Button>
             <Button
-              colorScheme="brand"
+              variant="brand"
               onClick={handleStatusUpdate}
               isLoading={isFetching}
               borderRadius="md"
@@ -663,6 +815,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
       <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
@@ -670,7 +823,7 @@ const ApprovedRequests = ({ listingType, listingUnitType }) => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
-        clearFilter={filterChanged}
+        clearFilter={false}
         countries={countries?.doc || []}
       />
     </Box>

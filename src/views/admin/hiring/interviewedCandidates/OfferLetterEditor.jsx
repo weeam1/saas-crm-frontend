@@ -4,10 +4,10 @@ import 'react-quill/dist/quill.snow.css';
 import { Box, Flex, Heading, Text } from '@chakra-ui/react';
 import { formattedDate } from 'utils/helpers';
 import { InfoIcon } from '@chakra-ui/icons';
-
+import {useUserSession} from 'hooks/useUserSession';
 const OfferLetterEditor = ({ setEmailBody, offerDetails, interview }) => {
 	const [offerBody, setOfferBody] = useState(offerDetails?.offerMail || '');
-
+const {agencyName}=useUserSession()
 	// Memoized Offer Details (Fixed, Non-Editable)
 	const staticOfferDetails = useMemo(() => {
 		const joiningDate = formattedDate(offerDetails.joiningDate);
@@ -37,7 +37,21 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails, interview }) => {
 			}
 							
       <strong>Joining Date:</strong> ${joiningDate} <br/>
-      <strong>Location:</strong> ${offerDetails.location} <br/>
+  <strong style="white-space:nowrap;">
+	Location: 
+	${offerDetails.locationLink ? `
+		<a href="${offerDetails.locationLink}" 
+		target="_blank" 
+		rel="noopener noreferrer"
+		style="color:#3182ce; text-decoration:none; white-space:nowrap;">
+			📍 ${offerDetails.location}
+		</a>
+	` : `
+		<span style="white-space:nowrap;">
+			📍 ${offerDetails.location}
+		</span>
+	`}
+</strong><br/>
 
     </div><br/>
   `;
@@ -47,7 +61,7 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails, interview }) => {
 		() => `
 		<div font-size: 20px;>
     <p>Dear <strong>${offerDetails.candidateName}</strong>,</p>
-    <p>We are pleased to offer you the position of <strong>${offerDetails.position}</strong> at <strong>WEAM ELNAGGAR</strong>.</p>
+    <p>We are pleased to offer you the position of <strong>${offerDetails.position}</strong> at <strong>${agencyName}</strong>.</p>
     <p>We believe your skills and experience will be a valuable addition to our team.</p>
 
     <!-- Offer Details Placeholder (Hidden) -->
@@ -72,7 +86,7 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails, interview }) => {
     <p>Looking forward to welcoming you to our team!</p>
     
     <p>Thank you.</p>
-    <p>WEAM ELNAGGAR HR Team</p>
+    <p>${agencyName} HR Team</p>
 		</div>
   `,
 		[offerDetails]
@@ -86,7 +100,7 @@ const OfferLetterEditor = ({ setEmailBody, offerDetails, interview }) => {
 		setOfferBody(finalEmailBody);
 		setEmailBody(finalEmailBody);
 	}, [defaultTemplate, staticOfferDetails, offerDetails, setEmailBody]);
-
+console.log(offerDetails, 'offerDetails in editor');
 	const handleOfferBody = (e) => {
 		const emailText = e;
 		setOfferBody(emailText);

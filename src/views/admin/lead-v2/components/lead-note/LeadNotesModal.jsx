@@ -28,7 +28,6 @@ import NoData from 'components/Message/NoData';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
-import { useModalColors } from 'hooks/useModalColors';
 
 const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 	const [notesLoading, setNotesLoading] = useState(false);
@@ -43,7 +42,6 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 
 	const { user, userRoleName } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
-	const { headerBg, headerText } = useModalColors();
 
 	const addNoteAllowed = userRoleName !== 'Agent' ? true : !isInLeadPool;
 
@@ -66,12 +64,8 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 	}, [fetchLeadNotes]);
 
 	const handleEditNote = (note) => {
-		// Implement logic to open edit modal or form with `note` data
-
-		const latestNote = allNotes[0]?._id === note._id;
-
-		latestNote && setLatestNote(latestNote);
-
+		const latestNoteFlag = allNotes[0]?._id === note._id;
+		latestNoteFlag && setLatestNote(latestNoteFlag);
 		setLeadNote(note);
 		setEditNote(true);
 	};
@@ -85,12 +79,9 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 			}).unwrap();
 
 			const updatedNotes = allNotes.filter((n) => n._id !== note._id);
-
 			setAllNotes(updatedNotes);
 
-			// Step 3: Update lastNote field in lead
 			const latestNoteText = updatedNotes[0]?.note || '';
-
 			dispatch(
 				updateLeadField({
 					id: leadId,
@@ -98,14 +89,14 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 					value: latestNoteText,
 				})
 			);
-			toast.success('Note Deleted successfuly');
+
 			createUserLog({
 				userId: user?._id,
 				action: 'DELETE',
 				entity: 'Lead',
 				entityId: note._id || null,
 				status: 'success',
-				message: `${user?.fullName} delete the note.`,
+				message: `${user?.fullName} deleted the note.`,
 			});
 		} catch (error) {
 			console.log(error);
@@ -124,15 +115,23 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='5xl' isCentered>
-			<ModalOverlay backdropFilter='blur(2px)' />
-			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+			<ModalOverlay bg='bg.overlay' backdropFilter='blur(2px)' />
+			<ModalContent
+				bg='bg.surface'
+				borderRadius='xl'
+				boxShadow='deep'
+				mx='2'
+				overflow='hidden'
+			>
 				<ModalHeader
-					bg={headerBg}
-					color={headerText}
+					bg='bg.elevated'
+					color='text.heading'
 					borderTopRadius='xl'
 					px={{ base: 4, md: 6 }}
 					py={{ base: 3, md: 4 }}
 					w='100%'
+					borderBottom='1px solid'
+					borderColor='border.default'
 				>
 					<Flex
 						justify='space-between'
@@ -147,7 +146,7 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 							mb={{ base: 1, md: 0 }}
 							fontSize={{ base: 'md', md: 'lg' }}
 						>
-							<Text lineHeight='short' fontWeight='600'>
+							<Text lineHeight='short' fontWeight='600' color='text.heading'>
 								Lead Notes
 							</Text>
 							<CountUpComponent targetNumber={allNotes?.length || 0} />
@@ -156,17 +155,14 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 						<HStack spacing='3' align='center' gap={2}>
 							{addNoteAllowed && (
 								<Button
-									bg='brand.500'
-									color='white'
-									_hover={{ bg: 'brand.400' }}
-									_active={{ bg: 'brand.400' }}
-									py='2'
-									px='4'
+									variant='outline'
 									size={{ base: 'xs', md: 'sm' }}
+									px={'4'}
+									py={'2'}
 									fontSize='clamp(0.75rem, 1.8vw, 0.875rem)'
 									onClick={() => setAddNote(true)}
 									aria-label='add new note'
-									borderRadius={'md'}
+									borderRadius='md'
 								>
 									Add Note
 								</Button>
@@ -176,19 +172,21 @@ const LeadNotesModal = ({ leadId, isOpen, onClose, isInLeadPool = false }) => {
 								position='relative'
 								top='0'
 								right='0'
+								color='text.muted'
 								_focus={{ outline: 'none' }}
-								// _hover={{ bg: 'whiteAlpha.300' }}
+								_hover={{ bg: 'bg.elevated' }}
 							/>
 						</HStack>
 					</Flex>
 				</ModalHeader>
 
-				<ModalBody>
+				<ModalBody p={0}>
 					<Box
 						h={{ base: '50vh', md: '60vh', lg: '70vh' }}
 						overflow='scroll'
 						scrollBehavior='smooth'
-						p='2'
+						p={4}
+						bg='bg.app'
 					>
 						{notesLoading ? (
 							<CardShimmer

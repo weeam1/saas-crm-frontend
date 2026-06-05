@@ -15,7 +15,6 @@ import {
 	Stack,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
-import { buttonStyle } from 'utils/btn';
 import * as Yup from 'yup';
 
 import { useForm } from 'react-hook-form';
@@ -27,7 +26,7 @@ import { toast } from 'react-toastify';
 import { useModalColors } from 'hooks/useModalColors';
 
 const schema = Yup.object().shape({
-	userId: Yup.string().required('User is requried'),
+	userId: Yup.string().required('User is required'),
 	instanceName: Yup.string()
 		.required('Instance name is required')
 		.max(50, 'Max 50 characters'),
@@ -40,11 +39,10 @@ const CreateInstance = ({
 	updateInstances,
 	mode = 'Add',
 }) => {
+	const colors = useModalColors();
 	const { data: usersData, isLoading: usersLoading } = useFetchItemsQuery({
 		path: '/v2/user/search_users',
 	});
-
-	const { headerBg, headerText } = useModalColors();
 
 	const initialValues = {
 		instanceName: instance?.instanceName || '',
@@ -60,8 +58,8 @@ const CreateInstance = ({
 	} = useForm({
 		defaultValues: initialValues,
 		resolver: yupResolver(schema),
-		mode: 'onChange', // validate on each keypress
-		reValidateMode: 'onChange', // re-validate on each change
+		mode: 'onChange',
+		reValidateMode: 'onChange',
 	});
 
 	const [createInstance, { isLoading: isCreating }] = useCreateItemMutation();
@@ -77,13 +75,6 @@ const CreateInstance = ({
 			let res;
 
 			if (mode === 'Edit') {
-				// Build payload from dirty fields only
-				// const dirtyKeys = Object.keys(dirtyFields);
-				// payload = dirtyKeys.reduce((acc, key) => {
-				// 	acc[key] = formData[key];
-				// 	return acc;
-				// }, {});
-				// Edit Mode → Update existing instance
 				res = await updateInstance({
 					path: `/whatsapp/instances/${instance?._id}`,
 					body: payload,
@@ -91,7 +82,6 @@ const CreateInstance = ({
 
 				toast.success('WhatsApp chat updated successfully');
 			} else {
-				// Create Mode → Create new instance
 				res = await createInstance({
 					path: '/whatsapp/instances',
 					body: payload,
@@ -120,21 +110,35 @@ const CreateInstance = ({
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='3xl'>
-			<ModalOverlay backdropFilter='blur(2px)' />
-			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
+			<ModalContent
+				mx='2'
+				borderRadius='2xl'
+				boxShadow={colors.modalShadow}
+				bg={colors.bg}
+				border='1px solid'
+				borderColor={colors.borderColor}
+				overflow='hidden'
+			>
 				<ModalHeader
-					bg={headerBg}
-					color={headerText}
-					borderTopRadius='xl'
+					bg={colors.headerBg}
+					color={colors.headerText}
+					borderTopRadius='2xl'
 					py={4}
 					w='100%'
+					borderBottom='1px solid'
+					borderColor={colors.borderColor}
 				>
 					{mode} Whatsapp Chat
 				</ModalHeader>
-				<ModalCloseButton _focus={{ outline: 'none' }} />
+				<ModalCloseButton
+					color={colors.headerText}
+					_hover={{ bg: colors.closeBtnHoverBg }}
+					_focus={{ outline: 'none' }}
+				/>
 				<ModalBody pb={4}>
 					<FormControl isInvalid={errors.userId} mb={4}>
-						<FormLabel>Select User</FormLabel>
+						<FormLabel color={colors.labelColor}>Select User</FormLabel>
 						<SearchUsers
 							selectedUserId={
 								mode === 'Edit' ? (initialValues?.userId ?? null) : null
@@ -142,39 +146,50 @@ const CreateInstance = ({
 							users={usersData?.doc || []}
 							onSelectUser={handleSelectUser}
 						/>
-						<FormErrorMessage>{errors.userId?.message}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{errors.userId?.message}
+						</FormErrorMessage>
 					</FormControl>
 
 					<FormControl mb='4' isInvalid={errors.instanceName}>
-						<FormLabel>Chat Name</FormLabel>
+						<FormLabel color={colors.labelColor}>Chat Name</FormLabel>
 						<Input
 							placeholder='Enter chat name'
 							{...register('instanceName')}
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
 							_focus={{
-								borderColor: '#D99A36',
-								boxShadow: '0 0 0 1px #D99A36',
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
 								outline: 'none',
 							}}
+							_hover={{ borderColor: colors.accentGold }}
 						/>
-						<FormErrorMessage>{errors.instanceName?.message}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{errors.instanceName?.message}
+						</FormErrorMessage>
 					</FormControl>
 				</ModalBody>
 
-				<ModalFooter>
+				<ModalFooter
+					bg={colors.footerBg}
+					borderTop='1px solid'
+					borderColor={colors.borderColor}
+					py={4}
+				>
 					<Button
-						{...buttonStyle}
+						variant='outline'
 						onClick={onClose}
-						color='gray.800'
-						bg='gray.100'
 						mr={3}
 						isDisabled={isCreating || isUpdating}
 					>
 						Cancel
 					</Button>
 					<Button
-						{...buttonStyle}
+						variant='brand'
 						onClick={handleSubmit(onSubmit)}
-						colorScheme='brand'
 						isLoading={isCreating || isUpdating}
 						isDisabled={isSubmitting}
 					>

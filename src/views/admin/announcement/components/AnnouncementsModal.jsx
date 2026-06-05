@@ -13,10 +13,12 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { clearAnnouncement } from './../../../../redux/announcementsSlice';
 import AnnouncementSlider from './AnnouncementSlider';
+import { useModalColors } from 'hooks/useModalColors';
 
 import logo from 'assets/img/app-logo.jpeg';
 
 const AnnouncementsModal = ({ isOpen, onClose }) => {
+	const colors = useModalColors();
 	const announcements = useSelector((state) => state.announcements.list);
 	const dispatch = useDispatch();
 	const [currentIndex, setCurrentIndex] = useState(0);
@@ -43,7 +45,7 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 	};
 
 	return loading ? (
-		<CircularProgress size='10' isIndeterminate />
+		<CircularProgress size='10' isIndeterminate color={colors.accentGold} />
 	) : (
 		announcements.length > 0 && (
 			<Modal
@@ -53,13 +55,17 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 				isCentered
 				closeOnOverlayClick={false}
 			>
-				<ModalOverlay />
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
 				<ModalContent
-					borderRadius='lg'
-					boxShadow='2xl'
+					borderRadius='2xl'
+					boxShadow={colors.modalShadow}
 					maxWidth='900px'
 					w='100%'
 					textAlign='center'
+					bg={colors.bg}
+					border='1px solid'
+					borderColor={colors.borderColor}
+					overflow='hidden'
 				>
 					{/* Header Section */}
 					<ModalHeader
@@ -67,11 +73,13 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 						alignItems='center'
 						justifyContent='center'
 						textAlign='center'
-						bg='brand.500'
+						bg={colors.headerBg}
 						px={6}
-						borderTopRadius='md'
-						color='white'
+						borderTopRadius='2xl'
+						color={colors.headerText}
 						py={4}
+						borderBottom='1px solid'
+						borderColor={colors.borderColor}
 					>
 						<Box
 							display='flex'
@@ -82,30 +90,33 @@ const AnnouncementsModal = ({ isOpen, onClose }) => {
 							gap='2'
 						>
 							<Image src={logo} alt='Logo' boxSize='70px' />
-							<Text fontSize='2xl' fontWeight='bold' ml={4}>
+							<Text fontSize='2xl' fontWeight='bold'>
 								Important Announcement
 							</Text>
 						</Box>
 					</ModalHeader>
 
 					{/* Body Section */}
-					<ModalBody py={4} overflow='hidden' width='100%'>
+					<ModalBody py={4} overflow='hidden' width='100%' bg={colors.bg}>
 						<Box
 							width='100%'
 							m='0'
-							background='brand'
-							maxH='400px' // Set max height for the modal body
-							overflowY='auto' // Enable vertical scrolling when content exceeds max height
+							maxH='400px'
+							overflowY='auto'
 							sx={{
 								'&::-webkit-scrollbar': {
-									width: '6px', // Custom scrollbar width
+									width: '6px',
+								},
+								'&::-webkit-scrollbar-track': {
+									background: colors.bgInput,
+									borderRadius: '8px',
 								},
 								'&::-webkit-scrollbar-thumb': {
-									background: 'brand.500', // Custom brand color (adjust according to your theme)
+									background: colors.accentGold,
 									borderRadius: '8px',
 								},
 								'&::-webkit-scrollbar-thumb:hover': {
-									background: 'brand.600', // Slightly darker on hover
+									background: colors.goldDark,
 								},
 							}}
 						>

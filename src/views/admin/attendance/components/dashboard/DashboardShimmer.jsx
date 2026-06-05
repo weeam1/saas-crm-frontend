@@ -1,16 +1,19 @@
 import { Box, Grid, SimpleGrid, Skeleton } from '@chakra-ui/react';
 import React from 'react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const DashboardShimmer = () => {
+	const colors = useModalColors();
+
 	return (
-		<Box minHeight='100vh' p={6} bg='white'>
-			<Box p={1} my='2' borderRadius='lg' bg='white' boxShadow='md'>
+		<Box minHeight='100vh' p={6} bg={colors.bgDeep}>
+			<Box p={1} my='2' borderRadius='lg' bg={colors.bg} boxShadow={colors.cardShadow}>
 				<Skeleton
 					height='25px'
 					width='10%'
 					mb={2}
-					startColor='softGray.400'
-					endColor='softGray.500'
+					startColor={colors.bgInput}
+					endColor={colors.bgInputHover}
 				/>
 			</Box>
 			<Grid p='2' templateColumns={{ base: '1fr', md: '1fr 3fr' }} gap={6}>
@@ -18,8 +21,8 @@ const DashboardShimmer = () => {
 					height='full'
 					minWidth='full'
 					mb={2}
-					startColor='softGray.400'
-					endColor='softGray.500'
+					startColor={colors.bgInput}
+					endColor={colors.bgInputHover}
 				/>
 
 				{/* Top Section - Summary Cards */}
@@ -30,8 +33,8 @@ const DashboardShimmer = () => {
 							height='150px'
 							minWidth='full'
 							mb={2}
-							startColor='softGray.400'
-							endColor='softGray.500'
+							startColor={colors.bgInput}
+							endColor={colors.bgInputHover}
 						/>
 					))}
 				</SimpleGrid>
@@ -46,20 +49,22 @@ const DashboardShimmer = () => {
 							key={index}
 							p={6}
 							borderRadius='md'
-							boxShadow='sm'
-							bg='white'
+							boxShadow={colors.cardShadow}
+							bg={colors.bg}
+							border="1px solid"
+							borderColor={colors.borderColor}
 						>
 							<Skeleton
 								height='30px'
 								width='40%'
 								mb={4}
-								startColor='softGray.400'
-								endColor='softGray.500'
+								startColor={colors.bgInput}
+								endColor={colors.bgInputHover}
 							/>
 							<Skeleton
 								height='400px'
-								startColor='softGray.400'
-								endColor='softGray.500'
+								startColor={colors.bgInput}
+								endColor={colors.bgInputHover}
 							/>
 						</Box>
 					))}

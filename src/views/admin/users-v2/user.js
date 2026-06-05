@@ -1231,16 +1231,12 @@ const UserTable = () => {
 
 				<Button
 					leftIcon={<Plus size={18} />}
-					bg='gray.50'
-					color='gray.800'
-					border='1px solid #D0D5DD'
+
 					size='md'
-					borderRadius='12px'
 					fontWeight='600'
 					px={5}
-					mt={{ base: 2, md: 0 }} // spacing on mobile
-					_hover={{ bg: 'gray.100' }}
-					boxShadow='0px 1px 3px rgba(0,0,0,0.08)'
+					mt={{ base: 2, md: 0 }}
+					variant='brand'
 					onClick={() => setIsAddUserOpen(true)}
 				>
 					New User

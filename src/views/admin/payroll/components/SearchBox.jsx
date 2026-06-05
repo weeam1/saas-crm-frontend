@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { InputGroup, Input, Button, Flex, IconButton } from '@chakra-ui/react';
+import { InputGroup, Input, Button, Flex, IconButton, Tooltip } from '@chakra-ui/react';
 import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
+import { useModalColors } from 'hooks/useModalColors';
 
 const SearchBox = ({
 	searchTerm,
@@ -8,6 +9,7 @@ const SearchBox = ({
 	onSearchTermChange,
 	isLoading = false,
 }) => {
+	const colors = useModalColors();
 	const inputRef = useRef(null);
 
 	// Handle typing
@@ -38,65 +40,84 @@ const SearchBox = ({
 	};
 
 	return (
-		<InputGroup
-			bg='white'
-			border='1px solid'
-			borderColor='gray.200'
-			borderRadius='md'
+		<Flex
+			bg={colors.bgInput}
+			border="1px solid"
+			borderColor={colors.borderColor}
+			borderRadius="md"
 			width={{ base: '100%', md: '18rem' }}
-			overflow='hidden'
-			size='sm'
+			overflow="hidden"
+			_focusWithin={{
+				borderColor: colors.accentGold,
+				boxShadow: colors.goldGlow,
+			}}
+			transition="all 0.2s ease"
 		>
-			<Input
-				ref={inputRef}
-				placeholder='Search...'
-				border='none'
-				fontSize='sm'
-				height='2.5rem'
-				value={searchTerm}
-				onChange={handleChange}
-				onKeyPress={handleKeyPress}
-				isDisabled={isLoading}
-				_focus={{ boxShadow: 'none' }}
-			/>
-
-			{/**/}
-			{searchTerm && (
-				<IconButton
-					aria-label='Clear search'
-					icon={<CloseIcon boxSize={2.5} />}
-					onClick={clearSearch}
-					position='absolute'
-					right='3.5rem'
-					top='50%'
-					transform='translateY(-50%)'
-					bg='transparent'
-					_hover={{ bg: 'transparent' }}
-					size='xs'
+			<InputGroup flex="1">
+				<Input
+					ref={inputRef}
+					placeholder="Search..."
+					border="none"
+					fontSize="xs"
+					height="2.5rem"
+					value={searchTerm}
+					onChange={handleChange}
+					onKeyDown={handleKeyPress}
+					isDisabled={isLoading}
+					_focus={{ boxShadow: "none" }}
+					_placeholder={{
+						color: colors.mutedText,
+					}}
+					color={colors.headingText}
+					bg="transparent"
 				/>
-			)}
 
-			{/* Search button */}
+				{searchTerm && (
+					<Tooltip label="Clear search" hasArrow placement="top">
+						<IconButton
+							icon={<CloseIcon boxSize={2.5} />}
+							size="sm"
+							variant="ghost"
+							onClick={clearSearch}
+							aria-label="clear search"
+							position="absolute"
+							right="0"
+							top="50%"
+							transform="translateY(-50%)"
+							color={colors.mutedText}
+							_hover={{
+								color: colors.accentGold,
+								transform: "translateY(-50%) scale(1.1)",
+							}}
+							transition="all 0.2s ease"
+						/>
+					</Tooltip>
+				)}
+			</InputGroup>
+
 			<Button
-				bg='gray.100'
-				borderLeft='1px solid'
-				borderColor='gray.200'
-				px={5}
-				borderRadius='0'
-				fontSize='sm'
-				display='flex'
-				alignItems='center'
-				_hover={{ bg: 'gray.50' }}
-				_active={{ bg: 'gray.100' }}
+				size="md"
+				variant="ghost"
+				px={4}
+				fontSize="xs"
 				onClick={handleSearchClick}
 				isLoading={isLoading}
-				height='100%'
+				color={colors.bodyText}
+				_hover={{
+					color: colors.accentGold,
+					bg: colors.bgInputHover,
+				}}
+				transition="all 0.2s ease"
 			>
-				<Flex align='center' h='2.5rem'>
-					<SearchIcon fontSize='sm' color='brand.500' ml={1} />
+				<Flex align="center" gap={1}>
+					Search
+					<SearchIcon
+						fontSize="xs"
+						color={colors.accentGold}
+					/>
 				</Flex>
 			</Button>
-		</InputGroup>
+		</Flex>
 	);
 };
 

@@ -1,3 +1,4 @@
+
 import {
   Box,
   Button,
@@ -23,8 +24,10 @@ import { usePermissions } from "hooks/usePermissions";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiChevronLeft } from "react-icons/fi";
 import RefreshButton from "components/refresh/RefreshButton";
+import { useModalColors } from "hooks/useModalColors";
 
 const User = () => {
+  const colors = useModalColors();
   const {
     agencies,
     queryParams,
@@ -56,7 +59,6 @@ const User = () => {
 
   useEffect(() => {
     if (!hasPermission("users")) return navigate("/default");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const {
@@ -88,7 +90,6 @@ const User = () => {
       setClearFilters(true);
       setPagination((prev) => ({ ...prev, page: 1 }));
     } else {
-      // remove search key from filters
       setFilters((prev) => {
         const updated = { ...prev };
         delete updated.search;
@@ -113,15 +114,20 @@ const User = () => {
   };
 
   return (
-    <Box p={6} bg="white" borderRadius="md" boxShadow="sm">
+    <Box p={6} bg={colors.bg} borderRadius="md" boxShadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
       {pathname.includes("admin-setting") && (
         <IconButton
           aria-label="Go back"
           icon={<FiChevronLeft />}
           onClick={() => navigate("/admin-setting")}
-          // variant='ghost'
           size="md"
           isRound
+          variant="ghost"
+          color={colors.bodyText}
+          _hover={{
+            color: colors.accentGold,
+            bg: colors.secondaryBtnHoverBg,
+          }}
         />
       )}
 
@@ -132,31 +138,11 @@ const User = () => {
         mb={2}
       >
         <Flex alignSelf="flex-start" fontSize="lg" fontWeight="bold" gap="2">
-          <Text>Users</Text>
-
+          <Text color={colors.headingText}>Users</Text>
           <CountUpComponent key={totalRecords} targetNumber={totalRecords} />
         </Flex>
 
         <HStack gap="2" alignItems="center">
-          {/* {isAgenciesAllowed && (
-						<IconButton
-							icon={<FiFilter />}
-							onClick={agencyFilterOnOpen}
-							aria-label='Filter agency'
-							colorScheme='brand'
-							variant='solid'
-							size='sm'
-							borderRadius='full'
-							boxShadow='md'
-						/>
-					)} */}
-          <RefreshButton
-            aria-label="Refresh users"
-            isLoading={isLoading}
-            isFetching={isFetching}
-            onClick={refetchUsers}
-          />
-          {/* Search + Filters Row */}
           <Flex
             justify={{ base: "flex-start", md: "flex-end" }}
             align="center"
@@ -164,13 +150,27 @@ const User = () => {
             gap={3}
             flexWrap="wrap"
           >
-            {/* Search Input */}
             <SearchBox
               onSearchTermChange={handleSearchTermChange}
               setSearchTerm={setSearchTerm}
               searchTerm={searchTerm}
             />
 
+            {hasPermission("users", "create") && (
+              <Button
+                leftIcon={<FaPlus size={14} />}
+                                size="md"
+                borderRadius="12px"
+                fontWeight="600"
+                px={5}
+                mt={{ base: 2, md: 0 }}
+                variant="brand"
+                onClick={handleAddUser}
+                transition="all 0.2s ease"
+              >
+                New User
+              </Button>
+            )}
             <UserFilterDrawer
               onApply={handleApplyFilters}
               agencies={agencies}
@@ -179,67 +179,13 @@ const User = () => {
               onReset={handleReset}
             />
 
-            {hasPermission("users", "create") && (
-              <Button
-                leftIcon={<FaPlus size={14} />}
-                bg="gray.50"
-                color="gray.800"
-                border="1px solid #D0D5DD"
-                size="md"
-                borderRadius="12px"
-                fontWeight="600"
-                px={5}
-                mt={{ base: 2, md: 0 }} // spacing on mobile
-                _hover={{ bg: "gray.100" }}
-                boxShadow="0px 1px 3px rgba(0,0,0,0.08)"
-                onClick={handleAddUser}
-              >
-                New User
-              </Button>
-            )}
-
-            {/* Filter Toggle Button */}
-            {/* <Button
-							leftIcon={<FiFilter />}
-							bg={showFilters ? 'gray.100' : 'gray.50'}
-							border='1px solid #D0D5DD'
-							color='gray.800'
-							borderRadius='12px'
-							fontWeight='600'
-							px={4}
-							_hover={{ bg: showFilters ? 'gray.200' : 'gray.100' }}
-							boxShadow={
-								showFilters
-									? '0 2px 6px rgba(0,0,0,0.08)'
-									: '0px 1px 3px rgba(0,0,0,0.08)'
-							}
-							onClick={() => setShowFilters((prev) => !prev)}
-							mt={{ base: 2, md: 0 }} // spacing on mobile
-						>
-							Filters
-						</Button> */}
+            <RefreshButton
+              aria-label="Refresh users"
+              isLoading={isLoading}
+              isFetching={isFetching}
+              onClick={refetchUsers}
+            />
           </Flex>
-
-          {/* {clearFilters && (
-						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='softGray.100'
-							w='fit-content'
-							color='gray.800'
-							sx={{
-								svg: {
-									fill: 'gray.800',
-								},
-							}}
-							_active={{ bg: 'gray.200' }}
-							leftIcon={<BiX />}
-							aria-label='Clear'
-							onClick={handleClear}
-						>
-							Clear
-						</Button>
-					)} */}
         </HStack>
       </Flex>
 
@@ -266,14 +212,6 @@ const User = () => {
         refetchUsers={refetchUsers}
       />
 
-      {/* {viewBalance?.modal && (
-				<ViewBalance
-					data={viewBalance.data}
-					isOpen={viewBalance.modal}
-					onClose={() => setViewBalance({ modal: false, data: null })}
-				/>
-			)} */}
-
       {userIsOpen && (
         <UserModal
           isOpen={userIsOpen}
@@ -284,28 +222,6 @@ const User = () => {
           updateData={updateData}
         />
       )}
-
-      {/* {userIsOpen && (
-				<UpsertIncomingBalance
-					isOpen={userIsOpen}
-					onClose={userOnClose}
-					initialData={editData}
-					updateData={updateData}
-					mode='Add'
-					selectedMonth={month}
-					selectedYear={year}
-					isAgenciesAllowed={isAgenciesAllowed}
-				/>
-			)} */}
-
-      {/* {agencyFilterIsOpen && (
-				<AgencyFilterModal
-					isOpen={agencyFilterIsOpen}
-					onClose={agencyFilterOnClose}
-					handleFilter={handleAgencyFilter}
-					storeKey='outgoingAgency'
-				/>
-			)} */}
     </Box>
   );
 };

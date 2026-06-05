@@ -28,6 +28,7 @@ import UserProfileCell from '../components/UserProfileCell';
 import PayslipDownloadModal from '../components/PayslipDownloadModal';
 import { formatValue, COMMISSION_PAYROLL_COLUMNS } from '../formatUtils';
 import { useNavigate } from 'react-router-dom';
+import { useModalColors } from 'hooks/useModalColors';
 
 const EmployeePayrollTable = ({
 	setPayRollData,
@@ -39,6 +40,7 @@ const EmployeePayrollTable = ({
 	year,
 	refetchPayslips,
 }) => {
+	const colors = useModalColors();
 	const navigate = useNavigate();
 	const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -86,12 +88,13 @@ const EmployeePayrollTable = ({
 								icon={<FiEye />}
 								size='sm'
 								variant='ghost'
-								colorScheme='blue'
 								onClick={() =>
 									navigate(
 										`/payroll/commission-users/payslip/${row._id}?month=${month}&year=${year}`,
 									)
 								}
+								color={colors.bodyText}
+								_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 							/>
 						</Tooltip>
 
@@ -109,11 +112,12 @@ const EmployeePayrollTable = ({
 								aria-label='Generate payslip'
 								icon={<FiPrinter />}
 								size='sm'
-								variant='solid'
-								colorScheme='green'
+								variant='ghost'
 								isDisabled={!row?.payslip?._id}
 								opacity={row?.payslip?._id ? 1 : 0.4}
 								onClick={() => handlePayslipGenerate(row)}
+								color={colors.bodyText}
+								_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 							/>
 						</Tooltip>
 
@@ -123,12 +127,13 @@ const EmployeePayrollTable = ({
 									aria-label='Warning'
 									icon={<FiAlertTriangle />}
 									size='sm'
-									colorScheme='yellow'
 									variant='ghost'
 									onClick={() => {
 										onAddHistoryModalOpen();
 										setPayRollData(row);
 									}}
+									color={colors.bodyText}
+									_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 								/>
 							</Tooltip>
 						)}
@@ -139,12 +144,13 @@ const EmployeePayrollTable = ({
 								aria-label='Warning History'
 								icon={<FaClockRotateLeft />}
 								size='sm'
-								colorScheme='yellow'
 								variant='ghost'
 								onClick={() => {
 									onViewHistoryModalOpen();
 									setPayRollData(row);
 								}}
+								color={colors.bodyText}
+								_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 							/>
 						</Tooltip>
 					</Flex>
@@ -158,7 +164,7 @@ const EmployeePayrollTable = ({
 
 				if (typeof value === 'number') {
 					return (
-						<Text fontWeight='medium' textAlign='center'>
+						<Text fontWeight='medium' textAlign='center' color={colors.bodyText}>
 							{formatCurrency(value, currency)}
 						</Text>
 					);
@@ -170,7 +176,7 @@ const EmployeePayrollTable = ({
 			const value = row[column.key];
 			if (typeof value === 'number' && column.key !== 'evaluationScore') {
 				return (
-					<Text fontWeight='medium' textAlign='center'>
+					<Text fontWeight='medium' textAlign='center' color={colors.bodyText}>
 						{formatCurrency(value, row.agency?.currency || 'AED')}
 					</Text>
 				);
@@ -178,7 +184,7 @@ const EmployeePayrollTable = ({
 
 			return formatValue(column.key, value, row);
 		},
-		[navigate, month, year, handlePayslipGenerate, getNestedValue],
+		[navigate, month, year, handlePayslipGenerate, getNestedValue, colors],
 	);
 
 	return (
@@ -187,15 +193,16 @@ const EmployeePayrollTable = ({
 				my='2'
 				overflowX='auto'
 				overflowY='auto'
-				maxH='calc(100vh - 200px)'
+				      maxHeight="80vh"
+      minH="70vh"
 				borderWidth='1px'
-				borderColor='gray.200'
+				borderColor={colors.borderColor}
 				rounded='xl'
-				boxShadow='sm'
-				bg='white'
+				boxShadow={colors.cardShadow}
+				bg={colors.bg}
 			>
-				<Table variant='striped' size='sm'>
-					<Thead bg='brand.200' position='sticky' top={0} zIndex={1}>
+				<Table variant='simple' size='sm'>
+					<Thead bg={colors.bgDeep} position='sticky' top={0} zIndex={1}>
 						<Tr>
 							{COMMISSION_PAYROLL_COLUMNS.map((column) => (
 								<Th
@@ -208,8 +215,10 @@ const EmployeePayrollTable = ({
 										['name', 'user'].includes(column.key) ? 'left' : 'center'
 									}
 									fontWeight='semibold'
-									color='gray.700'
+									color={colors.headingText}
 									minW={column.width}
+									bg={colors.bgDeep}
+									borderColor={colors.borderColor}
 								>
 									{column.label}
 								</Th>
@@ -226,7 +235,7 @@ const EmployeePayrollTable = ({
 							/>
 						) : data.length === 0 ? (
 							<Tr>
-								<Td colSpan={COMMISSION_PAYROLL_COLUMNS.length} py={10}>
+								<Td colSpan={COMMISSION_PAYROLL_COLUMNS.length} py={10} borderColor={colors.borderColor}>
 									<Center>
 										<NoData label='incoming balance' />
 									</Center>
@@ -236,9 +245,10 @@ const EmployeePayrollTable = ({
 							data.map((row, index) => (
 								<Tr
 									key={row._id || index}
-									_hover={{ bg: 'gray.50' }}
-									bg={index % 2 === 0 ? 'white' : 'gray.25'}
+									_hover={{ bg: colors.bgDeep }}
+									bg={colors.bg }
 									transition='background-color 0.2s'
+									borderColor={colors.borderColor}
 								>
 									{COMMISSION_PAYROLL_COLUMNS.map((column) => (
 										<Td
@@ -246,9 +256,10 @@ const EmployeePayrollTable = ({
 											px={3}
 											py={3}
 											fontSize='sm'
-											color='gray.700'
+											color={colors.bodyText}
 											minW={column.width}
 											textAlign={column.key === 'user' ? 'left' : 'center'}
+											borderColor={colors.borderColor}
 										>
 											{renderCellContent(column, row)}
 										</Td>

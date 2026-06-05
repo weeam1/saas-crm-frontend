@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setTeamStructure } from './../../redux/usersSlice';
 import { mergeSort } from 'utils/helpers';
 import { fetchTeamStructure } from 'api';
-
+import { useUserSession } from 'hooks/useUserSession';
 /**
  * Custom hook for fetching and caching team structure
  * Automatically uses Redux cache if available
@@ -12,6 +12,8 @@ import { fetchTeamStructure } from 'api';
 export const useTeamStructure = () => {
 	const dispatch = useDispatch();
 	const cachedTeam = useSelector((state) => state.users.team);
+	const { isAuthenticated, user } = useUserSession(); // ADD THIS LINE
+	const tenantId = user?.tenantId;
 
 	// Local state
 	const [teamData, setTeamData] = useState(cachedTeam ?? []);
@@ -20,7 +22,8 @@ export const useTeamStructure = () => {
 	const [isError, setIsError] = useState(false);
 	const [error, setError] = useState(null);
 
-	const shouldFetch = !cachedTeam?.length;
+	// const shouldFetch = !cachedTeam?.length;
+	const shouldFetch = !cachedTeam?.length && isAuthenticated;
 
 	/* ================================
 	   Fetch logic
@@ -44,7 +47,7 @@ export const useTeamStructure = () => {
 				setIsFetching(false);
 			}
 		},
-		[dispatch]
+		[dispatch],
 	);
 
 	/* ================================
@@ -70,14 +73,14 @@ export const useTeamStructure = () => {
 		() =>
 			teamData?.flatMap(
 				(manager) =>
-					manager?.teamLeaders?.flatMap((tl) => tl.agents ?? []) ?? []
+					manager?.teamLeaders?.flatMap((tl) => tl.agents ?? []) ?? [],
 			) ?? [],
-		[teamData]
+		[teamData],
 	);
 
 	const allTeamLeaders = useMemo(
 		() => teamData?.flatMap((manager) => manager?.teamLeaders ?? []) ?? [],
-		[teamData]
+		[teamData],
 	);
 
 	const teamIndex = useMemo(() => {
@@ -105,20 +108,29 @@ export const useTeamStructure = () => {
 	/* ================================
 	   Selectors
 	================================ */
+	const findManagerByTL = (tlId, teamData) => {
+		for (const manager of teamData) {
+			if (manager.teamLeaders?.some((tl) => tl._id === tlId)) {
+				return manager._id;
+			}
+		}
+		return null; // TL not found
+	};
+
 	const getAgentsByManagerAndTL = useCallback(
 		(managerId, teamLeadId) =>
 			teamIndex.byManagerTeamLead.get(`${managerId}:${teamLeadId}`) ?? [],
-		[teamIndex]
+		[teamIndex],
 	);
 
 	const getAgentsByManager = useCallback(
 		(managerId) => teamIndex.byManager.get(managerId) ?? [],
-		[teamIndex]
+		[teamIndex],
 	);
 
 	const getTeamLeadsByManager = useCallback(
 		(managerId) => teamIndex.teamLeadsByManager.get(managerId) ?? [],
-		[teamIndex]
+		[teamIndex],
 	);
 
 	/* ================================
@@ -130,6 +142,7 @@ export const useTeamStructure = () => {
 			allAgents,
 			allTeamLeaders,
 			getTeamLeadsByManager,
+			findManagerByTL,
 			getAgentsByManagerAndTL,
 			getAgentsByManager,
 			isLoading,
@@ -143,6 +156,7 @@ export const useTeamStructure = () => {
 			allAgents,
 			allTeamLeaders,
 			getTeamLeadsByManager,
+			findManagerByTL,
 			getAgentsByManagerAndTL,
 			getAgentsByManager,
 			isLoading,
@@ -150,7 +164,7 @@ export const useTeamStructure = () => {
 			isError,
 			error,
 			refreshTeam,
-		]
+		],
 	);
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Table,
@@ -31,16 +31,20 @@ import TableLoading from "components/loading/TableLoading";
 import TopPagination from "components/pagination/TopPagination";
 import { toast } from "react-toastify";
 import AdvancedFilterModal from "./AdvancedSearchModal";
-import { FiSearch, FiRefreshCw } from "react-icons/fi";
-import ActiveFiltersDisplay from "./SubComponent/ActiveFiltersDisplay";
+import { FiSearch} from "react-icons/fi";
+import SearchTags from "components/shared/SearchTags";
+import RefreshButton from "components/refresh/RefreshButton";
+
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { ViewIcon } from "@chakra-ui/icons";
 import { useNavigate } from "react-router-dom";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { useModalColors } from "hooks/useModalColors";
+import CustomTooltip from "components/shared/CustomTooltip";
 
 const PendingListings = () => {
+  const colors = useModalColors();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -52,11 +56,10 @@ const PendingListings = () => {
   const [currentListingId, setCurrentListingId] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filters, setFilters] = useState({});
-  const [filterChanged, setFilterChanged] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [statusLoadingId, setStatusLoadingId] = useState(null);
-
-  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
+  const [searchTags, setSearchTags] = useState([]);
+  const [shouldRefetch, setShouldRefetch] = useState(false);
 
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
   const Navigate = useNavigate();
@@ -67,12 +70,12 @@ const PendingListings = () => {
 
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
-    { refetchOnMountOrArgChange: true, skip: !user?._id }
+    { refetchOnMountOrArgChange: true, skip: !user?._id },
   );
 
   const { data: listingUnitType } = useFetchItemsQuery(
     { path: `/listing/secondary/unit-types` },
-    { refetchOnMountOrArgChange: true, skip: !user?._id }
+    { refetchOnMountOrArgChange: true, skip: !user?._id },
   );
 
   const columns = [
@@ -96,17 +99,8 @@ const PendingListings = () => {
 
   const [updateStatus] = useUpdateItemMutation();
 
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
-    refetch();
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const buildQueryParams = () => {
+  // Build query params
+  const buildQueryParams = useCallback(() => {
     const params = {
       page: currentPage,
       limit: pageSize,
@@ -129,15 +123,129 @@ const PendingListings = () => {
     }
 
     return params;
-  };
+  }, [currentPage, pageSize, filters]);
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     { path: `listing/secondary/status/pending`, params: buildQueryParams() },
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
+
   const { data: countries } = useFetchItemsQuery({
     path: "/countries",
   });
+
+  // Trigger refetch when shouldRefetch changes
+  useEffect(() => {
+    if (shouldRefetch) {
+      refetch();
+      setShouldRefetch(false);
+    }
+  }, [shouldRefetch, refetch]);
+
+  // Generate search tags from filters
+  const generateSearchTags = useCallback((filterObj) => {
+    const tags = [];
+
+    const filterLabels = {
+      projectName: "Project Name",
+      location: "Location",
+      listingType: "Listing Type",
+      unitType: "Unit Type",
+      minPrice: "Min Price",
+      maxPrice: "Max Price",
+      minArea: "Min Area",
+      maxArea: "Max Area",
+      month: "Month",
+      year: "Year",
+      startFrom: "Start Date",
+      startTo: "End Date",
+      country: "Country",
+    };
+
+    Object.entries(filterObj).forEach(([key, value]) => {
+      if (!value) return;
+
+      let displayValue = value;
+      let displayLabel = filterLabels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+      let originalValue = value;
+
+      // Handle listing type
+      if (key === "listingType" && listingType?.doc) {
+        const listingTypeObj = listingType.doc.find(
+          (type) => type._id === value
+        );
+        if (listingTypeObj) {
+          displayValue = listingTypeObj.name;
+        }
+      }
+
+      // Handle unit type
+      if (key === "unitType" && listingUnitType?.doc) {
+        const unitTypeObj = listingUnitType.doc.find(
+          (type) => type._id === value
+        );
+        if (unitTypeObj) {
+          displayValue = unitTypeObj.name;
+        }
+      }
+
+      // Handle price formatting
+      if (key === "minPrice" || key === "maxPrice") {
+        displayValue = `AED ${Number(value).toLocaleString()}`;
+      }
+
+      // Handle area formatting
+      if (key === "minArea" || key === "maxArea") {
+        displayValue = `${Number(value).toLocaleString()} sqft`;
+      }
+
+      // Handle date formatting
+      if ((key === "startFrom" || key === "startTo") && value) {
+        displayValue = format(new Date(value), "d MMM, yyyy");
+      }
+
+      tags.push({
+        key: `${key}-${originalValue}`,
+        label: displayLabel,
+        value: displayValue,
+        originalKey: key,
+        originalValue: originalValue,
+      });
+    });
+
+    return tags;
+  }, [listingType, listingUnitType]);
+
+  // Update search tags when filters change
+  useEffect(() => {
+    if (Object.keys(filters).length > 0) {
+      const newTags = generateSearchTags(filters);
+      setSearchTags(newTags);
+    } else {
+      setSearchTags([]);
+    }
+  }, [filters, generateSearchTags]);
+
+  // Remove individual tag
+  const removeTag = useCallback((key) => {
+    const removedTag = searchTags.find((tag) => tag.key === key);
+    if (!removedTag) return;
+
+    const newFilters = { ...filters };
+    delete newFilters[removedTag.originalKey];
+
+    setFilters(newFilters);
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, [searchTags, filters]);
+
+  // Clear all tags
+  const clearAllTags = useCallback(() => {
+    setFilters({});
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, []);
+
   // Update tableData when data changes
   useEffect(() => {
     if (data) {
@@ -187,7 +295,7 @@ const PendingListings = () => {
       toast.success("Status updated successfully");
 
       setTableData((prevData) =>
-        prevData.filter((item) => item._id !== listingId)
+        prevData.filter((item) => item._id !== listingId),
       );
       setTotalItems((prev) => prev - 1);
 
@@ -235,46 +343,45 @@ const PendingListings = () => {
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
       Object.entries(newFilters).filter(
-        ([_, value]) => value !== "" && value !== undefined
-      )
+        ([_, value]) => value !== "" && value !== undefined && value !== null,
+      ),
     );
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
+    setIsFilterOpen(false);
   };
 
-  useEffect(() => {
-    if (filterChanged) {
-      setFilterChanged(false);
-    }
-  }, [filterChanged]);
-
-  const handleClearFilters = (filterKey) => {
-    if (filterKey) {
-      const newFilters = { ...filters };
-      delete newFilters[filterKey];
-      setFilters(newFilters);
-    } else {
-      setFilters({});
-    }
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
+  };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    setShouldRefetch(true);
+  };
+
+  const handleRefresh = () => {
+    setShouldRefetch(true);
   };
 
   return (
     <Box
       overflowY="auto"
       scrollBehavior="smooth"
-      boxShadow="sm"
-      bg="white"
+      boxShadow={colors.cardShadow}
+      bg={colors.bg}
       px={2}
       marginTop={"-16px"}
+      borderRadius="lg"
+      border="1px solid"
+      borderColor={colors.borderColor}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+        <Text fontSize="20px" fontWeight="bold" color={colors.headingText} p={3}>
           Pending Listings
         </Text>
 
@@ -283,28 +390,17 @@ const PendingListings = () => {
           gap={3}
           flexDir={{ base: "column", sm: "column", md: "row" }}
         >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
           {isMobile ? (
             <IconButton
               icon={<FiSearch />}
               onClick={() => setIsFilterOpen(true)}
               aria-label="Search Listings"
-              colorScheme="brand"
-              variant="solid"
+              variant="ghost"
               size="sm"
-              borderRadius="full"
-              boxShadow="md"
             />
           ) : (
             <Button
-              colorScheme="brand"
+              variant="outline"
               size="sm"
               borderRadius={"md"}
               py={3}
@@ -314,14 +410,25 @@ const PendingListings = () => {
               Advanced Search
             </Button>
           )}
+       <RefreshButton
+	label="Refresh"
+	onClick={handleRefresh}
+	isLoading={isLoading || isFetching}
+	isFetching={isLoading || isFetching}
+	size="sm"
+/>
         </Flex>
       </Flex>
-      <ActiveFiltersDisplay
-        filters={filters}
-        onClearFilters={handleClearFilters}
-        listingTypes={listingType?.doc}
-        unitTypes={listingUnitType?.doc}
-      />
+
+      {/* Search Tags */}
+      {searchTags.length > 0 && (
+        <SearchTags
+          searchTags={searchTags}
+          removeTag={removeTag}
+          clearAllTags={clearAllTags}
+        />
+      )}
+
       <Box my={2}>
         <TopPagination
           currentPage={currentPage}
@@ -331,22 +438,24 @@ const PendingListings = () => {
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
           handlePageSize={handlePageSizeChange}
-          refetching={isLoading}
+          refetching={isFetching}
           loading={isLoading}
         />
       </Box>
+
       <Box
-        borderRadius="4px"
-        boxShadow="sm"
+        borderRadius="lg"
+        boxShadow={colors.cardShadow}
         borderWidth="1px"
+        borderColor={colors.borderColor}
         overflow="hidden"
       >
         <Box position="relative" maxH="120vh" overflowY="auto">
-          <Table variant="striped" size="lg">
+          <Table variant="simple" size="lg">
             <Thead
               position="sticky"
               top={0}
-              bg="white"
+              bg={colors.bgDeep}
               zIndex={2}
               boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
               fontSize={"16px"}
@@ -354,7 +463,7 @@ const PendingListings = () => {
             >
               <Tr>
                 {columns.map((header, index) => (
-                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Th key={index} bg={colors.bgDeep} whiteSpace="nowrap" py={4} borderColor={colors.borderColor}>
                     <Box
                       display="flex"
                       alignItems="center"
@@ -363,7 +472,7 @@ const PendingListings = () => {
                       <Text
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="600"
-                        color="gray.700"
+                        color={colors.headingText}
                         textTransform="capitalize"
                       >
                         {header}
@@ -379,15 +488,17 @@ const PendingListings = () => {
               <Tbody>
                 {tableData.length > 0 ? (
                   tableData.map((listing, index) => (
-                    <Tr key={index}>
+                    <Tr key={listing._id || index} borderColor={colors.borderColor}>
                       <Td
                         py={4}
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
-                        {index + 1}
+                        {(currentPage - 1) * pageSize + index + 1}
                       </Td>
                       <Td
                         textAlign="center"
@@ -395,16 +506,19 @@ const PendingListings = () => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing?.projectName || "N/A"}
                       </Td>
-
                       <Td
                         py={4}
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing?.unitType?.name || "N/A"}
                       </Td>
@@ -414,6 +528,8 @@ const PendingListings = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.subUnitType?.name || "N/A"}
                       </Td>
@@ -423,6 +539,8 @@ const PendingListings = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.listingType?.name || "N/A"}
                       </Td>
@@ -432,6 +550,8 @@ const PendingListings = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.location || "N/A"}
                       </Td>
@@ -441,6 +561,8 @@ const PendingListings = () => {
                         minWidth="250px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.country?.name || "N/A"}
                       </Td>
@@ -450,6 +572,8 @@ const PendingListings = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.area ? listing.area.toLocaleString() : "N/A"}
                       </Td>
@@ -459,6 +583,8 @@ const PendingListings = () => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.buildingAge
                           ? `${listing.buildingAge} Years`
@@ -470,6 +596,8 @@ const PendingListings = () => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing?.developer ? listing?.developer : "N/A"}
                       </Td>
@@ -479,6 +607,8 @@ const PendingListings = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.price
                           ? `AED ${listing.price.toLocaleString()}`
@@ -490,6 +620,8 @@ const PendingListings = () => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.createdAt
                           ? format(listing.createdAt, "MMM d, yyyy h:mm a")
@@ -501,6 +633,8 @@ const PendingListings = () => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {listing.createdBy?.fullName}
                       </Td>
@@ -510,6 +644,7 @@ const PendingListings = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         <Badge
                           colorScheme={getStatusColor(listing.status)}
@@ -521,16 +656,14 @@ const PendingListings = () => {
                           {listing.status}
                         </Badge>
                       </Td>
-                      <Td textAlign="center">
+                      <Td textAlign="center" borderColor={colors.borderColor}>
                         <IconButton
                           aria-label="View"
                           icon={<ViewIcon />}
                           size="sm"
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
+                          variant="ghost"
+                          color={colors.accentGold}
+                          _hover={{ bg: colors.bgDeep, color: colors.goldLight }}
                           onClick={() =>
                             Navigate(`/listing/view-listing/${listing._id}`)
                           }
@@ -542,9 +675,10 @@ const PendingListings = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         {statusLoadingId === listing._id ? (
-                          <Spinner size="sm" color="brand.500" />
+                          <Spinner size="sm" color={colors.accentGold} />
                         ) : (
                           <Select
                             value={listing.status}
@@ -553,27 +687,33 @@ const PendingListings = () => {
                             }}
                             size="sm"
                             width="150px"
-                            focusBorderColor="brand.500"
-                            bg={getStatusColor(listing.status) + ".100"}
-                            color={getStatusColor(listing.status) + ".800"}
+                            bg={colors.bgInput}
+                            borderColor={colors.borderColor}
+                            color={colors.headingText}
+                            _hover={{ borderColor: colors.accentGold }}
+                            _focus={{
+                              borderColor: colors.accentGold,
+                              boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                            }}
                           >
-                            <option value="pending">Pending</option>
-                            <option value="active">Approved</option>
-                            <option value="rejected">Rejected</option>
+                            <option value="pending" style={{ background: colors.bg, color: colors.headingText }}>Pending</option>
+                            <option value="active" style={{ background: colors.bg, color: colors.headingText }}>Approved</option>
+                            <option value="rejected" style={{ background: colors.bg, color: colors.headingText }}>Rejected</option>
                           </Select>
                         )}
                       </Td>
                     </Tr>
                   ))
                 ) : (
-                  <Tr borderColor="gray.200" textAlign="center">
+                  <Tr borderColor={colors.borderColor} textAlign="center">
                     <Td
                       borderBottom="none"
-                      colSpan="16"
+                      colSpan={columns.length}
                       fontSize={{ base: "12px", md: "15px" }}
                       fontWeight="500"
-                      color="gray.500"
+                      color={colors.mutedText}
                       textAlign="center"
+                      borderColor={colors.borderColor}
                     >
                       <NoData label="listing" />
                     </Td>
@@ -588,21 +728,26 @@ const PendingListings = () => {
       {/* Rejection Reason Modal */}
       <Modal
         isOpen={isRejectionModalOpen}
-        onClose={() => setIsRejectionModalOpen(false)}
+        onClose={() => {
+          setIsRejectionModalOpen(false);
+          setRejectionReason("");
+          setAdminNotes("");
+          setStatusLoadingId(null);
+        }}
         isCentered
       >
-        <ModalOverlay />
-        <ModalContent borderRadius="2xl" overflow="hidden">
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+        <ModalContent borderRadius="2xl" overflow="hidden" bg={colors.bg} boxShadow={colors.modalShadow} border="1px solid" borderColor={colors.borderColor}>
           <ModalHeader
             display="flex"
             align="center"
             justify="space-between"
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             px={6}
             py={3}
             borderBottom="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             top="0"
             zIndex="10"
@@ -614,45 +759,63 @@ const PendingListings = () => {
               position="absolute"
               right="12px"
               top="10px"
-              color={headerText}
-              _hover={{ bg: "whiteAlpha.200" }}
+              color={colors.headerText}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </ModalHeader>
           <ModalBody
             p={5}
             overflowY="auto"
             scrollBehavior="smooth"
+            bg={colors.bg}
             sx={{
               "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-track": { background: colors.bgInput, borderRadius: "10px" },
               "&::-webkit-scrollbar-thumb": {
-                background: "#c1c1c1",
+                background: colors.accentGold,
                 borderRadius: "10px",
               },
             }}
           >
             <Box mb={4}>
-              <FormLabel>Rejection Reason (Optional)</FormLabel>
+              <FormLabel color={colors.labelColor}>Rejection Reason (Optional)</FormLabel>
               <Input
                 placeholder="Enter reason for rejection"
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                focusBorderColor="brand.500"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _placeholder={{ color: colors.mutedText }}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               />
             </Box>
             <Box mb={4}>
-              <FormLabel>Admin Notes (Optional)</FormLabel>
+              <FormLabel color={colors.labelColor}>Admin Notes (Optional)</FormLabel>
               <Textarea
                 placeholder="Enter any additional notes"
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
-                focusBorderColor="brand.500"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _placeholder={{ color: colors.mutedText }}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               />
             </Box>
           </ModalBody>
           <ModalFooter
-            bg={footerBg}
+            bg={colors.footerBg}
             borderTop="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             bottom="0"
             zIndex="10"
@@ -666,12 +829,17 @@ const PendingListings = () => {
               borderRadius="md"
               size="sm"
               mr={3}
-              onClick={() => setIsRejectionModalOpen(false)}
+              onClick={() => {
+                setIsRejectionModalOpen(false);
+                setRejectionReason("");
+                setAdminNotes("");
+                setStatusLoadingId(null);
+              }}
             >
               Cancel
             </Button>
             <Button
-              colorScheme="red"
+              variant="brand"
               borderRadius="md"
               size="sm"
               onClick={() =>
@@ -692,7 +860,7 @@ const PendingListings = () => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
-        clearFilter={filterChanged}
+        clearFilter={false}
         countries={countries?.doc || []}
       />
     </Box>

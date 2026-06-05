@@ -85,7 +85,7 @@ const Survey = () => {
 			</Box> */}
 				<NavigationLinks />
 
-				<Box p='4'>
+				<Box p='4' >
 					{searchTags && <SearchTags searchTags={searchTags} />}
 
 					{/* View Toggle*/}
@@ -98,7 +98,8 @@ const Survey = () => {
 					) : view === 'grid' ? (
 						surveys?.doc?.surveys.length > 0 ? (
 							<Grid
-								// display='grid'
+									// display='grid'
+								
 								sx={{
 									// >= 0px
 									'@media (min-width: 0px)': {

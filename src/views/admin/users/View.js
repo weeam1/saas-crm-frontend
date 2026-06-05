@@ -41,6 +41,7 @@ const View = () => {
 		{ Header: 'Role Name', accessor: 'roleName' },
 		{ Header: 'Description', accessor: 'description' },
 	];
+	const {agencyLogo}=useUserSession()
 	const dispatch = useDispatch();
 	const userData = useSelector((state) => state.user.user);
 
@@ -92,7 +93,7 @@ const View = () => {
 	const [isLoding, setIsLoding] = useState(false);
 	const [action, setAction] = useState(false);
 
-	const [preview, setPreview] = useState(DefaultUserImage);
+	const [preview, setPreview] = useState(agencyLogo);
 
 	useEffect(() => {
 		if (data?.profileImage && typeof data?.profileImage === 'string') {
@@ -102,9 +103,9 @@ const View = () => {
 			img.src = imageUrl;
 
 			img.onload = () => setPreview(imageUrl);
-			img.onerror = () => setPreview(DefaultUserImage);
+			img.onerror = () => setPreview(agencyLogo);
 		} else {
-			setPreview(DefaultUserImage);
+			setPreview(agencyLogo);
 		}
 	}, [data?.profileImage]);
 

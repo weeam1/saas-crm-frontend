@@ -65,7 +65,7 @@ const RenderFields = ({ fields }) => {
 											htmlFor={field.name}
 											fontSize='sm'
 											fontWeight='600'
-											color='gray.700'
+											color='text.body'
 											mb='1'
 										>
 											{field.label}
@@ -76,14 +76,16 @@ const RenderFields = ({ fields }) => {
 										<Textarea
 											id={field.name}
 											{...formikField}
-											bg='gray.50'
-											borderColor='gray.300'
-											_hover={{ borderColor: 'brand.400' }}
+											bg='bg.input'
+											borderColor='border.default'
+											_hover={{ borderColor: 'border.focus' }}
 											_focus={{
-												borderColor: 'brand.500',
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+												borderColor: 'border.focus',
+												boxShadow: 'goldGlow',
 											}}
 											placeholder={field.label}
+											color='text.heading'
+											_placeholder={{ color: 'text.muted' }}
 											minH='100px'
 										/>
 									) : field.type === 'checkbox' ? (
@@ -91,44 +93,50 @@ const RenderFields = ({ fields }) => {
 											id={field.name}
 											{...formikField}
 											isChecked={formikField.value}
-											colorScheme='brand'
+											colorScheme='yellow'
+											sx={{
+												'.chakra-checkbox__control': {
+													_focus: { boxShadow: 'none' },
+												},
+											}}
 										>
 											{field.label}
 										</Checkbox>
 									) : field.type === 'select' ? (
 										<InputGroup
-											border={'1px solid'}
-											bg='gray.50'
-											borderColor='gray.300'
-											_hover={{ borderColor: 'brand.400' }}
-											_focus={{
-												borderColor: 'brand.500',
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+											border='1px solid'
+											bg='bg.input'
+											borderColor='border.default'
+											_hover={{ borderColor: 'border.focus' }}
+											_focusWithin={{
+												borderColor: 'border.focus',
+												boxShadow: 'goldGlow',
 											}}
-											borderRadius={'md'}
+											borderRadius='md'
 										>
 											{FieldIcon && (
 												<InputLeftElement pointerEvents='none'>
-													<Icon as={FieldIcon} color='gray.400' boxSize={4} />
+													<Icon as={FieldIcon} color='text.accent' boxSize={4} />
 												</InputLeftElement>
 											)}
 											<Select
 												id={field.name}
 												{...formikField}
-												bg='gray.50'
-												border={'none'}
-												outline={'none'}
-												borderColor='none'
-												pl={FieldIcon ? 6 : 4}
-												height='42px'
-												_hover={{ borderColor: 'none' }}
-												_focus={{
-													borderColor: 'none',
-												}}
+												bg='transparent'
+												border='none'
+												color='text.heading'
+												pl={FieldIcon ? 8 : 4}
+												_focus={{ border: 'none', boxShadow: 'none' }}
 											>
-												<option value=''>{field.label}</option>
+												<option value='' style={{ background: '#24496E', color: '#B0B0B0' }}>
+													{field.label}
+												</option>
 												{field.options?.map((option) => (
-													<option key={option.value} value={option.value}>
+													<option
+														key={option.value}
+														value={option.value}
+														style={{ background: '#24496E', color: '#B0B0B0' }}
+													>
 														{option.label}
 													</option>
 												))}
@@ -138,22 +146,23 @@ const RenderFields = ({ fields }) => {
 										<InputGroup>
 											{FieldIcon && (
 												<InputLeftElement pointerEvents='none'>
-													<Icon as={FieldIcon} color='gray.400' boxSize={4} />
+													<Icon as={FieldIcon} color='text.accent' boxSize={4} />
 												</InputLeftElement>
 											)}
 											<Input
 												id={field.name}
 												type={field.type}
 												{...formikField}
-												bg='gray.50'
-												borderColor='gray.300'
+												bg='bg.input'
+												borderColor='border.default'
 												pl={FieldIcon ? 10 : 4}
-												height='42px'
-												_hover={{ borderColor: 'brand.400' }}
+												color='text.heading'
+												_placeholder={{ color: 'text.muted' }}
 												_focus={{
-													borderColor: 'brand.500',
-													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+													borderColor: 'border.focus',
+													boxShadow: 'goldGlow',
 												}}
+												_hover={{ borderColor: 'border.focus' }}
 												placeholder={field.label}
 											/>
 										</InputGroup>

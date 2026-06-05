@@ -4,13 +4,10 @@ import {
 	Box,
 	SimpleGrid,
 	IconButton,
-	useColorModeValue,
 	Text,
 	VStack,
 	HStack,
 	useBreakpointValue,
-	Select,
-	Button,
 } from '@chakra-ui/react';
 import { BiCollapse, BiExpand } from 'react-icons/bi';
 // Import chart components
@@ -40,8 +37,6 @@ const CHART_COMPONENTS = {
 const Graphs = ({ summary, isLoading, layout = 'default' }) => {
 	const [fullScreenChart, setFullScreenChart] = useState(null);
 	const [activeLayout, setActiveLayout] = useState(layout);
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	const chartKeys =
 		CHART_GRID_LAYOUT[activeLayout] || CHART_GRID_LAYOUT.default;
@@ -64,18 +59,21 @@ const Graphs = ({ summary, isLoading, layout = 'default' }) => {
 				left={0}
 				right={0}
 				bottom={0}
-				bg={bgColor}
+				bg='bg.surface'
 				zIndex={9999}
 				p={6}
 			>
 				<HStack justify='space-between' mb={6}>
-					<Text fontSize='2xl' fontWeight='bold'>
+					<Text fontSize='2xl' fontWeight='bold' color='text.heading'>
 						{chartConfig.fullScreenTitle}
 					</Text>
 					<IconButton
 						icon={<BiCollapse />}
 						onClick={() => setFullScreenChart(null)}
 						aria-label='Exit full screen'
+						variant='ghost'
+						color='text.muted'
+						_hover={{ color: 'text.accent', bg: 'bg.elevated' }}
 					/>
 				</HStack>
 				<Box height='calc(100vh - 120px)'>
@@ -87,26 +85,6 @@ const Graphs = ({ summary, isLoading, layout = 'default' }) => {
 
 	return (
 		<Box py='2'>
-			{/* Layout Controls */}
-			{/* <HStack justify='space-between' mb={6}>
-				<Text fontSize='xl' fontWeight='bold'>
-					Analytics Dashboard
-				</Text>
-				<Box>
-					<Box>
-						<Select
-							size='sm'
-							value={activeLayout}
-							onChange={(e) => setActiveLayout(e.target.value)}
-							width='auto'
-						>
-							<option value='default'>Default View</option>
-							<option value='detailed'>Detailed View</option>
-						</Select>
-					</Box>
-				</Box>
-			</HStack> */}
-
 			{isLoading ? (
 				<CardShimmer
 					count={chartKeys.length}
@@ -122,16 +100,11 @@ const Graphs = ({ summary, isLoading, layout = 'default' }) => {
 				<>
 					{/* Dynamic Chart Grid */}
 					<SimpleGrid
-						// columns={{ base: 1, md: 2, xl: chartKeys.length >= 2 ? 2 : 1 }}
 						sx={{
 							// >= 0px
 							'@media (min-width: 0px)': {
 								gridTemplateColumns: '1fr',
 							},
-							// // >= 992px
-							// '@media (min-width: 700px)': {
-							// 	gridTemplateColumns: 'repeat(1, 1fr)',
-							// },
 							// >= 1280px
 							'@media (min-width: 1080px)': {
 								gridTemplateColumns: 'repeat(2, 1fr)',
@@ -162,7 +135,7 @@ const Graphs = ({ summary, isLoading, layout = 'default' }) => {
 					</SimpleGrid>
 				</>
 			) : (
-				<NoData label='leads summary analtyics' />
+				<NoData label='leads summary analytics' />
 			)}
 		</Box>
 	);
@@ -175,54 +148,33 @@ const ChartContainer = ({
 	children,
 	chartType,
 }) => {
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
 	const chartHeight = useBreakpointValue({
 		base: 260,
 		md: 260,
 		lg: 280,
 	});
 
-	const getChartTypeColor = (type) => {
-		const colors = {
-			pie: 'blue',
-			bar: 'green',
-			area: 'purple',
-			radar: 'orange',
-			line: 'teal',
-		};
-		return colors[type] || 'gray';
-	};
-
 	return (
 		<Box
-			bg={bgColor}
+			bg='bg.surface'
 			border='1px solid'
-			borderColor={borderColor}
-			borderRadius='lg'
+			borderColor='border.default'
+			borderRadius='xl'
 			p={2}
-			boxShadow='sm'
+			boxShadow='card'
 			position='relative'
 			transition='all 0.2s'
-			// _hover={{ boxShadow: 'md', transform: 'translateY(-2px)' }}
-			_hover={{ boxShadow: 'md' }}
+			_hover={{ boxShadow: 'goldGlow' }}
 		>
 			<HStack justify='space-between' mb={4} p='2'>
 				<HStack spacing={3}>
-					<Text fontSize={{ base: 'sm', md: 'lg' }} fontWeight='semibold'>
+					<Text
+						fontSize={{ base: 'sm', md: 'lg' }}
+						fontWeight='semibold'
+						color='text.heading'
+					>
 						{title}
 					</Text>
-					{/* <Box
-						px={2}
-						py={1}
-						borderRadius='md'
-						bg={`${getChartTypeColor(chartType)}.100`}
-						color={`${getChartTypeColor(chartType)}.800`}
-						fontSize='xs'
-						fontWeight='medium'
-					>
-						{chartType?.toUpperCase()}
-					</Box> */}
 				</HStack>
 				<IconButton
 					size='sm'
@@ -230,6 +182,13 @@ const ChartContainer = ({
 					onClick={() => onToggleFullScreen(chartKey)}
 					aria-label={`View ${title} in full screen`}
 					variant='ghost'
+					color='text.muted'
+					_hover={{
+						color: 'text.accent',
+						bg: 'bg.elevated',
+						transform: 'scale(1.1)'
+					}}
+					transition='all 0.2s ease'
 				/>
 			</HStack>
 			<Box height={chartHeight}>{children}</Box>

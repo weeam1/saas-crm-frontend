@@ -9,6 +9,7 @@ import {
 	SimpleGrid,
 } from '@chakra-ui/react';
 import PermissionIcon from './PermissionIcon';
+import { useModalColors } from 'hooks/useModalColors';
 
 const PermissionCard = ({
 	module,
@@ -20,16 +21,23 @@ const PermissionCard = ({
 	handleSelectAll,
 	handleActionToggle,
 }) => {
+	const colors = useModalColors();
 	const cleanModuleName = module.moduleName.replace(/^[\s,]+/, '').trim();
 
 	return (
 		<Box
 			borderWidth='1px'
 			borderRadius='md'
-			bg='white'
+			borderColor={colors.borderColor}
+			bg={colors.bg}
 			w='full'
 			p={4}
-			boxShadow='sm'
+			boxShadow={colors.cardShadow}
+			transition='all 0.2s ease'
+			_hover={{
+				borderColor: colors.accentGold,
+				boxShadow: colors.modalShadow,
+			}}
 		>
 			{/* Module title and Check All */}
 			<Flex
@@ -45,16 +53,16 @@ const PermissionCard = ({
 					display='flex'
 					gap={2}
 					alignItems='center'
-					color='brand.600'
+					color={colors.accentGold}
 				>
 					<PermissionIcon moduleName={cleanModuleName} />
 
-					<Text fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}>
+					<Text color={colors.accentGold} fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}>
 						{cleanModuleName}
 					</Text>
 				</Box>
 				<Switch
-					colorScheme='brand'
+					colorScheme='yellow'
 					size='md'
 					isChecked={module.isModuleEnabled}
 					onChange={(e) => handleModuleToggle(moduleIndex, e.target.checked)}
@@ -62,22 +70,22 @@ const PermissionCard = ({
 					_active={{ boxShadow: 'none' }}
 				/>
 			</Flex>
-			{module?.actions.length > 0 && <Divider my={3} color={'brand.500'} />}
+			{module?.actions.length > 0 && <Divider my={3} borderColor={colors.borderColor} />}
 
 			<Flex justify='flex-end' mb={2} mt={'-2px'}>
 				{module?.actions.length > 0 && (
 					<Checkbox
 						size='md'
-						colorScheme='brand'
+						colorScheme='yellow'
 						borderColor={
-							module.isModuleEnabled ? 'brand.300' : disabledBorderColor
+							module.isModuleEnabled ? colors.accentGold : colors.borderColor
 						}
 						_focus={{ boxShadow: 'none' }}
 						_active={{ boxShadow: 'none' }}
 						_hover={{
 							borderColor: module.isModuleEnabled
-								? 'brand.300'
-								: disabledBorderColor,
+								? colors.accentGold
+								: colors.borderColor,
 						}}
 						isChecked={
 							module?.actions.length > 0
@@ -89,21 +97,21 @@ const PermissionCard = ({
 						sx={{
 							'& .chakra-checkbox__control': {
 								borderColor: !module.isModuleEnabled
-									? disabledBorderColor
-									: 'gray.400',
+									? colors.borderColor
+									: colors.borderColor,
 								outline: 'none',
 							},
 							'.chakra-checkbox__control': {
 								_focus: {
-									boxShadow: '0 0 0 2px',
-									borderColor: 'brand.300',
+									boxShadow: `0 0 0 2px ${colors.accentGold}`,
+									borderColor: colors.accentGold,
 									outline: 'none',
 								},
 							},
 						}}
 					>
 						<Text
-							color={!module.isModuleEnabled ? disabledTextColor : 'inherit'}
+							color={!module.isModuleEnabled ? colors.mutedText : colors.headingText}
 						>
 							Check All
 						</Text>
@@ -118,16 +126,16 @@ const PermissionCard = ({
 						<Checkbox
 							key={action.actionKey}
 							size='lg'
-							colorScheme='brand'
+							colorScheme='yellow'
 							borderColor={
-								module.isModuleEnabled ? 'brand.300' : disabledBorderColor
+								module.isModuleEnabled ? colors.accentGold : colors.borderColor
 							}
 							_focus={{ boxShadow: 'none' }}
 							_active={{ boxShadow: 'none' }}
 							_hover={{
 								borderColor: module.isModuleEnabled
-									? 'brand.300'
-									: disabledBorderColor,
+									? colors.accentGold
+									: colors.borderColor,
 							}}
 							isChecked={action.isAllowed}
 							onChange={() => handleActionToggle(moduleIndex, actionIndex)}
@@ -135,14 +143,14 @@ const PermissionCard = ({
 							sx={{
 								'& .chakra-checkbox__control': {
 									borderColor: !module.isModuleEnabled
-										? disabledBorderColor
-										: 'gray.400',
+										? colors.borderColor
+										: colors.borderColor,
 									outline: 'none',
 								},
 								'.chakra-checkbox__control': {
 									_focus: {
-										boxShadow: '0 0 0 2px',
-										borderColor: 'brand.300',
+										boxShadow: `0 0 0 2px ${colors.accentGold}`,
+										borderColor: colors.accentGold,
 										outline: 'none',
 									},
 								},
@@ -150,7 +158,7 @@ const PermissionCard = ({
 						>
 							<Text
 								fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
-								color={!module.isModuleEnabled ? disabledTextColor : 'inherit'}
+								color={!module.isModuleEnabled ? colors.mutedText : colors.bodyText}
 							>
 								{action.name}
 							</Text>

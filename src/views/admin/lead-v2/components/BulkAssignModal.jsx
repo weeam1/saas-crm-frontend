@@ -15,6 +15,8 @@ import { ASSIGNMENT_BY_PERMISSION, formatList } from './constants';
 import { usePermissions } from 'hooks/usePermissions';
 import { useTeamStructure } from 'hooks/user/useTeamStructure';
 import { useCreateItemMutation } from 'api/apiSlice';
+import { useSendNotification } from 'hooks/notification/useSendNotification';
+import { NOTIFICATION_TYPES } from 'constants/notification.contants';
 
 const {
 	Modal,
@@ -86,6 +88,8 @@ const BulkAssignModal = (props) => {
 
 	const [fetchUserStats, { error: fetchUserStatsError }] =
 		useCreateItemMutation();
+
+	const { sendNotification } = useSendNotification();
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -219,8 +223,25 @@ const BulkAssignModal = (props) => {
 					}),
 				);
 
-				sendBulkLeadNotification(user?._id, finalValues, selectedLeads);
+				// sendBulkLeadNotification(user?._id, finalValues, selectedLeads);
 				toast.success('Leads updated successfully');
+
+				const userIds = Object.values(finalValues).filter(Boolean);
+
+				if (userIds?.length > 0) {
+					await sendNotification({
+						recipientType: 'INDIVIDUAL',
+						type: NOTIFICATION_TYPES.LEAD_BULK_ASSIGNED,
+						sender: user?._id,
+						title: 'Bulk Leads Assigned',
+						receivers: userIds, // manager / teamLead / agent
+						metadata: {
+							leadIds: selectedLeads.map((lead) => lead._id),
+							assignedBy: user?._id,
+							totalLeads: selectedLeads.length,
+						},
+					});
+				}
 
 				formikResetForm();
 				setSelectedValues([]);
@@ -345,18 +366,23 @@ const BulkAssignModal = (props) => {
 				isCentered
 				motionPreset='slideInBottom'
 			>
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalOverlay bg='bg.overlay' backdropFilter='blur(2px)' />
+			<ModalContent
+  bg='bg.surface'
+  borderRadius='xl'
+  boxShadow='deep'
+  mx='2'
+  overflow='hidden'
+>
 					<ModalHeader
-						display='flex'
-						gap='2'
-						bg={headerBg}
-						color={headerText}
-						borderTopRadius='xl'
-						py={4}
-						alignItems='center'
-						w='100%'
-					>
+  bg='accent.gold'
+  color='text.inverse'
+  borderTopRadius='xl'
+  py={4}
+  px={6}
+  borderBottom='1px solid'
+  borderColor='border.default'
+>
 						Bulk Assign ({selectedValues?.length} Leads)
 					</ModalHeader>
 					<ModalBody>
@@ -373,7 +399,6 @@ const BulkAssignModal = (props) => {
 					</ModalBody>
 					<ModalFooter>
 						<Button
-							colorScheme='red'
 							variant='outline'
 							size='sm'
 							mr='2'

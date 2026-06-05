@@ -16,8 +16,10 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { useState } from 'react';
 import { FaCoins, FaPencil } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
+import { useModalColors } from 'hooks/useModalColors';
 
 const UserCoinsView = ({ user, updateData }) => {
+	const colors = useModalColors();
 	const [mode, setMode] = useState('add');
 	const [newCoins, setNewCoins] = useState('');
 
@@ -56,11 +58,11 @@ const UserCoinsView = ({ user, updateData }) => {
 		>
 			{/* Coins Display */}
 			<Flex align='center' gap={2}>
-				<FaCoins size={16} strokeWidth={1.5} color='#e2a814ff' />
+				<FaCoins size={16} strokeWidth={1.5} color={colors.accentGold} />
 				<Text
 					fontWeight='600'
 					fontSize='15px'
-					color='gray.800'
+					color={colors.headingText}
 					fontFamily='mono'
 				>
 					{user?.coins || 0}
@@ -83,35 +85,32 @@ const UserCoinsView = ({ user, updateData }) => {
 						size='xs'
 						opacity={0.6}
 						onClick={() => setIsOpen(true)}
+						color={colors.bodyText}
 						_hover={{
 							opacity: 1,
-							bg: 'gray.100',
+							color: colors.accentGold,
+							bg: colors.secondaryBtnHoverBg,
 						}}
+						transition='all 0.2s ease'
 					/>
 				</PopoverTrigger>
 
 				<Portal>
-					{/* Portal ensures popover renders above ALL z-index stack */}
 					<PopoverContent
 						w='220px'
 						borderRadius='14px'
 						p={3}
-						boxShadow='0px 6px 24px rgba(0,0,0,0.12)'
+						boxShadow={colors.modalShadow}
 						zIndex={2000}
 						border='1px solid'
-						borderColor='gray.100'
-						bg='white'
-						animation='fadeIn 0.15s ease-out'
-						_focus={{
-							outline: 'none',
-							boxShadow: '0px 6px 24px rgba(0,0,0,0.12) !important',
-						}}
+						borderColor={colors.borderColor}
+						bg={colors.bg}
 					>
-						<PopoverArrow />
+						<PopoverArrow bg={colors.bg} borderColor={colors.borderColor} />
 						<PopoverBody>
 							<Flex direction='column' gap={4}>
 								{/* Segmented Toggle */}
-								<Flex bg='gray.100' p='4px' borderRadius='10px' gap='4px'>
+								<Flex bg={colors.bgInput} p='4px' borderRadius='10px' gap='4px'>
 									<Box
 										flex={1}
 										textAlign='center'
@@ -120,10 +119,14 @@ const UserCoinsView = ({ user, updateData }) => {
 										fontWeight='600'
 										cursor='pointer'
 										borderRadius='8px'
-										bg={mode === 'add' ? 'green.500' : 'transparent'}
-										color={mode === 'add' ? 'white' : 'gray.700'}
+										bg={mode === 'add' ? colors.accentGold : 'transparent'}
+										color={mode === 'add' ? colors.headerText : colors.bodyText}
 										transition='all 0.15s'
 										onClick={() => setMode('add')}
+										_hover={{
+											bg: mode === 'add' ? colors.goldLight : colors.bgInputHover,
+											color: mode === 'add' ? colors.headerText : colors.headingText,
+										}}
 									>
 										Add
 									</Box>
@@ -136,10 +139,14 @@ const UserCoinsView = ({ user, updateData }) => {
 										fontWeight='600'
 										cursor='pointer'
 										borderRadius='8px'
-										bg={mode === 'subtract' ? 'red.500' : 'transparent'}
-										color={mode === 'subtract' ? 'white' : 'gray.700'}
+										bg={mode === 'subtract' ? colors.badgeErrorText : 'transparent'}
+										color={mode === 'subtract' ? colors.headerText : colors.bodyText}
 										transition='all 0.15s'
 										onClick={() => setMode('subtract')}
+										_hover={{
+											bg: mode === 'subtract' ? colors.badgeErrorText : colors.bgInputHover,
+											color: mode === 'subtract' ? colors.headerText : colors.headingText,
+										}}
 									>
 										Sub
 									</Box>
@@ -154,22 +161,29 @@ const UserCoinsView = ({ user, updateData }) => {
 									value={newCoins}
 									onChange={(e) => setNewCoins(e.target.value)}
 									fontSize='sm'
-									_focus={{ borderColor: 'gray.400' }}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_focus={{ borderColor: colors.accentGold }}
+									_placeholder={{ color: colors.mutedText }}
 								/>
 
 								{/* Apply Button */}
 								<Button
 									size='sm'
 									borderRadius='10px'
-									bg={mode === 'add' ? 'green.500' : 'red.500'}
-									color='white'
+									bg={mode === 'add' ? colors.accentGold : colors.badgeErrorText}
+									color={colors.headerText}
 									fontWeight='600'
 									_hover={{
-										bg: mode === 'add' ? 'green.600' : 'red.600',
+										bg: mode === 'add' ? colors.goldLight : colors.badgeErrorText,
+										transform: 'translateY(-1px)',
+										boxShadow: colors.goldGlow,
 									}}
+									_active={{ transform: 'translateY(0)' }}
 									onClick={handleSaveCoins}
 									isLoading={isUpdating}
 									isDisabled={isUpdating}
+									transition='all 0.2s ease'
 								>
 									Apply
 								</Button>

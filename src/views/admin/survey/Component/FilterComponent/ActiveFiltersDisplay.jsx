@@ -23,10 +23,10 @@ const ActiveFiltersDisplay = ({
       return isNaN(date.getTime())
         ? dateString
         : date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          });
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
     } catch (e) {
       return dateString;
     }

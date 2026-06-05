@@ -26,8 +26,10 @@ import { FaBriefcase, FaUser } from "react-icons/fa";
 import { formatName } from "utils/helpers";
 import useUserSession from "hooks/useUserSession";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
+import { useModalColors } from "hooks/useModalColors";
 
 const CandidateCard = ({ candidate, refetch, mode }) => {
+  const colors = useModalColors();
   const {
     name,
     position,
@@ -60,23 +62,19 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
     try {
       const pdfURL = `${constant["baseUrl"]}${resume}`;
 
-      // Check if this file was already marked as missing
       if (missingFiles.includes(resume)) {
         toast.error("CV not found!");
-        return; // Stop further execution
+        return;
       }
 
-      // Send a single HEAD request to check if the file exists
       const response = await fetch(pdfURL, { method: "HEAD" });
 
       if (!response.ok) {
-        // Store the missing file to prevent future requests
         dispatch(addMissingFile(resume));
         toast.error("CV not found!");
         return;
       }
 
-      // Open the PDF if it exists
       window.open(pdfURL, "_blank");
 
       createUserLog({
@@ -93,32 +91,29 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
       toast.error("Failed to retrieve the CV. Please try again later.");
     }
   };
+
   const handleDownloadCV = async (resume) => {
     try {
       const pdfURL = `${constant["baseUrl"]}${resume}`;
-      // Check if this file was already marked as missing
       if (missingFiles.includes(resume)) {
         toast.error("CV could not be downloaded");
         return;
       }
 
-      // Check if the file exists using a HEAD request
       const response = await fetch(pdfURL, { method: "HEAD" });
 
       if (!response.ok) {
-        // Store the missing file to prevent future requests
         dispatch(addMissingFile(resume));
         toast.error("CV could not be downloaded");
         return;
       }
 
-      // Create an anchor element for the download
       const link = document.createElement("a");
       link.href = pdfURL;
-      link.download = pdfURL.split("/").pop(); // Extract the file name from the URL
+      link.download = pdfURL.split("/").pop();
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link); // Clean up the DOM
+      document.body.removeChild(link);
 
       createUserLog({
         userId: user?._id,
@@ -157,7 +152,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
       case "Not Eligible":
         return "red";
       default:
-        return "gray"; // Default color if no matching status
+        return "gray";
     }
   };
 
@@ -166,24 +161,40 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
   return (
     <>
       <Box
-        border="1px solid #E2E8F0"
-        bg="white"
-        borderRadius="md"
+        border="1px solid"
+        borderColor={colors.borderColor}
+        bg={colors.bg}
+        borderRadius="lg"
         p={4}
-        boxShadow="sm"
+        boxShadow={colors.cardShadow}
         width="full"
+        minW={0}
+        maxW="100%"
+        overflow="hidden"
+        alignSelf="stretch"
+        transition="all 0.2s ease"
+        _hover={{
+          borderColor: colors.accentGold,
+          transform: "translateY(-2px)",
+          boxShadow: colors.modalShadow,
+        }}
       >
         <Box mb="4">
           <Flex alignItems="flex-start" gap="2" justifyContent="space-between">
             <Box>
-              <Heading width="10rem" size="md" isTruncated>
+              <Heading
+                width="10rem"
+                size="sm"
+                isTruncated
+                color={colors.headingText}
+              >
                 {formatName(name)}
               </Heading>
 
               <Text
-                style={{ color: "#B3B3B3" }}
+                color={colors.mutedText}
                 textDecoration="underline"
-                fontSize=".8rem"
+                fontSize="0.8rem"
                 mb="4"
                 isTruncated
                 width={{ base: "12rem", lg: "10rem" }}
@@ -193,16 +204,20 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
             </Box>
 
             <Button
-              bg="#EDC270"
-              color="gray.800"
+              bg={colors.accentGold}
+              color={colors.headerText}
               py="6px"
               px="12px"
               fontSize="0.85rem"
               fontWeight="medium"
               shadow="sm"
               rounded="full"
-              _hover={{ bg: "#E0B960" }}
-              _active={{ bg: "#D4AC50" }}
+              _hover={{
+                bg: colors.goldLight,
+                transform: "translateY(-1px)",
+                boxShadow: colors.goldGlow,
+              }}
+              _active={{ bg: colors.goldDark }}
               w="83px"
               h="30px"
               display="flex"
@@ -211,8 +226,9 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
               justifyContent="center"
               disabled={missingFiles.includes(resume)}
               onClick={() => handleViewCV(resume)}
+              transition="all 0.2s ease"
             >
-              <FaEye size={18} />
+              <FaEye size={14} />
               <span>CV</span>
             </Button>
           </Flex>
@@ -231,21 +247,21 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
                   <Flex
                     alignItems="center"
                     gap="1"
-                    fontSize=".8rem"
+                    fontSize="0.8rem"
                     fontWeight="semibold"
-                    color="gray.800"
+                    color={colors.bodyText}
                   >
-                    <FaWhatsapp style={{ marginRight: "4px" }} />
+                    <FaWhatsapp style={{ marginRight: "4px" }} color={colors.accentGold} />
                     <p>{whatsApp}</p>
                   </Flex>
                   <Flex
                     alignItems="center"
                     gap="1"
-                    fontSize=".8rem"
+                    fontSize="0.8rem"
                     fontWeight="semibold"
-                    color="gray.800"
+                    color={colors.bodyText}
                   >
-                    <FaPhone />
+                    <FaPhone color={colors.accentGold} />
                     {phone}
                   </Flex>
                 </Box>
@@ -254,21 +270,21 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
                   <Flex
                     alignItems="center"
                     gap="1"
-                    fontSize=".8rem"
+                    fontSize="0.8rem"
                     fontWeight="semibold"
-                    color="gray.800"
+                    color={colors.bodyText}
                   >
-                    <Icon as={FaUser} boxSize="3" />
+                    <Icon as={FaUser} boxSize="3" color={colors.accentGold} />
                     <Text>{gender || "N/A"}</Text>
                   </Flex>
                   <Flex
                     alignItems="center"
                     gap="1"
-                    fontSize=".8rem"
+                    fontSize="0.8rem"
                     fontWeight="semibold"
-                    color="gray.800"
+                    color={colors.bodyText}
                   >
-                    <Icon as={FaBriefcase} boxSize="3" />
+                    <Icon as={FaBriefcase} boxSize="3" color={colors.accentGold} />
                     <Text>{experienceYears} years</Text>
                   </Flex>
                 </Flex>
@@ -276,47 +292,41 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
             </Flex>
           </HStack>
 
-          <Flex
-            alignItems="center"
-            gap="1"
-            fontSize="sm"
-            color="gray.800"
-            mb={2}
-          >
-            <span
-              style={{
-                color: "#B3B3B3",
-                marginRight: "4px",
-                fontWeight: "lighter",
-              }}
-            >
+          <Flex alignItems="center" gap="1" fontSize="sm" color={colors.bodyText} mb={2}>
+            <span style={{ color: colors.mutedText, marginRight: "4px", fontWeight: "lighter" }}>
               Job Role
             </span>
-            <Text fontWeight="semibold">
-              <span>{position.name}</span>
+            <Text fontWeight="semibold" color={colors.headingText}>
+              <span>{position?.name}</span>
             </Text>
           </Flex>
+
           <Flex justify="space-between">
             <Button
-              bg="#EDC270"
-              color="gray.800"
+              bg={colors.accentGold}
+              color={colors.headerText}
               py="6px"
               px="12px"
               fontSize="0.85rem"
               fontWeight="medium"
               shadow="md"
               rounded="full"
-              _hover={{ bg: "#E0B960" }} // Slightly darker shade for hover effect
-              _active={{ bg: "#D4AC50" }} // Darker shade for active state
+              _hover={{
+                bg: colors.goldLight,
+                transform: "translateY(-1px)",
+                boxShadow: colors.goldGlow,
+              }}
+              _active={{ bg: colors.goldDark }}
               w="83px"
               h="30px"
               onClick={handleViewApplication}
+              transition="all 0.2s ease"
             >
               View
             </Button>
             <Button
-              bg="#EDC270"
-              color="gray.800"
+              bg={colors.accentGold}
+              color={colors.headerText}
               h="6"
               py="6px"
               px="12px"
@@ -324,43 +334,37 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
               fontWeight="normal"
               shadow="sm"
               rounded="md"
-              _hover={{ bg: "#E0B960" }}
-              _active={{ bg: "#D4AC50" }}
-              onClick={() => {
-                onHistoryOpen();
+              _hover={{
+                bg: colors.goldLight,
+                transform: "translateY(-1px)",
+                boxShadow: colors.goldGlow,
               }}
+              _active={{ bg: colors.goldDark }}
+              onClick={() => onHistoryOpen()}
+              transition="all 0.2s ease"
             >
               <FaClockRotateLeft />
             </Button>
           </Flex>
         </Box>
 
-        <Box textAlign="right" fontSize="sm" color="gray.800">
+        <Box textAlign="right" fontSize="sm" color={colors.bodyText}>
           {invited || mode === "interview" ? (
-            <Flex
-              fontSize="xs"
-              alignItems="center"
-              justifyContent="flex-end"
-              gap={1}
-            >
-              <Text color="gray.500" fontWeight="light">
+            <Flex fontSize="xs" alignItems="center" justifyContent="flex-end" gap={1}>
+              <Text color={colors.mutedText} fontWeight="light">
                 interview on
               </Text>
-
-              <Text>{format(new Date(interviewDate), "EEE, MMM d, yyyy")}</Text>
+              <Text color={colors.headingText}>
+                {format(new Date(interviewDate), "EEE, MMM d, yyyy")}
+              </Text>
               <span>{interviewTime}</span>
             </Flex>
           ) : (
-            <Flex
-              fontSize="xs"
-              alignItems="center"
-              justifyContent="flex-end"
-              gap={1}
-            >
-              <Text color="gray.500" fontWeight="light">
+            <Flex fontSize="xs" alignItems="center" justifyContent="flex-end" gap={1}>
+              <Text color={colors.mutedText} fontWeight="light">
                 applied on
               </Text>
-              <Text>
+              <Text color={colors.headingText}>
                 {format(new Date(createdAt), "EEE, MMM d, yyyy h:mm a")}
               </Text>
             </Flex>
@@ -383,7 +387,7 @@ const CandidateCard = ({ candidate, refetch, mode }) => {
         <CandidateStatusHistory
           isOpen={isHistoryOpen}
           onClose={onHistoryClose}
-          candidate={candidate} // ✅ correct object
+          candidate={candidate}
         />
       )}
     </>

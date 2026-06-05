@@ -6,14 +6,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { IoArrowBack } from 'react-icons/io5';
 import AttendanceHeader from '../AttendanceHeader';
 import RecordTable from './RecordTable';
-// import TablePagination from 'components/pagination/TablePagination';
 import FilterModal from '../employees/FilterModal';
 import AppButton from 'components/shared/AppButton';
 import ExportAttendanceReport from '../ExportAttendanceReport';
 import AttendanceStatusFilter from '../AttendanceStatusFilter';
 import TopPagination from 'components/pagination/TopPagination';
+import { useModalColors } from 'hooks/useModalColors';
 
 export default function Records() {
+	const colors = useModalColors();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [searchClear, setSearchClear] = useState(false);
 	const [initialLoad, setInitialLoad] = useState(true);
@@ -37,15 +38,10 @@ export default function Records() {
 	const [month, setMonth] = useState(currentDate.getMonth() + 1);
 	const [year, setYear] = useState(currentDate.getFullYear());
 
-	// const [pageSize, setPageSize] = useState(10);
-	// const [currentPage, setCurrentPage] = useState(1);
-	// const [gopageValue, setGopageValue] = useState(1);
-
 	useEffect(() => {
 		if (initialLoad) {
 			const currentParams = Object.fromEntries(searchParams.entries());
 
-			// Only set default params if no params exist
 			if (Object.keys(currentParams).length === 0) {
 				setSearchParams(
 					{
@@ -106,10 +102,6 @@ export default function Records() {
 		);
 	};
 
-	// const handleGotoPage = (page) => {
-	// 	updateFilters({ page: Number(page + 1) });
-	// };
-
 	const handlePageSize = (size) => {
 		updateFilters({ page: 1, limit: Number(size) });
 	};
@@ -122,8 +114,6 @@ export default function Records() {
 		if (!initialLoad) {
 			attendanceRefetch();
 		}
-		// setCurrentPage(queryParams.page);
-		// setPageSize(queryParams.limit);
 
 		setMonth(queryParams.month);
 		setYear(queryParams.year);
@@ -131,8 +121,6 @@ export default function Records() {
 		if (queryParams.agency === 'All' && !queryParams.search) {
 			setSearchClear(false);
 		}
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams, attendanceRefetch]);
 
 	const handleSearch = () => {
@@ -179,16 +167,7 @@ export default function Records() {
 	}
 
 	return (
-		<Box minH='100vh' fontFamily="'DM Sans', sans-serif">
-			{/* {!hasTabParam && (
-        <AppButton
-          leftIcon={<IoArrowBack />}
-          onClick={() => navigate("/attendance")}
-        >
-          Back
-        </AppButton>
-      )} */}
-
+		<Box minH='100vh' fontFamily="'DM Sans', sans-serif" bg={colors.bgDeep} p={4}>
 			<Box
 				display='flex'
 				justifyContent='space-between'
@@ -196,11 +175,14 @@ export default function Records() {
 				flexDir={{ base: 'column', md: 'row' }}
 				gap='2'
 				mb={4}
-				bg='white'
+				bg={colors.bg}
 				mt='2'
 				p={4}
+				borderRadius='md'
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
-				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+				<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold' color={colors.headingText}>
 					Attendance Records
 				</Text>
 				<HStack gap='2'>
@@ -210,8 +192,7 @@ export default function Records() {
 					)}
 				</HStack>
 			</Box>
-			<Box Box bg='white' p={5} borderRadius='md' shadow='sm'>
-				{/* Header */}
+			<Box bg={colors.bg} p={5} display={'flex'} flexDirection='column' gap='4' borderRadius='md' shadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
 				<AttendanceHeader
 					title='Attendance Overview'
 					totalDocs={data?.totalDocs}
@@ -242,30 +223,11 @@ export default function Records() {
 
 				<RecordTable
 					records={data}
-					// timezone={timezone}
 					isLoading={isLoading}
 					isFetching={isFetching}
 					refetch={attendanceRefetch}
 					role={role}
 				/>
-
-				{/* {data?.doc && (
-					<TablePagination
-						gotoPage={handleGotoPage}
-						gopageValue={gopageValue}
-						setGopageValue={setGopageValue}
-						pageCount={data?.totalPages}
-						canPreviousPage={currentPage > 1}
-						previousPage={() => handleGotoPage(currentPage - 2)}
-						canNextPage={currentPage < data?.totalPages}
-						nextPage={() => handleGotoPage(currentPage)}
-						pageOptions={Array.from({ length: data?.totalPages })}
-						setPageSize={handlePageSizeChange}
-						pageSize={pageSize}
-						pageIndex={currentPage - 1}
-						totalDocs={data?.totalDocs}
-					/>
-				)} */}
 
 				{filterIsOpen && (
 					<FilterModal

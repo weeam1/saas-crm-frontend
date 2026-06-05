@@ -32,7 +32,7 @@ const LeadAnalytics = () => {
 	)?.label;
 
 	return (
-		<Box minH='100vh' bg={bgColor} p='4' rounded='lg' shadow='md'>
+		<Box minH='100vh'  p='4' rounded='lg' shadow='md' bg='bg.surface'>
 			<VStack spacing={0} align='stretch' gap='2'>
 				<AnalyticsHeader
 					totals={totals}

@@ -4,7 +4,6 @@ import {
 	VStack,
 	HStack,
 	Avatar,
-	useColorModeValue,
 	Flex,
 	Icon,
 	Button,
@@ -13,36 +12,29 @@ import { constant } from 'constant';
 import { FiTrendingUp, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { buttonStyle } from 'utils/btn';
+import { useModalColors } from 'hooks/useModalColors';
 
 const TeamCard = ({ manager, index }) => {
-	const bg = useColorModeValue('white', 'gray.800');
-	const textColor = useColorModeValue('gray.700', 'gray.100');
-
-	// const { score, rating } = calculatePerformance(
-	// 	manager?.totalLeads,
-	// 	manager?.totalAgents,
-	// 	manager?.assignedLeads
-	// );
-
+	const colors = useModalColors();
 	const navigate = useNavigate();
 
 	return (
 		<Box
 			key={manager._id}
 			position='relative'
-			bg={bg}
+			bg={colors.bg}
 			borderRadius='2xl'
-			boxShadow='md'
+			boxShadow={colors.cardShadow}
 			p={6}
 			overflow='hidden'
 			transition='all 0.2s ease-in-out'
 			_hover={{
 				transform: 'translateY(-4px)',
-				boxShadow: 'lg',
-				borderColor: useColorModeValue('brand.200', 'brand.600'),
+				boxShadow: colors.modalShadow,
+				borderColor: colors.accentGold,
 			}}
 			border='1px solid'
-			borderColor={useColorModeValue('gray.200', 'gray.700')}
+			borderColor={colors.borderColor}
 		>
 			{/* Gradient Accent */}
 			<Box
@@ -51,28 +43,8 @@ const TeamCard = ({ manager, index }) => {
 				left={0}
 				w='4px'
 				h='full'
-				bgGradient='linear(to-b, brand.400, brand.600)'
+				bg={colors.accentGold}
 			/>
-
-			{/* <Box
-				position='absolute'
-				top={2}
-				right={3}
-				display='flex'
-				alignItems='center'
-				gap={2}
-				onClick={() =>
-					navigate(`/reporting-analytics/team-details/${manager._id}`)
-				}
-				_hover={{
-					bg: 'gray.100',
-				}}
-				p='2'
-				rounded='full'
-				cursor='pointer'
-			>
-				<Icon as={HiOutlineArrowRightCircle} boxSize='24px' color='green.500' />
-			</Box> */}
 
 			<Flex align='center' gap={2} mb={4}>
 				<Avatar
@@ -87,18 +59,17 @@ const TeamCard = ({ manager, index }) => {
 
 				<VStack align='start' spacing={0}>
 					<Text
-						fontSize={{ base: 'sm', md: 'md' }}
-						// fontSize={{ base: '14px', md: '18px' }}
+						fontSize={{ base: 'xs', md: 'sm' }}
 						fontWeight='bold'
-						color={textColor}
+						color={colors.headingText}
 						maxWidth={{ base: '200px', md: '200px' }}
 						isTruncated
 					>
 						{manager?.fullName}
 					</Text>
 					<Text
-						fontSize={{ base: '12px', md: '14px' }}
-						color={useColorModeValue('gray.500', 'gray.400')}
+						fontSize={{ base: 'xs', md: 'sm' }}
+						color={colors.mutedText}
 						maxWidth={{ base: '250px', md: '250px' }}
 						isTruncated
 					>
@@ -106,17 +77,26 @@ const TeamCard = ({ manager, index }) => {
 					</Text>
 				</VStack>
 			</Flex>
+
 			{/* Stats with Icons */}
 			<HStack spacing={3} mt={4} mb='4'>
 				<StatBadge
 					icon={FiUsers}
+					label='Leaders'
+					value={manager?.totalTeamLeaders || 0}
+					colors={colors}
+				/>
+				<StatBadge
+					icon={FiUsers}
 					label='Agents'
 					value={manager?.totalAgents || 0}
+					colors={colors}
 				/>
 				<StatBadge
 					icon={FiTrendingUp}
 					label='Leads'
 					value={manager?.totalLeads || 0}
+					colors={colors}
 				/>
 			</HStack>
 
@@ -125,44 +105,38 @@ const TeamCard = ({ manager, index }) => {
 				width='full'
 				leftIcon={<FiUsers />}
 				size='sm'
-				bg='softGray.100'
-				color='gray.800'
-				_active={{ bg: 'gray.200' }}
-				_hover={{ bg: 'brand.200' }}
+				variant='ghost'
+				color={colors.bodyText}
+				_active={{ bg: colors.bgInput }}
+				_hover={{ bg: colors.secondaryBtnHoverBg, color: colors.accentGold }}
 				onClick={() =>
 					navigate(`/reporting-analytics/team-details/${manager._id}`)
 				}
+				transition='all 0.2s ease'
 			>
 				View Team
 			</Button>
-
-			{/* <Box>
-				<Text fontSize='xs' color='gray.500' fontWeight='medium'>
-					Perfomance
-				</Text>
-				<Rating value={rating || 0} />
-
-				<TeamProgress score={score} />
-			</Box> */}
 		</Box>
 	);
 };
 
-const StatBadge = ({ icon, label, value }) => (
+const StatBadge = ({ icon, label, value, colors }) => (
 	<Flex
 		align='center'
-		bg={useColorModeValue('blackAlpha.50', 'whiteAlpha.100')}
+		bg={colors.bgInput}
 		borderRadius='lg'
 		px={3}
 		py={1}
 		gap={2}
+		border="1px solid"
+		borderColor={colors.borderColor}
 	>
-		<Icon as={icon} color='brand.500' boxSize={4} />
+		<Icon as={icon} color={colors.accentGold} boxSize={3} />
 		<VStack spacing={0} align='start'>
-			<Text fontSize='xs' color={useColorModeValue('gray.500', 'gray.400')}>
+			<Text fontSize={{ base: 'x-small' }} color={colors.mutedText}>
 				{label}
 			</Text>
-			<Text fontWeight='bold' fontSize='sm'>
+			<Text fontWeight='bold' fontSize={{ base: 'x-small', md: 'xs' }} color={colors.headingText}>
 				{value}
 			</Text>
 		</VStack>

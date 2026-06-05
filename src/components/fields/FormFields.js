@@ -19,7 +19,7 @@ export const FormInput = ({
 	...props
 }) => (
 	<FormControl w='100%' isInvalid={!!errors?.[name]} isRequired={isRequired}>
-		<FormLabel fontSize='sm' fontWeight='semibold' color='gray.600'>
+		<FormLabel fontSize='sm' fontWeight='semibold' color='gray.200'>
 			{label}
 		</FormLabel>
 		<Input
@@ -49,7 +49,7 @@ export const FormSelect = ({
 	...props
 }) => (
 	<FormControl isInvalid={!!errors?.[name]} isRequired={isRequired}>
-		<FormLabel fontSize='sm' fontWeight='semibold' color='gray.600'>
+		<FormLabel fontSize='sm' fontWeight='semibold' color='gray.200'>
 			{label}
 		</FormLabel>
 		<Select

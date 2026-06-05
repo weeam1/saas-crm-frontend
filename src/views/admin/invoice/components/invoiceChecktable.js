@@ -29,12 +29,13 @@ import {
 	Text,
 	Th,
 	Thead,
+	Badge,
 	useColorModeValue,
 	useDisclosure,
 } from '@chakra-ui/react';
 import { useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
-import { DeleteIcon, AddIcon, CopyIcon } from '@chakra-ui/icons';
+import { DeleteIcon, AddIcon, CopyIcon, EditIcon } from '@chakra-ui/icons';
 import { IconButton } from '@chakra-ui/react';
 import Card from 'components/card/Card';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
@@ -56,6 +57,8 @@ import TableLoading from 'components/loading/TableLoading';
 import { FaEllipsisV } from 'react-icons/fa';
 import { buttonStyle } from 'utils/btn';
 import { format } from 'date-fns';
+import TopPagination from 'components/pagination/TopPagination';
+import NoData from 'components/Message/NoData';
 
 export default function InvoiceCheckTable(props) {
 	const {
@@ -144,7 +147,7 @@ export default function InvoiceCheckTable(props) {
 					(!values.total_amount ||
 						item.total_amount
 							?.toString()
-							.includes(values.total_amount.toString()))
+							.includes(values.total_amount.toString())),
 			);
 
 			const getValue = [
@@ -179,15 +182,15 @@ export default function InvoiceCheckTable(props) {
 
 	const toggleColumnVisibility = (columnKey) => {
 		const isColumnSelected = tempSelectedColumns.some(
-			(col) => col.accessor === columnKey || col.id === columnKey
+			(col) => col.accessor === columnKey || col.id === columnKey,
 		);
 		if (isColumnSelected) {
 			setTempSelectedColumns((prev) =>
-				prev.filter((col) => (col.accessor || col.id) !== columnKey)
+				prev.filter((col) => (col.accessor || col.id) !== columnKey),
 			);
 		} else {
 			const columnToAdd = dynamicColumns.find(
-				(col) => (col.accessor || col.id) === columnKey
+				(col) => (col.accessor || col.id) === columnKey,
 			);
 			setTempSelectedColumns((prev) => [...prev, columnToAdd]);
 		}
@@ -228,11 +231,17 @@ export default function InvoiceCheckTable(props) {
 
 	return (
 		<>
-			<Breadcrumb />
-			<Card
+			{/* <Breadcrumb /> */}
+			{/* <Card
 				direction='column'
 				w='100%'
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
+				overflowY={'hidden'}
+				height='70vh'
+				scrollBehavior='smooth'
+				borderRadius='xl'
+				boxShadow='card'
+				bg='bg.surface'
 			>
 				<Grid templateColumns='repeat(12, 1fr)' gap={2} p={4}>
 					<GridItem
@@ -760,7 +769,7 @@ export default function InvoiceCheckTable(props) {
 									<Checkbox
 										isChecked={tempSelectedColumns.some(
 											(c) =>
-												(c.accessor || c.id) === (column.accessor || column.id)
+												(c.accessor || c.id) === (column.accessor || column.id),
 										)}
 										onChange={() =>
 											toggleColumnVisibility(column.accessor || column.id)
@@ -794,6 +803,506 @@ export default function InvoiceCheckTable(props) {
 						</ModalFooter>
 					</ModalContent>
 				</Modal>
+			</Card> */}
+
+			<Card
+				direction='column'
+				w='100%'
+				overflowX='auto'
+				overflowY='hidden'
+				// height='70vh'
+				p={6}
+				borderRadius='lg'
+				boxShadow='card'
+				bg='bg.surface'
+				border='1px solid'
+				borderColor='border.default'
+			>
+				{/* Header Section */}
+				<Box p={4} borderBottom='1px solid' borderBottomColor='border.default'>
+					<Flex
+						direction={{ base: 'column', md: 'row' }}
+						justify='space-between'
+						align={{ base: 'flex-start', md: 'center' }}
+						gap={4}
+						mb={3}
+					>
+						<Flex
+							direction={{ base: 'column', sm: 'row' }}
+							align={{ base: 'flex-start', sm: 'center' }}
+							gap={3}
+							flexWrap='wrap'
+							flex='1'
+						>
+							<Text
+								color='text.heading'
+								fontSize='22px'
+								fontWeight='700'
+								whiteSpace='nowrap'
+							>
+								{developer?.data?.developer_name ?? ''} Invoices
+								<Text as='span' color='gold.primary' ml={1}>
+									(<CountUpComponent targetNumber={totalItems} />)
+								</Text>
+							</Text>
+
+							{displaySearchData && searchTerm && (
+								<Button
+									variant='outline'
+									size='sm'
+									borderRadius='lg'
+									borderColor='border.default'
+									color='text.body'
+									onClick={() => {
+										setSearchTerm('');
+										setDisplaySearchData(false);
+										fetchData({ pageIndex: 0, pageSize, search: '' });
+									}}
+									_hover={{
+										bg: 'bg.elevated',
+										borderColor: 'gold.primary',
+										color: 'gold.primary',
+									}}
+								>
+									Clear
+								</Button>
+							)}
+
+							{selectedValues.length > 0 && (
+								<IconButton
+									icon={<DeleteIcon />}
+									aria-label='Delete selected'
+									size='sm'
+									variant='ghost'
+									color='red.400'
+									onClick={() => setDeleteModel(true)}
+									_hover={{
+										bg: 'rgba(245, 101, 101, 0.1)',
+										transform: 'scale(1.05)',
+									}}
+								/>
+							)}
+						</Flex>
+
+						<HStack
+							gap={2}
+							flexDirection={{ base: 'column', md: 'row' }}
+							alignItems='center'
+						>
+							<CustomSearchInput
+								fetchData={fetchData}
+								setDisplaySearchData={setDisplaySearchData}
+								searchTerm={searchTerm}
+								setSearchTerm={setSearchTerm}
+								pageIndex={pageIndex}
+								pageSize={pageSize}
+								width={{ base: '100%', sm: '280px' }}
+							/>
+
+							<Button
+								onClick={() => {
+									setSelectedInvoiceNo(null);
+									onOpen();
+								}}
+								size='sm'
+								variant='brand'
+								leftIcon={<AddIcon />}
+								px={4}
+							>
+								Add New
+							</Button>
+						</HStack>
+					</Flex>
+
+					{/* Tags Section */}
+					{(getTagValues.length > 0 || (displaySearchData && searchTerm)) && (
+						<Flex gap={2} flexWrap='wrap'>
+							{getTagValues.map((item) => (
+								<Tag
+									key={item}
+									size='md'
+									px={3}
+									py={1}
+									borderRadius='full'
+									variant='subtle'
+									bg='rgba(212, 175, 55, 0.1)'
+									color='gold.primary'
+								>
+									<TagLabel>{item}</TagLabel>
+								</Tag>
+							))}
+							{displaySearchData && searchTerm && (
+								<Tag
+									size='md'
+									px={3}
+									py={1}
+									borderRadius='full'
+									variant='subtle'
+									bg='rgba(212, 175, 55, 0.1)'
+									color='gold.primary'
+								>
+									<TagLabel>{searchTerm}</TagLabel>
+								</Tag>
+							)}
+						</Flex>
+					)}
+				</Box>
+
+				{/* Pagination */}
+				{totalItems > 0 && (
+					<Box px={4} py={3}>
+						<TopPagination
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={handlePageChange}
+							totalItems={totalItems}
+							itemsPerPage={pageSize}
+							handlePageSize={handlePageSizeChange}
+							refetching={isLoding}
+							loading={isLoding}
+						/>
+					</Box>
+				)}
+
+				{/* Table Section */}
+				<Box
+					height='70vh'
+					overflowY='auto'
+					scrollBehavior='smooth'
+					borderRadius='xl'
+					border='1px solid'
+					borderColor='border.default'
+					bg='bg.surface'
+					boxShadow='card'
+					p={4}
+					mt={{ base: 2 }}
+				>
+					<Table variant='simple' size='md'>
+						<Thead position='sticky' top={0} bg='bg.elevated' zIndex={2}>
+							<Tr>
+								{columns.map((column, index) => (
+									<Th
+										key={index}
+										py={4}
+										px={4}
+										color='gold.primary'
+										fontSize='11px'
+										fontWeight='700'
+										letterSpacing='0.08em'
+										textTransform='uppercase'
+										whiteSpace='nowrap'
+										textAlign={column.center ? 'center' : 'left'}
+									>
+										{column.Header}
+									</Th>
+								))}
+							</Tr>
+						</Thead>
+
+						<Tbody>
+							{isLoding || isInitialLoading ? (
+								<TableLoading columns={columns} length={8} />
+							) : data?.length === 0 ? (
+								<Tr>
+									<Td colSpan={columns.length} py={12} textAlign='center'>
+										<NoData label='invoices' />
+									</Td>
+								</Tr>
+							) : (
+								data.map((row, i) => (
+									<Tr
+										key={i}
+										_hover={{ bg: 'bg.elevated' }}
+										transition='background 0.15s'
+									>
+										{columns.map((column, index) => {
+											let cellData = null;
+
+											if (column.Header === 'Date') {
+												const date = row.createdAt
+													? new Date(row.createdAt)
+													: null;
+												cellData = (
+													<Flex align='center' minW='200px' gap={3}>
+														<Checkbox
+															colorScheme='brand'
+															isChecked={selectedValues.includes(row._id)}
+															onChange={(e) => handleCheckboxChange(e, row._id)}
+														/>
+														<Text fontSize='13px' color='text.body'>
+															{date
+																? format(date, 'MMM d, yyyy h:mm a')
+																: 'N/A'}
+														</Text>
+													</Flex>
+												);
+											} else if (column.Header === 'Claim Type') {
+												cellData = (
+													<Text
+														fontSize='13px'
+														fontWeight='500'
+														color='text.body'
+													>
+														{row.claimType || 'Pending'}
+													</Text>
+												);
+											} else if (column.Header === 'Developer') {
+												cellData = (
+													<Text
+														fontSize='13px'
+														fontWeight='500'
+														color='text.body'
+													>
+														{row.developer?.developer_name || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Project') {
+												cellData = (
+													<Text
+														fontSize='13px'
+														fontWeight='500'
+														color='text.body'
+													>
+														{row.project?.name || 'N/A'}
+													</Text>
+												);
+											} else if (column.Header === 'Bank Account') {
+												cellData = (
+													<Text fontSize='13px' color='text.body'>
+														{row.bank_account?.account_holder_name || '-'}
+													</Text>
+												);
+											} else if (column.Header === 'Invoice Number') {
+												cellData = (
+													<Flex align='center' minW='150px' gap={2}>
+														<Text
+															fontSize='13px'
+															fontWeight='500'
+															color='text.heading'
+															fontFamily='mono'
+														>
+															{row.invoiceNo || '-'}
+														</Text>
+														<IconButton
+															aria-label='Copy'
+															icon={<CopyIcon />}
+															size='xs'
+															variant='ghost'
+															onClick={(e) =>
+																copyToClipboard(row.invoiceNo || '-', e)
+															}
+															color='text.muted'
+															_hover={{ color: 'gold.primary' }}
+														/>
+													</Flex>
+												);
+											} else if (column.Header === 'Total Amount') {
+												cellData = (
+													<Text
+														fontSize='13px'
+														fontWeight='bold'
+														color='gold.primary'
+													>
+														{row.totalAmount
+															? `${row.totalAmount} AED`
+															: 'Pending'}
+													</Text>
+												);
+											} else if (column.Header === 'Status') {
+												const statusConfig = {
+													Paid: {
+														color: 'green',
+														bg: 'rgba(72, 187, 120, 0.1)',
+													},
+													Pending: {
+														color: 'orange',
+														bg: 'rgba(245, 158, 11, 0.1)',
+													},
+													Overdue: {
+														color: 'red',
+														bg: 'rgba(245, 101, 101, 0.1)',
+													},
+												};
+												const config =
+													statusConfig[row.status] || statusConfig.Pending;
+												cellData = (
+													<Badge
+														bg={config.bg}
+														color={`${config.color}.400`}
+														borderRadius='full'
+														px={3}
+														py={1}
+														fontSize='11px'
+													>
+														{row.status || 'Pending'}
+													</Badge>
+												);
+											} else if (column.id === 'action') {
+												cellData = (
+													<Flex align='center' gap={2}>
+														<Link
+															to={`/invoice/developers/invoices/entries/${row?._id}`}
+														>
+															<Button
+																size='sm'
+																variant='outline'
+																borderRadius='lg'
+																borderColor='border.default'
+																_hover={{
+																	borderColor: 'gold.primary',
+																	color: 'gold.primary',
+																}}
+															>
+																Add Entry
+															</Button>
+														</Link>
+
+														<Link
+															to={`/invoice/developers/invoices/view/${row?.invoiceNo}`}
+														>
+															<Button
+																size='sm'
+																variant='outline'
+																borderRadius='lg'
+																borderColor='border.default'
+																_hover={{
+																	borderColor: 'gold.primary',
+																	color: 'gold.primary',
+																}}
+															>
+																View
+															</Button>
+														</Link>
+
+														<Menu>
+															<MenuButton
+																as={IconButton}
+																aria-label='Options'
+																icon={<FaEllipsisV />}
+																variant='ghost'
+																size='sm'
+															/>
+															<MenuList
+																bg='bg.surface'
+																borderColor='border.default'
+																minW='120px'
+															>
+																<MenuItem
+																	onClick={() => {
+																		setEdit(true);
+																		setSelectedId(row._id);
+																		setInvoiceData(row);
+																	}}
+																	icon={<EditIcon />}
+																	_hover={{
+																		bg: 'bg.elevated',
+																		color: 'gold.primary',
+																	}}
+																>
+																	Edit
+																</MenuItem>
+																<MenuItem
+																	onClick={() => {
+																		setSelectedId(row._id);
+																		setDeleteModel(true);
+																	}}
+																	icon={<DeleteIcon />}
+																	color='red.400'
+																	_hover={{ bg: 'rgba(245, 101, 101, 0.1)' }}
+																>
+																	Delete
+																</MenuItem>
+															</MenuList>
+														</Menu>
+													</Flex>
+												);
+											}
+
+											return (
+												<Td
+													key={index}
+													py={4}
+													px={4}
+													fontSize='14px'
+													borderBottom='1px solid'
+													borderBottomColor='border.subtle'
+												>
+													{cellData}
+												</Td>
+											);
+										})}
+									</Tr>
+								))
+							)}
+						</Tbody>
+					</Table>
+				</Box>
+
+				{/* Copy Toast */}
+				{copiedPosition && (
+					<Box
+						position='fixed'
+						top={`${copiedPosition.y}px`}
+						left={`${copiedPosition.x}px`}
+						transform='translate(-50%,-50%)'
+						bg='green.500'
+						color='white'
+						px={3}
+						py={1}
+						borderRadius='lg'
+						fontSize='sm'
+						zIndex={9999}
+					>
+						Copied
+					</Box>
+				)}
+
+				{/* Add Modal */}
+				{isOpen && (
+					<Add
+						isOpen={isOpen}
+						size='xl'
+						onClose={() => {
+							setSelectedInvoiceNo(null);
+							onClose();
+						}}
+						fetchData={fetchData}
+						setAction={setAction}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
+						invoiceId={selectedInvoiceNo}
+					/>
+				)}
+
+				{/* Edit Modal */}
+				{edit && (
+					<Edit
+						data={invoiceData}
+						isOpen={edit}
+						size='xl'
+						onClose={() => setEdit(false)}
+						selectedId={selectedId}
+						setSelectedId={setSelectedId}
+						setAction={setAction}
+						fetchData={fetchData}
+					/>
+				)}
+
+				{/* Delete Modal */}
+				{deleteModel && (
+					<Delete
+						isOpen={deleteModel}
+						onClose={() => setDeleteModel(false)}
+						setSelectedValues={setSelectedValues}
+						data={selectedValues.length > 1 ? selectedValues : []}
+						method={selectedValues.length > 1 ? 'many' : 'one'}
+						id={selectedValues.length === 1 ? selectedValues[0] : selectedId}
+						fetchData={fetchData}
+						setAction={setAction}
+						pageIndex={pageIndex}
+						pageSize={pageSize}
+					/>
+				)}
 			</Card>
 		</>
 	);

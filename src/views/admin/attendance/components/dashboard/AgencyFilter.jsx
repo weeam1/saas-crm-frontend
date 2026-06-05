@@ -22,8 +22,7 @@ const AgencyFilter = ({
 	setSelectedAgency,
 }) => {
 	const { data: agencies } = useFetchItemsQuery({ path: '/agencies' });
-
-	const { headerBg, headerText } = useModalColors();
+	const colors = useModalColors();
 
 	const handleChange = (e) => {
 		const selectedId = e.target.value;
@@ -35,57 +34,86 @@ const AgencyFilter = ({
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={onClose} size='md' isCentered>
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow={colors.modalShadow} bg={colors.bg}>
 					<ModalHeader
 						display='flex'
 						gap='2'
-						bg={headerBg}
-						color={headerText}
+						bg={colors.headerBg}
+						color={colors.headerText}
 						borderTopRadius='xl'
 						py={4}
+						px={6}
 						alignItems='center'
 						w='100%'
 					>
 						Agency Filter
 					</ModalHeader>
-					<ModalCloseButton />
+					<ModalCloseButton
+						color={colors.closeBtnColor}
+						_hover={{ bg: colors.closeBtnHoverBg }}
+					/>
 					<ModalBody>
-						<FormLabel fontSize='md'>Select Agency</FormLabel>
-						<Select value={selectedAgency?._id ?? ''} onChange={handleChange}>
-							<option value=''>All</option>
+						<FormLabel fontSize='md' color={colors.labelColor}>Select Agency</FormLabel>
+						<Select
+							value={selectedAgency?._id ?? ''}
+							onChange={handleChange}
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
+						>
+							<option value='' style={{ background: colors.bg, color: colors.headingText }}>All</option>
 							{agencies?.doc?.map((agency) => (
-								<option key={agency._id} value={agency._id}>
+								<option key={agency._id} value={agency._id} style={{ background: colors.bg, color: colors.headingText }}>
 									{agency.name}
 								</option>
 							))}
 						</Select>
 					</ModalBody>
-					<ModalFooter>
+					<ModalFooter
+						bg={colors.footerBg}
+						borderTop={`1px solid ${colors.borderColor}`}
+						gap={3}
+						py={4}
+					>
 						<Button
 							{...buttonStyle}
-							variant='solid'
-							bg='gray.200'
-							color='gray.800'
-							_active={{ bg: 'gray.300' }}
+							variant='ghost'
 							py='5'
 							px='8'
 							mr='3'
 							fontSize='lg'
 							aria-label='close'
 							onClick={onClose}
+							color={colors.bodyText}
+							_hover={{
+								bg: colors.secondaryBtnHoverBg,
+								color: colors.headingText,
+							}}
 						>
 							Close
 						</Button>
 						<Button
 							{...buttonStyle}
-							variant='solid'
-							bg='brand.400'
+							bg={colors.accentGold}
+							color={colors.headerText}
 							py='5'
 							px='8'
 							fontSize='lg'
 							aria-label='update'
 							onClick={() => handleApplyFilter(selectedAgency?._id)}
+							_hover={{
+								bg: colors.goldLight,
+								transform: 'translateY(-1px)',
+								boxShadow: colors.goldGlow,
+							}}
+							_active={{ bg: colors.goldDark }}
+							transition='all 0.2s ease'
 						>
 							Apply
 						</Button>

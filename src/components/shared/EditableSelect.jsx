@@ -9,7 +9,7 @@ import {
 	useDisclosure,
 } from '@chakra-ui/react';
 import { Field } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const EditableSelect = ({
 	label,
@@ -22,7 +22,9 @@ const EditableSelect = ({
 }) => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [inputValue, setInputValue] = useState(defaultValue || '');
-
+useEffect(() => {
+		setInputValue(defaultValue || '');
+	}, [defaultValue]);
 	return (
 		<FormControl isInvalid={isInvalid}>
 			<FormLabel fontSize='sm'>{label}</FormLabel>

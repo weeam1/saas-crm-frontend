@@ -38,7 +38,7 @@ const ArrangeInterview = ({
 	const [showTime, setShowTime] = useState('');
 	const [errors, setErrors] = useState({});
 
-	const { headerBg, primaryBtnBg, headerText } = useModalColors();
+	const colors = useModalColors();
 
 	const toggleCalendar = () => {
 		setShowCalendar(!showCalendar);
@@ -90,25 +90,29 @@ const ArrangeInterview = ({
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={onClose} isCentered size='lg'>
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow={colors.modalShadow} bg={colors.bg}>
 					<ModalHeader
 						display='flex'
 						gap='2'
-						bg={headerBg}
-						color={headerText}
+						bg={colors.headerBg}
+						color={colors.headerText}
 						borderTopRadius='xl'
 						py={4}
+						px={6}
 						alignItems='center'
 						w='100%'
 					>
 						Interview Invite
 					</ModalHeader>
-					<ModalCloseButton />
+					<ModalCloseButton
+						color={colors.closeBtnColor}
+						_hover={{ bg: colors.closeBtnHoverBg }}
+					/>
 					<ModalBody>
 						{/* Date Input */}
 						<FormControl mb={4} isInvalid={errors?.selectedDate}>
-							<FormLabel>Select Date</FormLabel>
+							<FormLabel color={colors.labelColor}>Select Date</FormLabel>
 							<Box position='relative' width='100%'>
 								<InputGroup>
 									<Input
@@ -118,18 +122,19 @@ const ArrangeInterview = ({
 										placeholder='Select a date'
 										readOnly
 										required
-										bg='#F2F2F2'
-										borderColor={errors?.selectedDate ? 'red.500' : 'gray.300'}
+										bg={colors.bgInput}
+										borderColor={errors?.selectedDate ? colors.badgeErrorText : colors.borderColor}
+										color={colors.headingText}
 										borderRadius='md'
-										focusBorderColor={
-											errors?.selectedDate ? 'red.500' : '#E0B960'
-										}
+										_hover={{ borderColor: colors.accentGold }}
+										_focus={{ borderColor: colors.accentGold, boxShadow: `0 0 0 1px ${colors.accentGold}` }}
 									/>
 									<InputRightElement>
 										<FaRegCalendar
 											size={16}
 											cursor='pointer'
 											onClick={toggleCalendar}
+											color={colors.accentGold}
 										/>
 									</InputRightElement>
 								</InputGroup>
@@ -138,10 +143,10 @@ const ArrangeInterview = ({
 										position='absolute'
 										top='50px'
 										zIndex='10'
-										bg='white'
-										border='1px solid #e2e8f0'
+										bg={colors.bg}
+										border={`1px solid ${colors.borderColor}`}
 										borderRadius='md'
-										boxShadow='0px 4px 6px rgba(0, 0, 0, 0.1)'
+										boxShadow={colors.cardShadow}
 									>
 										<Calendar
 											onChange={handleDateChange}
@@ -153,7 +158,7 @@ const ArrangeInterview = ({
 								)}
 							</Box>
 							{errors?.selectedDate && (
-								<Text color='red.500' fontSize='sm'>
+								<Text color={colors.badgeErrorText} fontSize='sm'>
 									{errors?.selectedDate}
 								</Text>
 							)}
@@ -161,72 +166,117 @@ const ArrangeInterview = ({
 
 						{/* Time Input with Custom Icon */}
 						<FormControl isInvalid={errors?.showTime}>
-							<FormLabel>Select Time</FormLabel>
-							<InputGroup>
-								<Input
-									type='time'
-									value={showTime}
-									onChange={handleTimeChange}
-									focusBorderColor={errors?.showTime ? 'red.500' : '#E0B960'}
-									bg='#F2F2F2'
-									required
-									borderRadius='md'
-									borderColor={errors?.showTime ? 'red.500' : 'gray.300'}
-									placeholder='Select a time'
-									shadow='sm'
-									pl='1rem'
-									pr='2.5rem'
-									sx={{
-										'&::-webkit-calendar-picker-indicator': {
-											position: 'absolute',
-											right: '0',
-											width: '100%',
-											height: '100%',
-											margin: '0',
-											padding: '0',
-											opacity: '0', // Make it invisible but clickable
-											cursor: 'pointer',
-										},
-									}}
-								/>
-								<InputRightElement pointerEvents='none' pr='5px'>
-									<Icon
-										as={FaClock}
-										color={errors?.showTime ? 'red.500' : 'gray.800'}
-									/>
-								</InputRightElement>
-							</InputGroup>
-							{errors?.showTime && (
-								<Text color='red.500' fontSize='sm'>
-									{errors?.showTime}
-								</Text>
-							)}
-						</FormControl>
+  <FormLabel color={colors.labelColor}>Select Time</FormLabel>
+  <InputGroup>
+    <Input
+      type='time'
+      value={showTime}
+      onChange={handleTimeChange}
+      bg={colors.bgInput}
+      borderColor={errors?.showTime ? colors.badgeErrorText : colors.borderColor}
+      color={colors.headingText}
+      required
+      borderRadius='md'
+      placeholder='Select a time'
+      shadow='sm'
+      pl='1rem'
+      pr='2.5rem'
+      _hover={{ borderColor: colors.accentGold }}
+      _focus={{
+        borderColor: colors.accentGold,
+        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+        outline: 'none',
+      }}
+      sx={{
+        '&::-webkit-calendar-picker-indicator': {
+          position: 'absolute',
+          right: '0',
+          width: '100%',
+          height: '100%',
+          margin: '0',
+          padding: '0',
+          opacity: '0',
+          cursor: 'pointer',
+        },
+        '&::-webkit-datetime-edit-fields-wrapper': {
+          color: colors.headingText,
+        },
+        '&::-webkit-datetime-edit-hour-field': {
+          color: colors.headingText,
+          '&:focus': {
+            backgroundColor: colors.accentGold,
+            color: colors.headerText,
+            borderRadius: '4px',
+          },
+        },
+        '&::-webkit-datetime-edit-minute-field': {
+          color: colors.headingText,
+          '&:focus': {
+            backgroundColor: colors.accentGold,
+            color: colors.headerText,
+            borderRadius: '4px',
+          },
+        },
+        '&::-webkit-datetime-edit-ampm-field': {
+          color: colors.accentGold,
+          '&:focus': {
+            backgroundColor: colors.accentGold,
+            color: colors.headerText,
+            borderRadius: '4px',
+          },
+        },
+      }}
+    />
+    <InputRightElement pointerEvents='none' pr='5px'>
+      <Icon
+        as={FaClock}
+        color={errors?.showTime ? colors.badgeErrorText : colors.accentGold}
+        boxSize={4}
+      />
+    </InputRightElement>
+  </InputGroup>
+  {errors?.showTime && (
+    <Text color={colors.badgeErrorText} fontSize='sm' mt={1}>
+      {errors?.showTime}
+    </Text>
+  )}
+</FormControl>
 					</ModalBody>
-					<ModalFooter>
+					<ModalFooter
+						bg={colors.footerBg}
+						borderTop={`1px solid ${colors.borderColor}`}
+						gap={3}
+						py={4}
+					>
 						<Button
-							colorScheme='gray'
+							variant='ghost'
 							onClick={onClose}
-							letiant='outline'
 							size='sm'
 							rounded='md'
-							mr={2}
+							color={colors.bodyText}
+							_hover={{
+								bg: colors.secondaryBtnHoverBg,
+								color: colors.headingText,
+							}}
 						>
 							Cancel
 						</Button>
 						<Button
-							bg={primaryBtnBg}
-							color='white'
-							_hover={{
-								bg: 'brand.500',
-							}}
+							bg={colors.accentGold}
+							color={colors.headerText}
 							size='sm'
 							px='1rem'
 							rounded='md'
-							_active={{ bg: '#D4AC50' }}
+							_hover={{
+								bg: colors.goldLight,
+								transform: 'translateY(-1px)',
+								boxShadow: colors.goldGlow,
+							}}
+							_active={{ bg: colors.goldDark }}
 							onClick={handleSubmit}
+							transition='all 0.2s ease'
 						>
-							{isLoading ? <Spinner /> : 'Invite'}
+							{isLoading ? <Spinner color={colors.headerText} /> : 'Invite'}
 						</Button>
 					</ModalFooter>
 				</ModalContent>

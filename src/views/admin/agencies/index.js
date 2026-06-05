@@ -20,7 +20,7 @@ const Agency = () => {
 		{
 			path: `/agencies`,
 		},
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: true },
 	);
 
 	const handleEdit = (data) => {
@@ -32,7 +32,10 @@ const Agency = () => {
 		<div>
 			<AppButton
 				leftIcon={<IoArrowBack />}
-				onClick={() => navigate('/admin-setting')}
+				onClick={() => navigate(-1)}
+				mb={4}
+				size='sm'
+				variant='ghost'
 			>
 				Back
 			</AppButton>
@@ -56,20 +59,18 @@ const Agency = () => {
 				/>
 			)}
 
-			<Box my='2' bg='white' p='4' rounded='md' shadow='sm'>
+			<Box my='2' bg='bg.surface' shadow='card' p='4' rounded='md'>
 				<HStack mb='4' justifyContent='space-between' alignItems='center'>
-					<Heading size='md' color='gray.800'>
+					<Heading size='md' color='text.invert'>
 						Agencies
-						{data && (
+						{data?.totalDocs?.length && (
 							<span style={{ marginLeft: '6px' }}>
 								({<CountUpComponent targetNumber={data?.totalDocs || 0} />})
 							</span>
 						)}
 					</Heading>
 					<Button
-						{...buttonStyle}
 						mt={3}
-						bg='brand.500'
 						colorScheme='brand'
 						onClick={() => setOpenModal(true)}
 					>

@@ -196,9 +196,9 @@ const LeadCard = ({
 	// const isBuyDisabled =
 	//   userCoins < coinCost || buyLoading[_id] || isRejected || isPending;
 
-	const mainStatus = leadStatuses?.find(
-		(item) => item.value === mStatus,
-	)?.label;
+	const leadMainStatus = leadStatuses.find((l) => l.value === mStatus);
+
+	const mainStatus = leadMainStatus?.label;
 	// const mainStatus =
 	// 	leadStatuses?.find((item) => item.value === mStatus)?.label ?? 'New';
 	const subStatus = leadSubStatuses?.find(
@@ -208,11 +208,14 @@ const LeadCard = ({
 	// 	leadSubStatuses?.find((item) => item.value === leadStatusValue)?.label ??
 	// 	(mainStatus === 'New' ? 'Fresh Lead' : null);
 
-	const coinCost =
-		COIN_COST_BY_STATUS[mainStatus?.toLowerCase()] ??
-		COIN_COST_BY_STATUS.default;
+	// const coinCost =
+	// 	COIN_COST_BY_STATUS[mainStatus?.toLowerCase()] ??
+	// 	COIN_COST_BY_STATUS.default;
+
+	const coinCost = leadMainStatus?.coinCost || 50;
 
 	const userCoins = userData?.coins || 0;
+
 	const isBuyDisabled =
 		userCoins < coinCost ||
 		buyLoading[_id] ||
@@ -236,7 +239,7 @@ const LeadCard = ({
 			height='320px'
 			overflow='hidden'
 			_hover={{
-				boxShadow: '0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0',
+				boxShadow: 'soft',
 			}}
 			transition='box-shadow 0.2s ease-in-out'
 			display='flex'
@@ -262,7 +265,7 @@ const LeadCard = ({
 							</Text>
 							<Text
 								fontSize='10px'
-								maxW='100px'
+								maxW='90px'
 								isTruncated
 								color='#FFBB00'
 								fontWeight='bold'
@@ -278,7 +281,7 @@ const LeadCard = ({
 								fontSize={timeToCallFontSize}
 								color='#32BD00'
 								fontWeight='bold'
-								maxW='100px'
+								maxW='90px'
 								isTruncated
 								wordBreak='break-word'
 							>
@@ -289,17 +292,17 @@ const LeadCard = ({
 					<HStack spacing={0.5} w='100%' flexWrap='wrap'>
 						<InputPair
 							label='M Status'
-							width={{ base: '70px', md: '85px', lg: '100px' }}
+							width={{ base: '70px', md: '85px', lg: '80px' }}
 							value={mainStatus}
 							bg='#E5B668'
-							color='white'
+							color='text.white'
 						/>
 						<InputPair
 							label='Status'
-							width={{ base: '70px', md: '85px', lg: '100px' }}
+							width={{ base: '70px', md: '85px', lg: '80px' }}
 							value={subStatus}
 							bg='#FEEFEE'
-							color='black'
+							color='text.white'
 						/>
 					</HStack>
 					<VStack align='start' spacing={0} width='100%'>
@@ -418,12 +421,7 @@ const LeadCard = ({
 								spacing={0}
 								lineHeight='18px'
 							>
-								<Text
-									fontSize='10px'
-									color='black'
-									fontWeight={500}
-									fontFamily='DM Sans'
-								>
+								<Text fontSize='10px' color='text.white' fontWeight={500}>
 									{item.label}
 								</Text>
 								{/* <Tooltip label={} placement='right' hasArrow>
@@ -444,8 +442,11 @@ const LeadCard = ({
 				</VStack>
 			</HStack>
 			<HStack width='100%' justifyContent='flex-end' mt={1}>
-				<Text fontSize='10px' color='#32343D' fontFamily='DM Sans'>
-					Lead time: {renderValue(formattedCreatedDate)}
+				<Text fontSize='10px' gap={1} display='flex' justifyContent='flex-end'>
+					<Box as='span'>Lead time: </Box>
+					<Box as='span' color='text.white'>
+						{formattedCreatedDate}
+					</Box>
 				</Text>
 			</HStack>
 

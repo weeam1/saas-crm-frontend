@@ -219,7 +219,7 @@ const LeadMenu = ({
               }}
               icon={<EmailIcon fontSize={15} />}
             >
-              Send Email
+              Send Emails
             </MenuItem>
           )}
           {hasPermission("leads", "viewLeadCycle") && (

@@ -18,6 +18,7 @@ import {
   MenuButton,
   Modal,
 } from "@chakra-ui/react";
+import {useUserSession} from 'hooks/useUserSession';
 import { useNavigate, useParams } from "react-router-dom";
 import { BiError } from "react-icons/bi";
 import { useFetchItemsQuery, useDownloadInvoiceMutation } from "api/apiSlice";
@@ -33,6 +34,7 @@ import { toast } from "react-toastify";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 
 const SingleInvoice = () => {
+
   const navigate = useNavigate();
   const { id } = useParams();
   const user = JSON.parse(localStorage.getItem("user")) || {};
@@ -50,7 +52,7 @@ const SingleInvoice = () => {
   });
 
     const { createUserLog } = useUserActivityLog();
-
+const {agencyName,agencyLogo}= useUserSession()
   const invoices = invoiceData?.data?.entries || [];
   const totals = {
     total_commission_excl_vat: invoices.reduce(
@@ -267,7 +269,7 @@ const SingleInvoice = () => {
             gap={4}
           >
             <Box w={{ base: "full", md: "16%" }} gap={3}>
-              <img src={Weam} alt="Weam Elnaggar Real Estate" width="200px" />
+              <img src={agencyLogo} alt={agencyName ? `${agencyName}` : "Weam Elnaggar"} width="200px" />
               <Text fontSize={{ base: "xs", md: "sm" }} mt={4}>
                 Office #3102, API World Tower, Sheikh Zayed road, Dubai, UAE
               </Text>

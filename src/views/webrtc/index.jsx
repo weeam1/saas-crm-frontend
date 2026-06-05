@@ -13,6 +13,7 @@ import { PhoneIcon } from "@chakra-ui/icons";
 import useUserSession from "hooks/useUserSession";
 import { useFetchItemsQuery } from "api/apiSlice";
 import { useEffect, useState } from "react";
+import { ALargeSmallIcon } from "lucide-react";
 
 const MotionBox = motion(Box);
 
@@ -33,7 +34,7 @@ const WebRTCModal = () => {
 
   // console.log({ userSettings, isWssEnabled });
 
-  const { user } = useUserSession();
+  const { user, agencyName } = useUserSession();
 
   const { data } = useFetchItemsQuery(
     {
@@ -85,7 +86,7 @@ const WebRTCModal = () => {
           <HStack spacing={2} align="center">
             <PhoneIcon w={5} h={5} />
             <Text fontWeight="bold" fontSize="sm">
-              Weam Dialer
+              {agencyName ? `${agencyName} Dialer` : "Weam Dialer"}
             </Text>
             <Badge
               colorScheme={sipStatus === "registered" ? "green" : "red"}
@@ -138,7 +139,8 @@ const WebRTCModal = () => {
             <HStack spacing={2} align="center">
               <PhoneIcon w={5} h={5} />
               <Text fontWeight="bold" fontSize="sm">
-                Weam Dialer
+                {agencyName ? `${agencyName} Dialer` : "Weam Dialer"}
+                
               </Text>
               <Badge
                 colorScheme={sipStatus === "registered" ? "green" : "red"}

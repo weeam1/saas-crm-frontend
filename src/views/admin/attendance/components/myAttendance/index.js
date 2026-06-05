@@ -1,5 +1,6 @@
+
 import { useEffect, useState } from 'react';
-import { Box, Text, Divider, Button, Flex, Stack } from '@chakra-ui/react';
+import { Box, Text, Divider, Button, Flex, Stack, IconButton } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import AttendanceStats from './AttendanceStats';
@@ -17,20 +18,19 @@ import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
+import DateFilter from '../DateFilter';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import { useModalColors } from 'hooks/useModalColors';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const Attendance = ({ userId }) => {
 	let { id: paramId } = useParams();
-	// const user = JSON.parse(localStorage.getItem('user'));
+	const colors = useModalColors();
 
 	const { user, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
 
 	const navigate = useNavigate();
-
-	// const userRoleName =
-	// 	user?.userRoleName === 'superAdmin' ? 'superAdmin' : user?.roles[0]?.roleName;
-	// const employeeId =
-	// 	userRoleName === 'Developer' ? user?._id : userId;
 
 	const employeeId = paramId || userId || user?._id;
 
@@ -53,6 +53,7 @@ const Attendance = ({ userId }) => {
 	const [year, setYear] = useState(() => new Date().getFullYear());
 	const [timezone, setTimezone] = useState('Asia/Dubai');
 	const [addAttendance, setAddAttendance] = useState(false);
+	const [shouldRenderMark, setShouldRenderMark] = useState(false);
 
 	const { data, isLoading, refetch, isFetching, error } = useFetchItemsQuery(
 		{
@@ -78,30 +79,42 @@ const Attendance = ({ userId }) => {
 	};
 
 	return isLoading || employeeLoading ? (
-		<Box h='100vh'>
+		<Box h='100vh' bg={colors.bgDeep}>
 			<AttendanceShimmer />
 		</Box>
 	) : employee ? (
 		data?.officeSettings ? (
-			<Box p={{ base: 4, md: 6 }} minH='100vh'>
-				{paramId && (
-					<AppButton leftIcon={<IoArrowBack />} onClick={() => navigate(-1)}>
-						Back
-					</AppButton>
-				)}
+			<Box minH='100vh' bg={colors.bgDeep} p={4}>
 				<Flex
 					justifyContent='space-between'
 					alignItems='center'
 					flexDir={{ base: 'column', md: 'row' }}
 					mt={2}
 					mb='4'
-					bg='white'
+					bg={colors.bg}
 					p={4}
 					gap='4'
+					borderRadius='md'
+					border="1px solid"
+					borderColor={colors.borderColor}
 				>
-					<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
-						Attendance Record
-					</Text>
+					<Flex alignItems={"center"} gap={2}>
+						{paramId && (
+							<IconButton
+								icon={<IoArrowBack />}
+								onClick={() => navigate(-1)}
+								variant="ghost"
+								color={colors.bodyText}
+								_hover={{
+									color: colors.accentGold,
+									bg: colors.secondaryBtnHoverBg,
+								}}
+							/>
+						)}
+						<Text fontWeight='bold' fontSize={{ base: '18px', md: '20px' }} color={colors.headingText}>
+							Attendance Overview
+						</Text>
+					</Flex>
 
 					<Stack direction={{ base: 'row' }} spacing={2}>
 						{hasPermission('attendance', 'export') && (
@@ -114,26 +127,37 @@ const Attendance = ({ userId }) => {
 
 						{hasPermission('attendance', 'create') && (
 							<Button
-								{...buttonStyle}
-								variant='solid'
-								bg='brand.400'
+								variant='brand'
 								py='2'
 								px='5'
 								leftIcon={<FaPlus />}
 								aria-label='Add attendance'
 								onClick={() => setAddAttendance(true)}
+								transition='all 0.2s ease'
 							>
 								Add
 							</Button>
 						)}
+						<DateFilter onFilterChange={onFilterChange} />
+							<RefreshButton
+								label="Refresh"
+								onClick={() => refetch()}
+								isLoading={isLoading}
+								isFetching={isFetching}
+								size="sm"
+							/>
+
 					</Stack>
 				</Flex>
 
 				{error ? (
 					<ErrorMessage message='No results found. Please check your query.' />
 				) : (
-					<Flex flexDirection={{ base: 'column', lg: 'row' }} gap={6}>
-						<Box minWidth={{ base: '100%', lg: '310px' }}>
+					<Flex flexDirection={{ base: 'column' }} gap={3}>
+						<Box minWidth={{ base: '100%', lg: '310px' }} display={"grid"} gridTemplateColumns={{
+							base: '1fr',
+							md: shouldRenderMark ? '3fr 1fr' : '1fr'
+						}} gap={2}>
 							<AttendanceStats
 								stats={data?.stats}
 								employee={data?.employee}
@@ -141,6 +165,7 @@ const Attendance = ({ userId }) => {
 							/>
 							{hasPermission('attendance', 'operations') && (
 								<AttendanceMark
+									setShouldRenderMark={setShouldRenderMark}
 									data={data}
 									timezone={timezone}
 									refetch={refetch}
@@ -153,15 +178,15 @@ const Attendance = ({ userId }) => {
 
 						<Box
 							flex='1'
-							bg='white'
-							p={5}
+							bg={colors.bg}
+							p={2}
 							borderRadius='md'
-							shadow='sm'
+							shadow={colors.cardShadow}
 							minWidth={{ base: '100%', lg: '600px' }}
+							border="1px solid"
+							borderColor={colors.borderColor}
 						>
-							<Header onFilterChange={onFilterChange} />
 							<Box overflowX='scroll'>
-								<Divider color='#D5D9DD' mb={4} />
 								<AttendanceTable
 									attendanceRecord={data?.doc}
 									timezone={timezone}
@@ -172,7 +197,6 @@ const Attendance = ({ userId }) => {
 							</Box>
 						</Box>
 
-						{/* Create attendance modal */}
 						{addAttendance && (
 							<CreateAttendance
 								isOpen={addAttendance}
@@ -180,6 +204,8 @@ const Attendance = ({ userId }) => {
 								employeeId={employeeId}
 								refetch={refetch}
 								employeeName={data?.employee?.fullName || ''}
+								selectedMonth={month}
+								selectedYear={year}
 							/>
 						)}
 					</Flex>
@@ -191,26 +217,32 @@ const Attendance = ({ userId }) => {
 				align='center'
 				textAlign='center'
 				justify='center'
-				bg='yellow.100'
+				bg={colors.badgeWarningBg}
 				p={4}
 				borderRadius='md'
-				fontFamily="'DM Sans', sans-serif"
-				boxShadow='sm'
+				boxShadow={colors.cardShadow}
+				m={4}
 			>
 				{userRoleName === 'superAdmin' ? (
 					<>
-						<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+						<Text fontSize='lg' fontWeight='bold' color={colors.headingText}>
 							No office settings found!
 						</Text>
-						<Text fontSize='md' color='gray.600'>
+						<Text fontSize='md' color={colors.bodyText}>
 							To ensure smooth attendance tracking, please configure your office
 							settings.
 						</Text>
 						<Button
 							{...buttonStyle}
 							mt={3}
-							bg='green.500'
-							_active={{ bg: 'green.400' }}
+							bg={colors.accentGold}
+							color={colors.headerText}
+							_hover={{
+								bg: colors.goldLight,
+								transform: 'translateY(-1px)',
+								boxShadow: colors.goldGlow,
+							}}
+							_active={{ bg: colors.goldDark }}
 							onClick={() =>
 								navigate(`/office-settings/${employee?.agency?._id}`)
 							}
@@ -220,10 +252,10 @@ const Attendance = ({ userId }) => {
 					</>
 				) : (
 					<>
-						<Text fontSize='lg' fontWeight='bold' color='gray.700'>
+						<Text fontSize='lg' fontWeight='bold' color={colors.headingText}>
 							Office settings not configured!
 						</Text>
-						<Text fontSize='md' color='gray.600'>
+						<Text fontSize='md' color={colors.bodyText}>
 							Please contact your administrator to set up office settings for
 							attendance tracking.
 						</Text>

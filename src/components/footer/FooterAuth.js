@@ -8,8 +8,10 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import useUserSession from "hooks/useUserSession";
 
 export default function Footer() {
+    const { agencyName } = useUserSession();
   let textColor = useColorModeValue("gray.400", "white");
   let linkColor = useColorModeValue(
     { base: "gray.400", lg: "gray.400" },
@@ -41,7 +43,7 @@ export default function Footer() {
         {" "}
         &copy; {1900 + new Date().getYear()}
         <Text as="span" fontWeight="500" ms="4px">
-          Weam CRM
+         {agencyName ? `${agencyName} CRM` : "Weam CRM"}
         </Text>
       </Text>
       {/* <List display='flex'>

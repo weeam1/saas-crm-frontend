@@ -23,10 +23,10 @@ export const TeamMember = ({ role, person }) => {
 		<Flex gap='2' align='center'>
 			<Icon as={icon} color='gray.400' boxSize={3} />
 			<Box>
-				<Text fontSize='x-small' color='gray.500'>
+				<Text fontSize='x-small' color='text.inverted'>
 					{label}
 				</Text>
-				<Text fontSize='xs' color='gray.700' isTruncated maxW='100px'>
+				<Text fontSize='xs' color='text.inverted' isTruncated maxW='100px'>
 					{person.fullName || person}
 				</Text>
 			</Box>

@@ -10,7 +10,6 @@ import {
 	ModalHeader,
 	ModalCloseButton,
 	ModalBody,
-	useColorModeValue,
 } from '@chakra-ui/react';
 import {
 	FaFileAudio,
@@ -19,6 +18,7 @@ import {
 	FaStickerMule,
 	FaVideo,
 } from 'react-icons/fa';
+import { useModalColors } from 'hooks/useModalColors';
 
 const mediaLimits = [
 	{ type: 'Audio', size: '16 MB', icon: FaFileAudio, color: 'blue.400' },
@@ -29,8 +29,7 @@ const mediaLimits = [
 ];
 
 const MediaLimitsModal = ({ isOpen, onClose }) => {
-	const cardBg = useColorModeValue('white', 'gray.800');
-	const cardBorder = useColorModeValue('gray.200', 'gray.600');
+	const colors = useModalColors();
 
 	return (
 		<Modal
@@ -40,12 +39,31 @@ const MediaLimitsModal = ({ isOpen, onClose }) => {
 			isCentered
 			motionPreset='scale'
 		>
-			<ModalOverlay />
-			<ModalContent borderRadius='xl' m='2'>
-				<ModalHeader>WhatsApp Media Upload Size Limits</ModalHeader>
-				<ModalCloseButton _focus={{ outline: 'none' }} />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
+			<ModalContent
+				borderRadius='2xl'
+				m='2'
+				bg={colors.bg}
+				boxShadow={colors.modalShadow}
+				border='1px solid'
+				borderColor={colors.borderColor}
+				overflow='hidden'
+			>
+				<ModalHeader
+					bg={colors.headerBg}
+					color={colors.headerText}
+					borderBottom='1px solid'
+					borderColor={colors.borderColor}
+				>
+					WhatsApp Media Upload Size Limits
+				</ModalHeader>
+				<ModalCloseButton
+					color={colors.headerText}
+					_hover={{ bg: colors.closeBtnHoverBg }}
+					_focus={{ outline: 'none' }}
+				/>
 				<ModalBody pb={6}>
-					<Text fontSize='sm' color='gray.500' mb={4}>
+					<Text fontSize='sm' color={colors.mutedText} mb={4}>
 						These limits apply after compression and encryption.
 					</Text>
 
@@ -55,20 +73,20 @@ const MediaLimitsModal = ({ isOpen, onClose }) => {
 								key={type}
 								direction='column'
 								align='center'
-								bg={cardBg}
+								bg={colors.bgInput}
 								border='1px solid'
-								borderColor={cardBorder}
+								borderColor={colors.borderColor}
 								borderRadius='xl'
 								p={5}
 								textAlign='center'
-								boxShadow='sm'
-								_hover={{ boxShadow: 'md' }}
+								boxShadow={colors.cardShadow}
+								_hover={{ boxShadow: colors.modalShadow }}
 							>
 								<Icon as={icon} boxSize={8} color={color} mb={3} />
-								<Text fontWeight='semibold' color='green.500'>
+								<Text fontWeight='semibold' color={colors.accentGold}>
 									{type}
 								</Text>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='sm' color={colors.mutedText}>
 									Max: {size}
 								</Text>
 							</Flex>

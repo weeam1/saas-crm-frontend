@@ -8,7 +8,6 @@ import {
 	Text,
 	HStack,
 	VStack,
-	Icon,
 	Divider,
 } from '@chakra-ui/react';
 import { useSearchParams } from 'react-router-dom';
@@ -42,20 +41,6 @@ const DateRangeMenuFilter = ({ onDateRangeChange, isLoading }) => {
 		}
 	};
 
-	// const getDateDescription = (rangeValue) => {
-	// 	const range = getDateRange(rangeValue);
-
-	// 	if (rangeValue === 'allTime') {
-	// 		return 'No date restrictions';
-	// 	}
-
-	// 	if (range.from && range.to) {
-	// 		return `${range.from.toLocaleDateString()} - ${range.to.toLocaleDateString()}`;
-	// 	}
-
-	// 	return '';
-	// };
-
 	return (
 		<Box>
 			<Menu>
@@ -64,21 +49,28 @@ const DateRangeMenuFilter = ({ onDateRangeChange, isLoading }) => {
 					rightIcon={<ChevronDownIcon />}
 					leftIcon={<CalendarIcon />}
 					variant='outline'
-					minW='200px'
+					minW={{ base: '100%', md: '200px' }}
 					justifyContent='space-between'
-					bg='white'
-					fontSize={{ base: 'xs', md: 'sm' }}
+					bg='bg.input'
+					fontSize={{ base: 'sm', md: 'sm' }}
 					borderWidth='2px'
 					fontWeight='medium'
 					borderRadius='lg'
-					borderColor='softGray.400'
+					borderColor='border.default'
+					color='text.body'
 					_hover={{
-						borderColor: 'brand.300',
-						boxShadow: `0 0 0 1px brand.200`,
+						borderColor: 'border.gold',
+						bg: 'bg.elevated',
+						color: 'text.accent',
+						boxShadow: 'goldGlow',
 					}}
 					_focus={{
-						borderColor: 'brand.500',
-						boxShadow: `0 0 0 2px brand.200`,
+						borderColor: 'border.focus',
+						boxShadow: 'goldGlow',
+					}}
+					_active={{
+						bg: 'bg.elevated',
+						color: 'text.accent',
 					}}
 					_disabled={{
 						opacity: 0.6,
@@ -87,17 +79,18 @@ const DateRangeMenuFilter = ({ onDateRangeChange, isLoading }) => {
 					isDisabled={isLoading}
 					textAlign='left'
 					transition='all 0.2s ease'
-					_expanded={{ bg: 'brand.50', borderColor: 'brand.200' }}
 				>
 					{dateOptions?.find((item) => item?.value === selectedRange)?.label ||
 						'All Time'}
 				</MenuButton>
+
 				<MenuList
 					py={2}
-					fontSize='xs'
-					borderColor='gray.200'
-					boxShadow='lg'
-					minW='200px'
+					fontSize='sm'
+					bg='bg.surface'
+					borderColor='border.default'
+					boxShadow='card'
+					minW={{ base: '100%', md: '200px' }}
 					transition='all 0.15s ease-in-out'
 					transformOrigin='top'
 				>
@@ -105,29 +98,46 @@ const DateRangeMenuFilter = ({ onDateRangeChange, isLoading }) => {
 						<Box key={option.value}>
 							<MenuItem
 								onClick={() => handleDateSelect(option)}
-								bg={selectedRange === option.value ? 'brand.50' : 'transparent'}
+								bg={selectedRange === option.value ? 'bg.elevated' : 'transparent'}
 								color={
-									selectedRange === option.value ? 'brand.600' : 'gray.700'
+									selectedRange === option.value ? 'text.accent' : 'text.body'
 								}
 								_hover={{
-									bg: 'brand.50',
-									color: 'brand.600',
+									bg: 'bg.elevated',
+									color: 'text.accent',
 								}}
-								py={2}
+								_focus={{
+									bg: 'bg.elevated',
+									color: 'text.accent',
+								}}
+								py={2.5}
+								px={3}
+								transition='all 0.15s ease'
 							>
 								<HStack justify='space-between' w='100%'>
 									<VStack align='start' spacing={0}>
-										<Text fontWeight='medium'>{option.label}</Text>
-										{/* <Text fontSize='sm' color='gray.500'>
-											{getDateDescription(option.value)}
-										</Text> */}
+										<Text
+											fontWeight={selectedRange === option.value ? 'semibold' : 'medium'}
+											fontSize='sm'
+										>
+											{option.label}
+										</Text>
 									</VStack>
 									{selectedRange === option.value && (
-										<CheckIcon color='brand.500' boxSize={3} />
+										<CheckIcon
+											color='icon.brand'
+											boxSize={3}
+											transition='all 0.15s ease'
+										/>
 									)}
 								</HStack>
 							</MenuItem>
-							{index === dateOptions.length - 2 && <Divider my={1} />}
+							{index === dateOptions.length - 2 && (
+								<Divider
+									my={1}
+									borderColor='border.subtle'
+								/>
+							)}
 						</Box>
 					))}
 				</MenuList>

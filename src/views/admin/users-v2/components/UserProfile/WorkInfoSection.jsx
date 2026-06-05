@@ -2,8 +2,10 @@ import { Grid, GridItem, Text, VStack, Badge, Flex } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { getSalaryType } from './../../../../../schema/userSchema';
 import { useMemo } from 'react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const WorkInfoSection = ({ user }) => {
+	const colors = useModalColors();
 	const salaryType = getSalaryType(user?.salaryType);
 
 	const workItems = [
@@ -20,7 +22,6 @@ const WorkInfoSection = ({ user }) => {
 			label: 'Education Degree',
 			value: user.educationDegree || 'Not specified',
 		},
-		// { label: 'Currency', value: user.currency },
 	];
 
 	const financialItems = useMemo(() => {
@@ -86,9 +87,9 @@ const WorkInfoSection = ({ user }) => {
 
 	return (
 		<Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={8}>
-			<GridItem bg='gray.50' p={2} borderRadius='md'>
+			<GridItem bg={colors.bgInput} p={4} borderRadius='md' border="1px solid" borderColor={colors.borderColor}>
 				<VStack align='start' spacing={4}>
-					<Text fontSize='lg' fontWeight='semibold' color='gray.700'>
+					<Text fontSize='lg' fontWeight='semibold' color={colors.headingText}>
 						Employment Details
 					</Text>
 					{workItems.map((item, index) => (
@@ -97,33 +98,30 @@ const WorkInfoSection = ({ user }) => {
 							flexDir={{ base: 'column', md: 'row' }}
 							justify='space-between'
 							w='full'
+							gap={2}
 						>
 							<Text
 								fontSize={{ base: 'sm', md: 'md' }}
 								fontWeight='medium'
-								color='gray.500'
+								color={colors.mutedText}
 							>
 								{item.label}
 							</Text>
 							<Text
 								fontSize={{ base: 'sm', md: 'md' }}
 								fontWeight='medium'
-								color='gray.600'
+								color={colors.headingText}
 							>
 								{item.value}
 							</Text>
-
-							{/* <Badge colorScheme='blue' fontSize='sm'>
-								{item.value}
-							</Badge> */}
 						</Flex>
 					))}
 				</VStack>
 			</GridItem>
 
-			<GridItem bg='gray.50' p={2} borderRadius='md'>
+			<GridItem bg={colors.bgInput} p={4} borderRadius='md' border="1px solid" borderColor={colors.borderColor}>
 				<VStack align='start' spacing={4}>
-					<Text fontSize='lg' fontWeight='semibold' color='gray.700'>
+					<Text fontSize='lg' fontWeight='semibold' color={colors.headingText}>
 						Financial Details
 					</Text>
 					{financialItems.map((item, index) => (
@@ -132,18 +130,19 @@ const WorkInfoSection = ({ user }) => {
 							flexDir={{ base: 'column', md: 'row' }}
 							justify='space-between'
 							w='full'
+							gap={2}
 						>
 							<Text
 								fontSize={{ base: 'sm', md: 'md' }}
 								fontWeight='medium'
-								color='gray.500'
+								color={colors.mutedText}
 							>
 								{item.label}
 							</Text>
 							<Text
 								fontSize={{ base: 'sm', md: 'md' }}
 								fontWeight='medium'
-								color='gray.800'
+								color={colors.headingText}
 							>
 								{item.value}
 							</Text>

@@ -1,3 +1,783 @@
+// import { useState, useEffect } from 'react';
+// import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+// import {
+// 	Box,
+// 	VStack,
+// 	HStack,
+// 	Text,
+// 	Heading,
+// 	Button,
+// 	FormControl,
+// 	FormLabel,
+// 	Textarea,
+// 	Slider,
+// 	SliderTrack,
+// 	SliderFilledTrack,
+// 	SliderThumb,
+// 	Tooltip,
+// 	useColorModeValue,
+// 	Flex,
+// 	Spinner,
+// 	Divider,
+// 	Badge,
+// 	Icon,
+// 	IconButton,
+// 	Input,
+// } from '@chakra-ui/react';
+// import { useForm } from 'react-hook-form';
+// import * as yup from 'yup';
+// import { yupResolver } from '@hookform/resolvers/yup';
+// import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
+// import useUserSession from 'hooks/useUserSession';
+// import { toast } from 'react-toastify';
+// import { getBadgeColors } from 'utils/colorUtils';
+
+// import { AddIcon, MinusIcon, StarIcon, WarningTwoIcon } from '@chakra-ui/icons';
+// import { FiChevronLeft } from 'react-icons/fi';
+
+// const EvaluationForm = () => {
+// 	const { roleId, userId } = useParams();
+// 	const [searchParams] = useSearchParams();
+
+// 	const navigate = useNavigate();
+// 	const { user: loggedInUser } = useUserSession();
+
+// 	const now = new Date();
+// 	const defaultMonth = String(now.getMonth() + 1).padStart(2, '0');
+// 	const defaultYear = String(now.getFullYear());
+
+// 	const month = searchParams.get('month') || defaultMonth;
+// 	const year = searchParams.get('year') || defaultYear;
+
+// 	// States
+// 	const [errorMessage, setErrorMessage] = useState(null);
+// 	const [template, setTemplate] = useState(null);
+// 	const [loading, setLoading] = useState(true);
+// 	const [scores, setScores] = useState({});
+// 	const [showTooltip, setShowTooltip] = useState({});
+
+// 	// Colors
+// 	const cardBg = useColorModeValue('white', 'gray.700');
+// 	const borderColor = useColorModeValue('gray.200', 'gray.600');
+// 	const headerBg = useColorModeValue('gray.50', 'gray.600');
+// 	const focusColor = useColorModeValue('brand.500', 'brand.300');
+
+// 	// Fetch template data
+// 	const { data: templateData, isLoading: templateLoading } = useFetchItemsQuery(
+// 		{
+// 			path: `/evaluation/templates/roles`,
+// 			params: { role: roleId },
+// 		},
+// 		{
+// 			skip: !roleId,
+// 			refetchOnMountOrArgChange: true,
+// 			refetchOnFocus: true,
+// 			refetchOnReconnect: true,
+// 		}
+// 	);
+
+// 	// fetch user evaluation details
+// 	const { data: userEval, isLoading: userEvalLoading } = useFetchItemsQuery(
+// 		{
+// 			path: `/evaluation/users/user/${userId}`,
+// 			params: { month, year },
+// 		},
+// 		{
+// 			skip: !userId,
+// 			refetchOnMountOrArgChange: true,
+// 		}
+// 	);
+
+// 	// check if user already submitted the evalution
+// 	useEffect(() => {
+// 		if (userEval?.doc && userEval?.doc?.evaluations) {
+// 			const alreadySubmitted = userEval?.doc?.evaluations?.find(
+// 				(item) => item?.evaluator?._id === loggedInUser?._id
+// 			);
+
+// 			if (alreadySubmitted) {
+// 				setErrorMessage({
+// 					type: 'info',
+// 					title: 'Evaluation Points',
+// 					message: 'You already submitted the evaluation points!',
+// 				});
+// 			}
+// 		}
+// 	}, [loggedInUser, loggedInUser?._id, userEval?.doc]);
+
+// 	// Create evaluation mutation
+// 	const [createEvaluation, { isLoading: creating }] = useCreateItemMutation();
+
+// 	// Initialize form with dynamic validation
+// 	const evaluationSchema = yup.object().shape({
+// 		notes: yup
+// 			.string()
+// 			.max(500, 'Notes cannot exceed 500 characters')
+// 			.required('Evaluation notes are required'),
+// 		// Dynamic validation for attributes will be handled separately
+// 	});
+
+// 	const {
+// 		register,
+// 		handleSubmit,
+// 		formState: { errors, isValid },
+// 		watch,
+// 	} = useForm({
+// 		mode: 'onChange',
+// 		resolver: yupResolver(evaluationSchema),
+// 		defaultValues: {
+// 			notes: '',
+// 		},
+// 	});
+
+// 	const notesLength = watch('notes')?.length || 0;
+
+// 	// Process template data
+// 	useEffect(() => {
+// 		if (templateData?.doc?.[0]?.hasTemplate) {
+// 			const templateInfo = templateData.doc[0];
+// 			setTemplate(templateInfo.template);
+
+// 			// Initialize scores with 0 for all attributes
+// 			const initialScores = {};
+// 			templateInfo.template.attributes.forEach((attr) => {
+// 				initialScores[attr.name] = 0;
+// 			});
+// 			setScores(initialScores);
+// 		}
+
+// 		setTimeout(() => {
+// 			setLoading(false);
+// 		}, 1000);
+// 	}, [templateData]);
+
+// 	// Handle score change
+// 	const handleScoreChange = (attributeName, value) => {
+// 		setScores((prev) => ({
+// 			...prev,
+// 			[attributeName]: value,
+// 		}));
+// 	};
+
+// 	// Calculate total score
+// 	const calculateTotalScore = () => {
+// 		return Object.values(scores).reduce(
+// 			(total, score) => Number(total) + Number(score),
+// 			0
+// 		);
+// 	};
+
+// 	// Calculate maximum possible score
+// 	const calculateMaxScore = () => {
+// 		if (!template?.attributes) return 0;
+// 		return template.attributes.reduce(
+// 			(total, attr) => Number(total) + Number(attr.maxScore),
+// 			0
+// 		);
+// 	};
+
+// 	const totalPercentage = Number(
+// 		((calculateTotalScore() / calculateMaxScore()) * 100).toFixed(2)
+// 	);
+
+// 	// Submit handler
+// 	const submitHandler = async (formData) => {
+// 		try {
+// 			// Prepare attributes array with scores
+// 			const evaluationAttributes = template.attributes.map((attr) => ({
+// 				name: attr.name,
+// 				description: attr.description,
+// 				score: scores[attr.name] || 0,
+// 				maxScore: attr.maxScore,
+// 			}));
+
+// 			// Get evaluator ID (assuming from auth context)
+// 			const evaluatorId = loggedInUser?._id;
+
+// 			const payload = {
+// 				userId: userId,
+// 				month: month,
+// 				year: year,
+// 				evaluations: [
+// 					{
+// 						evaluator: evaluatorId,
+// 						attributes: evaluationAttributes,
+// 						notes: formData.notes.trim(),
+// 						// status: "submitted" // You can add this if needed
+// 					},
+// 				],
+// 			};
+
+// 			await createEvaluation({
+// 				path: '/evaluation/users',
+// 				body: payload,
+// 			}).unwrap();
+
+// 			toast.success('User evaluation has been submitted successfully.');
+
+// 			// Navigate back or to success page
+// 			navigate(-1);
+// 		} catch (error) {
+// 			console.error('Evaluation submission error:', error);
+// 			toast.error(
+// 				error?.data?.errors?.[0]?.msg || 'Failed to submit evaluation'
+// 			);
+// 		}
+// 	};
+
+// 	const roleName = templateData?.doc[0]?.roleName.replace(/^./, (c) =>
+// 		c.toUpperCase()
+// 	);
+
+// 	const { bg: roleBg, text: roleText } = getBadgeColors(roleName);
+
+// 	// Loading state
+// 	if (loading || templateLoading || userEvalLoading) {
+// 		return (
+// 			<Flex justify='center' align='center' minH='400px'>
+// 				<VStack spacing={4}>
+// 					<Spinner size='xl' color='brand.500' />
+// 					<Text>Loading evaluation template...</Text>
+// 				</VStack>
+// 			</Flex>
+// 		);
+// 	}
+
+// 	// No template found
+// 	if (!template) {
+// 		return (
+// 			<Box maxW='3xl' mx='auto' mt={20} p={6} textAlign='center'>
+// 				<Box
+// 					bg='yellow.50'
+// 					border='1px solid'
+// 					borderColor='yellow.200'
+// 					borderRadius='xl'
+// 					p={8}
+// 					boxShadow='md'
+// 				>
+// 					<WarningTwoIcon boxSize={14} color='yellow.500' mb={4} />
+// 					<Text fontSize='xl' fontWeight='semibold' mb={2}>
+// 						No Evaluation Template Found
+// 					</Text>
+// 					<Text fontSize='md' color='gray.600'>
+// 						This role doesn't have an evaluation template yet. You might need to
+// 						create one or pick a different role.
+// 					</Text>
+
+// 					<Button
+// 						mt={6}
+// 						colorScheme='brand'
+// 						onClick={() => navigate('/evaluation/settings')}
+// 					>
+// 						Add Template
+// 					</Button>
+// 				</Box>
+// 			</Box>
+// 		);
+// 	}
+
+// 	if (errorMessage) {
+// 		return (
+// 			<Box maxW='3xl' mx='auto' mt={20} p={6} textAlign='center'>
+// 				<Box
+// 					bg='yellow.50'
+// 					border='1px solid'
+// 					borderColor='yellow.200'
+// 					borderRadius='xl'
+// 					p={8}
+// 					boxShadow='md'
+// 				>
+// 					<WarningTwoIcon boxSize={14} color='yellow.500' mb={4} />
+// 					<Text fontSize='xl' fontWeight='semibold' mb={2}>
+// 						{errorMessage?.title}
+// 					</Text>
+// 					<Text fontSize='md' color='gray.600'>
+// 						{errorMessage?.message}
+// 					</Text>
+
+// 					<Button mt={6} colorScheme='brand' onClick={() => navigate('-1')}>
+// 						Go Back
+// 					</Button>
+// 				</Box>
+// 			</Box>
+// 		);
+// 	}
+
+// 	return (
+// 		<Box
+// 			maxW={{ base: 'full', md: '5xl' }}
+// 			rounded='lg'
+// 			shadow='md'
+// 			bg='white'
+// 			mx='auto'
+// 			p={8}
+// 		>
+// 			<IconButton
+// 				aria-label='Go back'
+// 				icon={<FiChevronLeft />}
+// 				onClick={() => navigate(-1)}
+// 				// variant='ghost'
+// 				size='md'
+// 				isRound
+// 			/>
+
+// 			{/* Header */}
+// 			<VStack spacing={4} align='stretch' mb={8}>
+// 				<Heading textTransform='capitalize' size='md' color='gray.700'>
+// 					{userEval?.userDetails?.fullName} Evaluation
+// 				</Heading>
+// 				<Text color='gray.600' fontSize='md'>
+// 					Role:{' '}
+// 					<Badge
+// 						bg={roleBg}
+// 						color={roleText}
+// 						variant='subtle'
+// 						fontSize='.8em'
+// 						px={4}
+// 						py={2}
+// 						borderRadius='full'
+// 						textTransform='capitalize'
+// 					>
+// 						{roleName}
+// 					</Badge>
+// 				</Text>
+// 				{/* <Text color='gray.500'>{templateData.doc[0].description}</Text> */}
+// 			</VStack>
+
+// 			<form onSubmit={handleSubmit(submitHandler)}>
+// 				<VStack spacing={4} align='stretch'>
+// 					{/* Evaluation Attributes */}
+// 					<Box
+// 						bg={cardBg}
+// 						border='1px'
+// 						rounded='md'
+// 						borderColor={borderColor}
+// 						shadow='sm'
+// 					>
+// 						<Box p={6}>
+// 							<VStack spacing={4} align='stretch'>
+// 								<Heading size='md' color='gray.700'>
+// 									Evaluation Criteria
+// 								</Heading>
+
+// 								{template.attributes.map((attribute, index) => (
+// 									<Box key={attribute.name}>
+// 										{index > 0 && <Divider my={3} />}
+
+// 										<FormControl>
+// 											<HStack justify='space-between' mb={3}>
+// 												<FormLabel
+// 													fontWeight='600'
+// 													fontSize='lg'
+// 													color='gray.800'
+// 													mb={0}
+// 												>
+// 													{attribute.name}
+// 												</FormLabel>
+// 												<Box
+// 													bg='green.50'
+// 													border='1px solid'
+// 													borderColor='green.200'
+// 													borderRadius='full'
+// 													px={3}
+// 													py={1}
+// 												>
+// 													<Text
+// 														fontSize='sm'
+// 														fontWeight='600'
+// 														color='green.700'
+// 													>
+// 														{scores[attribute.name] || 0}/{attribute.maxScore}
+// 													</Text>
+// 												</Box>
+// 											</HStack>
+
+// 											<Text
+// 												color='gray.600'
+// 												mb={4}
+// 												fontSize='sm'
+// 												lineHeight='tall'
+// 											>
+// 												{attribute.description}
+// 											</Text>
+
+// 											{/* Custom Input Section */}
+// 											<Box>
+// 												{/* Visual Feedback Bar */}
+// 												<Box
+// 													position='relative'
+// 													h='8px'
+// 													bg='gray.100'
+// 													borderRadius='full'
+// 													mb={4}
+// 													overflow='hidden'
+// 												>
+// 													<Box
+// 														position='absolute'
+// 														top='0'
+// 														left='0'
+// 														h='100%'
+// 														width={`${((scores[attribute.name] || 0) / attribute.maxScore) * 100}%`}
+// 														bgGradient='linear(to-r, green.400, green.500)'
+// 														borderRadius='full'
+// 														transition='width 0.3s ease'
+// 													/>
+
+// 													{/* Tick Marks */}
+// 													<HStack
+// 														position='absolute'
+// 														top='0'
+// 														left='0'
+// 														width='100%'
+// 														height='100%'
+// 														justify='space-between'
+// 														px='2px'
+// 													>
+// 														{[...Array(attribute.maxScore + 1)].map(
+// 															(_, index) => (
+// 																<Box
+// 																	key={index}
+// 																	w='2px'
+// 																	h='100%'
+// 																	bg={
+// 																		index <= (scores[attribute.name] || 0)
+// 																			? 'white'
+// 																			: 'gray.300'
+// 																	}
+// 																	opacity={
+// 																		index <= (scores[attribute.name] || 0)
+// 																			? 0.8
+// 																			: 0.6
+// 																	}
+// 																/>
+// 															)
+// 														)}
+// 													</HStack>
+// 												</Box>
+
+// 												{/* Number Display */}
+// 												{/* <Box flex={1} position='relative'>
+// 													<Input
+// 														value={scores[attribute.name] || 0}
+// 														onChange={(e) => {
+// 															const value = parseInt(e.target.value);
+// 															if (
+// 																!isNaN(value) &&
+// 																value >= 0 &&
+// 																value <= attribute.maxScore
+// 															) {
+// 																handleScoreChange(attribute.name, value);
+// 															}
+// 														}}
+// 														textAlign='center'
+// 														fontWeight='bold'
+// 														fontSize='xl'
+// 														height='60px'
+// 														border='2px solid'
+// 														borderColor='gray.200'
+// 														borderRadius='xl'
+// 														bg='white'
+// 														_hover={{
+// 															borderColor: 'blue.300',
+// 														}}
+// 														_focus={{
+// 															borderColor: 'blue.500',
+// 															boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.15)',
+// 														}}
+// 														// _disabled={{
+// 														// 	bg: 'gray.50',
+// 														// 	cursor: 'not-allowed',
+// 														// }}
+// 													/>
+// 												</Box> */}
+
+// 												<ScoreInput
+// 													attribute={attribute}
+// 													scores={scores}
+// 													handleScoreChange={handleScoreChange}
+// 												/>
+// 											</Box>
+// 										</FormControl>
+// 									</Box>
+// 								))}
+
+// 								{/* Total Score Summary */}
+// 								<Box
+// 									mt={4}
+// 									p={4}
+// 									bg={headerBg}
+// 									borderRadius='lg'
+// 									border='1px'
+// 									borderColor={borderColor}
+// 								>
+// 									<HStack justify='space-between'>
+// 										<Text fontWeight='600' color='gray.700'>
+// 											Total Score
+// 										</Text>
+// 										<Badge colorScheme='blue' fontSize='md' px={3} py={1}>
+// 											{calculateTotalScore()} / {calculateMaxScore()}
+// 										</Badge>
+// 									</HStack>
+
+// 									{/* Percentage */}
+// 									<HStack justify='space-between' mt={3}>
+// 										<Text fontWeight='600' color='gray.700'>
+// 											Total Percentage
+// 										</Text>
+
+// 										<Badge colorScheme='green' fontSize='md' px={3} py={1}>
+// 											{totalPercentage}%
+// 										</Badge>
+// 									</HStack>
+
+// 									<Text fontSize='sm' color='gray.600' mt={2}>
+// 										Overall performance rating based on all criteria
+// 									</Text>
+// 								</Box>
+// 							</VStack>
+// 						</Box>
+// 					</Box>
+
+// 					{/* Evaluation Notes */}
+// 					<Box
+// 						bg={cardBg}
+// 						border='1px'
+// 						borderColor={borderColor}
+// 						rounded='md'
+// 						shadow='sm'
+// 					>
+// 						<Box p={6}>
+// 							<FormControl isInvalid={!!errors.notes} isRequired>
+// 								<FormLabel
+// 									fontWeight='600'
+// 									fontSize='lg'
+// 									color='gray.700'
+// 									display='flex'
+// 									alignItems='center'
+// 									gap={2}
+// 								>
+// 									<Icon as={StarIcon} color='yellow.500' />
+// 									Evaluation Notes
+// 								</FormLabel>
+// 								<Text color='gray.600' mb={3}>
+// 									Provide overall feedback and comments for the employee
+// 								</Text>
+
+// 								<Textarea
+// 									placeholder='Write your evaluation notes, feedback, and recommendations...'
+// 									resize='vertical'
+// 									minH='120px'
+// 									focusBorderColor={focusColor}
+// 									borderColor={borderColor}
+// 									bg='white'
+// 									{...register('notes')}
+// 								/>
+
+// 								<Flex justify='space-between' mt={2}>
+// 									{errors.notes ? (
+// 										<Text fontSize='sm' color='red.500'>
+// 											{errors.notes.message}
+// 										</Text>
+// 									) : (
+// 										<Text fontSize='xs' color='gray.500'>
+// 											{notesLength}/500 characters
+// 										</Text>
+// 									)}
+// 								</Flex>
+// 							</FormControl>
+// 						</Box>
+// 					</Box>
+
+// 					{/* Action Buttons */}
+// 					<HStack justify='flex-end' spacing={4} pt={4}>
+// 						<Button
+// 							variant='outline'
+// 							onClick={() => navigate(-1)}
+// 							size='lg'
+// 							rounded='lg'
+// 							isDisabled={creating}
+// 						>
+// 							Cancel
+// 						</Button>
+
+// 						<Button
+// 							size='lg'
+// 							rounded='lg'
+// 							colorScheme='brand'
+// 							type='submit'
+// 							isLoading={creating}
+// 							isDisabled={!isValid || creating}
+// 							px={8}
+// 						>
+// 							Submit Evaluation
+// 						</Button>
+// 					</HStack>
+// 				</VStack>
+// 			</form>
+// 		</Box>
+// 	);
+// };
+
+// export default EvaluationForm;
+
+// const ScoreInput = ({ attribute, scores, handleScoreChange }) => {
+// 	const max = attribute.maxScore;
+// 	const value = scores[attribute.name] ?? '';
+
+// 	const handleChange = (e) => {
+// 		const val = e.target.value;
+
+// 		// Allow empty
+// 		if (val === '') {
+// 			handleScoreChange(attribute.name, '');
+// 			return;
+// 		}
+
+// 		// Digits only
+// 		if (!/^\d+$/.test(val)) return;
+
+// 		const num = parseInt(val, 10);
+
+// 		// DYNAMIC RULE:
+// 		// Allow typing only if it does not exceed maxScore
+// 		if (num > max) return;
+
+// 		handleScoreChange(attribute.name, val);
+// 	};
+
+// 	const handleBlur = () => {
+// 		if (value === '') return;
+
+// 		let num = parseInt(value, 10);
+
+// 		if (isNaN(num)) num = 0;
+// 		if (num < 0) num = 0;
+// 		if (num > max) num = max;
+
+// 		handleScoreChange(attribute.name, num);
+// 	};
+
+// 	return (
+// 		<Input
+// 			value={value}
+// 			onChange={handleChange}
+// 			onBlur={handleBlur}
+// 			inputMode='numeric'
+// 			textAlign='center'
+// 			fontWeight='bold'
+// 			fontSize='md'
+// 			height='40px'
+// 			border='2px solid'
+// 			borderColor='gray.200'
+// 			borderRadius='xl'
+// 			bg='white'
+// 			onFocus={(e) => e.target.select()}
+// 			_hover={{ borderColor: 'brand.300' }}
+// 			_focus={{
+// 				borderColor: 'brand.500',
+// 				boxShadow: '0 0 0 3px rgba(216, 201, 114, 0.15)',
+// 			}}
+// 			aria-label={`${attribute.name} score (0 - ${max})`}
+// 		/>
+// 	);
+// };
+
+// // <FormControl>
+// // 	<HStack justify='space-between'>
+// // 		<FormLabel fontWeight='600' fontSize='lg' color='gray.700' mb={1}>
+// // 			{attribute.name}
+// // 		</FormLabel>
+// // 		<Badge colorScheme='green' fontSize='sm'>
+// // 			Score: {scores[attribute.name] || 0}/{attribute.maxScore}
+// // 		</Badge>
+// // 	</HStack>
+
+// // 	<Text
+// // 		color='gray.400'
+// // 		mb={4}
+// // 		fontSize='sm'
+// // 		display='flex'
+// // 		alignItems='flex-start'
+// // 		gap={2}
+// // 	>
+// // 		{/* <Icon
+// // 												as={InfoIcon}
+// // 												color='blue.500'
+// // 												mt={0.5}
+// // 												boxSize={3}
+// // 											/> */}
+// // 		{attribute.description}
+// // 	</Text>
+
+// // 	<Box px={2}>
+// // 		<Slider
+// // 			value={scores[attribute.name] || 0}
+// // 			min={0}
+// // 			max={attribute.maxScore}
+// // 			step={1}
+// // 			onChange={(val) => handleScoreChange(attribute.name, val)}
+// // 			onMouseEnter={() =>
+// // 				setShowTooltip((prev) => ({
+// // 					...prev,
+// // 					[attribute.name]: true,
+// // 				}))
+// // 			}
+// // 			onMouseLeave={() =>
+// // 				setShowTooltip((prev) => ({
+// // 					...prev,
+// // 					[attribute.name]: false,
+// // 				}))
+// // 			}
+// // 			colorScheme='brand'
+// // 		>
+// // 			<SliderTrack
+// // 				bg='gray.200'
+// // 				h='10px'
+// // 				borderRadius='full'
+// // 				transition='all 0.3s ease'
+// // 				shadow='sm'
+// // 			>
+// // 				<SliderFilledTrack bg='brand.500' transition='width 0.25s ease' />
+// // 			</SliderTrack>
+
+// // 			<Tooltip
+// // 				hasArrow
+// // 				bg='brand.600'
+// // 				color='white'
+// // 				placement='top'
+// // 				isOpen={showTooltip[attribute.name]}
+// // 				label={`${scores[attribute.name] || 0}`}
+// // 			>
+// // 				<SliderThumb
+// // 					boxSize={6}
+// // 					bg='white'
+// // 					border='3px solid'
+// // 					borderColor='brand.500'
+// // 					shadow='md'
+// // 					transition='all 0.2s ease'
+// // 					_hover={{
+// // 						// transform: 'scale(1.15)',
+// // 						shadow: 'lg',
+// // 						borderColor: 'brand.600',
+// // 					}}
+// // 					_focus={{
+// // 						boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.15)',
+// // 					}}
+// // 				/>
+// // 			</Tooltip>
+// // 		</Slider>
+// // 	</Box>
+
+// // 	<HStack justify='space-between' mt={1}>
+// // 		<Text fontSize='xs' color='gray.500'>
+// // 			0
+// // 		</Text>
+// // 		<Text fontSize='xs' color='gray.500'>
+// // 			Max: {attribute.maxScore}
+// // 		</Text>
+// // 	</HStack>
+// // </FormControl>;
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -10,12 +790,6 @@ import {
 	FormControl,
 	FormLabel,
 	Textarea,
-	Slider,
-	SliderTrack,
-	SliderFilledTrack,
-	SliderThumb,
-	Tooltip,
-	useColorModeValue,
 	Flex,
 	Spinner,
 	Divider,
@@ -32,10 +806,12 @@ import useUserSession from 'hooks/useUserSession';
 import { toast } from 'react-toastify';
 import { getBadgeColors } from 'utils/colorUtils';
 
-import { AddIcon, MinusIcon, StarIcon, WarningTwoIcon } from '@chakra-ui/icons';
+import { StarIcon, WarningTwoIcon } from '@chakra-ui/icons';
 import { FiChevronLeft } from 'react-icons/fi';
+import { useModalColors } from 'hooks/useModalColors';
 
 const EvaluationForm = () => {
+	const colors = useModalColors();
 	const { roleId, userId } = useParams();
 	const [searchParams] = useSearchParams();
 
@@ -55,12 +831,6 @@ const EvaluationForm = () => {
 	const [loading, setLoading] = useState(true);
 	const [scores, setScores] = useState({});
 	const [showTooltip, setShowTooltip] = useState({});
-
-	// Colors
-	const cardBg = useColorModeValue('white', 'gray.700');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
-	const headerBg = useColorModeValue('gray.50', 'gray.600');
-	const focusColor = useColorModeValue('brand.500', 'brand.300');
 
 	// Fetch template data
 	const { data: templateData, isLoading: templateLoading } = useFetchItemsQuery(
@@ -114,7 +884,6 @@ const EvaluationForm = () => {
 			.string()
 			.max(500, 'Notes cannot exceed 500 characters')
 			.required('Evaluation notes are required'),
-		// Dynamic validation for attributes will be handled separately
 	});
 
 	const {
@@ -203,7 +972,6 @@ const EvaluationForm = () => {
 						evaluator: evaluatorId,
 						attributes: evaluationAttributes,
 						notes: formData.notes.trim(),
-						// status: "submitted" // You can add this if needed
 					},
 				],
 			};
@@ -236,8 +1004,8 @@ const EvaluationForm = () => {
 		return (
 			<Flex justify='center' align='center' minH='400px'>
 				<VStack spacing={4}>
-					<Spinner size='xl' color='brand.500' />
-					<Text>Loading evaluation template...</Text>
+					<Spinner size='xl' color={colors.accentGold} />
+					<Text color={colors.bodyText}>Loading evaluation template...</Text>
 				</VStack>
 			</Flex>
 		);
@@ -248,25 +1016,25 @@ const EvaluationForm = () => {
 		return (
 			<Box maxW='3xl' mx='auto' mt={20} p={6} textAlign='center'>
 				<Box
-					bg='yellow.50'
+					bg={colors.badgeWarningBg}
 					border='1px solid'
-					borderColor='yellow.200'
+					borderColor={colors.badgeWarningBorder}
 					borderRadius='xl'
 					p={8}
-					boxShadow='md'
+					boxShadow={colors.cardShadow}
 				>
-					<WarningTwoIcon boxSize={14} color='yellow.500' mb={4} />
-					<Text fontSize='xl' fontWeight='semibold' mb={2}>
+					<WarningTwoIcon boxSize={14} color={colors.badgeWarningText} mb={4} />
+					<Text fontSize='xl' fontWeight='semibold' mb={2} color={colors.headingText}>
 						No Evaluation Template Found
 					</Text>
-					<Text fontSize='md' color='gray.600'>
+					<Text fontSize='md' color={colors.bodyText}>
 						This role doesn't have an evaluation template yet. You might need to
 						create one or pick a different role.
 					</Text>
 
 					<Button
 						mt={6}
-						colorScheme='brand'
+						variant='brand'
 						onClick={() => navigate('/evaluation/settings')}
 					>
 						Add Template
@@ -280,22 +1048,22 @@ const EvaluationForm = () => {
 		return (
 			<Box maxW='3xl' mx='auto' mt={20} p={6} textAlign='center'>
 				<Box
-					bg='yellow.50'
+					bg={colors.badgeWarningBg}
 					border='1px solid'
-					borderColor='yellow.200'
+					borderColor={colors.badgeWarningBorder}
 					borderRadius='xl'
 					p={8}
-					boxShadow='md'
+					boxShadow={colors.cardShadow}
 				>
-					<WarningTwoIcon boxSize={14} color='yellow.500' mb={4} />
-					<Text fontSize='xl' fontWeight='semibold' mb={2}>
+					<WarningTwoIcon boxSize={14} color={colors.badgeWarningText} mb={4} />
+					<Text fontSize='xl' fontWeight='semibold' mb={2} color={colors.headingText}>
 						{errorMessage?.title}
 					</Text>
-					<Text fontSize='md' color='gray.600'>
+					<Text fontSize='md' color={colors.bodyText}>
 						{errorMessage?.message}
 					</Text>
 
-					<Button mt={6} colorScheme='brand' onClick={() => navigate('-1')}>
+					<Button mt={6} variant='brand' onClick={() => navigate('-1')}>
 						Go Back
 					</Button>
 				</Box>
@@ -307,26 +1075,30 @@ const EvaluationForm = () => {
 		<Box
 			maxW={{ base: 'full', md: '5xl' }}
 			rounded='lg'
-			shadow='md'
-			bg='white'
+			boxShadow={colors.cardShadow}
+			bg={colors.bg}
 			mx='auto'
 			p={8}
+			border='1px solid'
+			borderColor={colors.borderColor}
 		>
 			<IconButton
 				aria-label='Go back'
 				icon={<FiChevronLeft />}
 				onClick={() => navigate(-1)}
-				// variant='ghost'
 				size='md'
 				isRound
+				variant='ghost'
+				color={colors.bodyText}
+				_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 			/>
 
 			{/* Header */}
 			<VStack spacing={4} align='stretch' mb={8}>
-				<Heading textTransform='capitalize' size='md' color='gray.700'>
+				<Heading textTransform='capitalize' size='md' color={colors.headingText}>
 					{userEval?.userDetails?.fullName} Evaluation
 				</Heading>
-				<Text color='gray.600' fontSize='md'>
+				<Text color={colors.bodyText} fontSize='md'>
 					Role:{' '}
 					<Badge
 						bg={roleBg}
@@ -341,43 +1113,42 @@ const EvaluationForm = () => {
 						{roleName}
 					</Badge>
 				</Text>
-				{/* <Text color='gray.500'>{templateData.doc[0].description}</Text> */}
 			</VStack>
 
 			<form onSubmit={handleSubmit(submitHandler)}>
 				<VStack spacing={4} align='stretch'>
 					{/* Evaluation Attributes */}
 					<Box
-						bg={cardBg}
-						border='1px'
+						bg={colors.bgInput}
+						border='1px solid'
 						rounded='md'
-						borderColor={borderColor}
-						shadow='sm'
+						borderColor={colors.borderColor}
+						boxShadow={colors.cardShadow}
 					>
 						<Box p={6}>
 							<VStack spacing={4} align='stretch'>
-								<Heading size='md' color='gray.700'>
+								<Heading size='md' color={colors.headingText}>
 									Evaluation Criteria
 								</Heading>
 
 								{template.attributes.map((attribute, index) => (
 									<Box key={attribute.name}>
-										{index > 0 && <Divider my={3} />}
+										{index > 0 && <Divider my={3} borderColor={colors.borderColor} />}
 
 										<FormControl>
 											<HStack justify='space-between' mb={3}>
 												<FormLabel
 													fontWeight='600'
 													fontSize='lg'
-													color='gray.800'
+													color={colors.headingText}
 													mb={0}
 												>
 													{attribute.name}
 												</FormLabel>
 												<Box
-													bg='green.50'
+													bg={colors.badgeInfoBg}
 													border='1px solid'
-													borderColor='green.200'
+													borderColor={colors.badgeInfoBorder}
 													borderRadius='full'
 													px={3}
 													py={1}
@@ -385,7 +1156,7 @@ const EvaluationForm = () => {
 													<Text
 														fontSize='sm'
 														fontWeight='600'
-														color='green.700'
+														color={colors.badgeInfoText}
 													>
 														{scores[attribute.name] || 0}/{attribute.maxScore}
 													</Text>
@@ -393,7 +1164,7 @@ const EvaluationForm = () => {
 											</HStack>
 
 											<Text
-												color='gray.600'
+												color={colors.bodyText}
 												mb={4}
 												fontSize='sm'
 												lineHeight='tall'
@@ -407,7 +1178,7 @@ const EvaluationForm = () => {
 												<Box
 													position='relative'
 													h='8px'
-													bg='gray.100'
+													bg={colors.borderColor}
 													borderRadius='full'
 													mb={4}
 													overflow='hidden'
@@ -418,7 +1189,7 @@ const EvaluationForm = () => {
 														left='0'
 														h='100%'
 														width={`${((scores[attribute.name] || 0) / attribute.maxScore) * 100}%`}
-														bgGradient='linear(to-r, green.400, green.500)'
+														bgGradient={`linear(to-r, ${colors.accentGold}, ${colors.goldLight})`}
 														borderRadius='full'
 														transition='width 0.3s ease'
 													/>
@@ -441,13 +1212,13 @@ const EvaluationForm = () => {
 																	h='100%'
 																	bg={
 																		index <= (scores[attribute.name] || 0)
-																			? 'white'
-																			: 'gray.300'
+																			? colors.headingText
+																			: colors.mutedText
 																	}
 																	opacity={
 																		index <= (scores[attribute.name] || 0)
 																			? 0.8
-																			: 0.6
+																			: 0.4
 																	}
 																/>
 															)
@@ -455,46 +1226,11 @@ const EvaluationForm = () => {
 													</HStack>
 												</Box>
 
-												{/* Number Display */}
-												{/* <Box flex={1} position='relative'>
-													<Input
-														value={scores[attribute.name] || 0}
-														onChange={(e) => {
-															const value = parseInt(e.target.value);
-															if (
-																!isNaN(value) &&
-																value >= 0 &&
-																value <= attribute.maxScore
-															) {
-																handleScoreChange(attribute.name, value);
-															}
-														}}
-														textAlign='center'
-														fontWeight='bold'
-														fontSize='xl'
-														height='60px'
-														border='2px solid'
-														borderColor='gray.200'
-														borderRadius='xl'
-														bg='white'
-														_hover={{
-															borderColor: 'blue.300',
-														}}
-														_focus={{
-															borderColor: 'blue.500',
-															boxShadow: '0 0 0 3px rgba(66, 153, 225, 0.15)',
-														}}
-														// _disabled={{
-														// 	bg: 'gray.50',
-														// 	cursor: 'not-allowed',
-														// }}
-													/>
-												</Box> */}
-
 												<ScoreInput
 													attribute={attribute}
 													scores={scores}
 													handleScoreChange={handleScoreChange}
+													colors={colors}
 												/>
 											</Box>
 										</FormControl>
@@ -505,32 +1241,46 @@ const EvaluationForm = () => {
 								<Box
 									mt={4}
 									p={4}
-									bg={headerBg}
+									bg={colors.bgDeep}
 									borderRadius='lg'
-									border='1px'
-									borderColor={borderColor}
+									border='1px solid'
+									borderColor={colors.borderColor}
 								>
 									<HStack justify='space-between'>
-										<Text fontWeight='600' color='gray.700'>
+										<Text fontWeight='600' color={colors.headingText}>
 											Total Score
 										</Text>
-										<Badge colorScheme='blue' fontSize='md' px={3} py={1}>
+										<Badge
+											bg={colors.badgeInfoBg}
+											color={colors.badgeInfoText}
+											fontSize='md'
+											px={3}
+											py={1}
+											borderRadius='full'
+										>
 											{calculateTotalScore()} / {calculateMaxScore()}
 										</Badge>
 									</HStack>
 
 									{/* Percentage */}
 									<HStack justify='space-between' mt={3}>
-										<Text fontWeight='600' color='gray.700'>
+										<Text fontWeight='600' color={colors.headingText}>
 											Total Percentage
 										</Text>
 
-										<Badge colorScheme='green' fontSize='md' px={3} py={1}>
+										<Badge
+											bg={colors.badgeSuccessBg}
+											color={colors.badgeSuccessText}
+											fontSize='md'
+											px={3}
+											py={1}
+											borderRadius='full'
+										>
 											{totalPercentage}%
 										</Badge>
 									</HStack>
 
-									<Text fontSize='sm' color='gray.600' mt={2}>
+									<Text fontSize='sm' color={colors.bodyText} mt={2}>
 										Overall performance rating based on all criteria
 									</Text>
 								</Box>
@@ -540,26 +1290,26 @@ const EvaluationForm = () => {
 
 					{/* Evaluation Notes */}
 					<Box
-						bg={cardBg}
-						border='1px'
-						borderColor={borderColor}
+						bg={colors.bgInput}
+						border='1px solid'
+						borderColor={colors.borderColor}
 						rounded='md'
-						shadow='sm'
+						boxShadow={colors.cardShadow}
 					>
 						<Box p={6}>
 							<FormControl isInvalid={!!errors.notes} isRequired>
 								<FormLabel
 									fontWeight='600'
 									fontSize='lg'
-									color='gray.700'
+									color={colors.headingText}
 									display='flex'
 									alignItems='center'
 									gap={2}
 								>
-									<Icon as={StarIcon} color='yellow.500' />
+									<Icon as={StarIcon} color={colors.accentGold} />
 									Evaluation Notes
 								</FormLabel>
-								<Text color='gray.600' mb={3}>
+								<Text color={colors.bodyText} mb={3}>
 									Provide overall feedback and comments for the employee
 								</Text>
 
@@ -567,19 +1317,25 @@ const EvaluationForm = () => {
 									placeholder='Write your evaluation notes, feedback, and recommendations...'
 									resize='vertical'
 									minH='120px'
-									focusBorderColor={focusColor}
-									borderColor={borderColor}
-									bg='white'
+									borderColor={colors.borderColor}
+									bg={colors.bg}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
+									_hover={{ borderColor: colors.accentGold }}
 									{...register('notes')}
 								/>
 
 								<Flex justify='space-between' mt={2}>
 									{errors.notes ? (
-										<Text fontSize='sm' color='red.500'>
+										<Text fontSize='sm' color={colors.badgeErrorText}>
 											{errors.notes.message}
 										</Text>
 									) : (
-										<Text fontSize='xs' color='gray.500'>
+										<Text fontSize='xs' color={colors.mutedText}>
 											{notesLength}/500 characters
 										</Text>
 									)}
@@ -603,7 +1359,7 @@ const EvaluationForm = () => {
 						<Button
 							size='lg'
 							rounded='lg'
-							colorScheme='brand'
+							variant='brand'
 							type='submit'
 							isLoading={creating}
 							isDisabled={!isValid || creating}
@@ -620,7 +1376,7 @@ const EvaluationForm = () => {
 
 export default EvaluationForm;
 
-const ScoreInput = ({ attribute, scores, handleScoreChange }) => {
+const ScoreInput = ({ attribute, scores, handleScoreChange, colors }) => {
 	const max = attribute.maxScore;
 	const value = scores[attribute.name] ?? '';
 
@@ -668,112 +1424,17 @@ const ScoreInput = ({ attribute, scores, handleScoreChange }) => {
 			fontSize='md'
 			height='40px'
 			border='2px solid'
-			borderColor='gray.200'
+			borderColor={colors.borderColor}
 			borderRadius='xl'
-			bg='white'
+			bg={colors.bg}
+			color={colors.headingText}
 			onFocus={(e) => e.target.select()}
-			_hover={{ borderColor: 'brand.300' }}
+			_hover={{ borderColor: colors.accentGold }}
 			_focus={{
-				borderColor: 'brand.500',
-				boxShadow: '0 0 0 3px rgba(216, 201, 114, 0.15)',
+				borderColor: colors.accentGold,
+				boxShadow: `0 0 0 3px ${colors.accentGold}20`,
 			}}
 			aria-label={`${attribute.name} score (0 - ${max})`}
 		/>
 	);
 };
-
-// <FormControl>
-// 	<HStack justify='space-between'>
-// 		<FormLabel fontWeight='600' fontSize='lg' color='gray.700' mb={1}>
-// 			{attribute.name}
-// 		</FormLabel>
-// 		<Badge colorScheme='green' fontSize='sm'>
-// 			Score: {scores[attribute.name] || 0}/{attribute.maxScore}
-// 		</Badge>
-// 	</HStack>
-
-// 	<Text
-// 		color='gray.400'
-// 		mb={4}
-// 		fontSize='sm'
-// 		display='flex'
-// 		alignItems='flex-start'
-// 		gap={2}
-// 	>
-// 		{/* <Icon
-// 												as={InfoIcon}
-// 												color='blue.500'
-// 												mt={0.5}
-// 												boxSize={3}
-// 											/> */}
-// 		{attribute.description}
-// 	</Text>
-
-// 	<Box px={2}>
-// 		<Slider
-// 			value={scores[attribute.name] || 0}
-// 			min={0}
-// 			max={attribute.maxScore}
-// 			step={1}
-// 			onChange={(val) => handleScoreChange(attribute.name, val)}
-// 			onMouseEnter={() =>
-// 				setShowTooltip((prev) => ({
-// 					...prev,
-// 					[attribute.name]: true,
-// 				}))
-// 			}
-// 			onMouseLeave={() =>
-// 				setShowTooltip((prev) => ({
-// 					...prev,
-// 					[attribute.name]: false,
-// 				}))
-// 			}
-// 			colorScheme='brand'
-// 		>
-// 			<SliderTrack
-// 				bg='gray.200'
-// 				h='10px'
-// 				borderRadius='full'
-// 				transition='all 0.3s ease'
-// 				shadow='sm'
-// 			>
-// 				<SliderFilledTrack bg='brand.500' transition='width 0.25s ease' />
-// 			</SliderTrack>
-
-// 			<Tooltip
-// 				hasArrow
-// 				bg='brand.600'
-// 				color='white'
-// 				placement='top'
-// 				isOpen={showTooltip[attribute.name]}
-// 				label={`${scores[attribute.name] || 0}`}
-// 			>
-// 				<SliderThumb
-// 					boxSize={6}
-// 					bg='white'
-// 					border='3px solid'
-// 					borderColor='brand.500'
-// 					shadow='md'
-// 					transition='all 0.2s ease'
-// 					_hover={{
-// 						// transform: 'scale(1.15)',
-// 						shadow: 'lg',
-// 						borderColor: 'brand.600',
-// 					}}
-// 					_focus={{
-// 						boxShadow: '0 0 0 4px rgba(0, 0, 0, 0.15)',
-// 					}}
-// 				/>
-// 			</Tooltip>
-// 		</Slider>
-// 	</Box>
-
-// 	<HStack justify='space-between' mt={1}>
-// 		<Text fontSize='xs' color='gray.500'>
-// 			0
-// 		</Text>
-// 		<Text fontSize='xs' color='gray.500'>
-// 			Max: {attribute.maxScore}
-// 		</Text>
-// 	</HStack>
-// </FormControl>;

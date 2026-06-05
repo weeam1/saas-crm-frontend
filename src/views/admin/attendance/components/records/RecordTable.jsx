@@ -26,8 +26,10 @@ import { Link } from 'react-router-dom';
 import { LuStickyNote } from 'react-icons/lu';
 import MessageViewModal from 'components/modals/MessageViewModal';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const RecordTable = ({ records, isLoading, isFetching, role }) => {
+	const colors = useModalColors();
 	const [note, setNote] = useState({
 		title: 'Message',
 		message: 'N/A',
@@ -58,10 +60,6 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 		? columns
 		: columns.filter((column) => column !== 'Action');
 
-	// if (role === 'Attendance') {
-	// 	columns.splice(10, 1); // Remove 'Action' column for Attendance role
-	// }
-
 	const [data, setData] = useState([]);
 
 	useEffect(() => {
@@ -80,7 +78,6 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 		if (diffInMinutes < 1) return 'now';
 		if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
 
-		// Always return time format
 		return createdDate.toLocaleTimeString(undefined, {
 			hour: '2-digit',
 			minute: '2-digit',
@@ -102,35 +99,12 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 	};
 
 	const handleRefetchUpdate = (id, updatedFields) => {
-		console.log({ id, updatedFields });
-
 		setData(
 			(prevData) =>
 				prevData?.map((item) =>
-					item?._id === id ? { ...item, ...updatedFields } : item,
-				) || prevData,
+					item?._id === id ? { ...item, ...updatedFields } : item
+				) || prevData
 		);
-	};
-
-	const getStatusConfig = (entry) => {
-		const base = ATTENDANCE_STATUS_CONFIG[entry.status];
-
-		if (!base) {
-			return {
-				bg: '#F0F0F0',
-				text: '#000',
-				label: 'Unknown',
-			};
-		}
-
-		// handle leave variants
-		if (entry.status === 3) {
-			const type = entry.leaveType?.toLowerCase();
-
-			return base.variants?.[type] || base.variants?.default || base;
-		}
-
-		return base;
 	};
 
 	return (
@@ -140,26 +114,28 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 				overflowY='auto'
 				scrollBehavior='smooth'
 				borderRadius='md'
-				boxShadow='sm'
-				bg='white'
+				boxShadow={colors.cardShadow}
+				bg={colors.bg}
 				mt='2'
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
-				<Table variant='striped' size='sm' bg='white'>
+				<Table variant='simple' size='sm' bg={colors.bg}>
 					<Thead
 						position='sticky'
 						top={0}
-						bg='white'
+						bg={colors.bgDeep}
 						zIndex={2}
 						boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
 					>
 						<Tr>
 							{filterdColumns.map((header, index) => (
-								<Th key={index} bg='brand.200' whiteSpace='nowrap' py={4}>
+								<Th key={index} bg={colors.bgDeep} whiteSpace='nowrap' py={4}>
 									<Box display='flex' alignItems='center'>
 										<Text
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='600'
-											color='gray.700'
+											color={colors.headingText}
 											textTransform='capitalize'
 										>
 											{header}
@@ -175,13 +151,11 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 							<TableLoading columns={filterdColumns} length={11} py='4' />
 						) : records?.results > 0 && data ? (
 							data?.map((entry, index) => {
-								// const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
-								// 	bg: '#F0F0F0',
-								// 	text: '#000',
-								// 	label: 'Unknown',
-								// };
-
-								const config = getStatusConfig(entry);
+								const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
+									bg: colors.bgInput,
+									text: colors.bodyText,
+									label: 'Unknown',
+								};
 
 								const {
 									bg: statusBgColor,
@@ -198,14 +172,16 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 								return (
 									<Tr
 										key={entry._id}
-										_hover={{ bg: 'gray.50' }}
-										border='gray.200'
+										_hover={{ bg: colors.bgInputHover }}
+										borderColor={colors.borderColor}
+										borderBottom="1px solid"
 									>
 										<Td
 											py={4}
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
 											minWidth='200px'
+											color={colors.headingText}
 										>
 											<Box
 												as={Link}
@@ -231,6 +207,7 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 											minWidth='100px'
+											color={colors.bodyText}
 										>
 											{roleName ?? 'N/A'}
 										</Td>
@@ -239,6 +216,7 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 											minWidth='100px'
+											color={colors.bodyText}
 										>
 											{entry.type ?? 'N/A'}
 										</Td>
@@ -247,13 +225,14 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 											minWidth='100px'
+											color={colors.bodyText}
 										>
 											{entry.agencyName ?? 'N/A'}
 										</Td>
-										<Td py={4} minWidth='150px'>
+										<Td py={4} minWidth='150px' color={colors.bodyText}>
 											{getTimeAgo(entry?.updatedAt)}
 										</Td>
-										<Td py={4} minWidth='150px'>
+										<Td py={4} minWidth='150px' color={colors.bodyText}>
 											{format(new Date(entry?.date), 'd MMM, yyyy')}
 										</Td>
 
@@ -268,28 +247,25 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 												display='inline-block'
 												minWidth='fit-content'
 											>
-												{/* {entry?.status === 3 && entry?.leaveType
+												{entry?.status === 3 && entry?.leaveType
 													? entry.leaveType.charAt(0).toUpperCase() +
 														entry.leaveType.slice(1) +
 														' ' +
 														statusText
-													: statusText} */}
-												{statusText}
+													: statusText}
 											</Box>
 										</Td>
 										<Td
 											py={4}
 											minWidth='100px'
-											color={entry.checkIn === '00:00' ? 'red.500' : 'blue.500'}
+											color={entry.checkin === '00:00' ? colors.badgeErrorText : colors.accentGold}
 										>
 											{entry.checkin ?? 'N/A'}
 										</Td>
 										<Td
 											py={4}
 											minWidth='100px'
-											color={
-												entry.earlyCheckoutMinutes > 0 ? 'red.500' : 'blue.500'
-											}
+											color={entry.checkout === '00:00' ? colors.badgeErrorText : colors.accentGold}
 										>
 											{entry.checkout ?? 'N/A'}
 										</Td>
@@ -298,6 +274,7 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 											minWidth='100px'
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
+											color={colors.bodyText}
 										>
 											{[0, 3].includes(entry.status)
 												? '0'
@@ -316,10 +293,14 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 														aria-label='edit'
 														icon={<FaEdit />}
 														size='xs'
-														colorScheme='green'
-														variant='solid'
+														variant='ghost'
 														mr='1'
 														onClick={() => handleEdit(entry)}
+														color={colors.bodyText}
+														_hover={{
+															color: colors.accentGold,
+															bg: colors.secondaryBtnHoverBg,
+														}}
 													/>
 												)}
 
@@ -332,8 +313,7 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 																		aria-label='Leave note'
 																		icon={<LuStickyNote />}
 																		size='xs'
-																		colorScheme='teal'
-																		variant='solid'
+																		variant='ghost'
 																		onClick={() => {
 																			setNote({
 																				message: entry.leaveNote,
@@ -341,23 +321,23 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 																				modal: true,
 																			});
 																		}}
+																		color={colors.bodyText}
+																		_hover={{
+																			color: colors.accentGold,
+																			bg: colors.secondaryBtnHoverBg,
+																		}}
 																	/>
 																</Tooltip>
 															)}
 
 														{entry?.absentNote?.length > 0 &&
 															entry?.status === 0 && (
-																<Tooltip
-																	label='Absent Note'
-																	hasArrow
-																	placement='top'
-																>
+																<Tooltip label='Absent Note' hasArrow>
 																	<IconButton
 																		aria-label='Absent note'
 																		icon={<LuStickyNote />}
 																		size='xs'
-																		colorScheme='teal'
-																		variant='solid'
+																		variant='ghost'
 																		onClick={() => {
 																			setNote({
 																				message: entry.absentNote,
@@ -365,29 +345,34 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 																				modal: true,
 																			});
 																		}}
+																		color={colors.bodyText}
+																		_hover={{
+																			color: colors.accentGold,
+																			bg: colors.secondaryBtnHoverBg,
+																		}}
 																	/>
 																</Tooltip>
 															)}
 
 														{[1, 2].includes(entry?.status) &&
 															entry?.checkinNote?.length > 0 && (
-																<Tooltip
-																	label='Check-In Note'
-																	hasArrow
-																	placement='top'
-																>
+																<Tooltip label='Check-In Note' hasArrow>
 																	<IconButton
 																		aria-label='Check-In note'
 																		icon={<LuStickyNote />}
 																		size='xs'
-																		colorScheme='teal'
-																		variant='solid'
+																		variant='ghost'
 																		onClick={() => {
 																			setNote({
 																				message: entry?.checkinNote,
 																				title: 'Check-In Note',
 																				modal: true,
 																			});
+																		}}
+																		color={colors.bodyText}
+																		_hover={{
+																			color: colors.accentGold,
+																			bg: colors.secondaryBtnHoverBg,
 																		}}
 																	/>
 																</Tooltip>
@@ -400,13 +385,13 @@ const RecordTable = ({ records, isLoading, isFetching, role }) => {
 								);
 							})
 						) : (
-							<Tr borderColor='gray.200' textAlign='center'>
+							<Tr borderColor={colors.borderColor} textAlign='center'>
 								<Td
 									py={4}
 									colSpan='11'
 									fontSize={{ base: '12px', md: '15px' }}
 									fontWeight='500'
-									color='gray.500'
+									color={colors.mutedText}
 									textAlign='center'
 								>
 									<NoData label='attendance record' />

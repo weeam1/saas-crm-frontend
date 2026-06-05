@@ -19,102 +19,6 @@ import { formatPostDate } from 'utils/helpers';
 export default function LeadHistoryTimeline({ timelineData }) {
 	return (
 		<>
-			{/* {timelineData.map((item) => {
-				return (
-					<Flex
-						pb={8}
-						pl={8}
-						borderLeft={'2px solid grey'}
-						alignItems={'center'}
-						flexDir={'row'}
-						position={'relative'}
-					>
-						<Box>
-							<Text color={'#858585'}>
-								{formatPostDate(item?.updatedAt, 'Asia/Dubai')}
-							</Text>
-							{item?.type === 'creation' && (
-								<Text color={'black'} fontSize={18} mb={3}>
-									Lead created by
-									<strong> {item?.updatedBy}</strong>
-								</Text>
-							)}
-							{item?.type === 'assignment-manager' && (
-								<div>
-									<Text color={'black'} fontSize={18} mb={1}>
-										Lead assigned to manager:
-										<strong>
-											{' '}
-											<u>{item?.updatedData}</u>
-										</strong>
-									</Text>
-									<Box display={'flex'} alignItems='center' fontSize={12}>
-										<Text mr={1}>By</Text>{' '}
-										<Text color={'brand.500'}>{item?.updatedBy}</Text>
-									</Box>
-								</div>
-							)}
-
-							{item?.type === 'assignment-agent' && (
-								<div>
-									<Text color={'black'} fontSize={18} mb={1}>
-										Lead assigned to agent:
-										<strong>
-											<u>{item?.updatedData}</u>
-										</strong>
-									</Text>
-									<Box display={'flex'} alignItems='center' fontSize={12}>
-										<Text mr={1}>By</Text>{' '}
-										<Text color={'brand.500'}>{item?.updatedBy}</Text>
-									</Box>
-								</div>
-							)}
-
-							{item?.type === 'status' && (
-								<div>
-									<Text color={'black'} fontSize={18} mb={1}>
-										Status changed to:
-										<strong>
-											{' '}
-											<u>{item?.updatedData}</u>
-										</strong>
-									</Text>
-									<Box display={'flex'} alignItems='center' fontSize={12}>
-										<Text mr={1}>By</Text>{' '}
-										<Text color={'brand.500'}>{item?.updatedBy}</Text>
-									</Box>
-								</div>
-							)}
-
-							{item?.type === 'lead-buy' && (
-								<div>
-									<Text color={'black'} fontSize={18} mb={1}>
-										Lead purchased by:
-										<strong>
-											<u>{item?.updatedData}</u>
-										</strong>
-									</Text>
-									<Box display={'flex'} alignItems='center' fontSize={12}>
-										<Text mr={1}>By</Text>{' '}
-										<Text color={'brand.500'}>{item?.updatedBy}</Text>
-									</Box>
-								</div>
-							)}
-						</Box>
-						<Box
-							width={30}
-							height={30}
-							bg={'#1f7eeb'}
-							borderRadius={'9999'}
-							position={'absolute'}
-							top={0}
-							transform={'translateX(-53%)'}
-							left={'0'}
-						></Box>
-					</Flex>
-				);
-			})} */}
-
 			{timelineData.map((item, index) => (
 				<Flex
 					key={index}
@@ -122,10 +26,10 @@ export default function LeadHistoryTimeline({ timelineData }) {
 					pl={8}
 					py={2}
 					borderLeft='2px solid'
-					borderColor='gray.200'
+					borderColor='border.subtle'
 					alignItems='flex-start'
 					position='relative'
-					bg='whitesmoke'
+					bg='bg.surface'
 					// _hover={{ bg: 'gray.100' }}
 					transition='all 0.2s'
 				>
@@ -139,7 +43,8 @@ export default function LeadHistoryTimeline({ timelineData }) {
 						top={2}
 						left={0}
 						transform='translateX(-50%)'
-						border='3px solid white'
+						border='3px solid'
+						borderColor='bg.surface'
 						boxShadow='md'
 					/>
 
@@ -163,13 +68,13 @@ export default function LeadHistoryTimeline({ timelineData }) {
 							>
 								{getTypeLabel(item.type)}
 							</Badge>
-							<Text fontSize={{ base: '10px', md: 'sm' }} color='gray.500'>
+							<Text fontSize={{ base: '10px', md: 'sm' }} color='text.muted'>
 								{formatPostDate(item?.updatedAt, 'Asia/Dubai')}
 							</Text>
 						</Flex>
 
 						<Box
-							bg='white'
+							bg='bg.elevated'
 							p={{ base: 2, md: 4 }}
 							borderRadius='lg'
 							boxShadow='sm'
@@ -180,7 +85,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								'assignment-agent',
 							].includes(item.type) && (
 								<Box>
-									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1} color='text.body'>
 										{item.type === 'assignment-manager' ? '👔' : '👤'}{' '}
 										<Text
 											as='span'
@@ -190,9 +95,9 @@ export default function LeadHistoryTimeline({ timelineData }) {
 											{item?.updatedData || 'N/A'}
 										</Text>
 									</Text>
-									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='text.muted'>
 										By{' '}
-										<Text as='span' color='brand.500'>
+										<Text as='span' color='text.accent'>
 											{item?.updatedBy}
 										</Text>
 									</Text>
@@ -204,7 +109,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 								'unassigned-agent',
 							].includes(item.type) && (
 								<Box>
-									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1} color='text.body'>
 										♻️
 										<Text
 											as='span'
@@ -214,9 +119,9 @@ export default function LeadHistoryTimeline({ timelineData }) {
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='text.muted'>
 										By{' '}
-										<Text as='span' color='brand.500'>
+										<Text as='span' color='text.accent'>
 											{item?.updatedBy}
 										</Text>
 									</Text>
@@ -225,7 +130,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 
 							{item.type === 'status' && (
 								<Box>
-									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1} color='text.body'>
 										🔄
 										<Text
 											as='span'
@@ -235,9 +140,9 @@ export default function LeadHistoryTimeline({ timelineData }) {
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='text.muted'>
 										By{' '}
-										<Text as='span' color='brand.500'>
+										<Text as='span' color='text.accent'>
 											{item?.updatedBy}
 										</Text>
 									</Text>
@@ -246,7 +151,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 
 							{item.type === 'mStatus' && (
 								<Box>
-									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1} color='text.body'>
 										🔄
 										<Text
 											as='span'
@@ -256,9 +161,9 @@ export default function LeadHistoryTimeline({ timelineData }) {
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='text.muted'>
 										By{' '}
-										<Text as='span' color='brand.500'>
+										<Text as='span' color='text.accent'>
 											{item?.updatedBy}
 										</Text>
 									</Text>
@@ -267,7 +172,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 
 							{item.type === 'lead-buy' && (
 								<Box>
-									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1} color='text.body'>
 										💰
 										<Text
 											as='span'
@@ -277,9 +182,9 @@ export default function LeadHistoryTimeline({ timelineData }) {
 											{item?.updatedData}
 										</Text>
 									</Text>
-									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='text.muted'>
 										By{' '}
-										<Text as='span' color='brand.500'>
+										<Text as='span' color='text.accent'>
 											{item?.updatedBy}
 										</Text>
 									</Text>
@@ -287,7 +192,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 							)}
 							{item.type === 'release' && (
 								<Box>
-									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1}>
+									<Text fontSize={{ base: 'sm', md: 'md' }} mb={1} color='text.body'>
 										🔓
 										<Text
 											as='span'
@@ -297,9 +202,9 @@ export default function LeadHistoryTimeline({ timelineData }) {
 											{`${item?.role} Release Lead`}
 										</Text>
 									</Text>
-									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color='text.muted'>
 										By{' '}
-										<Text as='span' color='brand.500'>
+										<Text as='span' color='text.accent'>
 											{item?.updatedBy}
 										</Text>
 									</Text>
@@ -308,7 +213,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 
 							{/* Dynamic content based on type */}
 							{item.type === 'creation' && (
-								<Text fontSize={{ base: 'sm', md: 'md' }}>
+								<Text fontSize={{ base: 'sm', md: 'md' }} color='text.body'>
 									🎯 <strong>Lead created</strong> by{' '}
 									<Text
 										as='span'
@@ -327,7 +232,7 @@ export default function LeadHistoryTimeline({ timelineData }) {
 	);
 }
 
-// Helper functions
+// Helper functions (keep as is - these are for status colors)
 const getStatusColor = (type) => {
 	const colors = {
 		creation: 'blue.500',

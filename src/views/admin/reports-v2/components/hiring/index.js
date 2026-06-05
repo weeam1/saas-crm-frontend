@@ -2,12 +2,14 @@ import { Box, HStack, Text } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import HiringStatusCards from './HiringStatusCards';
 import CardShimmer from 'components/loading/CardShimmer';
+import { useModalColors } from 'hooks/useModalColors';
 
 import HiringSummaryBarChart from './HiringSummaryBarChart';
 import RefButton from '../RefButton';
 import { usePermissions } from 'hooks/usePermissions';
 
 const HiringReport = () => {
+	const colors = useModalColors();
 	const { hasPermission } = usePermissions();
 
 	const { data, isLoading } = useFetchItemsQuery(
@@ -33,9 +35,9 @@ const HiringReport = () => {
 	];
 
 	return (
-		<Box p={8} bg='white' rounded='lg' shadow='sm' mb='4' mx='2'>
+		<Box p={8} bg={colors.bg} rounded='lg' shadow={colors.cardShadow} mb='4' mx='2' border="1px solid" borderColor={colors.borderColor}>
 			<HStack>
-				<Text fontSize={{ base: 'md', md: 'xl', lg: '2xl' }} fontWeight='bold'>
+				<Text fontSize={{ base: 'md', md: 'xl', lg: '2xl' }} fontWeight='bold' color={colors.headingText}>
 					Hiring Report
 				</Text>
 				{hasPermission('reports', 'link') && hasPermission('hiring') && (

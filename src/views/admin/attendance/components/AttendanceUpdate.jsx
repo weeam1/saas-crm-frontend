@@ -10,7 +10,6 @@ import {
 	Button,
 	Flex,
 	Text,
-	useColorModeValue,
 	useDisclosure,
 } from '@chakra-ui/react';
 import moment from 'moment';
@@ -24,8 +23,10 @@ import { useUpdateItemMutation } from 'api/apiSlice';
 import { toast } from 'react-toastify';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
+	const colors = useModalColors();
 	const [checkInTime, setCheckInTime] = useState(data.checkin ?? '09:00 AM');
 	const [checkOutTime, setCheckOutTime] = useState(data.checkout ?? '06:00 PM');
 	const [attendanceStatus, setAttendanceStatus] = useState('present');
@@ -55,12 +56,6 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 
 	const [updateItemMutation, { isLoading: isUpdating }] =
 		useUpdateItemMutation();
-
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const headerBg = useColorModeValue('brand.300', 'brand.100');
-	const headerText = useColorModeValue('brand.700', 'brand.900');
-	const footerBg = useColorModeValue('gray.50', 'gray.700');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	const handleSave = async (values) => {
 		let updatedData = {};
@@ -159,20 +154,22 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 				scrollBehavior='inside'
 				motionPreset='slideInBottom'
 			>
-				<ModalOverlay />
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
 				<ModalContent
-					bg={bgColor}
+					bg={colors.bg}
 					borderRadius='2xl'
-					shadow='2xl'
+					shadow={colors.modalShadow}
 					maxW={{ base: 'full', sm: '90vw', md: '500px' }}
 					overflow='hidden'
 					mx={{ base: 3, md: 0 }}
+					border="1px solid"
+					borderColor={colors.borderColor}
 				>
 					{/* Header */}
-					<ModalHeader p={0} borderBottom='1px solid' borderColor={borderColor}>
+					<ModalHeader p={0} borderBottom={`1px solid ${colors.borderColor}`}>
 						<Flex
-							bg={headerBg}
-							color={headerText}
+							bg={colors.headerBg}
+							color={colors.headerText}
 							px={6}
 							py={3}
 							position='sticky'
@@ -180,21 +177,21 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 							zIndex='10'
 							boxShadow='md'
 						>
-							<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+							<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold' color={colors.headerText}>
 								Update Attendance
 							</Text>
 							<ModalCloseButton
 								position='absolute'
 								right='12px'
 								top='10px'
-								color={headerText}
-								_hover={{ bg: 'whiteAlpha.200' }}
+								color={colors.closeBtnColor}
+								_hover={{ bg: colors.closeBtnHoverBg }}
 							/>
 						</Flex>
 					</ModalHeader>
 
 					{/* Body */}
-					<ModalBody p={5} borderBottom='1px solid' borderColor={borderColor}>
+					<ModalBody p={5} borderBottom={`1px solid ${colors.borderColor}`}>
 						<AttendanceSelector
 							checkInTime={checkInTime}
 							checkOutTime={checkOutTime}
@@ -210,9 +207,8 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 					<ModalFooter
 						position='sticky'
 						bottom='0'
-						bg={footerBg}
-						borderTop='1px solid'
-						borderColor={borderColor}
+						bg={colors.footerBg}
+						borderTop={`1px solid ${colors.borderColor}`}
 						py={3}
 						px={5}
 						zIndex='10'
@@ -220,20 +216,22 @@ const AttendanceUpdate = ({ isOpen, onClose, data, refetch, updateKey }) => {
 						gap={3}
 					>
 						<Button
-							variant='outline'
-							colorScheme='gray'
+							variant='ghost'
 							size='sm'
 							borderRadius='md'
 							onClick={onClose}
+
+							transition='all 0.2s ease'
 						>
 							Close
 						</Button>
 						<Button
-							colorScheme='brand'
+							variant='brand'
 							size='sm'
 							borderRadius='md'
 							onClick={onSaveClick}
 							isLoading={isUpdating}
+							transition='all 0.2s ease'
 						>
 							{isUpdating ? 'Updating...' : 'Save'}
 						</Button>

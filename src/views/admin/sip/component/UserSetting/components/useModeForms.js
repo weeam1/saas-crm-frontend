@@ -3,6 +3,23 @@ import * as Yup from 'yup';
 
 export const MODES = ['wss', 'tls', 'udp'];
 
+export const getSlotNumber = (payload = {}, initialData = {}) => {
+	for (const mode of MODES) {
+		const username =
+			payload?.modes?.[mode]?.username?.trim() ||
+			initialData?.modes?.[mode]?.username?.trim();
+
+		if (username) return username;
+	}
+
+	return null;
+};
+
+export const configuredIndexes = (initialData = {}) =>
+	MODES.map((mode, index) =>
+		initialData?.modes?.[mode]?.username?.trim() ? index : null,
+	).filter((v) => v !== null);
+
 // Validation schema for each mode
 const modeValidationSchema = Yup.object().shape({
 	cid: Yup.string()
@@ -13,7 +30,7 @@ const modeValidationSchema = Yup.object().shape({
 		.required('Username is required')
 		.matches(
 			/^[a-zA-Z0-9_]+$/,
-			'Username can only contain letters, numbers and underscore'
+			'Username can only contain letters, numbers and underscore',
 		),
 	password: Yup.string()
 		.required('Password is required')
@@ -22,7 +39,7 @@ const modeValidationSchema = Yup.object().shape({
 		.required('Domain is required')
 		.matches(
 			/^[a-zA-Z0-9][a-zA-Z0-9-.]+\.[a-zA-Z]{2,}$/,
-			'Invalid domain format'
+			'Invalid domain format',
 		),
 	port: Yup.number()
 		.required('Port is required')

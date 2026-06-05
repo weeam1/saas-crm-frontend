@@ -1,0 +1,250 @@
+import React, { useState } from 'react';
+import {
+	Box,
+	Flex,
+	Text,
+	Button,
+	useDisclosure,
+	HStack,
+} from '@chakra-ui/react';
+import { AddIcon } from '@chakra-ui/icons';
+import { useMetaStatus } from '../../../../hooks/useMetaStatus';
+import MetaIdTab from './MetaIdTab';
+import MetaIdModal from './MetaIdModal';
+import TopPagination from 'components/pagination/TopPagination';
+import DeleteConfirmationModal from 'views/admin/payroll/components/DeleteConfirmationModal';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import SearchBox from 'views/admin/payroll/components/SearchBox';
+import RefreshButton from 'components/refresh/RefreshButton';
+import { useModalColors } from 'hooks/useModalColors';
+
+const MetaIdTabContainer = () => {
+	const colors = useModalColors();
+	const { isOpen, onOpen, onClose } = useDisclosure();
+	const {
+		isOpen: isDeleteOpen,
+		onOpen: onDeleteOpen,
+		onClose: onDeleteClose,
+	} = useDisclosure();
+	const [editingItem, setEditingItem] = useState(null);
+	const [deletingItem, setDeletingItem] = useState(null);
+	const [formData, setFormData] = useState({
+		label: '',
+		key: '',
+		description: '',
+	});
+	const [formErrors, setFormErrors] = useState({});
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [deletingId, setDeletingId] = useState(null);
+
+	const {
+		metaStatuses,
+		isLoading,
+		pagination,
+		totalPages,
+		totalCount,
+		handlePageChange,
+		handlePageSizeChange,
+		createStatus,
+		updateStatus,
+		deleteStatus,
+		refetch,
+		isCreating,
+		isUpdating,
+		isDeleting,
+		searchTerm,
+		handleSearchTermChange,
+		handleSearch,
+	} = useMetaStatus(1, 20);
+
+	const handleAddNew = () => {
+		setEditingItem(null);
+		setFormData({ label: '', key: '', description: '' });
+		setFormErrors({});
+		onOpen();
+	};
+
+	const handleEdit = (item) => {
+		setEditingItem(item);
+		setFormData({
+			label: item.label || '',
+			key: item.key || '',
+			description: item.description || '',
+		});
+		setFormErrors({});
+		onOpen();
+	};
+
+	const handleDeleteClick = (id, key) => {
+		setDeletingId(id);
+		setDeletingItem({ id, key });
+		onDeleteOpen();
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!deletingItem) return;
+
+		try {
+			await deleteStatus(deletingItem.id);
+			onDeleteClose();
+			setDeletingItem(null);
+			setDeletingId(null);
+		} catch (error) {
+			console.error('Error deleting:', error);
+		}
+	};
+
+	const handleSubmit = async () => {
+		const errors = {};
+
+		if (!formData.label?.trim()) {
+			errors.label = 'Name is required';
+		}
+
+		if (Object.keys(errors).length > 0) {
+			setFormErrors(errors);
+			return;
+		}
+
+		setIsSubmitting(true);
+
+		try {
+			if (editingItem) {
+				await updateStatus(editingItem._id, formData);
+			} else {
+				await createStatus(formData);
+			}
+			onClose();
+			setFormErrors({});
+			refetch();
+		} catch (error) {
+			console.error('Error submitting form:', error);
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const handleSearchClick = (term) => {
+		handleSearch(term);
+	};
+
+	const buttonStyle = {
+		size: 'sm',
+		borderRadius: 'md',
+		_hover: {
+			shadow: 'sm',
+			transition: 'all 0.2s ease-in-out',
+			bg: colors.goldLight,
+			transform: 'translateY(-1px)',
+		},
+		_active: { bg: colors.goldDark },
+		color: colors.headerText,
+		fontWeight: 'medium',
+		bg: colors.accentGold,
+		sx: {
+			svg: {
+				fill: colors.headerText,
+				bg: 'transparent',
+				borderRadius: 'full',
+				p: '.5px',
+			},
+		},
+	};
+
+	return (
+		<Box display='flex' flexDirection='column' gap={4}>
+			<Flex
+				justify='space-between'
+				align='center'
+				p={4}
+				flexWrap='wrap'
+				gap={4}
+			>
+				<Text color={colors.headingText} fontSize='20px' fontWeight='500'>
+					<span style={{ marginRight: '4px' }}>Meta IDs</span>
+					<CountUpComponent targetNumber={totalCount} />
+				</Text>
+
+				<HStack spacing={4} flexWrap='wrap'>
+					<RefreshButton
+						aria-label='Refresh meta statuses'
+						isLoading={isLoading}
+						isFetching={isLoading}
+						onClick={refetch}
+					/>
+
+					<Box>
+						<SearchBox
+							searchTerm={searchTerm}
+							setSearchTerm={handleSearchTermChange}
+							onSearchTermChange={handleSearchClick}
+							isLoading={isLoading}
+							placeholder='Search meta IDs...'
+						/>
+					</Box>
+
+					<Button
+						{...buttonStyle}
+						leftIcon={<AddIcon />}
+						variant='solid'
+						py='2'
+						px='5'
+						size='sm'
+						onClick={handleAddNew}
+						isLoading={isCreating}
+						loadingText='Adding'
+					>
+						Add Meta ID
+					</Button>
+				</HStack>
+			</Flex>
+
+			<TopPagination
+				currentPage={pagination.page}
+				totalPages={totalPages}
+				onPageChange={handlePageChange}
+				totalItems={totalCount}
+				itemsPerPage={pagination.limit}
+				loading={isLoading}
+				handlePageSize={handlePageSizeChange}
+			/>
+
+			<MetaIdTab
+				metaIds={metaStatuses}
+				isLoading={isLoading}
+				onEdit={handleEdit}
+				onDelete={handleDeleteClick}
+				isDeleting={isDeleting}
+				deletingId={deletingId}
+			/>
+
+			<MetaIdModal
+				isOpen={isOpen}
+				onClose={onClose}
+				editingMetaId={editingItem}
+				metaFormData={formData}
+				setMetaFormData={setFormData}
+				metaFormErrors={formErrors}
+				setMetaFormErrors={setFormErrors}
+				onSubmit={handleSubmit}
+				isSubmitting={isSubmitting || isCreating || isUpdating}
+			/>
+
+			{/* Delete Confirmation Modal */}
+			<DeleteConfirmationModal
+				isOpen={isDeleteOpen}
+				onClose={onDeleteClose}
+				onConfirm={handleConfirmDelete}
+				title='Delete Meta ID'
+				itemName={deletingItem?.key}
+				extraText='Deleting this Meta ID will disconnect it from all leads and statuses (Main Status & Sub Status) that are currently using it. This action cannot be undone.'
+				confirmText='Delete'
+				cancelText='Cancel'
+				isLoading={isDeleting}
+				modalSize='lg'
+			/>
+		</Box>
+	);
+};
+
+export default MetaIdTabContainer;

@@ -35,17 +35,560 @@ import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import { formatPostDate, formatCurrency } from 'utils/helpers';
 import CommissionSummary from 'views/admin/lead-v2/components/deals/CommissionSummary';
+import { useModalColors } from 'hooks/useModalColors';
+
+// const DealDetailsModal = ({ isOpen, onClose, deal }) => {
+// 	const { user } = useUserSession();
+// 	const { createUserLog } = useUserActivityLog();
+
+// 	// Global modal color palette
+// 	const headerBg = useColorModeValue('brand.300', 'brand.100');
+// 	const headerText = useColorModeValue('brand.700', 'brand.900');
+// 	const footerBg = useColorModeValue('gray.50', 'gray.700');
+// 	const bodyBg = useColorModeValue('white', 'gray.800');
+// 	const borderColor = useColorModeValue('gray.200', 'gray.600');
+
+// 	useEffect(() => {
+// 		if (deal) {
+// 			createUserLog({
+// 				userId: user?._id,
+// 				action: 'VIEW',
+// 				entity: 'Deals',
+// 				enityType: 'CloseDeal',
+// 				entityId: deal._id || null,
+// 				status: 'success',
+// 				message: `Lead deal "${deal?.lead?.leadName || ''}" viewed by ${user?.fullName}.`,
+// 			});
+// 		}
+// 		// eslint-disable-next-line react-hooks/exhaustive-deps
+// 	}, []);
+
+// 	if (!deal) return <Text>No Deal found!</Text>;
+
+// 	const {
+// 		lead,
+// 		agent,
+// 		manager,
+// 		teamLead,
+// 		developer,
+// 		salesPerson,
+// 		projectName,
+// 		unitNumber,
+// 		unitType,
+// 		unitPrice,
+// 		downpaymentPaid,
+// 		downpaymentPercent,
+// 		bookingAmountPaid,
+// 		bookingPercent,
+// 		spaDone,
+// 		invoiceSent,
+// 		closedBy,
+// 		commissionStatus,
+// 		dealDate,
+// 		dealStatus,
+// 		currency = 'AED',
+// 		isSharedDeal,
+// 		shareUser,
+// 		sharedUsers,
+// 		sharePercent,
+// 		companyCommissionAmount,
+// 		companyCommissionPercent,
+// 	} = deal;
+
+// 	const PersonCard = ({ title, person, icon }) => {
+// 		if (!person) return null;
+// 		return (
+// 			<Box
+// 				p={3}
+// 				borderRadius='md'
+// 				borderWidth='1px'
+// 				borderColor={borderColor}
+// 				bg={bodyBg}
+// 			>
+// 				<Flex align='center' gap={3}>
+// 					<Icon as={icon} color='brand.500' boxSize={5} />
+// 					<Box>
+// 						<Text fontSize='xs' color='gray.500' mb={1}>
+// 							{title}
+// 						</Text>
+// 						<Text fontWeight='medium'>{person.fullName || person}</Text>
+// 					</Box>
+// 				</Flex>
+// 			</Box>
+// 		);
+// 	};
+
+// 	const StatusIndicator = ({ label, value, positive }) => (
+// 		<Flex
+// 			p={2}
+// 			borderRadius='md'
+// 			bg={positive ? 'green.50' : 'red.50'}
+// 			borderWidth='1px'
+// 			borderColor={positive ? 'green.100' : 'red.100'}
+// 			align='center'
+// 			gap={2}
+// 		>
+// 			<Icon
+// 				as={positive ? CheckCircleIcon : FiXCircle}
+// 				color={positive ? 'green.500' : 'red.500'}
+// 				boxSize={4}
+// 			/>
+// 			<Box>
+// 				<Text fontSize='xs' color='gray.500'>
+// 					{label}
+// 				</Text>
+// 				<Text fontSize='sm' fontWeight='medium'>
+// 					{value}
+// 				</Text>
+// 			</Box>
+// 		</Flex>
+// 	);
+
+// 	const SharedDealInfo = () => (
+// 		<Box
+// 			p={4}
+// 			borderRadius='md'
+// 			borderWidth='1px'
+// 			borderColor={borderColor}
+// 			bg={bodyBg}
+// 		>
+// 			<SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4}>
+// 				<Flex align='center' gap={3}>
+// 					<Icon as={FaUserFriends} color='brand.400' boxSize={4} />
+// 					<Box>
+// 						<Text fontSize='xs' color='gray.500'>
+// 							Shared With
+// 						</Text>
+// 						<Text fontWeight='medium'>
+// 							{shareUser?.fullName || shareUser || 'N/A'}
+// 						</Text>
+// 					</Box>
+// 				</Flex>
+
+// 				<Flex align='center' gap={3}>
+// 					<Icon as={FaPercentage} color='brand.400' boxSize={4} />
+// 					<Box>
+// 						<Text fontSize='xs' color='gray.500'>
+// 							Share Percentage
+// 						</Text>
+// 						<Text fontWeight='medium'>{sharePercent}%</Text>
+// 					</Box>
+// 				</Flex>
+
+// 				<Flex align='center' gap={3}>
+// 					<Icon as={FaMoneyBillAlt} color='brand.400' boxSize={4} />
+// 					<Box>
+// 						<Text fontSize='xs' color='gray.500'>
+// 							Share Amount
+// 						</Text>
+// 						<Text fontWeight='medium'>
+// 							AED {((bookingAmountPaid * sharePercent) / 100).toFixed(2)}
+// 						</Text>
+// 					</Box>
+// 				</Flex>
+// 			</SimpleGrid>
+// 		</Box>
+// 	);
+
+// 	return (
+// 		<Modal
+// 			isOpen={isOpen}
+// 			onClose={onClose}
+// 			size='6xl'
+// 			isCentered
+// 			scrollBehavior='inside'
+// 			motionPreset='slideInBottom'
+// 		>
+// 			<ModalOverlay backdropFilter='blur(3px)' />
+// 			<ModalContent
+// 				bg={bodyBg}
+// 				borderRadius='2xl'
+// 				shadow='2xl'
+// 				maxW={{ base: '95vw', xl: '1200px' }}
+// 				overflow='hidden'
+// 				mx={{ base: 3, md: 0 }}
+// 			>
+// 				{/* Header */}
+// 				<ModalHeader p={0} borderBottom='1px solid' borderColor={borderColor}>
+// 					<Flex
+// 						bg={headerBg}
+// 						color={headerText}
+// 						px={6}
+// 						py={3}
+// 						position='sticky'
+// 						top='0'
+// 						zIndex='10'
+// 						boxShadow='md'
+// 						align='center'
+// 					>
+// 						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+// 							Deal Details
+// 						</Text>
+// 						<ModalCloseButton
+// 							position='absolute'
+// 							right='12px'
+// 							top='10px'
+// 							color={headerText}
+// 							_hover={{ bg: 'whiteAlpha.200' }}
+// 						/>
+// 					</Flex>
+// 				</ModalHeader>
+
+// 				{/* Body */}
+// 				<ModalBody p={6} borderBottom='1px solid' borderColor={borderColor}>
+// 					<Grid
+// 						templateColumns={{ base: '1fr', lg: '1fr 1fr' }}
+// 						gap={{ base: 5, lg: 6 }}
+// 					>
+// 						{/* Left Column */}
+// 						<GridItem>
+// 							<Stack spacing={6}>
+// 								{/* Lead Information */}
+// 								<Box>
+// 									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+// 										Lead Information
+// 									</Text>
+// 									<Box
+// 										p={4}
+// 										borderRadius='md'
+// 										borderWidth='1px'
+// 										borderColor={borderColor}
+// 										bg={bodyBg}
+// 									>
+// 										<Stack spacing={3}>
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Client Name
+// 												</Text>
+// 												<Text fontWeight='medium' fontSize='lg'>
+// 													{lead?.leadName || 'N/A'}
+// 												</Text>
+// 											</Box>
+// 											<Divider />
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Client Contact
+// 												</Text>
+// 												<Text fontWeight='medium' fontSize='lg'>
+// 													{lead?.leadPhoneNumber || 'N/A'}
+// 												</Text>
+// 											</Box>
+// 										</Stack>
+// 									</Box>
+// 								</Box>
+
+// 								{/* Team */}
+// 								<Box>
+// 									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+// 										Team
+// 									</Text>
+// 									<SimpleGrid columns={1} spacing={3}>
+// 										{salesPerson && (
+// 											<PersonCard
+// 												title='Sales Person'
+// 												person={salesPerson}
+// 												icon={FaUserTie}
+// 											/>
+// 										)}
+
+// 										{manager && (
+// 											<PersonCard
+// 												title='Manager'
+// 												person={manager}
+// 												icon={FaUserShield}
+// 											/>
+// 										)}
+// 										{teamLead && (
+// 											<PersonCard
+// 												title='Team Lead'
+// 												person={teamLead}
+// 												icon={FaUserShield}
+// 											/>
+// 										)}
+// 										{agent && (
+// 											<PersonCard
+// 												title='Agent'
+// 												person={agent}
+// 												icon={FaUserTag}
+// 											/>
+// 										)}
+// 										{closedBy && (
+// 											<PersonCard
+// 												title='Closed By'
+// 												person={closedBy}
+// 												icon={FaUserCheck}
+// 											/>
+// 										)}
+// 									</SimpleGrid>
+// 								</Box>
+
+// 								{/* Status */}
+// 								<Box>
+// 									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+// 										Status
+// 									</Text>
+// 									<SimpleGrid columns={2} spacing={3}>
+// 										<StatusIndicator
+// 											label='SPA Status'
+// 											value={spaDone ? 'Signed' : 'Pending'}
+// 											positive={spaDone}
+// 										/>
+// 										<StatusIndicator
+// 											label='Invoice Sent'
+// 											value={invoiceSent ? 'Yes' : 'No'}
+// 											positive={invoiceSent}
+// 										/>
+
+// 										{/* Commission Status */}
+// 										<Flex
+// 											p={2}
+// 											borderRadius='md'
+// 											bg={
+// 												commissionStatus.includes('Fully')
+// 													? 'green.50'
+// 													: 'gray.50'
+// 											}
+// 											borderWidth='1px'
+// 											borderColor={
+// 												commissionStatus.includes('Fully')
+// 													? 'green.100'
+// 													: 'gray.100'
+// 											}
+// 											align='center'
+// 											gap={2}
+// 										>
+// 											<Icon
+// 												as={
+// 													commissionStatus === 'Not Eligible'
+// 														? FiXCircle
+// 														: commissionStatus.includes('Fully')
+// 															? CheckCircleIcon
+// 															: TimeIcon
+// 												}
+// 												color={
+// 													commissionStatus.includes('Fully')
+// 														? 'green.500'
+// 														: 'gray.500'
+// 												}
+// 												boxSize={4}
+// 											/>
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Commission Status
+// 												</Text>
+// 												<Text fontSize='sm' fontWeight='medium'>
+// 													{commissionStatus || 'N/A'}
+// 												</Text>
+// 											</Box>
+// 										</Flex>
+
+// 										{/* Deal Status */}
+// 										<Flex
+// 											p={2}
+// 											borderRadius='md'
+// 											bg={dealStatus === 'Confirmed' ? 'green.50' : 'red.50'}
+// 											borderWidth='1px'
+// 											borderColor={
+// 												dealStatus === 'Confirmed' ? 'green.100' : 'red.100'
+// 											}
+// 											align='center'
+// 											gap={2}
+// 										>
+// 											<Icon
+// 												as={dealStatus === 'Confirmed' ? CheckCircleIcon : FiX}
+// 												color={
+// 													dealStatus === 'Confirmed' ? 'green.500' : 'red.500'
+// 												}
+// 												boxSize={4}
+// 											/>
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Deal Status
+// 												</Text>
+// 												<Text fontSize='sm' fontWeight='medium'>
+// 													{dealStatus}
+// 												</Text>
+// 											</Box>
+// 										</Flex>
+// 									</SimpleGrid>
+// 								</Box>
+// 							</Stack>
+// 						</GridItem>
+
+// 						{/* Right Column */}
+// 						<GridItem>
+// 							<Stack spacing={6}>
+// 								{/* Property Details */}
+// 								<Box>
+// 									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+// 										Property Details
+// 									</Text>
+// 									<Box
+// 										p={4}
+// 										borderRadius='md'
+// 										borderWidth='1px'
+// 										borderColor={borderColor}
+// 										bg={bodyBg}
+// 									>
+// 										<Stack spacing={3}>
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Unit Number
+// 												</Text>
+// 												<Text fontWeight='medium'>#{unitNumber}</Text>
+// 											</Box>
+// 											<Divider />
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Developer
+// 												</Text>
+// 												<Text fontWeight='medium'>{developer}</Text>
+// 											</Box>
+// 											<Divider />
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Unit Type
+// 												</Text>
+// 												<Text fontWeight='medium'>{unitType}</Text>
+// 											</Box>
+// 											<Divider />
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Project
+// 												</Text>
+// 												<Text fontWeight='medium'>{projectName}</Text>
+// 											</Box>
+// 											<Divider />
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Deal Close On
+// 												</Text>
+// 												<Text fontWeight='medium'>
+// 													{formatPostDate(dealDate)}
+// 												</Text>
+// 											</Box>
+// 										</Stack>
+// 									</Box>
+// 								</Box>
+
+// 								{/* Payment Details */}
+// 								<Box>
+// 									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+// 										Payment Details
+// 									</Text>
+// 									<Box
+// 										p={4}
+// 										borderRadius='md'
+// 										borderWidth='1px'
+// 										borderColor={borderColor}
+// 										bg={bodyBg}
+// 									>
+// 										<Stack spacing={3}>
+// 											<Box>
+// 												<Text fontSize='xs' color='gray.500'>
+// 													Unit Price
+// 												</Text>
+// 												<Text fontSize='lg' fontWeight='bold' color='brand.600'>
+// 													{formatCurrency(unitPrice, currency)}
+// 												</Text>
+// 											</Box>
+// 											<Divider />
+// 											<SimpleGrid columns={2} spacing={3}>
+// 												<Box>
+// 													<Text fontSize='xs' color='gray.500'>
+// 														Downpayment
+// 													</Text>
+// 													<Text fontWeight='medium'>
+// 														{formatCurrency(downpaymentPaid, currency)}
+// 													</Text>
+// 													<Text fontSize='xs' color='gray.500'>
+// 														({downpaymentPercent}%)
+// 													</Text>
+// 												</Box>
+
+// 												<Box>
+// 													<Text fontSize='xs' color='gray.500'>
+// 														Booking Amount
+// 													</Text>
+// 													<Text fontWeight='medium'>
+// 														{formatCurrency(bookingAmountPaid, currency)}
+// 													</Text>
+// 													<Text fontSize='xs' color='gray.500'>
+// 														({bookingPercent}%)
+// 													</Text>
+// 												</Box>
+// 												<Box>
+// 													<Text fontSize='xs' color='gray.500'>
+// 														Company Commission
+// 													</Text>
+// 													<Text fontWeight='medium'>
+// 														{formatCurrency(companyCommissionAmount, currency)}
+// 													</Text>
+// 													<Text fontSize='xs' color='gray.500'>
+// 														({companyCommissionPercent}%)
+// 													</Text>
+// 												</Box>
+// 											</SimpleGrid>
+// 										</Stack>
+// 									</Box>
+// 								</Box>
+
+// 								{/* Invoice */}
+// 								<ViewDealInvoice deal={deal} type='button' />
+// 							</Stack>
+// 						</GridItem>
+
+// 						<GridItem colSpan={{ base: 1, md: 2 }}>
+// 							{/* Shared Deal */}
+// 							{isSharedDeal && sharedUsers && (
+// 								<CommissionSummary sharedUsers={sharedUsers} info={false} />
+
+// 								// <Box>
+// 								// 	<Text
+// 								// 		fontSize='md'
+// 								// 		fontWeight='bold'
+// 								// 		mb={3}
+// 								// 		color='gray.700'
+// 								// 	>
+// 								// 		Shared Deal
+// 								// 	</Text>
+// 								// 	<SharedDealInfo />
+// 								// </Box>
+// 							)}
+// 						</GridItem>
+// 					</Grid>
+// 				</ModalBody>
+
+// 				{/* Footer */}
+// 				<ModalFooter
+// 					position='sticky'
+// 					bottom='0'
+// 					bg={footerBg}
+// 					borderTop='1px solid'
+// 					borderColor={borderColor}
+// 					py={3}
+// 					px={6}
+// 					justifyContent='flex-end'
+// 				>
+// 					<Button
+// 						variant='outline'
+// 						colorScheme='gray'
+// 						borderRadius='md'
+// 						onClick={onClose}
+// 					>
+// 						Close
+// 					</Button>
+// 				</ModalFooter>
+// 			</ModalContent>
+// 		</Modal>
+// 	);
+// };
 
 const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
-	// Global modal color palette
-	const headerBg = useColorModeValue('brand.300', 'brand.100');
-	const headerText = useColorModeValue('brand.700', 'brand.900');
-	const footerBg = useColorModeValue('gray.50', 'gray.700');
-	const bodyBg = useColorModeValue('white', 'gray.800');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
+	const mc = useModalColors();
 
 	useEffect(() => {
 		if (deal) {
@@ -62,7 +605,7 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	if (!deal) return <Text>No Deal found!</Text>;
+	if (!deal) return <Text color='text.body'>No Deal found!</Text>;
 
 	const {
 		lead,
@@ -101,94 +644,94 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 				p={3}
 				borderRadius='md'
 				borderWidth='1px'
-				borderColor={borderColor}
-				bg={bodyBg}
+				borderColor='border.default'
+				bg='bg.surface'
 			>
 				<Flex align='center' gap={3}>
-					<Icon as={icon} color='brand.500' boxSize={5} />
+					<Icon as={icon} color='accent.gold' boxSize={5} />
 					<Box>
-						<Text fontSize='xs' color='gray.500' mb={1}>
+						<Text fontSize='xs' color='text.muted' mb={1}>
 							{title}
 						</Text>
-						<Text fontWeight='medium'>{person.fullName || person}</Text>
+						<Text fontWeight='medium' color='text.heading'>
+							{person.fullName || person}
+						</Text>
 					</Box>
 				</Flex>
 			</Box>
 		);
 	};
 
+	// const StatusIndicator = ({ label, value, positive }) => (
+	// 	<Flex
+	// 		p={2}
+	// 		borderRadius='md'
+	// 		bg={positive ? 'green.100' : 'red.100'}
+	// 		borderWidth='1px'
+	// 		borderColor={positive ? 'green.400' : 'red.300'}
+	// 		align='center'
+	// 		gap={2}
+	// 	>
+	// 		<Icon
+	// 			as={positive ? CheckCircleIcon : FiXCircle}
+	// 			color={positive ? 'green.400' : 'red.300'}
+	// 			boxSize={4}
+	// 		/>
+	// 		<Box>
+	// 			<Text fontSize='xs' color='text.muted'>
+	// 				{label}
+	// 			</Text>
+	// 			<Text fontSize='sm' fontWeight='medium' color='black'>
+	// 				{value}
+	// 			</Text>
+	// 		</Box>
+	// 	</Flex>
+	// );
+
 	const StatusIndicator = ({ label, value, positive }) => (
 		<Flex
-			p={2}
-			borderRadius='md'
-			bg={positive ? 'green.50' : 'red.50'}
+			p={3}
+			borderRadius='lg'
+			bg={positive ? 'rgba(16, 185, 129, 0.08)' : 'rgba(238, 93, 80, 0.08)'}
 			borderWidth='1px'
-			borderColor={positive ? 'green.100' : 'red.100'}
+			borderColor={positive ? 'green.400' : 'red.300'}
 			align='center'
-			gap={2}
+			gap={3}
+			transition='all 0.2s'
+			_hover={{
+				bg: positive ? 'rgba(16, 185, 129, 0.12)' : 'rgba(238, 93, 80, 0.12)',
+				borderColor: positive ? 'green.300' : 'red.400',
+			}}
 		>
-			<Icon
-				as={positive ? CheckCircleIcon : FiXCircle}
-				color={positive ? 'green.500' : 'red.500'}
-				boxSize={4}
-			/>
+			<Flex
+				align='center'
+				justify='center'
+				bg={positive ? 'rgba(16, 185, 129, 0.15)' : 'rgba(238, 93, 80, 0.15)'}
+				borderRadius='full'
+				p={1.5}
+				flexShrink={0}
+			>
+				<Icon
+					as={positive ? CheckCircleIcon : FiXCircle}
+					color={positive ? 'green.400' : 'red.300'}
+					boxSize={4}
+				/>
+			</Flex>
 			<Box>
-				<Text fontSize='xs' color='gray.500'>
+				<Text fontSize='xs' color='text.muted' lineHeight='1.4'>
 					{label}
 				</Text>
-				<Text fontSize='sm' fontWeight='medium'>
+				<Text
+					fontSize='sm'
+					fontWeight='semibold'
+					color='text.heading'
+					lineHeight='1.4'
+				>
 					{value}
 				</Text>
 			</Box>
 		</Flex>
 	);
-
-	const SharedDealInfo = () => (
-		<Box
-			p={4}
-			borderRadius='md'
-			borderWidth='1px'
-			borderColor={borderColor}
-			bg={bodyBg}
-		>
-			<SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4}>
-				<Flex align='center' gap={3}>
-					<Icon as={FaUserFriends} color='brand.400' boxSize={4} />
-					<Box>
-						<Text fontSize='xs' color='gray.500'>
-							Shared With
-						</Text>
-						<Text fontWeight='medium'>
-							{shareUser?.fullName || shareUser || 'N/A'}
-						</Text>
-					</Box>
-				</Flex>
-
-				<Flex align='center' gap={3}>
-					<Icon as={FaPercentage} color='brand.400' boxSize={4} />
-					<Box>
-						<Text fontSize='xs' color='gray.500'>
-							Share Percentage
-						</Text>
-						<Text fontWeight='medium'>{sharePercent}%</Text>
-					</Box>
-				</Flex>
-
-				<Flex align='center' gap={3}>
-					<Icon as={FaMoneyBillAlt} color='brand.400' boxSize={4} />
-					<Box>
-						<Text fontSize='xs' color='gray.500'>
-							Share Amount
-						</Text>
-						<Text fontWeight='medium'>
-							AED {((bookingAmountPaid * sharePercent) / 100).toFixed(2)}
-						</Text>
-					</Box>
-				</Flex>
-			</SimpleGrid>
-		</Box>
-	);
-
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -198,43 +741,50 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 			scrollBehavior='inside'
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay backdropFilter='blur(3px)' />
+			<ModalOverlay backdropFilter='blur(3px)' bg='bg.overlay' />
 			<ModalContent
-				bg={bodyBg}
+				bg={mc.bg}
 				borderRadius='2xl'
-				shadow='2xl'
+				boxShadow='deep'
 				maxW={{ base: '95vw', xl: '1200px' }}
 				overflow='hidden'
 				mx={{ base: 3, md: 0 }}
 			>
 				{/* Header */}
-				<ModalHeader p={0} borderBottom='1px solid' borderColor={borderColor}>
+				<ModalHeader
+					p={0}
+					borderBottom='1px solid'
+					borderColor={mc.borderColor}
+				>
 					<Flex
-						bg={headerBg}
-						color={headerText}
 						px={6}
 						py={3}
+						bg={mc.headerBg}
+						color={mc.headerText}
 						position='sticky'
 						top='0'
 						zIndex='10'
-						boxShadow='md'
+						boxShadow='soft'
 						align='center'
 					>
-						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+						<Text
+							fontSize={{ base: 'md', md: 'lg' }}
+							color={mc.headerText}
+							fontWeight='bold'
+						>
 							Deal Details
 						</Text>
 						<ModalCloseButton
 							position='absolute'
 							right='12px'
 							top='10px'
-							color={headerText}
-							_hover={{ bg: 'whiteAlpha.200' }}
+							// _hover={{ bg: 'bg.elevated' }}
 						/>
 					</Flex>
 				</ModalHeader>
 
 				{/* Body */}
-				<ModalBody p={6} borderBottom='1px solid' borderColor={borderColor}>
+				<ModalBody p={6} borderBottom='1px solid' borderColor='border.default'>
 					<Grid
 						templateColumns={{ base: '1fr', lg: '1fr 1fr' }}
 						gap={{ base: 5, lg: 6 }}
@@ -244,31 +794,44 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 							<Stack spacing={6}>
 								{/* Lead Information */}
 								<Box>
-									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+									<Text
+										fontSize='md'
+										fontWeight='bold'
+										mb={3}
+										color='accent.gold'
+									>
 										Lead Information
 									</Text>
 									<Box
 										p={4}
 										borderRadius='md'
 										borderWidth='1px'
-										borderColor={borderColor}
-										bg={bodyBg}
+										borderColor='border.default'
+										bg='bg.app'
 									>
 										<Stack spacing={3}>
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Client Name
 												</Text>
-												<Text fontWeight='medium' fontSize='lg'>
+												<Text
+													fontWeight='medium'
+													fontSize='lg'
+													color='text.heading'
+												>
 													{lead?.leadName || 'N/A'}
 												</Text>
 											</Box>
-											<Divider />
+											<Divider borderColor='border.default' />
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Client Contact
 												</Text>
-												<Text fontWeight='medium' fontSize='lg'>
+												<Text
+													fontWeight='medium'
+													fontSize='lg'
+													color='text.heading'
+												>
 													{lead?.leadPhoneNumber || 'N/A'}
 												</Text>
 											</Box>
@@ -278,7 +841,12 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 
 								{/* Team */}
 								<Box>
-									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+									<Text
+										fontSize='md'
+										fontWeight='bold'
+										mb={3}
+										color='accent.gold'
+									>
 										Team
 									</Text>
 									<SimpleGrid columns={1} spacing={3}>
@@ -322,8 +890,14 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 								</Box>
 
 								{/* Status */}
+								{/* Status */}
 								<Box>
-									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+									<Text
+										fontSize='md'
+										fontWeight='bold'
+										mb={3}
+										color='accent.gold'
+									>
 										Status
 									</Text>
 									<SimpleGrid columns={2} spacing={3}>
@@ -340,42 +914,81 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 
 										{/* Commission Status */}
 										<Flex
-											p={2}
-											borderRadius='md'
+											p={3}
+											borderRadius='lg'
 											bg={
 												commissionStatus.includes('Fully')
-													? 'green.50'
-													: 'gray.50'
+													? 'rgba(16, 185, 129, 0.08)'
+													: commissionStatus === 'Not Eligible'
+														? 'rgba(238, 93, 80, 0.08)'
+														: 'rgba(255, 181, 71, 0.08)'
 											}
 											borderWidth='1px'
 											borderColor={
 												commissionStatus.includes('Fully')
-													? 'green.100'
-													: 'gray.100'
+													? 'green.400'
+													: commissionStatus === 'Not Eligible'
+														? 'red.300'
+														: 'orange.400'
 											}
 											align='center'
-											gap={2}
+											gap={3}
+											transition='all 0.2s'
+											_hover={{
+												bg: commissionStatus.includes('Fully')
+													? 'rgba(16, 185, 129, 0.12)'
+													: commissionStatus === 'Not Eligible'
+														? 'rgba(238, 93, 80, 0.12)'
+														: 'rgba(255, 181, 71, 0.12)',
+												borderColor: commissionStatus.includes('Fully')
+													? 'green.300'
+													: commissionStatus === 'Not Eligible'
+														? 'red.400'
+														: 'orange.300',
+											}}
 										>
-											<Icon
-												as={
-													commissionStatus === 'Not Eligible'
-														? FiXCircle
-														: commissionStatus.includes('Fully')
-															? CheckCircleIcon
-															: TimeIcon
-												}
-												color={
+											<Flex
+												align='center'
+												justify='center'
+												bg={
 													commissionStatus.includes('Fully')
-														? 'green.500'
-														: 'gray.500'
+														? 'rgba(16, 185, 129, 0.15)'
+														: commissionStatus === 'Not Eligible'
+															? 'rgba(238, 93, 80, 0.15)'
+															: 'rgba(255, 181, 71, 0.15)'
 												}
-												boxSize={4}
-											/>
+												borderRadius='full'
+												p={1.5}
+												flexShrink={0}
+											>
+												<Icon
+													as={
+														commissionStatus === 'Not Eligible'
+															? FiXCircle
+															: commissionStatus.includes('Fully')
+																? CheckCircleIcon
+																: TimeIcon
+													}
+													color={
+														commissionStatus.includes('Fully')
+															? 'green.400'
+															: commissionStatus === 'Not Eligible'
+																? 'red.300'
+																: 'orange.400'
+													}
+													boxSize={4}
+												/>
+											</Flex>
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted' lineHeight='1.4'>
 													Commission Status
 												</Text>
-												<Text fontSize='sm' fontWeight='medium'>
+												<Text
+													fontSize='sm'
+													fontWeight='semibold'
+													color='text.heading'
+													lineHeight='1.4'
+												>
 													{commissionStatus || 'N/A'}
 												</Text>
 											</Box>
@@ -383,28 +996,61 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 
 										{/* Deal Status */}
 										<Flex
-											p={2}
-											borderRadius='md'
-											bg={dealStatus === 'Confirmed' ? 'green.50' : 'red.50'}
+											p={3}
+											borderRadius='lg'
+											bg={
+												dealStatus === 'Confirmed'
+													? 'rgba(16, 185, 129, 0.08)'
+													: 'rgba(238, 93, 80, 0.08)'
+											}
 											borderWidth='1px'
 											borderColor={
-												dealStatus === 'Confirmed' ? 'green.100' : 'red.100'
+												dealStatus === 'Confirmed' ? 'green.400' : 'red.300'
 											}
 											align='center'
-											gap={2}
+											gap={3}
+											transition='all 0.2s'
+											_hover={{
+												bg:
+													dealStatus === 'Confirmed'
+														? 'rgba(16, 185, 129, 0.12)'
+														: 'rgba(238, 93, 80, 0.12)',
+												borderColor:
+													dealStatus === 'Confirmed' ? 'green.300' : 'red.400',
+											}}
 										>
-											<Icon
-												as={dealStatus === 'Confirmed' ? CheckCircleIcon : FiX}
-												color={
-													dealStatus === 'Confirmed' ? 'green.500' : 'red.500'
+											<Flex
+												align='center'
+												justify='center'
+												bg={
+													dealStatus === 'Confirmed'
+														? 'rgba(16, 185, 129, 0.15)'
+														: 'rgba(238, 93, 80, 0.15)'
 												}
-												boxSize={4}
-											/>
+												borderRadius='full'
+												p={1.5}
+												flexShrink={0}
+											>
+												<Icon
+													as={
+														dealStatus === 'Confirmed' ? CheckCircleIcon : FiX
+													}
+													color={
+														dealStatus === 'Confirmed' ? 'green.400' : 'red.300'
+													}
+													boxSize={4}
+												/>
+											</Flex>
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted' lineHeight='1.4'>
 													Deal Status
 												</Text>
-												<Text fontSize='sm' fontWeight='medium'>
+												<Text
+													fontSize='sm'
+													fontWeight='semibold'
+													color='text.heading'
+													lineHeight='1.4'
+												>
 													{dealStatus}
 												</Text>
 											</Box>
@@ -419,50 +1065,63 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 							<Stack spacing={6}>
 								{/* Property Details */}
 								<Box>
-									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+									<Text
+										fontSize='md'
+										fontWeight='bold'
+										mb={3}
+										color='accent.gold'
+									>
 										Property Details
 									</Text>
 									<Box
 										p={4}
 										borderRadius='md'
 										borderWidth='1px'
-										borderColor={borderColor}
-										bg={bodyBg}
+										borderColor='border.default'
+										bg='bg.app'
 									>
 										<Stack spacing={3}>
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Unit Number
 												</Text>
-												<Text fontWeight='medium'>#{unitNumber}</Text>
+												<Text fontWeight='medium' color='text.heading'>
+													#{unitNumber}
+												</Text>
 											</Box>
-											<Divider />
+											<Divider borderColor='border.default' />
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Developer
 												</Text>
-												<Text fontWeight='medium'>{developer}</Text>
+												<Text fontWeight='medium' color='text.heading'>
+													{developer}
+												</Text>
 											</Box>
-											<Divider />
+											<Divider borderColor='border.default' />
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Unit Type
 												</Text>
-												<Text fontWeight='medium'>{unitType}</Text>
+												<Text fontWeight='medium' color='text.heading'>
+													{unitType}
+												</Text>
 											</Box>
-											<Divider />
+											<Divider borderColor='border.default' />
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Project
 												</Text>
-												<Text fontWeight='medium'>{projectName}</Text>
+												<Text fontWeight='medium' color='text.heading'>
+													{projectName}
+												</Text>
 											</Box>
-											<Divider />
+											<Divider borderColor='border.default' />
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Deal Close On
 												</Text>
-												<Text fontWeight='medium'>
+												<Text fontWeight='medium' color='text.heading'>
 													{formatPostDate(dealDate)}
 												</Text>
 											</Box>
@@ -472,58 +1131,67 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 
 								{/* Payment Details */}
 								<Box>
-									<Text fontSize='md' fontWeight='bold' mb={3} color='gray.700'>
+									<Text
+										fontSize='md'
+										fontWeight='bold'
+										mb={3}
+										color='accent.gold'
+									>
 										Payment Details
 									</Text>
 									<Box
 										p={4}
 										borderRadius='md'
 										borderWidth='1px'
-										borderColor={borderColor}
-										bg={bodyBg}
+										borderColor='border.default'
+										bg='bg.app'
 									>
 										<Stack spacing={3}>
 											<Box>
-												<Text fontSize='xs' color='gray.500'>
+												<Text fontSize='xs' color='text.muted'>
 													Unit Price
 												</Text>
-												<Text fontSize='lg' fontWeight='bold' color='brand.600'>
+												<Text
+													fontSize='lg'
+													fontWeight='bold'
+													className='gold-text'
+												>
 													{formatCurrency(unitPrice, currency)}
 												</Text>
 											</Box>
-											<Divider />
+											<Divider borderColor='border.default' />
 											<SimpleGrid columns={2} spacing={3}>
 												<Box>
-													<Text fontSize='xs' color='gray.500'>
+													<Text fontSize='xs' color='text.muted'>
 														Downpayment
 													</Text>
-													<Text fontWeight='medium'>
+													<Text fontWeight='medium' color='text.heading'>
 														{formatCurrency(downpaymentPaid, currency)}
 													</Text>
-													<Text fontSize='xs' color='gray.500'>
+													<Text fontSize='xs' color='text.muted'>
 														({downpaymentPercent}%)
 													</Text>
 												</Box>
 
 												<Box>
-													<Text fontSize='xs' color='gray.500'>
+													<Text fontSize='xs' color='text.muted'>
 														Booking Amount
 													</Text>
-													<Text fontWeight='medium'>
+													<Text fontWeight='medium' color='text.heading'>
 														{formatCurrency(bookingAmountPaid, currency)}
 													</Text>
-													<Text fontSize='xs' color='gray.500'>
+													<Text fontSize='xs' color='text.muted'>
 														({bookingPercent}%)
 													</Text>
 												</Box>
 												<Box>
-													<Text fontSize='xs' color='gray.500'>
+													<Text fontSize='xs' color='text.muted'>
 														Company Commission
 													</Text>
-													<Text fontWeight='medium'>
+													<Text fontWeight='medium' color='text.heading'>
 														{formatCurrency(companyCommissionAmount, currency)}
 													</Text>
-													<Text fontSize='xs' color='gray.500'>
+													<Text fontSize='xs' color='text.muted'>
 														({companyCommissionPercent}%)
 													</Text>
 												</Box>
@@ -541,18 +1209,6 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 							{/* Shared Deal */}
 							{isSharedDeal && sharedUsers && (
 								<CommissionSummary sharedUsers={sharedUsers} info={false} />
-
-								// <Box>
-								// 	<Text
-								// 		fontSize='md'
-								// 		fontWeight='bold'
-								// 		mb={3}
-								// 		color='gray.700'
-								// 	>
-								// 		Shared Deal
-								// 	</Text>
-								// 	<SharedDealInfo />
-								// </Box>
 							)}
 						</GridItem>
 					</Grid>
@@ -562,18 +1218,29 @@ const DealDetailsModal = ({ isOpen, onClose, deal }) => {
 				<ModalFooter
 					position='sticky'
 					bottom='0'
-					bg={footerBg}
+					bg={mc.footerBg}
 					borderTop='1px solid'
-					borderColor={borderColor}
+					borderColor={mc.footerBorder}
 					py={3}
 					px={6}
 					justifyContent='flex-end'
 				>
 					<Button
-						variant='outline'
-						colorScheme='gray'
+						bg={mc.secondaryBtnBg}
+						color={mc.secondaryBtnText}
+						borderColor={mc.secondaryBtnBorder}
 						borderRadius='md'
 						onClick={onClose}
+						_hover={{
+							bg: mc.secondaryBtnHoverBg,
+							color: mc.secondaryBtnHoverText,
+						}}
+						_active={{
+							bg: mc.secondaryBtnHoverBg,
+							color: mc.secondaryBtnHoverText,
+						}}
+						size='md'
+						fontWeight='semibold'
 					>
 						Close
 					</Button>

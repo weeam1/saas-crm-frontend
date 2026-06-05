@@ -41,7 +41,7 @@ const PayslipDownloadModal = ({
 	year,
 	refetchPayslips,
 }) => {
-	const { bg, headerBg, headerText, footerBg, borderColor } = useModalColors();
+	const colors = useModalColors();
 	const { downloadPdf, loading, progress, error } = usePdfDownloader();
 
 	console.log({ employee });
@@ -158,35 +158,43 @@ const PayslipDownloadModal = ({
 	 */
 	const renderMissingSalaryLayout = () => (
 		<VStack align='stretch' spacing={4}>
-			<Alert status='error' borderRadius='md'>
-				<AlertIcon />
+			<Alert status='error' borderRadius='md' bg={colors.badgeErrorBg}>
+				<AlertIcon color={colors.badgeErrorText} />
 				<Box flex='1'>
-					<AlertTitle>Missing Salary Information</AlertTitle>
-					<AlertDescription>
+					<AlertTitle color={colors.badgeErrorText}>Missing Salary Information</AlertTitle>
+					<AlertDescription color={colors.badgeErrorText}>
 						Cannot generate payslip without complete salary details.
 					</AlertDescription>
 				</Box>
 			</Alert>
 
-			<Box p={4} bg='gray.50' borderRadius='md'>
-				<Text fontWeight='semibold' mb={3} color='gray.700'>
+			<Box p={4} bg={colors.bgInput} borderRadius='md' border='1px solid' borderColor={colors.borderColor}>
+				<Text fontWeight='semibold' mb={3} color={colors.headingText}>
 					Required Information:
 				</Text>
 				<VStack align='stretch' spacing={2}>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Basic Salary:</Text>
+						<Text color={colors.bodyText}>Basic Salary:</Text>
 						<Badge
-							colorScheme={employee?.basicSalary ? 'green' : 'red'}
+							bg={employee?.basicSalary ? colors.badgeSuccessBg : colors.badgeErrorBg}
+							color={employee?.basicSalary ? colors.badgeSuccessText : colors.badgeErrorText}
 							fontSize='sm'
+							px={2}
+							py={1}
+							borderRadius='full'
 						>
 							{employee?.basicSalary ? '✓ Defined' : '✗ Missing'}
 						</Badge>
 					</HStack>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Salary Type:</Text>
+						<Text color={colors.bodyText}>Salary Type:</Text>
 						<Badge
-							colorScheme={employee?.salaryType ? 'green' : 'red'}
+							bg={employee?.salaryType ? colors.badgeSuccessBg : colors.badgeErrorBg}
+							color={employee?.salaryType ? colors.badgeSuccessText : colors.badgeErrorText}
 							fontSize='sm'
+							px={2}
+							py={1}
+							borderRadius='full'
 						>
 							{employee?.salaryType ? '✓ Defined' : '✗ Missing'}
 						</Badge>
@@ -194,7 +202,7 @@ const PayslipDownloadModal = ({
 				</VStack>
 			</Box>
 
-			<Text fontSize='sm' color='gray.600' textAlign='center'>
+			<Text fontSize='sm' color={colors.mutedText} textAlign='center'>
 				Please update employee salary information before generating payslip.
 			</Text>
 		</VStack>
@@ -205,36 +213,43 @@ const PayslipDownloadModal = ({
 	 */
 	const renderCompletedAttendanceLayout = () => (
 		<VStack align='stretch' spacing={4}>
-			<Alert status='success' borderRadius='md'>
-				<AlertIcon />
+			<Alert status='success' borderRadius='md' bg={colors.badgeSuccessBg}>
+				<AlertIcon color={colors.badgeSuccessText} />
 				<Box flex='1'>
-					<AlertTitle>Ready to Generate Payslip</AlertTitle>
-					<AlertDescription>
+					<AlertTitle color={colors.badgeSuccessText}>Ready to Generate Payslip</AlertTitle>
+					<AlertDescription color={colors.badgeSuccessText}>
 						All attendance records are complete and accurate.
 					</AlertDescription>
 				</Box>
 			</Alert>
 
 			<Box>
-				<Text fontWeight='semibold' mb={3} color='gray.700'>
+				<Text fontWeight='semibold' mb={3} color={colors.headingText}>
 					Attendance Summary:
 				</Text>
 				<VStack align='stretch' spacing={2}>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Total Working Days:</Text>
-						<Text fontWeight='bold' color='green.600'>
+						<Text color={colors.bodyText}>Total Working Days:</Text>
+						<Text fontWeight='bold' color={colors.badgeSuccessText}>
 							{employee.attendanceSummary?.totalWorkingDays || 0}
 						</Text>
 					</HStack>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Days Recorded:</Text>
-						<Text fontWeight='bold' color='green.600'>
+						<Text color={colors.bodyText}>Days Recorded:</Text>
+						<Text fontWeight='bold' color={colors.badgeSuccessText}>
 							{employee.attendanceSummary?.totalRecords || 0}
 						</Text>
 					</HStack>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Completion Status:</Text>
-						<Badge colorScheme='green' fontSize='sm' px={2} py={1}>
+						<Text color={colors.bodyText}>Completion Status:</Text>
+						<Badge
+							bg={colors.badgeSuccessBg}
+							color={colors.badgeSuccessText}
+							fontSize='sm'
+							px={2}
+							py={1}
+							borderRadius='full'
+						>
 							{getAttendancePercentage(employee)}% Complete
 						</Badge>
 					</HStack>
@@ -243,14 +258,14 @@ const PayslipDownloadModal = ({
 
 			<Box
 				p={3}
-				bg='green.50'
+				bg={colors.badgeSuccessBg}
 				borderRadius='md'
 				border='1px solid'
-				borderColor='green.200'
+				borderColor={colors.badgeSuccessBorder}
 			>
 				<Text
 					fontSize='sm'
-					color='green.800'
+					color={colors.badgeSuccessText}
 					fontWeight='medium'
 					display='flex'
 					gap={2}
@@ -258,7 +273,7 @@ const PayslipDownloadModal = ({
 				>
 					<FiCheckCircle /> Ready for Processing
 				</Text>
-				<Text fontSize='sm' color='green.700' mt={1}>
+				<Text fontSize='sm' color={colors.badgeSuccessText} mt={1}>
 					All attendance data is complete. The generated payslip will reflect
 					accurate calculations.
 				</Text>
@@ -271,11 +286,11 @@ const PayslipDownloadModal = ({
 	 */
 	const renderIncompleteAttendanceLayout = () => (
 		<VStack align='stretch' spacing={4}>
-			<Alert status='warning' borderRadius='md'>
-				<AlertIcon />
+			<Alert status='warning' borderRadius='md' bg={colors.badgeWarningBg}>
+				<AlertIcon color={colors.badgeWarningText} />
 				<Box flex='1'>
-					<AlertTitle>Attendance Not Yet Completed</AlertTitle>
-					<AlertDescription>
+					<AlertTitle color={colors.badgeWarningText}>Attendance Not Yet Completed</AlertTitle>
+					<AlertDescription color={colors.badgeWarningText}>
 						Cannot generate payslip automatically until all attendance records
 						are completed.
 					</AlertDescription>
@@ -283,32 +298,39 @@ const PayslipDownloadModal = ({
 			</Alert>
 
 			<Box>
-				<Text fontWeight='semibold' mb={3} color='gray.700'>
+				<Text fontWeight='semibold' mb={3} color={colors.headingText}>
 					Attendance Summary Details:
 				</Text>
 				<VStack align='stretch' spacing={2}>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Total Working Days:</Text>
-						<Text fontWeight='bold' color='gray.800'>
+						<Text color={colors.bodyText}>Total Working Days:</Text>
+						<Text fontWeight='bold' color={colors.headingText}>
 							{employee.attendanceSummary?.totalWorkingDays || 0}
 						</Text>
 					</HStack>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Days Recorded:</Text>
-						<Text fontWeight='bold' color='gray.800'>
+						<Text color={colors.bodyText}>Days Recorded:</Text>
+						<Text fontWeight='bold' color={colors.headingText}>
 							{employee.attendanceSummary?.totalRecords || 0}
 						</Text>
 					</HStack>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Missing Day Records:</Text>
-						<Text fontWeight='bold' color='red.600'>
+						<Text color={colors.bodyText}>Missing Day Records:</Text>
+						<Text fontWeight='bold' color={colors.badgeErrorText}>
 							{(employee.attendanceSummary?.totalWorkingDays || 0) -
 								(employee.attendanceSummary?.totalRecords || 0)}
 						</Text>
 					</HStack>
 					<HStack justify='space-between'>
-						<Text color='gray.600'>Completion Status:</Text>
-						<Badge colorScheme='red' fontSize='sm' px={2} py={1}>
+						<Text color={colors.bodyText}>Completion Status:</Text>
+						<Badge
+							bg={colors.badgeErrorBg}
+							color={colors.badgeErrorText}
+							fontSize='sm'
+							px={2}
+							py={1}
+							borderRadius='full'
+						>
 							{getAttendancePercentage(employee)}% Complete
 						</Badge>
 					</HStack>
@@ -317,14 +339,14 @@ const PayslipDownloadModal = ({
 
 			<Box
 				p={3}
-				bg='orange.50'
+				bg={colors.badgeWarningBg}
 				borderRadius='md'
 				border='1px solid'
-				borderColor='orange.200'
+				borderColor={colors.badgeWarningBorder}
 			>
 				<Text
 					fontSize='sm'
-					color='orange.800'
+					color={colors.badgeWarningText}
 					fontWeight='medium'
 					display='flex'
 					gap={2}
@@ -332,7 +354,7 @@ const PayslipDownloadModal = ({
 				>
 					<FaExclamationCircle /> Important Note:
 				</Text>
-				<Text fontSize='sm' color='orange.700' mt={1}>
+				<Text fontSize='sm' color={colors.badgeWarningText} mt={1}>
 					For accurate payroll processing, it's recommended to complete all
 					attendance records first. The generated payslip will use currently
 					available data and may not reflect final adjustments.
@@ -358,37 +380,47 @@ const PayslipDownloadModal = ({
 				isCentered
 				closeOnOverlayClick={!loading}
 			>
-				<ModalOverlay backdropFilter='blur(8px)' />
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
 				<ModalContent
 					mx={{ base: 3, md: 8 }}
-					boxShadow='0 12px 45px rgba(0,0,0,0.25)'
+					boxShadow={colors.modalShadow}
 					borderRadius='2xl'
-					bg={bg}
+					bg={colors.bg}
 					overflow='hidden'
 					display='flex'
 					flexDirection='column'
+					border='1px solid'
+					borderColor={colors.borderColor}
 				>
 					<Flex
 						align='center'
 						justify='space-between'
-						bg={headerBg}
-						color={headerText}
+						bg={colors.headerBg}
+						color={colors.headerText}
 						px={{ base: 6, md: 8 }}
 						py={4}
 						borderBottom='1px solid'
-						borderColor={borderColor}
+						borderColor={colors.borderColor}
 					>
 						<VStack align='start' spacing={0}>
 							<Text
 								fontWeight='bold'
 								fontSize={{ base: 'md', md: 'lg', lg: 'xl' }}
+								color={colors.headerText}
 							>
 								Payslip Preview
 							</Text>
-							<Text fontWeight='bold'>{employee?.fullName || 'Employee'}</Text>
+							<Text fontWeight='bold' color={colors.headerText}>
+								{employee?.fullName || 'Employee'}
+							</Text>
 						</VStack>
 
-						<ModalCloseButton position='static' isDisabled={loading} />
+						<ModalCloseButton
+							position='static'
+							isDisabled={loading}
+							color={colors.headerText}
+							_hover={{ bg: colors.closeBtnHoverBg }}
+						/>
 					</Flex>
 
 					<ModalBody
@@ -398,27 +430,23 @@ const PayslipDownloadModal = ({
 						flex='1'
 						sx={{
 							'&::-webkit-scrollbar': { width: '6px' },
+							'&::-webkit-scrollbar-track': { background: colors.bgInput, borderRadius: '12px' },
 							'&::-webkit-scrollbar-thumb': {
-								background: 'gray.400',
+								background: colors.accentGold,
 								borderRadius: '12px',
 							},
 						}}
 					>
-						{/* Employee Name Header */}
-						{/* <Text fontWeight='bold' fontSize='lg' color='gray.700' mb={4}>
-						{employee?.fullName || 'Employee'}
-					</Text> */}
-
 						{/* Dynamic Content based on employee status */}
 						{renderModalContent()}
 
 						{/* Error Display */}
 						{error && (
-							<Alert status='error' borderRadius='md' mt={4}>
-								<AlertIcon />
+							<Alert status='error' borderRadius='md' mt={4} bg={colors.badgeErrorBg}>
+								<AlertIcon color={colors.badgeErrorText} />
 								<Box flex='1'>
-									<AlertTitle>Generation Failed</AlertTitle>
-									<AlertDescription fontSize='sm'>
+									<AlertTitle color={colors.badgeErrorText}>Generation Failed</AlertTitle>
+									<AlertDescription fontSize='sm' color={colors.badgeErrorText}>
 										{error.message ||
 											'Failed to generate payslip. Please try again.'}
 									</AlertDescription>
@@ -428,16 +456,15 @@ const PayslipDownloadModal = ({
 					</ModalBody>
 
 					<ModalFooter
-						bg={footerBg}
+						bg={colors.footerBg}
 						px={{ base: 6, md: 8 }}
 						py={4}
 						borderTop='1px solid'
-						borderColor={borderColor}
+						borderColor={colors.borderColor}
 					>
 						<HStack spacing={3} width='full' justify='space-between'>
 							<Button
 								variant='outline'
-								colorScheme='gray'
 								onClick={onClose}
 								size='sm'
 								borderRadius='md'
@@ -446,50 +473,17 @@ const PayslipDownloadModal = ({
 								Cancel
 							</Button>
 
-							{/* Different button states based on conditions */}
-							{
-								<Button
-									colorScheme='green'
-									// onClick={() => handleGeneratePayslip({ adjustments: [] })}
-									onClick={handleProccedPayslip}
-									// leftIcon={<FiPrinter />}
-									size='sm'
-									borderRadius='md'
-									isLoading={loading}
-									loadingText='Generating...'
-									isDisabled={!hasValidSalaryInfo(employee) || loading}
-								>
-									{payslipPaid ? 'Generate' : 'Proceed'}
-								</Button>
-
-								// 	hasCompletedAttendance(employee) ? (
-								// 	<Button
-								// 		colorScheme='green'
-								// 		onClick={() => handleGeneratePayslip('normal')}
-								// 		leftIcon={<FiPrinter />}
-								// 		size='sm'
-								// 		borderRadius='md'
-								// 		isLoading={loading && generationType === 'normal'}
-								// 		loadingText='Generating...'
-								// 		isDisabled={loading}
-								// 	>
-								// 		Generate Payslip
-								// 	</Button>
-								// ) : (
-								// 	<Button
-								// 		colorScheme='orange'
-								// 		onClick={() => handleGeneratePayslip('forced')}
-								// 		leftIcon={<FiAlertTriangle />}
-								// 		size='sm'
-								// 		borderRadius='md'
-								// 		isLoading={loading && generationType === 'forced'}
-								// 		loadingText='Generating...'
-								// 		isDisabled={loading}
-								// 	>
-								// 		Generate Provisional
-								// 	</Button>
-								// 	)
-							}
+							<Button
+								variant='brand'
+								onClick={handleProccedPayslip}
+								size='sm'
+								borderRadius='md'
+								isLoading={loading}
+								loadingText='Generating...'
+								isDisabled={!hasValidSalaryInfo(employee) || loading}
+							>
+								{payslipPaid ? 'Generate' : 'Proceed'}
+							</Button>
 						</HStack>
 					</ModalFooter>
 				</ModalContent>

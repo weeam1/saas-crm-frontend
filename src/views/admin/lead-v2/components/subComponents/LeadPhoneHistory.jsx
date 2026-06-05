@@ -10,14 +10,12 @@ import {
 	ModalBody,
 	Badge,
 	Icon,
-	Avatar,
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import CardShimmer from 'components/loading/CardShimmer';
 import NoData from 'components/Message/NoData';
-import { useModalColors } from 'hooks/useModalColors';
 import { FaWhatsapp } from 'react-icons/fa';
-import { FiArrowRight, FiMessageSquare, FiPhone } from 'react-icons/fi';
+import { FiPhone } from 'react-icons/fi';
 import { formatPostDate } from 'utils/helpers';
 
 const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
@@ -32,24 +30,35 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 		}
 	);
 
-	const { headerBg, headerText } = useModalColors();
-
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
-			<ModalOverlay backdropFilter='blur(2px)' />
-			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+			<ModalOverlay bg='bg.overlay' backdropFilter='blur(2px)' />
+			<ModalContent
+				bg='bg.surface'
+				borderRadius='xl'
+				boxShadow='deep'
+				mx='2'
+				overflow='hidden'
+			>
 				<ModalHeader
-					bg={headerBg}
-					color={headerText}
+					bg='bg.elevated'
+					color='text.heading'
 					borderTopRadius='xl'
 					py={4}
+					px={6}
+					borderBottom='1px solid'
+					borderColor='border.default'
 					w='100%'
 				>
 					Phone Number History
 				</ModalHeader>
-				<ModalCloseButton _focus={{ outline: 'none' }} />
 
-				<ModalBody>
+				<ModalCloseButton
+					color='text.muted'
+					_focus={{ outline: 'none' }}
+				/>
+
+				<ModalBody bg='bg.app'>
 					{isLoading ? (
 						<CardShimmer
 							count={4}
@@ -71,7 +80,7 @@ const LeadPhoneHistory = ({ isOpen, onClose, leadId }) => {
 									width: '6px',
 								},
 								'&::-webkit-scrollbar-thumb': {
-									background: 'brand.200',
+									background: 'accent.gold',
 									borderRadius: '24px',
 								},
 							}}
@@ -96,21 +105,21 @@ const HistoryItem = ({ item }) => (
 	<Box
 		key={item._id}
 		p={4}
-		bg='gray.100'
+		bg='bg.surface'
 		rounded='lg'
-		shadow='md'
+		shadow='card'
 		borderLeft='4px solid'
-		borderColor='brand.400'
+		borderColor='accent.gold'
 		w='full'
 		mb={4}
 		transition='all 0.2s'
 		_hover={{
 			transform: 'translateY(-2px)',
-			shadow: 'lg',
+			shadow: 'soft',
 		}}
 	>
 		<Flex justify='space-between' align='center' mb={3}>
-			<Text fontSize='xs' color='gray.500'>
+			<Text fontSize='xs' color='text.muted'>
 				{formatPostDate(item.createdAt)}
 			</Text>
 		</Flex>
@@ -153,7 +162,7 @@ const HistoryItem = ({ item }) => (
 			)}
 		</Box>
 
-		<Text fontSize='sm' justifySelf='flex-end' color='gray.600'>
+		<Text fontSize='sm' justifySelf='flex-end' color='text.body'>
 			Updated by: <strong>{item.updatedBy?.fullName}</strong>
 		</Text>
 	</Box>
@@ -180,7 +189,7 @@ const BadgeWithLabel = ({
 			alignItems='center'
 			textTransform='capitalize'
 		>
-			{icon && <Icon color={`${valueColorScheme}.400`} as={icon} mr={1} />}
+			{icon && <Icon as={icon} mr={1} boxSize={3} />}
 			{label}
 		</Badge>
 		<Badge

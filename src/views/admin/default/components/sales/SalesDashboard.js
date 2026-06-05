@@ -1,3 +1,291 @@
+// import React, { useMemo } from 'react';
+// import {
+// 	Box,
+// 	SimpleGrid,
+// 	Stat,
+// 	StatLabel,
+// 	StatNumber,
+// 	StatHelpText,
+// 	StatArrow,
+// 	useColorModeValue,
+// 	Icon,
+// 	Flex,
+// 	Text,
+// 	HStack,
+// } from '@chakra-ui/react';
+
+// import {
+// 	FaChartLine, // TrendingUp alternative
+// 	FaBullseye, // Target alternative
+// 	FaMoneyBillWave, // AED-style money icon (no direct AED symbol)
+// 	FaMedal, // Award alternative
+// 	FaCheckCircle, // CheckCircle alternative
+// } from 'react-icons/fa';
+// import { formatCurrency } from 'utils/helpers';
+// import SalesChart from './SalesChart';
+// import useUserSession from 'hooks/useUserSession';
+// import { InfoOutlineIcon } from '@chakra-ui/icons';
+// import CustomTooltip from 'components/shared/CustomTooltip';
+
+// const SalesDashboard = ({ data }) => {
+// 	const { userRoleName } = useUserSession();
+
+// 	// const isAdmin = ['Admin', 'superAdmin'].includes(userRoleName);
+
+// 	const statsData = useMemo(
+// 		() => ({
+// 			totalDeals: data?.totalDeals,
+// 			totalSales: data?.totalSalesAmount,
+// 			totalTargets: data?.totalTargetAmount,
+// 			remainingTargets: data?.remainingTargetAmount,
+// 			averageAchievementRate: data?.achievementPercentage,
+// 		}),
+// 		[data]
+// 	);
+
+// 	// const statsCards = [
+// 	// 	{
+// 	// 		title: 'Total Deals',
+// 	// 		value: formatNumber(statsData.totalDeals),
+// 	// 		icon: FaChartLine,
+// 	// 		bgColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+// 	// 		iconColor: '#ffffff',
+// 	// 		helpText: 'Active deals in pipeline',
+// 	// 	},
+// 	// 	{
+// 	// 		title: 'Total Sales',
+// 	// 		value: formatCurrency(statsData.totalSales),
+// 	// 		icon: FaMoneyBillWave,
+// 	// 		bgColor: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+// 	// 		iconColor: '#ffffff',
+// 	// 		helpText: 'Revenue generated',
+// 	// 		showArrow: true,
+// 	// 		arrowType: 'increase',
+// 	// 	},
+// 	// 	{
+// 	// 		title: 'Sales Targets',
+// 	// 		value: formatCurrency(statsData.totalTargets),
+// 	// 		icon: FaBullseye,
+// 	// 		bgColor: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+// 	// 		iconColor: '#ffffff',
+// 	// 		helpText: 'Set target amount',
+// 	// 	},
+// 	// 	{
+// 	// 		title: 'Target Achievement',
+// 	// 		value: formatPercentage(statsData.averageAchievementRate),
+// 	// 		icon: FaMedal,
+// 	// 		bgColor: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+// 	// 		iconColor: '#ffffff',
+// 	// 		helpText: 'Above target performance',
+// 	// 		showArrow: true,
+// 	// 		arrowType: 'increase',
+// 	// 	},
+// 	// 	{
+// 	// 		title: 'Targets Completed',
+// 	// 		value: formatCurrency(
+// 	// 			statsData.totalTargets - statsData.remainingTargets
+// 	// 		),
+// 	// 		icon: FaCheckCircle,
+// 	// 		bgColor: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+// 	// 		iconColor: '#ffffff',
+// 	// 		helpText: '100% completion rate',
+// 	// 		showArrow: true,
+// 	// 		arrowType: 'increase',
+// 	// 	},
+// 	// ];
+
+// 	if (!['superAdmin', 'Manager', 'Agent', 'Admin'].includes(userRoleName))
+// 		return null;
+
+// 	const statsCards = [
+// 		{
+// 			title: 'Total Deals',
+// 			value: formatNumber(statsData.totalDeals),
+// 			icon: FaChartLine,
+// 			bgColor: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)', // Darker purple/indigo
+// 			iconColor: '#ffffff',
+// 			helpText: 'Active deals',
+// 		},
+// 		{
+// 			title: 'Total Sales',
+// 			value: formatCurrency(statsData.totalSales),
+// 			icon: FaMoneyBillWave,
+// 			bgColor: 'linear-gradient(135deg, #d53f8c 0%, #e53e3e 100%)', // Darker pink/red
+// 			iconColor: '#ffffff',
+// 			helpText: 'Revenue generated',
+// 			showArrow: true,
+// 			arrowType:
+// 				statsData.totalSales > statsData.totalTargets ? 'increase' : 'decrease',
+// 		},
+// 		{
+// 			title: 'Sales Targets',
+// 			value: formatCurrency(statsData.totalTargets),
+// 			icon: FaBullseye,
+// 			bgColor: 'linear-gradient(135deg, #3182ce 0%, #00b5d8 100%)', // Darker blue/cyan
+// 			iconColor: '#ffffff',
+// 			helpText: 'Set target amount',
+// 		},
+// 		{
+// 			title: 'Target Achievement',
+// 			value: formatPercentage(statsData.averageAchievementRate),
+// 			icon: FaMedal,
+// 			bgColor: 'linear-gradient(135deg, #38a169 0%, #319795 100%)', // Darker green/teal
+// 			iconColor: '#ffffff',
+// 			helpText:
+// 				statsData.averageAchievementRate >= 100
+// 					? 'Above target performance'
+// 					: 'Below target performance',
+// 			showArrow: true,
+// 			arrowType:
+// 				statsData.averageAchievementRate >= 100 ? 'increase' : 'decrease',
+// 		},
+// 		// {
+// 		// 	title: 'Targets Completed',
+// 		// 	value: formatCurrency(
+// 		// 		statsData.totalTargets - statsData.remainingTargets
+// 		// 	),
+// 		// 	icon: FaCheckCircle,
+// 		// 	bgColor: 'linear-gradient(135deg, #dd6b20 0%, #d69e2e 100%)', // Darker orange/yellow
+// 		// 	iconColor: '#ffffff',
+// 		// 	helpText: 'Completion amount',
+// 		// 	// showArrow: true,
+// 		// 	// arrowType: 'increase',
+// 		// },
+// 	];
+// 	return (
+// 		<Box bg='white' p={6} borderRadius='2xl' mb='4' rounded='md'>
+// 			<HStack spacing={2} align='center' mb={8}>
+// 				<Text
+// 					fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+// 					fontWeight='bold'
+// 					color='gray.800'
+// 				>
+// 					Monthly Sales Performance
+// 				</Text>
+// 				<CustomTooltip
+// 					label='This chart shows the monthly sales performance compared to targets.'
+// 					hasArrow
+// 				>
+// 					<InfoOutlineIcon color='gray.500' cursor='pointer' />
+// 				</CustomTooltip>
+// 			</HStack>
+// 			<SimpleGrid
+// 				columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
+// 				spacing={6}
+// 				// maxW='1400px'
+// 				mx='auto'
+// 			>
+// 				{statsCards.map((card, index) => (
+// 					<StatsCard
+// 						key={index}
+// 						title={card.title}
+// 						value={card.value}
+// 						icon={card.icon}
+// 						bgColor={card.bgColor}
+// 						iconColor={card.iconColor}
+// 						textColor={card.textColor}
+// 						helpText={card.helpText}
+// 						showArrow={card.showArrow}
+// 						arrowType={card.arrowType}
+// 					/>
+// 				))}
+// 			</SimpleGrid>
+
+// 			{/* Sales Chart */}
+// 			{/* <SalesChart data={data} /> */}
+// 		</Box>
+// 	);
+// };
+
+// export default SalesDashboard;
+
+// // Reusable StatsCard Component
+// const StatsCard = ({
+// 	title,
+// 	value,
+// 	icon,
+// 	bgColor,
+// 	iconColor,
+// 	textColor = 'white',
+// 	helpText,
+// 	showArrow = false,
+// 	arrowType = 'increase',
+// }) => {
+// 	const cardBg = useColorModeValue(bgColor, bgColor);
+
+// 	return (
+// 		<Box
+// 			bg={cardBg}
+// 			p={6}
+// 			borderRadius='xl'
+// 			shadow='lg'
+// 			position='relative'
+// 			overflow='hidden'
+// 			// _hover={{
+// 			// 	transform: 'translateY(-4px)',
+// 			// 	shadow: 'xl',
+// 			// 	transition: 'all 0.3s ease',
+// 			// }}
+// 			// transition='all 0.3s ease'
+// 		>
+// 			{/* Background Pattern */}
+// 			<Box
+// 				position='absolute'
+// 				top='-50%'
+// 				right='-50%'
+// 				width='200%'
+// 				height='200%'
+// 				bg={`linear-gradient(45deg, ${iconColor}15, transparent)`}
+// 				borderRadius='full'
+// 				opacity={0.1}
+// 			/>
+
+// 			<Flex justify='space-between' align='flex-start'>
+// 				<Stat>
+// 					<StatLabel
+// 						color={textColor}
+// 						opacity={0.8}
+// 						fontSize='sm'
+// 						fontWeight='medium'
+// 						mb={2}
+// 					>
+// 						{title}
+// 					</StatLabel>
+// 					<StatNumber color={textColor} fontSize='xl' fontWeight='bold' mb={1}>
+// 						{value}
+// 					</StatNumber>
+// 					{helpText && (
+// 						<StatHelpText color={textColor} opacity={0.7} fontSize='xs' mb={0}>
+// 							{showArrow && <StatArrow type={arrowType} />}
+// 							{helpText}
+// 						</StatHelpText>
+// 					)}
+// 				</Stat>
+
+// 				<Box
+// 					bg={`${iconColor}20`}
+// 					p={3}
+// 					borderRadius='lg'
+// 					position='relative'
+// 					zIndex={1}
+// 				>
+// 					<Icon as={icon} w={6} h={6} color={iconColor} />
+// 				</Box>
+// 			</Flex>
+// 		</Box>
+// 	);
+// };
+
+// // Format number with commas
+// const formatNumber = (num) => {
+// 	return new Intl.NumberFormat().format(num);
+// };
+
+// // Format percentage
+// const formatPercentage = (num) => {
+// 	return `${num?.toFixed(1)}%`;
+// };
+
 import React, { useMemo } from 'react';
 import {
 	Box,
@@ -7,7 +295,6 @@ import {
 	StatNumber,
 	StatHelpText,
 	StatArrow,
-	useColorModeValue,
 	Icon,
 	Flex,
 	Text,
@@ -15,22 +302,18 @@ import {
 } from '@chakra-ui/react';
 
 import {
-	FaChartLine, // TrendingUp alternative
-	FaBullseye, // Target alternative
-	FaMoneyBillWave, // AED-style money icon (no direct AED symbol)
-	FaMedal, // Award alternative
-	FaCheckCircle, // CheckCircle alternative
+	FaChartLine,
+	FaBullseye,
+	FaMoneyBillWave,
+	FaMedal,
 } from 'react-icons/fa';
 import { formatCurrency } from 'utils/helpers';
-import SalesChart from './SalesChart';
 import useUserSession from 'hooks/useUserSession';
 import { InfoOutlineIcon } from '@chakra-ui/icons';
 import CustomTooltip from 'components/shared/CustomTooltip';
 
 const SalesDashboard = ({ data }) => {
 	const { userRoleName } = useUserSession();
-
-	// const isAdmin = ['Admin', 'superAdmin'].includes(userRoleName);
 
 	const statsData = useMemo(
 		() => ({
@@ -40,78 +323,30 @@ const SalesDashboard = ({ data }) => {
 			remainingTargets: data?.remainingTargetAmount,
 			averageAchievementRate: data?.achievementPercentage,
 		}),
-		[data]
+		[data],
 	);
-
-	// const statsCards = [
-	// 	{
-	// 		title: 'Total Deals',
-	// 		value: formatNumber(statsData.totalDeals),
-	// 		icon: FaChartLine,
-	// 		bgColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-	// 		iconColor: '#ffffff',
-	// 		helpText: 'Active deals in pipeline',
-	// 	},
-	// 	{
-	// 		title: 'Total Sales',
-	// 		value: formatCurrency(statsData.totalSales),
-	// 		icon: FaMoneyBillWave,
-	// 		bgColor: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-	// 		iconColor: '#ffffff',
-	// 		helpText: 'Revenue generated',
-	// 		showArrow: true,
-	// 		arrowType: 'increase',
-	// 	},
-	// 	{
-	// 		title: 'Sales Targets',
-	// 		value: formatCurrency(statsData.totalTargets),
-	// 		icon: FaBullseye,
-	// 		bgColor: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-	// 		iconColor: '#ffffff',
-	// 		helpText: 'Set target amount',
-	// 	},
-	// 	{
-	// 		title: 'Target Achievement',
-	// 		value: formatPercentage(statsData.averageAchievementRate),
-	// 		icon: FaMedal,
-	// 		bgColor: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-	// 		iconColor: '#ffffff',
-	// 		helpText: 'Above target performance',
-	// 		showArrow: true,
-	// 		arrowType: 'increase',
-	// 	},
-	// 	{
-	// 		title: 'Targets Completed',
-	// 		value: formatCurrency(
-	// 			statsData.totalTargets - statsData.remainingTargets
-	// 		),
-	// 		icon: FaCheckCircle,
-	// 		bgColor: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-	// 		iconColor: '#ffffff',
-	// 		helpText: '100% completion rate',
-	// 		showArrow: true,
-	// 		arrowType: 'increase',
-	// 	},
-	// ];
 
 	if (!['superAdmin', 'Manager', 'Agent', 'Admin'].includes(userRoleName))
 		return null;
 
+	// Updated with theme-compatible colors (navy + gold accent)
 	const statsCards = [
 		{
 			title: 'Total Deals',
 			value: formatNumber(statsData.totalDeals),
 			icon: FaChartLine,
-			bgColor: 'linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%)', // Darker purple/indigo
-			iconColor: '#ffffff',
+			bgGradient: 'linear-gradient(135deg, #1A3550 0%, #24496E 100%)', // navy.700 to navy.500
+			iconBg: 'navy.600',
+			iconColor: 'gold.primary',
 			helpText: 'Active deals',
 		},
 		{
 			title: 'Total Sales',
 			value: formatCurrency(statsData.totalSales),
 			icon: FaMoneyBillWave,
-			bgColor: 'linear-gradient(135deg, #d53f8c 0%, #e53e3e 100%)', // Darker pink/red
-			iconColor: '#ffffff',
+			bgGradient: 'linear-gradient(135deg, #10273A 0%, #1E3D5C 100%)', // navy.800 to navy.600
+			iconBg: 'navy.700',
+			iconColor: 'gold.light',
 			helpText: 'Revenue generated',
 			showArrow: true,
 			arrowType:
@@ -121,16 +356,18 @@ const SalesDashboard = ({ data }) => {
 			title: 'Sales Targets',
 			value: formatCurrency(statsData.totalTargets),
 			icon: FaBullseye,
-			bgColor: 'linear-gradient(135deg, #3182ce 0%, #00b5d8 100%)', // Darker blue/cyan
-			iconColor: '#ffffff',
+			bgGradient: 'linear-gradient(135deg, #0B1C2C 0%, #1A3550 100%)', // navy.900 to navy.700
+			iconBg: 'navy.800',
+			iconColor: 'gold.primary',
 			helpText: 'Set target amount',
 		},
 		{
 			title: 'Target Achievement',
 			value: formatPercentage(statsData.averageAchievementRate),
 			icon: FaMedal,
-			bgColor: 'linear-gradient(135deg, #38a169 0%, #319795 100%)', // Darker green/teal
-			iconColor: '#ffffff',
+			bgGradient: 'linear-gradient(135deg, #1A3550 0%, #2E5C87 100%)', // navy.700 to navy.400
+			iconBg: 'navy.600',
+			iconColor: 'gold.light',
 			helpText:
 				statsData.averageAchievementRate >= 100
 					? 'Above target performance'
@@ -139,26 +376,22 @@ const SalesDashboard = ({ data }) => {
 			arrowType:
 				statsData.averageAchievementRate >= 100 ? 'increase' : 'decrease',
 		},
-		// {
-		// 	title: 'Targets Completed',
-		// 	value: formatCurrency(
-		// 		statsData.totalTargets - statsData.remainingTargets
-		// 	),
-		// 	icon: FaCheckCircle,
-		// 	bgColor: 'linear-gradient(135deg, #dd6b20 0%, #d69e2e 100%)', // Darker orange/yellow
-		// 	iconColor: '#ffffff',
-		// 	helpText: 'Completion amount',
-		// 	// showArrow: true,
-		// 	// arrowType: 'increase',
-		// },
 	];
+
 	return (
-		<Box bg='white' p={6} borderRadius='2xl' mb='4' rounded='md'>
-			<HStack spacing={2} align='center' mb={8}>
+		<Box
+			bg='bg.surface'
+			p={{ base: 3, sm: 4, md: 6 }}
+			borderRadius='xl'
+			mb={4}
+			borderWidth='1px'
+			borderColor='border.default'
+		>
+			<HStack spacing={2} align='center' mb={{ base: 4, md: 6, lg: 8 }}>
 				<Text
-					fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
-					fontWeight='bold'
-					color='gray.800'
+					fontSize={{ base: 'sm', sm: 'md', md: 'lg' }}
+					fontWeight='semibold'
+					color='text.heading'
 				>
 					Monthly Sales Performance
 				</Text>
@@ -166,13 +399,17 @@ const SalesDashboard = ({ data }) => {
 					label='This chart shows the monthly sales performance compared to targets.'
 					hasArrow
 				>
-					<InfoOutlineIcon color='gray.500' cursor='pointer' />
+					<InfoOutlineIcon
+						color='text.muted'
+						cursor='pointer'
+						boxSize={{ base: 3, sm: 4 }}
+					/>
 				</CustomTooltip>
 			</HStack>
+
 			<SimpleGrid
-				columns={{ base: 1, md: 2, lg: 3, xl: 4 }}
-				spacing={6}
-				// maxW='1400px'
+				columns={{ base: 1, sm: 2, lg: 3, xl: 4 }}
+				spacing={{ base: 3, sm: 4, md: 5, lg: 6 }}
 				mx='auto'
 			>
 				{statsCards.map((card, index) => (
@@ -181,95 +418,121 @@ const SalesDashboard = ({ data }) => {
 						title={card.title}
 						value={card.value}
 						icon={card.icon}
-						bgColor={card.bgColor}
+						bgGradient={card.bgGradient}
+						iconBg={card.iconBg}
 						iconColor={card.iconColor}
-						textColor={card.textColor}
 						helpText={card.helpText}
 						showArrow={card.showArrow}
 						arrowType={card.arrowType}
 					/>
 				))}
 			</SimpleGrid>
-
-			{/* Sales Chart */}
-			{/* <SalesChart data={data} /> */}
 		</Box>
 	);
 };
 
 export default SalesDashboard;
 
-// Reusable StatsCard Component
+// Reusable StatsCard Component - Themed version
 const StatsCard = ({
 	title,
 	value,
 	icon,
-	bgColor,
+	bgGradient,
+	iconBg,
 	iconColor,
-	textColor = 'white',
 	helpText,
 	showArrow = false,
 	arrowType = 'increase',
 }) => {
-	const cardBg = useColorModeValue(bgColor, bgColor);
-
 	return (
 		<Box
-			bg={cardBg}
-			p={6}
-			borderRadius='xl'
-			shadow='lg'
+			bg={bgGradient}
+			p={{ base: 4, sm: 5, md: 6 }}
+			borderRadius='lg'
+			shadow='card'
 			position='relative'
 			overflow='hidden'
-			// _hover={{
-			// 	transform: 'translateY(-4px)',
-			// 	shadow: 'xl',
-			// 	transition: 'all 0.3s ease',
-			// }}
-			// transition='all 0.3s ease'
+			transition='all 0.2s'
+			_hover={{
+				transform: { base: 'none', md: 'translateY(-2px)' },
+				shadow: 'goldGlow',
+			}}
+			borderWidth='1px'
+			borderColor='border.subtle'
 		>
-			{/* Background Pattern */}
+			{/* Background Pattern - Subtle gold tint */}
 			<Box
 				position='absolute'
 				top='-50%'
 				right='-50%'
 				width='200%'
 				height='200%'
-				bg={`linear-gradient(45deg, ${iconColor}15, transparent)`}
+				bg='radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%)'
 				borderRadius='full'
-				opacity={0.1}
+				pointerEvents='none'
 			/>
 
-			<Flex justify='space-between' align='flex-start'>
-				<Stat>
+			<Flex
+				justify='space-between'
+				align='flex-start'
+				gap={{ base: 2, sm: 3, md: 4 }}
+				direction={{ base: 'column', xs: 'row' }}
+			>
+				<Stat flex='1'>
 					<StatLabel
-						color={textColor}
-						opacity={0.8}
-						fontSize='sm'
+						color='text.muted'
+						fontSize={{ base: 'xs', sm: 'sm' }}
 						fontWeight='medium'
 						mb={2}
+						letterSpacing='wide'
 					>
 						{title}
 					</StatLabel>
-					<StatNumber color={textColor} fontSize='xl' fontWeight='bold' mb={1}>
+					<StatNumber
+						color='text.heading'
+						fontSize={{ base: 'lg', sm: 'xl', md: '2xl' }}
+						fontWeight='bold'
+						mb={1}
+						wordBreak='break-word'
+					>
 						{value}
 					</StatNumber>
 					{helpText && (
-						<StatHelpText color={textColor} opacity={0.7} fontSize='xs' mb={0}>
-							{showArrow && <StatArrow type={arrowType} />}
-							{helpText}
+						<StatHelpText
+							color='text.muted'
+							fontSize={{ base: 'xs', sm: 'sm' }}
+							mb={0}
+							display='flex'
+							alignItems='center'
+							gap={1}
+							flexWrap='wrap'
+						>
+							{showArrow && (
+								<StatArrow
+									type={arrowType}
+									color={arrowType === 'increase' ? 'green.400' : 'red.400'}
+								/>
+							)}
+							<span>{helpText}</span>
 						</StatHelpText>
 					)}
 				</Stat>
 
 				<Box
-					bg={`${iconColor}20`}
-					p={3}
+					bg={iconBg}
+					p={{ base: 2, sm: 2.5, md: 3 }}
 					borderRadius='lg'
 					position='relative'
 					zIndex={1}
+					flexShrink={0}
 				>
-					<Icon as={icon} w={6} h={6} color={iconColor} />
+					<Icon
+						as={icon}
+						w={{ base: 4, sm: 5, md: 6 }}
+						h={{ base: 4, sm: 5, md: 6 }}
+						color={iconColor}
+					/>
 				</Box>
 			</Flex>
 		</Box>
@@ -278,10 +541,12 @@ const StatsCard = ({
 
 // Format number with commas
 const formatNumber = (num) => {
+	if (!num && num !== 0) return '0';
 	return new Intl.NumberFormat().format(num);
 };
 
 // Format percentage
 const formatPercentage = (num) => {
+	if (!num && num !== 0) return '0%';
 	return `${num?.toFixed(1)}%`;
 };

@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
-
+import { ChevronDownIcon } from '@chakra-ui/icons';
 const TopPagination = ({
 	currentPage,
 	totalPages,
@@ -80,13 +80,12 @@ const TopPagination = ({
 		borderRadius: 'lg',
 		_hover: { shadow: 'sm', transition: 'all 0.2s ease-in-out' },
 		_active: { bg: 'softGray.500' },
-		sx: { svg: { fill: 'brand.500' } },
 	};
 
 	const generatePageSizeOptions = (
 		totalItems,
 		currentPageSize = 10,
-		maxLimit = 100
+		maxLimit = 100,
 	) => {
 		const steps = [10, 20];
 		const max = Math.min(totalItems || currentPageSize, maxLimit);
@@ -119,7 +118,7 @@ const TopPagination = ({
 				handlePageSize?.(Math.max(...opts.filter(Boolean))); // or default to 10
 			}
 		},
-		[handlePageSize]
+		[handlePageSize],
 	);
 
 	return (
@@ -127,21 +126,18 @@ const TopPagination = ({
 			spacing={3}
 			p={sizeMedium ? 0 : 2}
 			gap='2'
-			flexDirection={{ base: 'row', md: 'row', lg: 'row' }}
 			flexWrap='wrap'
-			bg='softGray.50'
+			bg='bg.surface'
 			border='1px solid'
-			borderColor='softGray.600'
-			borderRadius='md'
+			borderColor='border.default'
+			borderRadius='lg'
 			align='center'
 			justifyContent={{
 				base: 'center',
 				md: 'space-between',
-				lg: 'space-between',
 			}}
 			width='100%'
-			maxWidth='100%'
-			fontSize={sizeMedium ? 'xx-small' : 'sm'}
+			fontSize={sizeMedium ? 'xs' : 'sm'}
 		>
 			{/* First & Previous Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
@@ -149,9 +145,7 @@ const TopPagination = ({
 					{...buttonStyle}
 					onClick={handleFirst}
 					isDisabled={currentPage === 1 || refetching}
-					variant='solid'
-					bg='softGray.600'
-					color='black'
+					variant='outline'
 					py='2'
 					px='5'
 					leftIcon={
@@ -166,9 +160,7 @@ const TopPagination = ({
 					{...buttonStyle}
 					onClick={handlePrevious}
 					isDisabled={currentPage === 1 || refetching}
-					variant='solid'
-					bg='softGray.600'
-					color='black'
+					variant='outline'
 					leftIcon={<FaPlay style={{ transform: 'rotate(180deg)' }} />}
 					aria-label='Previous Page'
 					py={2}
@@ -179,7 +171,7 @@ const TopPagination = ({
 			</HStack>
 
 			{/* Go To Page */}
-			<HStack fontWeight='medium' color='gray.800' spacing={1}>
+			<HStack fontWeight='medium' color='text.body' spacing={1}>
 				<Text>Go to</Text>
 
 				<NumberInput
@@ -194,10 +186,8 @@ const TopPagination = ({
 					min={1}
 					max={totalPages ?? 999999999}
 					size={sizeMedium ? 'xx-small' : 'sm'}
-					borderRadius='md'
 					width='5rem'
-					bg='softGray.50'
-					border='1px solid softGray.600'
+					variant='outline'
 					allowMouseWheel={false}
 					clampValueOnBlur={false}
 					isDisabled={refetching || loading}
@@ -205,17 +195,10 @@ const TopPagination = ({
 					<NumberInputField
 						aria-label='Go to page'
 						textAlign='center'
-						borderRadius='md'
-						border='2px solid'
-						borderColor='softGray.600'
+						variant='outline'
 						onKeyDown={(e) => e.key === 'Enter' && handleGoToBlur()}
-						_focus={{
-							outline: 'none',
-							bg: 'softGray.50',
-							border: '1px solid',
-							borderColor: 'brand.500',
-						}}
-						_active={{ bg: 'softGray.400' }}
+						_active={{ bg: 'bg.elevated' }}
+						_focus={{ borderColor: 'border.focus', boxShadow: 'goldGlow' }}
 						isDisabled={refetching || loading}
 					/>
 				</NumberInput>
@@ -225,7 +208,7 @@ const TopPagination = ({
 
 			{/* Showing start-end of totalItems */}
 			<Text
-				color='gray.800'
+				color='text.body'
 				fontSize={sizeMedium ? 'xx-small' : 'sm'}
 				fontWeight='medium'
 			>
@@ -234,59 +217,54 @@ const TopPagination = ({
 
 			{/* Next & Last Button */}
 			<HStack flexDirection='row' flexWrap='wrap' justifyContent='center'>
-				{pageLimit && (
-					<Select
-						size={sizeMedium ? 'xs' : 'sm'}
-						w={{ base: '32' }}
-						value={itemsPerPage}
-						// value={
-						// 	generatePageSizeOptions(totalItems, itemsPerPage).includes(
-						// 		itemsPerPage
-						// 	)
-						// 		? itemsPerPage
-						// 		: Math.min(totalItems, 100)
-						// }
-						color='gray.800'
-						bg='softGray.400'
-						borderRadius='md'
-						border='2px solid'
-						_focus={{ boxShadow: '0 0 0 1px softGray.500' }}
-						onChange={onPageSizeChange}
-						isDisabled={!totalItems || loading || refetching}
-					>
-						{generatePageSizeOptions(totalItems, itemsPerPage).map((size) => (
-							<option key={size} value={size}>
-								Show {size}
-							</option>
-						))}
-						{/* <option key={10} value={10}>
-						Show 10
-					</option>
-					<option key={20} value={20}>
-						Show 20
-					</option>
-					<option key={50} value={50}>
-						Show 50
-					</option>
-					<option key={60} value={60}>
-						Show 60
-					</option>
-					<option key={80} value={80}>
-						Show 80
-					</option>
-					<option key={100} value={100}>
-						Show 100
-					</option> */}
-					</Select>
-				)}
+			{/* Page Size Select - Updated to match AnalyticsHeader styling */}
+{pageLimit && (
+	<Select
+		size={sizeMedium ? 'xs' : 'sm'}
+		w={{ base: '32' }}
+		value={itemsPerPage}
+		variant='outline'
+		bg='bg.input'
+		borderColor='border.default'
+		color='text.body'
+		fontSize='sm'
+		fontWeight='medium'
+		borderRadius='lg'
+		icon={<ChevronDownIcon />}
+		_hover={{
+			borderColor: 'border.gold',
+			bg: 'bg.elevated',
+			color: 'text.accent',
+			cursor: 'pointer',
+		}}
+		_focus={{
+			borderColor: 'border.focus',
+			boxShadow: 'goldGlow',
+		}}
+		transition='all 0.2s ease'
+		onChange={onPageSizeChange}
+		isDisabled={!totalItems || loading || refetching}
+	>
+		{generatePageSizeOptions(totalItems, itemsPerPage).map((size) => (
+			<option
+				key={size}
+				value={size}
+				style={{
+					background: '#10273A', // bg.surface
+					color: '#B0B0B0', // text.muted
+				}}
+			>
+				Show {size}
+			</option>
+		))}
+	</Select>
+)}
 
 				<Button
 					{...buttonStyle}
 					onClick={handleNext}
 					isDisabled={currentPage === totalPages || refetching}
-					variant='solid'
-					bg='softGray.600'
-					color='black'
+					variant='outline'
 					rightIcon={<FaPlay />}
 					aria-label='Next Page'
 					py={2}
@@ -299,9 +277,7 @@ const TopPagination = ({
 					{...buttonStyle}
 					onClick={handleLast}
 					isDisabled={currentPage === totalPages || refetching}
-					variant='solid'
-					bg='softGray.600'
-					color='black'
+					variant='outline'
 					py='2'
 					px='5'
 					rightIcon={<IoPlaySkipForwardSharp />}

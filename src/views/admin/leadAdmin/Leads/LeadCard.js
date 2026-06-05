@@ -56,12 +56,15 @@ const LeadCard = ({
 	approveChangeHandler,
 	_id,
 	refreshData,
+	requestDate,
 }) => {
 	const formattedCreatedDate = format(
 		new Date(createdDate),
 		'MMM d, yyyy h:mm a',
 	);
-
+	const formattedRequestDate = requestDate
+		? format(new Date(requestDate), 'MMM d, yyyy h:mm a')
+		: 'N/A';
 	const { ip, country, city } = extractLocationData(leadData?.ip);
 
 	const users = useSelector((state) => state.user?.users) || [];
@@ -354,14 +357,17 @@ const LeadCard = ({
 			w='100%'
 			// h='320px'
 			// overflow='hidden'
-			bg='white'
-			flexBasis={cardWidth}
+			// flexBasis={cardWidth}
 			border='1px solid'
+			color='text.white'
 			borderColor={borderColor}
 			transition='box-shadow 0.2s ease-in-out'
 			_hover={{
-				boxShadow: '0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0',
+				boxShadow: 'soft',
 			}}
+			// _hover={{
+			// 	boxShadow: '0 15px 20px -3px #E2E8F0, 0 4px 6px -2px #E2E8F0',
+			// }}
 		>
 			<CardHeader
 				id={leadData?.intID}
@@ -371,8 +377,8 @@ const LeadCard = ({
 			/>
 			<HStack
 				justifyContent='space-between'
-				align='stretch'
-				wrap='wrap'
+				// align='stretch'
+				// wrap='wrap'
 				// align='start'
 				// spacing={2}
 				// w='100%'
@@ -385,13 +391,13 @@ const LeadCard = ({
 					</Text>
 					<HStack spacing={4} w='100%' alignItems='flex-start'>
 						<VStack align='start' spacing={1} flex='1' minW={0}>
-							<Text fontSize='10px' color='#BEBEBE' lineHeight='1.2'>
+							<Text fontSize='10px' color='text.white' lineHeight='1.2'>
 								Ad Name
 							</Text>
 							<Text
 								fontSize='10px'
 								color='#FFBB00'
-								maxW='100px'
+								maxW='80px'
 								isTruncated
 								lineHeight='1.2'
 							>
@@ -410,7 +416,7 @@ const LeadCard = ({
 							<Text
 								fontSize='10px'
 								color='#36BE05'
-								maxW='100px'
+								maxW='80px'
 								isTruncated
 								lineHeight='1.2'
 							>
@@ -431,23 +437,37 @@ const LeadCard = ({
 							value={subStatus}
 							bg='#FEEFEE'
 							width='85px'
-							color='black'
+							color='white'
 						/>
 					</HStack>
 					<VStack align='start' spacing={0} height='3rem' w='100%'>
-						<Text fontSize='xs' color='#C1C1C1'>
+						<Text fontSize='xs' color='#C1C1C1 '>
 							Requested by
 						</Text>
-						<Text fontSize='xs' color='gray.500' isTruncated>
+						<Text
+							fontSize='xs'
+							color='gray.500'
+							isTruncated
+							maxW='100px'
+							title={agentName || 'N/A'}
+						>
 							{agentName || 'N/A'}
+						</Text>
+					</VStack>
+					<VStack align='start' spacing={0} w='100%' mt={1}>
+						<Text fontSize='xs' color='#C1C1C1'>
+							Request Time
+						</Text>
+						<Text fontSize='xs' color='gray.500' fontWeight='medium'>
+							{formattedRequestDate}
 						</Text>
 					</VStack>
 					<Box w='100%'>{renderActionSection()}</Box>
 				</VStack>
 				<VStack
-					minWidth={{ base: '100%', md: 'fit-content' }}
+					// minWidth={{ base: '100%', md: 'fit-content' }}
 					gap={1}
-					flexDirection={{ base: 'row', md: 'column' }}
+					flexDirection='column'
 					justifySelf='end'
 					justifyContent='space-between'
 					align='flex-start'
@@ -463,7 +483,9 @@ const LeadCard = ({
 					<VStack w='100%' align='start'>
 						<InfoPair
 							label='City'
-							value={<Text fontWeight='bold'>{city || 'N/A'}</Text>}
+							value={city || 'N/A'} // Pass as string, not JSX
+							// isTruncated={true}
+							maxW='30px'
 						/>
 						{/* <InfoPair
               label="Country"
@@ -503,7 +525,7 @@ const LeadCard = ({
 								mb='1'
 								gap='2'
 							>
-								<Text fontSize='10px' color='black' fontWeight={500}>
+								<Text fontSize='10px' color='text.white' fontWeight={500}>
 									{item.label}
 								</Text>
 								{/* <Tooltip label={item.value} placement="right" hasArrow>
@@ -523,11 +545,9 @@ const LeadCard = ({
 					</Box>
 				</VStack>
 			</HStack>
-			<Text fontSize='10px' display='flex' justifyContent='flex-end'>
-				<Box as='span' color='#171923'>
-					Lead time:{' '}
-				</Box>
-				<Box as='span' color='black'>
+			<Text fontSize='10px' gap={1} display='flex' justifyContent='flex-end'>
+				<Box as='span'>Lead time: </Box>
+				<Box as='span' color='text.white'>
 					{formattedCreatedDate}
 				</Box>
 			</Text>
@@ -593,11 +613,11 @@ const InputPair = ({
 	label,
 	value,
 	bg,
-	color,
+	color = '#fff',
 	width = { base: '60px', md: '70px' },
 }) => (
 	<VStack align='start' spacing={0} flex='1' minW={0}>
-		<Text fontSize='9px' color='#C1C1C1' fontFamily='DM Sans'>
+		<Text fontSize='9px' color={color} fontFamily='DM Sans'>
 			{label}
 		</Text>
 		<InputGroup w={width}>

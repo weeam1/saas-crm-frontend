@@ -11,7 +11,6 @@ import { useMemo, useState } from 'react';
 import { FaChevronLeft, FaPlus } from 'react-icons/fa';
 import TopPagination from 'components/pagination/TopPagination';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { FiFilter } from 'react-icons/fi';
 import { buttonStyle } from 'utils/btn';
 import { BiX } from 'react-icons/bi';
 // import SummaryCards from '../components/SummaryCards';
@@ -64,22 +63,26 @@ const EmployeeLoans = () => {
 	};
 
 	const handleOpenEdit = (expense) => {
+		console.log({ expense });
 		setEditData(expense);
 		expenseOpen();
 	};
+
+	console.log({ editData });
 
 	const handleClear = () => {
 		setClearFilters(false);
 	};
 
 	return (
-		<Box p={6} bg='white' minH='80vh' borderRadius='md' boxShadow='sm'>
+		<Box p={6} bg='bg.surface' minH='80vh' borderRadius='lg' boxShadow='card'>
 			{/* Back Button */}
 			<AppButton
 				leftIcon={<FaChevronLeft />}
 				size='sm'
 				onClick={() => navigate(-1)}
 				mb={4}
+				variant='ghost'
 			>
 				Back
 			</AppButton>
@@ -91,7 +94,7 @@ const EmployeeLoans = () => {
 				mb={4}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
-					<Text>{summary?.user?.fullName ?? ' '} Loans</Text>
+					<Text color='white'>{summary?.user?.fullName ?? ' '} Loans</Text>
 					<CountUpComponent key={totalRecords} targetNumber={totalRecords} />
 				</Flex>
 
@@ -166,7 +169,7 @@ const EmployeeLoans = () => {
 				/>
 			)}
 
-			{expenseIsOpen && (
+			{expenseIsOpen && editData && (
 				<UpsertLoan
 					isOpen={expenseIsOpen}
 					onClose={expenseOnClose}

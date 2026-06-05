@@ -104,7 +104,7 @@ export default function CheckTable(props) {
 		},
 		useGlobalFilter,
 		useSortBy,
-		usePagination
+		usePagination,
 	);
 
 	const {
@@ -213,7 +213,7 @@ export default function CheckTable(props) {
 											<Th
 												{...column.getHeaderProps(
 													column.isSortable !== false &&
-														column.getSortByToggleProps()
+														column.getSortByToggleProps(),
 												)}
 												key={index}
 												bg='brand.200'
@@ -319,7 +319,7 @@ export default function CheckTable(props) {
 																colorScheme='brand'
 																onClick={() =>
 																	navigate(
-																		`/user-permission/${cell?.row?.original?._id}/${cell?.row?.original?.roleName}`
+																		`/user-permission/${cell?.row?.original?._id}/${cell?.row?.original?.roleName}`,
 																	)
 																}
 															>

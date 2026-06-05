@@ -22,7 +22,6 @@ import {
 	Badge,
 } from '@chakra-ui/react';
 import {
-	FiRefreshCw,
 	FiEye,
 	FiEdit2,
 	FiUsers,
@@ -259,17 +258,17 @@ const UserEvaluation = () => {
 					User Evaluations
 				</Text>
 				<HStack spacing={2} mt={{ base: 2, md: 0 }}>
-					<IconButton
-						icon={<FiRefreshCw />}
-						aria-label='Refresh'
-						variant='outline'
-						size='sm'
+					<RefreshButton
+						label="Refresh"
 						onClick={() => {
 							refetchUsers();
 							refetchEvaluations();
 						}}
 						isLoading={isLoading}
-					/>
+						isFetching={isFetching}
+						size="sm"
+						/>
+
 					<Button
 						colorScheme='brand'
 						size='sm'

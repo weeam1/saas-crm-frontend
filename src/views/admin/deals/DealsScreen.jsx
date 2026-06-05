@@ -1,383 +1,549 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Text,
-  useDisclosure,
-  IconButton,
-} from "@chakra-ui/react";
-import { useFetchItemsQuery } from "api/apiSlice";
+	Box,
+	Button,
+	Flex,
+	HStack,
+	Text,
+	useDisclosure,
+	IconButton,
+} from '@chakra-ui/react';
+import { useFetchItemsQuery } from 'api/apiSlice';
 
-import { buttonStyle } from "utils/btn";
-import CountUpComponent from "components/countUpComponent/countUpComponent";
-import DataView from "./DataView";
-import DealFilterModal from "./components/DealFilterModal";
-import SearchTags from "components/search/SearchTags";
-import { BiX } from "react-icons/bi";
-import { useSelector } from "react-redux";
-import TopPagination from "components/pagination/TopPagination";
-import ErrorMessage from "components/Message/ErrorMessage";
-import { dealsLabels } from "utils/searchLabels";
-import DateFilterButton from "../lead-v2/components/DateFilterButton";
-import DateRangeFilter from "./components/DateRangeFilter";
-import { format } from "date-fns";
-import ViewToggle from "components/toggle/ViewToggle";
-import { usePermissions } from "hooks/usePermissions";
-import { useNavigate } from "react-router-dom";
-import { FiRefreshCw } from "react-icons/fi";
+import { buttonStyle } from 'utils/btn';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import DataView from './DataView';
+import DealFilterModal from './components/DealFilterModal';
+import SearchTags from 'components/shared/SearchTags'; // Changed to shared/SearchTags
+import { BiX } from 'react-icons/bi';
+import { useSelector } from 'react-redux';
+import TopPagination from 'components/pagination/TopPagination';
+import ErrorMessage from 'components/Message/ErrorMessage';
+import { dealsLabels } from 'utils/searchLabels';
+import DateFilterButton from '../lead-v2/components/DateFilterButton';
+import DateRangeFilter from './components/DateRangeFilter';
+import { format } from 'date-fns';
+import ViewToggle from 'components/toggle/ViewToggle';
+import { usePermissions } from 'hooks/usePermissions';
+import { useNavigate } from 'react-router-dom';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const LIMIT = 20;
 
 const DealsScreen = () => {
-  const [deals, setDeals] = useState([]);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [searchClear, setSearchClear] = useState(false);
-  const [searchTags, setSearchTags] = useState([]);
-  const [filters, setFilters] = useState([]);
+	const [deals, setDeals] = useState([]);
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [searchClear, setSearchClear] = useState(false);
+	const [searchTags, setSearchTags] = useState([]);
+	const [filters, setFilters] = useState([]);
+	const [refetchLoading, setRefetchLoading] = useState(false);
 
-  const [view, setView] = useState(() => {
-    return localStorage.getItem("dealsView") || "table";
-  });
-  const { hasPermission } = usePermissions();
-  const navigate = useNavigate();
+	const [view, setView] = useState(() => {
+		return localStorage.getItem('dealsView') || 'table';
+	});
+	const { hasPermission } = usePermissions();
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!hasPermission("deal")) return navigate("/default");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+	useEffect(() => {
+		if (!hasPermission('deal')) return navigate('/default');
+	}, []);
 
-  // const [viewLoading, setViewLoading] = useState(false);
-  const [isRefetching, setIsRefetching] = useState(false);
+	const {
+		isOpen: dateTimeIsOpen,
+		onOpen: dateTimeOnOpen,
+		onClose: dateTimeOnClose,
+	} = useDisclosure();
 
-  const {
-    isOpen: dateTimeIsOpen,
-    onOpen: dateTimeOnOpen,
-    onClose: dateTimeOnClose,
-  } = useDisclosure();
+	const tree = useSelector((state) => state.user.tree);
 
-  const tree = useSelector((state) => state.user.tree);
+	const [queryParams, setQueryParams] = useState({ page: 1, limit: LIMIT });
 
-  const [queryParams, setQueryParams] = useState({ page: 1, limit: LIMIT });
+	const {
+		data,
+		isLoading,
+		isFetching,
+		refetch,
+		error: dealsError,
+	} = useFetchItemsQuery(
+		{ path: 'deals', params: queryParams },
+		{ refetchOnMountOrArgChange: true },
+	);
 
-  const {
-    data,
-    isLoading,
-    isFetching,
-    refetch,
-    error: dealsError,
-  } = useFetchItemsQuery(
-    { path: "deals", params: queryParams },
-    { refetchOnMountOrArgChange: true }
-  );
+	// Handle refetch loading state
+	useEffect(() => {
+		if (isFetching && !isLoading) {
+			setRefetchLoading(true);
+		} else {
+			const timer = setTimeout(() => setRefetchLoading(false), 2000);
+			return () => clearTimeout(timer);
+		}
+	}, [isFetching, isLoading]);
 
-  useEffect(() => {
-    let showTimer;
+	// Refetch on queryParams change
+	useEffect(() => {
+		refetch({ path: '/deals', params: queryParams });
+	}, [queryParams]);
 
-    const isBackgroundRefetch = isFetching && !isLoading;
+	// Update deals when data is fetched
+	useEffect(() => {
+		if (data?.doc) {
+			setDeals(data.doc);
+		}
+	}, [data?.doc]);
 
-    if (isBackgroundRefetch) {
-      // Delay showing the refetching state
-      setIsRefetching(true);
+	// Helper function to generate search tags from filters
+	const generateSearchTags = useCallback(
+		(filterObj) => {
+			const tags = [];
 
-      showTimer = setTimeout(() => {
-        setIsRefetching(false);
-      }, 2000);
-    } else {
-      setIsRefetching(false);
-    }
+			Object.entries(filterObj).forEach(([key, value]) => {
+				let displayValue = value;
+				let originalValue = value;
 
-    return () => {
-      clearTimeout(showTimer);
-    };
-  }, [isFetching, isLoading]);
+				// Handle manager
+				if (key === 'manager') {
+					const manager = tree.managers.find(
+						(user) => user?._id?.toString() === value,
+					);
+					displayValue = manager
+						? `${manager.firstName} ${manager.lastName}`
+						: value === '-1'
+							? 'No Manager'
+							: value;
+					originalValue = value;
+				}
 
-  // Refetch on queryParams change
-  useEffect(() => {
-    refetch({ path: "/deals", params: queryParams });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryParams]);
+				// Handle agent
+				if (key === 'agent') {
+					const agentsArray = Object.values(tree.agents).flatMap(
+						(agentList) => agentList,
+					);
+					const agent = agentsArray.find(
+						(user) => user?._id?.toString() === value,
+					);
+					displayValue = agent
+						? `${agent.firstName} ${agent.lastName}`
+						: value === '-1'
+							? 'No Agent'
+							: value;
+					originalValue = value;
+				}
 
-  // Update deals when data is fetched
-  useEffect(() => {
-    if (data?.doc) {
-      setDeals(data.doc);
-    }
-  }, [data?.doc]);
+				if (key === 'spaDone') {
+					displayValue = value === 'true' ? 'Signed' : 'Pending';
+					originalValue = value;
+				}
 
-  const handleDealFilters = (filters) => {
-    // Clean filters: remove keys with undefined, null, empty string
-    const cleanObject = (obj) =>
-      Object.fromEntries(
-        Object.entries(obj).filter(
-          ([_, v]) => v !== undefined && v !== null && v !== ""
-        )
-      );
+				if (key === 'invoiceSent') {
+					displayValue = value === 'true' ? 'Yes' : 'No';
+					originalValue = value;
+				}
 
-    const cleaned = cleanObject(filters);
-    setFilters(cleaned);
+				if (key === 'closedBy') {
+					if (typeof value === 'object' && value !== null) {
+						displayValue = value.fullName;
+						originalValue = value._id;
+					}
+				}
 
-    let tags = [];
+				tags.push({
+					key: `${key}-${originalValue}`, // unique key
+					label: dealsLabels[key] || key,
+					value: displayValue,
+					originalKey: key,
+					originalValue: originalValue, // Store original value for removal
+				});
+			});
 
-    Object.entries(cleaned).forEach(([key, value]) => {
-      let displayValue = value;
+			return tags;
+		},
+		[tree.managers, tree.agents],
+	);
 
-      // Handle manager
-      if (key === "manager") {
-        const manager = tree.managers.find(
-          (user) => user?._id?.toString() === value
-        );
-        displayValue = manager
-          ? `${manager.firstName} ${manager.lastName}`
-          : value === "-1"
-            ? "No Manager"
-            : value;
-      }
+	// Remove individual tag
+	const removeTag = useCallback(
+		(key) => {
+			const removedTag = searchTags.find((tag) => tag.key === key);
+			if (!removedTag) return;
 
-      // Handle agent
-      if (key === "agent") {
-        const agentsArray = Object.values(tree.agents).flatMap(
-          (agentList) => agentList
-        );
-        const agent = agentsArray.find(
-          (user) => user?._id?.toString() === value
-        );
-        displayValue = agent
-          ? `${agent.firstName} ${agent.lastName}`
-          : value === "-1"
-            ? "No Agent"
-            : value;
-      }
+			const updatedTags = searchTags.filter((tag) => tag.key !== key);
+			setSearchTags(updatedTags);
 
-      if (key === "spaDone") {
-        displayValue = value === "true" ? "Signed" : "Pending";
-      }
+			// Rebuild filters from remaining tags
+			const updatedFilters = updatedTags.reduce((acc, tag) => {
+				acc[tag.originalKey] = tag.originalValue;
+				return acc;
+			}, {});
 
-      if (key === "invoiceSent") {
-        console.log(value);
-        displayValue = value === "true" ? "Yes" : "No";
-      }
+			// Remove the specific filter from query params
+			const newQueryParams = {
+				page: 1,
+				limit: LIMIT,
+				...updatedFilters,
+			};
 
-      if (key === "closedBy") {
-        const closedByValue = filters.closedBy;
+			// Clean up undefined values
+			Object.keys(newQueryParams).forEach((key) => {
+				if (newQueryParams[key] === undefined) {
+					delete newQueryParams[key];
+				}
+			});
 
-        if (typeof closedByValue === "object" && closedByValue !== null) {
-          displayValue = closedByValue.fullName;
-        }
-      }
+			setQueryParams(newQueryParams);
+			setFilters(updatedFilters);
+			setRefetchLoading(true);
+			setSearchClear(updatedTags.length > 0);
+		},
+		[searchTags],
+	);
 
-      tags.push(`${dealsLabels[key]}: ${displayValue}`);
-    });
+	// Clear all tags
+	const clearAllTags = useCallback(() => {
+		setSearchTags([]);
+		setFilters([]);
+		setQueryParams({ page: 1, limit: LIMIT });
+		setRefetchLoading(true);
+		setSearchClear(false);
+	}, []);
 
-    let searchFilters = { ...cleaned };
+	const handleDealFilters = useCallback(
+		(filters) => {
+			// Clean filters: remove keys with undefined, null, empty string
+			const cleanObject = (obj) =>
+				Object.fromEntries(
+					Object.entries(obj).filter(
+						([_, v]) => v !== undefined && v !== null && v !== '',
+					),
+				);
 
-    // Extract `closedBy._id`
-    if (cleaned.closedBy && typeof cleaned.closedBy === "object") {
-      searchFilters.closedBy = cleaned.closedBy._id;
-    }
+			const cleaned = cleanObject(filters);
+			setFilters(cleaned);
 
-    // setSearchTags(tags);
-    setSearchTags((prev) => {
-      const startTag = prev.find((t) => t.startsWith("Start:"));
-      const endTag = prev.find((t) => t.startsWith("End:"));
+			// Generate tags for the new filters
+			const newTags = generateSearchTags(cleaned);
 
-      const preserved = [startTag, endTag].filter(Boolean);
+			// Preserve date filter tags if they exist
+			setSearchTags((prev) => {
+				const startTag = prev.find((t) => t.originalKey === 'startDate');
+				const endTag = prev.find((t) => t.originalKey === 'endDate');
+				const preserved = [startTag, endTag].filter(Boolean);
 
-      // Add preserved first, then add all new tags
-      return [...preserved, ...tags];
-    });
+				return [...preserved, ...newTags];
+			});
 
-    setSearchClear(true);
-    setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
-  };
+			let searchFilters = { ...cleaned };
 
-  const handleDateFilter = (dateFilter) => {
-    dateTimeOnClose();
-    const { from, to } = dateFilter;
+			// Extract `closedBy._id`
+			if (cleaned.closedBy && typeof cleaned.closedBy === 'object') {
+				searchFilters.closedBy = cleaned.closedBy._id;
+			}
 
-    // refresh the params
-    // setQueryParams({ page: 1, limit: queryParams?.limit || LIMIT });
-    setQueryParams((prev) => ({ ...prev, page: 1, from, to }));
+			setSearchClear(true);
+			setRefetchLoading(true);
+			setQueryParams((prev) => ({ ...prev, ...searchFilters, page: 1 }));
+		},
+		[generateSearchTags],
+	);
 
-    const searchValues = [
-      `Start: ${format(new Date(from), "d MMM, yyyy")}`,
-      `End: ${format(new Date(to), "d MMM, yyyy")}`,
-    ];
+	const handleDateFilter = useCallback(
+		(dateFilter) => {
+			dateTimeOnClose();
+			const { from, to } = dateFilter;
 
-    setSearchTags((prev) => {
-      const filteredTags = prev.filter(
-        (t) => !t.startsWith("Start:") && !t.startsWith("End:")
-      );
+			setRefetchLoading(true);
+			setQueryParams((prev) => ({ ...prev, page: 1, from, to }));
 
-      return [...filteredTags, ...searchValues];
-    });
+			const dateTags = [
+				{
+					key: `startDate-${from}`,
+					label: 'Start',
+					value: format(new Date(from), 'd MMM, yyyy'),
+					originalKey: 'startDate',
+					originalValue: from,
+				},
+				{
+					key: `endDate-${to}`,
+					label: 'End',
+					value: format(new Date(to), 'd MMM, yyyy'),
+					originalKey: 'endDate',
+					originalValue: to,
+				},
+			];
 
-    setSearchClear(true);
-  };
+			setSearchTags((prev) => {
+				// Remove existing date tags
+				const filteredTags = prev.filter(
+					(t) => t.originalKey !== 'startDate' && t.originalKey !== 'endDate',
+				);
+				return [...filteredTags, ...dateTags];
+			});
 
-  const handlePageChange = (page) => {
-    setQueryParams((prev) => ({ ...prev, page: Number(page) }));
-  };
+			setSearchClear(true);
+		},
+		[dateTimeOnClose],
+	);
 
-  const handlePageSize = (limit) => {
-    setQueryParams((prev) => ({
-      ...prev,
-      page: 1,
-      limit: Number(limit),
-    }));
-  };
+	const handlePageChange = useCallback((page) => {
+		setRefetchLoading(true);
+		setQueryParams((prev) => ({ ...prev, page: Number(page) }));
+	}, []);
 
-  const handleClear = () => {
-    setQueryParams({ page: 1, limit: LIMIT });
-    setSearchTags([]);
-    setFilters([]);
-    setSearchClear(false);
-  };
+	const handlePageSize = useCallback((limit) => {
+		setRefetchLoading(true);
+		setQueryParams((prev) => ({
+			...prev,
+			page: 1,
+			limit: Number(limit),
+		}));
+	}, []);
 
-  const handleViewChange = (newView) => {
-    setView(newView);
-    // setViewLoading(true);
+	const handleClear = useCallback(() => {
+		setQueryParams({ page: 1, limit: LIMIT });
+		setSearchTags([]);
+		setFilters([]);
+		setSearchClear(false);
+		setRefetchLoading(true);
+	}, []);
 
-    // setTimeout(() => {
-    // 	setViewLoading(false);
-    // }, 1000);
-  };
+	const handleViewChange = useCallback((newView) => {
+		setView(newView);
+	}, []);
 
-  return (
-    <Box p={6} bg="white" borderRadius="md" boxShadow="sm">
-      <Flex
-        justify="space-between"
-        align="center"
-        mb={4}
-        flexDir={{ base: "column", sm: "column", md: "row" }}
-        gap={2}
-      >
-        <HStack gap="1" fontWeight="bold">
-          <Text fontSize="20px" fontWeight={"bold"}>
-            Close Deals
-          </Text>
-          <CountUpComponent
-            key={data?.meta?.total}
-            targetNumber={data?.meta?.total}
-          />
-        </HStack>
+	const handleRefresh = useCallback(() => {
+		setRefetchLoading(true);
+		refetch();
+	}, [refetch]);
 
-        <HStack
-          gap="2"
-          display={"flex"}
-          flexDir={{ base: "column", sm: "column", md: "row" }}
-          align="center"
-        >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
-          <DateFilterButton onClick={dateTimeOnOpen} />
-          <Button
-            onClick={() => setIsFilterOpen(true)}
-            colorScheme="brand"
-            size="sm"
-            borderRadius={"md"}
-          >
-            Advanced Search
-          </Button>
-          <ViewToggle
-            moduleView="dealsView"
-            view={view}
-            handleView={handleViewChange}
-          />
-        </HStack>
-      </Flex>
-      {/* Search tags */}
-      {searchClear && searchTags && (
-        <Flex
-          flexDirection={{ base: "row", lg: "row" }}
-          justifyContent="space-between"
-          alignItems="center"
-          flexWrap="wrap"
-          py="2"
-        >
-          <SearchTags searchTags={searchTags} />
+	return (
+		// <Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
+		// 	<Flex
+		// 		justify='space-between'
+		// 		align='center'
+		// 		mb={4}
+		// 		flexDir={{ base: 'column', sm: 'column', md: 'row' }}
+		// 		gap={2}
+		// 	>
+		// 		<HStack gap='1' fontWeight='bold'>
+		// 			<Text fontSize='20px' fontWeight={'bold'}>
+		// 				Close Deals
+		// 			</Text>
+		// 			<CountUpComponent
+		// 				key={data?.meta?.total}
+		// 				targetNumber={data?.meta?.total}
+		// 			/>
+		// 		</HStack>
 
-          {searchClear && (
-            <Button
-              {...buttonStyle}
-              variant="solid"
-              bg="softGray.100"
-              w="fit-content"
-              color="gray.800"
-              sx={{
-                svg: {
-                  fill: "gray.800",
-                },
-              }}
-              leftIcon={<BiX />}
-              aria-label="Clear"
-              onClick={handleClear}
-            >
-              Clear
-            </Button>
-          )}
-        </Flex>
-      )}
-      {!isLoading && (
-        <TopPagination
-          currentPage={queryParams.page}
-          totalPages={data?.meta?.totalPages}
-          onPageChange={handlePageChange}
-          totalItems={data?.meta?.total}
-          itemsPerPage={queryParams.limit}
-          refetching={isFetching}
-          loading={isLoading}
-          handlePageSize={handlePageSize}
-        />
-      )}
-      {/* <DealCards
-				deals={deals}
-				isLoading={isLoading}
-				isFetching={isFetching}
-				handleNext={handleNext}
-				handlePrev={handlePrev}
-				refetch={refetch}
-			/> */}
-      {dealsError ? (
-        <ErrorMessage
-          message={dealsError?.data?.message || "Something went wrong!"}
-        />
-      ) : (
-        <DataView
-          deals={deals}
-          view={view}
-          setDeals={setDeals}
-          isLoading={isLoading}
-          isRefetching={isRefetching}
-          refetch={refetch}
-        />
-      )}
-      {isFilterOpen && (
-        <DealFilterModal
-          isOpen={isFilterOpen}
-          onClose={() => setIsFilterOpen(false)}
-          onFilterApply={handleDealFilters}
-          initialFilters={filters}
-          tree={tree}
-        />
-      )}
+		// 		<HStack
+		// 			gap='2'
+		// 			display={'flex'}
+		// 			flexDir={{ base: 'column', sm: 'column', md: 'row' }}
+		// 			align='center'
+		// 		>
+		// 			<Button
+		// 				onClick={() => setIsFilterOpen(true)}
+		// 				colorScheme='brand'
+		// 				size='sm'
+		// 				borderRadius={'md'}
+		// 			>
+		// 				Advanced Search
+		// 			</Button>
+		// 			<DateFilterButton onClick={dateTimeOnOpen} />
 
-      {dateTimeIsOpen && (
-        <DateRangeFilter
-          isOpen={dateTimeIsOpen}
-          onClose={dateTimeOnClose}
-          handleDateFilter={handleDateFilter}
-        />
-      )}
-    </Box>
-  );
+		// 			<ViewToggle
+		// 				moduleView='dealsView'
+		// 				view={view}
+		// 				handleView={handleViewChange}
+		// 			/>
+		// 		</HStack>
+		// 	</Flex>
+
+		// 	{/* Search tags - Using enhanced SearchTags component */}
+		// 	{searchTags && searchTags.length > 0 && (
+		// 		<SearchTags
+		// 			searchTags={searchTags}
+		// 			removeTag={removeTag}
+		// 			clearAllTags={clearAllTags}
+		// 		/>
+		// 	)}
+
+		// 	{/* Top Pagination */}
+		// 	{!isLoading && (
+		// 		<TopPagination
+		// 			currentPage={queryParams.page}
+		// 			totalPages={data?.meta?.totalPages}
+		// 			onPageChange={handlePageChange}
+		// 			totalItems={data?.meta?.total}
+		// 			itemsPerPage={queryParams.limit}
+		// 			refetching={isFetching}
+		// 			loading={isLoading}
+		// 			handlePageSize={handlePageSize}
+		// 		/>
+		// 	)}
+
+		// 	{/* Data View */}
+		// 	{dealsError ? (
+		// 		<ErrorMessage
+		// 			message={dealsError?.data?.message || 'Something went wrong!'}
+		// 		/>
+		// 	) : (
+		// 		<DataView
+		// 			deals={deals}
+		// 			view={view}
+		// 			setDeals={setDeals}
+		// 			isLoading={isLoading}
+		// 			isRefetching={refetchLoading}
+		// 			refetch={refetch}
+		// 		/>
+		// 	)}
+
+		// 	{/* Modals */}
+		// 	{isFilterOpen && (
+		// 		<DealFilterModal
+		// 			isOpen={isFilterOpen}
+		// 			onClose={() => setIsFilterOpen(false)}
+		// 			onFilterApply={handleDealFilters}
+		// 			initialFilters={filters}
+		// 			tree={tree}
+		// 		/>
+		// 	)}
+
+		// 	{dateTimeIsOpen && (
+		// 		<DateRangeFilter
+		// 			isOpen={dateTimeIsOpen}
+		// 			onClose={dateTimeOnClose}
+		// 			handleDateFilter={handleDateFilter}
+		// 		/>
+		// 	)}
+		// </Box>
+
+		<Box
+			bg='bg.surface'
+			borderRadius='xl'
+			borderWidth='1px'
+			borderColor='border.default'
+			boxShadow='card'
+			p={{ base: 4, md: 6 }}
+		>
+			<Flex
+				justify='space-between'
+				align='center'
+				mb={4}
+				flexDir={{ base: 'column', sm: 'row' }}
+				gap={4}
+			>
+				<HStack gap='2' fontWeight='bold'>
+					<Text
+						fontSize={{ base: 'lg', md: 'xl' }}
+						fontWeight='bold'
+						color='text.heading'
+					>
+						Close Deals
+					</Text>
+					<CountUpComponent
+						key={data?.meta?.total}
+						targetNumber={data?.meta?.total}
+					/>
+				</HStack>
+
+				<HStack
+					gap='2'
+					flexWrap='wrap'
+					justify={{ base: 'flex-start', sm: 'flex-end' }}
+				>
+					<Button
+						onClick={() => setIsFilterOpen(true)}
+						variant='outline'
+						size='sm'
+						borderRadius='lg'
+						borderColor='border.default'
+						_hover={{
+							bg: 'bg.elevated',
+							borderColor: 'gold.primary',
+							color: 'gold.primary',
+						}}
+					>
+						Advanced Search
+					</Button>
+
+					<DateFilterButton onClick={dateTimeOnOpen} />
+
+						<RefreshButton
+														label="Refresh Close Deals"
+														onClick={() => handleRefresh()}
+														isLoading={isLoading}
+														isFetching={isFetching}
+														size="sm"
+													/>
+
+
+					<ViewToggle
+						moduleView='dealsView'
+						view={view}
+						handleView={handleViewChange}
+					/>
+				</HStack>
+			</Flex>
+
+			{/* Search tags */}
+			{searchTags && searchTags.length > 0 && (
+				<SearchTags
+					searchTags={searchTags}
+					removeTag={removeTag}
+					clearAllTags={clearAllTags}
+				/>
+			)}
+
+			{/* Top Pagination */}
+			{!isLoading && (
+				<TopPagination
+					currentPage={queryParams.page}
+					totalPages={data?.meta?.totalPages}
+					onPageChange={handlePageChange}
+					totalItems={data?.meta?.total}
+					itemsPerPage={queryParams.limit}
+					refetching={isFetching}
+					loading={isLoading}
+					handlePageSize={handlePageSize}
+				/>
+			)}
+
+			{/* Data View */}
+			{dealsError ? (
+				<ErrorMessage
+					message={dealsError?.data?.message || 'Something went wrong!'}
+				/>
+			) : (
+				<DataView
+					deals={deals}
+					view={view}
+					setDeals={setDeals}
+					isLoading={isLoading}
+					isRefetching={refetchLoading}
+					refetch={refetch}
+				/>
+			)}
+
+			{/* Modals */}
+			{isFilterOpen && (
+				<DealFilterModal
+					isOpen={isFilterOpen}
+					onClose={() => setIsFilterOpen(false)}
+					onFilterApply={handleDealFilters}
+					initialFilters={filters}
+					tree={tree}
+				/>
+			)}
+
+			{dateTimeIsOpen && (
+				<DateRangeFilter
+					isOpen={dateTimeIsOpen}
+					onClose={dateTimeOnClose}
+					handleDateFilter={handleDateFilter}
+				/>
+			)}
+		</Box>
+	);
 };
 
 export default DealsScreen;

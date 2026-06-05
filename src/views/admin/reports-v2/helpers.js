@@ -1,6 +1,6 @@
 export const getFilteredStats = (stats, type) => {
-	const filtered = stats.filter((stat) => stat.value > 0); // Exclude zero values
-	const sorted = [...filtered].sort((a, b) => b.value - a.value);
+	const filtered = stats?.filter((stat) => stat.value > 0); // Exclude zero values
+	const sorted = [...filtered]?.sort((a, b) => b.value - a.value);
 	// const sorted = [...stats].sort((a, b) => b.value - a.value);
 
 	switch (type) {
@@ -78,19 +78,19 @@ export const calculatePerformance = (
 	leads = 0,
 	agents = 0,
 	assigned = 0,
-	notes = 0
+	notes = 0,
 ) => {
 	const leadScore = Math.min((leads / BENCHMARKS.leadTarget) * 40, 50); // 40%
 	const agentScore = Math.min((agents / BENCHMARKS.agentTarget) * 20, 50); // 30%
 	const noteScore = Math.min((notes / BENCHMARKS.notesTarget) * 20, 50); // 30%
 	const assignedScore = Math.min(
 		(assigned / BENCHMARKS.assignedTarget) * 20,
-		50
+		50,
 	); // 30%
 
 	const totalScore = Math.min(
 		leadScore + agentScore + assignedScore + noteScore,
-		100
+		100,
 	);
 
 	console.log({ totalScore });

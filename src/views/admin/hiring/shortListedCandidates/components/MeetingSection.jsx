@@ -4,8 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaClock } from 'react-icons/fa';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import CandidateCard from '../../candidates/components/CandidateCard';
+import { useModalColors } from 'hooks/useModalColors';
 
 const MeetingSection = ({ invitedCandidates, refetch, setActiveTab }) => {
+	const colors = useModalColors();
 	const [isOpen, setIsOpen] = useState(false);
 
 	if (invitedCandidates?.doc?.length === 0) return null;
@@ -14,21 +16,23 @@ const MeetingSection = ({ invitedCandidates, refetch, setActiveTab }) => {
 		<Box mb={4} marginTop={"-15px"} marginLeft={"-4px"} borderRadius={"0px"}>
 			{/* Header Section - Click to Toggle */}
 			<HStack
-				bg='white'
+				bg={colors.bg}
 				rounded='md'
-				shadow='sm'
+				shadow={colors.cardShadow}
 				p='1rem'
 				justifyContent='space-between'
 				alignItems='center'
 				mb={2}
 				cursor='pointer'
-				transition={'.3s ease-in-out'}
-				_hover={{ bg: 'gray.100', shadow: 'md' }}
+				transition='.3s ease-in-out'
+				border="1px solid"
+				borderColor={colors.borderColor}
+				_hover={{ bg: colors.bgInputHover, shadow: colors.modalShadow }}
 				onClick={() => setIsOpen((prev) => !prev)}
 			>
 				<HStack gap={2}>
-					<Icon as={FaClock} w={5} h={5} />
-					<Heading size='md' color='gray.800'>
+					<Icon as={FaClock} w={5} h={5} color={colors.accentGold} />
+					<Heading size='md' color={colors.headingText}>
 						Upcoming Interviews
 					</Heading>
 				</HStack>
@@ -36,7 +40,6 @@ const MeetingSection = ({ invitedCandidates, refetch, setActiveTab }) => {
 				<HStack gap={2}>
 					<Button
 						variant='link'
-						color='blue.400'
 						fontWeight='normal'
 						onClick={(e) => {
 							e.stopPropagation();
@@ -46,11 +49,13 @@ const MeetingSection = ({ invitedCandidates, refetch, setActiveTab }) => {
 								behavior: 'smooth',
 							});
 						}}
+						color={colors.accentGold}
+						_hover={{ color: colors.goldLight }}
 					>
 						View All
 					</Button>
 
-					<Icon as={isOpen ? ChevronUpIcon : ChevronDownIcon} w={5} h={5} />
+					<Icon as={isOpen ? ChevronUpIcon : ChevronDownIcon} w={5} h={5} color={colors.accentGold} />
 				</HStack>
 			</HStack>
 

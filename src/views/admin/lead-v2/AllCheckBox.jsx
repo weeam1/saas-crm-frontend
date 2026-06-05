@@ -28,7 +28,7 @@ const AllCheckBox = ({
         return [...filteredPrev, ...currentPageLeads];
       });
     } else {
-   
+
       const currentPageIdsSet = new Set(currentPageIds);
       const newSelectedValues = selectedValues.filter(id => !currentPageIdsSet.has(id));
       setSelectedValues(newSelectedValues);
@@ -36,7 +36,7 @@ const AllCheckBox = ({
     }
   };
 
-  const isCurrentPageFullySelected = currentPageIds.length > 0 && 
+  const isCurrentPageFullySelected = currentPageIds.length > 0 &&
     currentPageIds.every(id => selectedValues.includes(id));
 
   return (
@@ -44,7 +44,6 @@ const AllCheckBox = ({
       isChecked={isCurrentPageFullySelected}
       isIndeterminate={!isCurrentPageFullySelected && currentPageIds.some(id => selectedValues.includes(id))}
       onChange={handleChecked}
-      colorScheme="brand"
       sx={{ ".chakra-checkbox__control": { _focus: { boxShadow: "none" } } }}
     >
       All

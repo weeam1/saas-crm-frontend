@@ -19,25 +19,23 @@ const LeadAssignmentBarChart = ({ summary, isFullScreen }) => {
 			value: summary.unassignedLeads,
 			count: summary.unassignedLeads,
 			percentage: (summary.unassignedLeads / summary.leadCount) * 100,
-			color: '#F59E0B',
+			color: '#F59E0B', // Orange for unassigned (warning)
 		},
 		{
 			name: 'Managers',
 			value: summary.leadsAssignedToManagers,
 			count: summary.leadsAssignedToManagers,
 			percentage: (summary.leadsAssignedToManagers / summary.leadCount) * 100,
-			color: '#8B5CF6',
+			color: '#D4AF37', // Gold for managers (premium)
 		},
 		{
 			name: 'Agents',
 			value: summary.leadsAssignedToAgents,
 			count: summary.leadsAssignedToAgents,
 			percentage: (summary.leadsAssignedToAgents / summary.leadCount) * 100,
-			color: '#3B82F6',
+			color: '#3B82F6', // Blue for agents
 		},
 	].sort((a, b) => b.value - a.value); // Sort by value descending
-
-	const COLORS = ['#F59E0B', '#3B82F6', '#8B5CF6'];
 
 	const CustomTooltip = ({ active, payload }) => {
 		if (active && payload && payload.length) {
@@ -45,24 +43,26 @@ const LeadAssignmentBarChart = ({ summary, isFullScreen }) => {
 
 			return (
 				<Box
-					bg='white'
+					bg='bg.surface'
 					p={4}
-					borderRadius='md'
-					boxShadow='xl'
+					borderRadius='lg'
+					boxShadow='card'
 					border='1px solid'
-					borderColor='gray.200'
+					borderColor='border.default'
 					minWidth='200px'
 				>
-					<Text fontWeight='bold' color='gray.800' mb={2}>
+					<Text fontWeight='bold' color='text.heading' mb={2}>
 						{data.name}
 					</Text>
 					<VStack align='start' spacing={1}>
 						<HStack justify='space-between' width='100%'>
-							<Text color='gray.600'>Leads:</Text>
-							<Text fontWeight='semibold'>{data.count.toLocaleString()}</Text>
+							<Text color='text.muted'>Leads:</Text>
+							<Text fontWeight='semibold' color='text.heading'>
+								{data.count.toLocaleString()}
+							</Text>
 						</HStack>
 						<HStack justify='space-between' width='100%'>
-							<Text color='gray.600'>Percentage:</Text>
+							<Text color='text.muted'>Percentage:</Text>
 							<Text fontWeight='semibold' color={data.color}>
 								{data.percentage.toFixed(1)}%
 							</Text>
@@ -75,11 +75,12 @@ const LeadAssignmentBarChart = ({ summary, isFullScreen }) => {
 									data.name === 'Unassigned'
 										? 'orange'
 										: data.name === 'Managers'
-											? 'purple'
+											? 'yellow'
 											: 'blue'
 								}
 								size='sm'
 								borderRadius='full'
+								bg='bg.input'
 							/>
 						</Box>
 					</VStack>
@@ -87,22 +88,6 @@ const LeadAssignmentBarChart = ({ summary, isFullScreen }) => {
 			);
 		}
 		return null;
-	};
-
-	const CustomBarLabel = ({ x, y, width, height, value }) => {
-		return (
-			<text
-				x={x + width + 10}
-				y={y + height / 2}
-				fill='currentColor'
-				textAnchor='start'
-				dominantBaseline='middle'
-				fontSize={isFullScreen ? 14 : 12}
-				fontWeight='medium'
-			>
-				{value.toLocaleString()}
-			</text>
-		);
 	};
 
 	return (
@@ -115,14 +100,13 @@ const LeadAssignmentBarChart = ({ summary, isFullScreen }) => {
 				<CartesianGrid
 					strokeDasharray='3 3'
 					horizontal={false}
-					// stroke='#e2e8f0'
+					stroke='#1A3550' // navy.700
 				/>
 				<XAxis
 					type='number'
-					// hide
 					axisLine={true}
 					tickLine={false}
-					tick={{ fill: '#4a5568', fontSize: 12 }}
+					tick={{ fill: '#B0B0B0', fontSize: 12 }} // text.muted
 					domain={[0, (dataMax) => Math.ceil(dataMax * 1.1)]}
 				/>
 				<YAxis
@@ -130,15 +114,21 @@ const LeadAssignmentBarChart = ({ summary, isFullScreen }) => {
 					dataKey='name'
 					axisLine={false}
 					tickLine={false}
-					tick={{ fontSize: isFullScreen ? 14 : 12, fontWeight: 'medium' }}
+					tick={{
+						fill: '#FFFFFF', // text.heading
+						fontSize: isFullScreen ? 14 : 12,
+						fontWeight: 'medium'
+					}}
 					width={80}
 				/>
-				<Tooltip content={<CustomTooltip />} cursor={{ fill: '#ebf8ff' }} />
+				<Tooltip
+					content={<CustomTooltip />}
+					cursor={{ fill: 'rgba(212, 175, 55, 0.1)' }} // Gold tint
+				/>
 				<Bar
 					dataKey='value'
 					radius={[0, 4, 4, 0]}
 					barSize={isFullScreen ? 40 : 30}
-					// label={<CustomBarLabel />}
 					animationDuration={1500}
 				>
 					{assignmentData.map((entry, index) => (
@@ -146,14 +136,14 @@ const LeadAssignmentBarChart = ({ summary, isFullScreen }) => {
 							key={`cell-${index}`}
 							fill={entry.color}
 							opacity={0.8}
-							_hover={{ opacity: 1 }}
+							stroke={entry.name === 'Managers' ? '#C9A227' : 'transparent'}
+							strokeWidth={entry.name === 'Managers' ? 1 : 0}
 						/>
 					))}
 					<LabelList
-						dataKey={'value'}
-						position='top'
-						fill='#2d3748'
-						// fontSize={12}
+						dataKey='value'
+						position='right'
+						fill='#FFFFFF' // text.heading
 						textAnchor='start'
 						dominantBaseline='middle'
 						offset={10}

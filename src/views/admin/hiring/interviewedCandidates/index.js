@@ -79,7 +79,7 @@ const InterviewedCandidates = () => {
 	);
 
 	const handleGotoPage = (page) => {
-		setCurrentPage(page + 1);
+		setCurrentPage(page );
 	};
 
 	const handlePageSizeChange = (size) => {

@@ -1,6 +1,9 @@
 import { Box, Text, Checkbox, CheckboxGroup, Flex } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const OffDaysCheckbox = ({ isDisabled, offDays, setOffDays }) => {
+	const colors = useModalColors();
+
 	const dayMap = {
 		sunday: 0,
 		monday: 1,
@@ -21,7 +24,7 @@ const OffDaysCheckbox = ({ isDisabled, offDays, setOffDays }) => {
 
 	return (
 		<Box>
-			<Text mb={2} fontSize='22px' fontWeight='400'>
+			<Text mb={2} fontSize='22px' fontWeight='400' color={colors.headingText}>
 				Off days
 			</Text>
 			<CheckboxGroup value={stringOffDays} onChange={handleOffDaysChange}>
@@ -42,26 +45,27 @@ const OffDaysCheckbox = ({ isDisabled, offDays, setOffDays }) => {
 							fontSize='12px'
 							fontWeight='400'
 							colorScheme='custom'
+							color={colors.bodyText}
 							sx={{
 								'.chakra-checkbox__control': {
-									background: 'transparent',
-									borderColor: 'gray.300',
+									background: colors.bgInput,
+									borderColor: colors.borderColor,
 									borderRadius: '3px',
 								},
 								'.chakra-checkbox__control[data-checked]': {
-									background: '#A07723',
-									borderColor: '#EDC270',
+									background: colors.accentGold,
+									borderColor: colors.accentGold,
 									'& svg': {
 										display: 'none',
 									},
 								},
 								'.chakra-checkbox__control[data-focus]': {
-									boxShadow: 'none',
-									borderColor: 'gray.300',
+									boxShadow: `0 0 0 2px ${colors.accentGold}40`,
+									borderColor: colors.accentGold,
 								},
 								'.chakra-checkbox__control[data-checked][data-focus]': {
-									boxShadow: 'none',
-									borderColor: '#EDC270',
+									boxShadow: `0 0 0 2px ${colors.accentGold}40`,
+									borderColor: colors.accentGold,
 								},
 								'.chakra-checkbox__control[data-disabled]': {
 									opacity: 0.4,

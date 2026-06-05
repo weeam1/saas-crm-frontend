@@ -32,8 +32,10 @@ import {
 } from '../../../../redux/whatsappSlice';
 import { validatePhoneNumber } from 'utils/helpers';
 import { normalizePhone } from 'utils/phoneValidation';
+import { useModalColors } from 'hooks/useModalColors';
 
 const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
+	const colors = useModalColors();
 	const [editingContact, setEditingContact] = useState(null);
 	const [name, setName] = useState('');
 	const [phoneNumber, setPhoneNumber] = useState('');
@@ -61,12 +63,9 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 			if (!validNum)
 				return toast.error('Please enter a valid WhatsApp number!');
 
-			// const roomId = generateRoomId(validNum, businessPhone);
-
 			const newContact = {
 				name,
 				phoneNumber: validNum,
-				// roomId,
 				ownerId: businessPhone,
 			};
 
@@ -99,7 +98,6 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 				return toast.error('Please enter a valid WhatsApp number!');
 
 			const updateData = { name, phoneNumber: validNum };
-			// const roomId = generateRoomId(validNum, businessPhone);
 
 			if (data?._id) {
 				updateData.id = data?._id;
@@ -156,42 +154,58 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} size='2xl' isCentered>
-			<ModalOverlay />
-			<ModalContent>
-				<ModalHeader>Manage Contacts</ModalHeader>
-				<ModalCloseButton />
-				<ModalBody>
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
+			<ModalContent bg={colors.bg} borderRadius='2xl' boxShadow={colors.modalShadow} border='1px solid' borderColor={colors.borderColor}>
+				<ModalHeader bg={colors.headerBg} color={colors.headerText} borderTopRadius='2xl'>
+					Manage Contacts
+				</ModalHeader>
+				<ModalCloseButton color={colors.headerText} _hover={{ bg: colors.closeBtnHoverBg }} />
+				<ModalBody pb={6}>
 					{isAdding ? (
 						<Box>
 							<FormControl mb={4}>
-								<FormLabel>Name</FormLabel>
+								<FormLabel color={colors.labelColor}>Name</FormLabel>
 								<Input
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 									placeholder='Enter name'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
+									_hover={{ borderColor: colors.accentGold }}
 								/>
 							</FormControl>
 
 							<FormControl mb={4}>
-								<FormLabel>Phone Number</FormLabel>
+								<FormLabel color={colors.labelColor}>Phone Number</FormLabel>
 								<Input
 									value={phoneNumber}
 									onChange={(e) => setPhoneNumber(e.target.value)}
 									placeholder='Enter correct phone number'
 									type='tel'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
+									_hover={{ borderColor: colors.accentGold }}
 								/>
-								{/* <Text fontSize='xs' color='gray.700'>
-									Enter a valid phone number with country code (digits only, no
-									+ or spaces). Example: 923001234567.
-								</Text> */}
 							</FormControl>
 							<Flex justify='flex-end'>
-								<Button mr={2} onClick={() => setIsAdding(false)}>
+								<Button variant='outline' mr={2} onClick={() => setIsAdding(false)}>
 									Cancel
 								</Button>
 								<Button
-									colorScheme='whatsapp'
-									disabled={contactUpdating || !phoneNumber}
+									variant='brand'
+									isDisabled={contactUpdating || !phoneNumber}
 									onClick={handleAddContact}
 								>
 									{contactUpdating ? 'Loading...' : 'Add'}
@@ -201,38 +215,47 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 					) : editingContact ? (
 						<Box>
 							<FormControl mb={4}>
-								<FormLabel>Edit Contact Name</FormLabel>
+								<FormLabel color={colors.labelColor}>Edit Contact Name</FormLabel>
 								<Input
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 									placeholder='Enter new name'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
+									_hover={{ borderColor: colors.accentGold }}
 								/>
 							</FormControl>
-							{/* <FormControl mb={4}>
-								<FormLabel>Email</FormLabel>
-								<Input
-									value={email}
-									onChange={(e) => setEmail(e.target.value)}
-									placeholder='Enter email'
-									type='email'
-								/>
-							</FormControl> */}
 							<FormControl mb={4}>
-								<FormLabel>Phone Number</FormLabel>
+								<FormLabel color={colors.labelColor}>Phone Number</FormLabel>
 								<Input
 									value={phoneNumber}
 									onChange={(e) => setPhoneNumber(e.target.value)}
 									placeholder='Enter phone number'
 									type='tel'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
+									_hover={{ borderColor: colors.accentGold }}
 								/>
 							</FormControl>
 							<Flex justify='flex-end'>
-								<Button mr={2} onClick={() => setEditingContact(null)}>
+								<Button variant='outline' mr={2} onClick={() => setEditingContact(null)}>
 									Cancel
 								</Button>
 								<Button
-									colorScheme='whatsapp'
-									disabled={contactUpdating}
+									variant='brand'
+									isDisabled={contactUpdating}
 									onClick={() => handleUpdateContact(editingContact)}
 								>
 									{contactUpdating ? 'Loading...' : 'Save'}
@@ -244,7 +267,7 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 							<Flex justify='flex-end' mb={4}>
 								<Button
 									leftIcon={<FiPlus />}
-									colorScheme='whatsapp'
+									variant='brand'
 									onClick={() => setIsAdding(true)}
 								>
 									Add Contact
@@ -252,7 +275,7 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 							</Flex>
 							<VStack
 								maxH='50vh'
-								overflow='scroll'
+								overflow='auto'
 								p='2'
 								spacing={4}
 								align='stretch'
@@ -262,18 +285,22 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 										<Flex
 											key={i || contact.roomId}
 											justify='space-between'
-											bg='gray.100'
-											p='2'
-											rounded='md'
+											bg={colors.bgInput}
+											p='3'
+											rounded='lg'
 											align='center'
+											border='1px solid'
+											borderColor={colors.borderColor}
 										>
 											<Flex align='center'>
 												<Avatar src={contact.avatar} size='sm' mr={3} />
 												<Box>
-													<Text fontWeight='medium'>{contact.name}</Text>
+													<Text fontWeight='medium' color={colors.headingText}>
+														{contact.name}
+													</Text>
 
 													{contact.phoneNumber && (
-														<Text fontSize='xs' color='gray.500'>
+														<Text fontSize='xs' color={colors.mutedText}>
 															{contact.phoneNumber}
 														</Text>
 													)}
@@ -284,7 +311,10 @@ const ContactModal = ({ isOpen, onClose, businessPhone, setContacts }) => {
 													icon={<FiEdit />}
 													aria-label='Edit contact'
 													size='sm'
+													variant='ghost'
 													onClick={() => handleEdit(contact)}
+													color={colors.bodyText}
+													_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 												/>
 												{/* <IconButton
 													icon={<FiTrash2 />}

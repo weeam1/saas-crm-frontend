@@ -32,13 +32,38 @@ const AdvancedSearch = ({
     callMedium: "",
     callQuality: "",
     reason: "",
-    // userId: "",
     extension: "",
   };
   const [hasInteracted, setHasInteracted] = useState(false);
-
   const [formValues, setFormValues] = useState(initialValues || defaultValues);
-  const { headerBg, primaryBtnBg, headerText } = useModalColors();
+
+  const {
+    headerBg,
+    headerText,
+    closeBtnColor,
+    closeBtnHoverBg,
+    bg,
+    bgDeep,
+    bgInput,
+    borderColor,
+    borderFocus,
+    labelColor,
+    bodyText,
+    mutedText,
+    modalShadow,
+    overlayBg,
+    primaryBtnBg,
+    primaryBtnText,
+    primaryBtnHoverBg,
+    primaryBtnShadow,
+    secondaryBtnBg,
+    closeBtnBg,
+    secondaryBtnText,
+    secondaryBtnBorder,
+    secondaryBtnHoverBg,
+    secondaryBtnHoverText,
+  } = useModalColors();
+
   const isMounted = useRef(true);
 
   useEffect(() => {
@@ -60,16 +85,15 @@ const AdvancedSearch = ({
     callMedium: Yup.string(),
     callQuality: Yup.string(),
     reason: Yup.string(),
-    // userId: Yup.string(),
     extension: Yup.string(),
   });
+
   const handleClear = (resetForm) => {
     resetForm();
     setHasInteracted(false);
   };
 
   const handleSubmit = (values) => {
-    // Clean up empty values
     const cleanedValues = Object.keys(values).reduce((acc, key) => {
       if (values[key] && values[key].trim() !== "") {
         acc[key] = values[key].trim();
@@ -78,26 +102,47 @@ const AdvancedSearch = ({
     }, {});
     setHasInteracted(false);
     onSearch(cleanedValues);
-
     onClose();
     if (isMounted.current) setFormValues(values);
   };
 
+  // Styles for select options (dark theme)
+  const optionStyle = {
+    background: bgInput,
+    color: bodyText,
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="2xl">
-      <ModalOverlay backdropFilter="blur(2px)" />
-      <ModalContent mx="2" borderRadius="xl" boxShadow="xl">
+      <ModalOverlay bg={overlayBg} backdropFilter="blur(2px)" />
+      <ModalContent
+        bg={bg}
+        borderRadius="xl"
+        boxShadow={modalShadow}
+        mx="2"
+        overflow="hidden"
+      >
         <ModalHeader
           bg={headerBg}
           color={headerText}
           borderTopRadius="xl"
           py={4}
+          px={6}
+          borderBottom="1px solid"
+          borderColor={borderColor}
           w="100%"
         >
           Advanced Search
         </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody p="4">
+
+        <ModalCloseButton
+          color={closeBtnColor}
+          bg={closeBtnBg}
+          _focus={{ outline: "none" }}
+          _hover={{ bg: closeBtnHoverBg }}
+        />
+
+        <ModalBody p={6} bg={bgDeep}>
           <Formik
             initialValues={formValues}
             validationSchema={validationSchema}
@@ -121,9 +166,9 @@ const AdvancedSearch = ({
                   {/* Lead Name */}
                   <GridItem>
                     <FormLabel
-                      fontSize="md"
+                      fontSize="sm"
                       fontWeight="500"
-                      color="gray.800"
+                      color={labelColor}
                       mb="1"
                     >
                       Lead Name
@@ -136,23 +181,29 @@ const AdvancedSearch = ({
                       onChange={handleChange}
                       onBlur={handleBlur}
                       value={values.leadName}
-                      borderColor="gray.300"
+                      bg={bgInput}
+                      borderColor={borderColor}
+                      color={bodyText}
+                      _placeholder={{ color: mutedText }}
                       _focus={{
-                        borderColor: "brand.500",
-                        boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                        borderColor: borderFocus,
+                        boxShadow: `0 0 0 1px ${borderFocus}`,
                       }}
+                      _hover={{ borderColor: borderFocus }}
                     />
                     {errors.leadName && touched.leadName && (
-                      <Text color="red.500">{errors.leadName}</Text>
+                      <Text color="red.500" fontSize="xs" mt={1}>
+                        {errors.leadName}
+                      </Text>
                     )}
                   </GridItem>
 
-                  {/* Lead ID (leadIntId in API) */}
+                  {/* Lead ID */}
                   <GridItem>
                     <FormLabel
-                      fontSize="md"
+                      fontSize="sm"
                       fontWeight="500"
-                      color="gray.800"
+                      color={labelColor}
                       mb="1"
                     >
                       Lead ID
@@ -165,23 +216,29 @@ const AdvancedSearch = ({
                       onChange={handleChange}
                       onBlur={handleBlur}
                       value={values.leadIntId}
-                      borderColor="gray.300"
+                      bg={bgInput}
+                      borderColor={borderColor}
+                      color={bodyText}
+                      _placeholder={{ color: mutedText }}
                       _focus={{
-                        borderColor: "brand.500",
-                        boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                        borderColor: borderFocus,
+                        boxShadow: `0 0 0 1px ${borderFocus}`,
                       }}
+                      _hover={{ borderColor: borderFocus }}
                     />
                     {errors.leadIntId && touched.leadIntId && (
-                      <Text color="red.500">{errors.leadIntId}</Text>
+                      <Text color="red.500" fontSize="xs" mt={1}>
+                        {errors.leadIntId}
+                      </Text>
                     )}
                   </GridItem>
 
                   {/* Call Medium */}
                   <GridItem>
                     <FormLabel
-                      fontSize="md"
+                      fontSize="sm"
                       fontWeight="500"
-                      color="gray.800"
+                      color={labelColor}
                       mb="1"
                     >
                       Call Medium
@@ -193,36 +250,37 @@ const AdvancedSearch = ({
                       value={values.callMedium}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      borderColor="gray.300"
+                      bg={bgInput}
+                      borderColor={borderColor}
+                      color={bodyText}
                       _focus={{
-                        borderColor: "brand.500",
-                        boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                        borderColor: borderFocus,
+                        boxShadow: `0 0 0 1px ${borderFocus}`,
                       }}
+                      _hover={{ borderColor: borderFocus }}
+                      iconColor={bodyText}
                     >
-                      <option value="external_sim">External SIM</option>
-                      <option value="whatsapp">WhatsApp</option>
-                      <option value="dialer">Dialer</option>
+                      <option value="external_sim" style={optionStyle}>External SIM</option>
+                      <option value="whatsapp" style={optionStyle}>WhatsApp</option>
+                      <option value="dialer" style={optionStyle}>Dialer</option>
                     </Select>
-
                     {errors.callMedium && touched.callMedium && (
-                      <Text color="red.500">{errors.callMedium}</Text>
-                    )}
-                    {errors.callMedium && touched.callMedium && (
-                      <Text color="red.500">{errors.callMedium}</Text>
+                      <Text color="red.500" fontSize="xs" mt={1}>
+                        {errors.callMedium}
+                      </Text>
                     )}
                   </GridItem>
 
                   {/* Call Quality */}
                   <GridItem>
                     <FormLabel
-                      fontSize="md"
+                      fontSize="sm"
                       fontWeight="500"
-                      color="gray.800"
+                      color={labelColor}
                       mb="1"
                     >
                       Call Quality
                     </FormLabel>
-
                     <Select
                       onFocus={() => setHasInteracted(true)}
                       name="callQuality"
@@ -230,30 +288,35 @@ const AdvancedSearch = ({
                       value={values.callQuality}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      borderColor="gray.300"
+                      bg={bgInput}
+                      borderColor={borderColor}
+                      color={bodyText}
                       _focus={{
-                        borderColor: "brand.500",
-                        boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                        borderColor: borderFocus,
+                        boxShadow: `0 0 0 1px ${borderFocus}`,
                       }}
+                      _hover={{ borderColor: borderFocus }}
+                      iconColor={bodyText}
                     >
-                      <option value="very_bad">Very Bad</option>
-                      <option value="bad">Bad</option>
-                      <option value="average">Average</option>
-                      <option value="good">Good</option>
-                      <option value="excellent">Excellent</option>
+                      <option value="very_bad" style={optionStyle}>Very Bad</option>
+                      <option value="bad" style={optionStyle}>Bad</option>
+                      <option value="average" style={optionStyle}>Average</option>
+                      <option value="good" style={optionStyle}>Good</option>
+                      <option value="excellent" style={optionStyle}>Excellent</option>
                     </Select>
-
                     {errors.callQuality && touched.callQuality && (
-                      <Text color="red.500">{errors.callQuality}</Text>
+                      <Text color="red.500" fontSize="xs" mt={1}>
+                        {errors.callQuality}
+                      </Text>
                     )}
                   </GridItem>
 
                   {/* Reason */}
                   <GridItem>
                     <FormLabel
-                      fontSize="md"
+                      fontSize="sm"
                       fontWeight="500"
-                      color="gray.800"
+                      color={labelColor}
                       mb="1"
                     >
                       Reason
@@ -266,51 +329,29 @@ const AdvancedSearch = ({
                       onChange={handleChange}
                       onBlur={handleBlur}
                       value={values.reason}
-                      borderColor="gray.300"
+                      bg={bgInput}
+                      borderColor={borderColor}
+                      color={bodyText}
+                      _placeholder={{ color: mutedText }}
                       _focus={{
-                        borderColor: "brand.500",
-                        boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                        borderColor: borderFocus,
+                        boxShadow: `0 0 0 1px ${borderFocus}`,
                       }}
+                      _hover={{ borderColor: borderFocus }}
                     />
                     {errors.reason && touched.reason && (
-                      <Text color="red.500">{errors.reason}</Text>
+                      <Text color="red.500" fontSize="xs" mt={1}>
+                        {errors.reason}
+                      </Text>
                     )}
                   </GridItem>
-
-                  {/* User ID */}
-                  {/* <GridItem>
-                    <FormLabel
-                      fontSize="md"
-                      fontWeight="500"
-                      color="gray.800"
-                      mb="1"
-                    >
-                      User ID
-                    </FormLabel>
-                    <Input
-                      type="text"
-                      name="userId"
-                      placeholder="Enter user ID"
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      value={values.userId}
-                      borderColor="gray.300"
-                      _focus={{
-                        borderColor: "brand.500",
-                        boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
-                      }}
-                    />
-                    {errors.userId && touched.userId && (
-                      <Text color="red.500">{errors.userId}</Text>
-                    )}
-                  </GridItem> */}
 
                   {/* Extension */}
                   <GridItem colSpan={{ base: 1 }}>
                     <FormLabel
-                      fontSize="md"
+                      fontSize="sm"
                       fontWeight="500"
-                      color="gray.800"
+                      color={labelColor}
                       mb="1"
                     >
                       Extension ID
@@ -323,38 +364,49 @@ const AdvancedSearch = ({
                       onChange={handleChange}
                       onBlur={handleBlur}
                       value={values.extension}
-                      borderColor="gray.300"
+                      bg={bgInput}
+                      borderColor={borderColor}
+                      color={bodyText}
+                      _placeholder={{ color: mutedText }}
                       _focus={{
-                        borderColor: "brand.500",
-                        boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                        borderColor: borderFocus,
+                        boxShadow: `0 0 0 1px ${borderFocus}`,
                       }}
+                      _hover={{ borderColor: borderFocus }}
                     />
                     {errors.extension && touched.extension && (
-                      <Text color="red.500">{errors.extension}</Text>
+                      <Text color="red.500" fontSize="xs" mt={1}>
+                        {errors.extension}
+                      </Text>
                     )}
                   </GridItem>
                 </Grid>
 
-                <Flex mt={4} justifyContent="flex-end">
+                <Flex mt={6} justifyContent="flex-end" gap={3}>
                   <Button
-                    mr={3}
-                    colorScheme="gray"
                     variant="outline"
                     size="sm"
-                    rounded="md"
                     onClick={() => handleClear(resetForm)}
+                    bg={secondaryBtnBg}
+                    color={secondaryBtnText}
+                    borderColor={secondaryBtnBorder}
+                    _hover={{
+                      bg: secondaryBtnHoverBg,
+                      color: secondaryBtnHoverText,
+                    }}
                   >
                     Clear
                   </Button>
                   <Button
                     bg={primaryBtnBg}
-                    color="white"
-                    _hover={{ bg: "brand.600", color: "white" }}
-                    _active={{ bg: "brand.600" }}
-                    rounded="md"
+                    color={primaryBtnText}
                     size="sm"
                     type="submit"
                     isDisabled={!dirty && !hasInteracted}
+                    _hover={{
+                      bg: primaryBtnHoverBg,
+                      boxShadow: primaryBtnShadow,
+                    }}
                   >
                     Search
                   </Button>

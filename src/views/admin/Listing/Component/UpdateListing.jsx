@@ -28,6 +28,7 @@ import { skipToken } from '@reduxjs/toolkit/query';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const formatNumberWithCommas = (value) => {
 	if (!value) return '';
@@ -43,6 +44,7 @@ const getPositiveNumber = (value) => {
 };
 
 const UpdateListing = () => {
+	const colors = useModalColors();
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const [files, setFiles] = useState([]);
@@ -54,7 +56,7 @@ const UpdateListing = () => {
 	const { user, isSuperAdmin } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
-	const colSpan = useBreakpointValue({ base: 1, sm: 1 , md:2});
+	const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
 	const { hasPermission } = usePermissions();
 
@@ -330,8 +332,8 @@ const UpdateListing = () => {
 				>
 					Back to Listings
 				</AppButton>
-				<Alert status='error' mt={4}>
-					<AlertIcon />
+				<Alert status='error' mt={4} bg={colors.badgeErrorBg} color={colors.badgeErrorText}>
+					<AlertIcon color={colors.badgeErrorText} />
 					Failed to load listing data. Please try again.
 				</Alert>
 			</Box>
@@ -347,8 +349,8 @@ const UpdateListing = () => {
 				>
 					Back to Listings
 				</AppButton>
-				<Alert status='info' mt={4}>
-					<AlertIcon />
+				<Alert status='info' mt={4} bg={colors.badgeInfoBg} color={colors.badgeInfoText}>
+					<AlertIcon color={colors.badgeInfoText} />
 					Listing not found.
 				</Alert>
 			</Box>
@@ -370,26 +372,39 @@ const UpdateListing = () => {
 				templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
 				gap={6}
 				p={{ base: 2, sm: 5 }}
-				bg='white'
-				borderRadius='md'
+				bg={colors.bg}
+				borderRadius='lg'
+				boxShadow={colors.cardShadow}
 				my={5}
 				mx={{ base: 0, sm: 2 }}
+				border='1px solid'
+				borderColor={colors.borderColor}
 			>
 				{/* Project Name */}
 				<GridItem colSpan={2}>
 					<FormControl
 						isInvalid={formik.touched.projectName && formik.errors.projectName}
 					>
-						<FormLabel>Project Name</FormLabel>
+						<FormLabel color={colors.labelColor}>Project Name</FormLabel>
 						<Input
 							name='projectName'
 							value={formik.values.projectName}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter project name'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
-						<FormErrorMessage>{formik.errors.projectName}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.projectName}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
@@ -398,22 +413,31 @@ const UpdateListing = () => {
 					<FormControl
 						isInvalid={formik.touched.unitType && formik.errors.unitType}
 					>
-						<FormLabel>Unit Type</FormLabel>
+						<FormLabel color={colors.labelColor}>Unit Type</FormLabel>
 						<Select
 							name='unitType'
 							value={formik.values.unitType}
 							onChange={handleUnitTypeChange}
 							onBlur={formik.handleBlur}
 							placeholder='Select unit type'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						>
 							{unitTypes?.doc?.map((unitType) => (
-								<option key={unitType._id} value={unitType._id}>
+								<option key={unitType._id} value={unitType._id} style={{ background: colors.bg, color: colors.headingText }}>
 									{unitType.name}
 								</option>
 							))}
 						</Select>
-						<FormErrorMessage>{formik.errors.unitType}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.unitType}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
@@ -425,46 +449,65 @@ const UpdateListing = () => {
 								formik.touched.subUnitType && formik.errors.subUnitType
 							}
 						>
-							<FormLabel>Sub Unit Type</FormLabel>
+							<FormLabel color={colors.labelColor}>Sub Unit Type</FormLabel>
 							<Select
 								name='subUnitType'
 								value={formik.values.subUnitType}
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
 								placeholder='Select sub unit type'
-								focusBorderColor='brand.500'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
+								_hover={{ borderColor: colors.accentGold }}
+								_focus={{
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
+								}}
 							>
 								{subUnitTypes.doc.map((sub) => (
-									<option key={sub._id} value={sub._id}>
+									<option key={sub._id} value={sub._id} style={{ background: colors.bg, color: colors.headingText }}>
 										{sub.name}
 									</option>
 								))}
 							</Select>
-							<FormErrorMessage>{formik.errors.subUnitType}</FormErrorMessage>
+							<FormErrorMessage color={colors.badgeErrorText}>
+								{formik.errors.subUnitType}
+							</FormErrorMessage>
 						</FormControl>
 					</GridItem>
 				)}
+
 				{/* Listing Type */}
 				<GridItem colSpan={colSpan}>
 					<FormControl
 						isInvalid={formik.touched.listingType && formik.errors.listingType}
 					>
-						<FormLabel>Listing Type</FormLabel>
+						<FormLabel color={colors.labelColor}>Listing Type</FormLabel>
 						<Select
 							name='listingType'
 							value={formik.values.listingType}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Select listing type'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						>
 							{listingTypes?.doc?.map((type) => (
-								<option key={type._id} value={type._id}>
+								<option key={type._id} value={type._id} style={{ background: colors.bg, color: colors.headingText }}>
 									{type.name}
 								</option>
 							))}
 						</Select>
-						<FormErrorMessage>{formik.errors.listingType}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.listingType}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
@@ -473,7 +516,7 @@ const UpdateListing = () => {
 					<FormControl
 						isInvalid={formik.touched.developer && formik.errors.developer}
 					>
-						<FormLabel>Developer</FormLabel>
+						<FormLabel color={colors.labelColor}>Developer</FormLabel>
 						<Box position='relative' ref={inputRef}>
 							<Input
 								name='developer'
@@ -493,7 +536,15 @@ const UpdateListing = () => {
 								onFocus={() => setShowDevSuggestions(true)}
 								onBlur={formik.handleBlur}
 								placeholder='Type developer name'
-								focusBorderColor='brand.500'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
+								_placeholder={{ color: colors.mutedText }}
+								_hover={{ borderColor: colors.accentGold }}
+								_focus={{
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
+								}}
 								autoComplete='off'
 								width='100%'
 							/>
@@ -503,10 +554,11 @@ const UpdateListing = () => {
 									top='100%'
 									left={0}
 									width='100%'
-									bg='white'
-									border='1px solid #e2e8f0'
+									bg={colors.bg}
+									border='1px solid'
+									borderColor={colors.borderColor}
 									borderRadius='md'
-									boxShadow='md'
+									boxShadow={colors.cardShadow}
 									zIndex={10}
 									maxH='200px'
 									overflowY='auto'
@@ -517,7 +569,8 @@ const UpdateListing = () => {
 											px={4}
 											py={2}
 											cursor='pointer'
-											_hover={{ bg: 'gray.100' }}
+											color={colors.bodyText}
+											_hover={{ bg: colors.bgDeep, color: colors.accentGold }}
 											onMouseDown={() => {
 												setDeveloperInput(dev.developer_name);
 												formik.setFieldValue('developer', dev._id);
@@ -530,43 +583,65 @@ const UpdateListing = () => {
 								</Box>
 							)}
 						</Box>
-						<FormErrorMessage>{formik.errors.developer}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.developer}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
 				{/* Area */}
 				<GridItem colSpan={colSpan}>
 					<FormControl isInvalid={formik.touched.area && formik.errors.area}>
-						<FormLabel>Area (sqft)</FormLabel>
+						<FormLabel color={colors.labelColor}>Area (sqft)</FormLabel>
 						<Input
 							name='area'
 							value={formik.values.area}
 							onChange={handleAreaChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter area in square feet'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 							inputMode='decimal'
 							min='0'
 						/>
-						<FormErrorMessage>{formik.errors.area}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.area}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
 				{/* Price */}
 				<GridItem colSpan={colSpan}>
 					<FormControl isInvalid={formik.touched.price && formik.errors.price}>
-						<FormLabel>Price</FormLabel>
+						<FormLabel color={colors.labelColor}>Price</FormLabel>
 						<Input
 							name='price'
 							value={formik.values.price}
 							onChange={handlePriceChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter price'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 							inputMode='decimal'
 							min='0'
 						/>
-						<FormErrorMessage>{formik.errors.price}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.price}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
@@ -575,17 +650,26 @@ const UpdateListing = () => {
 					<FormControl
 						isInvalid={formik.touched.currency && formik.errors.currency}
 					>
-						<FormLabel>Currency</FormLabel>
+						<FormLabel color={colors.labelColor}>Currency</FormLabel>
 						<Select
 							name='currency'
 							value={formik.values.currency}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						>
-							<option value='AED'>AED</option>
+							<option value='AED' style={{ background: colors.bg, color: colors.headingText }}>AED</option>
 						</Select>
-						<FormErrorMessage>{formik.errors.currency}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.currency}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
@@ -594,16 +678,26 @@ const UpdateListing = () => {
 					<FormControl
 						isInvalid={formik.touched.location && formik.errors.location}
 					>
-						<FormLabel>Location</FormLabel>
+						<FormLabel color={colors.labelColor}>Location</FormLabel>
 						<Input
 							name='location'
 							value={formik.values.location}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter location'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
-						<FormErrorMessage>{formik.errors.location}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.location}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
@@ -612,7 +706,7 @@ const UpdateListing = () => {
 					<FormControl
 						isInvalid={formik.touched.country && formik.errors.country}
 					>
-						<FormLabel>Country</FormLabel>
+						<FormLabel color={colors.labelColor}>Country</FormLabel>
 						<Select
 							name='country'
 							value={formik.values.country?.name || ''}
@@ -624,15 +718,22 @@ const UpdateListing = () => {
 							}}
 							onBlur={formik.handleBlur}
 							placeholder='Select country'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						>
 							{countries?.doc?.map((country) => (
-								<option key={country.code} value={country.name}>
+								<option key={country.code} value={country.name} style={{ background: colors.bg, color: colors.headingText }}>
 									{country.name}
 								</option>
 							))}
 						</Select>
-						<FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
 							{formik.errors.country?.message || formik.errors.country}
 						</FormErrorMessage>
 					</FormControl>
@@ -643,7 +744,7 @@ const UpdateListing = () => {
 					<FormControl
 						isInvalid={formik.touched.buildingAge && formik.errors.buildingAge}
 					>
-						<FormLabel>Building Age (years)</FormLabel>
+						<FormLabel color={colors.labelColor}>Building Age (years)</FormLabel>
 						<Input
 							type='number'
 							name='buildingAge'
@@ -651,30 +752,52 @@ const UpdateListing = () => {
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter building age'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 							min='0'
 							step='any'
 						/>
-						<FormErrorMessage>{formik.errors.buildingAge}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.buildingAge}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
+
 				{/* Owner Name */}
 				<GridItem colSpan={colSpan}>
 					<FormControl
 						isInvalid={formik.touched.ownerName && formik.errors.ownerName}
 					>
-						<FormLabel>Owner Name</FormLabel>
+						<FormLabel color={colors.labelColor}>Owner Name</FormLabel>
 						<Input
 							name='ownerName'
 							value={formik.values.ownerName}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter owner name'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
-						<FormErrorMessage>{formik.errors.ownerName}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.ownerName}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
+
 				{/* Owner Phone Number */}
 				<GridItem colSpan={colSpan}>
 					<FormControl
@@ -682,20 +805,29 @@ const UpdateListing = () => {
 							formik.touched.ownerPhoneNumber && formik.errors.ownerPhoneNumber
 						}
 					>
-						<FormLabel>Owner Phone Number</FormLabel>
+						<FormLabel color={colors.labelColor}>Owner Phone Number</FormLabel>
 						<Input
 							name='ownerPhoneNumber'
 							value={formik.values.ownerPhoneNumber}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter owner Phone number'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
-						<FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
 							{formik.errors.ownerPhoneNumber}
 						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
+
 				{isSuperAdmin && (
 					<>
 						{/* Landlord */}
@@ -703,7 +835,7 @@ const UpdateListing = () => {
 							<FormControl
 								isInvalid={formik.touched.landlord && formik.errors.landlord}
 							>
-								<FormLabel>Landlord</FormLabel>
+								<FormLabel color={colors.labelColor}>Landlord</FormLabel>
 								<Input
 									name='landlord'
 									value={formik.values.landlord}
@@ -711,9 +843,19 @@ const UpdateListing = () => {
 									onBlur={formik.handleBlur}
 									readOnly={!isSuperAdmin}
 									placeholder='Enter landlord name'
-									focusBorderColor='brand.500'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_hover={{ borderColor: colors.accentGold }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
 								/>
-								<FormErrorMessage>{formik.errors.landlord}</FormErrorMessage>
+								<FormErrorMessage color={colors.badgeErrorText}>
+									{formik.errors.landlord}
+								</FormErrorMessage>
 							</FormControl>
 						</GridItem>
 
@@ -724,7 +866,7 @@ const UpdateListing = () => {
 									formik.touched.phoneNumber && formik.errors.phoneNumber
 								}
 							>
-								<FormLabel>Phone Number</FormLabel>
+								<FormLabel color={colors.labelColor}>Phone Number</FormLabel>
 								<Input
 									name='phoneNumber'
 									value={formik.values.phoneNumber}
@@ -732,9 +874,19 @@ const UpdateListing = () => {
 									onBlur={formik.handleBlur}
 									readOnly={!isSuperAdmin}
 									placeholder='Enter phone number'
-									focusBorderColor='brand.500'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_hover={{ borderColor: colors.accentGold }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
 								/>
-								<FormErrorMessage>{formik.errors.phoneNumber}</FormErrorMessage>
+								<FormErrorMessage color={colors.badgeErrorText}>
+									{formik.errors.phoneNumber}
+								</FormErrorMessage>
 							</FormControl>
 						</GridItem>
 
@@ -743,7 +895,7 @@ const UpdateListing = () => {
 							<FormControl
 								isInvalid={formik.touched.email && formik.errors.email}
 							>
-								<FormLabel>Email</FormLabel>
+								<FormLabel color={colors.labelColor}>Email</FormLabel>
 								<Input
 									type='email'
 									name='email'
@@ -752,9 +904,19 @@ const UpdateListing = () => {
 									onBlur={formik.handleBlur}
 									readOnly={!isSuperAdmin}
 									placeholder='Enter email'
-									focusBorderColor='brand.500'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_placeholder={{ color: colors.mutedText }}
+									_hover={{ borderColor: colors.accentGold }}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
 								/>
-								<FormErrorMessage>{formik.errors.email}</FormErrorMessage>
+								<FormErrorMessage color={colors.badgeErrorText}>
+									{formik.errors.email}
+								</FormErrorMessage>
 							</FormControl>
 						</GridItem>
 					</>
@@ -768,19 +930,26 @@ const UpdateListing = () => {
 							formik.errors.brokerCommissionType
 						}
 					>
-						<FormLabel>Broker Commission Type</FormLabel>
+						<FormLabel color={colors.labelColor}>Broker Commission Type</FormLabel>
 						<Select
 							name='brokerCommissionType'
 							value={formik.values.brokerCommissionType}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Select type'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						>
-							<option value='AED'>AED</option>
-							<option value='PERCENT'>Percent</option>
+							<option value='AED' style={{ background: colors.bg, color: colors.headingText }}>AED</option>
+							<option value='PERCENT' style={{ background: colors.bg, color: colors.headingText }}>Percent</option>
 						</Select>
-						<FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
 							{formik.errors.brokerCommissionType}
 						</FormErrorMessage>
 					</FormControl>
@@ -794,14 +963,22 @@ const UpdateListing = () => {
 							formik.errors.brokerCommissionValue
 						}
 					>
-						<FormLabel>Commission Value</FormLabel>
+						<FormLabel color={colors.labelColor}>Commission Value</FormLabel>
 						<Input
 							name='brokerCommissionValue'
 							value={formik.values.brokerCommissionValue}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter commission value'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 							inputMode='decimal'
 							min={
 								formik.values.brokerCommissionType === 'PERCENT'
@@ -814,7 +991,7 @@ const UpdateListing = () => {
 									: undefined
 							}
 						/>
-						<FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
 							{formik.errors.brokerCommissionValue}
 						</FormErrorMessage>
 					</FormControl>
@@ -825,25 +1002,35 @@ const UpdateListing = () => {
 					<FormControl
 						isInvalid={formik.touched.description && formik.errors.description}
 					>
-						<FormLabel>Description</FormLabel>
+						<FormLabel color={colors.labelColor}>Description</FormLabel>
 						<Textarea
 							name='description'
 							value={formik.values.description}
 							onChange={formik.handleChange}
 							onBlur={formik.handleBlur}
 							placeholder='Enter description'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_placeholder={{ color: colors.mutedText }}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 							height='150px'
 							resize='vertical'
 						/>
-						<FormErrorMessage>{formik.errors.description}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>
+							{formik.errors.description}
+						</FormErrorMessage>
 					</FormControl>
 				</GridItem>
 
 				{/* Documents */}
 				<GridItem colSpan={2}>
 					<FormControl>
-						<FormLabel>Documents</FormLabel>
+						<FormLabel color={colors.labelColor}>Documents</FormLabel>
 						<FileUpload files={files} setFiles={setFiles} />
 					</FormControl>
 				</GridItem>
@@ -853,7 +1040,7 @@ const UpdateListing = () => {
 					<Flex justify='flex-end'>
 						<Button
 							type='submit'
-							colorScheme='brand'
+							variant='brand'
 							isLoading={isUpdating}
 							loadingText='Updating...'
 							isDisabled={!formik.isValid || isUpdating}

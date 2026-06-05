@@ -13,6 +13,7 @@ import CardShimmer from 'components/loading/CardShimmer';
 import OnlineUsersCard from './components/OnlineUsersCard';
 import { usePermissions } from 'hooks/usePermissions';
 import OnlineUsers from './components/OnlineUsers';
+import TopRankAgents from './components/TopRankAgents';
 
 export default function AppDashboard() {
 	const { colorMode } = useColorMode();
@@ -100,7 +101,16 @@ export default function AppDashboard() {
 			{/* <Header /> */}
 			{/* {hasPermission('dashboard', 'online_users_count') && <OnlineUsersCard />} */}
 			{hasPermission('dashboard', 'online_users_count') && <OnlineUsers />}
-
+			{/* {hasPermission('dashboard', 'online_users_count') &&  */}
+			{/* <TopRankAgents /> */}
+			{[
+				'Sales Admin',
+				'superAdmin',
+				'Admin',
+				'Manager',
+				'Team Leader',
+				'Agent',
+			].includes(userRoleName) && <TopRankAgents />}
 			{hasPermission('deal') && <SalesDashboard data={sales} />}
 
 			{['superAdmin', 'Admin'].includes(userRoleName) && (

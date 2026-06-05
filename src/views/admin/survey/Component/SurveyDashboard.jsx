@@ -21,12 +21,6 @@ const SurveyDashboard = () => {
       <SurveySummary
         title="Survey"
         data={surveysStats?.data?.summaryData}
-        buttonText="+ Create Survey"
-        onButtonClick={() => navigate("/survey/create")}
-        secondaryButtonText="LeaderBoard"
-        onSecondaryButtonClick={() =>
-          navigate("/survey/dashboard/survey-leader-board")
-        }
         isLoading={isLoading}
         refetch={refetch}
         isFetching={isFetching}

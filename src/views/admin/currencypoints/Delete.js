@@ -28,8 +28,8 @@ const Delete = (props) => {
                 if (response.status === 200) {
                     props.onClose(false)
                     props.setAction((pre) => !pre)
-                    props.setSelectedValues([]); 
-                    props.setSelectAllChecked(false); 
+                    props.setSelectedValues([]);
+                    props.setSelectAllChecked(false);
                 }
             } catch (error) {
                 console.log(error)
@@ -38,7 +38,7 @@ const Delete = (props) => {
                 setIsLoding(false)
             }
         }
-        
+
     };
 
     const handleClose = () => {

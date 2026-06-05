@@ -7,10 +7,12 @@ import { useFetchItemsQuery } from 'api/apiSlice';
 import TopFilter from '../TopFilter';
 import { viewOptions } from '../../helpers';
 import CardShimmer from 'components/loading/CardShimmer';
+import { useModalColors } from 'hooks/useModalColors';
 
 import NoData from 'components/Message/NoData';
 
 const LeadFeedbacks = () => {
+	const colors = useModalColors();
 	const { filters } = useLeadReportFilters();
 
 	const [view, setView] = useState('top5');
@@ -46,7 +48,7 @@ const LeadFeedbacks = () => {
 		);
 
 	return statusLoading || mainStatusLoading ? (
-		<Box w='full' p='6' bg='white' my='2' rounded='md' shadow='sm'>
+		<Box w='full' p='6' bg={colors.bg} my='2' rounded='md' shadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
 			<CardShimmer
 				count={2}
 				height='400px'
@@ -54,7 +56,7 @@ const LeadFeedbacks = () => {
 			/>
 		</Box>
 	) : (
-		<Box bg='white' my='2' rounded='md' shadow='sm' p='6'>
+		<Box bg={colors.bg} my='2' rounded='md' shadow={colors.cardShadow} p='6' border="1px solid" borderColor={colors.borderColor}>
 			<Flex
 				justify='space-between'
 				align='center'
@@ -66,6 +68,7 @@ const LeadFeedbacks = () => {
 					fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
 					fontWeight='bold'
 					mb='2'
+					color={colors.headingText}
 				>
 					Lead Feedbacks
 				</Text>
@@ -80,7 +83,7 @@ const LeadFeedbacks = () => {
 						flexDirection: 'column',
 					},
 				}}
-				gap='1'
+				gap='6'
 				align='stretch'
 				justify='space-between'
 			>

@@ -1,4 +1,389 @@
-import { useFetchItemsQuery } from 'api/apiSlice';
+// import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
+// import React, { useEffect, useMemo, useState } from 'react';
+// import {
+// 	Box,
+// 	Button,
+// 	Checkbox,
+// 	Tab,
+// 	TabList,
+// 	TabPanel,
+// 	TabPanels,
+// 	Tabs,
+// 	Text,
+// 	VStack,
+// } from '@chakra-ui/react';
+// import Loader from 'components/loading/Loader';
+// import axios from 'axios';
+// import keys from 'config/keys';
+// import { toast } from 'react-toastify';
+// import { useUpdateItemMutation } from 'api/apiSlice';
+// import { useNavigate } from 'react-router-dom';
+// import SelectInterviewOwner from './SelectInterviewOwner';
+// import { NOTIFICATION_TYPES } from 'constants/notification.contants';
+// import { useSendNotification } from 'hooks/notification/useSendNotification';
+
+// const SelectInterviewers = ({
+// 	interview,
+// 	user,
+// 	handleTabChange,
+// 	interviewRefetch,
+// 	isInvitedInterviewer,
+// 	setLoading,
+// }) => {
+// 	const { data: allUsers, isLoading: usersLoading } = useFetchItemsQuery({
+// 		path: `/v2/user/hierarchy/new`,
+// 		params: { type: 'all' },
+// 	});
+
+// 	const navigate = useNavigate();
+
+// 	const { sendNotification } = useSendNotification();
+
+
+// 	useEffect(() => {
+// 		if (isInvitedInterviewer && interview?._id) {
+// 			navigate(`/hiring/interview/${interview._id}?phase=evaluation-points`);
+// 		}
+// 	}, [interview._id, isInvitedInterviewer, navigate]);
+
+// 	const [updateItemMutation, { isLoading: updatingInterview }] =
+// 		useUpdateItemMutation();
+
+// 	const userRole = user?.roles[0]?.roleName || user?.role;
+
+// 	const [selectedIds, setSelectedIds] = useState([]);
+// 	const [selectedUsers, setSelectedUsers] = useState([]);
+// 	const [isModalOpen, setModalOpen] = useState(false);
+// 	const [selectedInterviewer, setSelectedInterviewer] = useState(null);
+
+// 	const handleSelectOwner = (id) => setSelectedInterviewer(id);
+
+// 	const combinedUsers = useMemo(() => {
+// 		const userGroups = [
+// 			allUsers?.doc?.managers,
+// 			allUsers?.doc?.admins,
+// 			allUsers?.doc?.hrStaff,
+// 			allUsers?.doc?.salesAdmins,
+// 		];
+// 		return userGroups.flat().filter(Boolean);
+// 	}, [allUsers]);
+
+// 	const handleSelectUser = (id) => {
+// 		const selectedUser = combinedUsers.find((u) => u?._id === id);
+// 		if (!selectedUser) {
+// 			console.warn(`User with id ${id} not found in combinedUsers`);
+// 			return;
+// 		}
+
+// 		setSelectedUsers((prev) => {
+// 			// Prevent duplicates
+// 			const exists = prev.some((u) => u._id === id);
+// 			if (exists) return prev;
+
+// 			// Add user at the top
+// 			return [selectedUser, ...prev];
+// 		});
+// 	};
+
+// 	const handleCheckboxChange = (id) => {
+// 		setSelectedIds((prev) => {
+// 			const isSelected = prev.includes(id);
+// 			if (isSelected) {
+// 				//  user is unchecked → remove from selectedUsers
+// 				setSelectedUsers((users) => users.filter((u) => u._id !== id));
+// 				return prev.filter((item) => item !== id);
+// 			} else {
+// 				//  user is checked → add to selectedUsers
+// 				handleSelectUser(id);
+// 				return [...prev, id];
+// 			}
+// 		});
+// 	};
+
+// 	const handleSelectInterviewerClose = () => {
+// 		setModalOpen(false);
+// 		setSelectedInterviewer(null);
+// 	};
+
+// 	const renderUserList = (users) => {
+// 		// const filteredUsers = users.filter((item) => item._id !== user._id);
+// 		return (
+// 			<VStack
+// 				px={0}
+// 				align='stretch'
+// 				spacing={3}
+// 				maxHeight='500px' // Set a custom height for the container
+// 				overflowY='auto' // Enable vertical scrolling
+// 				w='100%'
+// 				sx={{
+// 					'&::-webkit-scrollbar': {
+// 						width: '6px', // Custom scrollbar width
+// 					},
+// 					'&::-webkit-scrollbar-thumb': {
+// 						background: 'brand.300', // Custom brand color (adjust according to your theme)
+// 						borderRadius: '8px',
+// 					},
+// 					'&::-webkit-scrollbar-thumb:hover': {
+// 						background: 'brand.400', // Slightly darker on hover
+// 					},
+// 				}}
+// 			>
+// 				{users?.map((user) => (
+// 					<Box
+// 						key={user._id}
+// 						display='flex'
+// 						alignItems='flex-start'
+// 						justifyContent='space-between'
+// 						p={3}
+// 						borderWidth='1px'
+// 						borderRadius='md'
+// 						boxShadow='sm'
+// 						bg='#F8FAFC'
+// 						w='100%'
+// 						minH='70px'
+// 						overflow='hidden'
+// 					>
+// 						<Checkbox
+// 							isChecked={selectedIds.includes(user._id)}
+// 							onChange={() => handleCheckboxChange(user._id)}
+// 							colorScheme='brand'
+// 							size='lg' // Increased size
+// 							_focus={{
+// 								boxShadow: 'none', // Removed focus outline
+// 							}}
+// 							alignItems='flex-start'
+// 							w='100%'
+// 						>
+// 							<Box ml={2} overflow='hidden' flex='1'>
+// 								<Text
+// 									fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
+// 									fontWeight='medium'
+// 									isTruncated
+// 								>
+// 									{user.name}
+// 								</Text>
+// 								<Text
+// 									fontSize={{ base: 'xs', sm: 'xs', md: 'sm' }}
+// 									color='gray.500'
+// 									wordBreak='break-word'
+// 									whiteSpace='normal'
+// 								>
+// 									{user.email}
+// 								</Text>
+// 							</Box>
+// 						</Checkbox>
+// 					</Box>
+// 				))}
+// 			</VStack>
+// 		);
+// 	};
+
+// 	// const getSenderName = (id) => {
+// 	// 	return combinedUsers.find((user) => user._id === id)?.name;
+// 	// };
+
+// 	const handleSendInvite = async (selectedIds) => {
+// 		try {
+// 			if (selectedIds.length > 0) {
+// 				if (!selectedInterviewer) {
+// 					// handleSelectUser(user._id);
+// 					setSelectedInterviewer(selectedIds[0]);
+// 					return setModalOpen(true);
+// 				} else setModalOpen(false);
+
+// 				// const receiverIds =
+// 				// 	selectedInterviewer !== user._id
+// 				// 		? [...selectedIds]
+// 				// 		: selectedIds;
+
+// 				// const sender_name = user?.fullName;
+
+// 				// const interviewData2 = {
+// 				// 	sender_id: user._id,
+// 				// 	sender_name,
+// 				// 	sender_role: userRole,
+// 				// 	receiver_ids: selectedIds,
+// 				// 	interview_id: interview._id,
+// 				// 	candidate_name: interview?.candidate?.name,
+// 				// 	candidate_job_type: interview?.candidate?.position.name,
+// 				// };
+// 				// const sender_name = user?.fullName;
+
+// 				// const interviewData2 = {
+// 				// 	sender_id: user._id,
+// 				// 	sender_name,
+// 				// 	sender_role: userRole,
+// 				// 	receiver_ids: selectedIds,
+// 				// 	interview_id: interview._id,
+// 				// 	candidate_name: interview?.candidate?.name,
+// 				// 	candidate_job_type: interview?.candidate?.position.name,
+// 				// };
+
+// 				const interviewData = {
+// 					recipientType: 'INTERVIEWER',
+// 					type: NOTIFICATION_TYPES.INTERVIEW_INVITE,
+// 					sender: user?._id,
+// 					title: 'Interview Invite',
+// 					metadata: {
+// 						interviewId: interview._id,
+// 					},
+// 					...(selectedIds.length > 0 && { receivers: selectedIds }),
+// 				};
+
+// 				await sendNotification(interviewData);
+
+// 				// await createItemMutation({
+// 				// 	path: '/notifications',
+// 				// 	body: interviewData,
+// 				// }).unwrap();
+// 				// 	recipientType: 'INTERVIEWER',
+// 				// 	type: NOTIFICATION_TYPES.INTERVIEW_INVITE,
+// 				// 	sender: user?._id,
+// 				// 	title: 'Interview Invite',
+// 				// 	metadata: {
+// 				// 		interviewId: interview._id,
+// 				// 	},
+// 				// 	...(selectedIds.length > 0 && { receivers: selectedIds }),
+// 				// };
+
+// 				// await sendNotification(interviewData);
+
+// 				// await createItemMutation({
+// 				// 	path: '/notifications',
+// 				// 	body: interviewData,
+// 				// }).unwrap();
+
+// 				// const { data } = await axios.post(
+// 				// 	`${keys.socketUrl}/interview_invite`,
+// 				// 	interviewData,
+// 				// );
+// 				// const { data } = await axios.post(
+// 				// 	`${keys.socketUrl}/interview_invite`,
+// 				// 	interviewData,
+// 				// );
+
+// 				await updateItemMutation({
+// 					path: `/interviews/${interview._id}`,
+// 					body: {
+// 						interviewers: selectedIds,
+// 						leadInterviewer: selectedInterviewer,
+// 					},
+// 				}).unwrap();
+
+// 				toast.success('Interview invite sent successfully.');
+
+// 				// if selected interviewer is another user then redirect to default page
+// 				const createdUser = selectedIds?.find((id) => id === user._id);
+
+// 				// if user is not selected for interviwers list
+// 				if (!createdUser) {
+// 					return navigate('/hiring');
+// 				} else if (createdUser && selectedInterviewer !== user._id) {
+// 					setLoading(true);
+// 					handleTabChange(1);
+// 				}
+
+// 				// Else if user is own owner of interview then move to next tab
+// 				handleTabChange(1);
+// 			} else {
+// 				await updateItemMutation({
+// 					path: `/interviews/${interview._id}`,
+// 					body: { interviewers: [user._id], leadInterviewer: user._id },
+// 				}).unwrap();
+// 				handleTabChange(1);
+// 			}
+
+// 			// Refetch the interview data
+// 			interviewRefetch();
+// 		} catch (err) {
+// 			console.log(err);
+// 			toast.error('Failed to send announcement.');
+// 		}
+// 	};
+
+// 	return usersLoading ? (
+// 		<Loader />
+// 	) : (
+// 		<Box>
+// 			<Text
+// 				fontSize={{ base: 'xl', md: '2xl' }}
+// 				fontWeight='bold'
+// 				mb={4}
+// 				textAlign='center'
+// 			>
+// 				Select Interviewers
+// 			</Text>
+
+// 			<Tabs variant='subtle'>
+// 				<TabList justifyContent='space-between' gap={2} mb={4}>
+// 					{['Admin', 'Manager', 'HR', 'Sales Admin'].map((tabName, index) => (
+// 						<Tab
+// 							key={index}
+// 							flex='1'
+// 							bg='softGray.100'
+// 							border='none'
+// 							borderRadius='10px'
+// 							fontWeight='normal'
+// 							_selected={{
+// 								bg: 'brand.300',
+// 								color: 'gray.800',
+// 								borderRadius: '10px',
+// 							}}
+// 							_focus={{
+// 								boxShadow: 'none',
+// 							}}
+// 							fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
+// 						>
+// 							{tabName}
+// 						</Tab>
+// 					))}
+// 				</TabList>
+// 				<TabPanels bg='softGray.100' p={4} rounded='md'>
+// 					<TabPanel p={0}>{renderUserList(allUsers?.doc?.admins)}</TabPanel>
+// 					<TabPanel p={0}>{renderUserList(allUsers?.doc?.managers)}</TabPanel>
+// 					<TabPanel p={0}>{renderUserList(allUsers?.doc?.hrStaff)}</TabPanel>
+// 					<TabPanel p={0}>
+// 						{renderUserList(allUsers?.doc?.salesAdmins)}
+// 					</TabPanel>
+// 				</TabPanels>
+// 			</Tabs>
+// 			<Button
+// 				bg='#EDC270'
+// 				color='gray.800'
+// 				fontSize={{ base: 'sm', md: 'md' }}
+// 				fontWeight='normal'
+// 				shadow='sm'
+// 				rounded='md'
+// 				_hover={{ bg: '#E0B960' }}
+// 				_active={{ bg: '#D4AC50' }}
+// 				w='full'
+// 				mt={6}
+// 				onClick={() => handleSendInvite(selectedIds)}
+// 			>
+// 				{updatingInterview
+// 					? 'Updating...'
+// 					: selectedIds.length === 0
+// 						? 'Skip'
+// 						: `Send Invite (${selectedIds.length})`}
+// 			</Button>
+
+// 			{isModalOpen && (
+// 				<SelectInterviewOwner
+// 					isOpen={isModalOpen}
+// 					onClose={handleSelectInterviewerClose}
+// 					users={selectedUsers}
+// 					selectedId={selectedInterviewer}
+// 					onSelect={handleSelectOwner}
+// 					onConfirm={() => handleSendInvite(selectedIds)}
+// 				/>
+// 			)}
+// 		</Box>
+// 	);
+// };
+
+// export default SelectInterviewers;
+
+import { useCreateItemMutation, useFetchItemsQuery } from 'api/apiSlice';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
@@ -19,6 +404,9 @@ import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
 import { useNavigate } from 'react-router-dom';
 import SelectInterviewOwner from './SelectInterviewOwner';
+import { NOTIFICATION_TYPES } from 'constants/notification.contants';
+import { useSendNotification } from 'hooks/notification/useSendNotification';
+import { useModalColors } from 'hooks/useModalColors';
 
 const SelectInterviewers = ({
 	interview,
@@ -28,12 +416,15 @@ const SelectInterviewers = ({
 	isInvitedInterviewer,
 	setLoading,
 }) => {
+	const colors = useModalColors();
 	const { data: allUsers, isLoading: usersLoading } = useFetchItemsQuery({
 		path: `/v2/user/hierarchy/new`,
 		params: { type: 'all' },
 	});
 
 	const navigate = useNavigate();
+
+	const { sendNotification } = useSendNotification();
 
 	useEffect(() => {
 		if (isInvitedInterviewer && interview?._id) {
@@ -58,6 +449,7 @@ const SelectInterviewers = ({
 			allUsers?.doc?.managers,
 			allUsers?.doc?.admins,
 			allUsers?.doc?.hrStaff,
+			allUsers?.doc?.salesAdmins,
 		];
 		return userGroups.flat().filter(Boolean);
 	}, [allUsers]);
@@ -70,11 +462,8 @@ const SelectInterviewers = ({
 		}
 
 		setSelectedUsers((prev) => {
-			// Prevent duplicates
 			const exists = prev.some((u) => u._id === id);
 			if (exists) return prev;
-
-			// Add user at the top
 			return [selectedUser, ...prev];
 		});
 	};
@@ -83,11 +472,9 @@ const SelectInterviewers = ({
 		setSelectedIds((prev) => {
 			const isSelected = prev.includes(id);
 			if (isSelected) {
-				//  user is unchecked → remove from selectedUsers
 				setSelectedUsers((users) => users.filter((u) => u._id !== id));
 				return prev.filter((item) => item !== id);
 			} else {
-				//  user is checked → add to selectedUsers
 				handleSelectUser(id);
 				return [...prev, id];
 			}
@@ -100,31 +487,30 @@ const SelectInterviewers = ({
 	};
 
 	const renderUserList = (users) => {
-		// const filteredUsers = users.filter((item) => item._id !== user._id);
 		return (
 			<VStack
 				px={0}
 				align='stretch'
 				spacing={3}
-				maxHeight='500px' // Set a custom height for the container
-				overflowY='auto' // Enable vertical scrolling
+				maxHeight='500px'
+				overflowY='auto'
 				w='100%'
 				sx={{
 					'&::-webkit-scrollbar': {
-						width: '6px', // Custom scrollbar width
+						width: '6px',
 					},
 					'&::-webkit-scrollbar-thumb': {
-						background: 'brand.300', // Custom brand color (adjust according to your theme)
+						background: colors.accentGold,
 						borderRadius: '8px',
 					},
 					'&::-webkit-scrollbar-thumb:hover': {
-						background: 'brand.400', // Slightly darker on hover
+						background: colors.goldDark,
 					},
 				}}
 			>
-				{users?.map((user) => (
+				{users?.map((userItem) => (
 					<Box
-						key={user._id}
+						key={userItem._id}
 						display='flex'
 						alignItems='flex-start'
 						justifyContent='space-between'
@@ -132,18 +518,19 @@ const SelectInterviewers = ({
 						borderWidth='1px'
 						borderRadius='md'
 						boxShadow='sm'
-						bg='#F8FAFC'
+						bg={colors.bgInput}
+						borderColor={colors.borderColor}
 						w='100%'
 						minH='70px'
 						overflow='hidden'
 					>
 						<Checkbox
-							isChecked={selectedIds.includes(user._id)}
-							onChange={() => handleCheckboxChange(user._id)}
-							colorScheme='brand'
-							size='lg' // Increased size
+							isChecked={selectedIds.includes(userItem._id)}
+							onChange={() => handleCheckboxChange(userItem._id)}
+							colorScheme='yellow'
+							size='lg'
 							_focus={{
-								boxShadow: 'none', // Removed focus outline
+								boxShadow: 'none',
 							}}
 							alignItems='flex-start'
 							w='100%'
@@ -153,16 +540,17 @@ const SelectInterviewers = ({
 									fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
 									fontWeight='medium'
 									isTruncated
+									color={colors.headingText}
 								>
-									{user.name}
+									{userItem.name}
 								</Text>
 								<Text
 									fontSize={{ base: 'xs', sm: 'xs', md: 'sm' }}
-									color='gray.500'
+									color={colors.mutedText}
 									wordBreak='break-word'
 									whiteSpace='normal'
 								>
-									{user.email}
+									{userItem.email}
 								</Text>
 							</Box>
 						</Checkbox>
@@ -172,40 +560,26 @@ const SelectInterviewers = ({
 		);
 	};
 
-	// const getSenderName = (id) => {
-	// 	return combinedUsers.find((user) => user._id === id)?.name;
-	// };
-
 	const handleSendInvite = async (selectedIds) => {
 		try {
 			if (selectedIds.length > 0) {
 				if (!selectedInterviewer) {
-					// handleSelectUser(user._id);
 					setSelectedInterviewer(selectedIds[0]);
 					return setModalOpen(true);
 				} else setModalOpen(false);
 
-				// const receiverIds =
-				// 	selectedInterviewer !== user._id
-				// 		? [...selectedIds]
-				// 		: selectedIds;
-
-				const sender_name = user?.fullName;
-
 				const interviewData = {
-					sender_id: user._id,
-					sender_name,
-					sender_role: userRole,
-					receiver_ids: selectedIds,
-					interview_id: interview._id,
-					candidate_name: interview?.candidate?.name,
-					candidate_job_type: interview?.candidate?.position.name,
+					recipientType: 'INTERVIEWER',
+					type: NOTIFICATION_TYPES.INTERVIEW_INVITE,
+					sender: user?._id,
+					title: 'Interview Invite',
+					metadata: {
+						interviewId: interview._id,
+					},
+					...(selectedIds.length > 0 && { receivers: selectedIds }),
 				};
 
-				const { data } = await axios.post(
-					`${keys.socketUrl}/interview_invite`,
-					interviewData
-				);
+				await sendNotification(interviewData);
 
 				await updateItemMutation({
 					path: `/interviews/${interview._id}`,
@@ -217,10 +591,8 @@ const SelectInterviewers = ({
 
 				toast.success('Interview invite sent successfully.');
 
-				// if selected interviewer is another user then redirect to default page
 				const createdUser = selectedIds?.find((id) => id === user._id);
 
-				// if user is not selected for interviwers list
 				if (!createdUser) {
 					return navigate('/hiring');
 				} else if (createdUser && selectedInterviewer !== user._id) {
@@ -228,7 +600,6 @@ const SelectInterviewers = ({
 					handleTabChange(1);
 				}
 
-				// Else if user is own owner of interview then move to next tab
 				handleTabChange(1);
 			} else {
 				await updateItemMutation({
@@ -238,7 +609,6 @@ const SelectInterviewers = ({
 				handleTabChange(1);
 			}
 
-			// Refetch the interview data
 			interviewRefetch();
 		} catch (err) {
 			console.log(err);
@@ -255,49 +625,56 @@ const SelectInterviewers = ({
 				fontWeight='bold'
 				mb={4}
 				textAlign='center'
+				color={colors.headingText}
 			>
 				Select Interviewers
 			</Text>
 
-			<Tabs variant='subtle'>
+			<Tabs variant='subtle' colorScheme='yellow'>
 				<TabList justifyContent='space-between' gap={2} mb={4}>
-					{['Admin', 'Manager', 'HR'].map((tabName, index) => (
+					{['Admin', 'Manager', 'HR', 'Sales Admin'].map((tabName, index) => (
 						<Tab
 							key={index}
 							flex='1'
-							bg='softGray.100'
+							bg={colors.bgInput}
 							border='none'
 							borderRadius='10px'
 							fontWeight='normal'
+							color={colors.bodyText}
 							_selected={{
-								bg: 'brand.300',
-								color: 'gray.800',
-								borderRadius: '10px',
+								bg: colors.accentGold,
+								color: colors.headerText,
 							}}
 							_focus={{
 								boxShadow: 'none',
 							}}
 							fontSize={{ base: 'sm', sm: 'sm', md: 'md' }}
+							_hover={{
+								color: colors.accentGold,
+							}}
 						>
 							{tabName}
 						</Tab>
 					))}
 				</TabList>
-				<TabPanels bg='softGray.100' p={4} rounded='md'>
+				<TabPanels bg={colors.bgInput} p={4} rounded='md'>
 					<TabPanel p={0}>{renderUserList(allUsers?.doc?.admins)}</TabPanel>
 					<TabPanel p={0}>{renderUserList(allUsers?.doc?.managers)}</TabPanel>
 					<TabPanel p={0}>{renderUserList(allUsers?.doc?.hrStaff)}</TabPanel>
+					<TabPanel p={0}>
+						{renderUserList(allUsers?.doc?.salesAdmins)}
+					</TabPanel>
 				</TabPanels>
 			</Tabs>
 			<Button
-				bg='#EDC270'
-				color='gray.800'
+				bg={colors.accentGold}
+				color={colors.headerText}
 				fontSize={{ base: 'sm', md: 'md' }}
 				fontWeight='normal'
 				shadow='sm'
 				rounded='md'
-				_hover={{ bg: '#E0B960' }}
-				_active={{ bg: '#D4AC50' }}
+				_hover={{ bg: colors.goldLight }}
+				_active={{ bg: colors.goldDark }}
 				w='full'
 				mt={6}
 				onClick={() => handleSendInvite(selectedIds)}

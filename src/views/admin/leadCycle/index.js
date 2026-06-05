@@ -13,7 +13,6 @@ import {
 } from "@chakra-ui/react";
 import { useStateContext } from "contexts/store";
 import CardShimmer from "components/loading/CardShimmer";
-import { useModalColors } from "hooks/useModalColors";
 
 class TimelineItem {
   constructor(type, updatedAt, updatedBy, updatedData, role) {
@@ -33,8 +32,6 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
   // const [] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
   // const { isLeadCycle, setIsLeadCycle } = useStateContext();
-
-  const { headerBg, headerText } = useModalColors();
 
   const fetchData = async () => {
     try {
@@ -95,19 +92,31 @@ const LeadCycle = ({ isLeadCycle, setIsLeadCycle }) => {
         isOpen={isLeadCycle?.isOpen}
         isCentered
       >
-        <ModalOverlay backdropFilter="blur(2px)" />
-        <ModalContent mx="2" borderRadius="xl" boxShadow="xl">
+        <ModalOverlay bg='bg.overlay' backdropFilter="blur(2px)" />
+        <ModalContent
+          bg='bg.surface'
+          borderRadius="xl"
+          boxShadow="deep"
+          mx="2"
+          overflow="hidden"
+        >
           <ModalHeader
-            bg={headerBg}
-            color={headerText}
+          bg='bg.elevated'
+  color='text.heading'
             borderTopRadius="xl"
             py={4}
+            px={6}
+            borderBottom='1px solid'
+            borderColor='border.default'
             w="100%"
           >
             Lead Cycle
           </ModalHeader>
-          <ModalCloseButton _focus={{ outline: "none" }} />
-          <ModalBody overflow="hidden" width="100%">
+<ModalCloseButton
+  color='text.muted'
+/>
+
+          <ModalBody bg='bg.app' overflow="hidden" width="100%">
             <Box
               width="100%"
               p="2"

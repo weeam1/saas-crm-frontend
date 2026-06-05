@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Table,
@@ -28,16 +28,19 @@ import { useFetchItemsQuery, useUpdateItemMutation } from "api/apiSlice";
 import TableLoading from "components/loading/TableLoading";
 import { toast } from "react-toastify";
 import TopPagination from "components/pagination/TopPagination";
-import { FiSearch, FiRefreshCw } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import AdvancedSearchModal from "../AdvancedSearchModal";
-import ActiveFiltersDisplay from "../SubComponent/ActiveFiltersDisplay";
+import SearchTags from "components/shared/SearchTags";
 import { format } from "date-fns";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { usePermissions } from "hooks/usePermissions";
 import { useModalColors } from "hooks/useModalColors";
+import CustomTooltip from "components/shared/CustomTooltip";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const ViewRequests = ({ listingType, listingUnitType }) => {
+  const colors = useModalColors();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -49,8 +52,10 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [currentListingId, setCurrentListingId] = useState(null);
   const [filters, setFilters] = useState({});
-  const [filterChanged, setFilterChanged] = useState(false);
+  const [searchTags, setSearchTags] = useState([]);
+  const [shouldRefetch, setShouldRefetch] = useState(false);
   const isMobile = useBreakpointValue({ base: true, sm: true, md: false });
+
   const columns = [
     "SR.No",
     "Requester",
@@ -68,8 +73,6 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
     "Action",
   ];
 
-  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
-
   const [updateStatus] = useUpdateItemMutation();
   const { createUserLog } = useUserActivityLog();
 
@@ -77,16 +80,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
 
   const { hasPermission } = usePermissions();
 
-  const handlePageSizeChange = (newPageSize) => {
-    setPageSize(newPageSize);
-    setCurrentPage(1);
-    refetch();
-  };
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-  const buildQueryParams = () => {
+  // Build query params
+  const buildQueryParams = useCallback(() => {
     const params = {
       page: currentPage,
       limit: pageSize,
@@ -112,19 +107,131 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       params.show_all_request = true;
     }
     return params;
-  };
+  }, [currentPage, pageSize, filters, hasPermission]);
 
   const { data, isLoading, refetch, isFetching } = useFetchItemsQuery(
     {
       path: `listing/secondary/requested-listings`,
       params: buildQueryParams(),
     },
-    { refetchOnMountOrArgChange: true }
+    { refetchOnMountOrArgChange: true },
   );
 
   const { data: countries } = useFetchItemsQuery({
     path: "/countries",
   });
+
+  // Trigger refetch when shouldRefetch changes
+  useEffect(() => {
+    if (shouldRefetch) {
+      refetch();
+      setShouldRefetch(false);
+    }
+  }, [shouldRefetch, refetch]);
+
+  // Generate search tags from filters
+  const generateSearchTags = useCallback((filterObj) => {
+    const tags = [];
+
+    const filterLabels = {
+      projectName: "Project Name",
+      location: "Location",
+      listingType: "Listing Type",
+      unitType: "Unit Type",
+      minPrice: "Min Price",
+      maxPrice: "Max Price",
+      minArea: "Min Area",
+      maxArea: "Max Area",
+      month: "Month",
+      year: "Year",
+      startFrom: "Start Date",
+      startTo: "End Date",
+      country: "Country",
+    };
+
+    Object.entries(filterObj).forEach(([key, value]) => {
+      if (!value) return;
+
+      let displayValue = value;
+      let displayLabel = filterLabels[key] || key.charAt(0).toUpperCase() + key.slice(1);
+      let originalValue = value;
+
+      // Handle listing type
+      if (key === "listingType" && listingType?.doc) {
+        const listingTypeObj = listingType.doc.find(
+          (type) => type._id === value
+        );
+        if (listingTypeObj) {
+          displayValue = listingTypeObj.name;
+        }
+      }
+
+      // Handle unit type
+      if (key === "unitType" && listingUnitType?.doc) {
+        const unitTypeObj = listingUnitType.doc.find(
+          (type) => type._id === value
+        );
+        if (unitTypeObj) {
+          displayValue = unitTypeObj.name;
+        }
+      }
+
+      // Handle price formatting
+      if (key === "minPrice" || key === "maxPrice") {
+        displayValue = `AED ${Number(value).toLocaleString()}`;
+      }
+
+      // Handle area formatting
+      if (key === "minArea" || key === "maxArea") {
+        displayValue = `${Number(value).toLocaleString()} sqft`;
+      }
+
+      // Handle date formatting
+      if ((key === "startFrom" || key === "startTo") && value) {
+        displayValue = format(new Date(value), "d MMM, yyyy");
+      }
+
+      tags.push({
+        key: `${key}-${originalValue}`,
+        label: displayLabel,
+        value: displayValue,
+        originalKey: key,
+        originalValue: originalValue,
+      });
+    });
+
+    return tags;
+  }, [listingType, listingUnitType]);
+
+  // Update search tags when filters change
+  useEffect(() => {
+    if (Object.keys(filters).length > 0) {
+      const newTags = generateSearchTags(filters);
+      setSearchTags(newTags);
+    } else {
+      setSearchTags([]);
+    }
+  }, [filters, generateSearchTags]);
+
+  // Remove individual tag
+  const removeTag = useCallback((key) => {
+    const removedTag = searchTags.find((tag) => tag.key === key);
+    if (!removedTag) return;
+
+    const newFilters = { ...filters };
+    delete newFilters[removedTag.originalKey];
+
+    setFilters(newFilters);
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, [searchTags, filters]);
+
+  // Clear all tags
+  const clearAllTags = useCallback(() => {
+    setFilters({});
+    setCurrentPage(1);
+    setShouldRefetch(true);
+  }, []);
 
   const openStatusModal = (listingId, requestId) => {
     setCurrentRequestId(requestId);
@@ -136,12 +243,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
 
   const handleStatusUpdate = async () => {
     if (!selectedStatus) {
-      toast({
-        title: "Please select a status",
-        status: "warning",
-        duration: 3000,
-        isClosable: true,
-      });
+      toast.warning("Please select a status");
       return;
     }
 
@@ -164,7 +266,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       });
       toast.success("Status updated successfully");
 
-      refetch();
+      setShouldRefetch(true);
       setIsStatusModalOpen(false);
     } catch (error) {
       toast.error("Error updating status");
@@ -212,71 +314,69 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
   const handleApplyFilters = (newFilters) => {
     const cleanedFilters = Object.fromEntries(
       Object.entries(newFilters).filter(
-        ([_, value]) => value !== "" && value !== undefined
-      )
+        ([_, value]) => value !== "" && value !== undefined && value !== null,
+      ),
     );
 
     setFilters(cleanedFilters);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
+    setIsFilterOpen(false);
   };
 
-  useEffect(() => {
-    if (filterChanged) {
-      setFilterChanged(false);
-    }
-  }, [filterChanged]);
-
-  const handleClearFilters = (filterKey) => {
-    if (filterKey) {
-      const newFilters = { ...filters };
-      delete newFilters[filterKey];
-      setFilters(newFilters);
-    } else {
-      setFilters({});
-    }
+  const handlePageSizeChange = (newPageSize) => {
+    setPageSize(newPageSize);
     setCurrentPage(1);
-    setFilterChanged(true);
-    refetch();
+    setShouldRefetch(true);
   };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    setShouldRefetch(true);
+  };
+
+  const handleRefresh = () => {
+    setShouldRefetch(true);
+  };
+
   return (
     <Box
       overflowY="auto"
       scrollBehavior="smooth"
-      boxShadow="sm"
-      bg="white"
+      boxShadow={colors.cardShadow}
+      bg={colors.bg}
       px={2}
       marginTop={"-14px"}
       marginLeft={"0px"}
+      borderRadius="lg"
+      border="1px solid"
+      borderColor={colors.borderColor}
     >
-      <Flex justifyContent="space-between" alignItems="center" p={3} flexDir={{base:"column", sm:"column", md:"row"}}>
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+      <Flex
+        justifyContent="space-between"
+        alignItems="center"
+        p={3}
+        flexDir={{ base: "column", sm: "column", md: "row" }}
+      >
+        <Text fontSize="20px" fontWeight="bold" color={colors.headingText} p={3}>
           View Requests
         </Text>
-        <Flex alignItems={"center"} gap={2}  flexDir={{base:"column", sm:"column", md:"row"}}>
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
+        <Flex
+          alignItems={"center"}
+          gap={2}
+          flexDir={{ base: "column", sm: "column", md: "row" }}
+        >
           {isMobile ? (
             <IconButton
               icon={<FiSearch />}
               onClick={() => setIsFilterOpen(true)}
               aria-label="Search Listings"
-              colorScheme="brand"
-              variant="solid"
+              variant="ghost"
               size="sm"
-              borderRadius="full"
-              boxShadow="md"
             />
           ) : (
             <Button
-              colorScheme="brand"
+              variant="outline"
               size="sm"
               borderRadius={"md"}
               py={3}
@@ -286,14 +386,26 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
               Advanced Search
             </Button>
           )}
+
+<RefreshButton
+	label="Refresh"
+	onClick={handleRefresh}
+	isLoading={isLoading}
+	isFetching={isFetching}
+	size="sm"
+/>
         </Flex>
       </Flex>
-      <ActiveFiltersDisplay
-        filters={filters}
-        onClearFilters={handleClearFilters}
-        listingTypes={listingType?.doc}
-        unitTypes={listingUnitType?.doc}
-      />
+
+      {/* Search Tags */}
+      {searchTags.length > 0 && (
+        <SearchTags
+          searchTags={searchTags}
+          removeTag={removeTag}
+          clearAllTags={clearAllTags}
+        />
+      )}
+
       <Box my={2}>
         <TopPagination
           currentPage={currentPage}
@@ -303,22 +415,24 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
           itemsPerPage={pageSize}
           setPageSize={setPageSize}
           handlePageSize={handlePageSizeChange}
-          refetching={isLoading}
+          refetching={isFetching}
           loading={isLoading}
         />
       </Box>
+
       <Box
-        borderRadius="4px"
-        boxShadow="sm"
+        borderRadius="lg"
+        boxShadow={colors.cardShadow}
         borderWidth="1px"
+        borderColor={colors.borderColor}
         overflow="hidden"
       >
         <Box position="relative" maxH="120vh" overflowY="auto">
-          <Table variant="striped" size="lg">
+          <Table variant="simple" size="lg">
             <Thead
               position="sticky"
               top={0}
-              bg="white"
+              bg={colors.bgDeep}
               zIndex={2}
               boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
               fontSize={"16px"}
@@ -326,7 +440,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
             >
               <Tr>
                 {columns.map((header, index) => (
-                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Th key={index} bg={colors.bgDeep} whiteSpace="nowrap" py={4} borderColor={colors.borderColor}>
                     <Box
                       display="flex"
                       alignItems="center"
@@ -335,7 +449,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                       <Text
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="600"
-                        color="gray.700"
+                        color={colors.headingText}
                         textTransform="capitalize"
                       >
                         {header}
@@ -349,17 +463,19 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
               <TableLoading columns={columns} length={20} py="4" />
             ) : (
               <Tbody>
-                {data && data.data.length > 0 ? (
+                {data && data.data && data.data.length > 0 ? (
                   data.data.map((request, index) => (
-                    <Tr key={index}>
+                    <Tr key={request.requestId || index} borderColor={colors.borderColor}>
                       <Td
                         py={4}
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
-                        {index + 1}
+                        {(currentPage - 1) * pageSize + index + 1}
                       </Td>
                       <Td
                         textAlign="center"
@@ -367,6 +483,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request?.requester?.fullName || "N/A"}
                       </Td>
@@ -376,6 +494,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.requester?.phoneNumber || "N/A"}
                       </Td>
@@ -385,6 +505,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.listing?.projectName || "N/A"}
                       </Td>
@@ -394,6 +516,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="250px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.listing?.location || "N/A"}
                       </Td>
@@ -403,6 +527,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="250px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.listing?.country?.name || "N/A"}
                       </Td>
@@ -412,6 +538,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.listing?.area
                           ? request.listing.area.toLocaleString()
@@ -423,6 +551,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.listing.buildingAge
                           ? `${request.listing.buildingAge} Years`
@@ -434,18 +564,21 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="200px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.listing?.developer_name
                           ? request.listing?.developer_name
                           : "N/A"}
                       </Td>
-
                       <Td
                         textAlign="center"
                         whiteSpace="nowrap"
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.listing?.price
                           ? `AED ${request.listing.price.toLocaleString()}`
@@ -457,11 +590,13 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request?.listing?.createdAt
                           ? format(
                               request?.listing?.createdAt,
-                              "MMM d, yyyy h:mm a"
+                              "MMM d, yyyy h:mm a",
                             )
                           : "N/A"}
                       </Td>
@@ -471,6 +606,8 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         minWidth="100px"
                         overflow="hidden"
                         textOverflow="ellipsis"
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {request.createdBy?.fullName}
                       </Td>
@@ -480,6 +617,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         <Badge
                           colorScheme={getStatusColor(request.status)}
@@ -495,17 +633,16 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
-                        display={"flex"}
-                        gap={2}
-                        justifyContent={"center"}
+                        textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         <Button
-                          colorScheme="brand"
+                          variant="brand"
                           size="sm"
                           onClick={() =>
                             openStatusModal(
-                              request?.listing?.id,
-                              request?.requester?.id
+                              request?.listing?._id || request?.listing?.id,
+                              request?.requester?._id || request?.requester?.id,
                             )
                           }
                           isDisabled={request.status !== "pending"}
@@ -516,14 +653,15 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
                     </Tr>
                   ))
                 ) : (
-                  <Tr borderColor="gray.200" textAlign="center">
+                  <Tr borderColor={colors.borderColor} textAlign="center">
                     <Td
                       borderBottom="none"
-                      colSpan="13"
+                      colSpan={columns.length}
                       fontSize={{ base: "12px", md: "15px" }}
                       fontWeight="500"
-                      color="gray.500"
+                      color={colors.mutedText}
                       textAlign="center"
+                      borderColor={colors.borderColor}
                     >
                       <NoData label="requested requests" />
                     </Td>
@@ -538,21 +676,25 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
       {/* Status Update Modal */}
       <Modal
         isOpen={isStatusModalOpen}
-        onClose={() => setIsStatusModalOpen(false)}
+        onClose={() => {
+          setIsStatusModalOpen(false);
+          setSelectedStatus("");
+          setResponseNotes("");
+        }}
         isCentered
       >
-        <ModalOverlay />
-        <ModalContent borderRadius="2xl" overflow="hidden">
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+        <ModalContent borderRadius="2xl" overflow="hidden" bg={colors.bg} boxShadow={colors.modalShadow} border="1px solid" borderColor={colors.borderColor}>
           <ModalHeader
             display="flex"
             align="center"
             justify="space-between"
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             px={6}
             py={3}
             borderBottom="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             top="0"
             zIndex="10"
@@ -564,47 +706,64 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
               position="absolute"
               right="12px"
               top="10px"
-              color={headerText}
-              _hover={{ bg: "whiteAlpha.200" }}
+              color={colors.headerText}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </ModalHeader>
           <ModalBody
             overflowY="auto"
             scrollBehavior="smooth"
+            bg={colors.bg}
             sx={{
               "&::-webkit-scrollbar": { width: "6px" },
+              "&::-webkit-scrollbar-track": { background: colors.bgInput, borderRadius: "10px" },
               "&::-webkit-scrollbar-thumb": {
-                background: "#c1c1c1",
+                background: colors.accentGold,
                 borderRadius: "10px",
               },
             }}
           >
             <Box mb={4}>
-              <FormLabel>New Status</FormLabel>
+              <FormLabel color={colors.labelColor}>New Status</FormLabel>
               <Select
                 placeholder="Select status"
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                focusBorderColor="brand.500"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               >
-                <option value="approved">Approve</option>
-                <option value="rejected">Reject</option>
+                <option value="approved" style={{ background: colors.bg, color: colors.headingText }}>Approve</option>
+                <option value="rejected" style={{ background: colors.bg, color: colors.headingText }}>Reject</option>
               </Select>
             </Box>
             <Box mb={4}>
-              <FormLabel>Response Notes</FormLabel>
+              <FormLabel color={colors.labelColor}>Response Notes</FormLabel>
               <Input
                 placeholder="Enter response notes (optional)"
                 value={responseNotes}
                 onChange={(e) => setResponseNotes(e.target.value)}
-                focusBorderColor="brand.500"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _placeholder={{ color: colors.mutedText }}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               />
             </Box>
           </ModalBody>
           <ModalFooter
-            bg={footerBg}
+            bg={colors.footerBg}
             borderTop="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             bottom="0"
             zIndex="10"
@@ -618,12 +777,16 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
               mr={3}
               borderRadius="md"
               size="sm"
-              onClick={() => setIsStatusModalOpen(false)}
+              onClick={() => {
+                setIsStatusModalOpen(false);
+                setSelectedStatus("");
+                setResponseNotes("");
+              }}
             >
               Cancel
             </Button>
             <Button
-              colorScheme="brand"
+              variant="brand"
               onClick={handleStatusUpdate}
               borderRadius="md"
               size="sm"
@@ -633,6 +796,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+
       <AdvancedSearchModal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
@@ -640,7 +804,7 @@ const ViewRequests = ({ listingType, listingUnitType }) => {
         listingTypes={listingType?.doc}
         unitTypes={listingUnitType?.doc}
         initialFilters={filters}
-        clearFilter={filterChanged}
+        clearFilter={false}
         countries={countries?.doc || []}
       />
     </Box>

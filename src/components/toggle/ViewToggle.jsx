@@ -27,15 +27,15 @@ const ViewToggle = ({ view, handleView,moduleView }) => {
 
   const handlePointerMove = (e) => {
     if (!isDragging || !startX) return;
-    
+
     const currentX = e.clientX || e.touches[0].clientX;
     const diffX = currentX - startX;
     const containerWidth = containerRef.current.offsetWidth;
-    
-    const newPosition = view === 'grid' 
+
+    const newPosition = view === 'grid'
       ? Math.min(diffX / containerWidth, 1)
       : 1 + Math.max(diffX / containerWidth, -1);
-    
+
     setSliderPosition(Math.max(0, Math.min(1, newPosition)));
   };
 
@@ -60,7 +60,7 @@ const ViewToggle = ({ view, handleView,moduleView }) => {
 
     return (
       <Tooltip key={value} label={label} hasArrow>
-        <Box 
+        <Box
           position="relative"
           zIndex="2"
         >
@@ -68,18 +68,12 @@ const ViewToggle = ({ view, handleView,moduleView }) => {
             aria-label={label}
             icon={<Icon size={12} />}
             size='xs'
-            variant='ghost'
+              variant={isActive ? 'brand' : 'outline'}
             rounded='md'
-            colorScheme='blue'
             onClick={() => handleClick(value)}
             width='46px'
             height='27px'
             minW='40px'
-            bg='transparent'
-            color={isActive ? 'white' : 'gray.600'}
-            _hover={{
-              color: isActive ? 'white' : 'blue.700',
-            }}
             transition='color 0.2s ease'
             position="relative"
           />
@@ -89,8 +83,8 @@ const ViewToggle = ({ view, handleView,moduleView }) => {
   };
 
   return (
-    <Box 
-      position="relative" 
+    <Box
+      position="relative"
       display="inline-block"
       onMouseDown={handlePointerDown}
       onMouseMove={handlePointerMove}
@@ -104,7 +98,7 @@ const ViewToggle = ({ view, handleView,moduleView }) => {
         cursor: 'pointer',
       }}
     >
-      <HStack 
+      <HStack
         ref={containerRef}
         spacing={1}
         bg='gray.100'
@@ -116,14 +110,14 @@ const ViewToggle = ({ view, handleView,moduleView }) => {
       >
         {icons.map(renderButton)}
       </HStack>
-      
+
       <Box
         position="absolute"
         top="0.5px"
         left={`calc(${sliderPosition * 100}% - ${sliderPosition * 46}px)`}
         width='46px'
         height='28px'
-        bg='blue.600'
+        // bg='blue.600'
         rounded='md'
         zIndex="1"
         transition={isDragging ? 'none' : 'left 0.2s ease'}

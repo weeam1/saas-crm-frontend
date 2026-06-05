@@ -7,45 +7,7 @@ import {
 	Textarea,
 } from '@chakra-ui/react';
 import { Field } from 'formik';
-
-// const CustomInput = ({
-// 	label,
-// 	name,
-// 	isReadOnly,
-// 	type = 'input',
-// 	isInvalid,
-// 	placeholder,
-// 	...rest
-// }) => (
-// 	<FormControl isInvalid={isInvalid}>
-// 		<FormLabel fontSize='sm'>{label}</FormLabel>
-// 		<Field
-// 			as={type === 'textarea' ? Textarea : Input}
-// 			name={name}
-// 			bg='gray.100'
-// 			borderColor='gray.300'
-// 			fontSize='sm'
-// 			py={1}
-// 			isReadOnly={isReadOnly}
-// 			placeholder={placeholder}
-// 			_focus={{
-// 				borderColor: '#D99A36',
-// 				boxShadow: '0 0 0 1px #D99A36',
-// 			}}
-// 			{...rest}
-// 		/>
-// 		<FormErrorMessage>{isInvalid}</FormErrorMessage>
-// 	</FormControl>
-// );
-
-// import {
-// 	FormControl,
-// 	FormLabel,
-// 	Input,
-// 	Textarea,
-// 	FormErrorMessage,
-// } from '@chakra-ui/react';
-// import { Field } from 'formik';
+import { useModalColors } from 'hooks/useModalColors';
 
 const CustomInput = ({
 	label,
@@ -58,6 +20,7 @@ const CustomInput = ({
 	onInput: onInputProp,
 	...rest
 }) => {
+	const colors = useModalColors();
 	// Determine which component to render based on type.
 	const Component = type === 'textarea' ? Textarea : Input;
 
@@ -86,15 +49,16 @@ const CustomInput = ({
 
 				return (
 					<FormControl isInvalid={meta.touched && !!meta.error}>
-						{label && <FormLabel fontSize='sm'>{label}</FormLabel>}
+						{label && <FormLabel fontSize='sm' color={colors.labelColor}>{label}</FormLabel>}
 						<Component
 							{...field}
 							{...rest}
 							value={field.value === undefined ? '' : field.value}
 							// Do not pass type prop for textareas.
 							type={type !== 'textarea' ? type : undefined}
-							bg='gray.100'
-							borderColor='gray.300'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
 							fontSize='sm'
 							py={1}
 							isReadOnly={isReadOnly}
@@ -102,13 +66,19 @@ const CustomInput = ({
 							onKeyDown={handleKeyDown}
 							// onInput={handleInput}
 							onChange={handleChange}
+							_hover={{
+								borderColor: !isReadOnly && colors.accentGold,
+							}}
 							_focus={{
-								borderColor: !isReadOnly && '#D99A36',
-								boxShadow: !isReadOnly && '0 0 0 1px #D99A36',
+								borderColor: !isReadOnly && colors.accentGold,
+								boxShadow: !isReadOnly && `0 0 0 1px ${colors.accentGold}`,
 								outline: 'none',
 							}}
+							_placeholder={{
+								color: colors.mutedText,
+							}}
 						/>
-						<FormErrorMessage>{meta.error}</FormErrorMessage>
+						<FormErrorMessage color={colors.badgeErrorText}>{meta.error}</FormErrorMessage>
 					</FormControl>
 				);
 			}}

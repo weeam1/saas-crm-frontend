@@ -16,10 +16,11 @@ import { Link as RouterLink } from 'react-router-dom';
 import { AiOutlineMenuUnfold } from 'react-icons/ai';
 import { AiOutlineMenuFold } from 'react-icons/ai';
 import BrandLogo from 'assets/logo/logo.png';
+import useUserSession from 'hooks/useUserSession';
 
 export default function AdminNavbar(props) {
 	const [scrolled, setScrolled] = useState(false);
-
+const {agencyLogo}=useUserSession();
 	useEffect(() => {
 		window.addEventListener('scroll', changeNavbar);
 
@@ -133,10 +134,10 @@ export default function AdminNavbar(props) {
 						to='/'
 						// display={{ base: 'flex', xl: 'none' }}
 					>
-						{BrandLogo ? (
+						{agencyLogo ? (
 							<Image
 								style={{ height: '40px' }}
-								src={BrandLogo}
+								src={agencyLogo}
 								alt='Logo'
 								cursor='pointer'
 								objectFit='contain'
@@ -208,13 +209,13 @@ AdminNavbar.propTypes = {
 						(largeLogo && largeLogo[0]?.logoSmImg) ? ( */
 }
 {
-	/* {BrandLogo ? (
+	/* {agencyLogo ? (
 							<Image
 								style={{
 									// width: openSidebar ? 'px' : '60px',
 									height: '40px',
 								}}
-								src={BrandLogo} // Set the source path of your image
+								src={agencyLogo} // Set the source path of your image
 								alt='Logo' // Set the alt text for accessibility
 								cursor='pointer'
 								onClick={() => !props.from && setOpenSidebar(!openSidebar)}

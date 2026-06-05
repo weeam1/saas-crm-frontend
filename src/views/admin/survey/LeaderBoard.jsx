@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Box,
@@ -14,13 +15,11 @@ import {
   Badge,
   Button,
   useBreakpointValue,
+  HStack,
+  Icon,
+  SimpleGrid,
 } from "@chakra-ui/react";
-import LeaderBoardHeaderIcon from "../../../assets/img/survey/LeaderBoardHeaderIcon.png";
-import Assigned_Survey from "../../../assets/img/survey/Assigned_Survey.png";
-import Inbox_survey from "../../../assets/img/survey/Inbox_survey.png";
-import Survey_Live from "../../../assets/img/survey/Survey_Live.png";
-import Survey_filled from "../../../assets/img/survey/Survey_filled.png";
-import { FiSearch, FiRefreshCw } from "react-icons/fi";
+import { FiSearch,  FiTrendingUp, FiCheckCircle, FiClock, FiAward } from "react-icons/fi";
 import { useFetchItemsQuery } from "api/apiSlice";
 import TopPagination from "components/pagination/TopPagination";
 import TableLoading from "components/loading/TableLoading";
@@ -31,7 +30,7 @@ import LeaderBoardLoader from "./Loader/LeaderBoardLoader";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import AppButton from "components/shared/AppButton";
-import Breadcrumb from "../../../components/shared/BreadCrumb";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const LeaderBoard = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,235 +124,164 @@ const LeaderBoard = () => {
     refetch();
   };
 
+  // Stat card configurations
+  const statCards = [
+    {
+      label: "Survey Created",
+      value: leaderBoardStats?.doc?.createdSurveys || 0,
+      icon: FiTrendingUp,
+      iconBg: "rgba(66, 153, 225, 0.1)",
+      iconColor: "#4299E1",
+      borderColor: "#4299E1",
+    },
+    {
+      label: "Assigned",
+      value: leaderBoardStats?.doc?.assignedSurveys || 0,
+      icon: FiClock,
+      iconBg: "rgba(212, 175, 55, 0.1)",
+      iconColor: "#D4AF37",
+      borderColor: "#D4AF37",
+    },
+    {
+      label: "Survey Filled",
+      value: leaderBoardStats?.doc?.filledSurveys || 0,
+      icon: FiCheckCircle,
+      iconBg: "rgba(72, 187, 120, 0.1)",
+      iconColor: "#48BB78",
+      borderColor: "#48BB78",
+    },
+    {
+      label: "Live Surveys",
+      value: leaderBoardStats?.doc?.activeSurveys || 0,
+      icon: FiAward,
+      iconBg: "rgba(237, 137, 54, 0.1)",
+      iconColor: "#ED8936",
+      borderColor: "#ED8936",
+    },
+  ];
+
   // Use custom loader when loading
   if (isLoading) {
     return <LeaderBoardLoader />;
   }
 
-  const items = [
-    {
-      path: "/survey/dashboard",
-      label: "Surveys",
-    },
-    {
-      path: "/survey/survey-leader-board",
-      label: "Leader Board",
-    },
-  ];
   return (
-    <Box p={{ base: 2, md: 4 }}>
-      {/* <Breadcrumb items={items} /> */}
-
+    <Box p={{ base: 2, md: 4 }} bg="bg.app" minH="100vh">
       {/* Back Button */}
       <AppButton
-        ml="2"
         leftIcon={<IoArrowBack />}
         onClick={() => navigate(-1)}
         mb={4}
+        size="sm"
+        variant="ghost"
       >
         Back
       </AppButton>
+
       {/* Header */}
-      <Box mb={6} display="flex" alignItems="flex-end" gap={2}>
-        <img
-          src={LeaderBoardHeaderIcon}
-          alt="icon"
-          style={{ width: "4.5rem", height: "4.5rem" }}
-        />
-        <Text fontWeight="bold" fontSize={{ base: "lg", md: "xl", lg: "2xl" }}>
+      <Box mb={6}>
+        <Text fontWeight="bold" fontSize={{ base: "xl", md: "2xl", lg: "3xl" }} color="text.heading">
           Leader Board
+        </Text>
+        <Text fontSize="sm" color="text.muted" mt={1}>
+          Track survey performance and user rankings
         </Text>
       </Box>
 
-      {/* Report Count Statistics */}
-      <Flex
-        direction={{ base: "column", md: "row" }}
-        gap={4}
-        mb={4}
-        flexWrap="wrap"
-      >
-        {/* Survey Created */}
-        <Box
-          flex="1"
-          minW={{ base: "100%", md: "150px", lg: "200px" }}
-          bg="white"
-          p={{ base: 2, md: 3, lg: 4 }}
-          borderRadius="lg"
-          borderWidth="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-        >
-          <Flex
-            gap={{ base: "10px", md: "20px" }}
-            alignItems="center"
-            width="100%"
-            height="100%"
+      {/* Statistics Cards */}
+      <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={4} mb={6}>
+        {statCards.map((card, index) => (
+          <Box
+            key={index}
+            bg="bg.surface"
+            p={4}
+            borderRadius="xl"
+            border="1px solid"
+            borderColor="border.default"
+            boxShadow="card"
+            transition="all 0.2s ease"
+            _hover={{
+              transform: "translateY(-2px)",
+              boxShadow: "goldGlow",
+              borderColor: card.borderColor,
+            }}
+            position="relative"
+            overflow="hidden"
           >
+            {/* Colored top border */}
             <Box
-              bg="#F4F7FE"
-              borderRadius="full"
-              py={{ base: "5px", md: "13px", lg: "15px" }}
-              px={{ base: "5px", md: "13px", lg: "15px" }}
-            >
-              <img
-                src={Inbox_survey}
-                alt="icon"
-                width="28"
-                height="28"
-                style={{ width: "2.75rem", height: "2.75rem" }}
-              />
-            </Box>
-            <Box flex="1">
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
-                Survey Created
-              </Text>
-              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
-                {leaderBoardStats?.doc?.createdSurveys || 0}
-              </Text>
-            </Box>
-          </Flex>
-        </Box>
-
-        {/* Assigned */}
-        <Box
-          flex="1"
-          minW={{ base: "100%", md: "150px", lg: "200px" }}
-          bg="white"
-          p={{ base: 2, md: 3, lg: 4 }}
-          borderRadius="lg"
-          borderWidth="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-        >
-          <Flex
-            gap={{ base: "10px", md: "20px" }}
-            alignItems="center"
-            width="100%"
-            height="100%"
-          >
-            <img
-              src={Assigned_Survey}
-              alt="icon"
-              style={{ width: "4.5rem", height: "4.5rem" }}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              h="3px"
+              bg={card.borderColor}
             />
-            <Box flex="1">
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
-                Assigned
-              </Text>
-              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
-                {leaderBoardStats?.doc?.assignedSurveys || 0}
-              </Text>
-            </Box>
-          </Flex>
-        </Box>
 
-        {/* Survey Filled */}
-        <Box
-          flex="1"
-          minW={{ base: "100%", md: "150px", lg: "200px" }}
-          bg="white"
-          p={{ base: 2, md: 3, lg: 4 }}
-          borderRadius="lg"
-          borderWidth="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-        >
-          <Flex
-            gap={{ base: "10px", md: "20px" }}
-            alignItems="center"
-            width="100%"
-            height="100%"
-          >
-            <img
-              src={Survey_filled}
-              alt="icon"
-              style={{ width: "4.5rem", height: "4.5rem" }}
-            />
-            <Box flex="1">
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
-                Survey Filled
-              </Text>
-              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
-                {leaderBoardStats?.doc?.filledSurveys || 0}
-              </Text>
-            </Box>
-          </Flex>
-        </Box>
+            <Flex align="center" justify="space-between">
+              <Box>
+                <Text fontSize="xs" color="text.muted" fontWeight="500" textTransform="uppercase" letterSpacing="0.08em">
+                  {card.label}
+                </Text>
+                <Text fontSize="2xl" fontWeight="bold" color="text.heading" mt={1}>
+                  {card.value}
+                </Text>
+              </Box>
+              <Flex
+                align="center"
+                justify="center"
+                w="48px"
+                h="48px"
+                bg={card.iconBg}
+                borderRadius="lg"
+              >
+                <Icon as={card.icon} boxSize={5} color={card.iconColor} />
+              </Flex>
+            </Flex>
+          </Box>
+        ))}
+      </SimpleGrid>
 
-        {/* Live Surveys */}
-        <Box
-          flex="1"
-          minW={{ base: "100%", md: "150px", lg: "200px" }}
-          bg="white"
-          p={{ base: 2, md: 3, lg: 4 }}
-          borderRadius="lg"
-          borderWidth="1px"
-          borderColor="gray.200"
-          boxShadow="sm"
-        >
-          <Flex
-            gap={{ base: "10px", md: "20px" }}
-            alignItems="center"
-            width="100%"
-            height="100%"
-          >
-            <img
-              src={Survey_Live}
-              alt="icon"
-              style={{ width: "4.5rem", height: "4.5rem" }}
-            />
-            <Box flex="1">
-              <Text fontSize={{ base: "xs", md: "sm" }} color="gray.600" mb={1}>
-                Live Surveys
-              </Text>
-              <Text fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
-                {leaderBoardStats?.doc?.activeSurveys || 0}
-              </Text>
-            </Box>
-          </Flex>
-        </Box>
-      </Flex>
-
+      {/* Actions Row */}
       <Flex
         direction={{ base: "column", md: "row" }}
         alignItems={{ base: "flex-end", md: "center" }}
         justifyContent="flex-end"
         gap={3}
         mb={4}
-        flexWrap="wrap"
       >
-        <IconButton
-          icon={<FiRefreshCw />}
-          aria-label="Refresh Analytics"
-          onClick={() => refetch()}
-          isLoading={isLoading || isFetching}
-          variant="outline"
-          size="sm"
-        />
+        <RefreshButton
+        label="Refresh"
+        onClick={refetch}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        size="sm"
+      />
         {isMobile ? (
           <IconButton
             icon={<FiSearch />}
             onClick={() => setIsFilterOpen(true)}
-            aria-label="Search Listings"
-            colorScheme="brand"
-            variant="solid"
+            aria-label="Search"
+            variant="brand"
             size="sm"
             borderRadius="full"
-            boxShadow="md"
           />
         ) : (
           <Button
-            colorScheme="brand"
+            variant="outline"
             size="sm"
-            borderRadius="md"
-            py={3}
-            px={6}
+            borderRadius="lg"
+            borderColor="border.default"
+            color="text.body"
             onClick={() => setIsFilterOpen(true)}
+            _hover={{ bg: "bg.elevated", borderColor: "gold.primary", color: "gold.primary" }}
           >
             Advanced Search
           </Button>
         )}
       </Flex>
+
+      {/* Pagination */}
       <Box mt={2}>
         <TopPagination
           currentPage={currentPage}
@@ -367,7 +295,9 @@ const LeaderBoard = () => {
           loading={isLoading}
         />
       </Box>
-      <Box marginY={5}>
+
+      {/* Active Filters Display */}
+      <Box my={4}>
         <ActiveFiltersDisplay
           filters={filters}
           onClearFilters={handleClearFilters}
@@ -377,182 +307,138 @@ const LeaderBoard = () => {
 
       {/* Leaderboard Table */}
       <Box
-        borderRadius="lg"
-        boxShadow="sm"
-        bg="white"
+        borderRadius="xl"
+        boxShadow="card"
+        bg="bg.surface"
         overflowY="auto"
-        maxH={"85vh"}
+        maxH="85vh"
+        border="1px solid"
+        borderColor="border.default"
       >
-        <Table variant="striped" size="lg">
-          <Thead position="sticky" top={0} bg="white" zIndex={2}>
+        <Table variant="simple" size="md">
+          <Thead position="sticky" top={0} bg="bg.elevated" zIndex={2}>
             <Tr>
               {columns.map((header, index) => (
                 <Th
                   key={index}
-                  bg="brand.200"
-                  whiteSpace="nowrap"
                   py={4}
+                  px={3}
                   textAlign="center"
+                  color="gold.primary"
+                  fontSize="11px"
+                  fontWeight="700"
+                  letterSpacing="0.08em"
+                  textTransform="uppercase"
+                  whiteSpace="nowrap"
                 >
-                  <Text
-                    fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="600"
-                    color="gray.700"
-                    textTransform="capitalize"
-                  >
-                    {header}
-                  </Text>
+                  {header}
                 </Th>
               ))}
             </Tr>
           </Thead>
 
           {isLoading || isFetching ? (
-            <TableLoading columns={columns} length={20} py="2" />
+            <TableLoading columns={columns} length={20} py={4} />
           ) : (
             <Tbody>
               {leaderboardData?.doc?.leaderboard?.length > 0 ? (
-                leaderboardData.doc.leaderboard.map((item, index) => (
-                  <Tr key={item._id}>
-                    <Td
-                      py={2}
-                      px={2}
-                      fontSize={{ base: "sm", md: "md" }}
-                      fontWeight="400"
-                      minWidth="40px"
-                      textAlign={"center"}
-                      whiteSpace="nowrap"
+                leaderboardData.doc.leaderboard.map((item, index) => {
+                  const getScoreColor = () => {
+                    if (item.rank === 1) return "#E53E3E";
+                    if (item.avgScore > 90) return "#48BB78";
+                    if (item.avgScore > 0) return "#ED8936";
+                    return "text.muted";
+                  };
+
+                  const getRankColor = () => {
+                    if (item.rank === 1) return "red";
+                    if (item.rank === 2) return "cyan";
+                    if (item.rank === 3) return "green";
+                    return "gray";
+                  };
+
+                  return (
+                    <Tr
+                      key={item._id}
+                      _hover={{ bg: "bg.elevated" }}
+                      transition="background 0.15s"
                     >
-                      {index + 1}
-                    </Td>
-                    <Td
-                      fontWeight="medium"
-                      textAlign={"center"}
-                      whiteSpace="nowrap"
-                      px={2}
-                    >
-                      <Flex alignItems="center" gap={1}>
-                        {item.profileImage ? (
+                      <Td
+                        py={3}
+                        px={2}
+                        fontSize="14px"
+                        fontWeight="500"
+                        minWidth="60px"
+                        textAlign="center"
+                        color="text.muted"
+                      >
+                        {index + 1}
+                      </Td>
+                      <Td textAlign="left" px={2}>
+                        <Flex align="center" justify="flex-start" gap={2}>
                           <Avatar
                             size="sm"
                             src={item.profileImage}
                             name={item.fullName}
+                          // bg="navy.600"
                           />
+                          <Box textAlign="left">
+                            <Text fontSize="sm" fontWeight="semibold" color="text.heading">
+                              {item.fullName}
+                            </Text>
+                            <Text fontSize="xs" color="text.muted">
+                              {item.username}
+                            </Text>
+                          </Box>
+                        </Flex>
+                      </Td>
+                      <Td textAlign="center" fontSize={{ base: 'sm', md: 'md' }} color="text.body" px={2}>
+                        {formatSurveyTaken(item.completedSurveyCount, item.invitedSurveyCount)}
+                      </Td>
+                      <Td textAlign="center" px={2}>
+                        {item.avgScore ? (
+                          <Text fontSize={{ base: 'sm', md: 'md' }} fontWeight="bold" color={getScoreColor()}>
+                            {item.avgScore}%
+                          </Text>
                         ) : (
-                          <Avatar size="sm" name={item.fullName} />
+                          <Text fontSize={{ base: 'xs', md: 'md' }} color="text.muted">N/A</Text>
                         )}
-                        <Box>
-                          <Text
-                            fontSize="sm"
+                      </Td>
+                      <Td textAlign="center" px={2}>
+                        {item?.totalScore > 0 ? (
+                          <Badge
+                            variant={'stuble'}
+                            bg={getRankColor() === "gold" ? "rgba(212, 175, 55, 0.1)" : undefined}
+                            color={
+                              getRankColor() === "red" ? "#E53E3E" :
+                                getRankColor() === "cyan" ? "#00B5D8" :
+                                  getRankColor() === "green" ? "#48BB78" : "gold.primary"
+                            }
+                            px={3}
+                            py={1}
+                            borderRadius="full"
+                            fontSize={{ base: 'sm', md: 'md' }}
                             fontWeight="bold"
-                            whiteSpace="nowrap"
                           >
-                            {item.fullName}
-                          </Text>
-                          <Text
-                            fontSize="xs"
-                            color="gray.500"
-                            whiteSpace="nowrap"
-                          >
-                            {item.email}
-                          </Text>
-                        </Box>
-                      </Flex>
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      fontSize={{ base: "sm", md: "md" }}
-                      px={2}
-                      whiteSpace="nowrap"
-                    >
-                      {formatSurveyTaken(
-                        item.completedSurveyCount,
-                        item.invitedSurveyCount
-                      )}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      color={
-                        item.rank === 1
-                          ? "red"
-                          : item.avgScore > 90
-                            ? "green.500"
-                            : item.avgScore > 0
-                              ? "orange.500"
-                              : "gray.500"
-                      }
-                      fontWeight="bold"
-                      fontSize={{ base: "sm", md: "md" }}
-                      px={2}
-                      whiteSpace="nowrap"
-                    >
-                      {item.avgScore ? (
-                        `${item.avgScore}%`
-                      ) : (
-                        <Text fontSize="xs" color="gray.500">
-                          N/A
-                        </Text>
-                      )}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      fontWeight="bold"
-                      px={2}
-                      whiteSpace="nowrap"
-                    >
-                      {item?.totalScore > 0 ? (
-                        <Badge
-                          colorScheme={
-                            item.rank === 1
-                              ? "red"
-                              : item.rank === 2
-                                ? "cyan"
-                                : item.rank === 3
-                                  ? "green"
-                                  : "gray"
-                          }
-                          px={2}
-                          py={1}
-                          borderRadius="md"
-                          fontSize={{ base: "sm", md: "md" }}
-                        >
-                          #{item.rank}
-                        </Badge>
-                      ) : (
-                        <Text fontSize="xs" color="gray.500">
-                          N/A
-                        </Text>
-                      )}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      fontSize={{ base: "sm", md: "md" }}
-                      px={2}
-                      whiteSpace="nowrap"
-                    >
-                      {item.role}
-                    </Td>
-                    <Td
-                      textAlign="center"
-                      fontSize={{ base: "sm", md: "md" }}
-                      px={2}
-                      whiteSpace="nowrap"
-                    >
-                      {item.agency}
-                    </Td>
-                  </Tr>
-                ))
+                            #{item.rank}
+                          </Badge>
+                        ) : (
+                          <Text fontSize={{ base: 'sm', md: 'md' }} color="text.muted">N/A</Text>
+                        )}
+                      </Td>
+                      <Td textAlign="center" fontSize={{ base: 'sm', md: 'md' }} color="text.body" px={2}>
+                        {item.role || "—"}
+                      </Td>
+                      <Td textAlign="center" fontSize={{ base: 'sm', md: 'md' }} color="text.body" px={2}>
+                        {item.agency || "—"}
+                      </Td>
+                    </Tr>
+                  );
+                })
               ) : (
-                <Tr borderColor="gray.200" textAlign="center">
-                  <Td
-                    borderBottom="none"
-                    colSpan={columns.length}
-                    fontSize={{ base: "xs", md: "sm" }}
-                    fontWeight="500"
-                    color="gray.500"
-                    textAlign="center"
-                  >
-                    <NoData label="leaderboard data" />
+                <Tr>
+                  <Td colSpan={columns.length} py={12} textAlign="center">
+                    <NoData label="leaderboard" />
                   </Td>
                 </Tr>
               )}

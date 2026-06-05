@@ -1,66 +1,9 @@
 import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { PieChart, Pie, Sector, ResponsiveContainer } from 'recharts';
+import { useModalColors } from 'hooks/useModalColors';
 
-// import { PieChart, Pie, Sector, ResponsiveContainer, Tooltip } from 'recharts';
-
-// const renderActiveShape = (props) => {
-// 	const RADIAN = Math.PI / 180;
-// 	const {
-// 		cx,
-// 		cy,
-// 		midAngle,
-// 		innerRadius,
-// 		outerRadius,
-// 		startAngle,
-// 		endAngle,
-// 		fill,
-// 		payload,
-// 		percent,
-// 		value,
-// 	} = props;
-
-// 	const sin = Math.sin(-RADIAN * midAngle);
-// 	const cos = Math.cos(-RADIAN * midAngle);
-// 	const sx = cx + (outerRadius + 10) * cos;
-// 	const sy = cy + (outerRadius + 10) * sin;
-// 	const mx = cx + (outerRadius + 20) * cos;
-// 	const my = cy + (outerRadius + 20) * sin;
-// 	const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-// 	const ey = my;
-// 	const textAnchor = cos >= 0 ? 'start' : 'end';
-
-// 	return (
-// 		<>
-// 			<Sector
-// 				cx={cx}
-// 				cy={cy}
-// 				innerRadius={innerRadius}
-// 				outerRadius={outerRadius + 6}
-// 				startAngle={startAngle}
-// 				endAngle={endAngle}
-// 				fill={fill}
-// 			/>
-// 			<path
-// 				d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-// 				stroke={fill}
-// 				fill='none'
-// 			/>
-// 			<circle cx={ex} cy={ey} r={2} fill={fill} stroke='none' />
-// 			<text
-// 				x={ex + (cos >= 0 ? 12 : -12)}
-// 				y={ey}
-// 				textAnchor={textAnchor}
-// 				fill='#333'
-// 				fontSize={14}
-// 			>
-// 				{`${payload.label}: ${value} (${percent.toFixed(1)}%)`}
-// 			</text>
-// 		</>
-// 	);
-// };
-
-const renderActiveShape = (props) => {
+const renderActiveShape = (props, colors) => {
 	const RADIAN = Math.PI / 180;
 	const {
 		cx,
@@ -92,7 +35,7 @@ const renderActiveShape = (props) => {
 				x={cx}
 				y={cy - 10}
 				textAnchor='middle'
-				fill={payload.textColor}
+				fill={colors.headingText}
 				fontSize={14}
 			>
 				{payload.label}
@@ -101,7 +44,7 @@ const renderActiveShape = (props) => {
 				x={cx}
 				y={cy + 10}
 				textAnchor='middle'
-				fill={payload.textColor}
+				fill={colors.headingText}
 				fontWeight='bold'
 				fontSize={16}
 			>
@@ -135,14 +78,14 @@ const renderActiveShape = (props) => {
 				x={ex + (cos >= 0 ? 1 : -1) * 12}
 				y={ey}
 				textAnchor={textAnchor}
-				fill='#333'
+				fill={colors.bodyText}
 			>{`${value} leads`}</text>
 			<text
 				x={ex + (cos >= 0 ? 1 : -1) * 12}
 				y={ey}
 				dy={18}
 				textAnchor={textAnchor}
-				fill='#999'
+				fill={colors.mutedText}
 			>
 				{`Rate: ${(percent * 100).toFixed(1)}%`}
 			</text>
@@ -151,7 +94,17 @@ const renderActiveShape = (props) => {
 };
 
 const ActiveShapePieChart = ({ data }) => {
+	const colors = useModalColors();
 	const [activeIndex, setActiveIndex] = useState(0);
+
+	// Assign gold theme colors to data items
+	const goldColors = [colors.accentGold, colors.goldLight, colors.goldDark, '#4A7BA3', '#2E5C87'];
+
+	const enrichedData = data.map((item, index) => ({
+		...item,
+		fill: goldColors[index % goldColors.length],
+		textColor: colors.headingText,
+	}));
 
 	return (
 		<Box w='100%'>
@@ -159,15 +112,12 @@ const ActiveShapePieChart = ({ data }) => {
 				<PieChart>
 					<Pie
 						activeIndex={activeIndex}
-						activeShape={renderActiveShape}
-						data={data}
+						activeShape={(props) => renderActiveShape(props, colors)}
+						data={enrichedData}
 						cx='50%'
 						cy='50%'
 						innerRadius={70}
 						outerRadius={90}
-						// innerRadius='80%'
-						// outerRadius='100%'
-						fill='#E5B668'
 						dataKey='value'
 						onMouseEnter={(_, index) => setActiveIndex(index)}
 					/>

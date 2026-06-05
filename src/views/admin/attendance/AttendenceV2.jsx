@@ -12,19 +12,19 @@ import Employees from './components/employees/index';
 import Records from './components/records/index';
 import MyAttendance from './components/myAttendance/index';
 import NotPermission from 'components/notPermission/NotPermission';
+import { Box } from '@chakra-ui/react';
 
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AttendanceV2 = () => {
+	const colors = useModalColors();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [tabKey, setTabKey] = useState(0);
 
 	const { user, userRoleName } = useUserSession();
 	const { hasPermission } = usePermissions();
-
-	// const DEFAULT_TAB =
-	// 	userRoleName === 'superAdmin' ? 'dashboard' : 'my-attendance';
 
 	// always read param string (not object reference)
 	const tabFromParams = searchParams.get('tab')?.toLowerCase();
@@ -70,7 +70,7 @@ const AttendanceV2 = () => {
 				component: <MyAttendance key='my-attendance' userId={user?._id} />,
 			},
 		],
-		[user?._id] // only re-create when user changes
+		[user?._id]
 	);
 
 	const filteredTabs = useMemo(
@@ -93,19 +93,6 @@ const AttendanceV2 = () => {
 		return idx >= 0 ? idx : 0;
 	}, [tabsData, tabFromParams]);
 
-	// useEffect(() => {
-	// 	if (
-	// 		!tabFromParams ||
-	// 		!tabsData.some((tab) => tab.param === tabFromParams)
-	// 	) {
-	// 		const firstTab = tabsData[0]?.param; // safe check
-	// 		if (firstTab) {
-	// 			setSearchParams({ tab: firstTab }, { replace: true });
-	// 		}
-	// 	}
-	// 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	// }, []);
-
 	useEffect(() => {
 		if (tabsData.length === 0) return;
 
@@ -114,7 +101,6 @@ const AttendanceV2 = () => {
 		const isValidTab = tabsData.some((tab) => tab.param === currentTab);
 
 		if (!currentTab || !isValidTab) {
-			// always default to first available tab (index 0)
 			const fallback = tabsData[0].param;
 			setSearchParams({ tab: fallback }, { replace: true });
 		}
@@ -125,23 +111,21 @@ const AttendanceV2 = () => {
 			const tabParam = tabsData[index]?.param;
 			if (!tabParam) return;
 
-			// Only update search params if it's actually different
 			if (tabParam !== tabFromParams) {
 				setSearchParams({ tab: tabParam });
 			} else {
-				// same tab clicked → force re-render of tab content
 				setTabKey((prev) => prev + 1);
 			}
 		},
 		[tabsData, tabFromParams, setSearchParams]
 	);
 
-	
-		if (tabsData.length === 0) {
-			return <NotPermission moduleName="attendence"/> ;
-		}
+	if (tabsData.length === 0) {
+		return <NotPermission moduleName="attendence" />;
+	}
+
 	return (
-		<>
+		<Box bg={colors.bgDeep} minH='100vh'>
 			<TabNavigationDisplay
 				tabsData={tabsData.map((tab) => ({
 					...tab,
@@ -151,7 +135,7 @@ const AttendanceV2 = () => {
 				activeTab={activeTabIndex}
 				onTabChange={handleTabChange}
 			/>
-		</>
+		</Box>
 	);
 };
 

@@ -489,7 +489,8 @@ const crmSteps = [
 		title: 'Core Qualification',
 		subtitle: 'All fields are mandatory',
 		icon: FiInfo,
-		color: '#B79045',
+		color: 'accent.gold',
+
 		fields: [
 			{
 				name: 'leadType',
@@ -568,7 +569,7 @@ const crmSteps = [
 		title: 'Deal Qualification',
 		subtitle: 'All fields are optional',
 		icon: FiBriefcase,
-		color: '#4299E1',
+		color: 'blue.500',
 		fields: [
 			{
 				name: 'decisionMaker',
@@ -620,7 +621,7 @@ const crmSteps = [
 		title: 'Investment Profile',
 		subtitle: 'Only for Investor lead type',
 		icon: FiTrendingUp,
-		color: '#38A169',
+		color: 'green.500',
 		fields: [
 			{
 				name: 'investmentGoal',
@@ -822,10 +823,11 @@ const CardOption = ({
 				borderWidth='1px'
 				borderRadius='md'
 				borderColor={
-					isInvalid ? 'red.400' : isSelected ? selectedColor : 'gray.200'
+					isInvalid ? 'red.500' : isSelected ? selectedColor : 'border.default'
 				}
-				bg={isSelected ? `${colorScheme}.50` : 'white'}
-				color={isSelected ? `${colorScheme}.700` : 'gray.700'}
+				// bg ={isSelected ? `${colorScheme}.50` : 'bg.surface'}
+				bg ={ 'bg.surface'}
+				color={isSelected ? `${colorScheme}.700` : 'text.body'}
 				p={2}
 				textAlign='center'
 				fontWeight='medium'
@@ -838,7 +840,7 @@ const CardOption = ({
 				gap={2}
 				_hover={{
 					borderColor: isInvalid
-						? 'red.400'
+						? 'red.500'
 						: isSelected
 							? selectedColor
 							: `${colorScheme}.300`,
@@ -846,17 +848,16 @@ const CardOption = ({
 						? 'red.50'
 						: isSelected
 							? `${colorScheme}.50`
-							: 'gray.50',
+							: 'bg.elevated',
 					transform: 'translateY(-1px)',
 					boxShadow: 'sm',
 				}}
 				_checked={{
 					borderColor: selectedColor,
-					bg: `${colorScheme}.50`,
+					// bg: `${colorScheme}.50`,
 					color: `${colorScheme}.700`,
 				}}
 			>
-				{/* Only show icon if it exists */}
 				{icon && (
 					<Flex
 						align='center'
@@ -890,7 +891,7 @@ const TagSelect = ({
 	onBlur,
 	isMulti = true,
 }) => {
-	const borderColor = isInvalid ? 'red.400' : 'gray.200';
+	const borderColor = isInvalid ? 'red.500' : 'border.default';
 
 	const handleToggle = (tagValue) => {
 		const newValue = value.includes(tagValue)
@@ -898,10 +899,8 @@ const TagSelect = ({
 			: [...value, tagValue];
 
 		onChange(name, newValue);
-		// Removed onBlur call here
 	};
 
-	// Add onBlur to the container if needed
 	return (
 		<Box
 			borderWidth={isInvalid ? '2px' : '1px'}
@@ -928,9 +927,9 @@ const TagSelect = ({
 							sx={
 								isSelected
 									? {
-											bg: 'blue.100',
-											color: 'blue.800',
-											borderColor: 'blue.300',
+											bg: 'bg.blue.100',
+											color: 'text.blue.800',
+											borderColor: 'border.blue.300',
 											borderWidth: '1px',
 										}
 									: {}
@@ -946,6 +945,7 @@ const TagSelect = ({
 		</Box>
 	);
 };
+
 const ReactSelectField = ({
 	options,
 	value = [],
@@ -980,36 +980,66 @@ const ReactSelectField = ({
 		control: (base, state) => ({
 			...base,
 			borderColor: isInvalid
-				? '#FC8181'
+				? '#E53E3E'  // red.500
 				: state.isFocused
-					? '#3182CE'
-					: '#E2E8F0',
+					? '#D4AF37'  // gold.primary
+					: '#1E3D5C', // navy.600
 			borderWidth: isInvalid ? '2px' : '1px',
 			borderRadius: '8px',
-			boxShadow: state.isFocused && !isInvalid ? '0 0 0 1px #3182CE' : 'none',
+			boxShadow: state.isFocused && !isInvalid ? '0 0 0 1px #D4AF37' : 'none',
 			'&:hover': {
-				borderColor: isInvalid ? '#FC8181' : '#CBD5E0',
+				borderColor: isInvalid ? '#E53E3E' : '#1E3D5C',
 			},
 			minHeight: '40px',
-			backgroundColor: 'white',
+			backgroundColor: '#24496E',  // navy.500 - actual color
+		}),
+		menu: (base) => ({
+			...base,
+			backgroundColor: '#10273A',  // navy.800
+			borderRadius: '8px',
+			overflow: 'hidden',
+		}),
+		option: (base, { isFocused, isSelected }) => ({
+			...base,
+			backgroundColor: isSelected
+				? '#D4AF37'  // gold.primary
+				: isFocused
+					? '#1A3550'  // navy.700
+					: 'transparent',
+			color: isSelected ? '#000000' : '#B0B0B0',  // black for selected, gray.300 for others
+			'&:hover': {
+				backgroundColor: '#1A3550',  // navy.700
+			},
 		}),
 		multiValue: (base) => ({
 			...base,
-			backgroundColor: '#E6F7FF',
+			backgroundColor: '#2E5C87',  // navy.400
 			borderRadius: '6px',
 		}),
 		multiValueLabel: (base) => ({
 			...base,
 			fontWeight: '500',
-			color: '#3182CE',
+			color: '#D4AF37',  // gold.primary
 		}),
 		multiValueRemove: (base) => ({
 			...base,
-			color: '#3182CE',
+			color: '#D4AF37',
 			'&:hover': {
-				backgroundColor: '#BEE3F8',
-				color: '#2C5282',
+				backgroundColor: '#D4AF37',
+				color: '#000000',
 			},
+		}),
+		input: (base) => ({
+			...base,
+			color: '#B0B0B0',  // white for input text
+		}),
+		placeholder: (base) => ({
+			...base,
+			color: '#808080',  // gray.500
+		}),
+		singleValue: (base) => ({
+			...base,
+			color: '#B0B0B0',  // white
 		}),
 	};
 
@@ -1316,7 +1346,7 @@ export const CRMQualificationModal = ({
 			case 'cardSelect':
 				return (
 					<FormControl isInvalid={error} isRequired={field.required}>
-						<FormLabel fontSize='sm' fontWeight='semibold' mb={1}>
+						<FormLabel fontSize='sm' fontWeight='semibold' mb={1} color='text.body'>
 							{field.label}
 						</FormLabel>
 						<CardSelect
@@ -1338,7 +1368,7 @@ export const CRMQualificationModal = ({
 			case 'tagSelect':
 				return (
 					<FormControl isInvalid={error} isRequired={field.required}>
-						<FormLabel fontSize='sm' fontWeight='semibold' mb={1}>
+						<FormLabel fontSize='sm' fontWeight='semibold' mb={1} color='text.body'>
 							{field.label}
 						</FormLabel>
 						{field.name === 'preferredLocations' ? (
@@ -1371,60 +1401,61 @@ export const CRMQualificationModal = ({
 			case 'textarea':
 				return (
 					<FormControl isInvalid={error} isRequired={field.required}>
-						<FormLabel fontSize='sm' fontWeight='semibold' mb={1}>
+						<FormLabel fontSize='sm' fontWeight='semibold' mb={1} color='text.body'>
 							{field.label}
 						</FormLabel>
-						<Textarea
-							name={field.name}
-							value={formik.values[field.name]}
-							onChange={handleTextareaChange}
-							onBlur={formik.handleBlur}
-							placeholder={field.placeholder}
-							size='md'
-							rows={4}
-							borderRadius='lg'
-							borderColor={error ? 'red.400' : 'gray.200'}
-							_hover={{ borderColor: error ? 'red.500' : 'gray.300' }}
-							_focus={{
-								borderColor: error ? 'red.500' : 'blue.500',
-								boxShadow: error ? '0 0 0 1px red.500' : '0 0 0 1px blue.500',
-							}}
-						/>
-						<Flex justify='space-between' mt={2}>
-							{error && (
-								<Text fontSize='xs' color='red.500'>
-									{error}
-								</Text>
-							)}
-							<Text fontSize='xs' color='gray.500' ml='auto'>
-								{formik.values[field.name]?.length || 0}/500
-							</Text>
-						</Flex>
+					<Textarea
+	name={field.name}
+	value={formik.values[field.name]}
+	onChange={handleTextareaChange}
+	onBlur={formik.handleBlur}
+	placeholder={field.placeholder}
+	size='md'
+	rows={4}
+	borderRadius='lg'
+	borderColor={error ? 'red.500' : 'border.default'}
+	_hover={{ borderColor: error ? 'red.500' : 'border.default' }}
+	_focus={{
+		borderColor: error ? 'red.500' : 'border.focus',
+		boxShadow: error ? '0 0 0 1px red.500' : 'goldGlow',
+	}}
+/>
+<Flex justify='space-between' mt={2}>
+	{error && (
+		<Text fontSize='xs' color='red.500'>
+			{error}
+		</Text>
+	)}
+	<Text fontSize='xs' color='text.muted' ml='auto'>
+		{formik.values[field.name]?.length || 0}/500
+	</Text>
+</Flex>
+
 					</FormControl>
 				);
 
 			case 'date':
 				return (
 					<FormControl isInvalid={error} isRequired={field.required}>
-						<FormLabel fontSize='sm' fontWeight='semibold' mb={1}>
+						<FormLabel fontSize='sm' fontWeight='semibold' mb={1} color='text.body'>
 							{field.label}
 						</FormLabel>
 						<Input
-							name={field.name}
-							type='date'
-							value={formik.values[field.name]}
-							onChange={handleInputChange}
-							onBlur={formik.handleBlur}
-							size='md'
-							borderRadius='lg'
-							min={new Date().toISOString().split('T')[0]}
-							borderColor={error ? 'red.400' : 'gray.200'}
-							_hover={{ borderColor: error ? 'red.500' : 'gray.300' }}
-							_focus={{
-								borderColor: error ? 'red.500' : 'blue.500',
-								boxShadow: error ? '0 0 0 1px red.500' : '0 0 0 1px blue.500',
-							}}
-						/>
+	name={field.name}
+	type='date'
+	value={formik.values[field.name]}
+	onChange={handleInputChange}
+	onBlur={formik.handleBlur}
+	size='md'
+	borderRadius='lg'
+	min={new Date().toISOString().split('T')[0]}
+	borderColor={error ? 'red.500' : 'border.default'}
+	_hover={{ borderColor: error ? 'red.500' : 'border.default' }}
+	_focus={{
+		borderColor: error ? 'red.500' : 'border.focus',
+		boxShadow: error ? '0 0 0 1px red.500' : 'goldGlow',
+	}}
+/>
 						{error && (
 							<Text fontSize='xs' color='red.500' mt={2}>
 								{error}
@@ -1479,17 +1510,17 @@ export const CRMQualificationModal = ({
 				flexDirection='column'
 			>
 				<ModalHeader
-					bg='#B79045'
-					borderTopRadius='xl'
-					py={3}
-					fontSize='md'
-					fontWeight='bold'
-					color='white'
-					borderBottom='1px'
-					borderColor='gray.100'
-				>
+  bg='accent.gold'
+  borderTopRadius='xl'
+  py={3}
+  fontSize='md'
+  fontWeight='bold'
+  color='text.inverse'
+  borderBottom='1px'
+  borderColor='border.default'
+>
 					<Flex align='center' justify='space-between'>
-						<Heading size='md' color='white'>
+						<Heading size='md' color='text.inverse'>
 							{isEditMode ? 'Edit Qualification' : 'Lead Qualification'}
 						</Heading>
 					</Flex>
@@ -1497,24 +1528,24 @@ export const CRMQualificationModal = ({
 
 				{/* Step Indicators */}
 				<Box
-					px={6}
-					py={4}
-					borderBottom='1px'
-					borderColor='gray.100'
-					bg='gray.50'
-					flexShrink={0}
-				>
+  px={6}
+  py={4}
+  borderBottom='1px'
+  borderColor='border.default'
+  bg='bg.elevated'
+>
 					<Flex justify='space-between' position='relative'>
 						{/* Connecting Line */}
 						<Box
-							position='absolute'
-							top='16px'
-							left='20px'
-							right='20px'
-							height='2px'
-							bg='gray.200'
-							zIndex={0}
-						/>
+  position='absolute'
+  top='16px'
+  left='20px'
+  right='20px'
+  height='2px'
+  bg='border.default'
+  zIndex={0}
+/>
+
 
 						{visibleSteps.map((section, index) => {
 							const isActive = index === step;
@@ -1562,13 +1593,13 @@ export const CRMQualificationModal = ({
 									<Text
 										fontSize='xs'
 										fontWeight={isActive ? '600' : '500'}
-										color={
-											isActive
-												? 'gray.800'
-												: isCompleted
-													? 'gray.700'
-													: 'gray.500'
-										}
+									color={
+  isActive
+    ? 'text.heading'
+    : isCompleted
+      ? 'text.body'
+      : 'text.muted'
+}
 										textAlign='center'
 										maxW='100px'
 										lineHeight='shorter'
@@ -1582,11 +1613,14 @@ export const CRMQualificationModal = ({
 				</Box>
 				{/* Scrollable form content */}
 				<ModalBody
-					ref={contentRef}
-					flex='1'
-					overflowY='auto'
-					px={6}
-					py={6}
+
+  ref={contentRef}
+  flex='1'
+  overflowY='auto'
+  px={6}
+  py={6}
+  bg='bg.app'
+
 					css={{
 						'&::-webkit-scrollbar': {
 							width: '8px',
@@ -1613,15 +1647,14 @@ export const CRMQualificationModal = ({
 				</ModalBody>
 
 				<ModalFooter
-					pt={3}
-					borderTop='1px'
-					borderColor='gray.100'
-					flexShrink={0}
-					bg='gray.200'
-				>
+  pt={3}
+  borderTop='1px'
+  borderColor='border.default'
+  flexShrink={0}
+  bg='bg.elevated'
+>
 					<Flex justify='space-between' w='full'>
 						<Button
-							bg='gray.100'
 							variant='ghost'
 							size='md'
 							onClick={step === 0 ? handleClose : handleBack}
@@ -1631,7 +1664,7 @@ export const CRMQualificationModal = ({
 
 						<Flex align='center' gap={4}>
 							<Button
-								colorScheme={'brand'}
+								variant='brand'
 								size='md'
 								onClick={handleNext}
 								isLoading={formik.isSubmitting || isUpdating}

@@ -15,7 +15,8 @@ import DateFilter from "./FilterComponent/DateFilter";
 import { formatDNS } from "utils/helpers";
 import SearchTags from "components/search/SearchTags";
 import ViewToggle from "components/toggle/ViewToggle";
-import { FiRefreshCw } from "react-icons/fi";
+
+import RefreshButton from "components/refresh/RefreshButton";
 
 const FilterSearch = ({
   currentPage,
@@ -85,7 +86,7 @@ const FilterSearch = ({
         p={3}
         flexDir={{ base: "column", sm: "column", md: "row" }}
       >
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+        <Text fontSize={{ base: 'md', md: 'lg', lg: 'xl' }} fontWeight="bold" color="white" p={3}>
           All Surveys
         </Text>
 
@@ -96,16 +97,16 @@ const FilterSearch = ({
           flexDir={{ base: "column", sm: "column", md: "row" }}
           justifyContent={{ base: "center", sm: "center", md: "normal" }}
         >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
-
           <DateFilterButton onClick={openModal} isForceOpen={forceTooltip} />
+
+          {/* Refresh Button */}
+         <RefreshButton
+        label="Refresh"
+        onClick={refetch}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        size="sm"
+       />
           <ViewToggle
             view={view}
             handleView={handleViewChange}

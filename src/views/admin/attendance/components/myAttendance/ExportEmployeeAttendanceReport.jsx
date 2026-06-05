@@ -24,19 +24,17 @@ import { useModalColors } from 'hooks/useModalColors';
 
 const MotionProgress = motion(Box);
 
-const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
+const ExportAttendanceModal = ({ isOpen, onClose, employee, initialMonth, initialYear }) => {
 	const [progress, setProgress] = useState(0);
 	const [isGenerating, setIsGenerating] = useState(false);
+	const colors = useModalColors();
 
-	const { headerBg, headerText } = useModalColors();
-
-	const [month, setMonth] = useState(() => new Date().getMonth() + 1);
-	const [year, setYear] = useState(() => new Date().getFullYear());
+	const [month, setMonth] = useState(initialMonth || new Date().getMonth() + 1);
+	const [year, setYear] = useState(initialYear || new Date().getFullYear());
 
 	const monthFilterHandler = (value) => {
 		const newMonth = Number(value.month);
 		const newYear = Number(value.year);
-
 		setMonth(newMonth);
 		setYear(newYear);
 	};
@@ -48,7 +46,6 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 		let interval;
 
 		try {
-			// Start smooth progress animation
 			interval = setInterval(() => {
 				setProgress((prev) => (prev < 90 ? prev + 5 : prev));
 			}, 300);
@@ -71,7 +68,6 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 
 			const fileName = `${employee?.fullName}-attendance-${fileLabel}-report.${format}`;
 
-			// Create and trigger download
 			const url = URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;
@@ -82,7 +78,6 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 
 			toast.success(`${format.toUpperCase()} download started!`);
 
-			// Cleanup blob URL
 			setTimeout(() => {
 				URL.revokeObjectURL(url);
 			}, 2000);
@@ -107,32 +102,44 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 			closeOnOverlayClick={!isGenerating}
 			isCentered
 		>
-			<ModalOverlay backdropFilter='blur(2px)' />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
 			<ModalContent
 				as={motion.div}
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				mx='4'
 				borderRadius='xl'
-				boxShadow='xl'
+				boxShadow={colors.modalShadow}
+				bg={colors.bg}
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
 				<ModalHeader
 					display='flex'
 					gap='2'
-					bg={headerBg}
-					color={headerText}
+					bg={colors.headerBg}
+					color={colors.headerText}
 					borderTopRadius='xl'
 					py={4}
+					px={6}
 					alignItems='center'
 					w='100%'
 				>
 					Export Employee Report
 				</ModalHeader>
-				<ModalCloseButton isDisabled={isGenerating} />
+				<ModalCloseButton
+					color={colors.closeBtnColor}
+					_hover={{ bg: colors.closeBtnHoverBg }}
+					isDisabled={isGenerating}
+				/>
 				<ModalBody>
 					<VStack mb='2'>
-						<Text color='gray.600'>Select Month</Text>
-						<DateFilter onFilterChange={monthFilterHandler} />
+						<Text color={colors.labelColor}>Select Month</Text>
+						 <DateFilter
+    onFilterChange={monthFilterHandler}
+    initialMonth={month}
+    initialYear={year}
+  />
 					</VStack>
 
 					<AnimatePresence>
@@ -144,20 +151,20 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 								mb={2}
 								overflow='hidden'
 							>
-								<Text mb={2} textAlign='center'>
+								<Text mb={2} textAlign='center' color={colors.bodyText}>
 									{progress === 100
 										? 'Finalizing download...'
 										: `Generating report (${progress}%)`}
 								</Text>
 								<Box
 									h='8px'
-									bg='gray.100'
+									bg={colors.bgInput}
 									borderRadius='full'
 									overflow='hidden'
 								>
 									<MotionProgress
 										h='100%'
-										bg='blue.400'
+										bg={colors.accentGold}
 										borderRadius='full'
 										initial={{ width: 0 }}
 										animate={{ width: `${progress}%` }}
@@ -168,7 +175,11 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 						)}
 					</AnimatePresence>
 				</ModalBody>
-				<ModalFooter>
+				<ModalFooter
+					bg={colors.footerBg}
+					borderTop={`1px solid ${colors.borderColor}`}
+					py={4}
+				>
 					{!isGenerating && (
 						<VStack
 							justifyContent='space-between'
@@ -178,10 +189,7 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 							mb='4'
 						>
 							<Button
-								{...buttonStyle}
-								colorScheme='red'
-								_active={{ bg: 'red.400' }}
-								_hover={{ bg: 'red.400' }}
+								variant='brand'
 								mr={3}
 								onClick={() => handleGenerateReport('pdf')}
 								isLoading={isGenerating}
@@ -195,10 +203,7 @@ const ExportAttendanceModal = ({ isOpen, onClose, employee }) => {
 								PDF
 							</Button>
 							<Button
-								{...buttonStyle}
-								colorScheme='green'
-								_active={{ bg: 'green.400' }}
-								_hover={{ bg: 'green.400' }}
+								variant='brand'
 								onClick={() => handleGenerateReport('csv')}
 								isLoading={isGenerating}
 								loadingText='Generating CSV'
@@ -224,9 +229,8 @@ const ExportEmployeeAttendanceReport = ({ employee, month, year }) => {
 	return (
 		<>
 			<Button
-				{...buttonStyle}
 				onClick={onOpen}
-				colorScheme='brand'
+				variant='brand'
 				leftIcon={<AiOutlineExport />}
 				size='sm'
 			>
@@ -237,9 +241,9 @@ const ExportEmployeeAttendanceReport = ({ employee, month, year }) => {
 				<ExportAttendanceModal
 					isOpen={isOpen}
 					onClose={onClose}
-					month={month}
-					year={year}
 					employee={employee}
+					initialMonth={month}
+					initialYear={year}
 				/>
 			)}
 		</>

@@ -1,115 +1,3 @@
-// import React from 'react';
-// import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-// import { Box, Text, VStack, HStack } from '@chakra-ui/react';
-
-// const LeadStatusPieChart = ({ summary, isFullScreen }) => {
-// 	const leadStatusData = [
-// 		{
-// 			name: 'Interested',
-// 			value: summary.interestedLeads,
-// 			count: summary.interestedLeads,
-// 		},
-// 		{
-// 			name: 'Not Interested',
-// 			value: summary.notInterestedLeads,
-// 			count: summary.notInterestedLeads,
-// 		},
-// 		{
-// 			name: 'Released',
-// 			value: summary.releasedLeads,
-// 			count: summary.releasedLeads,
-// 		},
-// 		{
-// 			name: 'Other Leads',
-// 			value:
-// 				summary.leadCount -
-// 				summary.interestedLeads -
-// 				summary.notInterestedLeads -
-// 				summary.releasedLeads,
-// 			count:
-// 				summary.leadCount -
-// 				summary.interestedLeads -
-// 				summary.notInterestedLeads -
-// 				summary.releasedLeads,
-// 		},
-// 	];
-
-// 	const COLORS = ['#10B981', '#EF4444', '#F59E0B', '#6B7280'];
-// 	const TOTAL_LEADS = summary.leadCount;
-
-// 	const CustomTooltip = ({ active, payload }) => {
-// 		if (active && payload && payload.length) {
-// 			const data = payload[0].payload;
-// 			const percentage = ((data.count / TOTAL_LEADS) * 100).toFixed(1);
-
-// 			return (
-// 				<Box
-// 					bg='white'
-// 					p={3}
-// 					borderRadius='md'
-// 					boxShadow='lg'
-// 					border='1px solid'
-// 					borderColor='gray.200'
-// 				>
-// 					<Text fontWeight='bold' color='gray.700'>
-// 						{data.name}
-// 					</Text>
-// 					<HStack spacing={2}>
-// 						<Text color='gray.600'>Count:</Text>
-// 						<Text fontWeight='semibold'>{data.count.toLocaleString()}</Text>
-// 					</HStack>
-// 					<HStack spacing={2}>
-// 						<Text color='gray.600'>Percentage:</Text>
-// 						<Text
-// 							fontWeight='semibold'
-// 							color={
-// 								COLORS[leadStatusData.findIndex((d) => d.name === data.name)]
-// 							}
-// 						>
-// 							{percentage}%
-// 						</Text>
-// 					</HStack>
-// 				</Box>
-// 			);
-// 		}
-// 		return null;
-// 	};
-
-// 	return (
-// 		<ResponsiveContainer width='100%' height='100%'>
-// 			<PieChart>
-// 				<Pie
-// 					data={leadStatusData}
-// 					cx='50%'
-// 					cy='50%'
-// 					innerRadius={0}
-// 					outerRadius={isFullScreen ? 100 : 80}
-// 					paddingAngle={2}
-// 					dataKey='value'
-// 					label={({ name, percent }) =>
-// 						`${name} (${(percent * 100).toFixed(1)}%)`
-// 					}
-// 					fontSize='12px'
-// 					labelLine={false}
-// 					offset={2}
-// 				>
-// 					{leadStatusData.map((entry, index) => (
-// 						<Cell
-// 							key={`cell-${index}`}
-// 							fill={COLORS[index % COLORS.length]}
-// 							stroke='white'
-// 							strokeWidth={2}
-// 						/>
-// 					))}
-// 				</Pie>
-// 				<Tooltip content={<CustomTooltip />} />
-// 			</PieChart>
-// 		</ResponsiveContainer>
-// 	);
-// };
-
-// export default LeadStatusPieChart;
-
 import { Box, HStack, VStack, Text, Circle } from '@chakra-ui/react';
 import { ResponsiveContainer, PieChart, Pie, Tooltip, Cell } from 'recharts';
 
@@ -128,37 +16,46 @@ const LeadStatusPieChart = ({ summary, isFullScreen }) => {
 		},
 	];
 
-	const COLORS = ['#10B981', '#EF4444', '#F59E0B', '#6B7280'];
+	// Theme-aligned colors
+	const COLORS = {
+		Interested: '#10B981', // green.500
+		'Not Interested': '#EE5D50', // red.500
+		Released: '#D4AF37', // gold.primary
+		'Other Leads': '#4A7BA3', // navy.300
+	};
+
 	const TOTAL_LEADS = summary.leadCount;
 
 	const CustomTooltip = ({ active, payload }) => {
 		if (active && payload && payload.length) {
 			const data = payload[0].payload;
 			const percentage = ((data.value / TOTAL_LEADS) * 100).toFixed(1);
+			const color = COLORS[data.name];
 
 			return (
 				<Box
-					bg='white'
+					bg='bg.surface'
 					p={3}
-					borderRadius='md'
-					boxShadow='lg'
+					borderRadius='lg'
+					boxShadow='card'
 					border='1px solid'
-					borderColor='gray.200'
+					borderColor='border.default'
 				>
-					<Text fontWeight='bold' color='gray.700'>
+					<Text fontWeight='bold' color='text.heading' mb={2}>
 						{data.name}
 					</Text>
-					<HStack spacing={2}>
-						<Text color='gray.600'>Count:</Text>
-						<Text fontWeight='semibold'>{data.value.toLocaleString()}</Text>
+					<HStack spacing={2} mb={1}>
+						<Text color='text.muted' fontSize='sm'>Count:</Text>
+						<Text fontWeight='semibold' color='text.heading' fontSize='sm'>
+							{data.value.toLocaleString()}
+						</Text>
 					</HStack>
 					<HStack spacing={2}>
-						<Text color='gray.600'>Percentage:</Text>
+						<Text color='text.muted' fontSize='sm'>Percentage:</Text>
 						<Text
 							fontWeight='semibold'
-							color={
-								COLORS[leadStatusData.findIndex((d) => d.name === data.name)]
-							}
+							color={color}
+							fontSize='sm'
 						>
 							{percentage}%
 						</Text>
@@ -182,13 +79,14 @@ const LeadStatusPieChart = ({ summary, isFullScreen }) => {
 			<VStack align='start' spacing={1} p='2' minW='170px'>
 				{leadStatusData.map((item, i) => {
 					const percentage = ((item.value / TOTAL_LEADS) * 100).toFixed(1);
+					const color = COLORS[item.name];
 					return (
 						<HStack key={item.name} spacing={1}>
-							<Circle size='8px' bg={COLORS[i]} />
-							<Text fontSize='10px' color='gray.700' fontWeight='normal'>
+							<Circle size='8px' bg={color} />
+							<Text fontSize='10px' color='text.muted' fontWeight='normal'>
 								{item.name}:
 							</Text>
-							<Text fontSize='10px' fontWeight='semibold' color={COLORS[i]}>
+							<Text fontSize='10px' fontWeight='semibold' color={color}>
 								{percentage}%
 							</Text>
 						</HStack>
@@ -207,9 +105,6 @@ const LeadStatusPieChart = ({ summary, isFullScreen }) => {
 						outerRadius={isFullScreen ? 150 : 85}
 						paddingAngle={2}
 						dataKey='value'
-						// label={({ name, percent }) =>
-						// 	`${name} (${(percent * 100).toFixed(1)}%)`
-						// }
 						fontSize='12px'
 						labelLine={false}
 						offset={2}
@@ -217,8 +112,8 @@ const LeadStatusPieChart = ({ summary, isFullScreen }) => {
 						{leadStatusData.map((entry, index) => (
 							<Cell
 								key={`cell-${index}`}
-								fill={COLORS[index % COLORS.length]}
-								stroke='white'
+								fill={COLORS[entry.name]}
+								stroke='bg.surface'
 								strokeWidth={2}
 							/>
 						))}

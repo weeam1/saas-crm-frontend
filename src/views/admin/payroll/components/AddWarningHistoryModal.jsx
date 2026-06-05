@@ -10,13 +10,13 @@ import {
 	Grid,
 	Flex,
 	Divider,
-	useColorModeValue,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import { useCreateItemMutation } from 'api/apiSlice'; // Add this import
-import { toast } from 'react-toastify'; // Add this import
+import { useCreateItemMutation } from 'api/apiSlice';
+import { toast } from 'react-toastify';
 import RenderFields from 'components/shared/RenderFields';
+import { useModalColors } from 'hooks/useModalColors';
 
 export const AddHistoryModal = ({
 	isOpen,
@@ -24,14 +24,11 @@ export const AddHistoryModal = ({
 	onSubmit,
 	month,
 	year,
-	employeeId, // Add this prop to receive employee ID
+	employeeId,
 	isLoading = false,
 }) => {
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const headerColor = useColorModeValue('brand.300', 'brand.100');
-	const textColor = useColorModeValue('brand.700', 'brand.900');
-	const closeBtnColor = useColorModeValue('brand.700', 'brand.900');
-	// Add mutation hook for API call
+	const colors = useModalColors();
+
 	const [createItemMutation, { isLoading: isApiLoading }] =
 		useCreateItemMutation();
 
@@ -47,7 +44,6 @@ export const AddHistoryModal = ({
 			.typeError('Amount must be a number')
 			.required('Amount is required')
 			.min(1, 'Amount cannot be less than 1'),
-
 		Notes: Yup.string().nullable(),
 	});
 
@@ -65,31 +61,25 @@ export const AddHistoryModal = ({
 			rows: 4,
 		},
 	];
+
 	// Handle form submission with API call
 	const handleSubmit = async (values, actions) => {
 		try {
-			// Prepare payload according to your API requirements
 			const payload = {
-				employee: employeeId, // Use the employeeId prop
-				month: month, // Use the month prop
-				year: year, // Use the year prop
-				amount: Number(values.amount), // Convert amount to number
-				note: values.Notes || '', // Map Notes to note
+				employee: employeeId,
+				month: month,
+				year: year,
+				amount: Number(values.amount),
+				note: values.Notes || '',
 			};
 
-			// Call the API
 			await createItemMutation({
-				path: '/payroll/employee-warnings', // Adjust path according to your API endpoint
+				path: '/payroll/employee-warnings',
 				body: payload,
 			}).unwrap();
 
-			// Show success message
 			toast.success('Warning history added successfully.');
-
-			// Call the parent onSubmit if provided
 			await onSubmit?.(values);
-
-			// Reset form and close modal
 			actions.resetForm();
 			onClose();
 		} catch (error) {
@@ -98,7 +88,6 @@ export const AddHistoryModal = ({
 		}
 	};
 
-	// Combine loading states
 	const isSubmitting = isLoading || isApiLoading;
 
 	return (
@@ -109,23 +98,35 @@ export const AddHistoryModal = ({
 			isCentered
 			scrollBehavior='inside'
 		>
-			<ModalOverlay />
-			<ModalContent bg={bgColor} borderRadius='2xl'>
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
+			<ModalContent
+				bg={colors.bg}
+				borderRadius='2xl'
+				boxShadow={colors.modalShadow}
+				border='1px solid'
+				borderColor={colors.borderColor}
+				overflow='hidden'
+			>
 				<ModalHeader
 					fontSize='lg'
-					bg={headerColor}
-					color={textColor}
+					bg={colors.headerBg}
+					color={colors.headerText}
 					px={5}
 					py={3}
 					borderTopRadius='2xl'
+					borderBottom='1px solid'
+					borderColor={colors.borderColor}
 				>
 					<Flex align='center' gap={2}>
 						Add Warning History
 					</Flex>
-					<ModalCloseButton color={closeBtnColor} />
+					<ModalCloseButton
+						color={colors.headerText}
+						_hover={{ bg: colors.closeBtnHoverBg }}
+					/>
 				</ModalHeader>
 
-				<Divider />
+				<Divider borderColor={colors.borderColor} />
 
 				<Formik
 					initialValues={initialValues}
@@ -134,18 +135,17 @@ export const AddHistoryModal = ({
 				>
 					{() => (
 						<Form>
-							<ModalBody py={4} px={6}>
+							<ModalBody py={4} px={6} bg={colors.bg}>
 								<Grid templateColumns='1fr' gap={4}>
 									<RenderFields fields={fields} />
 								</Grid>
 							</ModalBody>
 
-							<Divider />
+							<Divider borderColor={colors.borderColor} />
 
-							<ModalFooter gap={3}>
+							<ModalFooter gap={3} bg={colors.footerBg} borderTop='1px solid' borderColor={colors.borderColor}>
 								<Button
 									variant='outline'
-									colorScheme='gray'
 									onClick={onClose}
 									size='sm'
 								>
@@ -153,7 +153,7 @@ export const AddHistoryModal = ({
 								</Button>
 
 								<Button
-									colorScheme='brand'
+									variant='brand'
 									type='submit'
 									size='sm'
 									isLoading={isSubmitting}

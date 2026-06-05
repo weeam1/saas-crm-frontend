@@ -5,7 +5,6 @@ import {
 	Box,
 	Flex,
 	Text,
-	useColorModeValue,
 	SimpleGrid,
 	HStack,
 	VStack,
@@ -30,6 +29,7 @@ import RefButton from '../RefButton';
 import { useLocation } from 'react-router-dom';
 import CardShimmer from 'components/loading/CardShimmer';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const formatSeconds = (seconds) => {
 	const hrs = Math.floor(seconds / 3600);
@@ -39,10 +39,11 @@ const formatSeconds = (seconds) => {
 };
 
 const CustomTooltip = ({ active, payload, label }) => {
+	const colors = useModalColors();
 	if (!active || !payload || payload.length === 0) return null;
 	return (
-		<Box bg='white' p={4} rounded='md' shadow='md' border='1px solid #e2e8f0'>
-			<Text fontWeight='bold'>{label}</Text>
+		<Box bg={colors.bg} p={4} rounded='md' shadow={colors.modalShadow} border={`1px solid ${colors.borderColor}`}>
+			<Text fontWeight='bold' color={colors.headingText}>{label}</Text>
 			{payload.map((entry, index) => (
 				<Text key={index} color={entry.color} fontSize='sm'>
 					{entry.name}: {Math.round(entry.value)}
@@ -53,6 +54,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const CallsReport = () => {
+	const colors = useModalColors();
 	const [days, setDays] = useState(30);
 	const [uniqueCalls, setUniqueCalls] = useState(0);
 	const [avgMinutes, setAvgMinutes] = useState(0);
@@ -61,10 +63,7 @@ const CallsReport = () => {
 	const [loading, setLoading] = useState(false);
 
 	const { hasPermission } = usePermissions();
-
 	const location = useLocation();
-
-	const bgColor = useColorModeValue('white', 'gray.800');
 
 	useEffect(() => {
 		const getData = async () => {
@@ -101,34 +100,35 @@ const CallsReport = () => {
 				label: 'Total Time',
 				valueKey: 'totalTime',
 				icon: FaClock,
-				color: 'blue',
+				color: colors.accentGold,
 				value: formatSeconds(totalSeconds),
 			},
 			{
 				label: 'Unique Calls',
 				valueKey: 'uniqueCalls',
 				icon: FaPhoneAlt,
-				color: 'green',
+				color: colors.accentGold,
 				value: uniqueCalls,
 			},
 			{
 				label: 'Avg Call Duration',
 				valueKey: 'avgCallDuration',
 				icon: FaHourglassHalf,
-				color: 'purple',
+				color: colors.accentGold,
 				value: formatSeconds(avgMinutes * 60),
 			},
 		],
-		[totalSeconds, uniqueCalls, avgMinutes]
+		[totalSeconds, uniqueCalls, avgMinutes, colors]
 	);
 
 	return (
-		<Box p={6} bg={bgColor} rounded='md' shadow='sm'>
+		<Box p={6} bg={colors.bg} rounded='md' shadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
 			<Flex justify='space-between' align='center' mb={8}>
 				<HStack>
 					<Text
 						fontSize={{ base: 'md', md: 'xl', lg: '2xl' }}
 						fontWeight='bold'
+						color={colors.headingText}
 					>
 						Call Stats
 					</Text>
@@ -181,38 +181,38 @@ const CallsReport = () => {
 								data={chartData}
 								margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
 							>
-								<CartesianGrid strokeDasharray='3 3' stroke='#e2e8f0' />
+								<CartesianGrid strokeDasharray='3 3' stroke={colors.borderColor} />
 								<XAxis
 									dataKey='date'
 									angle={-30}
-									// fontSize='12px'
 									textAnchor='end'
 									height={60}
-									axisLine={true}
+									axisLine={{ stroke: colors.borderColor }}
 									tickLine={false}
-									tick={{ fill: '#4a5568', fontSize: 12 }}
+									tick={{ fill: colors.bodyText, fontSize: 12 }}
 								/>
 								<YAxis
 									yAxisId='left'
-									axisLine={true}
+									axisLine={{ stroke: colors.borderColor }}
 									tickLine={false}
-									// fontSize='12px'
-									tick={{ fill: '#4a5568', fontSize: 12 }}
+									tick={{ fill: colors.bodyText, fontSize: 12 }}
 								/>
 								<YAxis
 									yAxisId='right'
-									// fontSize='12px'
-									axisLine={true}
+									axisLine={{ stroke: colors.borderColor }}
 									tickLine={false}
 									orientation='right'
-									tick={{ fill: '#4a5568', fontSize: 12 }}
+									tick={{ fill: colors.bodyText, fontSize: 12 }}
 								/>
 								<Tooltip content={<CustomTooltip />} />
-								<Legend />
+								<Legend
+									wrapperStyle={{ color: colors.bodyText }}
+									formatter={(value) => <span style={{ color: colors.bodyText }}>{value}</span>}
+								/>
 								<Bar
 									yAxisId='left'
 									dataKey='totalTime'
-									fill='#4299E1'
+									fill={colors.accentGold}
 									name='Total Time (min)'
 									barSize={25}
 									radius={[4, 4, 0, 0]}
@@ -222,10 +222,10 @@ const CallsReport = () => {
 									yAxisId='right'
 									type='monotone'
 									dataKey='uniqueCalls'
-									stroke='#38A169'
+									stroke={colors.accentGold}
 									name='Unique Calls'
 									strokeWidth={2}
-									dot={true}
+									dot={{ fill: colors.accentGold, stroke: colors.accentGold }}
 								/>
 							</ComposedChart>
 						</ResponsiveContainer>

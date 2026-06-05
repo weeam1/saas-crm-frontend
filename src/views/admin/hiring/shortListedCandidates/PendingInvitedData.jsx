@@ -1,301 +1,304 @@
-import { useEffect, useState } from 'react';
-import { Box, Tag, TagCloseButton } from '@chakra-ui/react';
-import { useFetchItemsQuery } from 'api/apiSlice';
-import ErrorMessage from 'components/Message/ErrorMessage';
-import AdvancedSearch from '../candidates/components/AdvancedSearch';
-import Loader from 'components/loading/Loader';
-import PendingInvitedCandidates from './PendingInvitedCandidates';
-import SearchTags from 'components/shared/SearchTags';
-import { experienceYearsOptions } from '../helpers';
-import useUserSession from 'hooks/useUserSession';
+import { useEffect, useState } from "react";
+import { Box } from "@chakra-ui/react";
+import { useFetchItemsQuery } from "api/apiSlice";
+import ErrorMessage from "components/Message/ErrorMessage";
+import AdvancedSearch from "../candidates/components/AdvancedSearch";
+import Loader from "components/loading/Loader";
+import PendingInvitedCandidates from "./PendingInvitedCandidates";
+import SearchTags from "components/shared/SearchTags";
+import { experienceYearsOptions } from "../helpers";
+import useUserSession from "hooks/useUserSession";
 
 const PendingInvitedData = ({ invitedRefetch }) => {
-	const [showContent, setShowContent] = useState(false);
-	const [advanceSearch, setAdvanceSearch] = useState(false);
-	const [searchTags, setSearchTags] = useState([]);
-	const [sortConfig, setSortConfig] = useState({
-		key: null,
-		direction: null,
-	});
+  const [advanceSearch, setAdvanceSearch] = useState(false);
+  const [searchTags, setSearchTags] = useState([]);
+  const [sortConfig, setSortConfig] = useState({
+    key: null,
+    direction: null,
+  });
+  const [searchTerm, setSearchTerm] = useState("");
 
-	const { isSuperAdmin } = useUserSession();
+  const { isSuperAdmin } = useUserSession();
 
-	const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [gopageValue, setGopageValue] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-	const [currentPage, setCurrentPage] = useState(1);
-	const [gopageValue, setGopageValue] = useState(1);
-	const [pageSize, setPageSize] = useState(10);
+  const [queryParams, setQueryParams] = useState({
+    page: currentPage,
+    limit: pageSize,
+    sort: "interviewDate",
+  });
 
-	const [queryParams, setQueryParams] = useState({
-		page: currentPage,
-		limit: pageSize,
-		sort: 'interviewDate',
-	});
+  const {
+    data: invitedData,
+    error,
+    isLoading,
+    isFetching,
+    refetch,
+  } = useFetchItemsQuery({
+    path: `/applications/invited-candidates/pending`,
+    params: queryParams,
+  });
 
-	const {
-		data: invitedData,
-		error,
-		isLoading,
-		refetch,
-	} = useFetchItemsQuery({
-		path: `/applications/invited-candidates/pending`,
-		params: queryParams,
-	});
+  const { data: allData } = useFetchItemsQuery({
+    path: `/applications/invited-candidates/pending`,
+  });
 
-	const { data: allData } = useFetchItemsQuery({
-		path: `/applications/invited-candidates/pending`,
-	});
+  const { data: positionOptions } = useFetchItemsQuery({
+    path: `/positions/options`,
+  });
 
-	const { data: positionOptions } = useFetchItemsQuery({
-		path: `/positions/options`,
-	});
+  const { data: agencies } = useFetchItemsQuery(
+    {
+      path: "/agencies",
+    },
+    {
+      skip: !isSuperAdmin,
+    },
+  );
 
-	const { data: agencies } = useFetchItemsQuery(
-		{
-			path: '/agencies',
-		},
-		{
-			skip: !isSuperAdmin,
-		}
-	);
+  const handleGotoPage = (page) => {
+    setCurrentPage(page);
+  };
 
-	const handleGotoPage = (page) => {
-		setCurrentPage(page + 1);
-	};
+  const handlePageSizeChange = (size) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  };
 
-	const handlePageSizeChange = (size) => {
-		setPageSize(size);
-		setCurrentPage(1); // Reset to first page
-	};
+  // Handle search from SearchBox - UPDATED: Don't create search tags
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+    // REMOVED: No longer creating search tags
+  };
 
-	// Single useEffect for updating queryParams and fetching data
-	useEffect(() => {
-		setQueryParams((prev) => ({
-			...prev, // Preserve existing query parameters
-			page: currentPage,
-			limit: pageSize,
-		}));
-	}, [currentPage, pageSize]);
+  // Update queryParams when page, pageSize, or searchTerm changes
+  useEffect(() => {
+    const newParams = {
+      page: currentPage,
+      limit: pageSize,
+      sort: "interviewDate",
+    };
 
-	// Automatically refetch when queryParams change
-	useEffect(() => {
-		refetch({
-			path: '/applications/invited-candidates/pending',
-			params: queryParams,
-		});
-	}, [queryParams, refetch]);
+    // Add search term to API call if present
+    if (searchTerm) {
+      newParams.search = searchTerm;
+    }
 
-	useEffect(() => {
-		if (invitedData?.doc) {
-			setData(invitedData?.doc);
-		}
-	}, [invitedData?.doc]);
+    // Preserve advanced search if it exists
+    const currentQueryParams = queryParams;
+    if (
+      currentQueryParams.advancedSearch &&
+      currentQueryParams.advancedSearch !== "{}"
+    ) {
+      newParams.advancedSearch = currentQueryParams.advancedSearch;
+    }
 
-	const handleSort = (key) => {
-		let direction = 'asc';
-		if (sortConfig.key === key && sortConfig.direction === 'asc') {
-			direction = 'desc';
-		}
-		setSortConfig({ key, direction });
+    setQueryParams(newParams);
+  }, [currentPage, pageSize, searchTerm]);
 
-		const sortedData = [...invitedData?.doc].sort((a, b) => {
-			if (a[key] < b[key]) return direction === 'asc' ? -1 : 1;
-			if (a[key] > b[key]) return direction === 'asc' ? 1 : -1;
-			return 0;
-		});
-		setData(sortedData);
-	};
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
 
-	const handleSearch = (params) => {
-		// Filter out empty or undefined values
-		const filteredParams = Object.entries(params)
-			.filter(([_, value]) => value !== '' && value !== undefined)
-			.reduce((acc, [key, value]) => {
-				acc[key] = value;
-				return acc;
-			}, {});
+    // Client-side sorting of current page data
+    const sortedData = [...(invitedData?.doc || [])].sort((a, b) => {
+      if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
+      if (a[key] > b[key]) return direction === "asc" ? 1 : -1;
+      return 0;
+    });
+    // Note: This only sorts the current page, not all data
+    // Consider server-side sorting for better UX
+  };
 
-		let advancedSearch = { ...filteredParams };
+  const handleSearch = (params) => {
+    // Filter out empty or undefined values
+    const filteredParams = Object.entries(params)
+      .filter(([_, value]) => value !== "" && value !== undefined)
+      .reduce((acc, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
 
-		// Generate UI tags and update advancedSearch
-		const tags = Object.entries(filteredParams).map(([key, value]) => {
-			let formattedValue = value;
-			let originalKey = key; // Keep original lowercase key
+    let advancedSearch = { ...filteredParams };
 
-			// If key is "position", replace value with label for UI, but keep ID in search
-			if (key === 'position') {
-				const matchedOption = positionOptions?.doc?.find(
-					(option) => option._id === value
-				);
+    // Generate UI tags with both display value and original value
+    const tags = Object.entries(filteredParams).map(([key, value]) => {
+      let displayValue = value;
+      let originalValue = value;
+      let label = key.charAt(0).toUpperCase() + key.slice(1);
 
-				if (matchedOption) {
-					formattedValue = matchedOption.label; // Use label for UI
-					advancedSearch.position = matchedOption._id; // Keep ID for actual search
-				}
-			}
+      if (key === "position") {
+        const matchedOption = positionOptions?.doc?.find(
+          (option) => option._id === value,
+        );
+        if (matchedOption) {
+          displayValue = matchedOption.value; // For display
+          originalValue = matchedOption._id; // For API
+          advancedSearch.position = matchedOption._id;
+        }
+      }
 
-			if (key === 'agency') {
-				const matchedOption = agencies?.doc?.find(
-					(option) => option._id === value
-				);
+      if (key === "agency") {
+        const matchedOption = agencies?.doc?.find(
+          (option) => option._id === value,
+        );
+        if (matchedOption) {
+          displayValue = matchedOption.name; // For display
+          originalValue = matchedOption._id; // For API
+          advancedSearch.agency = matchedOption._id;
+        }
+      }
 
-				if (matchedOption) {
-					formattedValue = matchedOption.name; // Use label for UI
-					advancedSearch.agency = matchedOption._id; // Keep ID for actual search
-				}
-			}
+      if (key === "experienceYears") {
+        const matchedOption = experienceYearsOptions?.find(
+          (option) => option.value === value,
+        );
+        if (matchedOption) {
+          displayValue = matchedOption.label; // For display
+          originalValue = matchedOption.value; // For API
+          advancedSearch.experienceYears = matchedOption.value;
+        }
+      }
 
-			if (key === 'experienceYears') {
-				const matchedOption = experienceYearsOptions?.find(
-					(option) => option.value === value
-				);
+      return {
+        key: label,
+        value: displayValue, // For UI display
+        originalValue: originalValue, // For API calls
+        originalKey: key,
+      };
+    });
 
-				if (matchedOption) {
-					formattedValue = matchedOption.label;
-					advancedSearch.experienceYears = matchedOption.value;
-				}
-			}
+    setSearchTags(tags);
 
-			return {
-				key: originalKey.charAt(0).toUpperCase() + originalKey.slice(1), // Capitalized for UI
-				value: formattedValue,
-				originalKey, // Store original key for removal reference
-			};
-		});
+    // Prepare query parameters for API
+    const queryParams = {
+      advancedSearch: JSON.stringify(advancedSearch),
+      page: 1,
+      limit: pageSize,
+      sort: "interviewDate",
+    };
 
-		setSearchTags(tags);
+    // Clear regular search term when using advanced search
+    setSearchTerm("");
+    setQueryParams(queryParams);
+    setCurrentPage(1);
+  };
 
-		// Prepare query parameters
-		const queryParams = {
-			advancedSearch: JSON.stringify(advancedSearch),
-			page: 1,
-			limit: pageSize,
-		};
+  const removeTag = (key) => {
+    const removedTag = searchTags.find((tag) => tag.key === key);
+    if (!removedTag) return;
 
-		// Update search query and pagination
-		setQueryParams((prev) => ({ ...prev, ...queryParams }));
-		setCurrentPage(1);
-	};
-	// const removeTag = (key) => {
-	// 	// Remove the tag with the specified key
-	// 	const updatedTags = searchTags.filter((tag) => tag.key !== key);
-	// 	setSearchTags(updatedTags);
+    const updatedTags = searchTags.filter((tag) => tag.key !== key);
+    setSearchTags(updatedTags);
 
-	// 	console.log({ updatedTags });
+    // Handle advanced search tags - USE originalValue, not value!
+    const updatedParams = updatedTags.reduce((acc, tag) => {
+      acc[tag.originalKey] = tag.originalValue;
+      return acc;
+    }, {});
 
-	// 	// Convert the updated tags back into query parameters
-	// 	const updatedParams = updatedTags.reduce(
-	// 		(acc, { key, value }) => ({ ...acc, [key]: value }),
-	// 		{}
-	// 	);
+    let advancedSearch = { ...updatedParams };
 
-	// 	const { ...advancedSearch } = updatedParams;
+    const queryParams = {
+      advancedSearch: JSON.stringify(advancedSearch),
+      page: 1,
+      limit: pageSize,
+      sort: "interviewDate",
+    };
 
-	// 	// Prepare the query parameters
-	// 	const queryParams = {
-	// 		advancedSearch: JSON.stringify(advancedSearch),
-	// 		page: 1,
-	// 		limit: pageSize,
-	// 	};
-	// 	// update query parameters
-	// 	setQueryParams(queryParams);
-	// 	setCurrentPage(1);
-	// };
+    // Preserve search term if it exists
+    if (searchTerm) {
+      queryParams.search = searchTerm;
+    }
 
-	const removeTag = (key) => {
-		// Find the exact key (case-sensitive)
-		const removedTag = searchTags.find((tag) => tag.key === key);
-		if (!removedTag) return; // If tag is not found, exit
+    setQueryParams(queryParams);
+    setCurrentPage(1);
+  };
 
-		const updatedTags = searchTags.filter((tag) => tag.key !== key);
-		setSearchTags(updatedTags);
+  // Clear search function - clears only the search input
+  const ClearSearch = () => {
+    setSearchTerm("");
+    setCurrentPage(1);
 
-		// Rebuild search parameters after removal
-		const updatedParams = updatedTags.reduce((acc, { originalKey, value }) => {
-			acc[originalKey] = value; // Use originalKey to prevent case mismatches
-			return acc;
-		}, {});
+    // Update query params to remove search
+    setQueryParams((prev) => {
+      const newParams = { ...prev };
+      delete newParams.search;
+      return newParams;
+    });
+  };
 
-		let advancedSearch = { ...updatedParams };
+  // Clear all tags - only clears advanced search tags, not search term
+  const clearAllTags = () => {
+    setSearchTags([]);
 
-		// Ensure position stays as ID in search
-		if (advancedSearch.position) {
-			const matchedOption = positionOptions?.doc?.find(
-				(option) => option.label === advancedSearch.position
-			);
-			if (matchedOption) {
-				advancedSearch.position = matchedOption._id;
-			}
-		}
+    const queryParams = {
+      page: 1,
+      limit: pageSize,
+      sort: "interviewDate",
+    };
 
-		// Prepare updated query parameters
-		const queryParams = {
-			advancedSearch: JSON.stringify(advancedSearch),
-			page: 1,
-			limit: pageSize,
-		};
+    // Preserve search term if it exists
+    if (searchTerm) {
+      queryParams.search = searchTerm;
+    }
 
-		// Update query and reset pagination
-		setQueryParams(queryParams);
-		setCurrentPage(1);
-	};
-	const clearAllTags = () => {
-		setSearchTags([]);
+    setQueryParams(queryParams);
+    setCurrentPage(1);
+  };
 
-		const queryParams = {
-			advancedSearch: JSON.stringify({}),
-			page: 1,
-			limit: pageSize,
-		};
+  if (error) {
+    return (
+      <ErrorMessage message={error?.data?.message || "Something went wrong!"} />
+    );
+  }
 
-		setQueryParams(queryParams);
-		setCurrentPage(1);
-	};
-	if (error) {
-		return (
-			<ErrorMessage message={error?.data?.message || 'Something went wrong!'} />
-		);
-	}
+  return (
+    <Box>
+      {/* SearchTags only for advanced search filters */}
 
-	return showContent ? (
-		<Loader />
-	) : (
-		<Box>
-			<SearchTags
-				removeTag={removeTag}
-				searchTags={searchTags}
-				clearAllTags={clearAllTags}
-			/>
+      <PendingInvitedCandidates
+        allData={allData}
+        data={invitedData?.doc || []}
+        invitedRefetch={invitedRefetch}
+        totalDocs={invitedData?.totalDocs}
+        loading={isLoading}
+        isFetching={isFetching}
+        handleSort={handleSort}
+        sortConfig={sortConfig}
+        refetch={refetch}
+        totalPages={invitedData?.totalPages}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        handlePageSizeChange={handlePageSizeChange}
+        handleGotoPage={handleGotoPage}
+        gopageValue={gopageValue}
+        setGopageValue={setGopageValue}
+        setAdvanceSearch={setAdvanceSearch}
+        onSearchChange={handleSearchChange}
+        searchTerm={searchTerm}
+        onClear={ClearSearch}
+        removeTag={removeTag}
+        searchTags={searchTags}
+        clearAllTags={clearAllTags}
+      />
 
-			<PendingInvitedCandidates
-				allData={allData}
-				data={data}
-				invitedRefetch={invitedRefetch}
-				totalDocs={invitedData?.totalDocs}
-				loading={isLoading}
-				handleSort={handleSort}
-				sortConfig={sortConfig}
-				refetch={refetch}
-				totalPages={invitedData?.totalPages}
-				currentPage={currentPage}
-				pageSize={pageSize}
-				handlePageSizeChange={handlePageSizeChange}
-				handleGotoPage={handleGotoPage}
-				gopageValue={gopageValue}
-				setGopageValue={setGopageValue}
-				setAdvanceSearch={setAdvanceSearch}
-			/>
-
-			{advanceSearch && (
-				<AdvancedSearch
-					isOpen={advanceSearch}
-					onClose={() => setAdvanceSearch(false)}
-					onSearch={handleSearch}
-					type='invited'
-				/>
-			)}
-		</Box>
-	);
+      {advanceSearch && (
+        <AdvancedSearch
+          isOpen={advanceSearch}
+          onClose={() => setAdvanceSearch(false)}
+          onSearch={handleSearch}
+          type="invited"
+        />
+      )}
+    </Box>
+  );
 };
 
 export default PendingInvitedData;

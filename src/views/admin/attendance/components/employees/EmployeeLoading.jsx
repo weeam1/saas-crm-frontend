@@ -1,7 +1,9 @@
 import { Box, Grid, Skeleton } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 import React from 'react';
 
 const EmployeeLoading = ({ size = 6 }) => {
+	const colors = useModalColors();
 	return (
 		<Grid
 			templateColumns={{
@@ -19,8 +21,8 @@ const EmployeeLoading = ({ size = 6 }) => {
 					height='200px'
 					borderRadius='md'
 					// minWidth='full'
-					startColor='softGray.400'
-					endColor='softGray.500'
+					startColor={colors.bgInput}
+					endColor={colors.bgInputHover}
 				/>
 			))}
 		</Grid>

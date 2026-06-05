@@ -79,12 +79,12 @@ export const useCashListing = ({ endpoint, sortConfig }) => {
   ]);
 
   // sync queryParams -> URL (loop proof)
-  useEffect(() => {
-    const nextString = new URLSearchParams(queryParams).toString();
-    if (nextString !== searchString) {
-      setSearchParams(queryParams, { replace: true });
-    }
-  }, [queryParams, searchString, setSearchParams]);
+  // useEffect(() => {
+  //   const nextString = new URLSearchParams(queryParams).toString();
+  //   if (nextString !== searchString) {
+  //     setSearchParams(queryParams, { replace: true });
+  //   }
+  // }, [queryParams, searchString, setSearchParams]);
 
   // --- Fetching Data from dynamic endPoints---
   const fetchResult = useFetchItemsQuery(

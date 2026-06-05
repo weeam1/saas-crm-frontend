@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import {
   Box,
@@ -21,14 +22,14 @@ import { IoArrowBack } from "react-icons/io5";
 import RealTimeData from "./RealTimeData";
 import { useFetchItemsQuery } from "api/apiSlice";
 import Loader from "components/loading/Loader";
-import { FiFilter } from "react-icons/fi";
 import AgencyFilter from "./AgencyFilter";
 import AppButton from "components/shared/AppButton";
 import DashboardShimmer from "./DashboardShimmer";
 import useUserSession from "hooks/useUserSession";
-import { FiRefreshCw } from "react-icons/fi";
+import { useModalColors } from "hooks/useModalColors";
 
 const Dashboard = () => {
+  const colors = useModalColors();
   const [selectedView, setSelectedView] = useState("weekly");
   const [selectedAgency, setSelectedAgency] = useState({});
   const [agency, setAgency] = useState(null);
@@ -69,7 +70,7 @@ const Dashboard = () => {
         data?.newEmployeesToday > 0
           ? `${data?.newEmployeesToday} new employees added`
           : "",
-      changeColor: "green.500",
+      changeColor: colors.accentGold,
       link: "/attendance/employees",
     },
     {
@@ -77,9 +78,8 @@ const Dashboard = () => {
       value: data?.onTime?.count,
       icon: FaClock,
       changePercentage: data?.onTime?.changePercentage ?? 0,
-
       change: `${data?.onTime?.changePercentage} ${data?.onTime?.change > 0 ? "more" : "less"} than yesterday`,
-      changeColor: "green.500",
+      changeColor: colors.accentGold,
       link: "/attendance/record?status=1",
     },
     {
@@ -87,9 +87,8 @@ const Dashboard = () => {
       value: data?.absent?.count,
       icon: FaUserSlash,
       changePercentage: data?.absent?.changePercentage ?? 0,
-
       change: `${data?.absent?.changePercentage} ${data?.absent?.change > 0 ? "more" : "less"} than yesterday`,
-      changeColor: "red.500",
+      changeColor: colors.badgeErrorText,
       link: "/attendance/record?status=0",
     },
     {
@@ -100,7 +99,7 @@ const Dashboard = () => {
       change: `${data?.lateArrival?.changePercentage} ${
         data?.lateArrival?.change > 0 ? "more" : "less"
       } than yesterday`,
-      changeColor: "red.500",
+      changeColor: colors.badgeErrorText,
       link: "/attendance/record?status=2",
     },
     {
@@ -109,7 +108,7 @@ const Dashboard = () => {
       changePercentage: data?.earlyDeparture?.changePercentage ?? 0,
       icon: FaMoon,
       change: `${data?.earlyDeparture?.changePercentage} ${data?.earlyDeparture?.change > 0 ? "more" : "less"} than yesterday`,
-      changeColor: "green.500",
+      changeColor: colors.accentGold,
       link: "/attendance/record?status=1",
     },
     {
@@ -118,8 +117,8 @@ const Dashboard = () => {
       changePercentage: data?.timeOff?.changePercentage ?? 0,
       icon: FaFileAlt,
       change: `${data?.timeOff?.changePercentage} ${data?.timeOff?.change > 0 ? "more" : "less"} than yesterday`,
-      changeColor: "blue.500",
-      link: "/attendance/record", // time off skip direct link
+      changeColor: colors.accentGold,
+      link: "/attendance/record",
     },
   ];
 
@@ -129,16 +128,17 @@ const Dashboard = () => {
         type: "line",
         toolbar: { show: false },
         zoom: { enabled: false },
+        background: "transparent",
       },
       stroke: {
         curve: "smooth",
         width: 4,
-        colors: ["#D99A36"],
+        colors: [colors.accentGold],
       },
       markers: {
         size: 6,
-        colors: ["#fff"],
-        strokeColors: "#D99A36",
+        colors: [colors.bg],
+        strokeColors: colors.accentGold,
         strokeWidth: 3,
         hover: { size: 8 },
       },
@@ -151,7 +151,7 @@ const Dashboard = () => {
           opacityTo: 0,
           stops: [0, 100],
           colorStops: [
-            { offset: 0, color: "#D99A36", opacity: 0.3 },
+            { offset: 0, color: colors.accentGold, opacity: 0.3 },
             { offset: 100, color: "rgba(255, 255, 255, 0)", opacity: 0 },
           ],
         },
@@ -160,13 +160,13 @@ const Dashboard = () => {
         categories: data?.labels ?? [],
         labels: {
           style: {
-            colors: "#555",
+            colors: colors.bodyText,
             fontSize: "14px",
             fontWeight: 500,
           },
         },
-        axisBorder: { color: "#ccc" },
-        axisTicks: { color: "#ccc" },
+        axisBorder: { color: colors.borderColor },
+        axisTicks: { color: colors.borderColor },
       },
       yaxis: {
         min: 0,
@@ -175,13 +175,12 @@ const Dashboard = () => {
         labels: {
           formatter: (val) => `${Math.round(val)}%`,
           style: {
-            colors: "#555",
+            colors: colors.bodyText,
             fontSize: "14px",
             fontWeight: 500,
           },
         },
       },
-
       tooltip: {
         enabled: true,
         theme: "dark",
@@ -189,12 +188,12 @@ const Dashboard = () => {
         style: { fontSize: "14px" },
       },
       grid: {
-        borderColor: "#EAEAEA",
+        borderColor: colors.borderColor,
         strokeDashArray: 4,
       },
       legend: { show: false },
     }),
-    [data?.labels]
+    [data?.labels, colors]
   );
 
   const lineChartData = useMemo(
@@ -202,21 +201,37 @@ const Dashboard = () => {
     [data?.attendancePercentages]
   );
 
-  const barChartOptions = {
-    chart: { type: "bar" },
+  const barChartOptions = useMemo(() => ({
+    chart: { type: "bar", background: "transparent" },
     plotOptions: {
       bar: {
         columnWidth: "50%",
         distributed: false,
       },
     },
-    colors: ["#D99A36"],
-    xaxis: { categories: data?.roleNames ?? [] },
-    yaxis: {
-      labels: { formatter: (val) => `${Math.round(val)}%` },
+    colors: [colors.accentGold],
+    xaxis: {
+      categories: data?.roleNames ?? [],
+      labels: {
+        style: {
+          colors: colors.bodyText,
+        },
+      },
+      axisBorder: { color: colors.borderColor },
     },
-    tooltip: { enabled: true, theme: "light" },
-  };
+    yaxis: {
+      labels: {
+        formatter: (val) => `${Math.round(val)}%`,
+        style: {
+          colors: colors.bodyText,
+        },
+      },
+    },
+    tooltip: { enabled: true, theme: "dark" },
+    grid: {
+      borderColor: colors.borderColor,
+    },
+  }), [data?.roleNames, colors]);
 
   const barChartData = [
     {
@@ -245,81 +260,17 @@ const Dashboard = () => {
   };
 
   return loading ? (
-    <Box h="100vh">
+    <Box h="100vh" bg={colors.bgDeep}>
       <DashboardShimmer />
     </Box>
   ) : (
-    <>
-      {/* {role !== 'Attendance' && (
-				<AppButton
-					ml='2'
-					leftIcon={<IoArrowBack />}
-					onClick={() => navigate(-1)}
-				>
-					Back
-				</AppButton>
-			)} */}
-
-      <Flex
-        bg="white"
-        justifyContent="space-between"
-        py="2"
-        px="4"
-        mx="2"
-        my="2"
-        rounded="md"
-        alignItems="center"
-      >
-        <Heading fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
-          {agency ? `${agency} Agency` : "All Agencies"}
-        </Heading>
-        <Flex
-          align={"center"}
-          gap={2}
-          flexDir={{ base: "column", sm: "column", md: "row" }}
-        >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh"
-            onClick={() => refetch()}
-            isLoading={isLoading || isFetching}
-            variant="outline"
-            size="sm"
-          />
-          {isSuperAdmin && (
-            <IconButton
-              icon={<FiFilter />}
-              onClick={onOpen}
-              aria-label="Filter Date"
-              colorScheme="brand"
-              variant="solid"
-              size="sm"
-              borderRadius="full"
-              boxShadow="md"
-            />
-          )}
-        </Flex>
-        {userRoleName === "HR" && (
-          <Button
-            as={Link}
-            to={`/office-settings/${user?.agency?._id}`}
-            colorScheme="brand"
-            variant="outline"
-            size="sm"
-            borderRadius="lg"
-          >
-            Office Settings
-          </Button>
-        )}
-      </Flex>
-
+    <Box bg={colors.bgDeep} minH="100vh">
       {isLoading || isFetching ? (
-        <Box h="100vh">
-          <Loader />
-        </Box>
+        <Loader />
       ) : (
         <Box p="2">
           <RealTimeData
+            agency={agency}
             data={data}
             stats={stats}
             lineChartData={lineChartData}
@@ -342,7 +293,7 @@ const Dashboard = () => {
           setSelectedAgency={setSelectedAgency}
         />
       )}
-    </>
+    </Box>
   );
 };
 

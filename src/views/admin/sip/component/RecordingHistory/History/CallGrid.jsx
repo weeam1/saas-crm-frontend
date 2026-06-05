@@ -6,6 +6,7 @@ import TranscribeModal from "./Component/TranscribeModal";
 import NoData from "views/admin/lead-v2/components/subComponents/NoData";
 
 const CallGrid = ({
+  getUserNameById,
   calls,
   currentlyPlayingId,
   handleSetCurrentlyPlaying,
@@ -63,6 +64,7 @@ const CallGrid = ({
                 openLogModal={openLogModal}
                 openShareModal={openShareModal}
                 openSharedDetailModal={openSharedDetailModal}
+                getUserNameById={getUserNameById}
               />
             </GridItem>
           ))}

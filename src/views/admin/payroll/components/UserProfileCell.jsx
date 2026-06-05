@@ -10,10 +10,10 @@ const UserProfileCell = ({ user }) => {
 		<Flex align='center' gap={3}>
 			<Avatar size='md' src={imgSrc} name={user.fullName} />
 			<Box>
-				<Text fontWeight='semibold' color='gray.800' fontSize='sm'>
+				<Text fontWeight='semibold' color='gray.100' fontSize='sm'>
 					{user.fullName}
 				</Text>
-				<Text fontSize='xs' color='gray.500' textTransform='capitalize'>
+				<Text fontSize='xs' color='gray.400' textTransform='capitalize'>
 					{user.roles?.[0]?.roleName || 'User'}
 				</Text>
 			</Box>

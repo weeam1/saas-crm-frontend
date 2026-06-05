@@ -32,8 +32,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ChevronDownIcon, CopyIcon, TimeIcon } from '@chakra-ui/icons';
 import { FaAudioDescription, FaPlay } from 'react-icons/fa6';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
+import { useModalColors } from 'hooks/useModalColors';
 
 const TranscribeModal = ({ isOpen, onClose, data }) => {
+	const colors = useModalColors();
 	const [language, setLanguage] = useState('default');
 	const [transcription, setTranscription] = useState(null);
 	const [createTranscribe, { isLoading }] = useCreateItemMutation();
@@ -109,65 +111,6 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 	};
 
-	// const renderSegments = () => {
-	// 	if (!transcription?.segments?.length) return null;
-
-	// 	return (
-	// 		<Box mt={6} maxH={{ base: '400px', md: '500px' }} overflowY='auto' pr={2}>
-	// 			<Stack spacing={3} mt={3}>
-	// 				{transcription.segments.map((seg, idx) => (
-	// 					<Box
-	// 						key={idx}
-	// 						bg={idx % 2 === 0 ? 'white' : 'gray.50'}
-	// 						p={4}
-	// 						rounded='lg'
-	// 						borderLeft='4px solid'
-	// 						borderColor='blue.300'
-	// 						transition='all 0.2s'
-	// 						_hover={{
-	// 							shadow: 'md',
-	// 							transform: 'translateY(-1px)',
-	// 						}}
-	// 					>
-	// 						<Flex align='center' mb={2} flexWrap='wrap' gap={2}>
-	// 							<Badge
-	// 								colorScheme='blue'
-	// 								variant='subtle'
-	// 								fontSize='xs'
-	// 								px={2}
-	// 								py={1}
-	// 							>
-	// 								{formatTime(seg.start)} → {formatTime(seg.end)}
-	// 							</Badge>
-	// 							{/* <Badge
-	// 								colorScheme='green'
-	// 								variant='subtle'
-	// 								fontSize='xs'
-	// 								px={2}
-	// 								py={1}
-	// 							>
-	// 								Duration: {(seg.end - seg.start).toFixed(2)}s
-	// 							</Badge> */}
-	// 						</Flex>
-	// 						<Text fontSize='md' lineHeight='tall'>
-	// 							{seg.text}
-	// 						</Text>
-	// 						{/* <Flex justify='flex-end' mt={2}>
-	// 							<IconButton
-	// 								aria-label='Copy segment'
-	// 								icon={<CopyIcon />}
-	// 								size='sm'
-	// 								variant='ghost'
-	// 								onClick={() => navigator.clipboard.writeText(seg.text)}
-	// 							/>
-	// 						</Flex> */}
-	// 					</Box>
-	// 				))}
-	// 			</Stack>
-	// 		</Box>
-	// 	);
-	// };
-
 	const renderSegments = () => {
 		if (!transcription?.segments?.length) return null;
 
@@ -177,23 +120,25 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 					{transcription.segments.map((seg, idx) => (
 						<Flex
 							key={idx}
-							bg='gray.100'
+							bg={colors.bgInput}
 							rounded='md'
 							p='2'
 							gap={3}
 							align='center'
+							border="1px solid"
+							borderColor={colors.borderColor}
 						>
 							<Flex
 								direction='row'
 								gap='2'
-								color='gray.500'
+								color={colors.accentGold}
 								align='center'
 								p={2}
 								rounded='md'
 								flexShrink={0}
 							>
 								<Icon as={FaPlay} boxSize={4} />
-								<Text fontSize='xs' mt={1}>
+								<Text fontSize='xs' mt={1} color={colors.bodyText}>
 									{formatRecordingTime(seg.start)}
 								</Text>
 							</Flex>
@@ -203,9 +148,9 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 								borderBottom={
 									idx < transcription.segments.length - 1 ? '1px solid' : 'none'
 								}
-								borderColor='gray.100'
+								borderColor={colors.borderColor}
 							>
-								<Text fontSize='md' lineHeight='tall'>
+								<Text fontSize='md' lineHeight='tall' color={colors.bodyText}>
 									{seg.text}
 								</Text>
 							</Box>
@@ -224,27 +169,32 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 			blockScrollOnMount={false}
 			isCentered
 		>
-			<ModalOverlay backdropFilter='blur(4px)' bg='blackAlpha.600' />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
 			<ModalContent
 				borderRadius={{ base: 'none', md: 'xl' }}
-				boxShadow={{ base: 'none', md: '2xl' }}
+				boxShadow={colors.modalShadow}
 				m='2'
+				bg={colors.bg}
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
 				<ModalHeader
-					bg='brand.50'
+					bg={colors.headerBg}
+					color={colors.headerText}
 					borderTopRadius='xl'
 					py={3}
 					fontSize='md'
 					fontWeight='bold'
-					color='brand.700'
+					borderBottom="1px solid"
+					borderColor={colors.borderColor}
 				>
 					Audio Transcription
 				</ModalHeader>
-				<ModalCloseButton />
+				<ModalCloseButton color={colors.headerText} _hover={{ bg: colors.closeBtnHoverBg }} />
 
-				<ModalBody p={{ base: 4, md: 8 }}>
+				<ModalBody p={{ base: 4, md: 8 }} bg={colors.bg}>
 					<Box mb={6} mx='auto' maxWidth={{ base: 'full', md: '500px' }}>
-						<Text fontSize='sm' color='gray.500' mb={2}>
+						<Text fontSize='sm' color={colors.mutedText} mb={2}>
 							Select language and generate transcription
 						</Text>
 
@@ -253,30 +203,17 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 							align='center'
 							gap={4}
 						>
-							{/* <FormControl maxW={{ base: 'full', md: '300px' }} size='sm'>
-								<Select
-									value={language}
-									// onChange={(e) => setLanguage(e.target.value)}
-									onChange={(e) => {
-										e.stopPropagation();
-										setLanguage(e.target.value);
-									}}
-									onClick={(e) => e.stopPropagation()}
-									variant='outline'
-									_focus={{ borderColor: 'brand.500' }}
-								>
-									<option value='default'>Auto-detect (Native)</option>
-									<option value='en'>English</option>
-									<option value='ar'>Arabic</option>
-								</Select>
-							</ForControl> */}
 							<Menu>
 								<MenuButton
 									as={Button}
 									isDisabled={isLoading}
 									rightIcon={<ChevronDownIcon />}
 									variant='outline'
-									_focus={{ borderColor: 'brand.500', outline: 'none' }}
+									borderColor={colors.borderColor}
+									bg={colors.bgInput}
+									color={colors.headingText}
+									_focus={{ borderColor: colors.accentGold, outline: 'none' }}
+									_hover={{ borderColor: colors.accentGold }}
 									onClick={(e) => e.stopPropagation()}
 									w={{ base: 'full', md: '300px' }}
 									size='sm'
@@ -287,14 +224,21 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 										{language === 'ar' && 'Arabic'}
 									</Flex>
 								</MenuButton>
-								<MenuList onClick={(e) => e.stopPropagation()} zIndex='modal'>
+								<MenuList
+									onClick={(e) => e.stopPropagation()}
+									zIndex='modal'
+									bg={colors.bg}
+									borderColor={colors.borderColor}
+								>
 									<MenuItem
 										onClick={(e) => {
 											e.preventDefault();
 											setLanguage('default');
 										}}
-										bg={language === 'default' ? 'gray.100' : 'transparent'}
+										bg={language === 'default' ? colors.bgDeep : 'transparent'}
 										fontWeight={language === 'default' ? 'bold' : 'normal'}
+										color={colors.bodyText}
+										_hover={{ bg: colors.bgDeep, color: colors.accentGold }}
 									>
 										Auto-detect (Native)
 									</MenuItem>
@@ -303,8 +247,10 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 											e.preventDefault();
 											setLanguage('en');
 										}}
-										bg={language === 'en' ? 'gray.100' : 'transparent'}
+										bg={language === 'en' ? colors.bgDeep : 'transparent'}
 										fontWeight={language === 'en' ? 'bold' : 'normal'}
+										color={colors.bodyText}
+										_hover={{ bg: colors.bgDeep, color: colors.accentGold }}
 									>
 										English
 									</MenuItem>
@@ -313,8 +259,10 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 											e.preventDefault();
 											setLanguage('ar');
 										}}
-										bg={language === 'ar' ? 'gray.100' : 'transparent'}
+										bg={language === 'ar' ? colors.bgDeep : 'transparent'}
 										fontWeight={language === 'ar' ? 'bold' : 'normal'}
+										color={colors.bodyText}
+										_hover={{ bg: colors.bgDeep, color: colors.accentGold }}
 									>
 										Arabic
 									</MenuItem>
@@ -322,9 +270,7 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 							</Menu>
 							<Button
 								onClick={handleGenerateTranscribe}
-								colorScheme='brand'
-								// isLoading={isLoading}
-								// loadingText='Transcribing...'
+								variant='brand'
 								isDisabled={isLoading}
 								size='md'
 								px={6}
@@ -337,15 +283,15 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 
 					{isLoading && (
 						<Box textAlign='center' py={10}>
-							<Spinner size='xl' thickness='3px' color='brand.500' />
-							<Text mt={4} fontSize='md' color='gray.600'>
+							<Spinner size='xl' thickness='3px' color={colors.accentGold} />
+							<Text mt={4} fontSize='md' color={colors.bodyText}>
 								Processing audio content...
 							</Text>
 							<Progress
 								mt={4}
 								size='xs'
 								isIndeterminate
-								colorScheme='brand'
+								colorScheme='yellow'
 								maxW='400px'
 								mx='auto'
 							/>
@@ -354,130 +300,23 @@ const TranscribeModal = ({ isOpen, onClose, data }) => {
 
 					{!isLoading && transcription && (
 						<>
-							{/* <Box
-								bg='blue.50'
-								p={4}
-								rounded='md'
-								border='1px solid'
-								borderColor='blue.100'
-								mb={6}
-							>
-								<Flex justify='space-between' align='center'>
-									<Box>
-										<Text fontWeight='medium'>Transcription Summary</Text>
-										<Text fontSize='sm' color='gray.600'>
-											{transcription.segments.length} segments •{' '}
-											{transcription.segments.reduce(
-												(acc, seg) => acc + seg.text.length,
-												0
-											)}{' '}
-											characters
-										</Text>
-									</Box>
-									<Button
-										size='sm'
-										variant='outline'
-										colorScheme='blue'
-										onClick={() =>
-											navigator.clipboard.writeText(transcription.text)
-										}
-									>
-										Copy Full Text
-									</Button>
-								</Flex>
-							</Box> */}
-
 							{renderSegments()}
 						</>
 					)}
 				</ModalBody>
+
+				<ModalFooter
+					bg={colors.footerBg}
+					borderTop="1px solid"
+					borderColor={colors.borderColor}
+				>
+					<Button onClick={onClose} variant='ghost'>
+						Close
+					</Button>
+				</ModalFooter>
 			</ModalContent>
 		</Modal>
 	);
-	// const renderSegments = () => {
-	// 	if (!transcription?.segments?.length) return null;
-
-	// 	return (
-	// 		<Stack spacing={3} mt={4} maxH='300px' overflowY='auto'>
-	// 			{transcription.segments.map((seg, idx) => (
-	// 				<Box
-	// 					key={idx}
-	// 					bg='gray.50'
-	// 					p={3}
-	// 					rounded='md'
-	// 					shadow='sm'
-	// 					border='1px solid'
-	// 					borderColor='gray.100'
-	// 				>
-	// 					<Text fontSize='sm' color='gray.600'>
-	// 						⏱ {seg.start.toFixed(2)}s → {seg.end.toFixed(2)}s
-	// 					</Text>
-	// 					<Text fontWeight='medium' mt={1}>
-	// 						{seg.text}
-	// 					</Text>
-	// 				</Box>
-	// 			))}
-	// 		</Stack>
-	// 	);
-	// };
-
-	// return (
-	// 	<Modal isOpen={isOpen} onClose={onClose} size='6xl' isCentered>
-	// 		<ModalOverlay backdropFilter='blur(2px)' />
-	// 		<ModalContent borderRadius='xl' boxShadow='xl' m='2'>
-	// 			<ModalHeader
-	// 				bg='brand.50'
-	// 				borderTopRadius='xl'
-	// 				py={3}
-	// 				fontSize='md'
-	// 				fontWeight='bold'
-	// 				color='brand.700'
-	// 			>
-	// 				Transcribe Audio
-	// 			</ModalHeader>
-	// 			<ModalCloseButton />
-	// 			<ModalBody>
-	// 				<Select
-	// 					value={language}
-	// 					onChange={(e) => setLanguage(e.target.value)}
-	// 					maxW='250px'
-	// 					mt={2}
-	// 				>
-	// 					<option value='default'>Native</option>
-	// 					<option value='en'>English</option>
-	// 					<option value='ar'>Arabic</option>
-	// 				</Select>
-
-	// 				<Button
-	// 					onClick={handleGenerateTranscribe}
-	// 					mt={4}
-	// 					colorScheme='blue'
-	// 					isLoading={isLoading}
-	// 					loadingText='Transcribing...'
-	// 				>
-	// 					Generate Transcription
-	// 				</Button>
-
-	// 				{isLoading && (
-	// 					<Box mt={6} textAlign='center'>
-	// 						<Spinner size='lg' />
-	// 						<Text mt={2} fontSize='sm' color='gray.500'>
-	// 							Processing audio...
-	// 						</Text>
-	// 					</Box>
-	// 				)}
-
-	// 				{transcription && renderSegments()}
-	// 			</ModalBody>
-
-	// 			<ModalFooter>
-	// 				<Button onClick={onClose} variant='ghost'>
-	// 					Close
-	// 				</Button>
-	// 			</ModalFooter>
-	// 		</ModalContent>
-	// 	</Modal>
-	// );
 };
 
 export default TranscribeModal;

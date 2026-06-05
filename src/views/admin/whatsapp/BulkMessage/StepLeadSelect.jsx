@@ -1,4 +1,4 @@
-// StepLeadSelect.jsx
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	VStack,
@@ -20,28 +20,29 @@ import {
 	Badge,
 	Box,
 } from '@chakra-ui/react';
-import { FiChevronLeft, FiChevronRight, FiRefreshCw } from 'react-icons/fi';
-import { useFetchItemsQuery } from 'api/apiSlice'; // adjust path
+import { FiChevronLeft, FiChevronRight} from 'react-icons/fi';
+import { useFetchItemsQuery } from 'api/apiSlice';
 import { safeValue } from 'utils';
 import TableLoading from 'components/loading/TableLoading';
 import { toast } from 'react-toastify';
-import { buttonStyle } from 'utils/btn';
 import AdvancedSearchModal from './filters/AdvancedSearch';
 import { BiX } from 'react-icons/bi';
 import SearchTags from 'components/search/SearchTags';
 import NoData from 'components/Message/NoData';
 import Leads from './../../lead-v2/components/Leads';
+import { useModalColors } from 'hooks/useModalColors';
 
 const DEFAULT_LIMIT = 25;
 const PAGE_SIZES = [25, 50, 100, 150, 200];
 
 export function StepLeadSelect({
-	queryParams = {}, // base params (passed from parent) — merged with local filters
+	queryParams = {},
 	onBack,
-	onConfirm, // receives selectedLeadObjects array
+	onConfirm,
 	selectedLeadsMap,
 	setSelectedLeadsMap,
 }) {
+	const colors = useModalColors();
 	// local pagination & filters
 	const [page, setPage] = useState(1);
 	const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -98,10 +99,8 @@ export function StepLeadSelect({
 	);
 
 	const toggleRow = (lead) => {
-		// If selectAllMatching is active and user toggles an individual, we must switch off selectAllMatching
 		if (selectAllMatching) {
 			setSelectAllMatching(false);
-			// keep previously selectedLeadsMap empty (we'll selectively add current row)
 		}
 
 		setSelectedLeadsMap((prev) => {
@@ -144,7 +143,6 @@ export function StepLeadSelect({
 
 	// "Select all matching results across pages" UX
 	const selectAllResultsAcrossPages = async () => {
-		// Simple UX: mark selectAllMatching true and clear selectedLeadsMap (we treat as all selected)
 		setSelectAllMatching(true);
 		setSelectedLeadsMap(new Map());
 		toast.success('All results selected');
@@ -166,7 +164,6 @@ export function StepLeadSelect({
 	// Confirm action: if selectAllMatching is true we return a special payload indicating "all" so backend can handle server-side
 	const handleConfirm = () => {
 		if (selectAllMatching) {
-			// send a special payload — here we pass { selectAll: true, filters: params }
 			onConfirm?.({
 				selectAll: true,
 				filters: params,
@@ -187,7 +184,7 @@ export function StepLeadSelect({
 	const handleClear = () => {
 		setAppliedFilters(null);
 		setGetTagValues([]);
-		setIsFormReset(true); // resets form fields
+		setIsFormReset(true);
 	};
 
 	const removeFilter = (key) => {
@@ -199,20 +196,17 @@ export function StepLeadSelect({
 	};
 
 	// When page or filters change, we want to keep selectedLeadsMap intact (persistence across pages).
-	// Optionally: clear selectAllMatching when filters change
 	useEffect(() => {
 		setSelectAllMatching(false);
 	}, [limit]);
 
 	const columns = ['checkbox', 'Lead Name', 'Phone', 'WhatsApp'];
 
-	console.log({ getTagValues });
-
 	return (
 		<Box>
 			<Box mb='2'>
-				<Heading size='md'>Leads</Heading>
-				<Text fontSize='sm' color='gray.600'>
+				<Heading size='md' color={colors.headingText}>Leads</Heading>
+				<Text fontSize='sm' color={colors.mutedText}>
 					Select leads for this bulk message.
 				</Text>
 			</Box>
@@ -221,16 +215,17 @@ export function StepLeadSelect({
 			<HStack spacing={3} wrap='wrap'>
 				<Button
 					border='1px solid'
-					borderColor='softGray.600'
-					bg='white'
+					borderColor={colors.borderColor}
+					bg={colors.bg}
 					borderRadius='md'
 					px={4}
 					fontSize='xs'
 					w='auto'
 					minW='max-content'
 					height='2.2rem'
-					_hover={{ bg: 'gray.50' }}
-					_active={{ bg: 'gray.100' }}
+					color={colors.bodyText}
+					_hover={{ bg: colors.bgDeep, borderColor: colors.accentGold, color: colors.accentGold }}
+					_active={{ bg: colors.bgDeep }}
 					onClick={() => setAdvanceSearch(true)}
 				>
 					Advance Search
@@ -239,30 +234,19 @@ export function StepLeadSelect({
 				{/* Clear and Delete button  */}
 				{getTagValues.length > 0 && (
 					<Button
-						{...buttonStyle}
-						variant='solid'
-						bg='softGray.100'
+						variant='ghost'
 						w='fit-content'
-						color='gray.800'
-						sx={{
-							svg: {
-								fill: 'gray.800',
-							},
-						}}
-						_active={{ bg: 'gray.100' }}
+						color={colors.badgeErrorText}
 						leftIcon={<BiX />}
 						aria-label='Clear'
 						onClick={handleClear}
+						_hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
 					>
 						Clear
 					</Button>
 				)}
 
 				<Spacer />
-
-				{/* <Badge colorScheme='purple'>
-					{selectedCount} selected {selectAllMatching ? ' (all matching)' : ''}
-				</Badge> */}
 			</HStack>
 
 			{/* Search tags */}
@@ -279,31 +263,34 @@ export function StepLeadSelect({
 			)}
 
 			{/* divider  */}
-			<Box height='2px' my={3} bg='softGray.50' />
+			<Box height='2px' my={3} bg={colors.bgInput} />
 
 			{/* Table */}
 			<Box
-				maxH={'60vh'}
+				      maxHeight="60vh"
+      minH="60vh"
 				overflowY='auto'
 				borderRadius='md'
-				boxShadow='sm'
-				bg='white'
+				boxShadow={colors.cardShadow}
+				bg={colors.bg}
 				my='2'
+				border='1px solid'
+				borderColor={colors.borderColor}
 			>
 				<Table variant='simple' size='sm'>
-					<Thead position='sticky' top={0} bg='white' zIndex={1}>
-						<Tr bg='brand.200' color='gray.800'>
-							<Th py={4} w='48px'>
+					<Thead position='sticky' top={0} bg={colors.bgDeep} zIndex={1}>
+						<Tr>
+							<Th py={4} w='48px' bg={colors.bgDeep} borderColor={colors.borderColor}>
 								<Checkbox
-									colorScheme='brand'
+									colorScheme='yellow'
 									isChecked={currentPageAllChecked}
 									isIndeterminate={currentPageSomeChecked}
 									onChange={(e) => toggleSelectAllCurrentPage(e.target.checked)}
 								/>
 							</Th>
-							<Th>Lead Name</Th>
-							<Th>Phone</Th>
-							<Th>Whatsapp</Th>
+							<Th bg={colors.bgDeep} borderColor={colors.borderColor} color={colors.headingText}>Lead Name</Th>
+							<Th bg={colors.bgDeep} borderColor={colors.borderColor} color={colors.headingText}>Phone</Th>
+							<Th bg={colors.bgDeep} borderColor={colors.borderColor} color={colors.headingText}>Whatsapp</Th>
 						</Tr>
 					</Thead>
 
@@ -312,7 +299,7 @@ export function StepLeadSelect({
 							<TableLoading columns={columns} length='20' />
 						) : leads.length === 0 ? (
 							<Tr>
-								<Td colSpan={4}>
+								<Td colSpan={4} borderColor={colors.borderColor}>
 									<NoData label='leads' />
 								</Td>
 							</Tr>
@@ -324,31 +311,27 @@ export function StepLeadSelect({
 									<Tr
 										key={lead._id}
 										cursor='pointer'
-										bg={selected ? 'blue.100' : undefined}
-										_hover={{ bg: selected ? 'blue.100' : 'gray.50' }}
+										bg={selected ? colors.badgeInfoBg : undefined}
+										_hover={{ bg: selected ? colors.badgeInfoBg : colors.bgDeep }}
 										onClick={() => toggleRow(lead)}
+										borderColor={colors.borderColor}
 									>
-										<Td>
+										<Td borderColor={colors.borderColor}>
 											<Checkbox
 												isChecked={selected}
 												onChange={() => toggleRow(lead)}
-												colorScheme='brand'
+												colorScheme='yellow'
 											/>
 										</Td>
-										<Td fontWeight={selected ? 'semibold' : 'normal'}>
+										<Td fontWeight={selected ? 'semibold' : 'normal'} color={colors.bodyText} borderColor={colors.borderColor}>
 											{lead.leadName || '—'}
 										</Td>
-										<Td>{safeValue(lead?.leadPhoneNumber) || '—'}</Td>
-										<Td>{safeValue(lead?.leadWhatsappNumber) || '-'}</Td>
-										{/* <Td>
-											<Badge
-												colorScheme={
-													lead.leadStatus === 'new' ? 'green' : 'gray'
-												}
-											>
-												{lead.leadStatus || '—'}
-											</Badge>
-										</Td> */}
+										<Td color={colors.bodyText} borderColor={colors.borderColor}>
+											{safeValue(lead?.leadPhoneNumber) || '—'}
+										</Td>
+										<Td color={colors.bodyText} borderColor={colors.borderColor}>
+											{safeValue(lead?.leadWhatsappNumber) || '-'}
+										</Td>
 									</Tr>
 								);
 							})
@@ -362,20 +345,22 @@ export function StepLeadSelect({
 				<Flex
 					p={3}
 					flexDir={{ base: 'column', md: 'row' }}
-					bg='gray.50'
+					bg={colors.bgInput}
 					rounded='md'
 					align='center'
 					gap={3}
+					border='1px solid'
+					borderColor={colors.borderColor}
 				>
-					<Text fontSize='sm'>
+					<Text fontSize='sm' color={colors.bodyText}>
 						{selectedCount} lead(s) selected on current pages.
 					</Text>
 
-					<Button size='sm' variant='link' onClick={clearAllSelection}>
+					<Button size='sm' variant='link' onClick={clearAllSelection} color={colors.accentGold}>
 						Clear all selected leads
 					</Button>
 					<Spacer />
-					<Text fontSize='sm' color='gray.500'>
+					<Text fontSize='sm' color={colors.mutedText}>
 						Showing {leads.length} / {totalResults}
 					</Text>
 				</Flex>
@@ -388,11 +373,12 @@ export function StepLeadSelect({
 					leftIcon={<FiChevronLeft />}
 					onClick={() => setPage((p) => Math.max(1, p - 1))}
 					isDisabled={page <= 1 || isFetching}
+					variant='outline'
 				>
 					Prev
 				</Button>
 
-				<Text fontSize='sm'>
+				<Text fontSize='sm' color={colors.bodyText}>
 					Page {page} / {totalPages}
 				</Text>
 
@@ -401,6 +387,7 @@ export function StepLeadSelect({
 					rightIcon={<FiChevronRight />}
 					onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
 					isDisabled={page >= totalPages || isFetching}
+					variant='outline'
 				>
 					Next
 				</Button>
@@ -415,29 +402,28 @@ export function StepLeadSelect({
 					size='sm'
 					fontSize='sm'
 					outline='none'
+					bg={colors.bgInput}
+					borderColor={colors.borderColor}
+					color={colors.headingText}
+					_hover={{ borderColor: colors.accentGold }}
+					_focus={{
+						borderColor: colors.accentGold,
+						boxShadow: `0 0 0 1px ${colors.accentGold}`,
+					}}
 				>
 					{PAGE_SIZES.map((s) => (
-						<option key={s} value={s}>
+						<option key={s} value={s} style={{ background: colors.bg, color: colors.headingText }}>
 							{s}
 						</option>
 					))}
 				</Select>
-
-				{/* <Spacer />
-				<Text fontSize='sm' color='gray.500'>
-					{isFetching ? 'Updating…' : `${totalResults} results`}
-				</Text> */}
 			</Flex>
 
 			{/* Actions */}
 			<Flex justify='space-between' w='full'>
 				<Button
-					{...buttonStyle}
 					px='10'
 					py='5'
-					bg='gray.100'
-					color='gray.800'
-					_active={{ bg: 'gray.200' }}
 					fontSize={{ base: 'sm', md: 'lg' }}
 					variant='outline'
 					onClick={onBack}
@@ -446,23 +432,11 @@ export function StepLeadSelect({
 				</Button>
 
 				<HStack>
-					{/* <Button
-						variant='ghost'
-						onClick={() => {
-							setPage(1);
-							setSearch('');
-							setLeadStatus('');
-							setMainLeadStatus('');
-						}}
-					>
-						Reset Filters
-					</Button> */}
 					<Button
-						{...buttonStyle}
 						px='10'
 						py='5'
 						fontSize={{ base: 'sm', md: 'lg' }}
-						colorScheme='whatsapp'
+						variant='brand'
 						onClick={handleConfirm}
 						isDisabled={selectedCount < 1}
 					>

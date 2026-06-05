@@ -17,11 +17,9 @@ const ClockContainer = ({
 	// };
 
 	return (
-		<Box width='100%' fontFamily="'DM Sans', sans-serif">
-			<Box bg='gray.100' color={textColor} p='2'>
-				<Text fontSize='sm' color='gray.500'>
-					{dayName}
-				</Text>
+		<Box width='100%' color={textColor}>
+			<Box rounded='md' p='2'>
+				<Text fontSize='sm'>{dayName}</Text>
 				<Text fontSize='md' fontWeight='bold'>
 					{formattedDate}
 				</Text>
@@ -45,9 +43,10 @@ const ClockContainer = ({
 				mt={2}
 				p='1'
 				mx='auto'
-				color='gray.500'
+				color={textColor}
 				fontWeight='medium'
-				bg='gray.100'
+				// bg='brand.300'
+				rounded='md'
 				maxWidth='fit-content'
 				fontSize={{ base: 'xs', md: 'sm' }}
 			>

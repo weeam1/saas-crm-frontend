@@ -10,7 +10,6 @@ import {
 	Progress,
 	SimpleGrid,
 	Icon,
-	useColorModeValue,
 	Skeleton,
 	Alert,
 	AlertIcon,
@@ -45,111 +44,117 @@ import { formatAmount, formatCurrency } from 'utils/helpers';
 import { useState } from 'react';
 import { SalarySummaryRow } from '../components/PayrollResuable';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { DeductionRow } from '../components/PayrollShared';
+import { useModalColors } from 'hooks/useModalColors';
 
 // Custom components for better organization
-const StatCard = ({
-	title,
-	value,
-	subtitle,
-	icon,
-	color = 'blue',
-	trend,
-	...props
-}) => (
-	<Box
-		p={2}
-		bg={useColorModeValue('white', 'gray.800')}
-		rounded='md'
-		shadow='sm'
-		{...props}
-	>
-		<Box>
-			<HStack justify='space-between' align='flex-start'>
-				<Text>
-					<Text fontSize='sm' color='gray.600' fontWeight='medium'>
-						{title}
-					</Text>
-					<Text
-						fontSize={{ base: 'md', md: 'lg', lg: 'xl', xl: '2xl' }}
-						fontWeight='bold'
-						color={`${color}.500`}
-					>
-						{value}
-					</Text>
-					{subtitle && (
-						<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.500'>
-							{subtitle}
+const StatCard = ({ title, value, subtitle, icon, color = 'blue', trend, ...props }) => {
+	const colors = useModalColors();
+	return (
+		<Box
+			p={2}
+			bg={colors.bg}
+			rounded='md'
+			boxShadow={colors.cardShadow}
+			border='1px solid'
+			borderColor={colors.borderColor}
+			{...props}
+		>
+			<Box>
+				<HStack justify='space-between' align='flex-start'>
+					<Text>
+						<Text fontSize='sm' color={colors.mutedText} fontWeight='medium'>
+							{title}
 						</Text>
-					)}
-					{trend && (
-						<Badge
-							colorScheme={trend.value > 0 ? 'green' : 'red'}
-							variant='subtle'
+						<Text
+							fontSize={{ base: 'md', md: 'lg', lg: 'xl', xl: '2xl' }}
+							fontWeight='bold'
+							color={colors.accentGold}
 						>
-							{trend.value > 0 ? '↑' : '↓'} {Math.abs(trend.value)}%
-						</Badge>
-					)}
+							{value}
+						</Text>
+						{subtitle && (
+							<Text fontSize={{ base: 'xs', md: 'sm' }} color={colors.mutedText}>
+								{subtitle}
+							</Text>
+						)}
+						{trend && (
+							<Badge
+								colorScheme={trend.value > 0 ? 'green' : 'red'}
+								variant='subtle'
+							>
+								{trend.value > 0 ? '↑' : '↓'} {Math.abs(trend.value)}%
+							</Badge>
+						)}
+					</Text>
+					<Icon
+						as={icon}
+						w={{ base: 4, md: 6, lg: 8 }}
+						h={{ base: 4, md: 6, lg: 8 }}
+						color={colors.accentGold}
+						opacity={0.7}
+					/>
+				</HStack>
+			</Box>
+		</Box>
+	);
+};
+
+const SectionCard = ({ title, icon, children, ...props }) => {
+	const colors = useModalColors();
+	return (
+		<Box
+			p={{ base: 4, md: 6 }}
+			bg={colors.bg}
+			boxShadow={colors.cardShadow}
+			rounded='md'
+			border='1px solid'
+			borderColor={colors.borderColor}
+			{...props}
+		>
+			<Box pb={3}>
+				<HStack>
+					<Icon as={icon} color={colors.accentGold} />
+					<Heading size='md' color={colors.headingText}>{title}</Heading>
+				</HStack>
+				<Divider mt={3} borderColor={colors.borderColor} />
+			</Box>
+			<Box pt={0}>{children}</Box>
+		</Box>
+	);
+};
+
+const ProgressIndicator = ({ label, value, max, color = 'blue', currency }) => {
+	const colors = useModalColors();
+	return (
+		<Box>
+			<HStack justify='space-between' mb={2}>
+				<Text fontSize='sm' fontWeight='medium' color={colors.mutedText}>
+					{label}
 				</Text>
-				<Icon
-					as={icon}
-					w={{ base: 4, md: 6, lg: 8 }}
-					h={{ base: 4, md: 6, lg: 8 }}
-					color={`${color}.500`}
-					opacity={0.7}
-				/>
+				<Text fontSize='sm' fontWeight='bold' color={colors.headingText}>
+					{currency} {value} / {currency} {max}
+				</Text>
 			</HStack>
-		</Box>
-	</Box>
-);
-
-const SectionCard = ({ title, icon, children, ...props }) => (
-	<Box
-		p={{ base: 4, md: 6 }}
-		bg={useColorModeValue('white', 'gray.800')}
-		shadow='md'
-		rounded='md'
-		{...props}
-	>
-		<Box pb={3}>
-			<HStack>
-				<Icon as={icon} color='blue.500' />
-				<Heading size='md'>{title}</Heading>
-			</HStack>
-			<Divider mt={3} />
-		</Box>
-		<Box pt={0}>{children}</Box>
-	</Box>
-);
-
-const ProgressIndicator = ({ label, value, max, color = 'blue', currency }) => (
-	<Box>
-		<HStack justify='space-between' mb={2}>
-			<Text fontSize='sm' fontWeight='medium' color='gray.600'>
-				{label}
+			<Progress
+				value={(value / max) * 100}
+				colorScheme={color === 'blue' ? 'yellow' : color}
+				size='lg'
+				w='100%'
+				borderRadius='full'
+				bg={colors.borderColor}
+			/>
+			<Text fontSize='xs' color={colors.mutedText} mt={1} textAlign='right'>
+				{((value / max) * 100).toFixed(1)}%
 			</Text>
-			<Text fontSize='sm' fontWeight='bold'>
-				{currency} {value} / {currency} {max}
-			</Text>
-		</HStack>
-		<Progress
-			value={(value / max) * 100}
-			colorScheme={color}
-			size='lg'
-			w='100%'
-			borderRadius='full'
-			bg={useColorModeValue('gray.100', 'gray.700')}
-		/>
-		<Text fontSize='xs' color='gray.500' mt={1} textAlign='right'>
-			{((value / max) * 100).toFixed(1)}%
-		</Text>
-	</Box>
-);
+		</Box>
+	);
+};
 
 const ComissionEmployeePayrollDetails = ({
 	userId: propUserId,
 	isMyPayslip = false,
 }) => {
+	const colors = useModalColors();
 	const { userId: paramUserId } = useParams();
 	const navigate = useNavigate();
 
@@ -200,9 +205,6 @@ const ComissionEmployeePayrollDetails = ({
 		onClose: profileOnClose,
 	} = useDisclosure();
 
-	const bgColor = useColorModeValue('gray.50', 'gray.900');
-	const borderColor = useColorModeValue('gray.200', 'gray.700');
-
 	if (payrollLoading || payrollFetching) {
 		return <PayrollSkeleton />;
 	}
@@ -210,8 +212,8 @@ const ComissionEmployeePayrollDetails = ({
 	if (!payrollData?.doc) {
 		return (
 			<Container maxW='container.xl' py={8}>
-				<Alert status='error' borderRadius='lg'>
-					<AlertIcon />
+				<Alert status='error' borderRadius='lg' bg={colors.badgeErrorBg} color={colors.badgeErrorText}>
+					<AlertIcon color={colors.badgeErrorText} />
 					Unable to load payroll data. Please try again later.
 				</Alert>
 			</Container>
@@ -232,7 +234,7 @@ const ComissionEmployeePayrollDetails = ({
 		return (
 			<PendingPayrollSummary
 				payroll={payrollData.doc}
-				showSkip={hasApplied} // only show skip if applied exists
+				showSkip={hasApplied}
 				onSkip={() => {
 					refetch();
 					setSkipPendingSummary(true);
@@ -240,10 +242,6 @@ const ComissionEmployeePayrollDetails = ({
 			/>
 		);
 	}
-
-	// if (payrollData?.doc?.pendingPayrollSummary?.isPending) {
-	// 	return <PendingPayrollSummary payroll={payrollData?.doc} />;
-	// }
 
 	const {
 		fullName,
@@ -297,7 +295,6 @@ const ComissionEmployeePayrollDetails = ({
 			label: 'Allowance',
 			value: payrollSummary?.adjustments?.allowance,
 		},
-
 		{
 			key: 'commissionAdjustment',
 			label: 'Commission Adjustment',
@@ -331,68 +328,56 @@ const ComissionEmployeePayrollDetails = ({
 	];
 
 	return (
-		<Box bg={bgColor} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
-			{!isMyPayslip && (
-				<HStack mb='3' align='center' justify='space-between'>
-					<IconButton
-						aria-label='Go back'
-						icon={<FiChevronLeft />}
-						onClick={() => navigate(-1)}
-						size='md'
-						isRound
-					/>
+		<Box bg={colors.bgDeep} shadow='lg' rounded='lg' minH='100vh' py={8} px={2}>
+			<HStack mb='3' align='center'>
+				{!isMyPayslip && (
+					<>
+						<IconButton
+							aria-label='Go back'
+							icon={<FiChevronLeft />}
+							onClick={() => navigate(-1)}
+							size='md'
+							isRound
+							variant='ghost'
+							color={colors.bodyText}
+							_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
+						/>
 
-					<PayrollStatus
-						initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
-						payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
-					/>
-				</HStack>
-			)}
+						<PayrollStatus
+							initialStatus={payrollData?.doc?.paymentStatus || 'pending'}
+							payrollData={payrollData?.doc?.snapshots || payrollData?.doc}
+						/>
+					</>
+				)}
 
-			{isMyPayslip && (
-				<HStack mb='3' align='center' justify='flex-end'>
-					<DateFilter onFilterChange={onDateFilterChange} />
-				</HStack>
-			)}
+				<Spacer />
+
+				{isMyPayslip && <DateFilter onFilterChange={onDateFilterChange} />}
+			</HStack>
 
 			<Container maxW='container.4xl'>
 				{/* Header Section */}
 				<VStack spacing={6} align='stretch' mb={8}>
 					<HStack justify='space-between' align='flex-start'>
 						<VStack align='flex-start' spacing={2}>
-							<Heading size='xl' color='gray.800'>
+							<Heading size='xl' color={colors.headingText}>
 								Payroll Details
 							</Heading>
-							<Text color='gray.600'>
+							<Text color={colors.mutedText}>
 								Comprehensive payroll breakdown for employee
 							</Text>
 						</VStack>
-						{/* <Badge
-							colorScheme={
-								payslip?.status === 'approved'
-									? 'green'
-									: payslip?.status === 'pending'
-										? 'orange'
-										: 'blue'
-							}
-							fontSize='md'
-							px={3}
-							py={1}
-							borderRadius='full'
-						>
-							{payslip?.status?.toUpperCase() || 'DRAFT'}
-						</Badge> */}
 					</HStack>
 
 					{/* Employee Profile Box */}
 					<Box
-						bg='white'
+						bg={colors.bg}
 						px={{ base: 2, md: 4, lg: 6 }}
 						py={4}
 						rounded='md'
-						shadow='md'
-						border='1px'
-						borderColor={borderColor}
+						boxShadow={colors.cardShadow}
+						border='1px solid'
+						borderColor={colors.borderColor}
 					>
 						<Flex
 							flexDir={{ base: 'column', md: 'row' }}
@@ -404,7 +389,7 @@ const ComissionEmployeePayrollDetails = ({
 								src={imgSrc}
 								onClick={imgSrc ? profileOnOpen : undefined}
 								name={fullName}
-								border='2px solid #dba554ff'
+								border={`2px solid ${colors.accentGold}`}
 							/>
 
 							<VStack
@@ -417,23 +402,24 @@ const ComissionEmployeePayrollDetails = ({
 									fontWeight='bold'
 									maxWidth={{ base: '350px', md: '100%' }}
 									isTruncated
+									color={colors.headingText}
 								>
 									{fullName}
 								</Text>
 								<HStack>
-									<Icon as={FiMail} color='gray.500' />
+									<Icon as={FiMail} color={colors.mutedText} />
 									<Text
 										maxWidth={{ base: '200px', md: '100%' }}
 										isTruncated
 										fontSize={{ base: 'xs', md: 'sm' }}
-										color='gray.600'
+										color={colors.bodyText}
 									>
 										{username}
 									</Text>
 								</HStack>
 								<HStack>
-									<Icon as={FaBuilding} color='gray.500' />
-									<Text fontSize={{ base: 'xs', md: 'sm' }} color='gray.600'>
+									<Icon as={FaBuilding} color={colors.mutedText} />
+									<Text fontSize={{ base: 'xs', md: 'sm' }} color={colors.bodyText}>
 										{agency?.name}
 									</Text>
 								</HStack>
@@ -449,29 +435,19 @@ const ComissionEmployeePayrollDetails = ({
 						value={formatAmount(payrollSummary?.netSalary)}
 						subtitle='After all deductions'
 						icon={FiDollarSign}
-						color='green'
 					/>
 					<StatCard
 						title='Gross Salary'
 						value={formatAmount(payrollSummary?.grossSalary)}
 						subtitle='Before deductions'
 						icon={FiTrendingUp}
-						color='blue'
 					/>
 					<StatCard
 						title='Commission Earned'
 						value={formatAmount(payrollSummary?.commissionEarned)}
 						subtitle='From closed deals'
 						icon={FiAward}
-						color='purple'
 					/>
-					{/* <StatCard
-						title='Performance Score'
-						value={`${evaluation?.finalPercentage || 0}%`}
-						subtitle={`${evaluation?.totalObtainedScore || 0}/${evaluation?.totalScore || 0} points`}
-						icon={FiPieChart}
-						color='orange'
-					/> */}
 				</SimpleGrid>
 
 				<Grid
@@ -479,11 +455,7 @@ const ComissionEmployeePayrollDetails = ({
 					gap={8}
 				>
 					{/* Left Column - Main Details */}
-					<VStack
-						// flexDir={{ base: 'column', md: 'row' }}
-						spacing={6}
-						align='stretch'
-					>
+					<VStack spacing={6} align='stretch'>
 						{/* Earnings & Deductions */}
 						<SectionCard title='Earnings & Deductions' icon={FiDollarSign}>
 							<SimpleGrid
@@ -492,33 +464,32 @@ const ComissionEmployeePayrollDetails = ({
 								spacing={6}
 							>
 								<VStack w='100%' align='stretch' spacing={4}>
-									<Text fontWeight='bold' color='green.600' fontSize='lg'>
+									<Text fontWeight='bold' color={colors.badgeSuccessText} fontSize='lg'>
 										Earnings
 									</Text>
 									<VStack spacing={3}>
 										{userEarnings
 											.filter((row) => Number(row.value) > 0)
-											.map(({ key, label, value, valueColor }) => (
+											.map(({ key, label, value }) => (
 												<SalarySummaryRow
 													key={key}
 													label={label}
 													value={formatCurrency(value, currency)}
-													valueColor={valueColor}
 												/>
 											))}
 									</VStack>
 
-									<Divider />
+									<Divider borderColor={colors.borderColor} />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
-										<Text>Total Earnings</Text>
-										<Text color='green.600'>
+										<Text color={colors.headingText}>Total Earnings</Text>
+										<Text color={colors.badgeSuccessText}>
 											{formatCurrency(payrollSummary?.grossSalary, currency)}
 										</Text>
 									</HStack>
 								</VStack>
 
 								<VStack align='stretch' spacing={4}>
-									<Text fontWeight='bold' color='red.600' fontSize='lg'>
+									<Text fontWeight='bold' color={colors.badgeErrorText} fontSize='lg'>
 										Deductions
 									</Text>
 									<VStack spacing={3}>
@@ -529,15 +500,14 @@ const ComissionEmployeePayrollDetails = ({
 													key={key}
 													label={label}
 													value={formatCurrency(value, currency)}
-													valueColor='red.500'
 												/>
 											))}
 									</VStack>
 
-									<Divider />
+									<Divider borderColor={colors.borderColor} />
 									<HStack w='100%' justify='space-between' fontWeight='bold'>
-										<Text>Total Deductions</Text>
-										<Text color='red.600'>
+										<Text color={colors.headingText}>Total Deductions</Text>
+										<Text color={colors.badgeErrorText}>
 											-
 											{formatCurrency(
 												payrollSummary?.totalDeductions,
@@ -549,18 +519,18 @@ const ComissionEmployeePayrollDetails = ({
 							</SimpleGrid>
 
 							{/* Final Net Salary */}
-							<Box p={2} mt={4} bg={'blue.50'} variant='outline'>
+							<Box p={2} mt={4} bg={colors.bgInput} borderRadius='lg' border='1px solid' borderColor={colors.borderColor}>
 								<Box>
 									<HStack justify='space-between'>
 										<VStack align='flex-start' spacing={1}>
-											<Text fontWeight='bold' fontSize='lg'>
+											<Text fontWeight='bold' fontSize='lg' color={colors.headingText}>
 												Net Salary Payable
 											</Text>
-											<Text fontSize='sm' color='gray.600'>
+											<Text fontSize='sm' color={colors.mutedText}>
 												Amount to be transferred
 											</Text>
 										</VStack>
-										<Text fontSize='2xl' fontWeight='bold' color='green.600'>
+										<Text fontSize='2xl' fontWeight='bold' color={colors.accentGold}>
 											{formatCurrency(
 												payrollSummary?.netSalary,
 												payrollSummary?.currency,
@@ -579,107 +549,42 @@ const ComissionEmployeePayrollDetails = ({
 									value={attendanceSummary?.totalPresent}
 									max={attendanceSummary?.totalWorkingDays}
 									color='green'
+									currency={currency}
 								/>
 								<ProgressIndicator
 									label='Absent Days'
 									value={attendanceSummary?.totalAbsent}
 									max={attendanceSummary?.totalWorkingDays}
 									color='red'
+									currency={currency}
 								/>
 							</SimpleGrid>
 							<SimpleGrid columns={2} spacing={6}>
 								<HStack justify='space-between'>
-									<Text color='gray.600'>Working Days</Text>
-									<Text fontWeight='semibold'>
+									<Text color={colors.mutedText}>Working Days</Text>
+									<Text fontWeight='semibold' color={colors.bodyText}>
 										{attendanceSummary?.totalWorkingDays}
 									</Text>
 								</HStack>
 								<HStack justify='space-between'>
-									<Text color='gray.600'>Present</Text>
-									<Text fontWeight='semibold' color='green.600'>
+									<Text color={colors.mutedText}>Present</Text>
+									<Text fontWeight='semibold' color={colors.badgeSuccessText}>
 										{attendanceSummary?.totalPresent}
 									</Text>
 								</HStack>
 								<HStack justify='space-between'>
-									<Text color='gray.600'>Absent</Text>
-									<Text fontWeight='semibold' color='red.600'>
+									<Text color={colors.mutedText}>Absent</Text>
+									<Text fontWeight='semibold' color={colors.badgeErrorText}>
 										{attendanceSummary?.totalAbsent}
 									</Text>
 								</HStack>
 								<HStack justify='space-between'>
-									<Text color='gray.600'>Late Arrivals</Text>
-									<Text fontWeight='semibold' color='orange.600'>
+									<Text color={colors.mutedText}>Late Arrivals</Text>
+									<Text fontWeight='semibold' color={colors.badgeWarningText}>
 										{attendanceSummary?.totalLate}
 									</Text>
 								</HStack>
 							</SimpleGrid>
-						</SectionCard>
-
-						<SectionCard title='Salary Deductions' icon={FiDollarSign}>
-							{/* Optional context */}
-							<Text fontSize='sm' color='gray.500' mb={3}>
-								Based on attendance and company policy
-							</Text>
-
-							{/* Breakdown */}
-							<VStack spacing={3} align='stretch'>
-								<DeductionRow
-									label='Late Arrival Dedcution'
-									value={attendanceSummary?.lateDaysDeduction}
-									currency={payrollSummary?.currency}
-								/>
-
-								<DeductionRow
-									label='Absence Dedcution'
-									value={attendanceSummary?.absentDeduction}
-									currency={payrollSummary?.currency}
-								/>
-
-								<DeductionRow
-									label='Unpaid Leave Deduction'
-									value={attendanceSummary?.unpaidLeaveDeduction}
-									currency={payrollSummary?.currency}
-								/>
-
-								<DeductionRow
-									label='Early Checkout Dedcution'
-									value={attendanceSummary?.earlyCheckoutDaysDeduction}
-									currency={payrollSummary?.currency}
-								/>
-
-								<DeductionRow
-									label='Important Absent Days Dedcution'
-									value={attendanceSummary?.importantDayAbsentDeduction}
-									currency={payrollSummary?.currency}
-								/>
-								<DeductionRow
-									label='Important Unpaid Leave Dedcution'
-									value={attendanceSummary?.importantDayUnpaidLeaveDeduction}
-									currency={payrollSummary?.currency}
-								/>
-
-								<DeductionRow
-									label='Unworked Days Dedcution'
-									value={attendanceSummary?.remainingDaysDeduction}
-									currency={payrollSummary?.currency}
-								/>
-							</VStack>
-
-							<Divider />
-
-							{/* Total */}
-							<HStack justify='space-between' mt={5}>
-								<Text fontSize='md' fontWeight='bold'>
-									Total Deductions
-								</Text>
-
-								<Text fontSize='md' fontWeight='bold' color='red.500'>
-									{formatCurrency(
-										attendanceSummary?.totalAttendanceDeduction,
-										payrollSummary?.currency,
-									)}
-								</Text>
-							</HStack>
 						</SectionCard>
 					</VStack>
 
@@ -689,31 +594,24 @@ const ComissionEmployeePayrollDetails = ({
 						{loanSummary?.activeLoans > 0 && (
 							<SectionCard title='Loan Summary' icon={FiCreditCard}>
 								<VStack spacing={4} align='stretch'>
-									{/* <ProgressIndicator
-									label='Loan Repayment Progress'
-									value={loanSummary?.totalPaidAmount}
-									max={loanSummary?.totalBorrowedAmount}
-									color='blue'
-									currency={payrollSummary?.currency}
-								/> */}
 									<SimpleGrid columns={1} spacing={3}>
 										<HStack justify='space-between'>
-											<Text color='gray.600'>Total Borrowed</Text>
-											<Text fontWeight='semibold'>
+											<Text color={colors.mutedText}>Total Borrowed</Text>
+											<Text fontWeight='semibold' color={colors.bodyText}>
 												{formatAmount(loanSummary?.totalBorrowedAmount)}
 											</Text>
 										</HStack>
 										<HStack justify='space-between'>
-											<Text color='gray.600'>Amount Paid</Text>
-											<Text fontWeight='semibold' color='green.600'>
+											<Text color={colors.mutedText}>Amount Paid</Text>
+											<Text fontWeight='semibold' color={colors.badgeSuccessText}>
 												{payrollData?.doc?.paymentStatus === 'paid'
 													? formatAmount(loanSummary?.monthlyInstallment)
 													: formatAmount(loanSummary?.totalPaidAmount)}
 											</Text>
 										</HStack>
 										<HStack justify='space-between'>
-											<Text color='gray.600'>Remaining</Text>
-											<Text fontWeight='semibold' color='red.600'>
+											<Text color={colors.mutedText}>Remaining</Text>
+											<Text fontWeight='semibold' color={colors.badgeErrorText}>
 												{payrollData?.doc?.paymentStatus === 'paid'
 													? formatAmount(
 															loanSummary?.totalRemainingAmount -
@@ -723,8 +621,8 @@ const ComissionEmployeePayrollDetails = ({
 											</Text>
 										</HStack>
 										<HStack justify='space-between'>
-											<Text color='gray.600'>Monthly Installment</Text>
-											<Text fontWeight='semibold'>
+											<Text color={colors.mutedText}>Monthly Installment</Text>
+											<Text fontWeight='semibold' color={colors.bodyText}>
 												{formatAmount(loanSummary?.monthlyInstallment)}
 											</Text>
 										</HStack>
@@ -736,48 +634,19 @@ const ComissionEmployeePayrollDetails = ({
 						{/* Performance & Deals */}
 						<SectionCard title='Performance & Deals' icon={FiTrendingUp}>
 							<VStack spacing={4} align='stretch'>
-								{/* <Box>
-									<HStack justify='space-between' mb={2}>
-										<Text fontWeight='medium' color='gray.600'>
-											Performance Score
-										</Text>
-										<Text fontWeight='bold' color='blue.600'>
-											{evaluation?.finalPercentage || 0}%
-										</Text>
-									</HStack>
-									<Progress
-										value={evaluation?.finalPercentage || 0}
-										colorScheme='blue'
-										size='md'
-										w='100%'
-										borderRadius='full'
-									/>
-								</Box> */}
 								<SimpleGrid columns={1} spacing={3}>
 									<HStack justify='space-between'>
-										<Text color='gray.600'>Closed Deals</Text>
-										<Text fontWeight='semibold'>
+										<Text color={colors.mutedText}>Closed Deals</Text>
+										<Text fontWeight='semibold' color={colors.bodyText}>
 											{closeDeals?.dealsCount || 0}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
-										<Text color='gray.600'>Shared Deals</Text>
-										<Text fontWeight='semibold'>
+										<Text color={colors.mutedText}>Shared Deals</Text>
+										<Text fontWeight='semibold' color={colors.bodyText}>
 											{sharedDeals?.dealsCount || 0}
 										</Text>
 									</HStack>
-									{/* <HStack justify='space-between'>
-										<Text color='gray.600'>Deal Value</Text>
-										<Text fontWeight='semibold'>
-											{closeDeals?.totalAmount?.toLocaleString() || 0}
-										</Text>
-									</HStack> */}
-									{/* <HStack justify='space-between'>
-										<Text color='gray.600'>Evaluators</Text>
-										<Text fontWeight='semibold'>
-											{evaluation?.totalEvaluators || 0}
-										</Text>
-									</HStack> */}
 								</SimpleGrid>
 							</VStack>
 						</SectionCard>
@@ -787,32 +656,42 @@ const ComissionEmployeePayrollDetails = ({
 							<SectionCard title='Payroll Status' icon={FiCalendar}>
 								<VStack spacing={3} align='stretch'>
 									<HStack justify='space-between'>
-										<Text color='gray.600'>Status</Text>
+										<Text color={colors.mutedText}>Status</Text>
 										<Badge
-											colorScheme={
+											bg={
 												payslip?.paymentStatus === 'paid'
-													? 'green'
+													? colors.badgeSuccessBg
 													: payslip?.paymentStatus === 'pending'
-														? 'orange'
-														: 'gray'
+														? colors.badgeWarningBg
+														: colors.badgeInfoBg
 											}
+											color={
+												payslip?.paymentStatus === 'paid'
+													? colors.badgeSuccessText
+													: payslip?.paymentStatus === 'pending'
+														? colors.badgeWarningText
+														: colors.badgeInfoText
+											}
+											px={2}
+											py={1}
+											borderRadius='full'
 										>
 											{payslip?.paymentStatus?.toUpperCase() || 'N/A'}
 										</Badge>
 									</HStack>
 									<HStack justify='space-between'>
-										<Text color='gray.600'>Payslip Version</Text>
-										<Text fontWeight='semibold'>v{payslip?.version || 1}</Text>
+										<Text color={colors.mutedText}>Payslip Version</Text>
+										<Text fontWeight='semibold' color={colors.bodyText}>v{payslip?.version || 1}</Text>
 									</HStack>
 									<HStack justify='space-between'>
-										<Text color='gray.600'>Generated By</Text>
-										<Text fontSize='sm'>
+										<Text color={colors.mutedText}>Generated By</Text>
+										<Text fontSize='sm' color={colors.bodyText}>
 											{payslip?.generatedBy?.fullName || 'N/A'}
 										</Text>
 									</HStack>
 									<HStack justify='space-between'>
-										<Text color='gray.600'>Last Updated</Text>
-										<Text fontSize='sm'>
+										<Text color={colors.mutedText}>Last Updated</Text>
+										<Text fontSize='sm' color={colors.bodyText}>
 											{new Date(payslip?.updatedAt).toLocaleDateString()}
 										</Text>
 									</HStack>
@@ -837,40 +716,39 @@ const ComissionEmployeePayrollDetails = ({
 };
 
 // Skeleton Loader Component
-const PayrollSkeleton = () => (
-	<Box bg='gray.50' minH='100vh' py={8} px={2}>
-		<Container maxW='container.4xl'>
-			<VStack spacing={6} align='stretch'>
-				<Skeleton height='40px' width='300px' />
-				<Skeleton height='120px' borderRadius='lg' />
-				<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
-					{Array(4)
-						.fill(0)
-						.map((_, i) => (
+const PayrollSkeleton = () => {
+	const colors = useModalColors();
+	return (
+		<Box bg={colors.bgDeep} minH='100vh' py={8} px={2}>
+			<Container maxW='container.4xl'>
+				<VStack spacing={6} align='stretch'>
+					<Skeleton height='40px' width='300px' />
+					<Skeleton height='120px' borderRadius='lg' />
+					<SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6}>
+						{Array(4).fill(0).map((_, i) => (
 							<Skeleton key={i} height='100px' borderRadius='lg' />
 						))}
-				</SimpleGrid>
-				<SimpleGrid columns={{ base: 1, md: 2, lg: 2 }} spacing={6}>
-					{Array(2)
-						.fill(0)
-						.map((_, i) => (
+					</SimpleGrid>
+					<SimpleGrid columns={{ base: 1, md: 2, lg: 2 }} spacing={6}>
+						{Array(2).fill(0).map((_, i) => (
 							<Skeleton key={i} height='400px' borderRadius='lg' />
 						))}
-				</SimpleGrid>
-				<Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
-					<VStack spacing={6}>
-						<Skeleton height='500px' borderRadius='lg' />
-						<Skeleton height='550px' borderRadius='lg' />
-					</VStack>
-					<VStack spacing={6}>
-						<Skeleton height='200px' borderRadius='lg' />
-						<Skeleton height='200px' borderRadius='lg' />
-						<Skeleton height='150px' borderRadius='lg' />
-					</VStack>
-				</Grid>
-			</VStack>
-		</Container>
-	</Box>
-);
+					</SimpleGrid>
+					<Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={8}>
+						<VStack spacing={6}>
+							<Skeleton height='500px' borderRadius='lg' />
+							<Skeleton height='550px' borderRadius='lg' />
+						</VStack>
+						<VStack spacing={6}>
+							<Skeleton height='200px' borderRadius='lg' />
+							<Skeleton height='200px' borderRadius='lg' />
+							<Skeleton height='150px' borderRadius='lg' />
+						</VStack>
+					</Grid>
+				</VStack>
+			</Container>
+		</Box>
+	);
+};
 
 export default ComissionEmployeePayrollDetails;

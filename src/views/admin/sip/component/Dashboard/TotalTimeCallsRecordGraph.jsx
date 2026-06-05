@@ -7,7 +7,6 @@ import {
   Heading,
   Text,
   Select,
-  useColorModeValue,
   HStack,
   VStack,
   Square,
@@ -17,7 +16,8 @@ import {
 import Chart from "chart.js/auto";
 import moment from "moment";
 import { fetchTotalTimeCallsRecordStats } from "../../../../../services/sip/index";
-import { FiRefreshCw } from "react-icons/fi";
+import { useModalColors } from "hooks/useModalColors";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const formatSeconds = (seconds) => {
   const hrs = Math.floor(seconds / 3600);
@@ -29,19 +29,30 @@ const formatSeconds = (seconds) => {
 };
 
 export default function TotalTimeCallsRecordGraph() {
+  const colors = useModalColors();
   const [days, setDays] = useState(30);
   const [uniqueCalls, setUniqueCalls] = useState(0);
   const [avgMinutes, setAvgMinutes] = useState(0);
-  const [totalSeconds, setTotalSeconds] = useState(0);
+  const [totalMinutes, setTotalMinutes] = useState(0);
   const [monthRanges, setMonthRanges] = useState([]);
   const [monthHeader, setMonthHeader] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const bgColor = useColorModeValue("white", "gray.800");
-  const textColor = useColorModeValue("#2D3748", "#E2E8F0");
-  const gridColor = useColorModeValue("#EDF2F7", "#4A5568");
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
+
+  // Chart colors based on theme
+  const chartColors = {
+    totalTimeGradient: {
+      start: "rgba(212, 175, 55, 0.9)",    // Gold
+      end: "rgba(212, 175, 55, 0.2)"       // Gold transparent
+    },
+    uniqueCalls: "#10B981",                 // Success green
+    grid: colors.borderColor,
+    text: colors.bodyText,
+    tooltipBg: colors.bgDeep,
+    tooltipBorder: colors.accentGold
+  };
 
   const updateChart = (data) => {
     const daily = data.daily
@@ -62,12 +73,12 @@ export default function TotalTimeCallsRecordGraph() {
 
     const labels = daily.map((d) => d.date.format("D"));
     const totalTime = daily.map((d) => d.duration);
-    const uniqueCalls = daily.map((d) => d.unique);
+    const uniqueCallsData = daily.map((d) => d.unique);
 
     const ranges = Object.keys(grouped).map((month) => {
-      const days = grouped[month].map((d) => d.date.date());
-      const start = Math.min(...days);
-      const end = Math.max(...days);
+      const daysInMonth = grouped[month].map((d) => d.date.date());
+      const start = Math.min(...daysInMonth);
+      const end = Math.max(...daysInMonth);
       return `${month} ${start}–${end}`;
     });
     setMonthRanges(ranges);
@@ -94,8 +105,8 @@ export default function TotalTimeCallsRecordGraph() {
             data: totalTime,
             backgroundColor: (ctx) => {
               const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 400);
-              gradient.addColorStop(0, "rgba(66,153,225,0.9)");
-              gradient.addColorStop(1, "rgba(66,153,225,0.3)");
+              gradient.addColorStop(0, chartColors.totalTimeGradient.start);
+              gradient.addColorStop(1, chartColors.totalTimeGradient.end);
               return gradient;
             },
             borderRadius: 6,
@@ -106,12 +117,14 @@ export default function TotalTimeCallsRecordGraph() {
           },
           {
             label: "Unique Calls",
-            data: uniqueCalls,
-            borderColor: "#38A169",
+            data: uniqueCallsData,
+            borderColor: chartColors.uniqueCalls,
             backgroundColor: "transparent",
             borderWidth: 2,
-            pointBackgroundColor: "#38A169",
+            pointBackgroundColor: chartColors.uniqueCalls,
             pointRadius: 4,
+            pointBorderColor: colors.bg,
+            pointBorderWidth: 2,
             tension: 0.3,
             type: "line",
             yAxisID: "y1",
@@ -127,10 +140,10 @@ export default function TotalTimeCallsRecordGraph() {
         },
         scales: {
           x: {
-            grid: { display: false },
+            grid: { display: false, color: chartColors.grid },
             ticks: {
-              color: textColor,
-              font: { size: 12 },
+              color: chartColors.text,
+              font: { size: 12, family: "'Poppins', 'Cairo', sans-serif" },
               padding: 10,
               maxRotation: 0,
               minRotation: 0,
@@ -139,25 +152,25 @@ export default function TotalTimeCallsRecordGraph() {
           },
           y: {
             beginAtZero: true,
-            grid: { color: gridColor, drawBorder: false },
-            ticks: { color: textColor },
+            grid: { color: chartColors.grid, drawBorder: false },
+            ticks: { color: chartColors.text },
             title: {
               display: true,
               text: "Total Time (min)",
-              color: textColor,
-              font: { size: 13, weight: "bold" },
+              color: chartColors.text,
+              font: { size: 13, weight: "bold", family: "'Poppins', 'Cairo', sans-serif" },
             },
           },
           y1: {
             beginAtZero: true,
             grid: { display: false },
             position: "right",
-            ticks: { color: textColor },
+            ticks: { color: chartColors.text },
             title: {
               display: true,
               text: "Unique Calls",
-              color: textColor,
-              font: { size: 13, weight: "bold" },
+              color: chartColors.text,
+              font: { size: 13, weight: "bold", family: "'Poppins', 'Cairo', sans-serif" },
             },
           },
         },
@@ -166,19 +179,23 @@ export default function TotalTimeCallsRecordGraph() {
             display: true,
             position: "top",
             labels: {
-              color: textColor,
+              color: chartColors.text,
               boxWidth: 15,
               padding: 15,
-              font: { size: 13, weight: 500 },
+              font: { size: 13, weight: 500, family: "'Poppins', 'Cairo', sans-serif" },
+              usePointStyle: true,
+              pointStyle: "circle",
             },
           },
           tooltip: {
-            backgroundColor: "#1A202C",
-            titleColor: "#fff",
-            bodyColor: "#E2E8F0",
+            backgroundColor: chartColors.tooltipBg,
+            titleColor: colors.headingText,
+            bodyColor: chartColors.text,
             borderWidth: 1,
-            borderColor: "#2D3748",
-            cornerRadius: 6,
+            borderColor: colors.accentGold,
+            cornerRadius: 8,
+            bodyFont: { family: "'Poppins', 'Cairo', sans-serif" },
+            titleFont: { family: "'Poppins', 'Cairo', sans-serif", weight: "bold" },
             callbacks: {
               title: (tooltipItems) => {
                 const index = tooltipItems[0].dataIndex;
@@ -199,12 +216,10 @@ export default function TotalTimeCallsRecordGraph() {
     try {
       setIsLoading(true);
       const data = await fetchTotalTimeCallsRecordStats(days);
+      console.log("Fetched chart data:", data);
       setUniqueCalls(data.unique_calls);
       setAvgMinutes(data.average_minutes);
-      const durationInSeconds = parseFloat(
-        data.allTime.duration.replace("s", "")
-      );
-      setTotalSeconds(durationInSeconds);
+      setTotalMinutes(data?.total_minutes);
       updateChart(data);
     } catch (error) {
       console.error("Error loading chart data:", error);
@@ -221,74 +236,134 @@ export default function TotalTimeCallsRecordGraph() {
   }, [days]);
 
   return (
-    <Box p={4} bg={bgColor} borderRadius="lg" shadow="md" mx={2} mt={-2}>
+    <Box
+      p={6}
+      bg={colors.bg}
+      borderRadius="xl"
+      boxShadow={colors.cardShadow}
+      border="1px solid"
+      borderColor={colors.borderColor}
+      mx={2}
+      mt={-2}
+    >
       {/* Header */}
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg" fontWeight="bold" color={textColor}>
+      <Flex justify="space-between" align="center" mb={6} flexWrap="wrap" gap={4}>
+        <Heading
+          size="lg"
+          fontWeight="bold"
+          color={colors.headingText}
+          fontFamily="'Poppins', 'Cairo', sans-serif"
+        >
           Total Time and Calls
         </Heading>
 
-        <Box
-          display="flex"
-          align="center"
-          gap={4}
-          flexDirection={{ base: "column", md: "row" }}
-        >
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh Analytics"
-            onClick={() => getData()}
-            isLoading={isLoading}
-            variant="outline"
-            size="sm"
-          />
+        <HStack gap={3} flexWrap="wrap">
+        <RefreshButton
+                          label="Refresh"
+                          onClick={getData}
+                          isLoading={isLoading}
+                          isFetching={isLoading}
+                          size="sm"
+                        />
+
           <Select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
             w="160px"
-            bg="gray.100"
-            borderRadius="md"
-            _hover={{ cursor: "pointer" }}
+            bg={colors.bgInput}
+            borderColor={colors.borderColor}
+            color={colors.headingText}
+            borderRadius="lg"
+            _hover={{ borderColor: colors.accentGold, cursor: "pointer" }}
+            _focus={{ borderColor: colors.accentGold, boxShadow: `0 0 0 1px ${colors.accentGold}` }}
+            fontSize="sm"
           >
-            <option value={30}>30 Days</option>
-            <option value={60}>60 Days</option>
-            <option value={90}>90 Days</option>
-            <option value={180}>180 Days</option>
-            <option value={360}>360 Days</option>
+            <option style={{ background: colors.bg, color: colors.headingText }} value={30}>30 Days</option>
+            <option style={{ background: colors.bg, color: colors.headingText }} value={60}>60 Days</option>
+            <option style={{ background: colors.bg, color: colors.headingText }} value={90}>90 Days</option>
+            <option style={{ background: colors.bg, color: colors.headingText }} value={180}>180 Days</option>
+            <option style={{ background: colors.bg, color: colors.headingText }} value={360}>360 Days</option>
           </Select>
-        </Box>
+        </HStack>
       </Flex>
 
-      {/* Summary Stats */}
-      <Flex justify="space-between" mb={8} wrap="wrap">
-        <VStack align="flex-start" spacing={1} minW="200px" mb={4}>
+      {/* Summary Stats Cards */}
+      <Flex justify="space-between" mb={8} wrap="wrap" gap={4}>
+        <VStack
+          align="flex-start"
+          spacing={2}
+          flex="1"
+          minW="180px"
+          p={4}
+          bg={colors.bgDeep}
+          borderRadius="lg"
+          border="1px solid"
+          borderColor={colors.borderColor}
+        >
           <HStack>
-            <Square size="16px" bg="blue.400" />
-            <Text color="gray.600" fontWeight="medium">
+            <Square size="12px" bg={colors.accentGold} borderRadius="full" />
+            <Text color={colors.labelColor} fontWeight="medium" fontSize="sm">
               Total Time
             </Text>
           </HStack>
-          <Text fontSize="2xl" fontWeight="bold">
-            {formatSeconds(totalSeconds)}
+          <Text
+            fontSize="2xl"
+            fontWeight="bold"
+            color={colors.headingText}
+            fontFamily="'Poppins', 'Cairo', sans-serif"
+          >
+            {totalMinutes}
           </Text>
+          <Text fontSize="xs" color={colors.mutedText}>minutes</Text>
         </VStack>
 
-        <VStack align="flex-start" spacing={1} minW="200px" mb={4}>
+        <VStack
+          align="flex-start"
+          spacing={2}
+          flex="1"
+          minW="180px"
+          p={4}
+          bg={colors.bgDeep}
+          borderRadius="lg"
+          border="1px solid"
+          borderColor={colors.borderColor}
+        >
           <HStack>
-            <Box w="16px" h="2px" bg="green.400" my="auto" />
-            <Text color="gray.600" fontWeight="medium">
+            <Box w="16px" h="2px" bg="#10B981" my="auto" borderRadius="full" />
+            <Text color={colors.labelColor} fontWeight="medium" fontSize="sm">
               Unique Calls
             </Text>
           </HStack>
-          <Text fontSize="2xl" fontWeight="bold">
+          <Text
+            fontSize="2xl"
+            fontWeight="bold"
+            color={colors.headingText}
+            fontFamily="'Poppins', 'Cairo', sans-serif"
+          >
             {uniqueCalls}
           </Text>
         </VStack>
-        <VStack align="flex-start" spacing={1} minW="200px" mb={4}>
-          <Text color="gray.600" fontWeight="medium">
+
+        <VStack
+          align="flex-start"
+          spacing={2}
+          flex="1"
+          minW="180px"
+          p={4}
+          bg={colors.bgDeep}
+          borderRadius="lg"
+          border="1px solid"
+          borderColor={colors.borderColor}
+        >
+          <Text color={colors.labelColor} fontWeight="medium" fontSize="sm">
             Average Call Duration
           </Text>
-          <Text fontSize="2xl" fontWeight="bold">
+          <Text
+            fontSize="2xl"
+            fontWeight="bold"
+            color={colors.headingText}
+            fontFamily="'Poppins', 'Cairo', sans-serif"
+          >
             {formatSeconds(avgMinutes * 60)}
           </Text>
         </VStack>
@@ -300,23 +375,31 @@ export default function TotalTimeCallsRecordGraph() {
           textAlign="center"
           fontSize="lg"
           fontWeight="bold"
-          color={textColor}
-          mb={2}
+          color={colors.accentGold}
+          mb={4}
+          fontFamily="'Poppins', 'Cairo', sans-serif"
         >
           {monthHeader}
         </Text>
       )}
 
       {/* Chart */}
-      <Box h="60vh" w="100%">
+      <Box h="60vh" w="100%" mb={4}>
         <canvas ref={chartRef} />
       </Box>
 
       {/* Month Range Summary */}
-      <Divider my={4} />
+      <Divider my={4} borderColor={colors.borderColor} />
       <Flex justify="center" gap={6} wrap="wrap">
         {monthRanges.map((range, i) => (
-          <Text key={i} fontSize="sm" color="gray.500" fontWeight="medium">
+          <Text
+            key={i}
+            fontSize="sm"
+            color={colors.mutedText}
+            fontWeight="medium"
+            _hover={{ color: colors.accentGold }}
+            transition="color 0.2s"
+          >
             {range}
           </Text>
         ))}

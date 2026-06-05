@@ -18,11 +18,12 @@ import {
 } from '@chakra-ui/react';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useState, useEffect } from 'react';
-import { buttonStyle } from 'utils/btn';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LIMIT = 10;
 
 export function StepAccountSelect({ onNext }) {
+	const colors = useModalColors();
 	const [page] = useState(1);
 	const [selectedAccount, setSelectedAccount] = useState(null);
 	const { data, isLoading, isFetching } = useFetchItemsQuery(
@@ -38,40 +39,43 @@ export function StepAccountSelect({ onNext }) {
 	return (
 		<VStack align='stretch' spacing={6}>
 			<Box mb='2'>
-				<Heading size='md'>WhatsApp Account</Heading>
-				<Text fontSize='sm' color='gray.600'>
+				<Heading size='md' color={colors.headingText}>WhatsApp Account</Heading>
+				<Text fontSize='sm' color={colors.mutedText}>
 					Select the WhatsApp account you want to send messages from.
 				</Text>
 			</Box>
 
 			<Box
-				maxH={'50vh'}
+			      maxHeight="50vh"
+      minH="50vh"
 				overflowY='auto'
 				borderRadius='md'
-				boxShadow='sm'
-				bg='white'
+				boxShadow={colors.cardShadow}
+				bg={colors.bg}
+				border='1px solid'
+				borderColor={colors.borderColor}
 			>
 				{isLoading || isFetching ? (
 					<VStack justify='center' align='center' minH='200px'>
-						<Spinner size='xl' color='green.500' />
-						<Text>Loading accounts...</Text>
+						<Spinner size='xl' color={colors.accentGold} />
+						<Text color={colors.bodyText}>Loading accounts...</Text>
 					</VStack>
 				) : accounts.length === 0 ? (
-					<Text color='gray.500'>No accounts available.</Text>
+					<Text color={colors.mutedText} p={4}>No accounts available.</Text>
 				) : (
 					<RadioGroup
 						onChange={setSelectedAccount}
 						value={selectedAccount?._id || ''}
-						colorScheme='whatsapp'
+						colorScheme='yellow'
 						w='100%'
 					>
 						<Table variant='simple' overflow='scroll' size='md'>
 							<Thead position='sticky' top={0} zIndex={2}>
-								<Tr bg='gray.100'>
-									<Th></Th>
-									<Th>Account Name</Th>
-									<Th>Business ID</Th>
-									<Th>Phone ID</Th>
+								<Tr bg={colors.bgDeep}>
+									<Th borderColor={colors.borderColor} color={colors.headingText}></Th>
+									<Th borderColor={colors.borderColor} color={colors.headingText}>Account Name</Th>
+									<Th borderColor={colors.borderColor} color={colors.headingText}>Business ID</Th>
+									<Th borderColor={colors.borderColor} color={colors.headingText}>Phone ID</Th>
 								</Tr>
 							</Thead>
 							<Tbody>
@@ -82,21 +86,29 @@ export function StepAccountSelect({ onNext }) {
 											key={account._id}
 											cursor='pointer'
 											onClick={() => setSelectedAccount(account)}
-											bg={isSelected ? 'whatsapp.50' : 'transparent'}
-											_hover={{ bg: isSelected ? 'whatsapp.100' : 'gray.50' }}
+											bg={isSelected ? colors.bgDeep : 'transparent'}
+											_hover={{ bg: isSelected ? colors.bgDeep : colors.bgInput }}
 											borderLeft={
-												isSelected ? '4px solid green' : '4px solid transparent'
+												isSelected ? `4px solid ${colors.accentGold}` : '4px solid transparent'
 											}
 											transition='all 0.2s ease'
 										>
-											<Td>
+											<Td borderColor={colors.borderColor}>
 												<Radio value={account._id} pointerEvents='none' />
 											</Td>
-											<Td fontWeight={isSelected ? 'semibold' : 'normal'}>
+											<Td
+												fontWeight={isSelected ? 'semibold' : 'normal'}
+												color={colors.headingText}
+												borderColor={colors.borderColor}
+											>
 												{account?.user?.fullName || 'N/A'}
 											</Td>
-											<Td>{account.businessId || '-'}</Td>
-											<Td>{account.phoneNumber || '-'}</Td>
+											<Td color={colors.bodyText} borderColor={colors.borderColor}>
+												{account.businessId || '-'}
+											</Td>
+											<Td color={colors.bodyText} borderColor={colors.borderColor}>
+												{account.phoneNumber || '-'}
+											</Td>
 										</Tr>
 									);
 								})}
@@ -107,14 +119,13 @@ export function StepAccountSelect({ onNext }) {
 			</Box>
 
 			<Button
-				{...buttonStyle}
 				isDisabled={!selectedAccount}
 				onClick={() => onNext(selectedAccount)}
 				alignSelf='flex-end'
 				px='10'
 				py='5'
 				fontSize={{ base: 'sm', md: 'lg' }}
-				colorScheme='whatsapp'
+				variant='brand'
 			>
 				Next
 			</Button>

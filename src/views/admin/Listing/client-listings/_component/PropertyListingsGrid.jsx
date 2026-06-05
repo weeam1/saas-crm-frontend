@@ -86,14 +86,15 @@ const PropertyListingsGrid = ({
 	}
 
 	return (
-		<Box bg={containerBg}>
+		<Box minH='60vh'>
 			{/* Property Grid */}
 			<MotionGrid
-				templateColumns='repeat(auto-fill, minmax(300px, 1fr))'
+				templateColumns='repeat(auto-fill, minmax(320px, 1fr))'
 				gap={2}
 				initial={{ opacity: 0 }}
 				animate={{ opacity: 1 }}
 				transition={{ duration: 0.5 }}
+
 			>
 				{data?.map((property) => (
 					<PropertyCard key={property._id} property={property} />

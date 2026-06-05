@@ -15,7 +15,6 @@ import {
 	Flex,
 	Input,
 	Button,
-	useColorModeValue,
 	NumberInput,
 	NumberInputStepper,
 	NumberIncrementStepper,
@@ -23,33 +22,20 @@ import {
 	NumberInputField,
 } from '@chakra-ui/react';
 import * as yup from 'yup';
+import { useModalColors } from 'hooks/useModalColors';
 
-// const ruleValidationSchema = yup.object().shape({
-// 	name: yup.string().required('Rule name is required'),
-// 	from: yup.string().required('From time is required'),
-// 	to: yup.string().required('To time is required'),
-// 	deduction: yup
-// 		.number()
-// 		.typeError('Deduction must be a number')
-// 		.min(0, 'Deduction must be at least 0%')
-// 		.max(100, 'Deduction cannot exceed 100%')
-// 		.required('Deduction is required'),
-// });
 const ruleValidationSchema = yup.object().shape({
 	name: yup.string().required('Rule name is required'),
-
 	fromMinutes: yup
 		.number()
 		.typeError('From minutes must be a number')
 		.min(0, 'Minimum 0 minutes')
 		.required('From minutes is required'),
-
 	toMinutes: yup
 		.number()
 		.typeError('To minutes must be a number')
 		.moreThan(yup.ref('fromMinutes'), 'To must be greater than From')
 		.required('To minutes is required'),
-
 	deduction: yup
 		.number()
 		.typeError('Deduction must be a number')
@@ -57,22 +43,6 @@ const ruleValidationSchema = yup.object().shape({
 		.max(100, 'Deduction cannot exceed 100%')
 		.required('Deduction is required'),
 });
-
-const TimePicker = ({ value, onChange }) => {
-	return (
-		<input
-			type='time'
-			value={value}
-			onChange={(e) => onChange(e.target.value)}
-			style={{
-				border: '1px solid #E2E8F0',
-				borderRadius: '4px',
-				padding: '8px',
-				width: '100%',
-			}}
-		/>
-	);
-};
 
 const LateDeductionRuleModal = ({
 	isOpen,
@@ -83,24 +53,15 @@ const LateDeductionRuleModal = ({
 	formErrors,
 	handleSaveRule,
 }) => {
+	const colors = useModalColors();
 	const [realTimeErrors, setRealTimeErrors] = useState({});
 	const [touchedFields, setTouchedFields] = useState({});
-
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const headerBg = useColorModeValue('brand.300', 'brand.100');
-	const headerText = useColorModeValue('brand.700', 'brand.900');
-	const footerBg = useColorModeValue('gray.50', 'gray.700');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	useEffect(() => {
 		const validateField = async (fieldName, value) => {
 			if (!touchedFields[fieldName]) return;
 
 			try {
-				// await ruleValidationSchema.validateAt(fieldName, {
-				// 	[fieldName]: value,
-				// });
-
 				await ruleValidationSchema.validateAt(fieldName, ruleForm);
 				setRealTimeErrors((prev) => ({ ...prev, [fieldName]: '' }));
 			} catch (error) {
@@ -149,35 +110,37 @@ const LateDeductionRuleModal = ({
 			scrollBehavior='inside'
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
 			<ModalContent
-				bg={bgColor}
+				bg={colors.bg}
 				borderRadius='2xl'
-				shadow='2xl'
+				boxShadow={colors.modalShadow}
 				maxW={{ base: 'full', sm: '90vw', md: '500px' }}
 				overflow='hidden'
 				mx={{ base: 3, md: 0 }}
+				border='1px solid'
+				borderColor={colors.borderColor}
 			>
-				<ModalHeader p={0} borderBottom='1px solid' borderColor={borderColor}>
+				<ModalHeader p={0} borderBottom='1px solid' borderColor={colors.borderColor}>
 					<Flex
-						bg={headerBg}
-						color={headerText}
+						bg={colors.headerBg}
+						color={colors.headerText}
 						px={6}
 						py={3}
 						position='sticky'
 						top='0'
 						zIndex='10'
-						boxShadow='md'
+						boxShadow='sm'
 					>
-						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+						<Text color={colors.headerText} fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 							{editingRuleIndex !== null ? 'Edit Rule' : 'Add New Rule'}
 						</Text>
 						<ModalCloseButton
 							position='absolute'
 							right='12px'
 							top='10px'
-							color={headerText}
-							_hover={{ bg: 'whiteAlpha.200' }}
+							color={colors.headerText}
+							_hover={{ bg: colors.closeBtnHoverBg }}
 						/>
 					</Flex>
 				</ModalHeader>
@@ -187,59 +150,37 @@ const LateDeductionRuleModal = ({
 					overflowY='auto'
 					maxH='65vh'
 					borderBottom='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.borderColor}
+					bg={colors.bg}
 				>
 					<VStack spacing={4} align='stretch'>
 						<FormControl isInvalid={!!getFieldError('name')}>
-							<FormLabel fontWeight='semibold'>Rule Name</FormLabel>
+							<FormLabel fontWeight='semibold' color={colors.labelColor}>Rule Name</FormLabel>
 							<Input
 								value={ruleForm.name}
 								onChange={(e) => handleFieldChange('name', e.target.value)}
 								onBlur={() => handleFieldBlur('name')}
 								placeholder='e.g., Quarter Deduction Rule'
-								borderColor={getFieldError('name') ? 'red.300' : 'gray.200'}
-								focusBorderColor={
-									getFieldError('name') ? 'red.300' : 'brand.500'
-								}
+								borderColor={getFieldError('name') ? colors.badgeErrorText : colors.borderColor}
+								bg={colors.bgInput}
+								color={colors.headingText}
+								_placeholder={{ color: colors.mutedText }}
+								_hover={{ borderColor: colors.accentGold }}
+								_focus={{
+									borderColor: getFieldError('name') ? colors.badgeErrorText : colors.accentGold,
+									boxShadow: `0 0 0 1px ${getFieldError('name') ? colors.badgeErrorText : colors.accentGold}`,
+								}}
 							/>
 							{getFieldError('name') && (
-								<Text color='red.500' fontSize='sm' mt={1}>
+								<Text color={colors.badgeErrorText} fontSize='sm' mt={1}>
 									{getFieldError('name')}
 								</Text>
 							)}
 						</FormControl>
 
-						{/* <HStack spacing={4}>
-							<FormControl isInvalid={!!getFieldError('from')}>
-								<FormLabel fontWeight="semibold">From Time</FormLabel>
-								<TimePicker
-									value={ruleForm.from}
-									onChange={(time) => handleFieldChange('from', time)}
-								/>
-								{getFieldError('from') && (
-									<Text color="red.500" fontSize="sm" mt={1}>
-										{getFieldError('from')}
-									</Text>
-								)}
-							</FormControl>
-
-							<FormControl isInvalid={!!getFieldError('to')}>
-								<FormLabel fontWeight="semibold">To Time</FormLabel>
-								<TimePicker
-									value={ruleForm.to}
-									onChange={(time) => handleFieldChange('to', time)}
-								/>
-								{getFieldError('to') && (
-									<Text color="red.500" fontSize="sm" mt={1}>
-										{getFieldError('to')}
-									</Text>
-								)}
-							</FormControl>
-						</HStack> */}
-
 						<HStack spacing={4} alignItems='flex-start'>
 							<FormControl isInvalid={!!getFieldError('fromMinutes')}>
-								<FormLabel fontWeight='semibold'>From Minutes</FormLabel>
+								<FormLabel fontWeight='semibold' color={colors.labelColor}>From Minutes</FormLabel>
 
 								<NumberInput
 									value={ruleForm.fromMinutes}
@@ -254,13 +195,13 @@ const LateDeductionRuleModal = ({
 								>
 									<NumberInputField
 										placeholder='e.g. 15'
-										borderColor={
-											getFieldError('fromMinutes') ? 'red.300' : 'gray.200'
-										}
+										borderColor={getFieldError('fromMinutes') ? colors.badgeErrorText : colors.borderColor}
+										bg={colors.bgInput}
+										color={colors.headingText}
+										_hover={{ borderColor: colors.accentGold }}
 										_focus={{
-											borderColor: getFieldError('fromMinutes')
-												? 'red.300'
-												: 'brand.500',
+											borderColor: getFieldError('fromMinutes') ? colors.badgeErrorText : colors.accentGold,
+											boxShadow: `0 0 0 1px ${getFieldError('fromMinutes') ? colors.badgeErrorText : colors.accentGold}`,
 										}}
 									/>
 									<NumberInputStepper>
@@ -270,14 +211,14 @@ const LateDeductionRuleModal = ({
 								</NumberInput>
 
 								{getFieldError('fromMinutes') && (
-									<Text color='red.500' fontSize='sm' mt={1}>
+									<Text color={colors.badgeErrorText} fontSize='sm' mt={1}>
 										{getFieldError('fromMinutes')}
 									</Text>
 								)}
 							</FormControl>
 
 							<FormControl isInvalid={!!getFieldError('toMinutes')}>
-								<FormLabel fontWeight='semibold'>To Minutes</FormLabel>
+								<FormLabel fontWeight='semibold' color={colors.labelColor}>To Minutes</FormLabel>
 
 								<NumberInput
 									value={ruleForm.toMinutes}
@@ -292,16 +233,15 @@ const LateDeductionRuleModal = ({
 								>
 									<NumberInputField
 										placeholder='e.g. 60'
-										borderColor={
-											getFieldError('toMinutes') ? 'red.300' : 'gray.200'
-										}
+										borderColor={getFieldError('toMinutes') ? colors.badgeErrorText : colors.borderColor}
+										bg={colors.bgInput}
+										color={colors.headingText}
+										_hover={{ borderColor: colors.accentGold }}
 										_focus={{
-											borderColor: getFieldError('toMinutes')
-												? 'red.300'
-												: 'brand.500',
+											borderColor: getFieldError('toMinutes') ? colors.badgeErrorText : colors.accentGold,
+											boxShadow: `0 0 0 1px ${getFieldError('toMinutes') ? colors.badgeErrorText : colors.accentGold}`,
 										}}
 									/>
-
 									<NumberInputStepper>
 										<NumberIncrementStepper />
 										<NumberDecrementStepper />
@@ -309,7 +249,7 @@ const LateDeductionRuleModal = ({
 								</NumberInput>
 
 								{getFieldError('toMinutes') && (
-									<Text color='red.500' fontSize='sm' mt={1}>
+									<Text color={colors.badgeErrorText} fontSize='sm' mt={1}>
 										{getFieldError('toMinutes')}
 									</Text>
 								)}
@@ -317,19 +257,20 @@ const LateDeductionRuleModal = ({
 						</HStack>
 
 						{formErrors.range && (
-							<Text color='red.500' fontSize='sm' mt={1}>
+							<Text color={colors.badgeErrorText} fontSize='sm' mt={1}>
 								{formErrors.range}
 							</Text>
 						)}
 
 						{ruleForm.fromMinutes !== '' && ruleForm.toMinutes !== '' && (
-							<Text fontSize='sm' color='gray.500'>
+							<Text fontSize='sm' color={colors.mutedText}>
 								Late between <b>{ruleForm.fromMinutes}</b> and{' '}
 								<b>{ruleForm.toMinutes}</b> minutes
 							</Text>
 						)}
+
 						<FormControl isInvalid={!!getFieldError('deduction')}>
-							<FormLabel fontWeight='semibold'>Deduction Percentage</FormLabel>
+							<FormLabel fontWeight='semibold' color={colors.labelColor}>Deduction Percentage</FormLabel>
 							<Input
 								type='number'
 								value={ruleForm.deduction}
@@ -337,15 +278,18 @@ const LateDeductionRuleModal = ({
 								onBlur={() => handleFieldBlur('deduction')}
 								min={0}
 								max={100}
-								borderColor={
-									getFieldError('deduction') ? 'red.300' : 'gray.200'
-								}
-								focusBorderColor={
-									getFieldError('deduction') ? 'red.300' : 'brand.500'
-								}
+								borderColor={getFieldError('deduction') ? colors.badgeErrorText : colors.borderColor}
+								bg={colors.bgInput}
+								color={colors.headingText}
+								_placeholder={{ color: colors.mutedText }}
+								_hover={{ borderColor: colors.accentGold }}
+								_focus={{
+									borderColor: getFieldError('deduction') ? colors.badgeErrorText : colors.accentGold,
+									boxShadow: `0 0 0 1px ${getFieldError('deduction') ? colors.badgeErrorText : colors.accentGold}`,
+								}}
 							/>
 							{getFieldError('deduction') && (
-								<Text color='red.500' fontSize='sm' mt={1}>
+								<Text color={colors.badgeErrorText} fontSize='sm' mt={1}>
 									{getFieldError('deduction')}
 								</Text>
 							)}
@@ -356,9 +300,9 @@ const LateDeductionRuleModal = ({
 				<ModalFooter
 					position='sticky'
 					bottom='0'
-					bg={footerBg}
+					bg={colors.footerBg}
 					borderTop='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.borderColor}
 					py={3}
 					px={5}
 					zIndex='10'
@@ -367,7 +311,6 @@ const LateDeductionRuleModal = ({
 				>
 					<Button
 						variant='outline'
-						colorScheme='gray'
 						size='sm'
 						onClick={handleClose}
 						borderRadius='md'
@@ -375,7 +318,7 @@ const LateDeductionRuleModal = ({
 						Cancel
 					</Button>
 					<Button
-						colorScheme='brand'
+						variant='brand'
 						size='sm'
 						borderRadius='md'
 						onClick={handleSaveRule}

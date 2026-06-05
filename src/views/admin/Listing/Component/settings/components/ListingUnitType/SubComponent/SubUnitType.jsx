@@ -44,7 +44,7 @@ import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { useModalColors } from "hooks/useModalColors";
-import { FiRefreshCw } from "react-icons/fi";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const validationSchema = Yup.object().shape({
   unitType: Yup.string().required("Unit Type is required"),
@@ -62,6 +62,7 @@ const unitTypeValidationSchema = Yup.object().shape({
 });
 
 const SubUnitType = () => {
+  const colors = useModalColors();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -73,8 +74,6 @@ const SubUnitType = () => {
 
   const { createUserLog } = useUserActivityLog();
   const navigate = useNavigate();
-
-  const { headerBg, headerText, footerBg, borderColor } = useModalColors();
 
   const [isUnitTypeModalOpen, setIsUnitTypeModalOpen] = useState(false);
 
@@ -293,7 +292,7 @@ const SubUnitType = () => {
   };
 
   return (
-    <Box overflowY="auto" scrollBehavior="smooth" boxShadow="sm" px={2}>
+    <Box overflowY="auto" scrollBehavior="smooth" bg={colors.bg} p={2} borderRadius="lg" boxShadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
       <AppButton
         ml="2"
         leftIcon={<IoArrowBack />}
@@ -305,8 +304,7 @@ const SubUnitType = () => {
       <Box
         overflowY="auto"
         scrollBehavior="smooth"
-        boxShadow="sm"
-        bg="white"
+        bg={colors.bg}
         px={2}
       >
         <Flex
@@ -319,7 +317,7 @@ const SubUnitType = () => {
           <Text
             fontSize={{ base: "20px", md: "20px" }}
             fontWeight="bold"
-            color="black"
+            color={colors.headingText}
             p={{ base: 1, md: 3 }}
             textAlign={{ base: "left", md: "inherit" }}
             w="100%"
@@ -332,14 +330,13 @@ const SubUnitType = () => {
             w={{ base: "100%", md: "auto" }}
             align={{ base: "stretch", md: "center" }}
           >
-            <IconButton
-              icon={<FiRefreshCw />}
-              aria-label="Refresh Analytics"
-              onClick={() => refetch()}
-              isLoading={isLoading || isFetching}
-              variant="outline"
-              size="sm"
-            />
+            <RefreshButton
+	label="Refresh"
+	onClick={() => refetch()}
+	isLoading={isLoading || isFetching}
+	isFetching={isLoading || isFetching}
+	size="sm"
+/>
             <Button
               size="sm"
               borderRadius={"md"}
@@ -373,18 +370,19 @@ const SubUnitType = () => {
         </Box>
 
         <Box
-          borderRadius="4px"
-          boxShadow="sm"
+          borderRadius="lg"
+          boxShadow={colors.cardShadow}
           borderWidth="1px"
+          borderColor={colors.borderColor}
           overflow="hidden"
           mx={1}
         >
           <Box position="relative" maxH="120vh" overflowY="auto">
-            <Table variant="striped" size="lg">
+            <Table variant="simple" size="lg">
               <Thead
                 position="sticky"
                 top={0}
-                bg="white"
+                bg={colors.bgDeep}
                 zIndex={2}
                 boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
                 fontSize={"16px"}
@@ -392,7 +390,7 @@ const SubUnitType = () => {
               >
                 <Tr>
                   {columns.map((header, index) => (
-                    <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                    <Th key={index} bg={colors.bgDeep} whiteSpace="nowrap" py={4} borderColor={colors.borderColor}>
                       <Box
                         display="flex"
                         alignItems="center"
@@ -401,7 +399,7 @@ const SubUnitType = () => {
                         <Text
                           fontSize={{ base: "12px", md: "14px" }}
                           fontWeight="600"
-                          color="gray.700"
+                          color={colors.headingText}
                         >
                           {header}
                         </Text>
@@ -415,13 +413,15 @@ const SubUnitType = () => {
               ) : (
                 <Tbody>
                   {data?.doc?.map((unitType) => (
-                    <Tr key={unitType._id}>
+                    <Tr key={unitType._id} borderColor={colors.borderColor}>
                       <Td
                         py={4}
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {unitType?.unitType?.name || "N/A"}
                       </Td>
@@ -431,6 +431,8 @@ const SubUnitType = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {unitType.name || "N/A"}
                       </Td>
@@ -440,9 +442,10 @@ const SubUnitType = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        borderColor={colors.borderColor}
                       >
                         <Switch
-                          colorScheme="green"
+                          colorScheme="yellow"
                           isChecked={unitType.status}
                           onChange={() => handleStatusChange(unitType)}
                         />
@@ -453,6 +456,8 @@ const SubUnitType = () => {
                         fontWeight="400"
                         minWidth="100px"
                         textAlign={"center"}
+                        color={colors.bodyText}
+                        borderColor={colors.borderColor}
                       >
                         {new Date(unitType.createdAt).toLocaleDateString()}
                       </Td>
@@ -464,27 +469,24 @@ const SubUnitType = () => {
                         display={"flex"}
                         gap={2}
                         justifyContent={"center"}
+                        borderColor={colors.borderColor}
                       >
                         <IconButton
                           aria-label="Edit"
                           icon={<EditIcon />}
                           size="sm"
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
+                          variant="ghost"
+                          color={colors.accentGold}
+                          _hover={{ bg: colors.bgDeep, color: colors.goldLight }}
                           onClick={() => handleEdit(unitType)}
                         />
                         <IconButton
                           aria-label="Delete"
                           icon={<DeleteIcon />}
                           size="sm"
-                          color={"#c09f5f"}
-                          _hover={{
-                            backgroundColor: "#c09f5f",
-                            color: "white",
-                          }}
+                          variant="ghost"
+                          color={colors.badgeErrorText}
+                          _hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
                           onClick={() => handleDelete(unitType._id)}
                         />
                       </Td>
@@ -494,7 +496,7 @@ const SubUnitType = () => {
               )}
             </Table>
             {!isLoading && !isFetching && data?.doc?.length === 0 && (
-              <Text textAlign="center" color="gray.500" py={6}>
+              <Text textAlign="center" color={colors.mutedText} py={6}>
                 No listing unit types found.
               </Text>
             )}
@@ -504,35 +506,39 @@ const SubUnitType = () => {
 
       {/* Add/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
         <ModalContent
           w={{ base: "95vw", md: "500px" }}
           borderRadius="2xl"
           overflow="hidden"
+          bg={colors.bg}
+          boxShadow={colors.modalShadow}
+          border="1px solid"
+          borderColor={colors.borderColor}
         >
           <ModalHeader
             display="flex"
             align="center"
             justify="space-between"
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             px={6}
             py={3}
             borderBottom="1px solid"
-            borderColor={borderColor}
+            borderColor={colors.borderColor}
             position="sticky"
             top="0"
             zIndex="10"
           >
-            <Text fontSize="lg" fontWeight="bold">
+            <Text fontSize="lg" fontWeight="bold"    color={colors.headerText}>
               {isEditMode ? "Edit Unit Types" : "Add New Unit Types"}
             </Text>
             <ModalCloseButton
               position="absolute"
               right="12px"
               top="10px"
-              color={headerText}
-              _hover={{ bg: "whiteAlpha.200" }}
+              color={colors.headerText}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </ModalHeader>
           <Formik
@@ -550,67 +556,86 @@ const SubUnitType = () => {
                 <ModalBody
                   overflowY="auto"
                   scrollBehavior="smooth"
+                  bg={colors.bg}
                   sx={{
                     "&::-webkit-scrollbar": { width: "6px" },
+                    "&::-webkit-scrollbar-track": { background: colors.bgInput, borderRadius: "10px" },
                     "&::-webkit-scrollbar-thumb": {
-                      background: "#c1c1c1",
+                      background: colors.accentGold,
                       borderRadius: "10px",
                     },
                   }}
                 >
                   <FormControl isInvalid={errors.unitType && touched.unitType}>
-                    <FormLabel>Unit Type</FormLabel>
+                    <FormLabel color={colors.labelColor}>Unit Type</FormLabel>
                     <Select
                       name="unitType"
                       value={values.unitType}
                       onChange={(e) =>
                         setFieldValue("unitType", e.target.value)
                       }
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
                     >
-                      <option value="">Select unit type</option>
+                      <option value="" style={{ background: colors.bg, color: colors.headingText }}>Select unit type</option>
                       {unitTypeData?.doc?.map((type) => (
-                        <option key={type._id} value={type._id}>
+                        <option key={type._id} value={type._id} style={{ background: colors.bg, color: colors.headingText }}>
                           {type.name}
                         </option>
                       ))}
                     </Select>
                     {errors.unitType && touched.unitType && (
-                      <Text color="red.500" fontSize="sm">
+                      <Text color={colors.badgeErrorText} fontSize="sm">
                         {errors.unitType}
                       </Text>
                     )}
                   </FormControl>
 
                   <FormControl mt={4} isInvalid={errors.name && touched.name}>
-                    <FormLabel>Sub Type</FormLabel>
+                    <FormLabel color={colors.labelColor}>Sub Type</FormLabel>
                     <Field
                       as={Input}
                       name="name"
                       placeholder="Enter sub type"
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _placeholder={{ color: colors.mutedText }}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
                     />
                     {errors.name && touched.name && (
-                      <Text color="red.500" fontSize="sm">
+                      <Text color={colors.badgeErrorText} fontSize="sm">
                         {errors.name}
                       </Text>
                     )}
                   </FormControl>
 
                   <FormControl mt={4}>
-                    <FormLabel>Active Status</FormLabel>
+                    <FormLabel color={colors.labelColor}>Active Status</FormLabel>
                     <Switch
                       isChecked={values.status}
                       onChange={(e) =>
                         setFieldValue("status", e.target.checked)
                       }
-                      colorScheme="green"
+                      colorScheme="yellow"
                     />
                   </FormControl>
                 </ModalBody>
 
                 <ModalFooter
-                  bg={footerBg}
+                  bg={colors.footerBg}
                   borderTop="1px solid"
-                  borderColor={borderColor}
+                  borderColor={colors.borderColor}
                   position="sticky"
                   bottom="0"
                   zIndex="10"
@@ -619,13 +644,12 @@ const SubUnitType = () => {
                   justifyContent="flex-end"
                   gap={3}
                 >
-                  <Button onClick={onClose} mr={2} borderRadius="md" size="sm">
+                  <Button onClick={onClose} mr={2} borderRadius="md" size="sm" variant="outline">
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    bg="#d99a36"
-                    color="white"
+                    variant="brand"
                     borderRadius="md"
                     size="sm"
                   >
@@ -644,10 +668,17 @@ const SubUnitType = () => {
         onClose={() => setIsUnitTypeModalOpen(false)}
         isCentered
       >
-        <ModalOverlay />
-        <ModalContent w={{ base: "95vw", md: "500px" }}>
-          <ModalHeader>Create New Unit Type</ModalHeader>
-          <ModalCloseButton />
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+        <ModalContent
+          w={{ base: "95vw", md: "500px" }}
+          bg={colors.bg}
+          borderRadius="2xl"
+          boxShadow={colors.modalShadow}
+          border="1px solid"
+          borderColor={colors.borderColor}
+        >
+          <ModalHeader bg={colors.headerBg} color={colors.headerText}>Create New Unit Type</ModalHeader>
+          <ModalCloseButton color={colors.headerText} _hover={{ bg: colors.closeBtnHoverBg }} />
           <Formik
             initialValues={{ name: "", status: true }}
             validationSchema={unitTypeValidationSchema}
@@ -657,36 +688,45 @@ const SubUnitType = () => {
               <Form>
                 <ModalBody pb={6}>
                   <FormControl isInvalid={errors.name && touched.name}>
-                    <FormLabel>Unit Type Name</FormLabel>
+                    <FormLabel color={colors.labelColor}>Unit Type Name</FormLabel>
                     <Field
                       as={Input}
                       name="name"
                       placeholder="Enter unit type name"
+                      bg={colors.bgInput}
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
+                      _placeholder={{ color: colors.mutedText }}
+                      _hover={{ borderColor: colors.accentGold }}
+                      _focus={{
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                      }}
                     />
                     {errors.name && touched.name && (
-                      <Text color="red.500" fontSize="sm">
+                      <Text color={colors.badgeErrorText} fontSize="sm">
                         {errors.name}
                       </Text>
                     )}
                   </FormControl>
 
                   <FormControl mt={4}>
-                    <FormLabel>Active Status</FormLabel>
+                    <FormLabel color={colors.labelColor}>Active Status</FormLabel>
                     <Switch
                       isChecked={values.status}
                       onChange={(e) =>
                         setFieldValue("status", e.target.checked)
                       }
-                      colorScheme="green"
+                      colorScheme="yellow"
                     />
                   </FormControl>
                 </ModalBody>
 
-                <ModalFooter>
-                  <Button onClick={() => setIsUnitTypeModalOpen(false)} mr={2}>
+                <ModalFooter bg={colors.footerBg} borderTop="1px solid" borderColor={colors.borderColor}>
+                  <Button onClick={() => setIsUnitTypeModalOpen(false)} mr={2} variant="outline">
                     Cancel
                   </Button>
-                  <Button type="submit" bg="#d99a36" color="white">
+                  <Button type="submit" variant="brand">
                     Save
                   </Button>
                 </ModalFooter>

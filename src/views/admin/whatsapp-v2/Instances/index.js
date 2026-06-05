@@ -1,3 +1,4 @@
+
 import { useFetchItemsQuery } from 'api/apiSlice';
 import { useEffect, useState } from 'react';
 import WhatsappCards from './WhatsappCards';
@@ -7,24 +8,29 @@ import {
 	Box,
 	Button,
 	Flex,
+	IconButton,
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
-import { buttonStyle } from 'utils/btn';
 import { Link, useNavigate } from 'react-router-dom';
 import { usePermissions } from 'hooks/usePermissions';
 import CreateInstance from './CreateInstance';
 import { whatsappColors } from 'utils/helpers';
 import { FaPlus } from 'react-icons/fa';
-
-const LIMIT = 10;
+import CustomTooltip from 'components/shared/CustomTooltip';
+import TopPagination from 'components/pagination/TopPagination';
+import { useModalColors } from 'hooks/useModalColors';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const AdminWhatsapp = () => {
+	const colors = useModalColors();
 	const [instances, setInstances] = useState([]);
 	const [selectedInstance, setSelectedInstance] = useState({});
-	const [page, setPage] = useState(1);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [pageSize, setPageSize] = useState(10);
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
+
 	useEffect(() => {
 		if (!hasPermission('whatsapp', 'whatsapp_beta'))
 			return navigate('/default');
@@ -40,7 +46,7 @@ const AdminWhatsapp = () => {
 	const { data, isLoading, isFetching, refetch } = useFetchItemsQuery(
 		{
 			path: 'whatsapp/instances',
-			params: { page, limit: LIMIT },
+			params: { page: currentPage, limit: pageSize },
 		},
 		{
 			refetchOnMountOrArgChange: true,
@@ -54,29 +60,32 @@ const AdminWhatsapp = () => {
 	}, [data?.doc]);
 
 	const totalPages = data?.totalPages || 1;
+	const totalItems = data?.totalItems || 0;
 
+	// Handle page change
+	const handlePageChange = (page) => {
+		setCurrentPage(page);
+	};
+
+	// Handle page size change
+	const handlePageSizeChange = (newSize) => {
+		setPageSize(newSize);
+		setCurrentPage(1);
+	};
+
+	// Refetch when page or pageSize changes
 	useEffect(() => {
 		refetch();
-	}, [page, refetch]);
-
-	const handleNext = () => {
-		if (page < totalPages) setPage((prev) => prev + 1);
-	};
-
-	const handlePrev = () => {
-		if (page > 1) setPage((prev) => prev - 1);
-	};
+	}, [currentPage, pageSize, refetch]);
 
 	const updateInstances = (id, updated) => {
 		setInstances((prev) => {
 			const exists = prev.some((item) => item._id === id);
 			if (exists) {
-				// Update existing instance
 				return prev.map((item) =>
 					item._id === id ? { ...item, ...updated } : item
 				);
 			}
-			// Add new instance if not found
 			return [{ ...updated }, ...prev];
 		});
 	};
@@ -85,66 +94,106 @@ const AdminWhatsapp = () => {
 		setInstances((prev) => prev.filter((item) => item._id !== id));
 	};
 
+	// Handle refresh
+	const handleRefresh = () => {
+		refetch();
+	};
+
 	return (
-		<Box p={6} bg='white' borderRadius='md' boxShadow='sm'>
+		<Box p={6} bg={colors.bg} borderRadius='lg' boxShadow={colors.cardShadow} border='1px solid' borderColor={colors.borderColor}>
 			<Flex
 				flexDir={{ base: 'column', md: 'row' }}
 				justify='space-between'
 				align='center'
 				mb={4}
+				gap={4}
 			>
 				<Flex alignSelf='flex-start' fontSize='lg' fontWeight='bold' gap='2'>
 					<Flex align='center' gap={2}>
-						<Text>Whatsapp Chats</Text>
-						<Badge colorScheme='green' variant='subtle' fontSize='0.7em'>
+						<Text color={colors.headingText}>Whatsapp Chats</Text>
+						<Badge
+							bg={colors.badgeSuccessBg}
+							color={colors.badgeSuccessText}
+							variant='subtle'
+							fontSize='0.7em'
+							px={2}
+							py={1}
+							borderRadius='full'
+						>
 							Beta
 						</Badge>
 					</Flex>
 					<CountUpComponent
 						key={instances?.length}
-						targetNumber={instances?.length}
+						targetNumber={totalItems || 0}
 					/>
 				</Flex>
 
-				<Button
-					alignSelf='flex-end'
-					leftIcon={<FaPlus size='1em' />}
-					colorScheme='whatsapp'
-					_hover={{ bg: whatsappColors.primary }}
-					_active={{ bg: whatsappColors.primary }}
-					size='sm'
-					rounded='md'
-					px={4}
-					shadow='md'
-					onClick={createInstanceOpen}
-				>
-					Create Chat
-				</Button>
-
-				{/* {hasPermission('whatsapp', 'settings') && (
-					<CustomTooltip label='Settings'>
-						<Link to='/whatsapp/settings'>
-							<IconButton
-								icon={<FiSettings />}
-								aria-label='Settings'
-								colorScheme='brand'
-								rounded='full'
-								size='md'
-							/>
-						</Link>
-					</CustomTooltip>
-				)} */}
+				<Flex gap={2} align='center'>
+					<Button
+						leftIcon={<FaPlus size='1em' />}
+						bg={whatsappColors.primary}
+						color='white'
+						_hover={{ bg: whatsappColors.primary }}
+						_active={{ bg: whatsappColors.primary }}
+						size='sm'
+						rounded='md'
+						px={4}
+						shadow='md'
+						onClick={createInstanceOpen}
+					>
+						Create Chat
+					</Button>
+					<RefreshButton
+	label="Refresh"
+	onClick={handleRefresh}
+	isLoading={isLoading}
+	isFetching={isFetching}
+	size="sm"
+/>
+				</Flex>
 			</Flex>
 
-			<WhatsappCards
-				data={instances}
-				updateInstances={updateInstances}
-				removeInstance={removeInstance}
-				isLoading={isLoading}
-				isFetching={isFetching}
-				handleNext={handleNext}
-				handlePrev={handlePrev}
-			/>
+			{/* Top Pagination */}
+			<Box display="flex" flexDirection="column" gap="2">
+				<TopPagination
+					currentPage={currentPage}
+					totalPages={totalPages}
+					onPageChange={handlePageChange}
+					totalItems={totalItems}
+					itemsPerPage={pageSize}
+					handlePageSize={handlePageSizeChange}
+					refetching={isFetching}
+					loading={isLoading}
+					pageLimit={true}
+				/>
+
+				<WhatsappCards
+					data={instances}
+					updateInstances={updateInstances}
+					removeInstance={removeInstance}
+					isLoading={isLoading}
+					isFetching={isFetching}
+				/>
+			</Box>
+
+			{/* Show message when no data */}
+			{!isLoading && instances?.length === 0 && (
+				<Box mt={8} textAlign='center'>
+					<Text color={colors.mutedText}>No WhatsApp instances found</Text>
+					<Button
+						mt={4}
+						leftIcon={<FaPlus />}
+						bg={whatsappColors.primary}
+						color='white'
+						_hover={{ bg: whatsappColors.primary }}
+						size='sm'
+						onClick={createInstanceOpen}
+					>
+						Create your first chat
+					</Button>
+				</Box>
+			)}
 
 			{createInstanceIsOpen && (
 				<CreateInstance
@@ -154,48 +203,6 @@ const AdminWhatsapp = () => {
 					updateInstances={updateInstances}
 					mode='Add'
 				/>
-			)}
-
-			{instances?.length > LIMIT && (
-				<Flex
-					justify='center'
-					align='center'
-					mt={6}
-					maxWidth={{ base: 'full', md: '50%', lg: '25%', xl: '20%' }}
-					mx='auto'
-				>
-					<Button
-						{...buttonStyle}
-						bg='softGray.100'
-						color='gray.800'
-						_active={{ bg: 'gray.200' }}
-						onClick={handlePrev}
-						px={{ base: 2, md: 4, lg: 6 }}
-						isDisabled={page === 1 || isFetching}
-					>
-						Previous
-					</Button>
-					<Text
-						px={{ base: 2, md: 4, lg: 6 }}
-						align='center'
-						fontSize='sm'
-						flex={1}
-					>
-						Page {page} of {totalPages}
-					</Text>
-					<Button
-						{...buttonStyle}
-						bg='softGray.100'
-						color='gray.800'
-						_active={{ bg: 'gray.200' }}
-						shadow='sm'
-						px={{ base: 2, md: 4, lg: 6 }}
-						onClick={handleNext}
-						isDisabled={page === totalPages || isFetching}
-					>
-						Next
-					</Button>
-				</Flex>
 			)}
 		</Box>
 	);

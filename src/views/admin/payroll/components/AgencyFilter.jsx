@@ -13,12 +13,13 @@ import {
 	FormLabel,
 	Flex,
 	Text,
-	useColorModeValue,
 } from '@chakra-ui/react';
 import { useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AgencyFilter = ({ isOpen, onClose, handleFilter, storeKey = '' }) => {
+	const colors = useModalColors();
 	const agencies = useSelector((state) => state.util.agencies || []);
 	const [searchParams] = useSearchParams();
 
@@ -32,18 +33,10 @@ const AgencyFilter = ({ isOpen, onClose, handleFilter, storeKey = '' }) => {
 	}, [isOpen, currentAgency]);
 
 	const handleApplyFilters = () => {
-		// const agencyDetails = agencies?.find((item) => item._id === selectedAgency);
 		handleFilter(selectedAgency);
-
 		storeKey && sessionStorage.setItem(storeKey, selectedAgency);
 		onClose();
 	};
-
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const headerBg = useColorModeValue('brand.300', 'brand.100');
-	const headerText = useColorModeValue('brand.700', 'brand.900');
-	const footerBg = useColorModeValue('gray.50', 'gray.700');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	const isFilterUnchanged = selectedAgency === currentAgency;
 
@@ -57,51 +50,64 @@ const AgencyFilter = ({ isOpen, onClose, handleFilter, storeKey = '' }) => {
 			scrollBehavior='inside'
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
 			<ModalContent
-				bg={bgColor}
+				bg={colors.bg}
 				borderRadius='2xl'
-				shadow='2xl'
+				boxShadow={colors.modalShadow}
 				maxW={{ base: 'full', sm: '90vw', md: '500px' }}
 				overflow='hidden'
 				mx={{ base: 3, md: 0 }}
+				border='1px solid'
+				borderColor={colors.borderColor}
 			>
 				{/* Header */}
-				<ModalHeader p={0} borderBottom='1px solid' borderColor={borderColor}>
+				<ModalHeader p={0} borderBottom='1px solid' borderColor={colors.borderColor}>
 					<Flex
-						bg={headerBg}
-						color={headerText}
+						bg={colors.headerBg}
+						color={colors.headerText}
 						px={6}
 						py={3}
 						position='sticky'
 						top='0'
 						zIndex='10'
-						boxShadow='md'
+						boxShadow='sm'
 					>
-						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
+						<Text 	color={colors.headerText} fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 							Agency Filter
 						</Text>
 						<ModalCloseButton
 							position='absolute'
 							right='12px'
 							top='10px'
-							color={headerText}
-							_hover={{ bg: 'whiteAlpha.200' }}
+							color={colors.headerText}
+							_hover={{ bg: colors.closeBtnHoverBg }}
 						/>
 					</Flex>
 				</ModalHeader>
 
 				{/* Body */}
-				<ModalBody p={5} borderBottom='1px solid' borderColor={borderColor}>
+				<ModalBody p={5} borderBottom='1px solid' borderColor={colors.borderColor} bg={colors.bg}>
 					<FormControl>
-						<FormLabel fontWeight='semibold'>Select Agency</FormLabel>
+						<FormLabel fontWeight='semibold' color={colors.labelColor}>Select Agency</FormLabel>
 						<Select
 							value={selectedAgency}
 							onChange={(e) => setSelectedAgency(e.target.value)}
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_hover={{ borderColor: colors.accentGold }}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						>
 							{agencies?.map((agency) => (
-								<option key={agency._id} value={agency._id}>
+								<option
+									key={agency._id}
+									value={agency._id}
+									style={{ background: colors.bg, color: colors.headingText }}
+								>
 									{agency.name}
 								</option>
 							))}
@@ -113,9 +119,9 @@ const AgencyFilter = ({ isOpen, onClose, handleFilter, storeKey = '' }) => {
 				<ModalFooter
 					position='sticky'
 					bottom='0'
-					bg={footerBg}
+					bg={colors.footerBg}
 					borderTop='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.borderColor}
 					py={3}
 					px={5}
 					zIndex='10'
@@ -124,7 +130,6 @@ const AgencyFilter = ({ isOpen, onClose, handleFilter, storeKey = '' }) => {
 				>
 					<Button
 						variant='outline'
-						colorScheme='gray'
 						size='sm'
 						borderRadius='md'
 						onClick={onClose}
@@ -132,7 +137,7 @@ const AgencyFilter = ({ isOpen, onClose, handleFilter, storeKey = '' }) => {
 						Close
 					</Button>
 					<Button
-						colorScheme='brand'
+						variant='brand'
 						size='sm'
 						borderRadius='md'
 						onClick={handleApplyFilters}

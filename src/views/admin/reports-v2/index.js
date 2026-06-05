@@ -1,4 +1,5 @@
 import { Box, Text } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 import LeadReport from './components/lead-report';
 import CallsRecordGraph from './components/sip';
@@ -10,13 +11,14 @@ import { usePermissions } from 'hooks/usePermissions';
 import OrganizationalChart from './components/team-strucuture/OrganizationalChart';
 
 const Reports = () => {
+	const colors = useModalColors();
 	const { hasPermission } = usePermissions();
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (!hasPermission('reports')) return navigate('/default');
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
 	const teamData = {
 		teamLeaders: [
 			{
@@ -88,17 +90,27 @@ const Reports = () => {
 	};
 
 	return (
-		<Box>
-			<Box mx='2' bg='white' p='6' rounded='lg' shadow='sm' mb='6'>
+		<Box bg={colors.bgDeep} minH='100vh' p={4}>
+			<Box
+				mx='2'
+				bg={colors.bg}
+				p='6'
+				rounded='lg'
+				shadow={colors.cardShadow}
+				mb='6'
+				border="1px solid"
+				borderColor={colors.borderColor}
+			>
 				<Text
 					fontSize={{ base: 'md', md: 'lg', lg: '2xl', xl: '3xl' }}
 					fontWeight='bold'
 					mb='2'
+					color={colors.headingText}
 				>
 					Reports Overview
 				</Text>
 				<Text
-					color='gray.600'
+					color={colors.bodyText}
 					fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
 					maxWidth={{ base: '100%', md: '1000px' }}
 				>

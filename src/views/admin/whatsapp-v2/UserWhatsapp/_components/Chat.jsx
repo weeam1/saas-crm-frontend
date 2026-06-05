@@ -56,7 +56,7 @@ const Chat = ({ chatId, sessionId }) => {
 		if (chat.profilePicture) {
 			return {
 				src: activeChat?.profilePicture,
-				name: activeChat?.name,
+				name: activeChat.name,
 			};
 		}
 
@@ -68,7 +68,7 @@ const Chat = ({ chatId, sessionId }) => {
 		}
 
 		return {
-			name: activeChat?.name || activeChat?.id,
+			name: activeChat.name,
 			bg: 'green.500',
 			color: 'white',
 		};

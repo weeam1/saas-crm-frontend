@@ -22,11 +22,12 @@ import BrandLogo from 'assets/logo/logo.png';
 import { useParams } from 'react-router-dom';
 import { useFetchItemsQuery } from 'api/apiSlice';
 import Loader from 'components/loading/Loader';
+import useUserSession from 'hooks/useUserSession';
 
 const Payslip = () => {
 	const componentRef = useRef();
 	const { userId } = useParams();
-
+const {agencyName,agencyLogo}=useUserSession()
 	const { data: payrollData, isLoading: payrollLoading } = useFetchItemsQuery(
 		{
 			path: `/payroll/user/${userId}`,
@@ -80,7 +81,7 @@ const Payslip = () => {
 									h='120px'
 								>
 									<Image
-										src={BrandLogo}
+										src={agencyLogo}
 										alt='Company Logo'
 										objectFit='contain'
 										maxH='80px'
@@ -90,7 +91,7 @@ const Payslip = () => {
 								{/* Company & Title */}
 								<VStack spacing={3} align='center' textAlign='center'>
 									<Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight='bold'>
-										WEEAM REAL ESTATE - {data?.agency?.name}
+										{agencyName} - {data?.agency?.name}
 									</Text>
 									<Text fontSize='lg' opacity={0.9}>
 										Official Salary Statement

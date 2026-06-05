@@ -11,7 +11,6 @@ import {
 	Text,
 	Center,
 	Tooltip,
-	useDisclosure,
 } from '@chakra-ui/react';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import NoData from 'components/Message/NoData';
@@ -20,37 +19,6 @@ import { leadStatus, mainLeadStatus } from 'utils/options';
 import { analyticsColumnDescriptions } from '../helpers';
 import { useEffect, useState } from 'react';
 
-// const SortableHeader = ({ column, children, sortConfig, onSort }) => {
-// 	const isActive = sortConfig.key === column;
-// 	const direction = isActive ? sortConfig.direction : null;
-
-// 	return (
-// 		<Th
-// 			onClick={() => onSort(column)}
-// 			cursor='pointer'
-// 			userSelect='none'
-// 			whiteSpace='nowrap'
-// 			textTransform='capitalize'
-// 			fontSize='md'
-// 			py='4'
-// 			fontWeight='semibold'
-// 			color={isActive ? 'blue.600' : 'gray.700'}
-// 			_hover={{ color: 'blue.500', bg: 'gray.100' }}
-// 			transition='all 0.2s ease-in-out'
-// 		>
-// 			<Flex align='center' justify='space-between' gap={2}>
-// 				<Text>{children}</Text>
-// 				{isActive && (
-// 					<Icon
-// 						as={direction === 'asc' ? ChevronUpIcon : ChevronDownIcon}
-// 						boxSize={4}
-// 					/>
-// 				)}
-// 			</Flex>
-// 		</Th>
-// 	);
-// };
-
 const SortableHeader = ({ column, children, sortConfig, onSort, category }) => {
 	const isActive = sortConfig.key === column;
 	const direction = isActive ? sortConfig.direction : null;
@@ -58,25 +26,20 @@ const SortableHeader = ({ column, children, sortConfig, onSort, category }) => {
 	// Tooltip message — dynamic based on column or category
 	const tooltipLabel = (
 		<Box>
-			<Text fontWeight='semibold' color='gray.200' mb={1}>
+			<Text fontWeight='semibold' color='text.heading' mb={1}>
 				Column: {children}
 			</Text>
-			<Text
-				fontSize='sm'
-				color='gray.300'
-				whiteSpace='pre-line'
-				// whiteSpace='normal'
-			>
+			<Text fontSize='sm' color='text.muted' whiteSpace='pre-line'>
 				{analyticsColumnDescriptions[column] ||
 					'No description available for this column.'}
 			</Text>
 
 			{category && (
 				<Box mt={2}>
-					<Text fontWeight='semibold' color='gray.200'>
+					<Text fontWeight='semibold' color='text.heading'>
 						Current Category:
 					</Text>
-					<Text color='blue.300' fontSize='sm'>
+					<Text color='text.accent' fontSize='sm'>
 						{category}
 					</Text>
 				</Box>
@@ -84,10 +47,10 @@ const SortableHeader = ({ column, children, sortConfig, onSort, category }) => {
 
 			{isActive && (
 				<Box mt={2}>
-					<Text fontWeight='semibold' color='gray.200'>
+					<Text fontWeight='semibold' color='text.heading'>
 						Sorted:
 					</Text>
-					<Text color='gray.300' fontSize='sm'>
+					<Text color='text.muted' fontSize='sm'>
 						{direction === 'asc'
 							? 'Ascending (Low → High)'
 							: 'Descending (High → Low)'}
@@ -101,34 +64,45 @@ const SortableHeader = ({ column, children, sortConfig, onSort, category }) => {
 		<Tooltip
 			label={tooltipLabel}
 			hasArrow
-			bg='gray.800'
-			color='white'
-			borderRadius='md'
+			bg='bg.surface'
+			color='text.body'
+			borderRadius='lg'
 			p={3}
 			placement='top'
 			openDelay={150}
 			closeDelay={100}
+			border='1px solid'
+			borderColor='border.default'
 		>
 			<Th
 				onClick={() => onSort(column)}
 				cursor='pointer'
 				userSelect='none'
 				whiteSpace='nowrap'
-				textTransform='capitalize'
-				fontSize='md'
+			textTransform='none'
+				fontSize='xs'
 				py='4'
+				px={3}
 				fontWeight='semibold'
-				color={isActive ? 'blue.600' : 'gray.700'}
-				_hover={{ color: 'blue.500', bg: 'gray.100' }}
+				letterSpacing='wider'
+
+				bg='bg.app'
+				borderBottom='1px solid'
+				borderColor='border.default'
+				_hover={{
+					color: 'text.accent',
+					bg: 'bg.elevated'
+				}}
 				transition='all 0.2s ease-in-out'
-				minW={column === 'name' ? '200px' : '50px'}
+				minW={column === 'name' ? '200px' : '100px'}
 			>
 				<Flex align='center' justify='space-between' gap={2}>
-					<Text>{children}</Text>
+					<Text color={'text.heading'}>{children}</Text>
 					{isActive && (
 						<Icon
 							as={direction === 'asc' ? ChevronUpIcon : ChevronDownIcon}
-							boxSize={4}
+							boxSize={3}
+							color='text.accent'
 						/>
 					)}
 				</Flex>
@@ -153,15 +127,13 @@ export const LeadAnalyticsTable = ({
 		{ key: 'notInterestedLeads', label: 'Not Int.' },
 		{ key: 'dealConversionRate', label: 'Deal %' },
 		{ key: 'avgNotesPerLead', label: 'Avg Notes' },
-
 		{ key: 'newLeadsToday', label: 'Fresh Today' },
 		{ key: 'newLeadsThisWeek', label: 'Fresh Week' },
 		{ key: 'newLeadsThisMonth', label: 'Fresh Month' },
-		{ key: 'todayLeads', label: 'Today’s Leads' },
+		{ key: 'todayLeads', label: 'Today\'s Leads' },
 		{ key: 'currentWeekLeads', label: 'This Week' },
 		{ key: 'currentMonthLeads', label: 'This Month' },
 		{ key: 'prevMonthLeads', label: 'Last Month' },
-		// { key: 'leadGrowthRate', label: 'Growth %' },
 		{ key: 'leadsAssignedToManagers', label: 'Managers' },
 		{ key: 'leadsAssignedToAgents', label: 'Agents' },
 		{ key: 'unassignedLeads', label: 'Unassigned' },
@@ -174,10 +146,8 @@ export const LeadAnalyticsTable = ({
 		let timer;
 
 		if (isLoading) {
-			// instantly show loading
 			setDelayedLoading(true);
 		} else {
-			// delay hiding the loader by 1s for smoother UX
 			timer = setTimeout(() => {
 				setDelayedLoading(false);
 			}, 1000);
@@ -190,18 +160,13 @@ export const LeadAnalyticsTable = ({
 		selectedCategoryLabel === 'Main Status'
 			? mainLeadStatus
 			: selectedCategoryLabel === 'Lead Status'
-				? leadStatus
-				: null;
+			? leadStatus
+			: null;
 
 	const formatValue = (key, value) => {
 		if (['dealConversionRate', 'leadGrowthRate'].includes(key)) {
 			return `${value}%`;
 		}
-
-		// if (key === 'avgNotesPerLead') {
-		// 	return Math.round(value);
-		// }
-
 		return value;
 	};
 
@@ -209,15 +174,13 @@ export const LeadAnalyticsTable = ({
 		<Box
 			overflowX='auto'
 			overflowY='auto'
-			maxH='calc(100vh - 200px)'
-			borderWidth='1px'
-			borderColor='gray.200'
-			rounded='xl'
-			boxShadow='sm'
-			bg='white'
+			      maxHeight="70vh"
+      minH="70vh"
+			borderRadius='xl'
+			bg='bg.app'
 		>
-			<Table variant='simple' size='md'>
-				<Thead bg='gray.100' position='sticky' top={0} zIndex={1}>
+			<Table variant='simple' size='md' borderWidth='1px' borderColor='border.default'>
+				<Thead position='sticky' top={0} zIndex={1}>
 					<Tr>
 						{columns.map((column) => (
 							<SortableHeader
@@ -248,13 +211,13 @@ export const LeadAnalyticsTable = ({
 						data.map((row, index) => (
 							<Tr
 								key={index}
-								_hover={{ bg: 'gray.50' }}
-								bg={index % 2 === 0 ? 'white' : 'gray.25'}
+								_hover={{ bg: 'bg.elevated' }}
+								bg={'bg.surface' }
 								transition='background-color 0.2s ease-in-out'
 							>
 								{columns.map((column, i) => {
 									const matchedStatus = currentCategoryLeadStatus?.find(
-										(i) => i.value === row[column.key]
+										(item) => item.value === row[column.key]
 									);
 									const displayValue =
 										matchedStatus?.label ||
@@ -273,9 +236,10 @@ export const LeadAnalyticsTable = ({
 											whiteSpace='normal'
 											fontSize='sm'
 											textAlign={i === 0 ? 'left' : 'center'}
-											borderColor='gray.200'
-											fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
-											color='gray.700'
+											borderBottom='1px solid'
+											borderColor='border.subtle'
+											fontWeight={column.key === 'name' ? 'semibold' : 'normal'}
+											color='text.body'
 										>
 											{displayValue}
 										</Td>

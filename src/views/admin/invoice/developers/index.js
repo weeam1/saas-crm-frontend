@@ -8,6 +8,7 @@ import { HasAccess } from '../../../../redux/accessUtils';
 import CheckTable from '../components/CheckTable';
 import AppButton from 'components/shared/AppButton';
 import { IoArrowBack } from 'react-icons/io5';
+import useUserSession from 'hooks/useUserSession';
 
 const Developers = () => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -18,9 +19,8 @@ const Developers = () => {
 	const [searchedData, setSearchedData] = useState([]);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [committedSearchTerm, setCommittedSearchTerm] = useState('');
-	const user = JSON.parse(localStorage.getItem('user')) || {};
-	const role =
-		user?.role === 'superAdmin' ? 'superAdmin' : user?.roles?.[0]?.roleName;
+	const { user, userRoleName: role } = useUserSession();
+
 	const tree = useSelector((state) => state.user.tree);
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -33,17 +33,17 @@ const Developers = () => {
 
 	const tableColumns = useMemo(
 		() => [
-			{ Header: 'Date', accessor: 'createdAt' },
 			{ Header: 'Developer', accessor: 'developer_name' },
 			{ Header: 'Email', accessor: 'email' },
 			{ Header: 'Trn', accessor: 'trn' },
 			{ Header: 'Address', accessor: 'address' },
 			{ Header: 'Country', accessor: 'country' },
-			{Header: 'Contact', accessor : 'contact'},
+			{ Header: 'Date', accessor: 'createdAt' },
+			{ Header: 'Contact', accessor: 'contact' },
 			{ Header: 'Action', isSortable: false, center: true },
 			// { Header: "Status", accessor: "status" },
 		],
-		[]
+		[],
 	);
 
 	const roleColumns = {
@@ -52,10 +52,10 @@ const Developers = () => {
 	};
 
 	const [dynamicColumns, setDynamicColumns] = useState(
-		roleColumns[role] || tableColumns
+		roleColumns[role] || tableColumns,
 	);
 	const [selectedColumns, setSelectedColumns] = useState(
-		roleColumns[role] || tableColumns
+		roleColumns[role] || tableColumns,
 	);
 	const [action, setAction] = useState(false);
 	const [dateTime, setDateTime] = useState({ from: '', to: '' });
@@ -77,7 +77,7 @@ const Developers = () => {
 		error: agencyError,
 	} = useFetchItemsQuery(
 		{ path: `/agencies` },
-		{ refetchOnMountOrArgChange: true, skip: !user._id }
+		{ refetchOnMountOrArgChange: true, skip: !user._id },
 	);
 
 	const {
@@ -86,7 +86,7 @@ const Developers = () => {
 		error,
 		refetch: developersRefetch,
 		isUninitialized,
-		isFetching
+		isFetching,
 	} = useFetchItemsQuery(queryArgs, {
 		skip: !user._id,
 		refetchOnMountOrArgChange: true,
@@ -159,9 +159,9 @@ const Developers = () => {
 	const dataColumn = useMemo(
 		() =>
 			dynamicColumns.filter((item) =>
-				selectedColumns.some((col) => col.Header === item.Header)
+				selectedColumns.some((col) => col.Header === item.Header),
 			),
-		[dynamicColumns, selectedColumns]
+		[dynamicColumns, selectedColumns],
 	);
 
 	const fetchData = ({
@@ -199,13 +199,8 @@ const Developers = () => {
 	}, [queryArgs]);
 
 	return (
-		<Box>
-			<Grid
-				fontFamily="'DM Sans', sans-serif"
-				templateColumns='repeat(6, 1fr)'
-				mb={3}
-				gap={4}
-			>
+		<Box bg='bg.surface' rounded='xl' boxShadow='card'>
+			<Grid templateColumns='repeat(6, 1fr)' mb={3} gap={4}>
 				<GridItem colSpan={6}>
 					<CheckTable
 						dateTime={dateTime}
@@ -241,8 +236,8 @@ const Developers = () => {
 						selectedAgency={selectedAgency}
 						setSelectedAgency={setSelectedAgency}
 						role={role}
-						refetch ={developersRefetch}
-						isFetching = {isFetching}
+						refetch={developersRefetch}
+						isFetching={isFetching}
 					/>
 				</GridItem>
 			</Grid>

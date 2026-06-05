@@ -3,7 +3,6 @@ import {
 	Heading,
 	Button,
 	Grid,
-	useColorModeValue,
 	HStack,
 	Flex,
 	IconButton,
@@ -25,6 +24,7 @@ import PermissionSkeletonLoading from 'views/admin/userPermission/components/Per
 import { FiChevronLeft } from 'react-icons/fi';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { LuRotateCcw } from 'react-icons/lu';
+import { useModalColors } from 'hooks/useModalColors';
 
 const getUserPermission = (user) => {
 	return user?.roles?.[0]?.permissions || [];
@@ -35,22 +35,19 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 	const added = [];
 	const removed = [];
 
-	// 🔹 Check for added & modified modules
 	newModules.forEach((newModule) => {
 		const oldModule = oldPermissions.find(
 			(m) => m.moduleId === newModule.moduleId,
 		);
 
 		if (!oldModule) {
-			// ✅ New module added with all its actions
 			if (newModule.isModuleEnabled) {
 				added.push({
 					...newModule,
-					addedActions: [...newModule.actions], // all actions considered added
+					addedActions: [...newModule.actions],
 				});
 			}
 		} else {
-			// ✅ Compare existing module for modifications
 			const addedActions = [];
 			const removedActions = [];
 			const modifiedActions = [];
@@ -65,7 +62,6 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 				newActionsMap[a.actionKey] = a;
 			});
 
-			// 🔹 Find added & modified actions
 			newModule.actions.forEach((a) => {
 				if (!oldActionsMap[a.actionKey]) {
 					addedActions.push(a);
@@ -74,14 +70,12 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 				}
 			});
 
-			// 🔹 Find removed actions
 			oldModule.actions.forEach((a) => {
 				if (!newActionsMap[a.actionKey]) {
 					removedActions.push(a);
 				}
 			});
 
-			// 🔹 If anything changed at all
 			if (
 				oldModule.moduleName !== newModule.moduleName ||
 				addedActions.length > 0 ||
@@ -98,7 +92,6 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 		}
 	});
 
-	// 🔹 Check for removed modules
 	oldPermissions.forEach((oldModule) => {
 		const stillExists = newModules.find(
 			(m) => m.moduleId === oldModule.moduleId,
@@ -106,7 +99,7 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 		if (!stillExists) {
 			removed.push({
 				...oldModule,
-				removedActions: [...oldModule.actions], // all actions removed
+				removedActions: [...oldModule.actions],
 			});
 		}
 	});
@@ -115,13 +108,8 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 }
 
 const Permission = () => {
+	const colors = useModalColors();
 	const { id: userId } = useParams();
-	const borderColor = useColorModeValue('brand.300', 'brand.500');
-	const cardBg = useColorModeValue('white', 'gray.800');
-	const disabledBorderColor = useColorModeValue('gray.300', 'gray.600');
-	const disabledTextColor = useColorModeValue('gray.500', 'gray.400');
-	const sectionBg = useColorModeValue('brand.50', 'gray.700');
-
 	const navigate = useNavigate();
 	const [searchTerm, setSearchTerm] = useState('');
 	const [modules, setModules] = useState([]);
@@ -172,10 +160,8 @@ const Permission = () => {
 			setModules(mergedModules);
 			setOriginalModules(JSON.parse(JSON.stringify(mergedModules)));
 
-			// Delay before setting loading false
 			const timeout = setTimeout(() => setLoading(false), 2000);
-
-			return () => clearTimeout(timeout); // cleanup on re-run/unmount
+			return () => clearTimeout(timeout);
 		}
 	}, [RolePermission, userData]);
 
@@ -201,18 +187,15 @@ const Permission = () => {
 		setModules(updatedModules);
 	};
 
-	// Radio selection for leadpool modules only
 	const handleRadioSelect = (selectedModuleId) => {
 		setModules((prevModules) =>
 			prevModules.map((module) => {
 				if (module.moduleId.toLowerCase().includes('leadpool')) {
-					// enforce radio: only the selected leadpool is true
 					return {
 						...module,
 						isModuleEnabled: module.moduleId === selectedModuleId,
 					};
 				}
-				// non-leadpool modules stay unchanged
 				return module;
 			}),
 		);
@@ -291,8 +274,7 @@ const Permission = () => {
 	);
 
 	return (
-		<>
-			{/* Back Button */}
+		<Box bg={colors.bgDeep} minH='100vh' p={4}>
 			<IconButton
 				aria-label='Go back'
 				icon={<FiChevronLeft />}
@@ -300,17 +282,22 @@ const Permission = () => {
 				size='md'
 				isRound
 				mb={2}
+				variant='ghost'
+				color={colors.bodyText}
+				_hover={{
+					color: colors.accentGold,
+					bg: colors.secondaryBtnHoverBg,
+				}}
 			/>
 
-			<Box borderRadius='xl' boxShadow='lg' bg={cardBg} p={6}>
-				{/* Header */}
+			<Box borderRadius='xl' boxShadow={colors.modalShadow} bg={colors.bg} p={6} border="1px solid" borderColor={colors.borderColor}>
 				<Stack
 					flexDir={{ base: 'column', md: 'row' }}
 					justifyContent='space-between'
 					alignItems='center'
 					mb={6}
 				>
-					<Heading size='md' color='brand.600'>
+					<Heading size='md' color={colors.headingText}>
 						User Permissions
 					</Heading>
 					<CustomTooltip label='Revert custom permission override'>
@@ -318,15 +305,19 @@ const Permission = () => {
 							aria-label='Revert to role permissions'
 							onClick={() => handleUpdatePermission({ isDeleted: true })}
 							size='sm'
-							variant='outline'
+							variant='ghost'
 							leftIcon={<LuRotateCcw />}
+							color={colors.bodyText}
+							_hover={{
+								color: colors.accentGold,
+								bg: colors.secondaryBtnHoverBg,
+							}}
 						>
 							Revert to Default
 						</Button>
 					</CustomTooltip>
 				</Stack>
 
-				{/* Permission Cards */}
 				{loadingRole || loadingUser || loading ? (
 					<Box>
 						<Grid
@@ -341,16 +332,11 @@ const Permission = () => {
 					</Box>
 				) : filteredModules?.length > 0 ? (
 					<>
-						{/* <LeadpoolSelector modules={modules} setModules={setModules} /> */}
 						<Grid
 							templateColumns={{ base: '1fr', xl: 'repeat(2, 1fr)' }}
 							gap={6}
 							mx='auto'
 							alignItems='start'
-							// h='65vh'
-							// p='2'
-							// overflow='scroll'
-							// scrollBehavior='smooth'
 						>
 							<Grid gap={6}>
 								{filteredModules
@@ -367,15 +353,12 @@ const Permission = () => {
 													key={module.moduleId}
 													module={module}
 													moduleIndex={originalIndex}
-													borderColor={borderColor}
-													disabledBorderColor={disabledBorderColor}
-													disabledTextColor={disabledTextColor}
+													colors={colors}
 													handleModuleToggle={handleModuleToggle}
 													handleSelectAll={handleSelectAll}
 													handleActionToggle={handleActionToggle}
 												/>
 
-												{/* Render LeadpoolSelector after the leads module */}
 												{isLeadsModule && (
 													<LeadpoolSelector
 														modules={modules}
@@ -387,7 +370,6 @@ const Permission = () => {
 									})}
 							</Grid>
 
-							{/* Right Column */}
 							<Grid gap={6}>
 								{filteredModules
 									.filter((_, index) => index % 2 !== 0)
@@ -402,9 +384,7 @@ const Permission = () => {
 													key={module.moduleId}
 													module={module}
 													moduleIndex={originalIndex}
-													borderColor={borderColor}
-													disabledBorderColor={disabledBorderColor}
-													disabledTextColor={disabledTextColor}
+													colors={colors}
 													handleModuleToggle={handleModuleToggle}
 													handleSelectAll={handleSelectAll}
 													handleActionToggle={handleActionToggle}
@@ -421,16 +401,16 @@ const Permission = () => {
 							</Grid>
 						</Grid>
 
-						{/* Save Button */}
 						<HStack
 							justify='flex-end'
 							mt={8}
 							pt={4}
 							borderTopWidth='1px'
-							borderColor='gray.200'
+							borderColor={colors.borderColor}
 						>
 							<Button
-								colorScheme='brand'
+								bg={colors.accentGold}
+								color={colors.headerText}
 								onClick={handleUpdatePermission}
 								borderRadius='md'
 								_focus={{ boxShadow: 'none' }}
@@ -438,6 +418,13 @@ const Permission = () => {
 								isLoading={isUpdating}
 								size='lg'
 								px={8}
+								_hover={{
+									bg: colors.goldLight,
+									transform: 'translateY(-1px)',
+									boxShadow: colors.goldGlow,
+								}}
+								_active={{ bg: colors.goldDark }}
+								transition='all 0.2s ease'
 							>
 								Update Permission
 							</Button>
@@ -451,7 +438,7 @@ const Permission = () => {
 					)
 				)}
 			</Box>
-		</>
+		</Box>
 	);
 };
 

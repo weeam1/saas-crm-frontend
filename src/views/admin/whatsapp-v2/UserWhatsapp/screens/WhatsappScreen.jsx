@@ -14,7 +14,7 @@ import {
   useDisclosure,
   IconButton,
 } from "@chakra-ui/react";
-
+import {useUserSession} from "hooks/useUserSession"
 import WhatsappQRLogin from "../_components/WhatsappQRLogin";
 import WAConnectionSuccess from "../_components/WAConnectionSuccess";
 import ChatList from "../_components/ChatList";
@@ -31,7 +31,7 @@ const CHATS_LIMIT_PER_PAGE = 30;
 
 const WhatsappScreen = ({ sessionId, loadingChats }) => {
   const [selectedChat, setSelectedChat] = useState(null);
-
+const {agencyLogo}=useUserSession()
   const [fetchingChats, setFetchingChats] = useState(false);
   const [page, setPage] = useState(1);
   const [categroy, setCategory] = useState("all");
@@ -75,7 +75,7 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
     logoutWhatsapp(sessionId);
     navigate("/");
   };
-
+const {agencyName}=useUserSession()
   // ---- State Handling ----
   const renderContent = () => {
     // Usage
@@ -91,7 +91,6 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
     // 		/>
     // 	);
     // }
-
     if (!loadingChats && isReady && allConversations?.length > 0) {
       return (
         <Flex h="95%" bg="white" color="gray.700" rounded="md">
@@ -183,7 +182,7 @@ const WhatsappScreen = ({ sessionId, loadingChats }) => {
                 color="gray.800"
               >
                 {/* Illustration */}
-                <Image src={BrandLogo} alt="Weam CRM" maxW="60px" mb={6} />
+                <Image src={agencyLogo} alt={agencyName ? `${agencyName} CRM` : "Weam CRM"} maxW="60px" mb={6} />
                 {/* Title */}
                 <Text fontSize="xl" fontWeight="medium" mb={2}>
                   Manage Your Customer Chats Seamlessly

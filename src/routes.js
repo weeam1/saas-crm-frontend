@@ -26,8 +26,9 @@ import { FaCreativeCommonsBy } from 'react-icons/fa';
 import { MdCampaign } from 'react-icons/md';
 import { FaClipboardUser, FaSquarePlus } from 'react-icons/fa6';
 
-import { ROLE_PATH } from './roles';
-import TakeSurvey from 'views/admin/survey/TakeSurvey';
+import { ROLE_PATH } from "./roles";
+import TakeSurvey from "views/admin/survey/TakeSurvey";
+import { RiBillLine ,RiPlugLine } from "react-icons/ri";
 
 // ========================== Lazy Imports ==========================
 // Dashboard
@@ -38,6 +39,15 @@ const LeadScreen = React.lazy(() => import('views/admin/lead-v2'));
 const LeadPoolAdmin = React.lazy(() => import('views/admin/leadAdmin'));
 const LeadPoolAgent = React.lazy(() => import('views/admin/leadPool-v2'));
 const DealsScreen = React.lazy(() => import('views/admin/deals'));
+const EvaluationScreen = React.lazy(
+	() => import('views/admin/evalution/EvaluationLayout'),
+);
+const IntegrationsGuide = React.lazy(() => import("views/admin/integerations/index"));
+const LeadsIntegration = React.lazy(() => import("views/admin/integerations/LeadsIntegeration"));
+const ListingsIntegration = React.lazy(() => import("views/admin/integerations/ListingIntegerations"));
+const FinanceScreen = React.lazy(
+	() => import('views/admin/finance/FinanceLayout'),
+);
 const SharedDealsScreen = React.lazy(
 	() => import('views/admin/deals/SharedDealsScreen'),
 );
@@ -82,6 +92,12 @@ const InterviewedRound = React.lazy(
 // Attendance
 const AttendanceV2 = React.lazy(
 	() => import('views/admin/attendance/AttendenceV2'),
+);
+const SipLeaderboard = React.lazy(
+	() => import('views/admin/sip/component/LeaderBoard/index'),
+);
+const SipMyRecordings = React.lazy(
+	() => import('views/admin/sip/component/MyRecordings/index'),
 );
 const AttendanceDashboard = React.lazy(
 	() => import('views/admin/attendance/components/dashboard'),
@@ -139,6 +155,7 @@ const EditEvaluationForm = React.lazy(
 const EvaluateSettings = React.lazy(
 	() => import('views/admin/evalution/settings/index'),
 );
+const Teams = React.lazy(() => import('views/admin/evalution/teams/index'));
 
 // Finance
 const IncomingCash = React.lazy(
@@ -224,6 +241,10 @@ const SubUnitType = React.lazy(
 		),
 );
 
+const SecretConfiguration = React.lazy(
+	() => import('views/admin/adminSetting/secretConfig/index'),
+);
+
 // Survey
 const Survey = React.lazy(() => import('views/admin/survey'));
 const LeaderBoard = React.lazy(() => import('views/admin/survey/LeaderBoard'));
@@ -260,6 +281,9 @@ const WhatsappSettings = React.lazy(
 const WhatsappTemplates = React.lazy(
 	() => import('views/admin/whatsapp/WhatsappSettings/Templates'),
 );
+const EvaluationTemplates = React.lazy(
+	() => import('views/admin/evalution/evaluation-templates/index'),
+);
 const CreateWhatsappTemplate = React.lazy(
 	() =>
 		import(
@@ -285,6 +309,13 @@ const TableField = React.lazy(() => import('views/admin/tableField'));
 const ChangeImage = React.lazy(() => import('views/admin/image'));
 const Validation = React.lazy(() => import('views/admin/validation'));
 const LeadSetting = React.lazy(() => import('views/admin/leadSetting'));
+const LeadsSetting = React.lazy(() => import('views/admin/leadsSetting/index'));
+const LeadInvitation = React.lazy(
+	() => import('views/admin/leadsSetting/components/qrCode/index'),
+);
+const LeadStatus = React.lazy(
+	() => import('views/admin/leadsSetting/components/leadStatus/index'),
+);
 const Agency = React.lazy(() => import('views/admin/agencies'));
 const OfficeSettings = React.lazy(
 	() => import('views/admin/agencies/OfficeSetting'),
@@ -310,7 +341,7 @@ const SharedSipRecording = React.lazy(
 );
 const Announcement = React.lazy(() => import('views/admin/announcement'));
 const CreateAnnouncement = React.lazy(
-	() => import('views/admin/announcement/components/CreateAnnouncement'),
+	() => import('views/admin/announcement/components/v2/CreateAnnouncement'),
 );
 const AnnouncementHistory = React.lazy(
 	() => import('views/admin/announcement/components/History'),
@@ -358,6 +389,34 @@ const routes = [
 	},
 	{
 		parent: 'leads',
+		// childId: "leads_setting",
+		name: 'Setting',
+		name: 'Settings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/lead_setting',
+		path: '/lead_settings',
+		component: LeadsSetting,
+	},
+	{
+		parent: 'leads',
+		// childId: "qr_settings",
+		name: 'Lead Invitation',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/leads-settings/lead-invitation',
+		path: '/lead_settings/invitation',
+		component: LeadInvitation,
+	},
+	{
+		parent: 'leads',
+		// childId: "qr_settings",
+		name: 'Lead Status',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/leads-settings/lead-status',
+		path: '/lead_settings/status',
+		component: LeadStatus,
+	},
+	{
+		parent: 'leads',
 		childId: 'lead_analytics',
 		name: 'Lead',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -366,7 +425,7 @@ const routes = [
 	},
 	{
 		parent: 'leads',
-		childId: 'call_feedbacks',
+		// childId: "call_feedbacks",
 		name: 'Call Feedback',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/call-feedback',
@@ -604,7 +663,7 @@ const routes = [
 	// ********** Payrol routes ************** //
 	{
 		parent: 'payroll',
-		childId: 'salaried_users',
+		// childId: "salaried_users",
 
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
@@ -613,7 +672,7 @@ const routes = [
 	},
 	{
 		parent: 'payroll',
-		childId: 'commission_users',
+		// childId: "commission_users",
 		name: 'Payroll',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/payroll/commission-users',
@@ -643,7 +702,14 @@ const routes = [
 		path: '/payroll/my-payslip',
 		component: UserPayroll,
 	},
-
+	{
+		moduleId: 'evaluation',
+		name: 'Evalution',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/evaluation',
+		icon: <Icon as={FaHandshake} width='20px' height='20px' color='inherit' />,
+		component: EvaluationScreen,
+	},
 	{
 		parent: 'evaluation',
 		childId: 'evaluation_users',
@@ -694,8 +760,36 @@ const routes = [
 		parentName: 'evaluation',
 		component: EvaluateSettings,
 	},
+	{
+		parent: 'evaluation',
+		// childId: "templates",
+		name: 'Templates',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/templates',
+		parentName: 'evaluation',
+		component: EvaluationTemplates,
+	},
+	{
+		parent: 'evaluation',
+		// childId: "teams",
+		name: 'Teams',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		under: 'evaluation',
+		path: '/evaluation/teams',
+		parentName: 'evaluation',
+		component: Teams,
+	},
 
 	//****** Finance routes *********//
+	{
+		moduleId: 'expense',
+		name: 'Expense',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/finance',
+		icon: <Icon as={FaHandshake} width='20px' height='20px' color='inherit' />,
+		component: FinanceScreen,
+	},
 	{
 		parent: 'expense',
 		childId: 'incoming_cash',
@@ -716,24 +810,39 @@ const routes = [
 		parentName: 'finance',
 		component: OutgoingCash,
 	},
+	// {
+	//   parent: "expense",
+	//   childId: "employee_loans",
+	//   name: "Employee Loans",
+	//   layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	//   under: "finance",
+	//   path: "/employee-loans",
+	//   parentName: "finance",
+	//   component: EmployeeLoans,
+	// },
+	// {
+	//   parent: "expense",
+	//   childId: "employee_loans",
+	//   name: "Employee Loan Details",
+	//   layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+	//   under: "finance",
+	//   path: "/employee-loans/:id",
+	//   parentName: "finance",
+	//   component: EmployeeLoanDetails,
+	// },
 	{
-		parent: 'expense',
-		childId: 'employee_loans',
+		moduleId: 'employee_loans',
 		name: 'Employee Loans',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'finance',
-		path: '/finance/employee-loans',
-		parentName: 'finance',
+		path: '/employee-loans',
+		icon: <Icon as={RiBillLine} width='20px' height='20px' color='inherit' />,
 		component: EmployeeLoans,
 	},
 	{
-		parent: 'expense',
-		childId: 'employee_loans',
+		parent: 'employee_loans',
 		name: 'Employee Loan Details',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		under: 'finance',
-		path: '/finance/employee-loans/:id',
-		parentName: 'finance',
+		path: '/employee-loans/:id',
 		component: EmployeeLoanDetails,
 	},
 	{
@@ -776,15 +885,45 @@ const routes = [
 		component: AddEntry,
 	},
 
-	// -----------------------------Admin setting-------------------------------------
-	{
-		name: 'Admin Setting',
-		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
-		parentName: 'admin',
-		under: 'admin',
-		path: '/admin-setting',
-		component: AdminSetting,
-	},
+  // -----------------------------Admin setting-------------------------------------
+  {
+    name: "Admin Setting",
+    layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+    parentName: "admin",
+    under: "admin",
+    path: "/admin-setting",
+    component: AdminSetting,
+  },
+    {
+        moduleId: 'admin_settings',
+        name: 'Configuration',
+        layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+        path: '/admin-setting/configuration',
+        under: 'admin-setting',
+        component: SecretConfiguration,
+    },
+  {
+  // moduleId: "integrations",
+  name: "Integrations",
+  layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  path: "/admin-setting/integrations",
+  under: "admin",
+  component: IntegrationsGuide,
+},
+{
+  // moduleId: "integrations",
+  name: "Leads Integration",
+  layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  path: "/admin-setting/integrations/leads",
+  component: LeadsIntegration,
+},
+{
+  // moduleId: "integrations",
+  name: "Listings Integration",
+  layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+  path: "/admin-setting/integrations/listings",
+  component: ListingsIntegration,
+},
 
 	// ------------- Task Routes ------------------------
 	{
@@ -915,6 +1054,24 @@ const routes = [
 		path: '/sip/history',
 		under: 'Sip',
 		component: SipHistory,
+	},
+	{
+		parent: 'sip',
+		// childId: 'leaderboard',
+		name: 'Leaderboard',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/leaderboard',
+		under: 'Sip',
+		component: SipLeaderboard,
+	},
+		{
+		parent: 'sip',
+		childId: 'my_recordings',
+		name: 'My Recordings',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/sip/my-recordings',
+		under: 'Sip',
+		component: SipMyRecordings,
 	},
 	{
 		childId: 'user_settings',
@@ -1282,6 +1439,7 @@ const routes = [
 	},
 
 	// ------------- Roles Routes ------------------------
+
 	{
 		moduleId: 'admin_settings',
 		name: 'Roles',
@@ -1607,8 +1765,16 @@ const routes = [
 		name: 'Office Settings',
 		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
 		path: '/office-settings/:id',
-		under: 'office-settings',
+		under: '-settings',
 		component: OfficeSettings,
+	},
+	{
+		moduleId: 'admin_settings',
+		name: 'Configuration',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/admin-setting/configuration',
+		under: 'admin-setting',
+		component: SecretConfiguration,
 	},
 	// ========================== auth layout ==========================
 	{

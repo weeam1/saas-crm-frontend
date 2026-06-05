@@ -22,7 +22,6 @@ import {
 	Badge,
 } from '@chakra-ui/react';
 import {
-	FiRefreshCw,
 	FiEye,
 	FiEdit2,
 	FiUsers,
@@ -36,6 +35,7 @@ import { useFetchItemsQuery, useCreateItemMutation } from 'api/apiSlice';
 import TopPagination from 'components/pagination/TopPagination';
 import AdvancedSearchModal from './components/AdvancedSearchModal';
 import ActiveFiltersDisplay from './components/ActiveFiltersDisplay';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const UserEvaluation = () => {
 	const [mergedData, setMergedData] = useState([]);
@@ -259,17 +259,16 @@ const UserEvaluation = () => {
 					User Evaluations
 				</Text>
 				<HStack spacing={2} mt={{ base: 2, md: 0 }}>
-					<IconButton
-						icon={<FiRefreshCw />}
-						aria-label='Refresh'
-						variant='outline'
-						size='sm'
-						onClick={() => {
-							refetchUsers();
-							refetchEvaluations();
-						}}
-						isLoading={isLoading}
-					/>
+					<RefreshButton
+	label="Refresh"
+	onClick={() => {
+		refetchUsers();
+		refetchEvaluations();
+	}}
+	isLoading={isLoading}
+	isFetching={isLoading}
+	size="sm"
+/>
 					<Button
 						colorScheme='brand'
 						size='sm'

@@ -34,8 +34,12 @@ import {
   useDeleteItemMutation,
   useUpdateItemMutation,
 } from "api/apiSlice";
+import { useModalColors } from "hooks/useModalColors";
+import RefreshButton from "components/refresh/RefreshButton";
+import CustomTooltip from "components/shared/CustomTooltip";
 
 const ListingStatus = () => {
+  const colors = useModalColors();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -149,6 +153,7 @@ const ListingStatus = () => {
     setIsEditMode(false);
     setCurrentStatus(null);
   };
+
   const handleStatusChange = async (type) => {
     try {
       const newStatus = !type.status;
@@ -166,32 +171,45 @@ const ListingStatus = () => {
       );
     }
   };
+
   return (
     <Box
-      boxShadow="sm"
-      bg="white"
+      boxShadow={colors.cardShadow}
+      bg={colors.bg}
       px={2}
       marginTop={"-16px"}
       marginLeft={"-4px"}
+      borderRadius="lg"
+      border="1px solid"
+      borderColor={colors.borderColor}
     >
       <Flex justifyContent="space-between" alignItems="center" p={3}>
-        <Text fontSize="20px" fontWeight="bold" color="black" p={3}>
+        <Text fontSize="20px" fontWeight="bold" color={colors.headingText} p={3}>
           Listing Statuses
         </Text>
-        <Button
-          size="sm"
-          borderRadius={"md"}
-          variant="brand"
-          leftIcon={<AddIcon />}
-          py={3}
-          px={6}
-          onClick={() => {
-            resetForm();
-            onOpen();
-          }}
-        >
-          Add New
-        </Button>
+        <Flex alignItems={"center"} gap={2}>
+          <Button
+            size="sm"
+            borderRadius={"md"}
+            variant="brand"
+            leftIcon={<AddIcon />}
+            py={3}
+            px={6}
+            onClick={() => {
+              resetForm();
+              onOpen();
+            }}
+          >
+            Add New
+          </Button>
+          <RefreshButton
+	label="Refresh"
+	onClick={() => refetch()}
+	isLoading={isLoading || isFetching}
+	isFetching={isLoading || isFetching}
+	size="sm"
+/>
+        </Flex>
       </Flex>
 
       <Box mx={1} mb={1}>
@@ -209,17 +227,18 @@ const ListingStatus = () => {
       </Box>
 
       <Box
-        borderRadius="4px"
-        boxShadow="sm"
+        borderRadius="lg"
+        boxShadow={colors.cardShadow}
         borderWidth="1px"
+        borderColor={colors.borderColor}
         overflow="hidden"
       >
         <Box position="relative" maxH="120vh" overflowY="auto">
-          <Table variant="striped" size="lg">
+          <Table variant="simple" size="lg">
             <Thead
               position="sticky"
               top={0}
-              bg="white"
+              bg={colors.bgDeep}
               zIndex={2}
               boxShadow="0px 2px 8px rgba(0, 0, 0, 0.1)"
               fontSize={"16px"}
@@ -227,7 +246,7 @@ const ListingStatus = () => {
             >
               <Tr>
                 {columns.map((header, index) => (
-                  <Th key={index} bg="brand.200" whiteSpace="nowrap" py={4}>
+                  <Th key={index} bg={colors.bgDeep} whiteSpace="nowrap" py={4} borderColor={colors.borderColor}>
                     <Box
                       display="flex"
                       alignItems="center"
@@ -236,7 +255,7 @@ const ListingStatus = () => {
                       <Text
                         fontSize={{ base: "12px", md: "14px" }}
                         fontWeight="600"
-                        color="gray.700"
+                        color={colors.headingText}
                       >
                         {header}
                       </Text>
@@ -250,13 +269,15 @@ const ListingStatus = () => {
             ) : (
               <Tbody>
                 {data?.doc?.map((status) => (
-                  <Tr key={status._id}>
+                  <Tr key={status._id} borderColor={colors.borderColor}>
                     <Td
                       py={4}
                       fontSize={{ base: "12px", md: "14px" }}
                       fontWeight="400"
                       minWidth="100px"
                       textAlign={"center"}
+                      color={colors.bodyText}
+                      borderColor={colors.borderColor}
                     >
                       {status.name || "N/A"}
                     </Td>
@@ -266,9 +287,10 @@ const ListingStatus = () => {
                       fontWeight="400"
                       minWidth="100px"
                       textAlign={"center"}
+                      borderColor={colors.borderColor}
                     >
                       <Switch
-                        colorScheme="green"
+                        colorScheme="yellow"
                         isChecked={status.status}
                         onChange={() => handleStatusChange(status)}
                       />
@@ -279,6 +301,8 @@ const ListingStatus = () => {
                       fontWeight="400"
                       minWidth="100px"
                       textAlign={"center"}
+                      color={colors.bodyText}
+                      borderColor={colors.borderColor}
                     >
                       {new Date(status.createdAt).toLocaleDateString()}
                     </Td>
@@ -290,21 +314,24 @@ const ListingStatus = () => {
                       display={"flex"}
                       gap={2}
                       justifyContent={"center"}
+                      borderColor={colors.borderColor}
                     >
                       <IconButton
                         aria-label="Edit"
                         icon={<EditIcon />}
                         size="sm"
-                        color={"#c09f5f"}
-                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        variant="ghost"
+                        color={colors.accentGold}
+                        _hover={{ bg: colors.bgDeep, color: colors.goldLight }}
                         onClick={() => handleEdit(status)}
                       />
                       <IconButton
                         aria-label="Delete"
                         icon={<DeleteIcon />}
                         size="sm"
-                        color={"#c09f5f"}
-                        _hover={{ backgroundColor: "#c09f5f", color: "white" }}
+                        variant="ghost"
+                        color={colors.badgeErrorText}
+                        _hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
                         onClick={() => handleDelete(status._id)}
                       />
                     </Td>
@@ -314,49 +341,58 @@ const ListingStatus = () => {
             )}
           </Table>
           {!isLoading && !isFetching && data?.doc?.length === 0 && (
-            <Text textAlign="center" color="gray.500" py={6}>
+            <Text textAlign="center" color={colors.mutedText} py={6}>
               No listing statuses found.
             </Text>
           )}
         </Box>
       </Box>
+
       {/* Add/Edit Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
+        <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
+        <ModalContent bg={colors.bg} borderRadius="2xl" boxShadow={colors.modalShadow} border="1px solid" borderColor={colors.borderColor}>
+          <ModalHeader bg={colors.headerBg} color={colors.headerText} borderTopRadius="2xl">
             {isEditMode ? "Edit Status" : "Add New Status"}
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton color={colors.headerText} _hover={{ bg: colors.closeBtnHoverBg }} />
           <ModalBody pb={6}>
             <FormControl>
-              <FormLabel>Name</FormLabel>
+              <FormLabel color={colors.labelColor}>Name</FormLabel>
               <Input
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 placeholder="Enter status name"
+                bg={colors.bgInput}
+                borderColor={colors.borderColor}
+                color={colors.headingText}
+                _placeholder={{ color: colors.mutedText }}
+                _hover={{ borderColor: colors.accentGold }}
+                _focus={{
+                  borderColor: colors.accentGold,
+                  boxShadow: `0 0 0 1px ${colors.accentGold}`,
+                }}
               />
             </FormControl>
 
             <FormControl mt={4}>
-              <FormLabel>Active Status</FormLabel>
+              <FormLabel color={colors.labelColor}>Active Status</FormLabel>
               <Switch
                 name="status"
                 isChecked={formData.status}
                 onChange={handleInputChange}
-                colorScheme="green"
+                colorScheme="yellow"
               />
             </FormControl>
           </ModalBody>
 
-          <ModalFooter>
+          <ModalFooter bg={colors.footerBg} borderTop="1px solid" borderColor={colors.borderColor}>
             <Button
               variant="outline"
-              bg="#e2e8f0"
               size="md"
               w="100px"
-              borderRadius="3px"
+              borderRadius="md"
               mr={2}
               onClick={() => {
                 onClose();
@@ -366,10 +402,9 @@ const ListingStatus = () => {
               Cancel
             </Button>
             <Button
-              bg="#d99a36"
-              color="white"
+              variant="brand"
               w="100px"
-              borderRadius="3px"
+              borderRadius="md"
               size="md"
               onClick={handleSubmit}
             >

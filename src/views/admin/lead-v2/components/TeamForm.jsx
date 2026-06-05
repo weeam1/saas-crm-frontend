@@ -104,7 +104,7 @@ const TeamForm = ({
 							ms='4px'
 							fontSize='sm'
 							fontWeight='600'
-							color='#000'
+							color='text.body'
 							mb='0'
 							mt={2}
 						>
@@ -142,7 +142,7 @@ const TeamForm = ({
 							ms='4px'
 							fontSize='sm'
 							fontWeight='600'
-							color='#000'
+							color='text.body'
 							mb='0'
 							mt={2}
 						>
@@ -182,7 +182,7 @@ const TeamForm = ({
 							ms='4px'
 							fontSize='sm'
 							fontWeight='600'
-							color='#000'
+							color='text.body'
 							mb='0'
 							mt={2}
 						>
@@ -227,7 +227,7 @@ const TeamForm = ({
 						ms='4px'
 						fontSize='sm'
 						fontWeight='600'
-						color='#000'
+						color='text.body'
 						mb='0'
 						mt={2}
 					>
@@ -269,7 +269,7 @@ const TeamForm = ({
 						ms='4px'
 						fontSize='sm'
 						fontWeight='600'
-						color='#000'
+						color='text.body'
 						mb='0'
 						mt={2}
 					>

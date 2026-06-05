@@ -11,7 +11,6 @@ const InfoSection = ({ lead }) => {
 	const infoFields = [
 		{ key: 'nationality', label: 'Nationality', value: lead?.nationality },
 		{ key: 'budget', label: 'Budget', value: lead?.budget },
-		// { key: 'adset', label: 'Adset', value: lead?.adset },
 		{
 			key: 'timetocall',
 			label: 'Time to Call',
@@ -24,25 +23,11 @@ const InfoSection = ({ lead }) => {
 			label: 'Placement',
 			value: lead?.leadSourceMedium,
 		},
-		// { key: 'leadSourceMedium', label: 'Medium', value: lead?.leadSourceMedium },
 		{
 			key: 'attendanceDay',
 			label: 'Attendance Day',
 			value: lead?.attendanceDay,
 		},
-		// {
-		// 	key: 'leadLang',
-		// 	label: 'Lead Lang',
-		// 	value: lead?.leadLang,
-		// },
-		// {
-		// 	key: 'r_u_in_uae',
-		// 	label: 'In UAE?',
-		// 	value:
-		// 		typeof lead?.r_u_in_uae === 'object'
-		// 			? lead?.r_u_in_uae?.text
-		// 			: lead?.r_u_in_uae,
-		// },
 	];
 
 	const visibleInfoFields = infoFields.filter(
@@ -51,7 +36,7 @@ const InfoSection = ({ lead }) => {
 
 	return (
 		<Box>
-			<Text fontSize={leadlabelFontSize} color='gray.400' mb={1}>
+			<Text fontSize={leadlabelFontSize} color='text.muted' mb={1}>
 				Info
 			</Text>
 			<Box width='fit-content'>

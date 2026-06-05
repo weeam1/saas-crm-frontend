@@ -1,4 +1,4 @@
-import { SimpleGrid } from '@chakra-ui/react';
+import { Box, SimpleGrid } from '@chakra-ui/react';
 import useUserSession from 'hooks/useUserSession';
 
 import NoData from 'components/Message/NoData';
@@ -17,7 +17,7 @@ const DealCards = ({
 	const { user, isSuperAdmin } = useUserSession();
 
 	return (
-		<>
+		 <Box minH='70vh'>
 			{isLoading || isRefetching ? (
 				<CardShimmer
 					count={12}
@@ -75,7 +75,7 @@ const DealCards = ({
 			) : (
 				<NoData label='users' />
 			)}
-		</>
+		</Box>
 	);
 };
 

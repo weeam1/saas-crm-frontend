@@ -24,6 +24,7 @@ import MessageViewModal from 'components/modals/MessageViewModal';
 import { LuStickyNote } from 'react-icons/lu';
 import { usePermissions } from 'hooks/usePermissions';
 import useUserSession from 'hooks/useUserSession';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AttendanceTable = ({
 	attendanceRecord,
@@ -32,6 +33,7 @@ const AttendanceTable = ({
 	isFetching,
 	refetch,
 }) => {
+	const colors = useModalColors();
 	const [note, setNote] = useState({
 		title: 'Message',
 		message: 'N/A',
@@ -70,27 +72,6 @@ const AttendanceTable = ({
 		onClose: onEditClose,
 	} = useDisclosure();
 
-	const getStatusConfig = (entry) => {
-		const base = ATTENDANCE_STATUS_CONFIG[entry.status];
-
-		if (!base) {
-			return {
-				bg: '#F0F0F0',
-				text: '#000',
-				label: 'Unknown',
-			};
-		}
-
-		// handle leave variants
-		if (entry.status === 3) {
-			const type = entry.leaveType?.toLowerCase();
-
-			return base.variants?.[type] || base.variants?.default || base;
-		}
-
-		return base;
-	};
-
 	const handleEdit = (data) => {
 		setEditData(data);
 		onEditOpen();
@@ -103,25 +84,26 @@ const AttendanceTable = ({
 				overflowY='auto'
 				scrollBehavior='smooth'
 				borderRadius='md'
-				boxShadow='sm'
+				boxShadow={colors.cardShadow}
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
-				{/* <Box overflowX='auto'> */}
-				<Table variant='striped' size='sm' bg='white' minWidth='100%'>
+				<Table variant='simple' size='sm' bg={colors.bg} minWidth='100%'>
 					<Thead
 						position='sticky'
 						top={0}
-						bg='white'
+						bg={colors.bgDeep}
 						zIndex={2}
 						boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
 					>
 						<Tr>
 							{filterdColumns?.map((header, index) => (
-								<Th key={index} bg='brand.200' whiteSpace='nowrap' py={4}>
+								<Th key={index} bg={colors.bgDeep} whiteSpace='nowrap' py={4}>
 									<Box display='flex' alignItems='center'>
 										<Text
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='600'
-											color='gray.700'
+											color={colors.headingText}
 											textTransform='capitalize'
 										>
 											{header}
@@ -136,18 +118,11 @@ const AttendanceTable = ({
 							<TableLoading columns={filterdColumns} length={11} py='4' />
 						) : attendanceRecord?.length > 0 ? (
 							attendanceRecord?.map((entry, index) => {
-								// let textColor = 'black';
-								// let rowBgGradient = 'none';
-								// let statusBgColor = 'transparent';
-								// let statusText = '';
-
-								// const baseConfig = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
-								// 	bg: '#F0F0F0',
-								// 	text: '#000',
-								// 	label: 'Unknown',
-								// };
-
-								const config = getStatusConfig(entry);
+								const config = ATTENDANCE_STATUS_CONFIG[entry.status] ?? {
+									bg: colors.bgInput,
+									text: colors.bodyText,
+									label: 'Unknown',
+								};
 
 								const {
 									bg: statusBgColor,
@@ -159,13 +134,12 @@ const AttendanceTable = ({
 								return (
 									<Tr
 										key={entry._id}
-										_hover={{ bg: 'gray.50' }}
+										_hover={{ bg: colors.bgInputHover }}
 										borderBottom={
 											index === attendanceRecord.length - 1
 												? 'none'
-												: '1px solid'
+												: `1px solid ${colors.borderColor}`
 										}
-										borderColor='gray.200'
 										bgGradient={rowBgGradient}
 										py='4'
 									>
@@ -173,6 +147,7 @@ const AttendanceTable = ({
 											borderBottom='none'
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
+											color={colors.bodyText}
 										>
 											{++index}
 										</Td>
@@ -181,6 +156,7 @@ const AttendanceTable = ({
 											fontSize={{ base: '12px', md: '15px' }}
 											fontWeight='500'
 											minWidth='100px'
+											color={colors.bodyText}
 										>
 											{moment.tz(timezone).day(entry.day).format('dddd')}
 										</Td>
@@ -189,6 +165,7 @@ const AttendanceTable = ({
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 											minWidth='100px'
+											color={colors.bodyText}
 										>
 											{entry.type ?? 'N/A'}
 										</Td>
@@ -197,10 +174,11 @@ const AttendanceTable = ({
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 											minWidth='100px'
+											color={colors.bodyText}
 										>
 											{entry.agencyName ?? 'N/A'}
 										</Td>
-										<Td borderBottom='none' py={4} minWidth='150px'>
+										<Td borderBottom='none' py={4} minWidth='150px' color={colors.bodyText}>
 											{format(new Date(entry.date), 'd MMM, yyyy')}
 										</Td>
 										<Td borderBottom='none' py={4} minWidth='160px'>
@@ -215,19 +193,17 @@ const AttendanceTable = ({
 												minWidth='fit-content'
 												mr={2}
 											>
-												{/* {entry?.status === 3 && entry?.leaveType
+												{entry?.status === 3 && entry?.leaveType
 													? entry.leaveType.charAt(0).toUpperCase() +
 														entry.leaveType.slice(1) +
 														' ' +
 														statusText
-													: statusText} */}
-
-												{statusText}
+													: statusText}
 											</Box>
 										</Td>
 										<Td
 											borderBottom='none'
-											color={entry.checkIn === '00:00' ? 'red.500' : 'blue.500'}
+											color={entry.checkIn === '00:00' ? colors.badgeErrorText : colors.accentGold}
 											minWidth='100px'
 										>
 											{entry.checkin ?? 'N/A'}
@@ -236,7 +212,7 @@ const AttendanceTable = ({
 											borderBottom='none'
 											minWidth='100px'
 											color={
-												entry.earlyCheckoutMinutes > 0 ? 'red.500' : 'blue.500'
+												entry.earlyCheckoutMinutes > 0 ? colors.badgeErrorText : colors.accentGold
 											}
 										>
 											{entry.checkout ?? 'N/A'}
@@ -246,6 +222,7 @@ const AttendanceTable = ({
 											fontSize={{ base: '12px', md: '14px' }}
 											fontWeight='400'
 											minWidth='120px'
+											color={colors.bodyText}
 										>
 											{[0, 3].includes(entry.status)
 												? '0m'
@@ -257,17 +234,21 @@ const AttendanceTable = ({
 													: 'Pending'}
 										</Td>
 										{actionPermission && (
-											<Td py={4} minWidth='100px'>
+											<Td borderBottom='none' py={4} minWidth='100px'>
 												{hasPermission('attendance', 'update') && (
 													<IconButton
 														rounded='full'
-														aria-label='Leave note'
+														aria-label='Edit attendance'
 														icon={<FaEdit />}
 														size='xs'
-														colorScheme='green'
-														variant='solid'
+														variant='ghost'
 														mr='1'
 														onClick={() => handleEdit(entry)}
+														color={colors.bodyText}
+														_hover={{
+															color: colors.accentGold,
+															bg: colors.secondaryBtnHoverBg,
+														}}
 													/>
 												)}
 
@@ -284,14 +265,18 @@ const AttendanceTable = ({
 																		aria-label='Leave note'
 																		icon={<LuStickyNote />}
 																		size='xs'
-																		colorScheme='teal'
-																		variant='solid'
+																		variant='ghost'
 																		onClick={() => {
 																			setNote({
 																				message: entry.leaveNote,
 																				title: 'Leave Note',
 																				modal: true,
 																			});
+																		}}
+																		color={colors.bodyText}
+																		_hover={{
+																			color: colors.accentGold,
+																			bg: colors.secondaryBtnHoverBg,
 																		}}
 																	/>
 																</Tooltip>
@@ -307,14 +292,18 @@ const AttendanceTable = ({
 																		aria-label='Absent note'
 																		icon={<LuStickyNote />}
 																		size='xs'
-																		colorScheme='teal'
-																		variant='solid'
+																		variant='ghost'
 																		onClick={() => {
 																			setNote({
 																				message: entry.absentNote,
 																				title: 'Absent Note',
 																				modal: true,
 																			});
+																		}}
+																		color={colors.bodyText}
+																		_hover={{
+																			color: colors.accentGold,
+																			bg: colors.secondaryBtnHoverBg,
 																		}}
 																	/>
 																</Tooltip>
@@ -331,14 +320,18 @@ const AttendanceTable = ({
 																		aria-label='Check-In note'
 																		icon={<LuStickyNote />}
 																		size='xs'
-																		colorScheme='teal'
-																		variant='solid'
+																		variant='ghost'
 																		onClick={() => {
 																			setNote({
 																				message: entry?.checkinNote,
 																				title: 'Check-In Note',
 																				modal: true,
 																			});
+																		}}
+																		color={colors.bodyText}
+																		_hover={{
+																			color: colors.accentGold,
+																			bg: colors.secondaryBtnHoverBg,
 																		}}
 																	/>
 																</Tooltip>
@@ -351,14 +344,14 @@ const AttendanceTable = ({
 								);
 							})
 						) : (
-							<Tr borderColor='gray.200' textAlign='center'>
+							<Tr borderColor={colors.borderColor} textAlign='center'>
 								<Td
 									borderBottom='none'
 									colSpan='10'
 									py='12'
 									fontSize={{ base: '12px', md: '15px' }}
 									fontWeight='500'
-									color='gray.500'
+									color={colors.mutedText}
 									textAlign='center'
 								>
 									<NoData label='attendance record' />
@@ -367,9 +360,8 @@ const AttendanceTable = ({
 						)}
 					</Tbody>
 				</Table>
-				{/* </Box> */}
 
-				<Divider color='#D5D9DD' mb={4} />
+				<Divider borderColor={colors.borderColor} mb={4} />
 			</Box>
 
 			{isEditOpen && (

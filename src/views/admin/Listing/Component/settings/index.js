@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Box } from '@chakra-ui/react';
 import TabNavigationDisplay from "../../../../../components/TabNavigationDisplay/TabNavigationDisplay";
 import ListingUnitTypes from "./components/ListingUnitType/index";
 import ListingTypes from "./components/ListingTypes";
+import { useModalColors } from 'hooks/useModalColors';
 
 const DEFAULT_TAB = "unit-types";
 
 const ListingSettings = () => {
+  const colors = useModalColors();
   const [searchParams, setSearchParams] = useSearchParams();
   const [tabKey, setTabKey] = useState(0);
   const tabsData = [
@@ -51,20 +54,20 @@ const ListingSettings = () => {
   };
 
   return (
-    <>
-      {/* <AppButton
-        ml="2"
-        leftIcon={<IoArrowBack />}
-        onClick={() => navigate("/listing")}
-      >
-        Back
-      </AppButton> */}
+    <Box
+      bg={colors.bg}
+      borderRadius="lg"
+      boxShadow={colors.cardShadow}
+      border="1px solid"
+      borderColor={colors.borderColor}
+      p={6}
+    >
       <TabNavigationDisplay
         tabsData={tabsData}
         activeTab={activeTabIndex}
         onTabChange={handleTabChange}
       />
-    </>
+    </Box>
   );
 };
 

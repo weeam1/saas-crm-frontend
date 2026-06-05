@@ -5,8 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import UserAvatar from 'components/shared/UserAvatar';
 import { setActiveChat } from '../../../../redux/whatsappSlice';
 import { formatLastMessageTime } from 'utils/helpers';
+import { useModalColors } from 'hooks/useModalColors';
 
 const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
+	const colors = useModalColors();
 	const activeChat = useSelector((state) => state.whatsapp.activeChat || null);
 
 	const dispatch = useDispatch();
@@ -27,10 +29,10 @@ const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 							cursor='pointer'
 							bg={
 								activeChat?.phoneNumber === user?.phoneNumber
-									? 'rgba(0, 0, 0, 0.08)'
+									? colors.bgDeep
 									: 'transparent'
 							}
-							_hover={{ bg: 'rgba(0, 0, 0, 0.05)' }}
+							_hover={{ bg: colors.bgInput }}
 							onClick={() => {
 								handleActiveChat(user);
 							}}
@@ -43,19 +45,6 @@ const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 									size='md'
 									mr={3}
 								/>
-								{/* {user.status === 'online' && (
-									<Box
-										position='absolute'
-										bottom='0'
-										right='3'
-										w='12px'
-										h='12px'
-										bg='green.500'
-										borderRadius='full'
-										border='2px solid'
-										borderColor={sidebarBg}
-									/>
-								)} */}
 							</Box>
 							<Box flex='1' overflow='hidden'>
 								<Flex
@@ -66,7 +55,7 @@ const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 										fontWeight='bold'
 										isTruncated
 										maxW='50%'
-										color='#111B21'
+										color={colors.headingText}
 									>
 										{user?.name === 'Unknown' || !user?.name
 											? user.phoneNumber
@@ -74,19 +63,19 @@ const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 									</Text>
 									<Text
 										fontSize='xs'
-										color={user.unreadCount > 0 ? 'whatsapp.600' : '#667781'}
+										color={user.unreadCount > 0 ? colors.accentGold : colors.mutedText}
 									>
 										{formatLastMessageTime(user.lastMessageAt)}
 									</Text>
 								</Flex>
 								<Flex justify='space-between' mt={1}>
-									<Text fontSize='sm' color='#667781' isTruncated maxW='80%'>
+									<Text fontSize='sm' color={colors.mutedText} isTruncated maxW='80%'>
 										{user.lastMessage}
 									</Text>
 									{user.unreadCount > 0 && (
 										<Box
-											bg='whatsapp.600'
-											color='white'
+											bg={colors.accentGold}
+											color={colors.headerText}
 											minW='22px'
 											h='22px'
 											fontSize={{ base: 'xs', md: 'sm' }}
@@ -102,7 +91,7 @@ const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 								</Flex>
 							</Box>
 						</Flex>
-						<Divider borderColor='gray.300' />
+						<Divider borderColor={colors.borderColor} />
 					</React.Fragment>
 				))
 			) : (
@@ -113,19 +102,9 @@ const UserList = ({ contacts, isMobile, onClose, sidebarBg }) => {
 					p={6}
 					h='30vh'
 				>
-					<Text fontSize='lg' fontWeight='medium' color='gray.600'>
+					<Text fontSize='lg' fontWeight='medium' color={colors.mutedText}>
 						No contacts found
 					</Text>
-
-					{/* <Button
-						colorScheme='whatsapp'
-						size='md'
-						px={6}
-						py={4}
-						onClick={handleAddContact}
-					>
-						Add Contact
-					</Button> */}
 				</VStack>
 			)}
 		</Box>

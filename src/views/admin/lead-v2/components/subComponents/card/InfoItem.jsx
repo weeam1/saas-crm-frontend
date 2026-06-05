@@ -1,9 +1,8 @@
-import { Flex, Text, Icon, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Text, Icon } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import { leadIconSize, leadlabelFontSize } from '../../constants';
 import CustomTooltip from 'components/shared/CustomTooltip';
 import { safeValue } from 'utils';
-// import CustomTooltip from '../CustomTooltip';
 
 const InfoItem = ({
 	label,
@@ -13,10 +12,6 @@ const InfoItem = ({
 	iconProps = {},
 	...rest
 }) => {
-	// Optional color mode styling
-	const labelColor = useColorModeValue('gray.800', 'gray.300');
-	const iconBg = useColorModeValue('blue.100', 'blue.700');
-
 	let displayText = safeValue(value) || 'N/A';
 
 	try {
@@ -32,7 +27,7 @@ const InfoItem = ({
 			<Text
 				fontWeight='medium'
 				fontSize={leadlabelFontSize}
-				color={labelColor}
+				color='text.muted'
 				mr={2}
 				{...labelProps}
 			>
@@ -44,8 +39,9 @@ const InfoItem = ({
 				<Icon
 					as={InfoIcon}
 					boxSize={leadIconSize}
-					color='blue.300'
+					color='text.accent'
 					cursor='pointer'
+					_hover={{ color: 'accent.goldLight' }}
 					{...iconProps}
 				/>
 			</CustomTooltip>

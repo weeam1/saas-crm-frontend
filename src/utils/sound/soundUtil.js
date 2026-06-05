@@ -2,6 +2,26 @@ class SoundPlayer {
 	constructor() {
 		this.audioCache = new Map();
 		this.currentlyPlaying = new Map();
+		this.audioUnlocked = false;
+
+		this.unlockAudio = this.unlockAudio.bind(this);
+
+		document.addEventListener('click', this.unlockAudio, { once: true });
+		document.addEventListener('keydown', this.unlockAudio, { once: true });
+	}
+
+	unlockAudio() {
+		const audio = new Audio();
+		audio.src = '/assets/notification.mp3';
+		audio.volume = 0;
+
+		audio
+			.play()
+			.then(() => {
+				audio.pause();
+				this.audioUnlocked = true;
+			})
+			.catch(() => {});
 	}
 
 	/**
@@ -13,7 +33,7 @@ class SoundPlayer {
 	 * @param {string} options.id - Unique ID for the sound (useful for stopping specific sounds)
 	 * @returns {Promise<HTMLAudioElement>} - The audio element being played
 	 */
-	async play(src, options = {}) {
+	play(src, options = {}) {
 		const { volume = 1, loop = false, id = src } = options;
 
 		try {
@@ -148,19 +168,13 @@ class SoundPlayer {
 	 * @param {string} src - Path to the audio file
 	 */
 	preload(src) {
-		if (!this.audioCache.has(src)) {
-			const audio = new Audio();
+		if (this.audioCache.has(src)) return;
 
-			if (src.startsWith('http') || src.startsWith('/')) {
-				audio.src = src;
-			} else {
-				audio.src = `/assets/${src}`;
-			}
+		const audio = new Audio(src);
+		audio.preload = 'auto';
+		audio.load();
 
-			audio.preload = 'auto';
-			audio.load();
-			this.audioCache.set(src, audio);
-		}
+		this.audioCache.set(src, audio);
 	}
 
 	/**

@@ -142,7 +142,7 @@ const EntityField = ({
               w="16px"
               h="10px"
               objectFit="cover"
-              borderRadius="sm"
+              borderRadius="2px"
               shadow="md"
             />
           )}

@@ -16,31 +16,16 @@ import {
 	Text,
 	HStack,
 	VStack,
-	useColorModeValue,
-	IconButton,
 	Badge,
-	Flex,
-	useToken,
 } from '@chakra-ui/react';
-import { BiExpand, BiCollapse } from 'react-icons/bi';
 
 const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
-	// Color tokens for better consistency
-	const [blue500, blue300, green500, red500, purple500] = useToken('colors', [
-		'blue.500',
-		'blue.300',
-		'green.500',
-		'red.500',
-		'purple.500',
-	]);
-
-	const textColor = useColorModeValue('gray.700', 'gray.200');
-	const gridColor = useColorModeValue('#E2E8F0', '#4A5568');
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const cardBg = useColorModeValue('white', 'gray.800');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
-	const highlightBg = useColorModeValue('blue.50', 'blue.900');
-	const highlightColor = useColorModeValue('blue.600', 'blue.200');
+	// Use semantic tokens for colors
+	const goldPrimary = '#D4AF37';
+	const goldLight = '#F5D67B';
+	const goldDark = '#C9A227';
+	const navy600 = '#1E3D5C';
+	const navy700 = '#1A3550';
 
 	// Enhanced data with growth indicators
 	const monthlyData = [
@@ -49,7 +34,7 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 			leads: summary.prevMonthLeads,
 			change: summary.leadGrowthRate || 0,
 			shortName: 'Prev',
-			color: blue300,
+			color: navy600,
 			description: 'Leads from previous month',
 			trend: 'baseline',
 		},
@@ -58,7 +43,7 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 			leads: summary.currentMonthLeads,
 			change: 0,
 			shortName: 'Current',
-			color: blue500,
+			color: goldPrimary,
 			description: 'Leads from current month',
 			trend: 'current',
 		},
@@ -72,14 +57,14 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 
 			return (
 				<Box
-					bg={bgColor}
+					bg='bg.surface'
 					p={4}
 					borderRadius='lg'
-					boxShadow='2xl'
+					boxShadow='card'
 					border='1px solid'
-					borderColor={borderColor}
+					borderColor='border.default'
 					minWidth='220px'
-					className='selectable-tooltip' // Add class for text selection
+					className='selectable-tooltip'
 					style={{
 						userSelect: 'text',
 						WebkitUserSelect: 'text',
@@ -87,22 +72,22 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 						msUserSelect: 'text',
 					}}
 				>
-					<Text fontWeight='bold' color={textColor} fontSize='md' mb={3}>
+					<Text fontWeight='bold' color='text.heading' fontSize='md' mb={3}>
 						{data.month}
 					</Text>
 					<VStack align='start' spacing={3}>
 						<HStack justify='space-between' width='100%'>
-							<Text color='gray.600' fontSize='sm'>
+							<Text color='text.muted' fontSize='sm'>
 								Leads Count:
 							</Text>
-							<Text fontWeight='bold' color={data.color} fontSize='lg'>
+							<Text fontWeight='bold' color='text.accent' fontSize='lg'>
 								{data.leads.toLocaleString()}
 							</Text>
 						</HStack>
 
 						{data.change !== 0 && (
 							<HStack justify='space-between' width='100%'>
-								<Text color='gray.600' fontSize='sm'>
+								<Text color='text.muted' fontSize='sm'>
 									Growth:
 								</Text>
 								<Badge
@@ -119,7 +104,7 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 						)}
 
 						<Box width='100%' pt={2}>
-							<Text fontSize='xs' color='gray.500' fontStyle='italic'>
+							<Text fontSize='xs' color='text.muted' fontStyle='italic'>
 								{data.description}
 							</Text>
 						</Box>
@@ -141,7 +126,7 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 				<text
 					x={x + width / 2}
 					y={y - 10}
-					fill={textColor}
+					fill='#FFFFFF'
 					textAnchor='middle'
 					dominantBaseline='middle'
 					fontSize={isFullScreen ? 14 : 12}
@@ -156,7 +141,7 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 					<text
 						x={x + width / 2}
 						y={y + height + (isFullScreen ? 35 : 25)}
-						fill={isPositive ? green500 : red500}
+						fill={isPositive ? '#10B981' : '#EE5D50'}
 						textAnchor='middle'
 						dominantBaseline='middle'
 						fontSize={isFullScreen ? 12 : 10}
@@ -171,7 +156,7 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 				<text
 					x={x + width / 2}
 					y={y + height + (isFullScreen ? 20 : 15)}
-					fill={textColor}
+					fill='#B0B0B0'
 					textAnchor='middle'
 					dominantBaseline='middle'
 					fontSize={isFullScreen ? 12 : 10}
@@ -187,71 +172,69 @@ const MonthlyLeadsChart = ({ summary, isFullScreen }) => {
 	const averageLeads =
 		monthlyData.reduce((sum, item) => sum + item.leads, 0) / monthlyData.length;
 
-	// Normal mode
 	return (
-		<>
-			<ResponsiveContainer width='100%' height='100%'>
-				<BarChart
-					data={monthlyData}
-					margin={
-						isFullScreen
-							? { top: 40, right: 30, bottom: 60, left: 20 }
-							: { top: 20, right: 10, bottom: 20, left: 10 }
-					}
-					barSize={isFullScreen ? 90 : 80}
+		<ResponsiveContainer width='100%' height='100%'>
+			<BarChart
+				data={monthlyData}
+				margin={
+					isFullScreen
+						? { top: 40, right: 30, bottom: 60, left: 20 }
+						: { top: 20, right: 10, bottom: 20, left: 10 }
+				}
+				barSize={isFullScreen ? 90 : 80}
+			>
+				<CartesianGrid
+					strokeDasharray='3 3'
+					stroke={navy700}
+					vertical={false}
+				/>
+				<XAxis
+					dataKey='shortName'
+					tick={{ fontSize: 0 }}
+					axisLine={false}
+					tickLine={false}
+				/>
+				<YAxis
+					tick={{
+						fontSize: isFullScreen ? 12 : 10,
+						fill: '#B0B0B0',
+						fontWeight: '500',
+					}}
+					axisLine={false}
+					tickLine={false}
+					width={60}
+				/>
+				<Tooltip
+					content={<CustomTooltip />}
+					cursor={{ fill: 'rgba(212, 175, 55, 0.1)' }}
+				/>
+				{/* Reference line for average */}
+				<ReferenceLine
+					y={averageLeads}
+					stroke={goldLight}
+					strokeDasharray='3 3'
+					strokeWidth={2}
 				>
-					<CartesianGrid
-						strokeDasharray='3 3'
-						stroke={gridColor}
-						vertical={false}
+					<Label
+						value='Average'
+						position='insideTopRight'
+						fill={goldLight}
+						fontSize={10}
 					/>
-					<XAxis
-						dataKey='shortName'
-						tick={{ fontSize: 0 }} // Hide default labels (using custom ones)
-						axisLine={false}
-						tickLine={false}
-					/>
-					<YAxis
-						tick={{
-							fontSize: isFullScreen ? 12 : 10,
-							fill: textColor,
-							fontWeight: '500',
-						}}
-						axisLine={false}
-						tickLine={false}
-						width={60}
-					/>
-					<Tooltip
-						content={<CustomTooltip />}
-						cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
-					/>
-					{/* Reference line for average */}
-					<ReferenceLine
-						y={averageLeads}
-						stroke={purple500}
-						strokeDasharray='3 3'
-						strokeWidth={2}
-					>
-						<Label
-							value='Average'
-							position='insideTopRight'
-							fill={purple500}
-							fontSize={10}
+				</ReferenceLine>
+				<Bar dataKey='leads' radius={[8, 8, 0, 0]} label={CustomBarLabel}>
+					{monthlyData.map((entry, index) => (
+						<Cell
+							key={`cell-${index}`}
+							fill={entry.color}
+							opacity={0.9}
+							strokeWidth={1}
+							stroke={entry.color === goldPrimary ? goldDark : 'transparent'}
 						/>
-					</ReferenceLine>
-					<Bar dataKey='leads' radius={[8, 8, 0, 0]} label={CustomBarLabel}>
-						{monthlyData.map((entry, index) => (
-							<Cell
-								key={`cell-${index}`}
-								fill={entry.color}
-								opacity={0.9}
-								strokeWidth={1}
-							/>
-						))}
-					</Bar>
-				</BarChart>
-			</ResponsiveContainer>
-		</>
+					))}
+				</Bar>
+			</BarChart>
+		</ResponsiveContainer>
 	);
 };
 

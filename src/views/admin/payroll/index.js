@@ -10,9 +10,6 @@ import {
 import { useMemo, useState } from 'react';
 import TopPagination from 'components/pagination/TopPagination';
 import DateFilter from 'views/admin/attendance/components/DateFilter';
-import { FiFilter, FiRefreshCw } from 'react-icons/fi';
-import { buttonStyle } from 'utils/btn';
-import { BiX } from 'react-icons/bi';
 import { useEmployeePayroll } from './hooks/usePayroll';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import AgencyFilter from './components/AgencyFilter';
@@ -25,6 +22,7 @@ import SearchBox from './components/SearchBox';
 import RefreshButton from 'components/refresh/RefreshButton';
 import EmployeePayrollCards from './SalariedUsers/EmployeePayrollCards';
 import ViewToggle from 'components/toggle/ViewToggle';
+import FilterButton from 'components/base/FilterButton';
 
 const Payroll = () => {
 	const {
@@ -180,16 +178,11 @@ const Payroll = () => {
 					/>
 
 					{isAgenciesAllowed && (
-						<IconButton
-							icon={<FiFilter />}
-							onClick={agencyFilterOnOpen}
-							aria-label='Filter agency'
-							colorScheme='brand'
-							variant='solid'
-							size='sm'
-							borderRadius='full'
-							boxShadow='md'
-						/>
+						<FilterButton
+	label="Filter agency"
+	onClick={agencyFilterOnOpen}
+	size="sm"
+/>
 					)}
 
 					<Box w={{ base: '100%', sm: 'auto' }} flexShrink={1}>

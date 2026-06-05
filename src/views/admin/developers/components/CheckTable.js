@@ -82,7 +82,7 @@ export default function CheckTable(props) {
 	const columns = useMemo(() => dataColumn, [dataColumn]);
 	const data = useMemo(
 		() => (Array.isArray(tableData) ? tableData : []),
-		[tableData]
+		[tableData],
 	);
 
 	const [selectedValues, setSelectedValues] = useState([]);
@@ -105,17 +105,17 @@ export default function CheckTable(props) {
 		setColumn(columnKey);
 
 		isColumnSelected = tempSelectedColumns?.some(
-			(column) => column?.accessor === columnKey
+			(column) => column?.accessor === columnKey,
 		);
 
 		if (isColumnSelected) {
 			const updatedColumns = tempSelectedColumns?.filter(
-				(column) => column?.accessor !== columnKey
+				(column) => column?.accessor !== columnKey,
 			);
 			setTempSelectedColumns(updatedColumns);
 		} else {
 			const columnToAdd = dynamicColumns?.find(
-				(column) => column?.accessor === columnKey
+				(column) => column?.accessor === columnKey,
 			);
 			setTempSelectedColumns([...tempSelectedColumns, columnToAdd]);
 		}
@@ -123,7 +123,7 @@ export default function CheckTable(props) {
 
 	const handleColumnClear = () => {
 		isColumnSelected = selectedColumns?.some(
-			(selectedColumn) => selectedColumn?.accessor === column?.accessor
+			(selectedColumn) => selectedColumn?.accessor === column?.accessor,
 		);
 		setTempSelectedColumns(dynamicColumns);
 		setManageColumns(!manageColumns ? !manageColumns : false);
@@ -160,7 +160,7 @@ export default function CheckTable(props) {
 								.includes(values?.email?.toLowerCase()))) &&
 					(!values?.trn ||
 						(item?.trn &&
-							item?.trn.toLowerCase().includes(values?.trn?.toLowerCase())))
+							item?.trn.toLowerCase().includes(values?.trn?.toLowerCase()))),
 			);
 
 			setSearchedData(searchResult);
@@ -211,7 +211,7 @@ export default function CheckTable(props) {
 			setSelectedValues((prevSelectedValues) => [...prevSelectedValues, value]);
 		} else {
 			setSelectedValues((prevSelectedValues) =>
-				prevSelectedValues.filter((selectedValue) => selectedValue !== value)
+				prevSelectedValues.filter((selectedValue) => selectedValue !== value),
 			);
 		}
 	};
@@ -252,9 +252,9 @@ export default function CheckTable(props) {
 				w='100%'
 				py={3}
 				px={2}
+				rounded='xl'
 				overflowX={{ sm: 'scroll', lg: 'hidden' }}
-				borderRadius={"0px"}
-				mt={"-1.3%"} ml={"-0.3%"}
+				borderRadius={'0px'}
 			>
 				<Grid templateColumns='repeat(12, 1fr)' mb={3} gap={4} mx={4}>
 					<GridItem
@@ -262,14 +262,19 @@ export default function CheckTable(props) {
 						display={'flex'}
 						alignItems={'center'}
 					>
-						<Flex alignItems={'center'} flexWrap={'wrap'}>
+						<Flex
+							alignItems={'center'}
+							roundedTopRight='xl'
+							roundedTopLeft='xl'
+							flexWrap={'wrap'}
+						>
 							<Text
 								color='black'
 								fontSize='22px'
 								fontWeight='700'
 								lineHeight='100%'
 							>
-								Developers (
+								Develope(
 								<CountUpComponent key={totalItems} targetNumber={totalItems} />)
 							</Text>
 							<CustomSearchInput
@@ -729,7 +734,7 @@ export default function CheckTable(props) {
 									<Checkbox
 										defaultChecked={selectedColumns.some(
 											(selectedColumn) =>
-												selectedColumn.accessor === column.accessor
+												selectedColumn.accessor === column.accessor,
 										)}
 										onChange={() => toggleColumnVisibility(column.accessor)}
 										pe={4}

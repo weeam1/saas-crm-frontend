@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import AnnouncementView from './AnnouncementView';
 import StatusBadge from 'components/shared/StatusBadge';
 import ReadByModal from './ReadByModal';
+import { useModalColors } from 'hooks/useModalColors';
 
 const getReadUsers = (users, read_user_list) => {
 	const readUserIds = new Set(read_user_list);
@@ -26,6 +27,7 @@ const getReadUsers = (users, read_user_list) => {
 };
 
 const AnnouncementCard = ({ users, item, handleCopy }) => {
+	const colors = useModalColors();
 	const [readByUsers, setByReadUsers] = useState([]);
 
 	const { isOpen, onOpen, onClose } = useDisclosure();
@@ -39,21 +41,20 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 	const getBadgeColor = (type) => {
 		switch (type) {
 			case 'all':
-				return 'blue'; // Neutral color for "all"
+				return 'blue';
 			case 'agents':
-				return 'white'; // Blue for "agents"
+				return 'white';
 			case 'team':
-				return 'teal'; // Green for "team"
+				return 'teal';
 			case 'managers':
-				return 'yellow'; // Purple for "managers"
+				return 'yellow';
 			default:
-				return 'gray'; // Default color
+				return 'gray';
 		}
 	};
 
 	const handleReadByOpen = () => {
 		setByReadUsers(getReadUsers(users, item.read_user_list));
-
 		readOnOpen();
 	};
 
@@ -66,45 +67,59 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 				gap='2'
 				p={4}
 				mb={2}
-				bg={useColorModeValue('gray.100', 'gray.700')}
+				bg={colors.bgInput}
 				borderRadius='md'
 				boxShadow='sm'
-				_hover={{ bg: useColorModeValue('gray.50', 'gray.600') }}
+				border="1px solid"
+				borderColor={colors.borderColor}
+				_hover={{ bg: colors.bgInputHover, borderColor: colors.accentGold }}
+				transition='all 0.2s ease'
 			>
 				{/* Left Section */}
 				<Flex align='center' justifyContent='space-between' gap={4}>
 					<Flex flex={1} align='center' gap={2}>
-						<Badge colorScheme={getBadgeColor(item.type)}>{item.type}</Badge>
-
 						<Text
 							flex='1'
 							maxWidth={{ sm: '200px', md: '600px', lg: '800px' }}
 							isTruncated
 							fontWeight='medium'
+							color={colors.headingText}
 						>
 							{item.message}
 						</Text>
 					</Flex>
 
 					<Flex align='center' gap={1}>
-						<IconButton
-							aria-label='Copy message'
-							icon={<FiCopy />}
-							size='sm'
-							color='teal.500'
-							_hover={{ color: 'teal.600', bg: 'teal.50' }}
-							variant='ghost'
-							onClick={() => handleCopy(item.message)}
-						/>
-						<IconButton
-							aria-label='View message'
-							icon={<FiEye />}
-							size='sm'
-							color='blue.500'
-							_hover={{ color: 'blue.600', bg: 'blue.50' }}
-							variant='ghost'
-							onClick={onOpen}
-						/>
+						<Tooltip label='Copy message' hasArrow>
+							<IconButton
+								aria-label='Copy message'
+								icon={<FiCopy />}
+								size='sm'
+								variant='ghost'
+								onClick={() => handleCopy(item.message)}
+								color={colors.bodyText}
+								_hover={{
+									color: colors.accentGold,
+									bg: colors.secondaryBtnHoverBg,
+								}}
+								transition='all 0.2s ease'
+							/>
+						</Tooltip>
+						<Tooltip label='View message' hasArrow>
+							<IconButton
+								aria-label='View message'
+								icon={<FiEye />}
+								size='sm'
+								variant='ghost'
+								onClick={onOpen}
+								color={colors.bodyText}
+								_hover={{
+									color: colors.accentGold,
+									bg: colors.secondaryBtnHoverBg,
+								}}
+								transition='all 0.2s ease'
+							/>
+						</Tooltip>
 					</Flex>
 				</Flex>
 
@@ -114,10 +129,12 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 						<Tooltip label='Read by' hasArrow cursor='pointer'>
 							<Button
 								bg='transparent'
-								_hover='transparent'
-								_focus='transparent'
-								_active='transparent'
-								onClick={handleReadByOpen} // This should set `isOpen` to true for the drawer.
+								p={0}
+								h='auto'
+								_hover={{ bg: 'transparent' }}
+								_focus={{ bg: 'transparent' }}
+								_active={{ bg: 'transparent' }}
+								onClick={handleReadByOpen}
 							>
 								<StatusBadge
 									status={`${item.read_count} Read`}
@@ -129,23 +146,21 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 						</Tooltip>
 
 						<StatusBadge
-							status={`${item.pending_count} Pending`}
+							status={`${item.unread_count} Pending`}
 							color='orange'
 							Icon={MdMarkEmailUnread}
 							size={16}
 						/>
 						<StatusBadge
 							status={`${item.total_count} Total`}
-							color='purple'
+							color='gold'
 							Icon={MdAllInbox}
 							size={16}
 						/>
 					</Flex>
 
-					{/* Formatted Date */}
-					<Text fontSize='sm' color='gray.500'>
-						{format(new Date(item.created_at), 'MMM d, yyyy h:mm a')}
-						{/* {format(new Date(item.created_at), "PPPpp")} */}
+					<Text fontSize='sm' color={colors.mutedText}>
+						{format(new Date(item.createdAt), 'MMM d, yyyy h:mm a')}
 					</Text>
 				</Flex>
 			</Flex>
@@ -155,8 +170,6 @@ const AnnouncementCard = ({ users, item, handleCopy }) => {
 					item={item}
 					isOpen={isOpen}
 					onClose={onClose}
-					// isReadOpen={isReadOpen}
-					// readOnClose={readOnClose}
 					handleReadByOpen={handleReadByOpen}
 					getBadgeColor={getBadgeColor}
 				/>

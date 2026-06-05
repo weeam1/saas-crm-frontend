@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser, clearUser, syncUser } from '../redux/localSlice';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import keys from 'config/keys';
 // const getUserFromStorage = () => {
 // 	try {
 // 		// 1. Check sessionStorage first
@@ -70,10 +71,54 @@ import { useEffect } from 'react';
 // };
 // hooks/useUserSession.js
 
+const useAgencyLogo = () => {
+	const [agencyLogo, setAgencyLogo] = useState(null);
+
+	useEffect(() => {
+		const checkLogo = async () => {
+			try {
+				const logo = localStorage.getItem('AgencyLogo');
+
+				if (!logo || logo === 'null' || logo === 'undefined') {
+					setAgencyLogo(null);
+					return;
+				}
+
+				const logoUrl = `${keys.productApiUrl}api/${logo}`;
+
+				const response = await fetch(logoUrl, {
+					method: 'HEAD',
+				});
+
+				console.log({ response });
+
+				if (response.ok) {
+					setAgencyLogo(logoUrl);
+				} else {
+					setAgencyLogo(null);
+				}
+			} catch (error) {
+				console.error('Logo fetch error:', error);
+				setAgencyLogo(null);
+			}
+		};
+
+		checkLogo();
+	}, []);
+
+	return agencyLogo;
+};
+
 export const useUserSession = () => {
 	const dispatch = useDispatch();
 	const user = useSelector((state) => state.user.user);
+	const agencyName =
+		user?.tenant?.agencyName ||
+		localStorage.getItem('workspaceAgencyName') ||
+		'Default Agency';
 
+	const agencyLogo = useAgencyLogo();
+	// const agencyLogo = `${process.env.REACT_APP_CRM_PRODUCT_API_URL}api/${localStorage.getItem('AgencyLogo')}`;
 	// useEffect(() => {
 	// 	const handleStorageChange = (e) => {
 	// 		if (e.key === 'user') {
@@ -85,6 +130,8 @@ export const useUserSession = () => {
 	// }, [dispatch]);
 
 	return {
+		agencyName,
+		agencyLogo,
 		user,
 		userRoleName: user?.roleName,
 		isSuperAdmin:

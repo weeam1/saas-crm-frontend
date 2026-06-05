@@ -58,10 +58,8 @@ const Delete = (props) => {
 				});
 			} finally {
 				setIsLoding(false);
-				// props.refetchData();
 				dispatch(deleteLead([props.id]));
 				props.onClose(false);
-				// props.setAction((pre) => !pre);
 				props.setSelectedValues([]);
 			}
 		} else if (props.method === 'many') {
@@ -70,9 +68,7 @@ const Delete = (props) => {
 				let response = await deleteManyApi(props.url, props.data);
 				if (response.status === 200) {
 					props.onClose(false);
-					// props.setAction((pre) => !pre);
 					props.setSelectedValues([]);
-					// props.setSelectAllChecked(false);
 
 					createUserLog({
 						userId: user?._id,
@@ -99,7 +95,6 @@ const Delete = (props) => {
 				});
 			} finally {
 				setIsLoding(false);
-				// dispatch(deleteLead(props.data));
 				props.refetchData();
 			}
 		}
@@ -112,27 +107,55 @@ const Delete = (props) => {
 	return (
 		<div>
 			<Modal onClose={props.onClose} isOpen={props.isOpen} isCentered>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>
+				<ModalOverlay bg='bg.overlay' />
+				<ModalContent
+					bg='bg.surface'
+					borderRadius='xl'
+					boxShadow='deep'
+					overflow='hidden'
+				>
+					<ModalHeader
+						bg='accent.gold'
+						color='text.inverse'
+						borderBottom='1px solid'
+						borderColor='border.default'
+						py={4}
+						px={6}
+					>
 						Delete Lead{props.method === 'one' ? '' : 's'}
 					</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
+
+					<ModalCloseButton
+						color='text.inverse'
+						_focus={{ outline: 'none' }}
+					/>
+
+					<ModalBody bg='bg.app' py={6} px={6}>
 						Are You Sure To Delete selected Lead
 						{props.method === 'one' ? '' : 's'} ?
 					</ModalBody>
-					<ModalFooter>
+
+					<ModalFooter
+						borderTop='1px solid'
+						borderColor='border.default'
+						bg='bg.surface'
+						gap={3}
+					>
 						<Button
 							colorScheme='red'
 							size='sm'
-							mr={2}
 							onClick={handleDeleteClick}
-							disabled={isLoding ? true : false}
+							isDisabled={isLoding}
+							isLoading={isLoding}
+							loadingText='Deleting...'
 						>
-							{isLoding ? <Spinner /> : 'Yes'}
+							Yes
 						</Button>
-						<Button variant='outline' size='sm' onClick={handleClose}>
+						<Button
+							variant='outline'
+							size='sm'
+							onClick={handleClose}
+						>
 							No
 						</Button>
 					</ModalFooter>

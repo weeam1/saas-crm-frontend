@@ -1,13 +1,16 @@
 import { Box, Heading, VStack } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const SectionCard = ({ title, children, ...props }) => {
+	const colors = useModalColors();
+
 	return (
 		<Box
-			bg='white'
+			bg={colors.bg}
 			borderRadius='lg'
-			boxShadow='sm'
+			boxShadow={colors.cardShadow}
 			border='1px solid'
-			borderColor='gray.200'
+			borderColor={colors.borderColor}
 			p={{ base: 2, md: 4, lg: 6 }}
 			{...props}
 		>
@@ -16,10 +19,10 @@ const SectionCard = ({ title, children, ...props }) => {
 					<Heading
 						as='h3'
 						size='md'
-						color='gray.700'
+						color={colors.headingText}
 						pb={2}
 						borderBottom='2px solid'
-						borderColor='blue.100'
+						borderColor={colors.borderColor}
 					>
 						{title}
 					</Heading>

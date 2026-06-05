@@ -19,10 +19,13 @@ import {
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Trash2, Upload, UserIcon, Wand2 } from "lucide-react";
+import { useModalColors } from "hooks/useModalColors";
 
 const MotionBox = motion(Box);
 
 export default function EditUserModal({ isOpen, onClose }) {
+  const colors = useModalColors();
+
   // -----------------------------
   // 🔹 FORM STATES ADDED HERE
   // -----------------------------
@@ -83,7 +86,6 @@ export default function EditUserModal({ isOpen, onClose }) {
   const validateForm = () => {
     let temp = {};
 
-    // PERSONAL INFO
     if (!form.first_name.trim()) temp.first_name = "First name is required";
     if (!form.last_name.trim()) temp.last_name = "Last name is required";
 
@@ -96,7 +98,6 @@ export default function EditUserModal({ isOpen, onClose }) {
     if (!form.nationality) temp.nationality = "Nationality is required";
     if (!form.dob) temp.dob = "Date of birth is required";
 
-    // CRM ACCESS
     if (!form.role) temp.role = "Role is required";
     if (!form.agency) temp.agency = "Agency is required";
 
@@ -104,25 +105,20 @@ export default function EditUserModal({ isOpen, onClose }) {
     else if (form.password.length < 8)
       temp.password = "Must be at least 8 characters";
 
-    // IDENTIFICATION
     if (form.passport_id && form.passport_id.length < 6)
       temp.passport_id = "Enter a valid passport number";
 
     if (form.uae_id && !/^\d{3}-\d{4}-\d{7}-\d$/.test(form.uae_id))
       temp.uae_id = "UAE ID format must be 784-XXXX-XXXXXXX-X";
 
-    // CONTACT
     if (!form.intl_phone.trim())
       temp.intl_phone = "International phone number is required";
 
     setErrors(temp);
 
-    return Object.keys(temp).length === 0; // valid = true
+    return Object.keys(temp).length === 0;
   };
 
-  // -----------------------------
-  // 🔥 SUBMIT API CALL HERE
-  // -----------------------------
   const handleSubmit = async () => {
     if (!validateForm()) {
       console.log("❌ Validation failed");
@@ -132,14 +128,12 @@ export default function EditUserModal({ isOpen, onClose }) {
     try {
       const fd = new FormData();
 
-      // append all values
       Object.keys(form).forEach((key) => {
         fd.append(key, form[key]);
       });
 
       if (profileFile) fd.append("profile_image", profileFile);
 
-      // 🔥 your API POST request
       const res = await fetch("/api/users", {
         method: "POST",
         body: fd,
@@ -156,52 +150,51 @@ export default function EditUserModal({ isOpen, onClose }) {
 
   return (
     <Modal onClose={onClose} isOpen={isOpen} size="6xl" isCentered>
-      <ModalOverlay bg="rgba(0,0,0,0.6)" backdropFilter="blur(4px)" />
+      <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
       <ModalContent
         m="3"
         borderRadius="2xl"
-        shadow="2xl"
+        shadow={colors.modalShadow}
         overflow="hidden"
         w={{ base: "95vw", md: "1024px" }}
         maxH={{ base: "80vh", md: "90vh" }}
         display="flex"
         flexDirection="column"
+        bg={colors.bg}
       >
         {/* HEADER */}
         <ModalHeader
           px={6}
           py={6}
           borderBottom="1px solid"
-          borderColor="gray.200"
-          bg="white"
+          borderColor={colors.borderColor}
+          bg={colors.bgDeep}
         >
           <Flex align="center" justify="space-between" w="full">
-            {/* Title */}
             <Text
               fontSize="lg"
               fontWeight="600"
-              color="gray.800"
+              color={colors.headingText}
               letterSpacing="0.2px"
             >
               Edit User
             </Text>
 
-            {/* Close Button */}
             <ModalCloseButton
               position="relative"
               top="0"
               right="0"
-              color="black"
+              color={colors.closeBtnColor}
               boxSize={6}
               _focus={{ outline: "none" }}
-              _hover={{ bg: "gray.100" }}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </Flex>
         </ModalHeader>
 
         <Box
-          bg="white"
-          color="gray.800"
+          bg={colors.bg}
+          color={colors.bodyText}
           p={6}
           borderTopRadius="2xl"
           maxH={{ base: "50vh", md: "81vh" }}
@@ -213,14 +206,13 @@ export default function EditUserModal({ isOpen, onClose }) {
           gap={6}
         >
           {/* SECTION 1 — PERSONAL INFORMATION */}
-          <Box p={4} bg="gray.50" borderRadius="xl" boxShadow="sm">
-            <Text fontWeight="700" fontSize="lg" mb={6}>
+          <Box p={4} bg={colors.bgInput} borderRadius="xl" boxShadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
+            <Text fontWeight="700" fontSize="lg" mb={6} color={colors.headingText}>
               Personal Information
             </Text>
 
             <Flex gap={8} direction={{ base: "column", md: "row" }}>
               {/* Avatar + Upload */}
-
               <Box textAlign="center" flexShrink={0}>
                 <Box
                   w="120px"
@@ -229,21 +221,21 @@ export default function EditUserModal({ isOpen, onClose }) {
                   borderRadius="full"
                   overflow="hidden"
                   position="relative"
-                  bg="gray.100"
-                  boxShadow="md"
+                  bg={colors.bgInput}
+                  boxShadow={colors.cardShadow}
                   cursor="pointer"
                   _hover={{ transform: "scale(1.05)", transition: "0.2s" }}
+                  border="1px solid"
+                  borderColor={colors.borderColor}
                 >
                   <Avatar
                     size="2xl"
                     src={profileImage}
-                    bg="gray.100"
+                    bg={colors.bgInput}
                     icon={<UserIcon />}
                     name=""
-                    // name={!profileImage ? "User Name" : ""}
                   />
 
-                  {/* Hover Overlay */}
                   <MotionBox
                     position="absolute"
                     inset={0}
@@ -262,11 +254,12 @@ export default function EditUserModal({ isOpen, onClose }) {
                         icon={<Upload size={18} />}
                         aria-label="Upload"
                         size="sm"
-                        colorScheme="teal"
                         variant="ghost"
                         onClick={() =>
                           document.getElementById("profileUpload").click()
                         }
+                        color={colors.bodyText}
+                        _hover={{ color: colors.accentGold, bg: colors.secondaryBtnHoverBg }}
                       />
                     </Tooltip>
 
@@ -276,19 +269,19 @@ export default function EditUserModal({ isOpen, onClose }) {
                           icon={<Trash2 size={18} />}
                           aria-label="Remove"
                           size="sm"
-                          colorScheme="red"
                           variant="ghost"
                           onClick={() => {
                             setProfileImage("");
                             setProfileFile(null);
                           }}
+                          color={colors.bodyText}
+                          _hover={{ color: colors.badgeErrorText, bg: colors.badgeErrorBg }}
                         />
                       </Tooltip>
                     )}
                   </MotionBox>
                 </Box>
 
-                {/* Hidden file input */}
                 <input
                   id="profileUpload"
                   type="file"
@@ -297,8 +290,7 @@ export default function EditUserModal({ isOpen, onClose }) {
                   onChange={handleImageUpload}
                 />
 
-                {/* Optional hint text */}
-                <Text fontSize="xs" color="gray.500" mt={2}>
+                <Text fontSize="xs" color={colors.mutedText} mt={2}>
                   Click avatar to upload
                 </Text>
               </Box>
@@ -311,25 +303,27 @@ export default function EditUserModal({ isOpen, onClose }) {
               >
                 {/* First Name */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     First Name
                   </Text>
                   <Input
                     placeholder="Enter first name"
-                    bg="white"
+                    bg={colors.bgInput}
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: "gray.400" }}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
+                    _placeholder={{ color: colors.mutedText }}
                     value={form.first_name}
                     onChange={(e) => updateField("first_name", e.target.value)}
                   />
 
                   {errors.first_name && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.first_name}
                     </Text>
                   )}
@@ -337,25 +331,27 @@ export default function EditUserModal({ isOpen, onClose }) {
 
                 {/* Last Name */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Last Name
                   </Text>
                   <Input
                     placeholder="Enter last name"
-                    bg="white"
+                    bg={colors.bgInput}
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: "gray.400" }}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
+                    _placeholder={{ color: colors.mutedText }}
                     value={form.last_name}
                     onChange={(e) => updateField("last_name", e.target.value)}
                   />
 
                   {errors.last_name && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.last_name}
                     </Text>
                   )}
@@ -363,26 +359,28 @@ export default function EditUserModal({ isOpen, onClose }) {
 
                 {/* Email */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Email
                   </Text>
                   <Input
                     type="email"
                     placeholder="Enter email"
-                    bg="white"
+                    bg={colors.bgInput}
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: "gray.400" }}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
+                    _placeholder={{ color: colors.mutedText }}
                     value={form.email}
                     onChange={(e) => updateField("email", e.target.value)}
                   />
 
                   {errors.email && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.email}
                     </Text>
                   )}
@@ -390,25 +388,27 @@ export default function EditUserModal({ isOpen, onClose }) {
 
                 {/* Phone */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Phone Number
                   </Text>
                   <Input
                     placeholder="+971 XX XXX XXXX"
-                    bg="white"
+                    bg={colors.bgInput}
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: "gray.400" }}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
+                    _placeholder={{ color: colors.mutedText }}
                     value={form.phone}
                     onChange={(e) => updateField("phone", e.target.value)}
                   />
 
                   {errors.phone && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.phone}
                     </Text>
                   )}
@@ -416,33 +416,34 @@ export default function EditUserModal({ isOpen, onClose }) {
 
                 {/* Nationality */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Nationality
                   </Text>
                   <Select
                     placeholder="Select country"
                     size="md"
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    bg="white"
+                    borderColor={colors.borderColor}
+                    bg={colors.bgInput}
                     fontSize="sm"
-                    _hover={{ borderColor: "gray.400" }}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
                     value={form.nationality}
                     onChange={(e) => updateField("nationality", e.target.value)}
                   >
-                    <option>UAE</option>
-                    <option>Saudi Arabia</option>
-                    <option>Pakistan</option>
-                    <option>India</option>
-                    <option>Egypt</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>UAE</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Saudi Arabia</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Pakistan</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>India</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Egypt</option>
                   </Select>
 
                   {errors.nationality && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.nationality}
                     </Text>
                   )}
@@ -450,25 +451,26 @@ export default function EditUserModal({ isOpen, onClose }) {
 
                 {/* Date of Birth */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Date of Birth
                   </Text>
                   <Input
                     type="date"
-                    bg="white"
+                    bg={colors.bgInput}
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    _hover={{ borderColor: "gray.400" }}
+                    borderColor={colors.borderColor}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
                     value={form.dob}
                     onChange={(e) => updateField("dob", e.target.value)}
                   />
 
                   {errors.dob && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.dob}
                     </Text>
                   )}
@@ -478,79 +480,78 @@ export default function EditUserModal({ isOpen, onClose }) {
           </Box>
 
           {/* SECTION 2 — CRM ACCESS */}
-          <Box p={4} bg="gray.50" borderRadius="xl" boxShadow="sm">
-            <Text fontWeight="700" fontSize="lg" mb={6}>
+          <Box p={4} bg={colors.bgInput} borderRadius="xl" boxShadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
+            <Text fontWeight="700" fontSize="lg" mb={6} color={colors.headingText}>
               CRM ACCESS
             </Text>
 
             <Flex gap={8} direction={{ base: "column", md: "row" }}>
-              {/* Avatar + Upload */}
-
-              {/* Personal Info Form Grid */}
               <Grid
                 templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }}
                 gap={4}
                 flex="1"
               >
-                {/*Select Role */}
+                {/* Select Role */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Select Role
                   </Text>
                   <Select
                     placeholder="Select role"
                     size="md"
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    bg="white"
+                    borderColor={colors.borderColor}
+                    bg={colors.bgInput}
                     fontSize="sm"
-                    _hover={{ borderColor: "gray.400" }}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
                     value={form.role}
                     onChange={(e) => updateField("role", e.target.value)}
                   >
-                    <option>Admin</option>
-                    <option>Manager</option>
-                    <option>Agent</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Admin</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Manager</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Agent</option>
                   </Select>
 
                   {errors.role && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.role}
                     </Text>
                   )}
                 </Box>
 
-                {/*Select Agency */}
+                {/* Select Agency */}
                 <Box>
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Select Agency
                   </Text>
                   <Select
-                    placeholder="Select role"
+                    placeholder="Select agency"
                     size="md"
                     borderRadius="14px"
-                    borderColor="gray.300"
-                    bg="white"
+                    borderColor={colors.borderColor}
+                    bg={colors.bgInput}
                     fontSize="sm"
-                    _hover={{ borderColor: "gray.400" }}
+                    color={colors.headingText}
+                    _hover={{ borderColor: colors.accentGold }}
                     _focus={{
-                      borderColor: "gray.500",
-                      boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                      borderColor: colors.accentGold,
+                      boxShadow: `0 0 0 1px ${colors.accentGold}`,
                     }}
                     value={form.agency}
                     onChange={(e) => updateField("agency", e.target.value)}
                   >
-                    <option>Duabi</option>
-                    <option>UAE</option>
-                    <option>Egypt</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Dubai</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>UAE</option>
+                    <option style={{ background: colors.bg, color: colors.headingText }}>Egypt</option>
                   </Select>
 
                   {errors.agency && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.agency}
                     </Text>
                   )}
@@ -558,30 +559,30 @@ export default function EditUserModal({ isOpen, onClose }) {
 
                 {/* Password */}
                 <Box position="relative">
-                  <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                  <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                     Password
                   </Text>
 
-                  {/* FIX: Wrap input + icons in fixed-height box */}
                   <Box position="relative" h="40px">
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter password"
-                      bg="white"
+                      bg={colors.bgInput}
                       borderRadius="14px"
-                      borderColor="gray.300"
+                      borderColor={colors.borderColor}
+                      color={colors.headingText}
                       pr="90px"
-                      h="40px" // <-- Fixed height to match wrapper
-                      _hover={{ borderColor: "gray.400" }}
+                      h="40px"
+                      _hover={{ borderColor: colors.accentGold }}
                       _focus={{
-                        borderColor: "gray.500",
-                        boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                        borderColor: colors.accentGold,
+                        boxShadow: `0 0 0 1px ${colors.accentGold}`,
                       }}
+                      _placeholder={{ color: colors.mutedText }}
                       value={form.password}
                       onChange={(e) => updateField("password", e.target.value)}
                     />
 
-                    {/* Icon Buttons */}
                     <Flex
                       position="absolute"
                       top="50%"
@@ -600,12 +601,10 @@ export default function EditUserModal({ isOpen, onClose }) {
                         alignItems="center"
                         justifyContent="center"
                         onClick={() => setShowPassword(!showPassword)}
+                        color={colors.bodyText}
+                        _hover={{ color: colors.accentGold }}
                       >
-                        {showPassword ? (
-                          <EyeOff size={14} />
-                        ) : (
-                          <Eye size={14} />
-                        )}
+                        {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                       </Button>
 
                       <Button
@@ -618,6 +617,8 @@ export default function EditUserModal({ isOpen, onClose }) {
                         alignItems="center"
                         justifyContent="center"
                         onClick={handleGeneratePassword}
+                        color={colors.bodyText}
+                        _hover={{ color: colors.accentGold }}
                       >
                         <Wand2 size={14} />
                       </Button>
@@ -625,7 +626,7 @@ export default function EditUserModal({ isOpen, onClose }) {
                   </Box>
 
                   {errors.password && (
-                    <Text fontSize="xs" color="red.500" mt={1}>
+                    <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                       {errors.password}
                     </Text>
                   )}
@@ -635,12 +636,11 @@ export default function EditUserModal({ isOpen, onClose }) {
           </Box>
 
           {/* SECTION 3 — Identification */}
-          <Box p={4} bg="gray.50" borderRadius="xl" boxShadow="sm">
-            <Text fontWeight="700" fontSize="lg" mb={6}>
+          <Box p={4} bg={colors.bgInput} borderRadius="xl" boxShadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
+            <Text fontWeight="700" fontSize="lg" mb={6} color={colors.headingText}>
               Identification
             </Text>
 
-            {/* Personal Info Form Grid */}
             <Grid
               templateColumns={{ base: "1fr", md: "repeat(2,1fr)" }}
               gap={4}
@@ -648,25 +648,27 @@ export default function EditUserModal({ isOpen, onClose }) {
             >
               {/* Passport ID */}
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                   Passport ID
                 </Text>
                 <Input
                   placeholder="e.g., N1234567"
-                  bg="white"
+                  bg={colors.bgInput}
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor={colors.borderColor}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
+                  _placeholder={{ color: colors.mutedText }}
                   value={form.passport_id}
                   onChange={(e) => updateField("passport_id", e.target.value)}
                 />
 
                 {errors.passport_id && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
+                  <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                     {errors.passport_id}
                   </Text>
                 )}
@@ -674,25 +676,27 @@ export default function EditUserModal({ isOpen, onClose }) {
 
               {/* UAE ID */}
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                   UAE ID (Optional)
                 </Text>
                 <Input
                   placeholder="e.g., 784-XXXX-XXXXXXX-X"
-                  bg="white"
+                  bg={colors.bgInput}
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor={colors.borderColor}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
+                  _placeholder={{ color: colors.mutedText }}
                   value={form.uae_id}
                   onChange={(e) => updateField("uae_id", e.target.value)}
                 />
 
                 {errors.uae_id && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
+                  <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                     {errors.uae_id}
                   </Text>
                 )}
@@ -700,28 +704,28 @@ export default function EditUserModal({ isOpen, onClose }) {
 
               {/* Driving License */}
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                   Driving License (Optional)
                 </Text>
                 <Input
                   type="text"
                   placeholder="Enter driving license number"
-                  bg="white"
+                  bg={colors.bgInput}
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor={colors.borderColor}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
+                  _placeholder={{ color: colors.mutedText }}
                   value={form.driving_license}
-                  onChange={(e) =>
-                    updateField("driving_license", e.target.value)
-                  }
+                  onChange={(e) => updateField("driving_license", e.target.value)}
                 />
 
                 {errors.driving_license && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
+                  <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                     {errors.driving_license}
                   </Text>
                 )}
@@ -729,33 +733,34 @@ export default function EditUserModal({ isOpen, onClose }) {
 
               {/* Education Level / Degree */}
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                   Education Level / Degree
                 </Text>
                 <Select
                   placeholder="Select education level"
                   size="md"
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  bg="white"
+                  borderColor={colors.borderColor}
+                  bg={colors.bgInput}
                   fontSize="sm"
-                  _hover={{ borderColor: "gray.400" }}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
                   value={form.education}
                   onChange={(e) => updateField("education", e.target.value)}
                 >
-                  <option>High School</option>
-                  <option>Bachelor's</option>
-                  <option>Master's</option>
-                  <option>PhD</option>
-                  <option>Other</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>High School</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>Bachelor's</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>Master's</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>PhD</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>Other</option>
                 </Select>
 
                 {errors.education && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
+                  <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                     {errors.education}
                   </Text>
                 )}
@@ -764,8 +769,8 @@ export default function EditUserModal({ isOpen, onClose }) {
           </Box>
 
           {/* SECTION 4 — ADDRESS & CONTACT DETAILS */}
-          <Box p={4} bg="gray.50" borderRadius="xl" boxShadow="sm">
-            <Text fontWeight="700" fontSize="lg" mb={6}>
+          <Box p={4} bg={colors.bgInput} borderRadius="xl" boxShadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
+            <Text fontWeight="700" fontSize="lg" mb={6} color={colors.headingText}>
               ADDRESS & CONTACT DETAILS
             </Text>
 
@@ -776,112 +781,96 @@ export default function EditUserModal({ isOpen, onClose }) {
             >
               {/* UAE / Dubai Address */}
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                   UAE / Dubai Address
                 </Text>
                 <Textarea
                   placeholder="Enter your UAE / Dubai address"
-                  bg="white"
+                  bg={colors.bgInput}
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor={colors.borderColor}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
+                  _placeholder={{ color: colors.mutedText }}
                   value={form.uae_address}
                   onChange={(e) => updateField("uae_address", e.target.value)}
                   rows={3}
                 />
-
-                {errors.education && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
-                    {errors.education}
-                  </Text>
-                )}
-                {/* <Text fontSize="xs" color="gray.500" mt={1}>
-                  Optional: use Google autocomplete if available
-                </Text> */}
               </Box>
 
               {/* Home Country Address */}
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                   Home Country Address
                 </Text>
                 <Select
                   placeholder="Select country"
                   size="md"
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  bg="white"
+                  borderColor={colors.borderColor}
+                  bg={colors.bgInput}
                   fontSize="sm"
-                  _hover={{ borderColor: "gray.400" }}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
                   value={form.home_country}
                   onChange={(e) => updateField("home_country", e.target.value)}
                 >
-                  <option>UAE</option>
-                  <option>Saudi Arabia</option>
-                  <option>Pakistan</option>
-                  <option>India</option>
-                  <option>Egypt</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>UAE</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>Saudi Arabia</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>Pakistan</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>India</option>
+                  <option style={{ background: colors.bg, color: colors.headingText }}>Egypt</option>
                 </Select>
-
-                {errors.home_country && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
-                    {errors.home_country}
-                  </Text>
-                )}
 
                 <Input
                   mt={2}
                   placeholder="Enter full address"
-                  bg="white"
+                  bg={colors.bgInput}
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor={colors.borderColor}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
+                  _placeholder={{ color: colors.mutedText }}
                   value={form.home_country_address}
-                  onChange={(e) =>
-                    updateField("home_country_address", e.target.value)
-                  }
+                  onChange={(e) => updateField("home_country_address", e.target.value)}
                 />
-
-                {errors.home_country_address && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
-                    {errors.home_country_address}
-                  </Text>
-                )}
               </Box>
 
               {/* International Phone Number */}
               <Box>
-                <Text fontSize="sm" fontWeight="600" color="gray.600" mb={1}>
+                <Text fontSize="sm" fontWeight="600" color={colors.labelColor} mb={1}>
                   International Phone Number
                 </Text>
                 <Input
                   placeholder="+971 XX XXX XXXX"
-                  bg="white"
+                  bg={colors.bgInput}
                   borderRadius="14px"
-                  borderColor="gray.300"
-                  _hover={{ borderColor: "gray.400" }}
+                  borderColor={colors.borderColor}
+                  color={colors.headingText}
+                  _hover={{ borderColor: colors.accentGold }}
                   _focus={{
-                    borderColor: "gray.500",
-                    boxShadow: "0 0 0 1px rgba(0,0,0,0.08)",
+                    borderColor: colors.accentGold,
+                    boxShadow: `0 0 0 1px ${colors.accentGold}`,
                   }}
+                  _placeholder={{ color: colors.mutedText }}
                   value={form.intl_phone}
                   onChange={(e) => updateField("intl_phone", e.target.value)}
                 />
 
                 {errors.intl_phone && (
-                  <Text fontSize="xs" color="red.500" mt={1}>
+                  <Text fontSize="xs" color={colors.badgeErrorText} mt={1}>
                     {errors.intl_phone}
                   </Text>
                 )}
@@ -893,10 +882,10 @@ export default function EditUserModal({ isOpen, onClose }) {
         {/* FOOTER */}
         <Flex
           borderTop="1px solid"
-          borderColor="gray.200"
+          borderColor={colors.borderColor}
           px={6}
           py={4}
-          bg="white"
+          bg={colors.footerBg}
           justify={{ base: "center", md: "flex-end" }}
           gap={3}
           flexWrap="wrap"
@@ -904,28 +893,28 @@ export default function EditUserModal({ isOpen, onClose }) {
           bottom={0}
           zIndex={10}
         >
-          {/* Cancel Button */}
           <Button
-            bg="gray.50"
-            color="gray.800"
-            border="1px solid #D0D5DD"
+            variant="ghost"
             size="md"
             borderRadius="12px"
             fontWeight="600"
             px={5}
-            _hover={{ bg: "gray.100" }}
-            boxShadow="0px 1px 3px rgba(0,0,0,0.08)"
             minW={{ base: "100%", md: "120px" }}
             onClick={onClose}
+            color={colors.bodyText}
+            _hover={{
+              bg: colors.secondaryBtnHoverBg,
+              color: colors.headingText,
+            }}
           >
             Cancel
           </Button>
 
-          {/* Save Button */}
           <Button
-            bg="#B79045"
-            color="white"
-            border="1px solid #B79045" // match border to bg
+            bg={colors.accentGold}
+            color={colors.headerText}
+            border="1px solid"
+            borderColor={colors.accentGold}
             size="md"
             borderRadius="12px"
             fontWeight="600"
@@ -933,10 +922,13 @@ export default function EditUserModal({ isOpen, onClose }) {
             minW={{ base: "100%", md: "120px" }}
             boxShadow="0px 1px 3px rgba(0,0,0,0.08)"
             _hover={{
-              bg: "#A87F3B", // slightly darker for hover
-              borderColor: "#A87F3B",
-              boxShadow: "0px 2px 6px rgba(0,0,0,0.12)",
+              bg: colors.goldLight,
+              borderColor: colors.goldLight,
+              transform: "translateY(-1px)",
+              boxShadow: colors.goldGlow,
             }}
+            _active={{ bg: colors.goldDark }}
+            transition="all 0.2s ease"
             onClick={handleSubmit}
           >
             Update

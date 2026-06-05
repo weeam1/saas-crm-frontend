@@ -3,8 +3,10 @@ import { Box, Avatar, Text, Badge } from '@chakra-ui/react';
 import { constant } from 'constant';
 import EmployeeAttendanceMark from './EmployeeAttendanceMark';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
+	const colors = useModalColors();
 	const agencyId = emp?.agency?._id;
 
 	const officeSetting = officeSettings?.find(
@@ -17,17 +19,25 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 			px={4}
 			py='2'
 			borderRadius='lg'
-			bg='white'
+			bg={colors.bg}
 			display='flex'
 			flexDirection='column'
 			justifyContent='center'
 			position='relative'
-			border='1px solid rgb(255 215 0 / 50%)'
+			border={`1px solid ${colors.accentGold}50`}
+			boxShadow={colors.cardShadow}
+			transition='all 0.2s ease'
+			_hover={{
+				transform: 'translateY(-2px)',
+				boxShadow: colors.modalShadow,
+				borderColor: colors.accentGold,
+			}}
 		>
 			{/* Agency Badge on Top-Right */}
 			{emp.agencyName && (
 				<Badge
-					colorScheme='brand'
+					bg={`rgba(212, 175, 55, 0.15)`}
+					color={colors.accentGold}
 					position='absolute'
 					top={2}
 					right={2}
@@ -47,7 +57,8 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 				mb={3}
 				p='2'
 				rounded='sm'
-				_hover={{ bg: 'gray.100' }}
+				_hover={{ bg: colors.bgInput }}
+				transition='all 0.2s ease'
 			>
 				<Avatar
 					src={
@@ -61,19 +72,20 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 					<Text
 						fontWeight='medium'
 						fontSize={{ base: '16px', md: '24px' }}
-						maxWidth={{ base: 'full', md: '250px' }}
+						maxWidth={{ base: '140px', md: '200px' }}
 						isTruncated
+						color={colors.headingText}
 					>
 						{emp.fullName}
 					</Text>
 
-					<Text color='#C4C4C4' fontWeight='medium' fontSize='14px'>
+					<Text color={colors.mutedText} fontWeight='medium' fontSize='14px'>
 						{tab === 'admins' ? 'Admin' : emp.roleName}
 					</Text>
-					<Text fontWeight='medium' fontSize='16px'>
+					<Text fontWeight='medium' fontSize='16px' color={colors.bodyText}>
 						{emp.salary ? `${emp.salary}/month` : 'Salary N/A'}
 					</Text>
-					<Text fontWeight='medium' fontSize='12px' color='softGray.200'>
+					<Text fontWeight='medium' fontSize='12px' color={colors.mutedText}>
 						{emp.username}
 					</Text>
 				</Box>
@@ -91,12 +103,9 @@ const EmployeeCard = ({ emp, index, tab, officeSettings, loginRole }) => {
 					<Text
 						alignSelf='center'
 						p='2'
-						bg='gray.100'
-						color='red.400'
+						bg={colors.bgInput}
+						color={colors.badgeErrorText}
 						rounded='sm'
-						// as={Link}
-						// to={`/userView/${emp._id}`}
-						// _hover={{ textDecoration: 'underline' }}
 					>
 						Agency or settings is missing
 					</Text>

@@ -9,7 +9,6 @@ import {
 	HStack,
 	VStack,
 	Tooltip,
-	useColorModeValue,
 	SimpleGrid,
 	CircularProgress,
 	Stack,
@@ -32,7 +31,7 @@ import {
 	Button,
 } from '@chakra-ui/react';
 import { constant } from 'constant';
-import { FiMoreVertical, FiEdit, FiTrash2 } from 'react-icons/fi';
+import { FiMoreVertical, FiEdit, FiTrash2,FiX } from 'react-icons/fi';
 import { FiEye, FiClock, FiUsers, FiCheck, FiBarChart2 } from 'react-icons/fi';
 import { FaPlus } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
@@ -41,65 +40,58 @@ import NoData from 'components/Message/NoData';
 import { getBadgeColors } from 'utils/colorUtils';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
-const CardSkeleton = () => (
-	<Box
-		bg='white'
-		rounded='2xl'
-		border='1px solid'
-		borderColor='gray.200'
-		p={4} // same padding as real cards
-		overflow='hidden'
-		boxShadow='md'
-		position='relative'
-		minH='240px' // ensures same height as real card
-	>
-		{/* Top performance bar */}
-		<Skeleton height='4px' borderTopRadius='2xl' mb={4} />
-
-		{/* Glow placeholder */}
+const CardSkeleton = () => {
+	const colors = useModalColors();
+	return (
 		<Box
-			position='absolute'
-			top='4px'
-			right={0}
-			w='140px'
-			h='140px'
-			bg='gray.100'
-			opacity={0.3}
-			borderRadius='0 0 0 100%'
-		/>
-
-		{/* Header: Avatar + Name + Badges + Actions */}
-		<Flex justify='space-between' align='flex-start' mb={4}>
-			<Flex gap={3}>
-				<Skeleton circle size='64px' /> {/* match Avatar size="lg" */}
-				<Stack spacing={2}>
-					<Skeleton height='18px' width='140px' /> {/* Name */}
-					<Skeleton height='16px' width='90px' /> {/* Role Badge */}
-					<Skeleton height='16px' width='110px' /> {/* Agency Badge */}
+			bg={colors.bg}
+			rounded='2xl'
+			border='1px solid'
+			borderColor={colors.borderColor}
+			p={4}
+			overflow='hidden'
+			boxShadow={colors.cardShadow}
+			position='relative'
+			minH='240px'
+		>
+			<Skeleton height='4px' borderTopRadius='2xl' mb={4} />
+			<Box
+				position='absolute'
+				top='4px'
+				right={0}
+				w='140px'
+				h='140px'
+				bg={colors.bgInput}
+				opacity={0.3}
+				borderRadius='0 0 0 100%'
+			/>
+			<Flex justify='space-between' align='flex-start' mb={4}>
+				<Flex gap={3}>
+					<Skeleton circle size='64px' />
+					<Stack spacing={2}>
+						<Skeleton height='18px' width='140px' />
+						<Skeleton height='16px' width='90px' />
+						<Skeleton height='16px' width='110px' />
+					</Stack>
+				</Flex>
+				<Stack spacing={3}>
+					<Skeleton height='32px' width='32px' />
+					<Skeleton height='32px' width='32px' />
 				</Stack>
 			</Flex>
-
-			{/* Actions */}
-			<Stack spacing={3}>
-				<Skeleton height='32px' width='32px' />
-				<Skeleton height='32px' width='32px' />
-			</Stack>
-		</Flex>
-
-		{/* Stats + Circular Progress */}
-		<Flex gap={6} align='center'>
-			<Stack spacing={2} flexShrink={0}>
-				<Skeleton height='16px' width='90px' /> {/* Evaluators */}
-				<Skeleton height='16px' width='90px' /> {/* Average */}
-				<Skeleton height='20px' width='110px' /> {/* Evaluated/Not evaluated */}
-			</Stack>
-
-			{/* Circular Progress */}
-			<Skeleton circle size='90px' />
-		</Flex>
-	</Box>
-);
+			<Flex gap={6} align='center'>
+				<Stack spacing={2} flexShrink={0}>
+					<Skeleton height='16px' width='90px' />
+					<Skeleton height='16px' width='90px' />
+					<Skeleton height='20px' width='110px' />
+				</Stack>
+				<Skeleton circle size='90px' />
+			</Flex>
+		</Box>
+	);
+};
 
 const UserEvaluationCards = ({
 	data = [],
@@ -109,19 +101,22 @@ const UserEvaluationCards = ({
 	year,
 	confirmDelete,
 }) => {
+	const colors = useModalColors();
 	const navigate = useNavigate();
 	const { user: loggedInUser } = useUserSession();
 	const [delayedLoading, setDelayedLoading] = useState(isLoading);
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const [selectedUser, setSelectedUser] = useState(null);
-	const subTextColor = useColorModeValue('gray.600', 'gray.300');
+
 	useEffect(() => {
 		let timer;
 		if (isLoading) setDelayedLoading(true);
 		else timer = setTimeout(() => setDelayedLoading(false), 400);
 		return () => clearTimeout(timer);
 	}, [isLoading]);
+
 	const { hasPermission } = usePermissions();
+
 	return (
 		<Box my={4}>
 			{delayedLoading ? (
@@ -175,18 +170,19 @@ const UserEvaluationCards = ({
 						const imgSrc = user?.profileImage
 							? `${constant.baseUrl}${user.profileImage}`
 							: undefined;
+
 						return (
 							<Box
 								key={user?._id}
-								bg='white'
+								bg={colors.bg}
 								rounded='2xl'
 								border='1px solid'
-								borderColor='gray.200'
+								borderColor={colors.borderColor}
 								p={3}
 								overflow='hidden'
-								boxShadow='md'
+								boxShadow={colors.cardShadow}
 								transition='transform .2s, box-shadow .2s'
-								_hover={{ transform: 'translateY(-3px)', boxShadow: 'lg' }}
+								_hover={{ transform: 'translateY(-3px)', boxShadow: colors.modalShadow }}
 								position='relative'
 							>
 								{/* Top bar */}
@@ -200,23 +196,26 @@ const UserEvaluationCards = ({
 									borderTopRadius='2xl'
 								/>
 
-								{/* 🔥 Glow box (restored) */}
+								{/* Glow box */}
 								<Box
 									position='absolute'
 									top='4px'
 									right={0}
 									w='140px'
 									h='140px'
-									bgGradient={`linear(45deg, transparent 30%, ${perfColor}.50 100%)`}
-									opacity={0.6}
+									// bgGradient={`linear(45deg, transparent 30%, ${perfColor}.50 100%)`}
+  bgGradient={`linear(135deg, transparent 30%, ${perfColor}.200 100%)`}
+
+									opacity={0.1}
 									borderRadius='0 0 0 100%'
 									transition='all 0.3s ease'
 								/>
+
 								<Flex justify='space-between' align='flex-start' mb={4}>
 									<Flex gap={3}>
 										<Avatar size='lg' name={user?.fullName} src={imgSrc} />
 										<Stack spacing={1}>
-											<Text isTruncated maxW='145px' fontWeight='bold'>
+											<Text isTruncated maxW='145px' fontWeight='bold' color={colors.headingText}>
 												{user?.fullName}
 											</Text>
 
@@ -283,12 +282,14 @@ const UserEvaluationCards = ({
 															/>
 														</Tooltip>
 
-														<MenuList minW='100px'>
+														<MenuList minW='100px' bg={colors.bg} borderColor={colors.borderColor}>
 															{hasPermission('evaluation', 'edit') && (
 																<MenuItem
 																	isDisabled={evaluation.payrollProcessed}
 																	fontSize='sm'
 																	icon={<FiEdit />}
+																	color={colors.bodyText}
+																	_hover={{ bg: colors.bgDeep, color: colors.accentGold }}
 																	onClick={() =>
 																		navigate(
 																			`/evaluation/edit-user-evaluation/role/${user?.roles?.[0]?._id}/user/${user?._id}?month=${month}&year=${year}`,
@@ -306,7 +307,8 @@ const UserEvaluationCards = ({
 																<MenuItem
 																	fontSize='sm'
 																	icon={<FiTrash2 />}
-																	color='red.500'
+																	color={colors.badgeErrorText}
+																	_hover={{ bg: colors.bgDeep, color: colors.badgeErrorText }}
 																	onClick={() => {
 																		setSelectedUser(user);
 																		onOpen();
@@ -327,7 +329,6 @@ const UserEvaluationCards = ({
 													size='sm'
 													icon={<FaPlus />}
 													variant='ghost'
-													colorScheme='green'
 													onClick={() =>
 														navigate(
 															`/evaluation/user-evaluation/role/${user?.roles?.[0]?._id}/user/${user?._id}?month=${month}&year=${year}`,
@@ -346,39 +347,6 @@ const UserEvaluationCards = ({
 									mb={4}
 									flexWrap='nowrap'
 								>
-									{/* <Stack spacing={1} flexShrink={0}>
-                    <Text fontSize={{ base: "xs", lg: "sm" }} color="gray.600">
-                      Evaluators: {evaluation?.totalEvaluators ?? 0}
-                    </Text>
-                    <Text fontSize={{ base: "xs", lg: "sm" }} color="gray.600">
-                      Average: {evaluation?.finalAvg ?? 0}
-                    </Text>
-                    <Badge
-                      position="absolute"
-                      left={3}
-                      bottom={{ base: 7, lg: 7 }}
-                      px={{ base: 2, md: 2.5, lg: 3 }}
-                      py={{ base: 0.5, md: 0.75, lg: 1 }}
-                      fontSize={{ base: "10px", md: "sm", lg: "sm" }}
-                      rounded="full"
-                      colorScheme={user?.hasEvaluated ? "green" : "yellow"}
-                      display="inline-flex"
-                      alignItems="center"
-                      gap={{ base: 0.5, lg: 1 }}
-                    >
-                      {!user?.hasEvaluated ? (
-                        <>
-                          <Icon as={FiClock} boxSize={{ base: 3, lg: 4 }} />
-                          Not Evaluated
-                        </>
-                      ) : (
-                        <>
-                          <Icon as={FiCheck} boxSize={{ base: 3, lg: 4 }} />
-                          Evaluated
-                        </>
-                      )}
-                    </Badge>
-                  </Stack> */}
 									<VStack
 										spacing={3}
 										align='stretch'
@@ -388,8 +356,8 @@ const UserEvaluationCards = ({
 									>
 										<HStack justify='space-between'>
 											<HStack spacing={2}>
-												<Icon as={FiUsers} boxSize={4} color={subTextColor} />
-												<Text fontSize='sm' color={subTextColor}>
+												<Icon as={FiUsers} boxSize={4} color={colors.mutedText} />
+												<Text fontSize='sm' color={colors.mutedText}>
 													Evaluators
 												</Text>
 											</HStack>
@@ -398,7 +366,8 @@ const UserEvaluationCards = ({
 												py={1}
 												fontSize='sm'
 												rounded='full'
-												colorScheme='blue'
+												bg={colors.badgeInfoBg}
+												color={colors.badgeInfoText}
 											>
 												{evaluation.totalEvaluators ?? 0}
 											</Badge>
@@ -409,9 +378,9 @@ const UserEvaluationCards = ({
 												<Icon
 													as={FiBarChart2}
 													boxSize={4}
-													color={subTextColor}
+													color={colors.mutedText}
 												/>
-												<Text fontSize='sm' color={subTextColor}>
+												<Text fontSize='sm' color={colors.mutedText}>
 													Average
 												</Text>
 											</HStack>
@@ -420,11 +389,13 @@ const UserEvaluationCards = ({
 												py={1}
 												fontSize='sm'
 												rounded='full'
-												colorScheme='purple'
+												bg={colors.badgeInfoBg}
+												color={colors.badgeInfoText}
 											>
 												{evaluation.finalAvg ?? 0}
 											</Badge>
 										</HStack>
+
 										<Badge
 											position='absolute'
 											left={3}
@@ -451,6 +422,7 @@ const UserEvaluationCards = ({
 											)}
 										</Badge>
 									</VStack>
+
 									<Flex direction='column' align='center' gap={2}>
 										<Center>
 											<Box position='relative'>
@@ -466,16 +438,15 @@ const UserEvaluationCards = ({
 													size={{ base: '70px', lg: '90px' }}
 													thickness='7px'
 												/>
-
 												<Center position='absolute' inset={0}>
-													<Text fontWeight='bold'>
+													<Text fontWeight='bold' color={colors.headingText}>
 														{Math.round(evaluation?.finalPercentage ?? 0)}%
 													</Text>
 												</Center>
 											</Box>
 										</Center>
 										<Flex align='center' gap={2}>
-											<Text fontWeight='bold' fontSize='11px' color='gray.600'>
+											<Text fontWeight='bold' fontSize='11px' color={colors.mutedText}>
 												Performance
 											</Text>
 										</Flex>
@@ -486,33 +457,91 @@ const UserEvaluationCards = ({
 					})}
 				</SimpleGrid>
 			)}
+
 			<Modal isOpen={isOpen} onClose={onClose} isCentered>
-				<ModalOverlay />
-				<ModalContent>
-					<ModalHeader>Delete Evaluation</ModalHeader>
-					<ModalCloseButton />
-					<ModalBody>
-						Are you sure you want to delete this user's evaluation for this
-						month?
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
+				<ModalContent bg={colors.bg} borderRadius='xl' boxShadow={colors.modalShadow}>
+					<ModalHeader bg={colors.headerBg} color={colors.headerText} borderTopRadius='xl'>
+						Delete Evaluation
+					</ModalHeader>
+					<ModalCloseButton color={colors.headerText} />
+					<ModalBody color={colors.bodyText}>
+					  <Flex direction='column' align='center' textAlign='center'>
+							{/* Warning Icon */}
+							<Flex
+							  align='center'
+							  justify='center'
+							  bg='rgba(238, 93, 80, 0.12)'
+							  border='2px solid'
+							  borderColor='rgba(238, 93, 80, 0.3)'
+							  borderRadius='full'
+							  w='64px'
+							  h='64px'
+							  mb={4}
+							>
+							  <Icon as={FiTrash2} color='red.400' boxSize={7} />
+							</Flex>
+
+							{/* Message */}
+							<Text fontSize='md' color={colors.bodyText} lineHeight='1.6'>
+							  Are you sure you want to delete this user's evaluation for this month?
+							</Text>
+
+
+						  </Flex>
 					</ModalBody>
-					<ModalFooter>
-						<Button variant='ghost' mr={3} onClick={onClose}>
-							Cancel
-						</Button>
-						<Button
-							colorScheme='red'
-							onClick={() =>
-								confirmDelete(
-									selectedUser?._id,
-									month,
-									year,
-									onClose,
-									'USEREVAL',
-								)
-							}
-						>
-							Delete
-						</Button>
+				 <ModalFooter
+					  bg={colors.footerBg}
+					  borderTop='2px solid'
+					  borderColor={colors.headerBg}
+					  py={4}
+					  px={6}
+					  gap={3}
+					>
+					  <Button
+						variant='ghost'
+						rounded='md'
+						onClick={onClose}
+						isDisabled={isLoading}
+						color={colors.secondaryBtnText}
+						_hover={{
+						  bg: colors.secondaryBtnHoverBg,
+						  color: colors.secondaryBtnHoverText,
+						}}
+						leftIcon={<FiX />}
+					  >
+						Cancel
+					  </Button>
+					  <Button
+						rounded='md'
+						isLoading={isLoading}
+						isDisabled={isLoading}
+						onClick={() =>
+						  confirmDelete(selectedUser?._id, month, year, onClose, "USEREVAL")
+						}
+						bg='red.500'
+						color='white'
+						fontWeight='bold'
+						px={6}
+						_hover={{
+						  bg: 'red.600',
+						  boxShadow: '0 4px 15px rgba(238, 93, 80, 0.4)',
+						  transform: 'translateY(-1px)',
+						}}
+						_active={{
+						  bg: 'red.700',
+						  transform: 'translateY(0)',
+						}}
+						_disabled={{
+						  opacity: 0.6,
+						  cursor: 'not-allowed',
+						  transform: 'none',
+						  boxShadow: 'none',
+						}}
+						leftIcon={<FiTrash2 />}
+					  >
+						Delete
+					  </Button>
 					</ModalFooter>
 				</ModalContent>
 			</Modal>

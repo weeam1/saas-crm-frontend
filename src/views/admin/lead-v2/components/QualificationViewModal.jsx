@@ -37,44 +37,36 @@ import {
 export const QualificationViewModal = ({ isOpen, onClose, data }) => {
   if (!data) return null;
 
-  // Access nested data
   const core = data.coreQualification || {};
   const deal = data.dealQualification || {};
   const investment = data.investmentProfile || {};
   const lead = data.lead || {};
 
-  // Icon mapping for fields with unique colors
   const fieldIcons = {
-    // Core Qualification Icons - All different colors
-    leadType: { icon: FiTag, color: "#FF6B6B" }, // Red
-    budgetRange: { icon: FiDollarSign, color: "#4D96FF" }, // Blue
-    exactRequirement: { icon: FiMessageSquare, color: "#6BCB77" }, // Green
-    exactRequest: { icon: FiMessageSquare, color: "#6BCB77" }, // Green
-    propertyTypes: { icon: FiInfo, color: "#FFD93D" }, // Yellow
-    preferredLocations: { icon: FiInfo, color: "#9D4EDD" }, // Purple
-    purchaseTimeline: { icon: FiClock, color: "#FF8C42" }, // Orange
-    decisionStatus: { icon: FiCheckCircle, color: "#32CD32" }, // Lime Green
-    clientTemperature: { icon: FiThermometer, color: "#FF4500" }, // Red-Orange
-    nextActionType: { icon: FiCalendar, color: "#00CED1" }, // Teal
-    nextActionDate: { icon: FiCalendar, color: "#1E90FF" }, // Dodger Blue
-
-    // Deal Qualification Icons - All different colors
-    decisionMaker: { icon: FiUserCheck, color: "#9370DB" }, // Medium Purple
-    paymentMethod: { icon: FiCreditCard, color: "#20B2AA" }, // Light Sea Green
-    downPaymentPreference: { icon: FiPercent, color: "#FF69B4" }, // Hot Pink
-    handoverPreference: { icon: FiPackage, color: "#F4A261" }, // Sandy Brown
-    installmentDuration: { icon: FiCalendar, color: "#2A9D8F" }, // Persian Green
-    clientPriority: { icon: FiStar, color: "#FFD700" }, // Gold
-    clientPriorities: { icon: FiStar, color: "#E9C46A" }, // Maize
-
-    // Investment Profile Icons - All different colors
-    investmentGoal: { icon: FiTarget, color: "#E76F51" }, // Coral
-    targetROI: { icon: FiTrendingUp, color: "#2A9D8F" }, // Sea Green
-    holdingPeriod: { icon: FiClock, color: "#264653" }, // Charcoal
-    exitStrategy: { icon: FiLogOut, color: "#E63946" }, // Crimson
+    leadType: { icon: FiTag, color: "text.accent" },
+    budgetRange: { icon: FiDollarSign, color: "text.accent" },
+    exactRequirement: { icon: FiMessageSquare, color: "text.accent" },
+    exactRequest: { icon: FiMessageSquare, color: "text.accent" },
+    propertyTypes: { icon: FiInfo, color: "text.accent" },
+    preferredLocations: { icon: FiInfo, color: "text.accent" },
+    purchaseTimeline: { icon: FiClock, color: "text.accent" },
+    decisionStatus: { icon: FiCheckCircle, color: "text.accent" },
+    clientTemperature: { icon: FiThermometer, color: "text.accent" },
+    nextActionType: { icon: FiCalendar, color: "text.accent" },
+    nextActionDate: { icon: FiCalendar, color: "text.accent" },
+    decisionMaker: { icon: FiUserCheck, color: "text.accent" },
+    paymentMethod: { icon: FiCreditCard, color: "text.accent" },
+    downPaymentPreference: { icon: FiPercent, color: "text.accent" },
+    handoverPreference: { icon: FiPackage, color: "text.accent" },
+    installmentDuration: { icon: FiCalendar, color: "text.accent" },
+    clientPriority: { icon: FiStar, color: "text.accent" },
+    clientPriorities: { icon: FiStar, color: "text.accent" },
+    investmentGoal: { icon: FiTarget, color: "text.accent" },
+    targetROI: { icon: FiTrendingUp, color: "text.accent" },
+    holdingPeriod: { icon: FiClock, color: "text.accent" },
+    exitStrategy: { icon: FiLogOut, color: "text.accent" },
   };
 
-  // Format date function
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     try {
@@ -89,19 +81,16 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
     }
   };
 
-  // Format array values
   const formatArray = (array) => {
     if (!array || !Array.isArray(array)) return "-";
     return array.join(", ").replace(/_/g, " ");
   };
 
-  // Format enum values
   const formatEnum = (value) => {
     if (!value) return "-";
     return value.replace(/_/g, " ");
   };
 
-  // Get temperature badge color scheme
   const getTemperatureColorScheme = (temp) => {
     switch (temp?.toLowerCase()) {
       case "hot":
@@ -115,33 +104,32 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
     }
   };
 
-  // Get temperature badge color for gradient
   const getTemperatureGradient = (temp) => {
     switch (temp?.toLowerCase()) {
       case "hot":
-        return "linear(to-r, red.400, red.300)";
+        return "linear(to-r, red.500, red.400)";
       case "warm":
-        return "linear(to-r, orange.400, orange.300)";
+        return "linear(to-r, orange.500, orange.400)";
       case "cold":
-        return "linear(to-r, blue.400, blue.300)";
+        return "linear(to-r, blue.500, blue.400)";
       default:
-        return "linear(to-r, gray.400, gray.300)";
+        return "linear(to-r, gray.500, gray.400)";
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
-      <ModalOverlay bg="blackAlpha.600" />
+      <ModalOverlay bg="bg.overlay" />
       <ModalContent
         borderRadius="2xl"
         overflow="hidden"
-        boxShadow="0 20px 60px rgba(0, 0, 0, 0.3)"
+        boxShadow="deep"
         maxW={{ base: "95vw", md: "800px" }}
         maxH="85vh"
         display="flex"
         flexDirection="column"
       >
-        {/* Gradient Header */}
+        {/* Gradient Header - Keep as is (decorative) */}
         <Box
           h="4px"
           bgGradient="linear(to-r, #FF6B6B, #FFD93D, #6BCB77, #4D96FF)"
@@ -150,27 +138,26 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
         <ModalHeader pb={4} pt={6} position="relative" pr={16}>
           <Flex align="center" justify="space-between">
             <Box>
-              <Text fontSize="lg" fontWeight="700" color="gray.800">
+              <Text fontSize="lg" fontWeight="700" color="text.heading">
                 Qualification Details
               </Text>
               <Flex align="center" gap={2} mt={1}>
                 <Flex align="center" gap={1}>
-                  <Icon as={FiHash} color="#B79045" boxSize={3} />
-                  <Text fontSize="xs" color="gray.500">
+                  <Icon as={FiHash} color="text.accent" boxSize={3} />
+                  <Text fontSize="xs" color="text.muted">
                     {lead.leadName || "N/A"}
                   </Text>
                 </Flex>
               </Flex>
             </Box>
 
-            {/* Temperature Badge with proper spacing */}
             <Box mr={12}>
               <Badge
                 fontSize="sm"
                 px={3}
                 py={1}
                 borderRadius="full"
-                bgGradient={getTemperatureGradient(core.leadType)}
+                bgGradient={getTemperatureGradient(core.clientTemperature)}
                 color="white"
                 fontWeight="bold"
                 boxShadow="sm"
@@ -182,19 +169,17 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
           </Flex>
         </ModalHeader>
 
-        {/* Close Button moved to not overlap badge */}
         <ModalCloseButton
           top={6}
           right={4}
           size="md"
-          bg="white"
+          bg="bg.surface"
           border="1px solid"
-          borderColor="gray.200"
-          _hover={{ bg: "gray.50" }}
+          borderColor="border.default"
+          _hover={{ bg: "bg.elevated" }}
           zIndex={1}
         />
 
-        {/* Scrollable Content Area with Colorful Scrollbar */}
         <Box
           flex="1"
           overflowY="auto"
@@ -223,30 +208,27 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
           }}
         >
           {/* CORE SECTION */}
-          {/* CORE SECTION */}
-          <Box mb={8}>
+          <Box mb={8} pt="2">
             <Flex align="center" gap={2} mb={4}>
               <Box
                 p={2}
-                bg="linear-gradient(135deg, #FF6B6B, #FFD93D)"
+                bg="accent.gold"
                 borderRadius="md"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
               >
-                <Icon as={FiInfo} color="white" boxSize={4} />
+                <Icon as={FiInfo} color="text.inverse" boxSize={4} />
               </Box>
               <Text
                 fontSize="lg"
                 fontWeight="700"
-                bgGradient="linear(to-r, #FF6B6B, #FFD93D)"
-                bgClip="text"
+                color="text.accent"
               >
                 Core Qualification
               </Text>
             </Flex>
 
-            {/* Regular grid items except Exact Requirement */}
             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3} mb={4}>
               <InfoRow
                 label="Lead Type"
@@ -295,30 +277,27 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
               />
             </SimpleGrid>
 
-            {/* Exact Requirement - Full width at the end */}
             <Box
               mt={4}
               p={4}
               borderRadius="lg"
               border="1px solid"
-              borderColor="gray.200"
-              bg="gray.50"
+              borderColor="border.default"
+              bg="bg.surface"
             >
               <InfoRow
                 label="Exact Requirement"
                 value={core.exactRequirement}
                 iconData={fieldIcons.exactRequirement}
-                // highlight={true}
                 fullWidth={true}
               />
             </Box>
           </Box>
 
-          {/* Separator */}
           <Flex align="center" justify="center" my={8}>
-            <Divider w="40%" />
-            <Icon as={FiChevronDown} color="gray.300" mx={4} />
-            <Divider w="40%" />
+            <Divider w="40%" borderColor="border.default" />
+            <Icon as={FiChevronDown} color="text.muted" mx={4} />
+            <Divider w="40%" borderColor="border.default" />
           </Flex>
 
           {/* DEAL SECTION */}
@@ -326,19 +305,18 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
             <Flex align="center" gap={2} mb={4}>
               <Box
                 p={2}
-                bg="linear-gradient(135deg, #4D96FF, #6BCB77)"
+                bg="accent.gold"
                 borderRadius="md"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
               >
-                <Icon as={FiBriefcase} color="white" boxSize={4} />
+                <Icon as={FiBriefcase} color="text.inverse" boxSize={4} />
               </Box>
               <Text
                 fontSize="lg"
                 fontWeight="700"
-                bgGradient="linear(to-r, #4D96FF, #6BCB77)"
-                bgClip="text"
+                color="text.accent"
               >
                 Deal Qualification
               </Text>
@@ -382,28 +360,27 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
           {data.isInvestor && (
             <>
               <Flex align="center" justify="center" my={8}>
-                <Divider w="40%" />
-                <Icon as={FiChevronDown} color="gray.300" mx={4} />
-                <Divider w="40%" />
+                <Divider w="40%" borderColor="border.default" />
+                <Icon as={FiChevronDown} color="text.muted" mx={4} />
+                <Divider w="40%" borderColor="border.default" />
               </Flex>
 
               <Box mb={8}>
                 <Flex align="center" gap={2} mb={4}>
                   <Box
                     p={2}
-                    bg="linear-gradient(135deg, #9D4EDD, #E76F51)"
+                    bg="accent.gold"
                     borderRadius="md"
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
                   >
-                    <Icon as={FiTrendingUp} color="white" boxSize={4} />
+                    <Icon as={FiTrendingUp} color="text.inverse" boxSize={4} />
                   </Box>
                   <Text
                     fontSize="lg"
                     fontWeight="700"
-                    bgGradient="linear(to-r, #9D4EDD, #E76F51)"
-                    bgClip="text"
+                    color="text.accent"
                   >
                     Investment Profile
                   </Text>
@@ -440,34 +417,34 @@ export const QualificationViewModal = ({ isOpen, onClose, data }) => {
   );
 };
 
-const InfoRow = ({ label, value, iconData = null, highlight = false }) => (
+const InfoRow = ({ label, value, iconData = null, highlight = false, fullWidth = false }) => (
   <Flex
     align="start"
     gap={3}
     p={2.5}
     borderRadius="lg"
-    _hover={{ bg: "gray.50" }}
+    _hover={{ bg: "bg.elevated" }}
   >
     {iconData && (
       <Box
         p={1.5}
-        bg={`${iconData.color}15`} // Using color with 15% opacity
+        bg="bg.elevated"
         borderRadius="md"
         display="flex"
         alignItems="center"
         justifyContent="center"
       >
-        <Icon as={iconData.icon} color={iconData.color} boxSize={3} />
+        <Icon as={iconData.icon} color="text.accent" boxSize={3} />
       </Box>
     )}
     <Box flex="1">
-      <Text fontSize="xs" color="gray.500" fontWeight="500" mb={0.5}>
+      <Text fontSize="xs" color="text.muted" fontWeight="500" mb={0.5}>
         {label}
       </Text>
       <Text
         fontSize="sm"
         fontWeight={highlight ? "600" : "400"}
-        color={highlight ? "gray.800" : "gray.700"}
+        color={highlight ? "text.heading" : "text.body"}
         wordBreak="break-word"
       >
         {value || "-"}

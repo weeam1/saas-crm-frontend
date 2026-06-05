@@ -23,8 +23,10 @@ import { toast } from 'react-toastify';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
+import { useModalColors } from 'hooks/useModalColors';
 
 const ViewListing = () => {
+	const colors = useModalColors();
 	const { id } = useParams();
 	const navigate = useNavigate();
 
@@ -96,8 +98,8 @@ const ViewListing = () => {
 				>
 					Back to Listings
 				</AppButton>
-				<Alert status='error' mt={4}>
-					<AlertIcon />
+				<Alert status='error' mt={4} bg={colors.badgeErrorBg} color={colors.badgeErrorText}>
+					<AlertIcon color={colors.badgeErrorText} />
 					You are not authorized to view this listing
 				</Alert>
 			</Box>
@@ -113,8 +115,8 @@ const ViewListing = () => {
 				>
 					Back to Listings
 				</AppButton>
-				<Alert status='info' mt={4}>
-					<AlertIcon />
+				<Alert status='info' mt={4} bg={colors.badgeInfoBg} color={colors.badgeInfoText}>
+					<AlertIcon color={colors.badgeInfoText} />
 					Listing not found.
 				</Alert>
 			</Box>
@@ -135,7 +137,7 @@ const ViewListing = () => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ file }), // send file path in body
+				body: JSON.stringify({ file }),
 			});
 
 			if (!response.ok) {
@@ -148,7 +150,6 @@ const ViewListing = () => {
 			const link = document.createElement('a');
 			link.href = downloadUrl;
 
-			// Extract the filename from the full path
 			const decodedName = decodeURIComponent(file.split('/').pop());
 			link.download = decodedName;
 
@@ -179,20 +180,29 @@ const ViewListing = () => {
 				templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)' }}
 				gap={6}
 				p={{ base: 2, sm: 5 }}
-				bg='white'
-				borderRadius='md'
+				bg={colors.bg}
+				borderRadius='lg'
+				boxShadow={colors.cardShadow}
 				my={5}
 				mx={{ base: 0, sm: 2 }}
+				border='1px solid'
+				borderColor={colors.borderColor}
 			>
 				{/* Project Name */}
 				<GridItem colSpan={2}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Project Name</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Project Name</FormLabel>
 						<Input
 							value={listing.data?.projectName || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -200,12 +210,18 @@ const ViewListing = () => {
 				{/* Unit Type */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Unit Type</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Unit Type</FormLabel>
 						<Input
 							value={listing.data?.unitType?.name || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -213,12 +229,18 @@ const ViewListing = () => {
 				{/* Unit Sub Type */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Unit Sub Type</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Unit Sub Type</FormLabel>
 						<Input
 							value={listing.data?.subUnitType?.name || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -226,12 +248,18 @@ const ViewListing = () => {
 				{/* Listing Type */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Listing Type</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Listing Type</FormLabel>
 						<Input
 							value={listing.data?.listingType?.name || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -239,12 +267,18 @@ const ViewListing = () => {
 				{/* Developer */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Developer</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Developer</FormLabel>
 						<Input
 							value={listing.data?.developer || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -252,12 +286,18 @@ const ViewListing = () => {
 				{/* Area */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Area (sqft)</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Area (sqft)</FormLabel>
 						<Input
 							value={listing.data?.area ? `${listing.data.area} sqft` : 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -265,7 +305,7 @@ const ViewListing = () => {
 				{/* Price */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Price</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Price</FormLabel>
 						<Input
 							value={
 								listing.data?.price
@@ -274,7 +314,13 @@ const ViewListing = () => {
 							}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -282,12 +328,18 @@ const ViewListing = () => {
 				{/* Location */}
 				<GridItem colSpan={1}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Location</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Location</FormLabel>
 						<Input
 							value={listing.data?.location || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -295,12 +347,18 @@ const ViewListing = () => {
 				{/* Country */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Country</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Country</FormLabel>
 						<Input
 							value={listing.data?.country?.name || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -308,7 +366,7 @@ const ViewListing = () => {
 				{/* Building Age */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Building Age</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Building Age</FormLabel>
 						<Input
 							value={
 								listing.data?.buildingAge
@@ -317,19 +375,32 @@ const ViewListing = () => {
 							}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
+
 				{/* Owner Name */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Owner name</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Owner name</FormLabel>
 						<Input
 							value={listing.data?.ownerName || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -337,12 +408,18 @@ const ViewListing = () => {
 				{/* Owner Phone Number */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Owner Phone Number</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Owner Phone Number</FormLabel>
 						<Input
 							value={listing.data?.ownerPhoneNumber || 'N/A'}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -352,12 +429,18 @@ const ViewListing = () => {
 						{/* Landlord */}
 						<GridItem colSpan={colSpan}>
 							<FormControl>
-								<FormLabel fontWeight='bold'>Landlord</FormLabel>
+								<FormLabel fontWeight='bold' color={colors.labelColor}>Landlord</FormLabel>
 								<Input
 									value={listing.data?.landlord || 'N/A'}
 									readOnly
 									variant='filled'
-									focusBorderColor='brand.500'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
 								/>
 							</FormControl>
 						</GridItem>
@@ -365,12 +448,18 @@ const ViewListing = () => {
 						{/* Phone Number */}
 						<GridItem colSpan={colSpan}>
 							<FormControl>
-								<FormLabel fontWeight='bold'>Phone Number</FormLabel>
+								<FormLabel fontWeight='bold' color={colors.labelColor}>Phone Number</FormLabel>
 								<Input
 									value={listing.data?.phoneNumber || 'N/A'}
 									readOnly
 									variant='filled'
-									focusBorderColor='brand.500'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
 								/>
 							</FormControl>
 						</GridItem>
@@ -378,12 +467,18 @@ const ViewListing = () => {
 						{/* Email */}
 						<GridItem colSpan={colSpan}>
 							<FormControl>
-								<FormLabel fontWeight='bold'>Email</FormLabel>
+								<FormLabel fontWeight='bold' color={colors.labelColor}>Email</FormLabel>
 								<Input
 									value={listing.data?.email || 'N/A'}
 									readOnly
 									variant='filled'
-									focusBorderColor='brand.500'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_focus={{
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
+									}}
 								/>
 							</FormControl>
 						</GridItem>
@@ -393,7 +488,7 @@ const ViewListing = () => {
 				{/* Broker Commission Type */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Broker Commission Type</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Broker Commission Type</FormLabel>
 						<Input
 							value={
 								listing.data?.brokerCommissionType === 'AED'
@@ -404,7 +499,13 @@ const ViewListing = () => {
 							}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -412,7 +513,7 @@ const ViewListing = () => {
 				{/* Commission Value */}
 				<GridItem colSpan={colSpan}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Commission Value</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Commission Value</FormLabel>
 						<Input
 							value={
 								listing.data?.brokerCommissionValue
@@ -421,7 +522,13 @@ const ViewListing = () => {
 							}
 							readOnly
 							variant='filled'
-							focusBorderColor='brand.500'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
@@ -429,23 +536,29 @@ const ViewListing = () => {
 				{/* Description */}
 				<GridItem colSpan={2}>
 					<FormControl>
-						<FormLabel fontWeight='bold'>Description</FormLabel>
+						<FormLabel fontWeight='bold' color={colors.labelColor}>Description</FormLabel>
 						<Textarea
 							name='description'
 							value={listing.data?.description}
 							placeholder='Enter description'
-							focusBorderColor='brand.500'
 							height='150px'
 							resize='vertical'
 							readOnly
 							variant='filled'
+							bg={colors.bgInput}
+							borderColor={colors.borderColor}
+							color={colors.headingText}
+							_focus={{
+								borderColor: colors.accentGold,
+								boxShadow: `0 0 0 1px ${colors.accentGold}`,
+							}}
 						/>
 					</FormControl>
 				</GridItem>
 
 				{/* Documents */}
 				<GridItem colSpan={2}>
-					<FormLabel fontWeight='bold'>Documents</FormLabel>
+					<FormLabel fontWeight='bold' color={colors.labelColor}>Documents</FormLabel>
 					{listing.data?.documents?.length > 0 ? (
 						<Box mt={2}>
 							{listing.data.documents.map((doc, index) => {
@@ -456,16 +569,15 @@ const ViewListing = () => {
 										justify='space-between'
 										p={3}
 										mb={2}
-										bg='gray.50'
+										bg={colors.bgInput}
 										borderRadius='md'
 										flexDir={{ base: 'column', sm: 'column', md: 'row' }}
 										gap={{ base: '4', sm: '4', md: '0' }}
+										border='1px solid'
+										borderColor={colors.borderColor}
 									>
-										<Text>{fileName}</Text>
-										<AppButton
-											size='sm'
-											onClick={() => handleDownloadDocument(doc)}
-										>
+										<Text color={colors.bodyText}>{fileName}</Text>
+										<AppButton size='sm' onClick={() => handleDownloadDocument(doc)}>
 											Download
 										</AppButton>
 									</Flex>
@@ -473,7 +585,7 @@ const ViewListing = () => {
 							})}
 						</Box>
 					) : (
-						<Text>No documents available</Text>
+						<Text color={colors.mutedText}>No documents available</Text>
 					)}
 				</GridItem>
 			</Grid>

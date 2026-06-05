@@ -23,8 +23,6 @@ import {
 	FiPhoneOutgoing,
 } from 'react-icons/fi';
 import moment from 'moment';
-import { format } from 'date-fns';
-
 import AudioPlayer from './Component/AudioPlayer';
 import { formatCallDuration } from 'utils/helpers';
 import { FiMoreVertical, FiShare2, FiActivity, FiUsers } from 'react-icons/fi';
@@ -212,14 +210,8 @@ const CallCard = ({
 							</Text>
 							<Text fontSize='xs' isTruncated>
 								{call.calldate
-									? format(
-											new Date(call.calldate + '+04:00'),
-											'MMM d, yyyy h:mm a',
-										)
-									: 'N/A'}
-								{/* {call.calldate
 									? moment(call.calldate).format('MMM D, h:mm A')
-									: 'N/A'} */}
+									: 'N/A'}
 							</Text>
 						</Box>
 						<Box width='48%' textAlign='right'>

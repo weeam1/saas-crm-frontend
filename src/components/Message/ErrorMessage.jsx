@@ -1,31 +1,3 @@
-// import {
-// 	Box,
-// 	Alert,
-// 	AlertIcon,
-// 	AlertTitle,
-// 	AlertDescription,
-// } from '@chakra-ui/react';
-
-// const ErrorMessage = ({ message }) => (
-// 	<Box textAlign='left' mt='4'>
-// 		<Alert
-// 			status='error'
-// 			display='flex'
-// 			alignItems='center'
-// 			gap='2'
-// 			rounded='md'
-// 		>
-// 			<AlertIcon />
-// 			<Box>
-// 				<AlertTitle>Error</AlertTitle>
-// 				<AlertDescription>{message}</AlertDescription>
-// 			</Box>
-// 		</Alert>
-// 	</Box>
-// );
-
-// export default ErrorMessage;
-
 import React from 'react';
 import {
 	Box,
@@ -33,7 +5,6 @@ import {
 	Text,
 	Icon,
 	Button,
-	useColorModeValue,
 } from '@chakra-ui/react';
 import {
 	MdErrorOutline,
@@ -41,6 +12,7 @@ import {
 	MdInfoOutline,
 	MdCheckCircleOutline,
 } from 'react-icons/md';
+import { useModalColors } from 'hooks/useModalColors';
 
 const formatError = (msg = '') => {
 	if (!msg) return 'Something went wrong. Please try again.';
@@ -55,7 +27,6 @@ const formatError = (msg = '') => {
 		return 'Your session expired. Please log in again.';
 	if (lower.includes('not found'))
 		return 'The requested resource could not be found.';
-
 	if (lower.includes('server'))
 		return 'Server error — please try again shortly.';
 
@@ -83,24 +54,22 @@ const ErrorMessage = ({
 	actionText,
 	onAction,
 }) => {
+	const colors = useModalColors();
 	const IconType = ICONS[type];
 	const color = COLORS[type];
 
-	const bg = useColorModeValue('gray.50', 'gray.800');
-	const boxShadow = useColorModeValue('lg', 'dark-lg');
-
 	return (
-		<Flex align='center' justify='center' minH='80vh' bg={bg} px={6} py={10}>
+		<Flex align='center' justify='center' minH='80vh' bg={colors.bgDeep} px={6} py={10}>
 			<Box
 				maxW='md'
 				w='full'
 				textAlign='center'
-				bg={useColorModeValue('white', 'gray.900')}
+				bg={colors.bg}
 				p={8}
 				rounded='2xl'
-				boxShadow={boxShadow}
+				boxShadow={colors.modalShadow}
 				borderWidth='1px'
-				borderColor={useColorModeValue('gray.200', 'gray.700')}
+				borderColor={colors.borderColor}
 			>
 				<Flex justify='center' mb={4}>
 					<Icon as={IconType} boxSize={16} color={color} />
@@ -114,7 +83,7 @@ const ErrorMessage = ({
 
 				<Text
 					fontSize={{ base: 'md', lg: 'lg' }}
-					color={useColorModeValue('gray.600', 'gray.300')}
+					color={colors.bodyText}
 					mb={6}
 				>
 					{formatError(message)}
@@ -123,7 +92,7 @@ const ErrorMessage = ({
 				{actionText && (
 					<Button
 						size='md'
-						colorScheme={type === 'error' ? 'red' : 'blue'}
+						variant='brand'
 						onClick={onAction}
 						borderRadius='full'
 						px={6}

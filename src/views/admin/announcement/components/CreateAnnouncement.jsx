@@ -21,13 +21,14 @@ import { MdAnnouncement, MdSend } from "react-icons/md";
 import MessageSuccessModal from "./MessageSuccessModal";
 import SelectManager from "./SelectManager";
 import useFetchUserHierarchy from "hooks/useFetchUserHierarchy";
-import { buttonStyle } from "utils/btn";
 import { HiSpeakerphone } from "react-icons/hi";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
 import { usePermissions } from "hooks/usePermissions";
 import useUserSession from "hooks/useUserSession";
+import { useModalColors } from "hooks/useModalColors";
 
 const CreateAnnouncement = () => {
+  const colors = useModalColors();
   const { user } = useUserSession();
 
   // Fetch the all users data from hook
@@ -43,7 +44,6 @@ const CreateAnnouncement = () => {
   const [message, setMessage] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [receiverIds, setReceiverIds] = useState([]);
-  // const [managerList, setManagerList] = useState([]);
   const [selectedManager, setSelectedManager] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -134,15 +134,6 @@ const CreateAnnouncement = () => {
     const managerReceiverIds = managers?.map((manager) => manager._id);
 
     setReceiverIds(managerReceiverIds); // Set all manager IDs
-
-    // If "All Managers" is selected, set receiver IDs to all managers
-    // if (selectedValue === "allManagers") {
-    // console.log({ managerReceiverIds });
-    // setSelectedManager(selectedValue); // Update the selected manager state
-    // } else {
-    // fetchMangerAgents(selectedValue);
-    // setSelectedManager(selectedValue); // Set the selected manager
-    // }
   };
 
   const handleSend = async (e) => {
@@ -218,30 +209,35 @@ const CreateAnnouncement = () => {
   return (
     <Box
       p={{ base: 4, md: 8, lg: 10 }}
-      shadow="md"
+      shadow={colors.cardShadow}
       rounded="md"
-      background="white"
+      bg={colors.bg}
+      border="1px solid"
+      borderColor={colors.borderColor}
     >
       <HStack
         mb={4}
         spacing={3}
-        bg="brand.200"
+        bg={colors.bgDeep}
         px="4"
         py="4"
         rounded="md"
         shadow="sm"
+        border="1px solid"
+        borderColor={colors.borderColor}
       >
-        <Flex rounded="full" p={{ base: 2, md: 4 }} bg="brand.100">
-          <Icon as={HiSpeakerphone} boxSize={8} color="brand.500" />
+        <Flex rounded="full" p={{ base: 2, md: 4 }} bg={colors.bgInput}>
+          <Icon as={HiSpeakerphone} boxSize={8} color={colors.accentGold} />
         </Flex>
-        <Box color="gray.700">
+        <Box>
           <Text
             fontSize={{ base: "xl", md: "2xl", lg: "3xl" }}
             fontWeight="extrabold"
+            color={colors.headingText}
           >
             Announcement
           </Text>
-          <Text fontSize={{ base: "xs", md: "sm", lg: "md" }}>
+          <Text fontSize={{ base: "xs", md: "sm", lg: "md" }} color={colors.bodyText}>
             Broadcast important messages to your team or the entire platform.
           </Text>
         </Box>
@@ -259,14 +255,21 @@ const CreateAnnouncement = () => {
               height="60"
               resize="none"
               overflowY="auto"
-              focusBorderColor="brand.200"
-              backgroundColor="gray.100"
+              bg={colors.bgInput}
+              borderColor={colors.borderColor}
+              color={colors.headingText}
+              _hover={{ borderColor: colors.accentGold }}
+              _focus={{
+                borderColor: colors.accentGold,
+                boxShadow: `0 0 0 1px ${colors.accentGold}`,
+              }}
+              _placeholder={{ color: colors.mutedText }}
             />
           )}
 
           {hasPermission("announcement", "all_users") ? (
             <>
-              <Text fontWeight="bold" mb={{ base: 1, md: 2 }}>
+              <Text fontWeight="bold" mb={{ base: 1, md: 2 }} color={colors.labelColor}>
                 Send to:
               </Text>
               <HStack
@@ -285,7 +288,6 @@ const CreateAnnouncement = () => {
                   );
                 })}
                 <SelectManager
-                  // selectedRole={selectedRole}
                   selectedManager={selectedManager}
                   managerList={managers}
                   handleManager={handleManager}
@@ -301,7 +303,7 @@ const CreateAnnouncement = () => {
           ) : null}
 
           {isManager && !hasPermission("announcement", "all_users") && (
-            <Text mb={{ base: 1, md: 3 }} color="gray.500">
+            <Text mb={{ base: 1, md: 3 }} color={colors.mutedText}>
               Note: Announcement will be sent all agents under you.
             </Text>
           )}
@@ -309,8 +311,8 @@ const CreateAnnouncement = () => {
           {(isManager || hasPermission("announcement", "all_users")) && (
             <Flex justifyContent="flex-end">
               <Button
-                {...buttonStyle}
-                colorScheme="brand"
+                bg={colors.accentGold}
+                color={colors.headerText}
                 w={{ base: "full", md: "auto" }}
                 px={{ base: 6, md: 12 }}
                 py={{ base: 3, md: 5 }}
@@ -321,6 +323,13 @@ const CreateAnnouncement = () => {
                   (selectedRole === "team" && !selectedManager)
                 }
                 leftIcon={<Icon as={MdSend} />}
+                _hover={{
+                  bg: colors.goldLight,
+                  transform: "translateY(-1px)",
+                  boxShadow: colors.goldGlow,
+                }}
+                _active={{ bg: colors.goldDark }}
+                transition="all 0.2s ease"
               >
                 {loading ? "Sending..." : "Send"}
               </Button>

@@ -14,7 +14,6 @@ import {
 	Box,
 	Badge,
 	Icon,
-	useColorModeValue,
 	HStack,
 } from '@chakra-ui/react';
 import { FiX, FiUser } from 'react-icons/fi';
@@ -25,8 +24,10 @@ import { toast } from 'react-toastify';
 import { CopyIcon } from '@chakra-ui/icons';
 import PermissionDisplay from './PermissionDisplay';
 import GeoNavigationButton from './GeoNavigationButton';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LeadIdDisplay = ({ leadId, type = 'single' }) => {
+	const colors = useModalColors();
 	const handleCopy = () => {
 		navigator.clipboard.writeText(leadId);
 		toast.success(`Lead ID ${leadId} copied to clipboard.`);
@@ -37,18 +38,20 @@ const LeadIdDisplay = ({ leadId, type = 'single' }) => {
 	return (
 		<Box>
 			{type === 'single' && (
-				<Text fontSize='sm' color='gray.500'>
+				<Text fontSize='sm' color={colors.mutedText}>
 					Lead ID
 				</Text>
 			)}
 			<HStack
 				p={2}
-				bg='gray.50'
+				bg={colors.bgInput}
 				borderRadius='md'
 				justify='space-between'
 				spacing={2}
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
-				<Text fontSize='xs' color='gray.700' noOfLines={1}>
+				<Text fontSize='xs' color={colors.bodyText} noOfLines={1}>
 					{leadId}
 				</Text>
 				<IconButton
@@ -57,6 +60,9 @@ const LeadIdDisplay = ({ leadId, type = 'single' }) => {
 					icon={<CopyIcon />}
 					onClick={handleCopy}
 					variant='ghost'
+					color={colors.bodyText}
+					_hover={{ color: colors.accentGold, bg: colors.secondaryBtnHoverBg }}
+					transition='all 0.2s ease'
 				/>
 			</HStack>
 		</Box>
@@ -67,13 +73,10 @@ const LogDetailsDrawer = ({
 	isOpen,
 	onClose,
 	selectedLog,
-	grayColors,
 	renderSecurityLevel,
 	getStatusColor,
 }) => {
-	const textColor = useColorModeValue(grayColors.text, 'white');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
-	const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
+	const colors = useModalColors();
 
 	if (!selectedLog) return null;
 
@@ -87,19 +90,20 @@ const LogDetailsDrawer = ({
 	console.log('selectedLog', selectedLog);
 	return (
 		<Drawer isOpen={isOpen} placement='right' onClose={onClose} size='lg'>
-			<DrawerOverlay />
-			<DrawerContent>
-				<DrawerHeader bg={headerBg} color='white' py={3}>
+			<DrawerOverlay bg={colors.overlayBg} />
+			<DrawerContent bg={colors.bg} borderLeft={`1px solid ${colors.borderColor}`}>
+				<DrawerHeader bg={colors.bgDeep} color={colors.headingText} py={3}>
 					<Flex justify='space-between' align='center'>
-						<Text fontSize='md'>Log Details</Text>
+						<Text fontSize='md' fontWeight='semibold'>Log Details</Text>
 						<IconButton
 							icon={<FiX />}
 							variant='ghost'
-							color='white'
-							_hover={{ bg: grayColors.dark }}
+							color={colors.bodyText}
+							_hover={{ bg: colors.bgInput, color: colors.accentGold }}
 							onClick={onClose}
 							aria-label='Close'
 							size='md'
+							transition='all 0.2s ease'
 						/>
 					</Flex>
 				</DrawerHeader>
@@ -107,35 +111,27 @@ const LogDetailsDrawer = ({
 					<Stack spacing={4}>
 						<SimpleGrid columns={2} spacing={4}>
 							<Box>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='sm' color={colors.mutedText}>
 									User
 								</Text>
-								<Text fontWeight='medium' color={textColor} fontSize='xs'>
+								<Text fontWeight='medium' color={colors.headingText} fontSize='xs'>
 									<Flex align='center'>
-										<Icon as={FiUser} mr={2} color={grayColors.primary} />
+										<Icon as={FiUser} mr={2} color={colors.accentGold} />
 										{selectedLog.userName?.charAt(0).toUpperCase() +
 											selectedLog.userName?.slice(1).toLowerCase()}
 									</Flex>
 								</Text>
 							</Box>
 							<Box>
-								<Text fontSize='sm' color='gray.500'>
-									Role
-								</Text>
-								<Text fontWeight='medium' color={textColor} fontSize='xs'>
-									{selectedLog.action.replace(/_/g, ' ')}
-								</Text>
-							</Box>
-							<Box>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='sm' color={colors.mutedText}>
 									Action
 								</Text>
-								<Text fontWeight='medium' color={textColor} fontSize='xs'>
+								<Text fontWeight='medium' color={colors.headingText} fontSize='xs'>
 									{selectedLog.action.replace(/_/g, ' ')}
 								</Text>
 							</Box>
 							<Box>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='sm' color={colors.mutedText}>
 									Status
 								</Text>
 								<Badge
@@ -150,15 +146,15 @@ const LogDetailsDrawer = ({
 								</Badge>
 							</Box>
 							<Box>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='sm' color={colors.mutedText}>
 									Module
 								</Text>
-								<Text fontWeight='medium' color={textColor} fontSize='xs'>
+								<Text fontWeight='medium' color={colors.headingText} fontSize='xs'>
 									{selectedLog.entity}
 								</Text>
 							</Box>
 							<Box>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='sm' color={colors.mutedText}>
 									Security Level
 								</Text>
 								<Flex justifyContent={'flex-start'} mt={1}>
@@ -166,28 +162,30 @@ const LogDetailsDrawer = ({
 								</Flex>
 							</Box>
 							<Box>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='sm' color={colors.mutedText}>
 									Timestamp
 								</Text>
-								<Text fontWeight='medium' color={textColor} fontSize='xs'>
+								<Text fontWeight='medium' color={colors.headingText} fontSize='xs'>
 									{formatPostDate(selectedLog.metadata.timestamp)}
 								</Text>
 							</Box>
 						</SimpleGrid>
 
-						<Divider borderColor={borderColor} />
+						<Divider borderColor={colors.borderColor} />
 
 						<Box>
-							<Text fontSize='sm' color='gray.500'>
+							<Text fontSize='sm' color={colors.mutedText}>
 								Message
 							</Text>
 							<Text
 								fontWeight='medium'
-								color={textColor}
+								color={colors.bodyText}
 								p={2}
-								bg={'gray.50'}
+								bg={colors.bgInput}
 								borderRadius='md'
 								fontSize='xs'
+								border="1px solid"
+								borderColor={colors.borderColor}
 							>
 								<Text>{selectedLog.message}</Text>
 								<Text>
@@ -202,7 +200,7 @@ const LogDetailsDrawer = ({
 								<LeadIdDisplay leadId={selectedLog?.rawPayload?.leadId} />
 							) : isBulkLeads ? (
 								<Box py='2'>
-									<Text fontSize='sm' mb='2' color='gray.500'>
+									<Text fontSize='sm' mb='2' color={colors.mutedText}>
 										Leads ({selectedLog?.rawPayload?.leadIds?.length || 0})
 									</Text>
 									<Flex
@@ -213,54 +211,56 @@ const LogDetailsDrawer = ({
 										flexWrap='wrap'
 										justifyContent='flex-start'
 										alignItems='center'
-										bg='softGray.100'
+										bg={colors.bgInput}
 										py='2'
 										px='4'
 										m='2'
 										rounded='md'
+										border="1px solid"
+										borderColor={colors.borderColor}
 									>
-										{selectedLog?.rawPayload?.leadIds?.map((leadId) => (
-											<LeadIdDisplay leadId={leadId} type='bulk' />
+										{selectedLog?.rawPayload?.leadIds?.map((leadId, idx) => (
+											<LeadIdDisplay key={idx} leadId={leadId} type='bulk' />
 										))}
 									</Flex>
 								</Box>
 							) : null}
 						</Box>
 
-						<Divider borderColor={borderColor} />
+						<Divider borderColor={colors.borderColor} />
 
 						<Box>
 							<Text
 								fontSize='md'
 								fontWeight='bold'
 								mb={2}
-								color={grayColors.primary}
+								color={colors.headingText}
 							>
 								Metadata
 							</Text>
 							<SimpleGrid columns={2} spacing={4}>
 								<Box>
-									<Text fontSize='sm' color='gray.500'>
+									<Text fontSize='sm' color={colors.mutedText}>
 										IP Address
 									</Text>
-									<Text fontWeight='medium' color={textColor} fontSize='xs'>
+									<Text fontWeight='medium' color={colors.headingText} fontSize='xs'>
 										{selectedLog.metadata.ip}
 									</Text>
 								</Box>
 								<Box>
-									<Text fontSize='sm' color='gray.500'>
+									<Text fontSize='sm' color={colors.mutedText}>
 										City
 									</Text>
-									<Text fontWeight='medium' color={textColor} fontSize='xs'>
+									<Text fontWeight='medium' color={colors.headingText} fontSize='xs'>
 										{selectedLog.metadata.city?.charAt(0).toUpperCase() +
 											selectedLog.metadata.city?.slice(1).toLowerCase()}
 									</Text>
 								</Box>
 								<Box>
-									<Text fontSize='sm' color='gray.500'>
+									<Text fontSize='sm' color={colors.mutedText}>
 										Country
 									</Text>
-									<Text fontWeight='medium' color={textColor} fontSize='xs'>
+									<Text fontWeight='medium' color={colors.headingText} fontSize='xs'>
 										{selectedLog.metadata.country?.charAt(0).toUpperCase() +
 											selectedLog.metadata.country?.slice(1).toLowerCase()}
 									</Text>
@@ -275,13 +275,15 @@ const LogDetailsDrawer = ({
 									/>
 								)}
 						</Box>
-						<Divider borderColor={borderColor} />
+
+						<Divider borderColor={colors.borderColor} />
+
 						<Box>
 							<Text
 								fontSize='md'
 								fontWeight='bold'
 								mb={2}
-								color={grayColors.primary}
+								color={colors.headingText}
 							>
 								Device Information
 							</Text>
@@ -289,7 +291,7 @@ const LogDetailsDrawer = ({
 								<DeviceInfoRow
 									value={selectedLog.metadata.browser}
 									label='Browser'
-									iconColor={grayColors.primary}
+									iconColor={colors.accentGold}
 								/>
 								<DeviceInfoRow
 									value={selectedLog.metadata.browserVersion}
@@ -298,7 +300,7 @@ const LogDetailsDrawer = ({
 								<DeviceInfoRow
 									value={selectedLog.metadata.os}
 									label='OS'
-									iconColor={grayColors.primary}
+									iconColor={colors.accentGold}
 								/>
 								<DeviceInfoRow
 									value={selectedLog.metadata.osVersion}
@@ -307,7 +309,7 @@ const LogDetailsDrawer = ({
 								<DeviceInfoRow
 									value={selectedLog.metadata.device}
 									label='Device'
-									iconColor={grayColors.primary}
+									iconColor={colors.accentGold}
 								/>
 							</SimpleGrid>
 						</Box>

@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { constant } from 'constant';
-
+import keys from 'config/keys';
 export const postApi = async (path, data, login, server = 'baseUrl') => {
+	console.log(keys,"check server")
 	try {
 		let result = await axios.post(constant[server] + path, data, {
 			headers:
@@ -84,28 +85,63 @@ export const deleteManyApi = async (path, data, server = 'baseUrl') => {
 	}
 };
 
+// export const getApi = async (path, id, server = 'baseUrl', source) => {
+
+// 	try {
+// 		if (id) {
+// 			let result = await axios.get(constant[server] + path + id, {
+// 				headers: {
+// 					Authorization:
+// 						localStorage.getItem('token') || sessionStorage.getItem('token'),
+						
+// 				},tenantId: localStorage.getItem('tenantId') || sessionStorage.getItem('tenantId'),
+
+// 			});
+// 			return result;
+// 		} else {
+// 			let result = await axios.get(constant[server] + path, {
+// 				headers: {
+// 					Authorization:
+// 						localStorage.getItem('token') || sessionStorage.getItem('token'),
+// 				},
+// 				...(source && { cancelToken: source.token }),
+// 			});
+// 			return result;
+// 		}
+// 	} catch (e) {
+// 		console.error(e);
+// 		return e;
+// 	}
+// };
 export const getApi = async (path, id, server = 'baseUrl', source) => {
-	try {
-		if (id) {
-			let result = await axios.get(constant[server] + path + id, {
-				headers: {
-					Authorization:
-						localStorage.getItem('token') || sessionStorage.getItem('token'),
-				},
-			});
-			return result;
-		} else {
-			let result = await axios.get(constant[server] + path, {
-				headers: {
-					Authorization:
-						localStorage.getItem('token') || sessionStorage.getItem('token'),
-				},
-				...(source && { cancelToken: source.token }),
-			});
-			return result;
-		}
-	} catch (e) {
-		console.error(e);
-		return e;
-	}
+  try {
+    const token = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
+    const tenantId = localStorage.getItem('tenantId') || sessionStorage.getItem('tenantId');
+    
+    const headers = {};
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    if (tenantId) {
+      headers['x-tenant-id'] = tenantId;
+    }
+    
+    if (id) {
+      let result = await axios.get(constant[server] + path + id, {
+        headers: headers,
+      });
+      return result;
+    } else {
+      let result = await axios.get(constant[server] + path, {
+        headers: headers,
+        ...(source && { cancelToken: source.token }),
+      });
+      return result;
+    }
+  } catch (e) {
+    console.error(e);
+    return e;
+  }
 };

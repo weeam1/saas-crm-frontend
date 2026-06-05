@@ -124,7 +124,7 @@ const HiringDashboard = () => {
 							/>
 						}
 						name={stat.title}
-						value={stat.total || 0}
+						value={stat.total || "0"}
 					/>
 				))}
 			</SimpleGrid>

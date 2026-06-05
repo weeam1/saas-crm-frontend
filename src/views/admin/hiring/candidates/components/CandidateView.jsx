@@ -11,6 +11,7 @@ import {
 	HStack,
 	Box,
 	Stack,
+	ModalFooter,
 	Text,
 	useDisclosure,
 } from '@chakra-ui/react';
@@ -49,8 +50,7 @@ const CandidateView = ({
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
 
-	const { headerBg, closeBtnColor, primaryBtnBg, headerText } =
-		useModalColors();
+	const colors = useModalColors();
 
 	const {
 		isOpen: isApplicationHistoryOpen,
@@ -100,60 +100,61 @@ const CandidateView = ({
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={onClose} isCentered size='4xl'>
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
-					<ModalHeader
-						display='flex'
-						gap='2'
-						bg={headerBg}
-						color={headerText}
-						borderTopRadius='xl'
-						py={4}
-						alignItems='center'
-						w='100%'
-					>
-						<Stack
-							flexDir={{ base: 'column', md: 'row' }}
-							align={{ base: 'flex-start', md: 'center' }}
-							gap='4'
-						>
-							<HStack>
-								<Text>Application</Text>
-								{candidate?.isInterviewed && (
-									<StatusBadge status='Interviewed' color='green' />
-								)}
-							</HStack>
-							{/* Edit Icon Button */}
-							<HStack spacing={2} mt={{ base: 2, md: 0 }} ml='auto'>
-								<Button
-									{...buttonStyle}
-									bg='gray.200'
-									color='gray.800'
-									py='2'
-									px='4'
-									leftIcon={<FiEdit />}
-									onClick={() => setIsEditModalOpen(true)}
-								>
-									Edit
-								</Button>
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
+				<ModalContent mx='2' borderRadius='xl' boxShadow={colors.modalShadow}>
+			<ModalHeader
+  display='flex'
+  gap='2'
+  bg={colors.viewHeaderBg}
+  color={colors.viewHeaderText}
+  borderBottom={`1px solid ${colors.viewHeaderBorder}`}
+  borderTopRadius='xl'
+  py={4}
+  alignItems='center'
+  w='100%'
+>
+  <Stack
+    flexDir={{ base: 'column', md: 'row' }}
+    align={{ base: 'flex-start', md: 'center' }}
+    gap='4'
+  >
+    <HStack>
+      <Text color={colors.viewHeaderText}>Application</Text>
+      {candidate?.isInterviewed && (
+        <StatusBadge status='Interviewed' color='green' />
+      )}
+    </HStack>
 
-								<Button
-									{...buttonStyle}
-									bg='gray.200'
-									color='gray.800'
-									py='2'
-									px='4'
-									leftIcon={<FaClockRotateLeft />}
-									onClick={onApplicationHistoryOpen}
-								>
-									History
-								</Button>
-							</HStack>
-						</Stack>
-					</ModalHeader>
-					<ModalCloseButton color={closeBtnColor} />
-					<ModalBody width='100%' p={4}>
-						<Box overflow='scroll' bg='white' height='60vh' p='4'>
+    <HStack spacing={2} mt={{ base: 2, md: 0 }} ml='auto'>
+      <Button
+        py='2'
+        px='4'
+variant='outline'
+		leftIcon={<FiEdit />}
+        onClick={() => setIsEditModalOpen(true)}
+      >
+        Edit
+      </Button>
+
+      <Button
+        py='2'
+        px='4'
+        leftIcon={<FaClockRotateLeft />}
+        onClick={onApplicationHistoryOpen}
+variant='outline'
+>
+        History
+      </Button>
+    </HStack>
+  </Stack>
+</ModalHeader>
+
+<ModalCloseButton
+  color={colors.bodyText}
+  _hover={{ color: colors.accentGold, bg: colors.secondaryBtnHoverBg }}
+/>
+					<ModalBody bg={colors.viewBg} width='100%' p={4} >
+						<Box  overflow='scroll'  height='60vh' p='4'>
 							<Grid
 								templateColumns={{
 									base: '1fr',
@@ -234,44 +235,48 @@ const CandidateView = ({
 							<ExperienceDetails experience={candidate?.experience} />
 						</Box>
 
-						<HStack spacing={2} mt={2}>
-							<Button
-								onClick={() => onViewCV(candidate?.resume)}
-								bg='brand.500'
-								color='white'
-								width='100%'
-								rounded='md'
-								_hover={{
-									bg: 'brand.600',
-									color: 'white',
-								}}
-								_active={{
-									bg: 'brand.600',
-								}}
-								disabled={missingFiles.includes(candidate?.resume)}
-							>
-								View CV
-							</Button>
 
-							<Button
-								onClick={() => onDownloadCV(candidate?.resume)}
-								bg='brand.500'
-								color='white'
-								width='100%'
-								rounded='md'
-								_hover={{
-									bg: 'brand.600',
-									color: 'white',
-								}}
-								_active={{
-									bg: 'brand.600',
-								}}
-								disabled={missingFiles.includes(candidate?.resume)}
-							>
-								Download CV
-							</Button>
-						</HStack>
 					</ModalBody>
+					<ModalFooter
+  bg={colors.viewFooterBg}
+  borderTop={`1px solid ${colors.viewFooterBorder}`}
+  gap={3}
+  py={4}
+>
+  <Button
+    onClick={() => onViewCV(candidate?.resume)}
+    bg={colors.accentGold}
+    color={colors.headerText}
+    width='100%'
+    rounded='md'
+    _hover={{
+      bg: colors.goldLight,
+    }}
+    _active={{
+      bg: colors.goldDark,
+    }}
+    disabled={missingFiles.includes(candidate?.resume)}
+  >
+    View CV
+  </Button>
+
+  <Button
+    onClick={() => onDownloadCV(candidate?.resume)}
+    bg={colors.accentGold}
+    color={colors.headerText}
+    width='100%'
+    rounded='md'
+    _hover={{
+      bg: colors.goldLight,
+    }}
+    _active={{
+      bg: colors.goldDark,
+    }}
+    disabled={missingFiles.includes(candidate?.resume)}
+  >
+    Download CV
+  </Button>
+</ModalFooter>
 					{!candidate.invited && (
 						<HStack
 							justifyContent='space-between'
@@ -290,24 +295,27 @@ const CandidateView = ({
 
 							<div>
 								<Button
-									colorScheme='gray'
+									variant='ghost'
 									onClick={onClose}
-									variant='outline'
 									size='sm'
 									rounded='md'
 									mr={2}
+									color={colors.bodyText}
+									_hover={{
+										bg: colors.secondaryBtnHoverBg,
+										color: colors.headingText,
+									}}
 								>
 									Cancel
 								</Button>
 								<Button
-									bg={primaryBtnBg}
-									color='white'
+									bg={colors.accentGold}
+									color={colors.headerText}
 									_hover={{
-										bg: 'brand.600',
-										color: 'white',
+										bg: colors.goldLight,
 									}}
 									_active={{
-										bg: 'brand.600',
+										bg: colors.goldDark,
 									}}
 									size='sm'
 									rounded='md'
@@ -316,7 +324,7 @@ const CandidateView = ({
 									}
 									onClick={handleApplicationStatus}
 								>
-									{isLoading ? <Spinner /> : 'Save'}
+									{isLoading ? <Spinner color={colors.headerText} /> : 'Save'}
 								</Button>
 							</div>
 						</HStack>

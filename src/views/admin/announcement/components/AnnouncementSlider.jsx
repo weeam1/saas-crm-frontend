@@ -2,13 +2,22 @@ import { useEffect, useState } from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 import { Box, Flex, Text, IconButton, Button } from '@chakra-ui/react';
+import { useUpdateItemMutation } from 'api/apiSlice';
+import { useReadNotification } from 'hooks/notification/useReadNotification';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AnnouncementSlider = ({
 	announcements: initialAnnouncements,
 	onAcknowledge,
 }) => {
+	const colors = useModalColors();
 	const [announcements, setAnnouncements] = useState(initialAnnouncements);
 	const [currentIndex, setCurrentIndex] = useState(0);
+
+	const [updateAnnouncement, { isLoading: isUpdatingAnnouncement }] =
+		useUpdateItemMutation();
+
+	const { readNotification } = useReadNotification();
 
 	useEffect(() => {
 		if (initialAnnouncements) {
@@ -22,25 +31,34 @@ const AnnouncementSlider = ({
 
 	const handlePrev = () => {
 		setCurrentIndex((prev) =>
-			prev === 0 ? announcements.length - 1 : prev - 1
+			prev === 0 ? announcements.length - 1 : prev - 1,
 		);
 	};
 
-	const handleAcknowledge = () => {
+	const markAnnouncementAsRead = async (id) => {
+		try {
+			await readNotification(id);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const handleAcknowledge = async () => {
 		const currentId = announcements[currentIndex]?.id;
 		if (currentId) {
 			onAcknowledge(currentId);
 			const updatedAnnouncements = announcements.filter(
-				(announcement) => announcement.id !== currentId
+				(announcement) => announcement.id !== currentId,
 			);
 
-			// Update announcements and manage currentIndex
 			setAnnouncements(updatedAnnouncements);
 			if (updatedAnnouncements.length === 0) {
-				setCurrentIndex(0); // Reset index if no announcements remain
+				setCurrentIndex(0);
 			} else if (currentIndex >= updatedAnnouncements.length) {
-				setCurrentIndex(updatedAnnouncements.length - 1); // Adjust index if out of bounds
+				setCurrentIndex(updatedAnnouncements.length - 1);
 			}
+
+			await markAnnouncementAsRead(currentId);
 		}
 	};
 
@@ -48,25 +66,28 @@ const AnnouncementSlider = ({
 		<Box
 			position='relative'
 			textAlign='center'
-			bg='white'
-			borderRadius='md'
-			maxW='xl'
+			bg={colors.bg}
+			borderRadius='lg'
+			maxW='2xl'
 			mx='auto'
 		>
 			{/* Announcement Content */}
 			{announcements.length > 0 ? (
 				<Text
-					fontSize='lg'
+					fontSize={{ base: 'xs', md: 'sm', lg: 'lg' }}
 					fontWeight='medium'
-					textAlign='justify'
+					textAlign={{ base: 'left', md: 'justify' }}
 					mb={6}
-					color='gray.800'
 					mt={4}
+					p={2}
+					lineHeight='1.6'
+					color={colors.bodyText}
+					whiteSpace='pre-line'
 				>
 					{announcements[currentIndex]?.message}
 				</Text>
 			) : (
-				<Text fontSize='lg' fontWeight='medium' mb={6} color='gray.500' mt={4}>
+				<Text fontSize='lg' fontWeight='medium' mb={6} color={colors.mutedText} mt={4}>
 					No announcements to display.
 				</Text>
 			)}
@@ -85,12 +106,11 @@ const AnnouncementSlider = ({
 						transform='translateY(-50%)'
 						size='lg'
 						variant='ghost'
-						colorScheme='brand'
 						borderRadius='full'
 						transition='all 0.3s ease'
+						color={colors.bodyText}
 						_hover={{
-							bg: 'brand.500',
-							color: 'white',
+							color: colors.accentGold,
 							transform: 'translate(-10px, -50%)',
 						}}
 					/>
@@ -106,12 +126,11 @@ const AnnouncementSlider = ({
 						transform='translateY(-50%)'
 						size='lg'
 						variant='ghost'
-						colorScheme='brand'
 						borderRadius='full'
 						transition='all 0.3s ease'
+						color={colors.bodyText}
 						_hover={{
-							bg: 'brand.500',
-							color: 'white',
+							color: colors.accentGold,
 							transform: 'translate(10px, -50%)',
 						}}
 					/>
@@ -125,23 +144,33 @@ const AnnouncementSlider = ({
 					py={4}
 					mb={4}
 					px={8}
-					colorScheme='brand'
-					borderRadius='full'
+					variant='outline'
+					borderWidth='2px'
+					borderColor={colors.accentGold}
+					color={colors.accentGold}
+					borderRadius='lg'
 					fontWeight='medium'
-					transition='all 0.3s ease'
+					fontSize='sm'
+					letterSpacing='wide'
+					textTransform='uppercase'
+					transition='all 0.2s'
 					_hover={{
-						bg: 'brand.600',
-						transform: 'scale(1.05)',
+						bg: colors.bgDeep,
+						borderColor: colors.goldLight,
+						color: colors.goldLight,
+					}}
+					_active={{
+						bg: colors.bgDeep,
 					}}
 					onClick={handleAcknowledge}
 				>
-					Acknowledged
+					✓ Acknowledged
 				</Button>
 			)}
 
 			{/* Pagination */}
 			{announcements.length > 1 && (
-				<Text fontSize='sm' color='gray.500'>
+				<Text fontSize='sm' color={colors.mutedText}>
 					{currentIndex + 1} / {announcements.length}
 				</Text>
 			)}

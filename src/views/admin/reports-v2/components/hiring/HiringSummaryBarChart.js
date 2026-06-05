@@ -9,24 +9,27 @@ import {
 	Cell,
 	LabelList,
 } from 'recharts';
+import { useModalColors } from 'hooks/useModalColors';
 
 const CustomTooltip = ({ active, payload, label }) => {
+	const colors = useModalColors();
+
 	if (active && payload && payload.length) {
 		return (
 			<div
 				className='custom-tooltip'
 				style={{
-					background: '#fff',
+					background: colors.bg,
 					padding: '8px 12px',
-					border: '1px solid #e2e8f0',
+					border: `1px solid ${colors.borderColor}`,
 					borderRadius: '4px',
-					boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+					boxShadow: colors.cardShadow,
 				}}
 			>
-				<p style={{ fontWeight: 600, marginBottom: '4px' }}>{label}</p>
-				<p style={{ color: '#4a5568' }}>
+				<p style={{ fontWeight: 600, marginBottom: '4px', color: colors.headingText }}>{label}</p>
+				<p style={{ color: colors.bodyText }}>
 					Count:{' '}
-					<span style={{ color: '#3182ce', fontWeight: 500 }}>
+					<span style={{ color: colors.accentGold, fontWeight: 500 }}>
 						{payload[0].value}
 					</span>
 				</p>
@@ -37,7 +40,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const HiringSummaryBarChart = ({ data }) => {
-	const colors = ['#3182ce', '#38a169', '#dd6b20'];
+	const colors = useModalColors();
+
+	// Gold theme colors for bars
+	const barColors = [colors.accentGold, colors.goldLight, colors.goldDark];
 
 	return (
 		<ResponsiveContainer width='100%' height={300}>
@@ -49,28 +55,28 @@ const HiringSummaryBarChart = ({ data }) => {
 				<CartesianGrid
 					strokeDasharray='3 3'
 					vertical={false}
-					stroke='#e2e8f0'
+					stroke={colors.borderColor}
 				/>
 				<XAxis
 					dataKey='name'
-					axisLine={true}
+					axisLine={{ stroke: colors.borderColor }}
 					tickLine={false}
-					tick={{ fill: '#4a5568', fontSize: 14 }}
+					tick={{ fill: colors.bodyText, fontSize: 14 }}
 				/>
 				<YAxis
-					axisLine={true}
+					axisLine={{ stroke: colors.borderColor }}
 					tickLine={false}
-					tick={{ fill: '#4a5568', fontSize: 12 }}
+					tick={{ fill: colors.bodyText, fontSize: 12 }}
 				/>
-				<Tooltip content={<CustomTooltip />} cursor={{ fill: '#ebf8ff' }} />
+				<Tooltip content={<CustomTooltip />} cursor={{ fill: `${colors.accentGold}15` }} />
 				<Bar dataKey='value' radius={[4, 4, 0, 0]} animationDuration={1500}>
 					{data.map((entry, index) => (
-						<Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+						<Cell key={`cell-${index}`} fill={barColors[index % barColors.length]} />
 					))}
 					<LabelList
 						dataKey='value'
 						position='top'
-						fill='#2d3748'
+						fill={colors.headingText}
 						fontSize={14}
 						fontWeight={500}
 					/>

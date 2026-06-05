@@ -48,14 +48,14 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 	const filteredUsers =
 		search && !selectedUser
 			? users.filter(
-					(user) =>
-						user.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-						user.username?.toLowerCase().includes(search.toLowerCase()) ||
-						user.name?.toLowerCase().includes(search.toLowerCase())
-				)
+				(user) =>
+					user.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+					user.username?.toLowerCase().includes(search.toLowerCase()) ||
+					user.name?.toLowerCase().includes(search.toLowerCase())
+			)
 			: [];
 
-	const bg = useColorModeValue('gray.100', 'gray.700');
+	const bg = useColorModeValue('brand.100', 'gray.700');
 
 	return (
 		<Box position='relative' ref={containerRef}>
@@ -103,11 +103,12 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 				<Box
 					position='absolute'
 					width='100%'
-					bg='white'
+					bg='bg.surface'
 					shadow='md'
 					borderRadius='md'
 					mt={2}
 					zIndex={50}
+					boxShadow='card'
 					maxH='300px'
 					overflowY='auto'
 				>
@@ -115,17 +116,17 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 						<Flex
 							key={`${index}-${user?._id}`}
 							p={3}
-							bg={bg}
-							rounded='md'
+							bg={'brand.400'}
+							// rounded='md'
 							cursor='pointer'
-							_hover={{ bg: 'brand.100' }}
+							_hover={{ bg: 'brand.500' }}
 							onClick={() => handleSelect(user)}
 							align='center'
 							justify='space-between'
 						>
 							<Box>
-								<Text fontSize='md'>{user.fullName || user.name}</Text>
-								<Text fontSize='sm' color='gray.500'>
+								<Text fontSize='md' color='gray.100'>{user.fullName || user.name}</Text>
+								<Text fontSize='sm' color='gray.300'>
 									{user.username}
 								</Text>
 							</Box>
@@ -138,7 +139,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 				<Box
 					position='absolute'
 					width='100%'
-					bg='white'
+					bg='brand.400'
 					shadow='md'
 					borderRadius='md'
 					mt={2}

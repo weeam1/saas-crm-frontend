@@ -16,11 +16,13 @@ import {
   SimpleGrid,
   HStack,
   Badge,
-  useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
+import { useModalColors } from "hooks/useModalColors";
 
 const ViewUserModal = ({ open, onClose }) => {
+  const colors = useModalColors();
+
   const user = {
     fullName: "Admin Account",
     email: "admin@gmail.com",
@@ -80,70 +82,55 @@ const ViewUserModal = ({ open, onClose }) => {
     parent: "None",
   };
 
-  // Move all useColorModeValue calls to top-level of component
-  const sidebarBg = useColorModeValue("gray.50", "gray.800");
-  const cardBg = useColorModeValue("white", "gray.700");
-  const infoBg = useColorModeValue("gray.50", "gray.600");
-
-  // At the top of your component
-  const bgCardLight = "white";
-  const bgCardDark = "gray.700";
-  const bgCardHoverLight = "gray.50";
-  const bgCardHoverDark = "gray.600";
-  const borderColorLight = "gray.200";
-  const borderColorDark = "gray.600";
-
-  const bgCard = useColorModeValue(bgCardLight, bgCardDark);
-  const bgCardHover = useColorModeValue(bgCardHoverLight, bgCardHoverDark);
-  const borderColor = useColorModeValue(borderColorLight, borderColorDark);
-  // Lead Details Logic
+  const sidebarBg = colors.bgInput;
+  const cardBg = colors.bg;
+  const infoBg = colors.bgInput;
+  const borderColor = colors.borderColor;
 
   return (
     <Modal onClose={onClose} isOpen={open} size="6xl" isCentered>
-      <ModalOverlay bg="rgba(0,0,0,0.6)" backdropFilter="blur(6px)" />
-      <ModalContent m="3" borderRadius="2xl" shadow="2xl" overflow="hidden">
+      <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(6px)" />
+      <ModalContent m="3" borderRadius="2xl" shadow={colors.modalShadow} overflow="hidden" bg={colors.bg}>
         {/* HEADER */}
         <ModalHeader
           px={6}
           py={6}
           borderBottom="1px solid"
-          borderColor="gray.200"
-          bg="white"
+          borderColor={colors.borderColor}
+          bg={colors.bgDeep}
         >
           <Flex align="center" justify="space-between" w="full">
-            {/* Title */}
             <Text
               fontSize="lg"
               fontWeight="600"
-              color="gray.800"
+              color={colors.headingText}
               letterSpacing="0.2px"
             >
               User Preview
             </Text>
 
-            {/* Close Button */}
             <ModalCloseButton
               position="relative"
               top="0"
               right="0"
-              color="black"
+              color={colors.closeBtnColor}
               boxSize={6}
               _focus={{ outline: "none" }}
-              _hover={{ bg: "gray.100" }}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </Flex>
         </ModalHeader>
 
         <Box
-          bg="white"
-          color="gray.800"
+          bg={colors.bg}
+          color={colors.bodyText}
           p={6}
           borderTopRadius="2xl"
           maxH={{ base: "50vh", md: "81vh" }}
           overflowY="auto"
           scrollBehavior="smooth"
-          display={"flex"}
-          flexDirection={"column"}
+          display="flex"
+          flexDirection="column"
           gap={6}
         >
           <Box mb={12}>
@@ -161,15 +148,17 @@ const ViewUserModal = ({ open, onClose }) => {
                 p={6}
                 borderRadius="2xl"
                 bg={sidebarBg}
-                boxShadow="0 4px 24px rgba(0,0,0,0.06)"
+                boxShadow={colors.cardShadow}
                 position="relative"
+                border="1px solid"
+                borderColor={colors.borderColor}
               >
                 <Avatar
                   size="2xl"
                   name={user.fullName}
                   mb={3}
                   border="3px solid"
-                  borderColor="gray.200"
+                  borderColor={colors.accentGold}
                 />
                 <Box
                   position="absolute"
@@ -179,38 +168,39 @@ const ViewUserModal = ({ open, onClose }) => {
                   w={4}
                   h={4}
                   borderRadius="full"
-                  bg={user.onlineStatus === "Online" ? "green.400" : "gray.400"}
-                  border="2px solid white"
+                  bg={user.onlineStatus === "Online" ? colors.accentGold : colors.mutedText}
+                  border="2px solid"
+                  borderColor={colors.bg}
                 />
-                <Text fontWeight="700" fontSize="lg" color="gray.800" mt={2}>
+                <Text fontWeight="700" fontSize="lg" color={colors.headingText} mt={2}>
                   {user.fullName}
                 </Text>
-                <Text fontSize="sm" color="gray.500" mt={1}>
+                <Text fontSize="sm" color={colors.mutedText} mt={1}>
                   {user.role}
                 </Text>
 
                 <HStack justify="center" mt={4} spacing={2}>
                   <Badge
-                    colorScheme={user.status === "Active" ? "green" : "red"}
+                    bg={user.status === "Active" ? `${colors.accentGold}15` : `${colors.badgeErrorText}15`}
+                    color={user.status === "Active" ? colors.accentGold : colors.badgeErrorText}
                     px={3}
                     py={1}
                     borderRadius="full"
                     fontWeight="600"
                     fontSize="xs"
-                    boxShadow="0 1px 4px rgba(0,0,0,0.1)"
+                    boxShadow={colors.cardShadow}
                   >
                     {user.status}
                   </Badge>
                   <Badge
-                    colorScheme={
-                      user.onlineStatus === "Online" ? "green" : "gray"
-                    }
+                    bg={user.onlineStatus === "Online" ? `${colors.accentGold}15` : `${colors.mutedText}15`}
+                    color={user.onlineStatus === "Online" ? colors.accentGold : colors.mutedText}
                     px={3}
                     py={1}
                     borderRadius="full"
                     fontWeight="600"
                     fontSize="xs"
-                    boxShadow="0 1px 4px rgba(0,0,0,0.1)"
+                    boxShadow={colors.cardShadow}
                   >
                     {user.onlineStatus}
                   </Badge>
@@ -225,10 +215,12 @@ const ViewUserModal = ({ open, onClose }) => {
                   bg={cardBg}
                   borderRadius="2xl"
                   p={{ base: 4, md: 6 }}
-                  boxShadow="0 6px 20px rgba(0,0,0,0.05)"
+                  boxShadow={colors.cardShadow}
                   overflow="hidden"
+                  border="1px solid"
+                  borderColor={colors.borderColor}
                 >
-                  <Text fontSize="lg" fontWeight="700" mb={4}>
+                  <Text fontSize="lg" fontWeight="700" mb={4} color={colors.headingText}>
                     Personal Information
                   </Text>
                   <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
@@ -245,16 +237,18 @@ const ViewUserModal = ({ open, onClose }) => {
                         bg={infoBg}
                         p={3}
                         borderRadius="lg"
-                        _hover={{ shadow: "md", transform: "translateY(-1px)" }}
+                        _hover={{ shadow: colors.modalShadow, transform: "translateY(-1px)" }}
                         transition="all 0.2s"
+                        border="1px solid"
+                        borderColor={colors.borderColor}
                       >
-                        <Text fontSize="xs" fontWeight="500" color="gray.500">
+                        <Text fontSize="xs" fontWeight="500" color={colors.mutedText}>
                           {label}
                         </Text>
                         <Text
                           fontSize="sm"
                           fontWeight="600"
-                          color="gray.800"
+                          color={colors.headingText}
                           mt={1}
                         >
                           {value}
@@ -279,20 +273,22 @@ const ViewUserModal = ({ open, onClose }) => {
                       bg={cardBg}
                       borderRadius="2xl"
                       p={4}
-                      boxShadow="0 4px 12px rgba(0,0,0,0.05)"
-                      _hover={{ shadow: "xl", transform: "translateY(-2px)" }}
+                      boxShadow={colors.cardShadow}
+                      _hover={{ shadow: colors.modalShadow, transform: "translateY(-2px)" }}
                       transition="all 0.2s"
+                      border="1px solid"
+                      borderColor={colors.borderColor}
                     >
                       <HStack spacing={2}>
                         <Text fontSize="xl">{icon}</Text>
                         <VStack align="start" spacing={0}>
-                          <Text fontSize="xs" color="gray.500" fontWeight="500">
+                          <Text fontSize="xs" color={colors.mutedText} fontWeight="500">
                             {label}
                           </Text>
                           <Text
                             fontSize="sm"
                             fontWeight="600"
-                            color="gray.800"
+                            color={colors.headingText}
                             mt={1}
                           >
                             {value}
@@ -315,35 +311,30 @@ const ViewUserModal = ({ open, onClose }) => {
               mx="-24px"
               px="24px"
               zIndex="20"
-              bg="white"
+              bg={colors.bg}
               borderBottom="1px solid"
-              borderColor="gray.200"
+              borderColor={colors.borderColor}
               overflowX="auto"
               whiteSpace="nowrap"
               css={{
                 scrollBehavior: "smooth",
-
-                /* Chrome, Safari, Edge */
                 "&::-webkit-scrollbar": {
                   height: "2px",
                 },
                 "&::-webkit-scrollbar-track": { background: "transparent" },
                 "&::-webkit-scrollbar-thumb": {
-                  background: "#d4d4d4",
+                  background: colors.accentGold,
                   borderRadius: "2px",
                 },
-
-                /* Firefox */
                 scrollbarWidth: "thin",
-                scrollbarColor: "#d4d4d4 transparent",
+                scrollbarColor: `${colors.accentGold} transparent`,
               }}
             >
-              {/* 3️⃣ Source & Tracking */}
               <Tab
                 _selected={{
-                  color: "#B79045",
+                  color: colors.accentGold,
                   borderBottom: "2px solid",
-                  borderColor: "#B79045",
+                  borderColor: colors.accentGold,
                   fontWeight: "600",
                 }}
                 fontWeight="500"
@@ -351,16 +342,16 @@ const ViewUserModal = ({ open, onClose }) => {
                 py={2}
                 borderRadius="none"
                 _focus={{ boxShadow: "none" }}
+                color={colors.bodyText}
               >
                 Performance
               </Tab>
 
-              {/* 4️⃣ Lead Status */}
               <Tab
                 _selected={{
-                  color: "#B79045",
+                  color: colors.accentGold,
                   borderBottom: "2px solid",
-                  borderColor: "#B79045",
+                  borderColor: colors.accentGold,
                   fontWeight: "600",
                 }}
                 fontWeight="500"
@@ -368,15 +359,16 @@ const ViewUserModal = ({ open, onClose }) => {
                 py={2}
                 borderRadius="none"
                 _focus={{ boxShadow: "none" }}
+                color={colors.bodyText}
               >
                 Records
               </Tab>
 
               <Tab
                 _selected={{
-                  color: "#B79045",
+                  color: colors.accentGold,
                   borderBottom: "2px solid",
-                  borderColor: "#B79045",
+                  borderColor: colors.accentGold,
                   fontWeight: "600",
                 }}
                 fontWeight="500"
@@ -384,15 +376,16 @@ const ViewUserModal = ({ open, onClose }) => {
                 py={2}
                 borderRadius="none"
                 _focus={{ boxShadow: "none" }}
+                color={colors.bodyText}
               >
                 WhatsApp
               </Tab>
 
               <Tab
                 _selected={{
-                  color: "#B79045",
+                  color: colors.accentGold,
                   borderBottom: "2px solid",
-                  borderColor: "#B79045",
+                  borderColor: colors.accentGold,
                   fontWeight: "600",
                 }}
                 fontWeight="500"
@@ -400,15 +393,16 @@ const ViewUserModal = ({ open, onClose }) => {
                 py={2}
                 borderRadius="none"
                 _focus={{ boxShadow: "none" }}
+                color={colors.bodyText}
               >
                 Permissions
               </Tab>
 
               <Tab
                 _selected={{
-                  color: "#B79045",
+                  color: colors.accentGold,
                   borderBottom: "2px solid",
-                  borderColor: "#B79045",
+                  borderColor: colors.accentGold,
                   fontWeight: "600",
                 }}
                 fontWeight="500"
@@ -416,6 +410,7 @@ const ViewUserModal = ({ open, onClose }) => {
                 py={2}
                 borderRadius="none"
                 _focus={{ boxShadow: "none" }}
+                color={colors.bodyText}
               >
                 System & Metadata
               </Tab>
@@ -426,13 +421,12 @@ const ViewUserModal = ({ open, onClose }) => {
               <TabPanel p={0}>
                 <Box mt={10} mb={10}>
                   <Text
-                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }} // smaller on mobile, bigger on desktop
+                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }}
                     fontWeight="700"
-                    mb={{ base: 3, sm: 4, md: 4 }} // slightly smaller margin on mobile
-                    color="gray.800"
-                    lineHeight={{ base: "short", md: "shorter" }} // better readability
+                    mb={{ base: 3, sm: 4, md: 4 }}
+                    color={colors.headingText}
+                    lineHeight={{ base: "short", md: "shorter" }}
                   >
-                    {" "}
                     Performance & Activity Insights
                   </Text>
 
@@ -448,19 +442,21 @@ const ViewUserModal = ({ open, onClose }) => {
                       <Box
                         key={label}
                         p={5}
-                        bg={bgCard}
+                        bg={cardBg}
                         borderRadius="2xl"
-                        boxShadow="0 6px 20px rgba(0,0,0,0.05)"
-                        _hover={{ shadow: "xl", transform: "translateY(-2px)" }}
+                        boxShadow={colors.cardShadow}
+                        _hover={{ shadow: colors.modalShadow, transform: "translateY(-2px)" }}
                         transition="all 0.2s"
+                        border="1px solid"
+                        borderColor={colors.borderColor}
                       >
-                        <Text fontSize="xs" color="gray.500" fontWeight="500">
+                        <Text fontSize="xs" color={colors.mutedText} fontWeight="500">
                           {label}
                         </Text>
                         <Text
                           fontSize="2xl"
                           fontWeight="700"
-                          color="gray.800"
+                          color={colors.headingText}
                           mt={1}
                         >
                           {value}
@@ -475,11 +471,11 @@ const ViewUserModal = ({ open, onClose }) => {
               <TabPanel p={0}>
                 <Box mt={10} mb={10}>
                   <Text
-                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }} // smaller on mobile, bigger on desktop
+                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }}
                     fontWeight="700"
-                    mb={{ base: 3, sm: 4, md: 4 }} // slightly smaller margin on mobile
-                    color="gray.800"
-                    lineHeight={{ base: "short", md: "shorter" }} // better readability
+                    mb={{ base: 3, sm: 4, md: 4 }}
+                    color={colors.headingText}
+                    lineHeight={{ base: "short", md: "shorter" }}
                   >
                     Created Records Summary
                   </Text>
@@ -494,20 +490,22 @@ const ViewUserModal = ({ open, onClose }) => {
                       <Box
                         key={label}
                         p={5}
-                        bg={bgCard}
+                        bg={cardBg}
                         borderRadius="2xl"
-                        boxShadow="0 4px 16px rgba(0,0,0,0.05)"
-                        _hover={{ shadow: "xl", transform: "translateY(-2px)" }}
+                        boxShadow={colors.cardShadow}
+                        _hover={{ shadow: colors.modalShadow, transform: "translateY(-2px)" }}
                         transition="all 0.2s"
                         textAlign="center"
+                        border="1px solid"
+                        borderColor={colors.borderColor}
                       >
-                        <Text fontSize="xs" color="gray.500" fontWeight="500">
+                        <Text fontSize="xs" color={colors.mutedText} fontWeight="500">
                           {label}
                         </Text>
                         <Text
                           fontSize="2xl"
                           fontWeight="700"
-                          color="gray.800"
+                          color={colors.headingText}
                           mt={1}
                         >
                           {value}
@@ -522,11 +520,11 @@ const ViewUserModal = ({ open, onClose }) => {
               <TabPanel p={0}>
                 <Box mt={10} mb={10}>
                   <Text
-                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }} // smaller on mobile, bigger on desktop
+                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }}
                     fontWeight="700"
-                    mb={{ base: 3, sm: 4, md: 4 }} // slightly smaller margin on mobile
-                    color="gray.800"
-                    lineHeight={{ base: "short", md: "shorter" }} // better readability
+                    mb={{ base: 3, sm: 4, md: 4 }}
+                    color={colors.headingText}
+                    lineHeight={{ base: "short", md: "shorter" }}
                   >
                     WhatsApp Integration
                   </Text>
@@ -536,14 +534,17 @@ const ViewUserModal = ({ open, onClose }) => {
                       align="flex-start"
                       spacing={4}
                       p={6}
-                      bg={bgCard}
+                      bg={cardBg}
                       borderRadius="2xl"
-                      boxShadow="0 6px 20px rgba(0,0,0,0.05)"
+                      boxShadow={colors.cardShadow}
+                      border="1px solid"
+                      borderColor={colors.borderColor}
                     >
-                      <InfoRow label="Phone" value={user.whatsappPhone} />
-                      <InfoRow label="Business ID" value={user.businessId} />
+                      <InfoRow label="Phone" value={user.whatsappPhone} colors={colors} />
+                      <InfoRow label="Business ID" value={user.businessId} colors={colors} />
                       <Badge
-                        colorScheme="green"
+                        bg={`${colors.accentGold}15`}
+                        color={colors.accentGold}
                         px={4}
                         py={1}
                         borderRadius="full"
@@ -554,7 +555,8 @@ const ViewUserModal = ({ open, onClose }) => {
                     </VStack>
                   ) : (
                     <Badge
-                      colorScheme="red"
+                      bg={`${colors.badgeErrorText}15`}
+                      color={colors.badgeErrorText}
                       px={4}
                       py={1}
                       borderRadius="full"
@@ -570,11 +572,11 @@ const ViewUserModal = ({ open, onClose }) => {
               <TabPanel p={0}>
                 <Box mt={10} mb={10}>
                   <Text
-                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }} // smaller on mobile, bigger on desktop
+                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }}
                     fontWeight="700"
-                    mb={{ base: 3, sm: 4, md: 4 }} // slightly smaller margin on mobile
-                    color="gray.800"
-                    lineHeight={{ base: "short", md: "shorter" }} // better readability
+                    mb={{ base: 3, sm: 4, md: 4 }}
+                    color={colors.headingText}
+                    lineHeight={{ base: "short", md: "shorter" }}
                   >
                     Role Permissions Overview
                   </Text>
@@ -584,22 +586,23 @@ const ViewUserModal = ({ open, onClose }) => {
                       <Box
                         key={p.module}
                         p={5}
-                        bg={bgCard}
+                        bg={cardBg}
                         borderRadius="2xl"
                         border="1px solid"
-                        borderColor={borderColor}
+                        borderColor={colors.borderColor}
                         textAlign="center"
-                        _hover={{ shadow: "xl", transform: "translateY(-2px)" }}
+                        _hover={{ shadow: colors.modalShadow, transform: "translateY(-2px)" }}
                         transition="all 0.2s"
                       >
-                        <Text fontWeight="600" mb={2}>
+                        <Text fontWeight="600" mb={2} color={colors.headingText}>
                           {p.module}
                         </Text>
                         <Badge
                           px={4}
                           py={1}
                           borderRadius="full"
-                          colorScheme={p.access ? "green" : "red"}
+                          bg={p.access ? `${colors.accentGold}15` : `${colors.badgeErrorText}15`}
+                          color={p.access ? colors.accentGold : colors.badgeErrorText}
                           fontWeight="600"
                         >
                           {p.access ? "Full Access" : "No Access"}
@@ -614,11 +617,11 @@ const ViewUserModal = ({ open, onClose }) => {
               <TabPanel p={0}>
                 <Box mt={10} mb={10}>
                   <Text
-                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }} // smaller on mobile, bigger on desktop
+                    fontSize={{ base: "xl", sm: "2xl", md: "2xl" }}
                     fontWeight="700"
-                    mb={{ base: 3, sm: 4, md: 4 }} // slightly smaller margin on mobile
-                    color="gray.800"
-                    lineHeight={{ base: "short", md: "shorter" }} // better readability
+                    mb={{ base: 3, sm: 4, md: 4 }}
+                    color={colors.headingText}
+                    lineHeight={{ base: "short", md: "shorter" }}
                   >
                     System & Metadata
                   </Text>
@@ -626,20 +629,16 @@ const ViewUserModal = ({ open, onClose }) => {
                   <VStack
                     spacing={3}
                     p={6}
-                    bg={bgCard}
+                    bg={cardBg}
                     borderRadius="2xl"
-                    boxShadow="0 6px 20px rgba(0,0,0,0.05)"
+                    boxShadow={colors.cardShadow}
+                    border="1px solid"
+                    borderColor={colors.borderColor}
                   >
-                    <InfoRow label="Created" value={user.createdAt} />
-                    <InfoRow label="Updated" value={user.updatedAt} />
-                    <InfoRow
-                      label="Deleted"
-                      value={user.deleted ? "Yes" : "No"}
-                    />
-                    <InfoRow
-                      label="Parent User"
-                      value={user.parent || "None"}
-                    />
+                    <InfoRow label="Created" value={user.createdAt} colors={colors} />
+                    <InfoRow label="Updated" value={user.updatedAt} colors={colors} />
+                    <InfoRow label="Deleted" value={user.deleted ? "Yes" : "No"} colors={colors} />
+                    <InfoRow label="Parent User" value={user.parent || "None"} colors={colors} />
                   </VStack>
                 </Box>
               </TabPanel>
@@ -653,7 +652,7 @@ const ViewUserModal = ({ open, onClose }) => {
 
 export default ViewUserModal;
 
-function InfoRow({ label, value }) {
+function InfoRow({ label, value, colors }) {
   return (
     <Flex
       justify="space-between"
@@ -661,17 +660,15 @@ function InfoRow({ label, value }) {
       align="center"
       px={2}
       py={1}
-      _hover={{ bg: "gray.50", borderRadius: "md" }}
+      _hover={{ bg: colors.bgInput, borderRadius: "md" }}
       transition="all 0.2s"
     >
-      <Text color="gray.500" fontWeight="500" fontSize="sm">
+      <Text color={colors.mutedText} fontWeight="500" fontSize="sm">
         {label}
       </Text>
-      <Text color="gray.800" fontWeight="600" fontSize="sm">
+      <Text color={colors.headingText} fontWeight="600" fontSize="sm">
         {value}
       </Text>
     </Flex>
   );
 }
-
-

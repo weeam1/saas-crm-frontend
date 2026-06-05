@@ -7,17 +7,15 @@ import {
 	ModalFooter,
 	ModalHeader,
 	ModalOverlay,
+	Textarea,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 import { postApi } from 'services/api';
 import { toast } from 'react-toastify';
-import { Textarea } from '@chakra-ui/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateMultipleLeadFields } from '../../../../../redux/leadsSlice';
-import { buttonStyle } from 'utils/btn';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
-import { useModalColors } from 'hooks/useModalColors';
 import CallFeedbackModal from './CallFeedbackModal';
 import { useCreateItemMutation } from 'api/apiSlice';
 
@@ -48,7 +46,6 @@ const AddNewNote = ({
 
 	const { user } = useUserSession();
 	const { createUserLog } = useUserActivityLog();
-	const { headerBg, headerText } = useModalColors();
 
 	const [createItemMutation] = useCreateItemMutation();
 
@@ -63,7 +60,7 @@ const AddNewNote = ({
 					note: noteValue,
 				});
 
-				toast.success('Note added successfuly');
+				toast.success('Note added successfully');
 				setNoteAdded((noteAdded) => (noteAdded === 0 ? 1 : 0));
 				setNoteValue('');
 
@@ -120,7 +117,7 @@ const AddNewNote = ({
 	const handleSubmitFeedback = async (data) => {
 		try {
 			if (!userExtensionId) {
-				return toast.error('User extension id is must required to procced!');
+				return toast.error('User extension id is required to proceed!');
 			}
 
 			const payload = {
@@ -138,73 +135,79 @@ const AddNewNote = ({
 
 			handleSubmitNote();
 		} catch (error) {
-			toast.error(error?.data?.message || 'Feedback submittion failed!');
+			toast.error(error?.data?.message || 'Feedback submission failed!');
 		} finally {
 			setCallFeedbackOpen(false);
 		}
 	};
 
 	return (
-		<div>
+		<>
 			<Modal size='3xl' onClose={onClose} isOpen={isOpen} isCentered>
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+				<ModalOverlay bg='bg.overlay' backdropFilter='blur(2px)' />
+				<ModalContent
+					bg='bg.surface'
+					borderRadius='xl'
+					boxShadow='deep'
+					mx='2'
+					overflow='hidden'
+				>
 					<ModalHeader
-						display='flex'
-						gap='2'
-						bg={headerBg}
-						color={headerText}
+						bg='accent.gold'
+						color='#000000'
 						borderTopRadius='xl'
 						py={4}
-						alignItems='center'
-						w='100%'
+						px={6}
+						borderBottom='1px solid'
+						borderColor='border.default'
 					>
 						Add Note
 					</ModalHeader>
-					<ModalCloseButton _focus={{ outline: 'none' }} />
-					<ModalBody>
+
+					<ModalCloseButton
+						color='#000000'
+						_focus={{ outline: 'none' }}
+						_hover={{ bg: 'rgba(0,0,0,0.1)' }}
+					/>
+
+					<ModalBody py={6}>
 						<Textarea
-							style={{
-								whiteSpace: 'pre-wrap',
-							}}
-							size={'md'}
+							whiteSpace='pre-wrap'
+							size='md'
 							rows={5}
 							value={noteValue}
-							borderWidth='1px'
-							focusBorderColor='brand.500'
-							onInput={(e) => setNoteValue(e.target.value)}
-							mr={3}
+							bg='bg.input'
+							borderColor='border.default'
+							color='text.body'
+							_placeholder={{ color: 'text.muted' }}
+							_focus={{
+								borderColor: 'border.focus',
+								boxShadow: 'goldGlow',
+							}}
+							_hover={{ borderColor: 'border.focus' }}
+							onChange={(e) => setNoteValue(e.target.value)}
 							placeholder='Type here'
 							maxHeight='150px'
 							overflowY='auto'
 						/>
 					</ModalBody>
-					<ModalFooter>
+
+					<ModalFooter
+						borderTop='1px solid'
+						borderColor='border.default'
+						gap={3}
+					>
 						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='gray.200'
-							color='gray.800'
-							_active={{ bg: 'gray.300' }}
-							py='4'
-							px='6'
-							mr='3'
-							fontSize='lg'
-							aria-label='close'
+							variant='outline'
 							onClick={onClose}
 						>
 							Close
 						</Button>
 						<Button
-							{...buttonStyle}
-							variant='solid'
-							bg='brand.400'
-							py='4'
-							px='6'
-							fontSize='lg'
-							aria-label='add'
+							variant='brand'
 							onClick={handleAddNote}
-							disabled={isLoding || !noteValue.trim() ? true : false}
+							isDisabled={isLoding || !noteValue.trim()}
+							isLoading={isLoding}
 						>
 							{isLoding ? 'Loading...' : 'Add'}
 						</Button>
@@ -219,7 +222,7 @@ const AddNewNote = ({
 					onSubmit={handleSubmitFeedback}
 				/>
 			)}
-		</div>
+		</>
 	);
 };
 

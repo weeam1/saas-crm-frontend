@@ -9,19 +9,18 @@ import {
 } from '@chakra-ui/react';
 import { toast } from 'react-toastify';
 import { useUpdateItemMutation } from 'api/apiSlice';
+import { useModalColors } from 'hooks/useModalColors';
 
-const RANKING_OPTIONS = [
-	{ label: 'Normal', value: 'NORMAL', bg: 'gray.100', color: 'gray.800' },
-	{ label: 'Good', value: 'GOOD', bg: 'blue.100', color: 'blue.800' },
-	{
-		label: 'Excellent',
-		value: 'EXCELLENT',
-		bg: 'green.100',
-		color: 'green.800',
-	},
-];
 
 const UserRankingSelect = ({ user }) => {
+
+	const colors = useModalColors();
+
+const RANKING_OPTIONS = [
+	{ label: 'Normal', value: 'NORMAL', bg: `${colors.accentGold}15`, color: colors.accentGold },
+	{ label: 'Good', value: 'GOOD', bg: `${colors.accentGold}25`, color: colors.accentGold },
+	{ label: 'Excellent', value: 'EXCELLENT', bg: `${colors.accentGold}35`, color: colors.accentGold },
+];
 	const [updateUser, { isLoading }] = useUpdateItemMutation();
 	const [value, setValue] = useState(user?.ranking || '');
 
@@ -36,7 +35,7 @@ const UserRankingSelect = ({ user }) => {
 			if (!newValue || newValue === value) return;
 
 			const previous = value;
-			setValue(newValue); // optimistic update
+			setValue(newValue);
 
 			try {
 				await updateUser({
@@ -46,7 +45,7 @@ const UserRankingSelect = ({ user }) => {
 
 				toast.success('Ranking updated');
 			} catch (error) {
-				setValue(previous); // rollback
+				setValue(previous);
 				toast.error('Failed to update ranking');
 			}
 		},
@@ -56,35 +55,38 @@ const UserRankingSelect = ({ user }) => {
 	if (!user?._id) return 'N/A';
 
 	return (
-		<>
-			<Select
-				value={isLoading ? '' : value}
-				onChange={handleChange}
-				isDisabled={isLoading}
-				borderRadius='md'
-				size='sm'
-				bg={currentStyle.bg || 'gray.50'}
-				color={currentStyle.color || 'gray.700'}
-				fontWeight='semibold'
-			>
-				{/* Show updating option when loading */}
-				{isLoading && (
-					<option value='' disabled>
-						Updating...
-					</option>
-				)}
-				{/* Always show the ranking options */}
-				<option value='' disabled>
-					Select ranking
+		<Select
+			value={isLoading ? '' : value}
+			onChange={handleChange}
+			isDisabled={isLoading}
+			borderRadius='md'
+			size='sm'
+			bg={currentStyle.bg || colors.bgInput}
+			color={currentStyle.color || colors.headingText}
+			fontWeight='semibold'
+			borderColor={colors.borderColor}
+			_hover={{ borderColor: colors.accentGold }}
+			_focus={{
+				borderColor: colors.accentGold,
+				boxShadow: `0 0 0 1px ${colors.accentGold}`
+			}}
+			transition='all 0.2s ease'
+		>
+			{isLoading && (
+				<option value='' disabled style={{ background: colors.bg, color: colors.mutedText }}>
+					Updating...
 				</option>
+			)}
+			<option value='' disabled style={{ background: colors.bg, color: colors.mutedText }}>
+				Select ranking
+			</option>
 
-				{RANKING_OPTIONS.map((opt) => (
-					<option key={opt.value} value={opt.value}>
-						{opt.label}
-					</option>
-				))}
-			</Select>
-		</>
+			{RANKING_OPTIONS.map((opt) => (
+				<option key={opt.value} value={opt.value} style={{ background: colors.bg, color: colors.headingText }}>
+					{opt.label}
+				</option>
+			))}
+		</Select>
 	);
 };
 

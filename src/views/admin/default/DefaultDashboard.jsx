@@ -5,7 +5,7 @@ import PermissionSection from './components/PermissionSection';
 
 const DefaultDashboard = () => {
 	return (
-		<Box>
+		<Box >
 			<Header />
 			<PermissionSection />
 		</Box>

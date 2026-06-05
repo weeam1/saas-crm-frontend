@@ -3,7 +3,6 @@ import {
 	Box,
 	Text,
 	Tooltip,
-	useColorModeValue,
 	Icon,
 	HStack,
 } from '@chakra-ui/react';
@@ -13,28 +12,27 @@ import {
 	leadlabelFontSize,
 	leadValueFontSize,
 } from '../../constants';
-import CustomTooltip from 'components/shared/CustomTooltip';
 import { format } from 'date-fns';
 
 const LastNoteField = ({ label, lead }) => {
-	const labelColor = useColorModeValue('softGray.200', 'gray.300');
-	const valueColor = useColorModeValue('gray.800', 'green.600');
-
 	const isLatestNote = lead?.latestNote?.createdAt;
 
 	const tooltipLabel = lead?.lastNote ? (
-		<div>
+		<Box>
 			{lead?.latestNote?.addedBy?.fullName && (
-				<h4 style={{ marginBottom: '6px', fontSize: '12px' }}>
+				<Text fontWeight="bold" mb={1} fontSize="xs">
 					Added By: {lead?.latestNote?.addedBy?.fullName}
-				</h4>
+				</Text>
 			)}
-			<p style={{ marginBottom: '6px' }}>{lead?.lastNote}</p>
-			<span>
-				{isLatestNote &&
-					format(new Date(lead?.latestNote.createdAt), 'MMM d, yyyy h:mm a')}
-			</span>
-		</div>
+			<Text mb={1} fontSize="xs">
+				{lead?.lastNote}
+			</Text>
+			{isLatestNote && (
+				<Text fontSize="xs" color="text.muted">
+					{format(new Date(lead?.latestNote.createdAt), 'MMM d, yyyy h:mm a')}
+				</Text>
+			)}
+		</Box>
 	) : (
 		'N/A'
 	);
@@ -49,20 +47,34 @@ const LastNoteField = ({ label, lead }) => {
 				flex='1'
 			>
 				{label && (
-					<Text fontSize={leadlabelFontSize} color={labelColor}>
+					<Text fontSize={leadlabelFontSize} color='text.muted'>
 						{label}
 					</Text>
 				)}
 
-				{/* <CustomTooltip label={tooltipLabel} persistent={true} variant='primary'> */}
-				<CustomTooltip label={tooltipLabel} persistent={true}>
-					<Icon
-						as={InfoIcon}
-						boxSize={leadIconSize}
-						color='blue.300'
-						cursor='pointer'
-					/>
-				</CustomTooltip>
+				<Tooltip
+					label={tooltipLabel}
+					placement="top"
+					hasArrow
+					openDelay={300}
+					bg='bg.surface'
+					color='text.body'
+					border='1px solid'
+					borderColor='border.default'
+					borderRadius='md'
+					p={2}
+					fontSize='xs'
+				>
+					<span style={{ display: 'inline-flex' }}>
+						<Icon
+							as={InfoIcon}
+							boxSize={leadIconSize}
+							color='text.accent'
+							cursor='pointer'
+							_hover={{ color: 'accent.goldLight' }}
+						/>
+					</span>
+				</Tooltip>
 			</HStack>
 
 			{/* Value */}
@@ -71,17 +83,18 @@ const LastNoteField = ({ label, lead }) => {
 				textAlign='left'
 				fontWeight='normal'
 				isTruncated
-				color={valueColor}
+				color='text.body'
 			>
 				{lead.lastNote || 'N/A'}
 			</Text>
 
 			{isLatestNote && (
-				<Text fontSize={leadlabelFontSize} color='gray.700'>
+				<Text fontSize={leadlabelFontSize} color='text.muted'>
 					{format(new Date(lead?.latestNote.createdAt), 'MMM d, yyyy h:mm a')}
 				</Text>
 			)}
 		</Box>
 	);
 };
+
 export default LastNoteField;

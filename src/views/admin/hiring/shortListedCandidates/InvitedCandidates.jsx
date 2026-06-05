@@ -1,27 +1,37 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
-import { Box, Button, Heading, HStack, IconButton } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Heading,
+  HStack,
+  IconButton,
+  Flex,
+  Text,
+} from "@chakra-ui/react";
 import { FaUsers } from "react-icons/fa";
 
 import CandidateView from "views/admin/hiring/candidates/components/CandidateView";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
-import SearchBar from "components/search/SearchBar";
-import TablePagination from "components/pagination/TablePagination";
+import TopPagination from "components/pagination/TopPagination";
 import ArrangeInterview from "./components/ArrangeInterview";
+import InvitedTable from "./components/InvitedTable";
 import { constant } from "constant";
 import { useUpdateItemMutation } from "api/apiSlice";
-import InvitedTable from "./components/InvitedTable";
 import { addMissingFile } from "./../../../../redux/missingFilesSlice";
-
 import { useDispatch, useSelector } from "react-redux";
 import useUserSession from "hooks/useUserSession";
 import { useUserActivityLog } from "hooks/useUserActivityLog";
-import { FiRefreshCw } from "react-icons/fi";
+import SearchBox from "views/admin/lead-v2/components/SearchBox";
+import CustomTooltip from "components/shared/CustomTooltip";
+import { useModalColors } from "hooks/useModalColors";
+import RefreshButton from "components/refresh/RefreshButton";
 
 const InvitedCandidates = ({
   data,
   allData,
   loading,
+  isFetching,
   totalDocs,
   handleSort,
   sortConfig,
@@ -34,11 +44,21 @@ const InvitedCandidates = ({
   gopageValue,
   setGopageValue,
   setAdvanceSearch,
+  onSearchChange,
+  searchTerm,
+  onClear, // Add onClear prop
 }) => {
+  const colors = useModalColors();
   const [isApplicationOpen, setApplicationOpen] = useState(false);
   const [candidate, setCandidate] = useState(null);
-  const [searchData, setSearchData] = useState([]);
-  const [isSearch, setIsSearch] = useState(false);
+
+  // Search ref for SearchBox component
+  const searchTermRef = useRef(searchTerm || "");
+
+  // Update ref when searchTerm prop changes
+  useEffect(() => {
+    searchTermRef.current = searchTerm;
+  }, [searchTerm]);
 
   const [updateItemMuation, { isLoading: isInviting }] =
     useUpdateItemMutation();
@@ -47,24 +67,31 @@ const InvitedCandidates = ({
   const { createUserLog } = useUserActivityLog();
 
   const headers = [
-    { key: "name", label: "Name", width: "300px" }, // Name column width
-    { key: "email", label: "Email", width: "250px" }, // Email column width
-    { key: "agency", label: "Agency", width: "100px" }, // Email column width
-    { key: "position", label: "Job Role", width: "150px" }, // Job Role column width
-    { key: "phone", label: "Phone No", width: "150px" }, // Phone No column width
-    { key: "whatsApp", label: "WhatsApp No", width: "150px" }, // WhatsApp No column width
-    {
-      key: "interviewDate&Time",
-      label: "Interveiw Date",
-      width: "150px",
-    }, // Apply Date column width
-    { key: "action", label: "Action", width: "200px" }, // Action column width
+    { key: "name", label: "Name", width: "300px" },
+    { key: "email", label: "Email", width: "250px" },
+    { key: "agency", label: "Agency", width: "100px" },
+    { key: "position", label: "Job Role", width: "150px" },
+    { key: "phone", label: "Phone No", width: "150px" },
+    { key: "whatsApp", label: "WhatsApp No", width: "150px" },
+    { key: "interviewDate&Time", label: "Interview Date", width: "150px" },
+    { key: "action", label: "Action", width: "200px" },
   ];
 
   const [arrangeInterviewOpen, setArrangeInterviewOpen] = useState(false);
-
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState("");
+
+  // Handle search from SearchBox - API call
+  const handleSearchByName = () => {
+    const term = searchTermRef.current.trim();
+    onSearchChange?.(term);
+  };
+
+  // Handle clear button click
+  const handleClear = () => {
+    searchTermRef.current = "";
+    onClear?.(); // Call the parent's clear function
+  };
 
   const handleScheduleInterview = async () => {
     try {
@@ -113,23 +140,19 @@ const InvitedCandidates = ({
     try {
       const pdfURL = `${constant["baseUrl"]}${resume}`;
 
-      // Check if this file was already marked as missing
       if (missingFiles.includes(resume)) {
         toast.error("CV not found!");
-        return; // Stop further execution
+        return;
       }
 
-      // Send a single HEAD request to check if the file exists
       const response = await fetch(pdfURL, { method: "HEAD" });
 
       if (!response.ok) {
-        // Store the missing file to prevent future requests
         dispatch(addMissingFile(resume));
         toast.error("CV not found!");
         return;
       }
 
-      // Open the PDF if it exists
       window.open(pdfURL, "_blank");
       createUserLog({
         userId: user?._id,
@@ -145,32 +168,29 @@ const InvitedCandidates = ({
       toast.error("Failed to retrieve the CV. Please try again later.");
     }
   };
+
   const handleDownloadCV = async (resume) => {
     try {
       const pdfURL = `${constant["baseUrl"]}${resume}`;
-      // Check if this file was already marked as missing
       if (missingFiles.includes(resume)) {
         toast.error("CV could not be downloaded");
         return;
       }
 
-      // Check if the file exists using a HEAD request
       const response = await fetch(pdfURL, { method: "HEAD" });
 
       if (!response.ok) {
-        // Store the missing file to prevent future requests
         dispatch(addMissingFile(resume));
         toast.error("CV could not be downloaded");
         return;
       }
 
-      // Create an anchor element for the download
       const link = document.createElement("a");
       link.href = pdfURL;
-      link.download = pdfURL.split("/").pop(); // Extract the file name from the URL
+      link.download = pdfURL.split("/").pop();
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link); // Clean up the DOM
+      document.body.removeChild(link);
 
       createUserLog({
         userId: user?._id,
@@ -205,108 +225,77 @@ const InvitedCandidates = ({
     }
   };
 
-  // Update filtered data on search change
-  const handleFilteredData = (filtered) => {
-    setIsSearch(true);
-    setSearchData(filtered);
-  };
-
-  // Update filtered data on search change
-  const handleSearchTermChange = (term) => {
-    if (!term) {
-      setIsSearch(false);
-      setSearchData([]); // Reset to original data
-      return;
-    }
-
-    const filteredData = allData?.doc?.filter((item) =>
-      item.name.toLowerCase().includes(term.toLowerCase())
-    );
-
-    setIsSearch(true);
-    setSearchData(filteredData);
-  };
-
   return (
-    <Box w="full" p={6} bg="white" rounded="md" shadow="sm">
-      <Box
-        display="flex"
+    <Box w="full" p={6} bg={colors.bg} rounded="md" shadow={colors.cardShadow} border="1px solid" borderColor={colors.borderColor}>
+      {/* Header with Search and Actions */}
+      <Flex
         justifyContent="space-between"
-        alignItems={{ base: "flex-start", md: "center" }}
+        alignItems={{ base: "flex-start", xl: "center" }}
         flexDirection={{ base: "column", md: "row" }}
-        px=".5rem"
-        shadow="none"
-        mb={2}
-        gap="2"
+        gap={{ base: 4, xl: 0 }}
+        mb={4}
       >
         <HStack gap="2">
-          <FaUsers w="14" h="14" />
-          <Heading size="20px" color="gray.800" fontWeight={"bold"}>
+          <FaUsers color={colors.accentGold} />
+          <Text fontSize="20px" color={colors.headingText} fontWeight={"bold"}>
             Invited Candidates
-            {data && (
-              <span style={{ marginLeft: "6px" }}>
-                ({<CountUpComponent targetNumber={totalDocs || 0} />})
-              </span>
-            )}
-          </Heading>
+            <span style={{ marginLeft: "6px" }}>
+              (<CountUpComponent targetNumber={totalDocs || 0} />)
+            </span>
+          </Text>
         </HStack>
 
-        <HStack
-          w={{ base: "100%", md: "fit-content" }}
-          justify="flex-end"
-          flexDir={{ base: "column", md: "row" }}
-          gap="2"
-        >
-          {/* <SearchBar data={allData?.doc} onFilteredData={handleFilteredData} /> */}
-          <IconButton
-            icon={<FiRefreshCw />}
-            aria-label="Refresh"
-            onClick={() => refetch()}
-            isLoading={isInviting}
-            variant="outline"
-            size="sm"
+        <Flex gap={2} alignItems="center">
+          {/* Search Box */}
+          <SearchBox
+            setQueryParams={() => {}}
+            setAdvanceSearch={setAdvanceSearch}
+            handleSearchByName={handleSearchByName}
+            searchTermRef={searchTermRef}
+            onClear={handleClear}
           />
-          <SearchBar onSearchTermChange={handleSearchTermChange} />
 
-          <Button
-            colorScheme="brand"
-            rounded="md"
-            size={"sm"} // Adjusts the size
-            py={3}
-            px={6}
-            onClick={() => setAdvanceSearch(true)}
-          >
-            Advanced Search
-          </Button>
-        </HStack>
+          {/* Refresh Button */}
+           <RefreshButton
+                                                label="Refresh"
+                                                onClick={() => {
+                searchTermRef.current = "";
+                onSearchChange?.("");
+                refetch();
+              }}
+                                                isLoading={isInviting}
+                                                isFetching={isFetching}
+                                                size="sm"
+                                              />
+
+        </Flex>
+      </Flex>
+
+      <Box display={"flex"} flexDirection={"column"} gap="4">
+        {/* Top Pagination */}
+        <TopPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => handleGotoPage(page)}
+          totalItems={totalDocs}
+          itemsPerPage={pageSize}
+          refetching={isFetching}
+          loading={loading}
+          handlePageSize={handlePageSizeChange}
+        />
+
+        {/* Table */}
+        <InvitedTable
+          headers={headers}
+          data={data}
+          handleSort={handleSort}
+          sortConfig={sortConfig}
+          loading={loading}
+          handleViewCandidate={handleViewCandidate}
+        />
       </Box>
 
-      <InvitedTable
-        headers={headers}
-        data={isSearch ? searchData : data}
-        handleSort={handleSort}
-        sortConfig={sortConfig}
-        loading={loading}
-        handleViewCandidate={handleViewCandidate}
-      />
-      {data?.length > 0 && (
-        <TablePagination
-          gotoPage={handleGotoPage}
-          gopageValue={gopageValue}
-          setGopageValue={setGopageValue}
-          pageCount={totalPages}
-          canPreviousPage={currentPage > 1}
-          previousPage={() => handleGotoPage(currentPage - 2)}
-          canNextPage={currentPage < totalPages}
-          nextPage={() => handleGotoPage(currentPage)}
-          pageOptions={Array.from({ length: totalPages })}
-          setPageSize={handlePageSizeChange}
-          pageSize={pageSize}
-          pageIndex={currentPage - 1}
-          totalDocs={totalDocs}
-        />
-      )}
-
+      {/* Modals */}
       {isApplicationOpen && (
         <CandidateView
           isOpen={isApplicationOpen}

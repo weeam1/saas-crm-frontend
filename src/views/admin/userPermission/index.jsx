@@ -29,7 +29,7 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 	// 🔹 Check for added & modified modules
 	newModules.forEach((newModule) => {
 		const oldModule = oldPermissions.find(
-			(m) => m.moduleId === newModule.moduleId
+			(m) => m.moduleId === newModule.moduleId,
 		);
 
 		if (!oldModule) {
@@ -92,7 +92,7 @@ function getModifiedAndNewModules(oldPermissions, newModules) {
 	// 🔹 Check for removed modules
 	oldPermissions.forEach((oldModule) => {
 		const stillExists = newModules.find(
-			(m) => m.moduleId === oldModule.moduleId
+			(m) => m.moduleId === oldModule.moduleId,
 		);
 		if (!stillExists) {
 			removed.push({
@@ -126,13 +126,13 @@ const Permission = () => {
 
 	const { data: RolePermission, isLoading: loadingRole } = useFetchItemsQuery(
 		{ path: '/role-access/permissions' },
-		{ refetchOnMountOrArgChange: true }
+		{ refetchOnMountOrArgChange: true },
 	);
 
 	const { data: UserRolePermission, isLoading: loadingUserRole } =
 		useFetchItemsQuery(
 			{ path: `/role-access/${id}` },
-			{ refetchOnMountOrArgChange: true }
+			{ refetchOnMountOrArgChange: true },
 		);
 
 	useEffect(() => {
@@ -147,7 +147,7 @@ const Permission = () => {
 
 			const mergedModules = roleModules.map((roleModule) => {
 				const userModule = userModules.find(
-					(u) => u.moduleId === roleModule.moduleId
+					(u) => u.moduleId === roleModule.moduleId,
 				);
 
 				return {
@@ -156,7 +156,8 @@ const Permission = () => {
 					actions: roleModule.actions.map((action) => ({
 						...action,
 						isAllowed: userModule?.actions?.some(
-							(ua) => ua.actionKey === action.actionKey && ua.isAllowed === true
+							(ua) =>
+								ua.actionKey === action.actionKey && ua.isAllowed === true,
 						),
 					})),
 				};
@@ -207,7 +208,7 @@ const Permission = () => {
 				}
 				// non-leadpool modules stay unchanged
 				return module;
-			})
+			}),
 		);
 	};
 
@@ -236,7 +237,7 @@ const Permission = () => {
 
 		const { modified, added, removed } = getModifiedAndNewModules(
 			UserRolePermission?.doc?.permissions,
-			payloadModules
+			payloadModules,
 		);
 
 		try {
@@ -274,10 +275,10 @@ const Permission = () => {
 	};
 
 	const filteredModules = modules.filter(
-		(m) => !m.moduleId.toLowerCase().includes('leadpool')
+		(m) => !m.moduleId.toLowerCase().includes('leadpool'),
 	);
 	const leadPoolModules = modules.filter((m) =>
-		m.moduleId.toLowerCase().includes('leadpool')
+		m.moduleId.toLowerCase().includes('leadpool'),
 	);
 
 	const role = UserRolePermission?.doc?.roleName;
@@ -293,18 +294,19 @@ const Permission = () => {
 	return (
 		<>
 			{/* Back Button */}
-			<AppButton
+			<Button
 				ml='2'
 				leftIcon={<IoArrowBack />}
 				onClick={() => navigate(-1)}
 				mb={4}
+				variant='ghost'
 			>
 				Back
-			</AppButton>
+			</Button>
 
-			<Box borderRadius='xl' boxShadow='lg' bg={cardBg} p={6}>
+			<Box borderRadius='xl' boxShadow='lg' bg='bg.surface' p={6}>
 				{/* Header */}
-				<Heading mb={6} size='md' color='brand.600'>
+				<Heading mb={6} size='md' color='gray.100'>
 					{`${formattedRole} Role Permissions`}
 				</Heading>
 				{/* Search Section */}
@@ -360,7 +362,7 @@ const Permission = () => {
 									.filter((_, index) => index % 2 === 0)
 									.map((module, index) => {
 										const originalIndex = modules.findIndex(
-											(m) => m.moduleId === module.moduleId
+											(m) => m.moduleId === module.moduleId,
 										);
 
 										const isLeadsModule = module.moduleId === 'leads';
@@ -396,7 +398,7 @@ const Permission = () => {
 									.filter((_, index) => index % 2 !== 0)
 									.map((module, index) => {
 										const originalIndex = modules.findIndex(
-											(m) => m.moduleId === module.moduleId
+											(m) => m.moduleId === module.moduleId,
 										);
 										const isLeadsModule = module.moduleId === 'leads';
 										return (

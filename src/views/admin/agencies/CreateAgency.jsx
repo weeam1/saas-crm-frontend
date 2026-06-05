@@ -8,6 +8,7 @@ import {
 	DrawerFooter,
 	Grid,
 	Select,
+	Button,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -23,7 +24,9 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 	const initialValues = {
 		name: '',
 		email: '',
+		website: '',
 		location: '',
+		locationLink: '',
 		TRN: '',
 		contactNumberPrimary: '',
 		contactNumberAlternate: '',
@@ -42,6 +45,7 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 		{ name: 'name', label: 'Name', type: 'text', required: true },
 		{ name: 'email', label: 'Email', type: 'text', required: true },
 		{ name: 'location', label: 'Location', type: 'textarea', required: true },
+		{ name: 'locationLink', label: 'Location Link', type: 'text' },
 		{ name: 'TRN', label: 'TRN', type: 'text' },
 		{
 			name: 'contactNumberPrimary',
@@ -53,6 +57,7 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 			label: 'Alternate Contact',
 			type: 'text',
 		},
+		{ name: 'website', label: 'Website', type: 'text' },
 		// {
 		// 	name: 'currency',
 		// 	label: 'Currency',
@@ -114,17 +119,17 @@ const CreateAgency = ({ isOpen, onClose, refreshData, size }) => {
 								)}
 							</DrawerBody>
 							<DrawerFooter>
-								<AppButton mr='2' onClick={onClose}>
+								<Button variant='ghost' mr='2' onClick={onClose}>
 									Close
-								</AppButton>
-								<AppButton
-									colorScheme='brand'
+								</Button>
+								<Button
+									variant='brand'
 									isLoading={isLoading}
 									loadingText='Loading'
 									type='submit'
 								>
 									Submit
-								</AppButton>
+								</Button>
 							</DrawerFooter>
 						</Form>
 					)}

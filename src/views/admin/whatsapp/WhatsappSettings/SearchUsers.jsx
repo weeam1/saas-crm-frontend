@@ -70,7 +70,7 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 			? users?.filter(
 					(user) =>
 						user.fullName?.toLowerCase().includes(search.toLowerCase()) ||
-						user.username?.toLowerCase().includes(search.toLowerCase())
+						user.username?.toLowerCase().includes(search.toLowerCase()),
 				)
 			: users || [];
 
@@ -115,21 +115,139 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 	};
 
 	return (
+		// <Box position='relative' ref={containerRef}>
+		// 	<InputGroup>
+		// 		<Input
+		// 			ref={inputRef}
+		// 			placeholder='Search users...'
+		// 			bg='gray.100'
+		// 			borderColor='gray.300'
+		// 			fontSize='sm'
+		// 			py={1}
+		// 			{...(size === 'sm' ? { size: 'sm' } : {})}
+		// 			borderRadius='md'
+		// 			_focus={{
+		// 				borderColor: '#D99A36',
+		// 				boxShadow: '0 0 0 1px #D99A36',
+		// 				outline: 'none',
+		// 			}}
+		// 			value={
+		// 				selectedUser ? selectedUser.fullName || selectedUser.name : search
+		// 			}
+		// 			onChange={handleInputChange}
+		// 			isReadOnly={!!selectedUser}
+		// 			onFocus={handleInputFocus}
+		// 			onClick={handleInputFocus}
+		// 		/>
+		// 		{selectedUser && (
+		// 			<InputRightElement>
+		// 				<IconButton
+		// 					icon={<CloseIcon fontSize='xs' />}
+		// 					variant='ghost'
+		// 					size='sm'
+		// 					onClick={handleClear}
+		// 					aria-label='Clear selection'
+		// 					top={size === 'sm' ? '-4px' : '0px'}
+		// 				/>
+		// 			</InputRightElement>
+		// 		)}
+		// 	</InputGroup>
+
+		// 	{showDropdown && filteredUsers.length > 0 && (
+		// 		<Portal>
+		// 			<Box
+		// 				ref={dropdownRef}
+		// 				position='fixed'
+		// 				top={`${dropdownPosition.top}px`}
+		// 				left={`${dropdownPosition.left}px`}
+		// 				width={`${dropdownPosition.width}px`}
+		// 				bg={dropdownBg}
+		// 				shadow='lg'
+		// 				borderRadius='md'
+		// 				border='1px solid'
+		// 				borderColor={borderColor}
+		// 				zIndex={9999}
+		// 				maxH='300px'
+		// 				overflowY='auto'
+		// 				mt={1}
+		// 			>
+		// 				{filteredUsers.map((user, index) => (
+		// 					<Flex
+		// 						key={`${index}-${user?._id}`}
+		// 						p={3}
+		// 						bg='transparent'
+		// 						rounded='md'
+		// 						cursor='pointer'
+		// 						_hover={{ bg: hoverBg }}
+		// 						onClick={() => handleUserClick(user)}
+		// 						align='center'
+		// 						justify='space-between'
+		// 						m={1}
+		// 						borderBottom='1px solid'
+		// 						borderColor={borderColor}
+		// 						_last={{ borderBottom: 'none' }}
+		// 					>
+		// 						<Box>
+		// 							<Text fontSize='md' fontWeight='medium'>
+		// 								{user.fullName || user.name}
+		// 							</Text>
+		// 							{user.username && (
+		// 								<Text fontSize='sm' color='gray.500'>
+		// 									{user.username}
+		// 								</Text>
+		// 							)}
+		// 						</Box>
+		// 					</Flex>
+		// 				))}
+		// 			</Box>
+		// 		</Portal>
+		// 	)}
+
+		// 	{showDropdown && search && filteredUsers.length === 0 && (
+		// 		<Portal>
+		// 			<Box
+		// 				ref={dropdownRef}
+		// 				position='fixed'
+		// 				top={`${dropdownPosition.top}px`}
+		// 				left={`${dropdownPosition.left}px`}
+		// 				width={`${dropdownPosition.width}px`}
+		// 				bg={dropdownBg}
+		// 				shadow='lg'
+		// 				borderRadius='md'
+		// 				border='1px solid'
+		// 				borderColor={borderColor}
+		// 				zIndex={9999}
+		// 				mt={1}
+		// 				p={3}
+		// 			>
+		// 				<NoData label='user' />
+		// 			</Box>
+		// 		</Portal>
+		// 	)}
+		// </Box>
+
 		<Box position='relative' ref={containerRef}>
 			<InputGroup>
 				<Input
 					ref={inputRef}
 					placeholder='Search users...'
-					bg='gray.100'
-					borderColor='gray.300'
+					bg='bg.input'
+					borderColor='border.default'
+					color='text.body'
 					fontSize='sm'
 					py={1}
 					{...(size === 'sm' ? { size: 'sm' } : {})}
-					borderRadius='md'
+					borderRadius='lg'
+					_hover={{
+						borderColor: 'gold.dark',
+					}}
 					_focus={{
-						borderColor: '#D99A36',
-						boxShadow: '0 0 0 1px #D99A36',
+						borderColor: 'gold.primary',
+						boxShadow: '0 0 0 1px #D4AF37',
 						outline: 'none',
+					}}
+					_placeholder={{
+						color: 'text.muted',
 					}}
 					value={
 						selectedUser ? selectedUser.fullName || selectedUser.name : search
@@ -148,6 +266,9 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 							onClick={handleClear}
 							aria-label='Clear selection'
 							top={size === 'sm' ? '-4px' : '0px'}
+							color='text.muted'
+							_hover={{ color: 'gold.primary', transform: 'scale(1.1)' }}
+							transition='all 0.2s'
 						/>
 					</InputRightElement>
 				)}
@@ -161,15 +282,27 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 						top={`${dropdownPosition.top}px`}
 						left={`${dropdownPosition.left}px`}
 						width={`${dropdownPosition.width}px`}
-						bg={dropdownBg}
-						shadow='lg'
-						borderRadius='md'
+						bg='bg.surface'
+						boxShadow='card'
+						borderRadius='lg'
 						border='1px solid'
-						borderColor={borderColor}
+						borderColor='border.default'
 						zIndex={9999}
 						maxH='300px'
 						overflowY='auto'
 						mt={1}
+						css={{
+							'&::-webkit-scrollbar': { width: '6px' },
+							'&::-webkit-scrollbar-track': {
+								background: 'navy.900',
+								borderRadius: '3px',
+							},
+							'&::-webkit-scrollbar-thumb': {
+								background: 'navy.600',
+								borderRadius: '3px',
+							},
+							'&::-webkit-scrollbar-thumb:hover': { background: 'gold.dark' },
+						}}
 					>
 						{filteredUsers.map((user, index) => (
 							<Flex
@@ -178,25 +311,27 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 								bg='transparent'
 								rounded='md'
 								cursor='pointer'
-								_hover={{ bg: hoverBg }}
+								_hover={{ bg: 'bg.elevated' }}
 								onClick={() => handleUserClick(user)}
 								align='center'
 								justify='space-between'
 								m={1}
 								borderBottom='1px solid'
-								borderColor={borderColor}
+								borderColor='border.subtle'
 								_last={{ borderBottom: 'none' }}
+								transition='background 0.15s'
 							>
 								<Box>
-									<Text fontSize='md' fontWeight='medium'>
+									<Text fontSize='md' fontWeight='medium' color='text.heading'>
 										{user.fullName || user.name}
 									</Text>
 									{user.username && (
-										<Text fontSize='sm' color='gray.500'>
+										<Text fontSize='sm' color='text.muted'>
 											{user.username}
 										</Text>
 									)}
 								</Box>
+								{/* Optional: Add avatar or badge here if needed */}
 							</Flex>
 						))}
 					</Box>
@@ -211,14 +346,14 @@ const SearchUsers = ({ selectedUserId, users, onSelectUser, size = 'md' }) => {
 						top={`${dropdownPosition.top}px`}
 						left={`${dropdownPosition.left}px`}
 						width={`${dropdownPosition.width}px`}
-						bg={dropdownBg}
-						shadow='lg'
-						borderRadius='md'
+						bg='bg.surface'
+						boxShadow='card'
+						borderRadius='lg'
 						border='1px solid'
-						borderColor={borderColor}
+						borderColor='border.default'
 						zIndex={9999}
 						mt={1}
-						p={3}
+						p={4}
 					>
 						<NoData label='user' />
 					</Box>

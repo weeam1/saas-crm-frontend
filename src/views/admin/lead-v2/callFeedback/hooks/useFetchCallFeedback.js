@@ -1,6 +1,6 @@
 import { useFetchItemsQuery } from "api/apiSlice";
 import dayjs from "dayjs";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { cleanSearchParams } from "utils";
 
@@ -29,37 +29,33 @@ export const useFetchCallFeedback = () => {
     callMedium: "",
     callQuality: "",
     reason: "",
-    // userId: "",
     extension: "",
   });
 
-  // stable queryParams (memoized)
+  // stable queryParams (memoized) - REMOVED __forceFetch
   const queryParams = useMemo(() => {
     const raw = {
       page: pagination.page,
       limit: pagination.limit,
-      __forceFetch: Date.now(),
       // Only include non-empty filters
       ...(month && { month }),
-
       ...(filters.q && { q: filters.q }),
       ...(filters.leadName && { leadName: filters.leadName }),
       ...(filters.leadIntId && { leadIntId: filters.leadIntId }),
       ...(filters.callMedium && { callMedium: filters.callMedium }),
       ...(filters.callQuality && { callQuality: filters.callQuality }),
       ...(filters.reason && { reason: filters.reason }),
-      // ...(filters.userId && { userId: filters.userId }),
       ...(filters.extension && { extension: filters.extension }),
     };
-    delete raw.__forceFetch;
     return cleanSearchParams(raw);
   }, [pagination.page, pagination.limit, filters, month]);
 
-  // sync queryParams -> URL (loop proof)
+  // sync queryParams -> URL (with debounce to prevent infinite loops)
   useEffect(() => {
     const nextString = new URLSearchParams(queryParams).toString();
     if (nextString !== searchString) {
-      setSearchParams(queryParams);
+      // Use replace instead of push to avoid adding to history
+      setSearchParams(queryParams, { replace: true });
     }
   }, [queryParams, searchString, setSearchParams]);
 
@@ -70,9 +66,10 @@ export const useFetchCallFeedback = () => {
       params: queryParams,
     },
     {
-      refetchOnMountOrArgChange: true,
-      refetchOnFocus: true,
-      refetchOnReconnect: true,
+      refetchOnMountOrArgChange: false, // Changed to false to prevent auto refetch
+      refetchOnFocus: false, // Changed to false to prevent refetch on focus
+      refetchOnReconnect: false, // Changed to false to prevent refetch on reconnect
+      skip: false,
     },
   );
 
@@ -94,47 +91,50 @@ export const useFetchCallFeedback = () => {
     }
   }, [data]);
 
-  const handlePageChange = (page) => {
+  const handlePageChange = useCallback((page) => {
     setPagination((prev) => ({ ...prev, page: Number(page) }));
-  };
+  }, []);
 
-  const handlePageSize = (limit) => {
+  const handlePageSize = useCallback((limit) => {
     setPagination({ page: 1, limit: Number(limit) });
-  };
+  }, []);
 
-  const updateData = (id, updated, type = "update") => {
-    setList((prev) => {
-      const index = prev.findIndex((item) => item._id === id);
+  const updateData = useCallback(
+    (id, updated, type = "update") => {
+      setList((prev) => {
+        const index = prev.findIndex((item) => item._id === id);
 
-      if (type === "update") {
-        if (index === -1) return prev;
-        const next = [...prev];
-        next[index] = { ...next[index], ...updated };
-        return next;
-      }
-
-      if (type === "add") {
-        if (pagination.page !== 1) return prev;
-        if (index !== -1) {
+        if (type === "update") {
+          if (index === -1) return prev;
           const next = [...prev];
           next[index] = { ...next[index], ...updated };
           return next;
         }
-        return [{ ...updated }, ...prev];
+
+        if (type === "add") {
+          if (pagination.page !== 1) return prev;
+          if (index !== -1) {
+            const next = [...prev];
+            next[index] = { ...next[index], ...updated };
+            return next;
+          }
+          return [{ ...updated }, ...prev];
+        }
+
+        return prev;
+      });
+
+      if (type === "add") {
+        setTotalCount((prev) => prev + 1);
       }
+    },
+    [pagination.page],
+  );
 
-      return prev;
-    });
-
-    if (type === "add") {
-      setTotalCount((prev) => prev + 1);
-    }
-  };
-
-  const removeItem = (id) => {
+  const removeItem = useCallback((id) => {
     setList((prev) => prev.filter((item) => item._id !== id));
     setTotalCount((prev) => prev - 1);
-  };
+  }, []);
 
   return {
     queryParams,

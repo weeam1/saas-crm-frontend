@@ -28,6 +28,7 @@ import UserStatusToggle from './UserStatusToogle';
 import { usePermissions } from 'hooks/usePermissions';
 import UserRankingSelect from './UserRankingSelect';
 import { FaUserShield } from 'react-icons/fa';
+import { useModalColors } from 'hooks/useModalColors';
 
 const UserTable = ({
 	data = [],
@@ -36,6 +37,7 @@ const UserTable = ({
 	updateData,
 	refetchUsers,
 }) => {
+	const colors = useModalColors();
 	const columns = [
 		{ key: 'user', label: 'User', width: '200px' },
 		{ key: 'roles', label: 'Role', width: '150px' },
@@ -71,7 +73,6 @@ const UserTable = ({
 		switch (key) {
 			case 'roles': {
 				const roleName = value?.roleName?.replace(/^./, (c) => c.toUpperCase());
-				// ?.replace(/([A-Z])/g, ' $1')
 
 				const { bg, text } = getBadgeColors(roleName);
 
@@ -92,24 +93,7 @@ const UserTable = ({
 			}
 
 			case 'agency': {
-				// const { bg, text } = getBadgeColors(value?.name);
-
 				return value?.name ?? 'No Agency';
-
-				// return (
-				// 	<Badge
-				// 		bg={bg}
-				// 		color={text}
-				// 		variant='subtle'
-				// 		fontSize='.9em'
-				// 		px={4}
-				// 		py={2}
-				// 		borderRadius='full'
-				// 		textTransform='capitalize'
-				// 	>
-				// 		{value?.name}
-				// 	</Badge>
-				// );
 			}
 			case 'salaryType':
 				const type = salaryTypes?.find((item) => item.value === value)?.label;
@@ -126,12 +110,13 @@ const UserTable = ({
 		<Box
 			overflowX='auto'
 			overflowY='auto'
-			maxH='calc(100vh - 100px)'
+			  maxHeight="80vh"
+			  minH="70vh"
 			borderWidth='1px'
-			borderColor='gray.200'
+			borderColor={colors.borderColor}
 			rounded='xl'
-			boxShadow='sm'
-			bg='white'
+			boxShadow={colors.cardShadow}
+			bg={colors.bg}
 		>
 			<Table variant='simple' size='sm'>
 				<Thead
@@ -141,7 +126,7 @@ const UserTable = ({
 					boxShadow='0 2px 2px -1px rgba(0,0,0,0.06)'
 					borderTopLeftRadius='20px'
 					borderTopRightRadius='20px'
-					bg='gray.50'
+					bg={colors.bgDeep}
 				>
 					<Tr>
 						{columns.map((column) => (
@@ -149,14 +134,15 @@ const UserTable = ({
 								key={column.key}
 								whiteSpace='nowrap'
 								textTransform='capitalize'
-								fontSize='md'
+								fontSize='sm'
 								py='4'
 								textAlign={
 									['user', 'coins'].includes(column.key) ? 'left' : 'center'
 								}
 								fontWeight='semibold'
-								color='gray.700'
+								color={colors.headingText}
 								minW={column.width}
+								borderBottom={`2px solid ${colors.borderColor}`}
 							>
 								{column.label}
 							</Th>
@@ -169,7 +155,7 @@ const UserTable = ({
 						<TableLoading columns={columns} length={20} py='4' />
 					) : data.length === 0 ? (
 						<Tr>
-							<Td colSpan={columns.length} py={10}>
+							<Td colSpan={columns.length} py={10} textAlign='center'>
 								<NoData label='user' />
 							</Td>
 						</Tr>
@@ -177,9 +163,10 @@ const UserTable = ({
 						data?.map((row, index) => (
 							<Tr
 								key={row._id || index}
-								_hover={{ bg: 'gray.50' }}
-								bg={index % 2 === 0 ? 'white' : 'gray.25'}
+								_hover={{ bg: colors.bgInputHover }}
+								bg={colors.bg}
 								transition='background-color 0.2s ease-in-out'
+								borderBottom={`1px solid ${colors.borderColor}`}
 							>
 								{columns.map((column) => (
 									<Td
@@ -197,7 +184,7 @@ const UserTable = ({
 												: 'center'
 										}
 										fontWeight={column.key === 'name' ? 'semibold' : 'medium'}
-										color='gray.700'
+										color={colors.bodyText}
 									>
 										{column.key === 'user' ? (
 											<UserAvatarWithStatus
@@ -220,9 +207,13 @@ const UserTable = ({
 														aria-label='View'
 														icon={<FiEye />}
 														size='sm'
-														colorScheme='teal'
 														variant='ghost'
 														onClick={() => navigate(`/users-v2/${row?._id}`)}
+														color={colors.bodyText}
+														_hover={{
+															color: colors.accentGold,
+															bg: colors.secondaryBtnHoverBg,
+														}}
 													/>
 												</CustomTooltip>
 												{hasPermission('users', 'custom_permissions') && (
@@ -231,11 +222,15 @@ const UserTable = ({
 															aria-label='User Permissions'
 															icon={<FaUserShield />}
 															size='sm'
-															colorScheme='teal'
 															variant='ghost'
 															onClick={() =>
 																navigate(`/users-v2/permissions/${row?._id}`)
 															}
+															color={colors.bodyText}
+															_hover={{
+																color: colors.accentGold,
+																bg: colors.secondaryBtnHoverBg,
+															}}
 														/>
 													</CustomTooltip>
 												)}
@@ -246,15 +241,19 @@ const UserTable = ({
 															aria-label='Edit'
 															icon={<FiEdit2 />}
 															size='sm'
-															colorScheme='blue'
 															variant='ghost'
 															onClick={() => handleEditUser(row)}
+															color={colors.bodyText}
+															_hover={{
+																color: colors.accentGold,
+																bg: colors.secondaryBtnHoverBg,
+															}}
 														/>
 													</CustomTooltip>
 												)}
 											</Flex>
 										) : ['amount', 'totalAmount'].includes(column.key) ? (
-											<Text>
+											<Text color={colors.bodyText}>
 												{formatCurrency(
 													row[column.key],
 													row['agency']?.currency || 'AED',

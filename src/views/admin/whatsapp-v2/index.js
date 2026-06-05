@@ -138,11 +138,12 @@ const Whatsapp = () => {
 	}, [contacts, searchQuery]);
 
 	useEffect(() => {
-		if (currentUser?.phoneNumber) {
+		if (currentUser?.phoneNumber && currentUser?.user?.tenant?.tenantId) {
 			setBusinessPhone(currentUser?.phoneNumber);
 			const registerPayload = {
 				phoneNumber: currentUser?.phoneNumber,
 				userId: currentUser?.user?._id || '',
+				tenantId: currentUser?.user?.tenant?.tenantId || '',
 			};
 
 			socketService.registerUser(registerPayload);
@@ -233,7 +234,7 @@ const Whatsapp = () => {
 					appendMessage({
 						chatId: activeChat.roomId,
 						message: res?.data,
-					})
+					}),
 				);
 
 				// Optionally reset input + file
@@ -267,7 +268,7 @@ const Whatsapp = () => {
 			voiceFileRef?.current,
 			createMessageAPI,
 			dispatch,
-		]
+		],
 	);
 
 	const handleFileUpload = useCallback(async (e, type = 'image') => {
@@ -539,7 +540,7 @@ const Whatsapp = () => {
 			const positionFactor = Math.abs(i - barCount / 2) / (barCount / 2);
 			const height = Math.max(
 				3,
-				audioLevel * maxHeight * (1 - positionFactor * 0.7) + noise * 6
+				audioLevel * maxHeight * (1 - positionFactor * 0.7) + noise * 6,
 			);
 
 			bars.push(
@@ -551,7 +552,7 @@ const Whatsapp = () => {
 					borderRadius='full'
 					opacity={0.6 + Math.random() * 0.4}
 					transition='height 0.1s ease'
-				/>
+				/>,
 			);
 		}
 		return bars;

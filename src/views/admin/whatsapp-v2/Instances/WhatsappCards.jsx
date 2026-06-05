@@ -1,7 +1,7 @@
 import NoData from 'components/Message/NoData';
 import WhatsappUserCard from './WhatsappUserCard';
 import CardShimmer from 'components/loading/CardShimmer';
-import { SimpleGrid } from '@chakra-ui/react';
+import { Box, SimpleGrid } from '@chakra-ui/react';
 
 const WhatsappCards = ({
 	data,
@@ -11,7 +11,7 @@ const WhatsappCards = ({
 	removeInstance,
 }) => {
 	return (
-		<>
+		<Box minH='65vh'>
 			{isLoading || isFetching ? (
 				<CardShimmer
 					count={8}
@@ -52,7 +52,7 @@ const WhatsappCards = ({
 							gridTemplateColumns: 'repeat(7, 1fr)',
 						},
 					}}
-					spacing={4}
+						spacing={4}
 				>
 					{data.map((item, idx) => (
 						<WhatsappUserCard
@@ -66,7 +66,7 @@ const WhatsappCards = ({
 			) : (
 				<NoData label='instances' />
 			)}
-		</>
+		</Box>
 	);
 };
 

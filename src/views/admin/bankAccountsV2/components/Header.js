@@ -1,66 +1,89 @@
-import React from "react";
-import { Flex, Button, IconButton } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import AddAccountModal from "./AddAccount";
-import AccountCount from "./Count";
-import { FiRefreshCw } from "react-icons/fi";
+
+import { Flex, Button, IconButton, Box, HStack, Text } from '@chakra-ui/react';
+import AddAccountModal from './AddAccount';
+import CustomTooltip from 'components/shared/CustomTooltip';
+import CountUpComponent from 'components/countUpComponent/countUpComponent';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const Header = ({
-  accountCount,
-  onAdd,
-  isAdding,
-  searchComponent,
-  onClear,
-  searchQuery,
-  refetch,
-  isLoading,
-  isFetching
+	accountCount,
+	onAdd,
+	isAdding,
+	searchComponent,
+	onClear,
+	searchQuery,
+	refetch,
+	isLoading,
+	searchTerm,
+	isFetching,
 }) => {
-  const navigate = useNavigate();
+	return (
+		<Flex
+			justify='space-between'
+			align='center'
+			bg='bg.surface'
+			p={5}
+			mb={4}
+			roundedTopRight='xl'
+			roundedTopLeft='xl'
+			borderBottom='1px solid'
+			borderBottomColor='border.default'
+			direction={{ base: 'column', md: 'row' }}
+			w='100%'
+			gap={5}
+		>
+			{/* Left Section - Back Button & Account Count */}
+			<HStack spacing={4} w={{ base: '100%', md: 'auto' }}>
+				{/* Account Count Component */}
+				<Text fontSize={'20px'} fontWeight='bold' color='text.heading'>
+					All Bank Accounts (
+					<CountUpComponent targetNumber={Number(accountCount || 0)} />)
+				</Text>
+			</HStack>
 
-  const handleBack = () => {
-    navigate("/admin-setting");
-  };
+			{/* Right Section - Search, Actions */}
+			<Flex
+				align='center'
+				gap={3}
+				w={{ base: '100%', md: 'auto' }}
+				direction={{ base: 'column', sm: 'row' }}
+			>
+				{/* Search Component */}
+				<Box w={{ base: '100%', sm: 'auto' }}>{searchComponent}</Box>
 
-  return (
-    <Flex
-      justify="space-between"
-      align="center"
-      mb={6}
-      bg="white"
-      p={4}
-      borderRadius="md"
-      boxShadow="sm"
-      direction={{ base: "column", md: "row" }}
-      w="100%"
-      gap={4}
-    >
-      <AccountCount count={accountCount} />
+				{/* Clear Button */}
+				{searchTerm && (
+					<Button
+						size='sm'
+						variant='outline'
+						onClick={onClear}
+						borderRadius='lg'
+						borderColor='border.default'
+						color='text.body'
+						_hover={{
+							bg: 'bg.elevated',
+							borderColor: 'gold.primary',
+							color: 'gold.primary',
+						}}
+						transition='all 0.2s'
+					>
+						Clear
+					</Button>
+				)}
 
-      <Flex
-        align="center"
-        gap={3}
-        w={{ base: "100%", md: "auto" }}
-        direction={{ base: "column", md: "row" }}
-      >
-        <IconButton
-          icon={<FiRefreshCw />}
-          aria-label="Refresh Analytics"
-          onClick={() => refetch()}
-          isLoading={isLoading || isFetching}
-          variant="outline"
-          size="sm"
-        />
-        {searchComponent}
-        {searchQuery && (
-          <Button size="sm" variant="brand" onClick={onClear}>
-            Clear
-          </Button>
-        )}
-        <AddAccountModal onAdd={onAdd} isAdding={isAdding} />
-      </Flex>
-    </Flex>
-  );
+				{/* Add Account Button */}
+				<AddAccountModal onAdd={onAdd} isAdding={isAdding} />
+
+			<RefreshButton
+								label="Refresh"
+								onClick={() => refetch()}
+								isLoading={isLoading}
+								isFetching={isFetching}
+								size="sm"
+							/>
+			</Flex>
+		</Flex>
+	);
 };
 
 export default Header;

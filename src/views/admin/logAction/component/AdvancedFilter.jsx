@@ -15,7 +15,6 @@ import {
 	Box,
 	Text,
 	useBreakpointValue,
-	useColorModeValue,
 	Flex,
 	IconButton,
 } from '@chakra-ui/react';
@@ -24,8 +23,8 @@ import { FiX } from 'react-icons/fi';
 import CustomDatePicker from 'components/datetime/CustomDatePicker';
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
 import moment from 'moment';
-import DropdownSearchUser from 'components/search/DropdownSearchUser';
 import ManagerAgentDropdown from './ManagerAgentDropdown';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AdvancedFilter = ({
 	isOpen,
@@ -33,7 +32,6 @@ const AdvancedFilter = ({
 	filters,
 	applyFilters,
 	resetFilters,
-	grayColors,
 	statusOptions,
 	actionOptions,
 	levelOptions,
@@ -42,12 +40,10 @@ const AdvancedFilter = ({
 	roleData,
 	setSearchTags,
 }) => {
+	const colors = useModalColors();
 	const [openCalendar, setOpenCalendar] = React.useState(null);
-	const headerBg = useColorModeValue(grayColors.primary, grayColors.darkest);
 	const isMobile = useBreakpointValue({ base: true, md: false });
-  	const footerBg = useColorModeValue('gray.50', 'gray.700');
-  	const borderColor = useColorModeValue('gray.200', 'gray.600');
-	
+
 	const toggleCalendar = (calendar) => {
 		setOpenCalendar(openCalendar === calendar ? null : calendar);
 	};
@@ -57,6 +53,7 @@ const AdvancedFilter = ({
 			? moment(date).utcOffset(0, true).startOf('day').toISOString()
 			: null;
 	};
+
 	const getFilterDisplayName = (key, value) => {
 		if (!value) return null;
 		switch (key) {
@@ -155,7 +152,7 @@ const AdvancedFilter = ({
 					leadManager: filters.leadManager || '',
 				},
 			});
-			
+
 			!filters && setSearchTags([]);
 		}
 	}, [isOpen, filters]);
@@ -217,40 +214,45 @@ const AdvancedFilter = ({
 			size={['full', 'xl', '2xl']}
 			isCentered
 		>
-			<ModalOverlay />
+			<ModalOverlay bg={colors.overlayBg} />
 			<ModalContent
 				mx={{ base: 1, md: 4 }}
 				maxW={['100%', '600px', '800px']}
 				pb={4}
 				borderRadius={['none', 'lg']}
+				bg={colors.viewBg}
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
 				<ModalHeader
-					bg={headerBg}
-					color='white'
+					bg={colors.viewHeaderBg}
+					color={colors.viewHeaderText}
 					borderTopRadius={['none', 'lg']}
 					py={3}
+					borderBottom={`1px solid ${colors.viewHeaderBorder}`}
 				>
 					<Flex justify='space-between' align='center'>
-						<Text fontSize='md' fontWeight='semibold'>
+						<Text fontSize='md' fontWeight='semibold' color={colors.viewHeaderText}>
 							Advanced Filters
 						</Text>
 						<IconButton
 							icon={<FiX />}
 							variant='ghost'
-							color='white'
-							_hover={{ bg: grayColors.dark }}
+							color={colors.bodyText}
+							_hover={{ bg: colors.bgInput, color: colors.accentGold }}
 							onClick={onClose}
 							aria-label='Close'
 							size='sm'
+							transition='all 0.2s ease'
 						/>
 					</Flex>
 				</ModalHeader>
 				<form onSubmit={formik.handleSubmit}>
-					<ModalBody px={{ base: 2, lg: 4 }} py={4}>
+					<ModalBody bg={colors.viewBg} px={{ base: 2, lg: 4 }} py={4}>
 						<VStack spacing={5} maxH='65vh' overflowY='auto' pr={2}>
 							{/* User Selection */}
 							<FormControl width='100%'>
-								<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+								<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 									User
 								</FormLabel>
 								<SearchUsers
@@ -263,13 +265,13 @@ const AdvancedFilter = ({
 
 							{/* Date Range Section */}
 							<Box width='100%'>
-								<Text fontSize='sm' fontWeight='semibold' mb={3}>
+								<Text fontSize='sm' fontWeight='semibold' mb={3} color={colors.headingText}>
 									Date Range
 								</Text>
 								<SimpleGrid columns={{ base: 1, lg: 2 }} gap={4}>
 									<VStack width='100%' alignItems='flex-start'>
 										<FormControl>
-											<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+											<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 												From Date
 											</FormLabel>
 											<CustomDatePicker
@@ -287,7 +289,7 @@ const AdvancedFilter = ({
 									</VStack>
 									<VStack width='100%' alignItems='flex-start'>
 										<FormControl>
-											<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+											<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 												To Date
 											</FormLabel>
 											<CustomDatePicker
@@ -309,7 +311,7 @@ const AdvancedFilter = ({
 
 							<SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w='full'>
 								<FormControl>
-									<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+									<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 										Status
 									</FormLabel>
 									<Box>
@@ -318,11 +320,19 @@ const AdvancedFilter = ({
 											placeholder='Select status'
 											value={formik.values.status}
 											onChange={formik.handleChange}
-											focusBorderColor='brand.500'
+											focusBorderColor={colors.accentGold}
 											size='md'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
+											_focus={{
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											}}
 										>
 											{statusOptions.map((option) => (
-												<option key={option.value} value={option.value}>
+												<option key={option.value} value={option.value} style={{ background: colors.bg, color: colors.headingText }}>
 													{option.label}
 												</option>
 											))}
@@ -331,7 +341,7 @@ const AdvancedFilter = ({
 								</FormControl>
 
 								<FormControl>
-									<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+									<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 										Module
 									</FormLabel>
 									<Box>
@@ -340,11 +350,19 @@ const AdvancedFilter = ({
 											placeholder='Select module'
 											value={formik.values.entity}
 											onChange={formik.handleChange}
-											focusBorderColor='brand.500'
+											focusBorderColor={colors.accentGold}
 											size='md'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
+											_focus={{
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											}}
 										>
 											{entityOptions?.map((option) => (
-												<option key={option.value} value={option.value}>
+												<option key={option.value} value={option.value} style={{ background: colors.bg, color: colors.headingText }}>
 													{option.label}
 												</option>
 											))}
@@ -363,59 +381,9 @@ const AdvancedFilter = ({
 								/>
 							)}
 
-							{/* Lead Manager  */}
-							{/* {formik.values.entity === "Lead" && (
-                <FormControl mt={4}>
-                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
-                    Lead Manager
-                  </FormLabel>
-                  <DropdownSearchUser
-                    selectedUserId={formik.values.entityId}
-                    users={
-                      usersData?.doc.filter((u) => {
-                        const roleName = Array.isArray(u?.roles)
-                          ? u.roles[0]?.roleName
-                          : null;
-                        return roleName === "Manager";
-                      }) || []
-                    }
-                    onSelectUser={(user) =>
-                      formik.setFieldValue("leadManager", user?._id || "")
-                    }
-                    isMobile={isMobile}
-                    size="sm"
-                  />
-                </FormControl>
-              )}
-
-              
-              {formik.values.entity === "Lead" && (
-                <FormControl mt={4}>
-                  <FormLabel mb={1} fontSize="sm" fontWeight="medium">
-                    Lead Agent
-                  </FormLabel>
-                  <DropdownSearchUser
-                    selectedUserId={formik.values.entityId}
-                    users={
-                      usersData?.doc.filter((u) => {
-                        const roleName = Array.isArray(u?.roles)
-                          ? u.roles[0]?.roleName
-                          : null;
-                        return roleName === "Agent";
-                      }) || []
-                    }
-                    onSelectUser={(user) =>
-                      formik.setFieldValue("leadAgent", user?._id || "")
-                    }
-                    isMobile={isMobile}
-                    size="sm"
-                  />
-                </FormControl>
-              )} */}
-
 							<SimpleGrid columns={{ base: 1, lg: 2 }} gap={4} w='full'>
 								<FormControl>
-									<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+									<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 										Action
 									</FormLabel>
 									<Box>
@@ -424,11 +392,19 @@ const AdvancedFilter = ({
 											placeholder='Select action'
 											value={formik.values.action}
 											onChange={formik.handleChange}
-											focusBorderColor='brand.500'
+											focusBorderColor={colors.accentGold}
 											size='md'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
+											_focus={{
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											}}
 										>
 											{actionOptions.map((option) => (
-												<option key={option.value} value={option.value}>
+												<option key={option.value} value={option.value} style={{ background: colors.bg, color: colors.headingText }}>
 													{option.label}
 												</option>
 											))}
@@ -437,7 +413,7 @@ const AdvancedFilter = ({
 								</FormControl>
 
 								<FormControl>
-									<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+									<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 										Security Level
 									</FormLabel>
 									<Box>
@@ -446,11 +422,19 @@ const AdvancedFilter = ({
 											placeholder='Select level'
 											value={formik.values.securityLevel}
 											onChange={formik.handleChange}
-											focusBorderColor='brand.500'
+											focusBorderColor={colors.accentGold}
 											size='md'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
+											_focus={{
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											}}
 										>
 											{levelOptions.map((option) => (
-												<option key={option.value} value={option.value}>
+												<option key={option.value} value={option.value} style={{ background: colors.bg, color: colors.headingText }}>
 													{option.value}
 												</option>
 											))}
@@ -458,8 +442,9 @@ const AdvancedFilter = ({
 									</Box>
 								</FormControl>
 							</SimpleGrid>
+
 							<FormControl>
-								<FormLabel mb={1} fontSize='sm' fontWeight='medium'>
+								<FormLabel mb={1} fontSize='sm' fontWeight='medium' color={colors.labelColor}>
 									Role
 								</FormLabel>
 								<Box>
@@ -468,11 +453,19 @@ const AdvancedFilter = ({
 										placeholder='Select role'
 										value={formik.values.roleId}
 										onChange={formik.handleChange}
-										focusBorderColor='brand.500'
+										focusBorderColor={colors.accentGold}
 										size='md'
+										bg={colors.bgInput}
+										borderColor={colors.borderColor}
+										color={colors.headingText}
+										_hover={{ borderColor: colors.accentGold }}
+										_focus={{
+											borderColor: colors.accentGold,
+											boxShadow: `0 0 0 1px ${colors.accentGold}`,
+										}}
 									>
 										{roleData?.map((option) => (
-											<option key={option._id} value={option._id}>
+											<option key={option._id} value={option._id} style={{ background: colors.bg, color: colors.headingText }}>
 												{option.roleName}
 											</option>
 										))}
@@ -487,29 +480,29 @@ const AdvancedFilter = ({
 						py={3}
 						position={['sticky', 'static']}
 						bottom={0}
-						bg={footerBg}
-          				borderTop="1px solid"
-          				borderColor={borderColor}
+						bg={colors.viewFooterBg}
+						borderTop="1px solid"
+						borderColor={colors.viewFooterBorder}
 						zIndex='sticky'
 					>
 						<Button
-							variant='outline'
+							variant='ghost'
 							mr={3}
 							onClick={handleClear}
 							isDisabled={isFilterEmpty}
 							size='md'
 							width={['50%', 'auto']}
-							borderRadius={"sm"}
 						>
 							Clear Filters
 						</Button>
 						<Button
-							colorScheme='brand'
+
 							type='submit'
 							isDisabled={isFilterUnchanged}
 							size='sm'
 							width={['50%', 'auto']}
-							borderRadius={"md"}
+
+						variant='brand'
 						>
 							Apply Filters
 						</Button>

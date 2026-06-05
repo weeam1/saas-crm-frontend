@@ -82,7 +82,7 @@ const AddEntry = ({ props }) => {
 		},
 		{
 			skip: !id,
-		}
+		},
 	);
 	const docLength = entriesData?.doc.length;
 	const developerId = entriesData?.doc?.[0]?.invoice?.developer?.id;
@@ -103,19 +103,19 @@ const AddEntry = ({ props }) => {
 
 			const subTotal = entriesData.doc.reduce(
 				(sum, entry) => sum + (Number(entry.unit_price) || 0),
-				0
+				0,
 			);
 			const totalCommissionExclVat = entriesData.doc.reduce(
 				(sum, entry) => sum + (Number(entry.total_commission_excl_vat) || 0),
-				0
+				0,
 			);
 			const totalVatAmount = entriesData.doc.reduce(
 				(sum, entry) => sum + (Number(entry.vat_amount) || 0),
-				0
+				0,
 			);
 			const totalCommissionInclVat = entriesData.doc.reduce(
 				(sum, entry) => sum + (Number(entry.total_commission_incl_vat) || 0),
-				0
+				0,
 			);
 			const totalAmount = subTotal + totalCommissionInclVat;
 
@@ -156,7 +156,7 @@ const AddEntry = ({ props }) => {
 				path: `/invoice/developers/invoices/entries/${invoiceId}`,
 			},
 		],
-		[invoiceId, developerId]
+		[invoiceId, developerId],
 	);
 
 	const handleEditClick = (entryId) => {
@@ -200,20 +200,543 @@ const AddEntry = ({ props }) => {
 	const headerHeight = 48;
 
 	return (
+		// <Box>
+		// 	<BreadCrumb items={breadcrumbItems} />
+
+		// 	<Box
+		// 		bg='white'
+		// 		p={paddingX}
+		// 		fontFamily="'DM Sans', sans-serif"
+		// 		minH='100vh'
+		// 		borderRadius='lg'
+		// 		shadow='sm'
+		// 	>
+		// 		{/* Header Section */}
+		// 		<Flex
+		// 			mb={6}
+		// 			justifyContent='space-between'
+		// 			alignItems='center'
+		// 			flexDir={{ base: 'column', sm: 'row' }}
+		// 			p={2}
+		// 		>
+		// 			<Text
+		// 				color={'secondaryGray.900'}
+		// 				fontSize='22px'
+		// 				fontWeight='700'
+		// 				mb={{ base: 2, md: 0 }}
+		// 			>
+		// 				Invoice Entries{' '}
+		// 				{docLength > 0 && (
+		// 					<>
+		// 						(
+		// 						<CountUpComponent targetNumber={docLength} />)
+		// 					</>
+		// 				)}
+		// 			</Text>
+
+		// 			<HStack spacing={3}>
+		// 				<Button
+		// 					w={{ base: 'full', sm: '100px', md: '110px', lg: '120px' }}
+		// 					h={{ base: '36px', sm: '40px', md: '42px', lg: '44px' }}
+		// 					fontWeight='medium'
+		// 					fontSize={{ base: 'sm', sm: 'sm', md: 'md', lg: 'md' }}
+		// 					color='white'
+		// 					bg='#B79045'
+		// 					onClick={() => setIsAddModalOpen(true)}
+		// 					borderRadius='6px'
+		// 					_hover={{ bg: '#A47B38' }}
+		// 					_active={{ bg: '#946B2E' }}
+		// 				>
+		// 					Add Entry
+		// 				</Button>
+
+		// 				{tableData.length > 0 && (
+		// 					<Link
+		// 						to={`/invoice/developers/invoices/view/${tableData[0]?.invoice?.invoiceNo}`}
+		// 					>
+		// 						<Button
+		// 							w={{ base: 'full', sm: '100px', md: '110px', lg: '120px' }}
+		// 							h={{ base: '36px', sm: '40px', md: '42px', lg: '44px' }}
+		// 							fontWeight='medium'
+		// 							fontSize={{ base: 'sm', sm: 'sm', md: 'md', lg: 'md' }}
+		// 							color='white'
+		// 							bg='#B79045'
+		// 							borderRadius='6px'
+		// 							_hover={{ bg: '#A47B38' }}
+		// 							_active={{ bg: '#946B2E' }}
+		// 						>
+		// 							View Invoice
+		// 						</Button>
+		// 					</Link>
+		// 				)}
+		// 			</HStack>
+		// 		</Flex>
+
+		// 		{/* Table Section */}
+		// 		<Box
+		// 			height={tableData.length < 10 ? 'fit-content' : '70vh'}
+		// 			overflowY='auto'
+		// 			scrollBehavior='smooth'
+		// 			borderRadius='md'
+		// 			boxShadow='sm'
+		// 			bg='white'
+		// 		>
+		// 			<Table variant='striped' size='sm' bg='white'>
+		// 				<Thead
+		// 					position='sticky'
+		// 					top={0}
+		// 					bg='white'
+		// 					zIndex={2}
+		// 					boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
+		// 				>
+		// 					<Tr>
+		// 						{columns.map((header, index) => (
+		// 							<Th
+		// 								key={index}
+		// 								color='black'
+		// 								fontSize={fontSizeTh}
+		// 								fontWeight='medium'
+		// 								bg='brand.200'
+		// 								whiteSpace='nowrap'
+		// 								py={4}
+		// 							>
+		// 								{header}
+		// 							</Th>
+		// 						))}
+		// 					</Tr>
+		// 				</Thead>
+		// 				<Tbody>
+		// 					{entriesLoading ? (
+		// 						<TableLoading columns={columns} length='10' />
+		// 					) : tableData.length === 0 ? (
+		// 						<Tr h={`${rowHeight}px`}>
+		// 							<Td
+		// 								colSpan={10}
+		// 								py={12}
+		// 								textAlign='center'
+		// 								borderColor='gray.200'
+		// 								bg='white'
+		// 								h={fixedTableHeight}
+		// 							>
+		// 								<HStack
+		// 									justifyContent='center'
+		// 									spacing={4}
+		// 									color='gray.500'
+		// 								>
+		// 									<BiError size={30} />
+		// 									<Text
+		// 										fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }}
+		// 										fontWeight='semibold'
+		// 										color='gray.600'
+		// 									>
+		// 										No Entry Available
+		// 									</Text>
+		// 								</HStack>
+		// 							</Td>
+		// 						</Tr>
+		// 					) : (
+		// 						tableData.map((entry, index) => (
+		// 							<Tr
+		// 								key={entry._id}
+		// 								bg={index % 2 === 0 ? 'white' : 'gray.50'}
+		// 								_hover={{
+		// 									bg: 'gray.100',
+		// 									transition: 'background-color 0.3s ease',
+		// 								}}
+		// 								h={`${rowHeight}px`}
+		// 								borderBottom='1px solid'
+		// 								borderColor='gray.200'
+		// 							>
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									width='60px'
+		// 									fontWeight='medium'
+		// 								>
+		// 									{index + 1}
+		// 								</Td>
+		// 								<Td
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{entry.unit_no || '-'}
+		// 								</Td>
+		// 								<Td
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{entry.name_of_referring_party || '-'}
+		// 								</Td>
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{`${entry.commission_percentage || 0}%`}
+		// 								</Td>
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{(entry.unit_price || 0).toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td>
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{(entry.total_commission_excl_vat || 0).toLocaleString(
+		// 										'en-US',
+		// 										{
+		// 											minimumFractionDigits: 2,
+		// 											maximumFractionDigits: 2,
+		// 										},
+		// 									)}
+		// 								</Td>
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{`${entry.vat_percentage}%`}
+		// 								</Td>
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{(entry.vat_amount || 0).toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td>
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{(entry.total_commission_incl_vat || 0).toLocaleString(
+		// 										'en-US',
+		// 										{
+		// 											minimumFractionDigits: 2,
+		// 											maximumFractionDigits: 2,
+		// 										},
+		// 									)}
+		// 								</Td>
+		// 								{/* <Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									px={6}
+		// 									fontWeight='medium'
+		// 								>
+		// 									{(entry.total_amount || 0).toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td> */}
+		// 								<Td
+		// 									textAlign='center'
+		// 									borderColor='gray.200'
+		// 									fontSize={fontSizeTd}
+		// 									color='gray.800'
+		// 									py={4}
+		// 									// px={6}
+		// 									minWidth='220px'
+		// 									fontWeight='medium'
+		// 								>
+		// 									{entry?.createdAt
+		// 										? format(
+		// 												new Date(entry?.createdAt),
+		// 												'MMM d, yyyy h:mm a',
+		// 											)
+		// 										: 'N/A'}
+		// 								</Td>
+		// 								<Td borderColor='gray.200' width='80px'>
+		// 									<HStack spacing={2}>
+		// 										<Tooltip label='Edit' placement='top' hasArrow>
+		// 											<IconButton
+		// 												icon={<FaEdit />}
+		// 												aria-label='Edit'
+		// 												size='sm'
+		// 												variant='ghost'
+		// 												color='gray.600'
+		// 												_hover={{ color: 'blue.600', bg: 'gray.100' }}
+		// 												onClick={() => handleEditClick(entry._id)}
+		// 											/>
+		// 										</Tooltip>
+
+		// 										<Tooltip label='Delete' placement='top' hasArrow>
+		// 											<IconButton
+		// 												icon={<FaTrash />}
+		// 												aria-label='Delete'
+		// 												size='sm'
+		// 												variant='ghost'
+		// 												color='red.500'
+		// 												_hover={{ bg: 'red.50' }}
+		// 												onClick={() => handleDeleteClick(entry._id)}
+		// 											/>
+		// 										</Tooltip>
+		// 									</HStack>
+		// 								</Td>
+		// 							</Tr>
+		// 						))
+		// 					)}
+		// 				</Tbody>
+		// 			</Table>
+		// 		</Box>
+
+		// 		{/* Summary Table */}
+		// 		{tableData.length > 0 && !entriesLoading && (
+		// 			<Flex justify={{ base: 'center', md: 'flex-end' }}>
+		// 				<Box
+		// 					borderRadius='lg'
+		// 					p={6}
+		// 					maxW={{ base: '100%', md: '500px' }}
+		// 					w={{ base: '100%', md: 'auto' }}
+		// 				>
+		// 					<Table
+		// 						variant='simple'
+		// 						size={tableSize}
+		// 						border='1px solid'
+		// 						borderColor='gray.200'
+		// 					>
+		// 						<Thead bg='#edd199'>
+		// 							<Tr>
+		// 								<Th
+		// 									fontSize={fontSizeSummaryLabel}
+		// 									fontWeight='medium'
+		// 									color='black'
+		// 									textTransform='capitalize'
+		// 									colSpan={2}
+		// 									py={3}
+		// 								>
+		// 									Invoice Summary
+		// 								</Th>
+		// 							</Tr>
+		// 						</Thead>
+		// 						<Tbody bg='white'>
+		// 							<Tr>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryLabel}
+		// 									color='gray.600'
+		// 									fontWeight='medium'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 								>
+		// 									Unit Total
+		// 								</Td>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryValue}
+		// 									color='gray.800'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 									textAlign='right'
+		// 								>
+		// 									{summary.subTotal.toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td>
+		// 							</Tr>
+		// 							<Tr>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryLabel}
+		// 									color='gray.600'
+		// 									fontWeight='medium'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 								>
+		// 									Total Commission Excl. VAT
+		// 								</Td>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryValue}
+		// 									color='gray.800'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 									textAlign='right'
+		// 								>
+		// 									{summary.totalCommissionExclVat.toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td>
+		// 							</Tr>
+		// 							<Tr>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryLabel}
+		// 									color='gray.600'
+		// 									fontWeight='medium'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 								>
+		// 									Total VAT Amount
+		// 								</Td>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryValue}
+		// 									color='gray.800'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 									textAlign='right'
+		// 								>
+		// 									{summary.totalVatAmount.toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td>
+		// 							</Tr>
+		// 							<Tr>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryLabel}
+		// 									color='gray.600'
+		// 									fontWeight='medium'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 								>
+		// 									Total Commission Incl. VAT
+		// 								</Td>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryValue}
+		// 									color='gray.800'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 									textAlign='right'
+		// 								>
+		// 									{summary.totalCommissionInclVat.toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td>
+		// 							</Tr>
+
+		// 							{/* <Tr>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryLabel}
+		// 									color='gray.600'
+		// 									borderColor='gray.200'
+		// 									py={3}
+		// 									fontWeight='bold'
+		// 								>
+		// 									Total Amount
+		// 								</Td>
+		// 								<Td
+		// 									fontSize={fontSizeSummaryValue}
+		// 									color='gray.800'
+		// 									borderColor='gray.200'
+		// 									fontWeight='bold'
+		// 									py={3}
+		// 									textAlign='right'
+		// 								>
+		// 									{summary.totalAmount.toLocaleString('en-US', {
+		// 										minimumFractionDigits: 2,
+		// 										maximumFractionDigits: 2,
+		// 									})}
+		// 								</Td>
+		// 							</Tr> */}
+		// 						</Tbody>
+		// 					</Table>
+		// 				</Box>
+		// 			</Flex>
+		// 		)}
+
+		// 		{/* Modals */}
+		// 		{isAddModalOpen && (
+		// 			<Add
+		// 				isOpen={isAddModalOpen}
+		// 				onClose={() => setIsAddModalOpen(false)}
+		// 				fetchData={refetch}
+		// 				setAction={() => {}}
+		// 				invoiceId={id}
+		// 			/>
+		// 		)}
+
+		// 		{isEditModalOpen && (
+		// 			<Edit
+		// 				isOpen={isEditModalOpen}
+		// 				onClose={() => {
+		// 					setIsEditModalOpen(false);
+		// 					setSelectedId(null);
+		// 				}}
+		// 				selectedId={selectedId}
+		// 				invoiceId={id}
+		// 				fetchData={refetch}
+		// 				setAction={() => {}}
+		// 			/>
+		// 		)}
+
+		// 		{isDeleteModalOpen && (
+		// 			<Delete
+		// 				isOpen={isDeleteModalOpen}
+		// 				onClose={() => {
+		// 					setIsDeleteModalOpen(false);
+		// 					setSelectedId(null);
+		// 				}}
+		// 				id={selectedId}
+		// 				method='one'
+		// 				fetchData={refetch}
+		// 				setAction={() => {}}
+		// 				invoiceId={id}
+		// 				developerId={developerId}
+		// 				docLength={docLength}
+		// 			/>
+		// 		)}
+		// 	</Box>
+		// </Box>
+
 		<Box>
 			<BreadCrumb items={breadcrumbItems} />
 
-			<AppButton leftIcon={<IoArrowBack />} onClick={goBack} mb='4'>
-				Back
-			</AppButton>
-
 			<Box
-				bg='white'
+				bg='bg.surface'
 				p={paddingX}
 				fontFamily="'DM Sans', sans-serif"
 				minH='100vh'
-				borderRadius='lg'
-				shadow='sm'
+				borderRadius='xl'
+				border='1px solid'
+				borderColor='border.default'
+				boxShadow='card'
 			>
 				{/* Header Section */}
 				<Flex
@@ -221,35 +744,25 @@ const AddEntry = ({ props }) => {
 					justifyContent='space-between'
 					alignItems='center'
 					flexDir={{ base: 'column', sm: 'row' }}
-					p={2}
+					gap={4}
+					pb={4}
+					borderBottom='1px solid'
+					borderBottomColor='border.default'
 				>
-					<Text
-						color={'secondaryGray.900'}
-						fontSize='22px'
-						fontWeight='700'
-						mb={{ base: 2, md: 0 }}
-					>
+					<Text color='text.heading' fontSize='22px' fontWeight='700'>
 						Invoice Entries{' '}
 						{docLength > 0 && (
-							<>
-								(
-								<CountUpComponent targetNumber={docLength} />)
-							</>
+							<Text as='span' color='gold.primary'>
+								(<CountUpComponent targetNumber={docLength} />)
+							</Text>
 						)}
 					</Text>
 
 					<HStack spacing={3}>
 						<Button
-							w={{ base: 'full', sm: '100px', md: '110px', lg: '120px' }}
-							h={{ base: '36px', sm: '40px', md: '42px', lg: '44px' }}
-							fontWeight='medium'
-							fontSize={{ base: 'sm', sm: 'sm', md: 'md', lg: 'md' }}
-							color='white'
-							bg='#B79045'
+							variant='brand'
 							onClick={() => setIsAddModalOpen(true)}
-							borderRadius='6px'
-							_hover={{ bg: '#A47B38' }}
-							_active={{ bg: '#946B2E' }}
+							px={4}
 						>
 							Add Entry
 						</Button>
@@ -258,17 +771,7 @@ const AddEntry = ({ props }) => {
 							<Link
 								to={`/invoice/developers/invoices/view/${tableData[0]?.invoice?.invoiceNo}`}
 							>
-								<Button
-									w={{ base: 'full', sm: '100px', md: '110px', lg: '120px' }}
-									h={{ base: '36px', sm: '40px', md: '42px', lg: '44px' }}
-									fontWeight='medium'
-									fontSize={{ base: 'sm', sm: 'sm', md: 'md', lg: 'md' }}
-									color='white'
-									bg='#B79045'
-									borderRadius='6px'
-									_hover={{ bg: '#A47B38' }}
-									_active={{ bg: '#946B2E' }}
-								>
+								<Button variant='outline' px={4}>
 									View Invoice
 								</Button>
 							</Link>
@@ -281,57 +784,49 @@ const AddEntry = ({ props }) => {
 					height={tableData.length < 10 ? 'fit-content' : '70vh'}
 					overflowY='auto'
 					scrollBehavior='smooth'
-					borderRadius='md'
-					boxShadow='sm'
-					bg='white'
+					borderRadius='xl'
+					border='1px solid'
+					borderColor='border.default'
+					bg='bg.surface'
 				>
-					<Table variant='striped' size='sm' bg='white'>
-						<Thead
-							position='sticky'
-							top={0}
-							bg='white'
-							zIndex={2}
-							boxShadow='0px 2px 8px rgba(0, 0, 0, 0.1)'
-						>
+					<Table variant='simple' size='sm'>
+						<Thead position='sticky' top={0} bg='bg.elevated' zIndex={2}>
 							<Tr>
 								{columns.map((header, index) => (
 									<Th
 										key={index}
-										color='black'
-										fontSize={fontSizeTh}
-										fontWeight='medium'
-										bg='brand.200'
+										color='gold.primary'
+										fontSize='11px'
+										fontWeight='700'
+										letterSpacing='0.08em'
+										textTransform='uppercase'
+										bg='bg.elevated'
 										whiteSpace='nowrap'
 										py={4}
+										px={4}
 									>
 										{header}
 									</Th>
 								))}
 							</Tr>
 						</Thead>
+
 						<Tbody>
 							{entriesLoading ? (
-								<TableLoading columns={columns} length='10' />
+								<TableLoading columns={columns} length={10} />
 							) : tableData.length === 0 ? (
-								<Tr h={`${rowHeight}px`}>
-									<Td
-										colSpan={10}
-										py={12}
-										textAlign='center'
-										borderColor='gray.200'
-										bg='white'
-										h={fixedTableHeight}
-									>
+								<Tr>
+									<Td colSpan={columns.length} py={12} textAlign='center'>
 										<HStack
 											justifyContent='center'
-											spacing={4}
-											color='gray.500'
+											spacing={2}
+											color='text.muted'
 										>
-											<BiError size={30} />
+											<BiError size={24} />
 											<Text
-												fontSize={{ base: 'lg', md: 'xl', lg: '2xl' }}
+												fontSize='lg'
 												fontWeight='semibold'
-												color='gray.600'
+												color='text.muted'
 											>
 												No Entry Available
 											</Text>
@@ -342,66 +837,57 @@ const AddEntry = ({ props }) => {
 								tableData.map((entry, index) => (
 									<Tr
 										key={entry._id}
-										bg={index % 2 === 0 ? 'white' : 'gray.50'}
-										_hover={{
-											bg: 'gray.100',
-											transition: 'background-color 0.3s ease',
-										}}
-										h={`${rowHeight}px`}
+										_hover={{ bg: 'bg.elevated' }}
+										transition='background 0.15s'
 										borderBottom='1px solid'
-										borderColor='gray.200'
+										borderBottomColor='border.subtle'
 									>
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											width='60px'
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='text.muted'
+											fontWeight='500'
 										>
 											{index + 1}
 										</Td>
 										<Td
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='text.body'
+											fontWeight='500'
 										>
 											{entry.unit_no || '-'}
 										</Td>
 										<Td
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='text.body'
+											fontWeight='500'
 										>
 											{entry.name_of_referring_party || '-'}
 										</Td>
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='text.body'
+											fontWeight='500'
 										>
 											{`${entry.commission_percentage || 0}%`}
 										</Td>
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='text.body'
+											fontWeight='500'
+											fontFamily='mono'
 										>
 											{(entry.unit_price || 0).toLocaleString('en-US', {
 												minimumFractionDigits: 2,
@@ -410,40 +896,39 @@ const AddEntry = ({ props }) => {
 										</Td>
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='gold.primary'
+											fontWeight='600'
+											fontFamily='mono'
 										>
 											{(entry.total_commission_excl_vat || 0).toLocaleString(
 												'en-US',
 												{
 													minimumFractionDigits: 2,
 													maximumFractionDigits: 2,
-												}
+												},
 											)}
 										</Td>
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='text.body'
+											fontWeight='500'
 										>
 											{`${entry.vat_percentage}%`}
 										</Td>
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='text.body'
+											fontWeight='500'
+											fontFamily='mono'
 										>
 											{(entry.vat_amount || 0).toLocaleString('en-US', {
 												minimumFractionDigits: 2,
@@ -452,63 +937,51 @@ const AddEntry = ({ props }) => {
 										</Td>
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											px={6}
-											fontWeight='medium'
+											px={4}
+											fontSize='13px'
+											color='gold.primary'
+											fontWeight='600'
+											fontFamily='mono'
 										>
 											{(entry.total_commission_incl_vat || 0).toLocaleString(
 												'en-US',
 												{
 													minimumFractionDigits: 2,
 													maximumFractionDigits: 2,
-												}
+												},
 											)}
 										</Td>
-										{/* <Td
-											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
-											py={4}
-											px={6}
-											fontWeight='medium'
-										>
-											{(entry.total_amount || 0).toLocaleString('en-US', {
-												minimumFractionDigits: 2,
-												maximumFractionDigits: 2,
-											})}
-										</Td> */}
 										<Td
 											textAlign='center'
-											borderColor='gray.200'
-											fontSize={fontSizeTd}
-											color='gray.800'
 											py={4}
-											// px={6}
-											minWidth='220px'
-											fontWeight='medium'
+											px={4}
+											minWidth='180px'
+											fontSize='12px'
+											color='text.muted'
 										>
 											{entry?.createdAt
 												? format(
 														new Date(entry?.createdAt),
-														'MMM d, yyyy h:mm a'
+														'MMM d, yyyy h:mm a',
 													)
 												: 'N/A'}
 										</Td>
-										<Td borderColor='gray.200' width='80px'>
-											<HStack spacing={2}>
+										<Td py={4} px={2} width='80px'>
+											<HStack spacing={1}>
 												<Tooltip label='Edit' placement='top' hasArrow>
 													<IconButton
 														icon={<FaEdit />}
 														aria-label='Edit'
 														size='sm'
 														variant='ghost'
-														color='gray.600'
-														_hover={{ color: 'blue.600', bg: 'gray.100' }}
+														color='gold.primary'
 														onClick={() => handleEditClick(entry._id)}
+														_hover={{
+															bg: 'rgba(212, 175, 55, 0.1)',
+															transform: 'scale(1.05)',
+														}}
+														transition='all 0.15s'
 													/>
 												</Tooltip>
 
@@ -518,9 +991,13 @@ const AddEntry = ({ props }) => {
 														aria-label='Delete'
 														size='sm'
 														variant='ghost'
-														color='red.500'
-														_hover={{ bg: 'red.50' }}
+														color='red.400'
 														onClick={() => handleDeleteClick(entry._id)}
+														_hover={{
+															bg: 'rgba(245, 101, 101, 0.1)',
+															transform: 'scale(1.05)',
+														}}
+														transition='all 0.15s'
 													/>
 												</Tooltip>
 											</HStack>
@@ -532,52 +1009,57 @@ const AddEntry = ({ props }) => {
 					</Table>
 				</Box>
 
-				{/* Summary Table */}
+				{/* Summary Section */}
 				{tableData.length > 0 && !entriesLoading && (
-					<Flex justify={{ base: 'center', md: 'flex-end' }}>
+					<Flex justify={{ base: 'center', md: 'flex-end' }} mt={6}>
 						<Box
-							borderRadius='lg'
-							p={6}
-							maxW={{ base: '100%', md: '500px' }}
+							borderRadius='xl'
+							border='1px solid'
+							borderColor='border.default'
+							bg='bg.surface'
+							maxW={{ base: '100%', md: '450px' }}
 							w={{ base: '100%', md: 'auto' }}
+							overflow='hidden'
 						>
-							<Table
-								variant='simple'
-								size={tableSize}
-								border='1px solid'
-								borderColor='gray.200'
-							>
-								<Thead bg='#edd199'>
+							<Table variant='simple' size='sm'>
+								<Thead bg='bg.elevated'>
 									<Tr>
 										<Th
-											fontSize={fontSizeSummaryLabel}
-											fontWeight='medium'
-											color='black'
-											textTransform='capitalize'
+											color='gold.primary'
+											fontSize='11px'
+											fontWeight='700'
+											letterSpacing='0.08em'
+											textTransform='uppercase'
 											colSpan={2}
 											py={3}
+											px={4}
 										>
 											Invoice Summary
 										</Th>
 									</Tr>
 								</Thead>
-								<Tbody bg='white'>
-									<Tr>
+								<Tbody>
+									<Tr
+										borderBottom='1px solid'
+										borderBottomColor='border.subtle'
+									>
 										<Td
-											fontSize={fontSizeSummaryLabel}
-											color='gray.600'
-											fontWeight='medium'
-											borderColor='gray.200'
+											fontSize='13px'
+											color='text.muted'
+											fontWeight='500'
 											py={3}
+											px={4}
 										>
 											Unit Total
 										</Td>
 										<Td
-											fontSize={fontSizeSummaryValue}
-											color='gray.800'
-											borderColor='gray.200'
+											fontSize='13px'
+											color='text.body'
+											fontWeight='600'
 											py={3}
+											px={4}
 											textAlign='right'
+											fontFamily='mono'
 										>
 											{summary.subTotal.toLocaleString('en-US', {
 												minimumFractionDigits: 2,
@@ -585,22 +1067,27 @@ const AddEntry = ({ props }) => {
 											})}
 										</Td>
 									</Tr>
-									<Tr>
+									<Tr
+										borderBottom='1px solid'
+										borderBottomColor='border.subtle'
+									>
 										<Td
-											fontSize={fontSizeSummaryLabel}
-											color='gray.600'
-											fontWeight='medium'
-											borderColor='gray.200'
+											fontSize='13px'
+											color='text.muted'
+											fontWeight='500'
 											py={3}
+											px={4}
 										>
 											Total Commission Excl. VAT
 										</Td>
 										<Td
-											fontSize={fontSizeSummaryValue}
-											color='gray.800'
-											borderColor='gray.200'
+											fontSize='13px'
+											color='gold.primary'
+											fontWeight='600'
 											py={3}
+											px={4}
 											textAlign='right'
+											fontFamily='mono'
 										>
 											{summary.totalCommissionExclVat.toLocaleString('en-US', {
 												minimumFractionDigits: 2,
@@ -608,22 +1095,27 @@ const AddEntry = ({ props }) => {
 											})}
 										</Td>
 									</Tr>
-									<Tr>
+									<Tr
+										borderBottom='1px solid'
+										borderBottomColor='border.subtle'
+									>
 										<Td
-											fontSize={fontSizeSummaryLabel}
-											color='gray.600'
-											fontWeight='medium'
-											borderColor='gray.200'
+											fontSize='13px'
+											color='text.muted'
+											fontWeight='500'
 											py={3}
+											px={4}
 										>
 											Total VAT Amount
 										</Td>
 										<Td
-											fontSize={fontSizeSummaryValue}
-											color='gray.800'
-											borderColor='gray.200'
+											fontSize='13px'
+											color='text.body'
+											fontWeight='600'
 											py={3}
+											px={4}
 											textAlign='right'
+											fontFamily='mono'
 										>
 											{summary.totalVatAmount.toLocaleString('en-US', {
 												minimumFractionDigits: 2,
@@ -631,22 +1123,24 @@ const AddEntry = ({ props }) => {
 											})}
 										</Td>
 									</Tr>
-									<Tr>
+									<Tr bg='rgba(212, 175, 55, 0.05)'>
 										<Td
-											fontSize={fontSizeSummaryLabel}
-											color='gray.600'
-											fontWeight='medium'
-											borderColor='gray.200'
+											fontSize='14px'
+											color='text.heading'
+											fontWeight='700'
 											py={3}
+											px={4}
 										>
 											Total Commission Incl. VAT
 										</Td>
 										<Td
-											fontSize={fontSizeSummaryValue}
-											color='gray.800'
-											borderColor='gray.200'
+											fontSize='14px'
+											color='gold.primary'
+											fontWeight='800'
 											py={3}
+											px={4}
 											textAlign='right'
+											fontFamily='mono'
 										>
 											{summary.totalCommissionInclVat.toLocaleString('en-US', {
 												minimumFractionDigits: 2,
@@ -654,31 +1148,6 @@ const AddEntry = ({ props }) => {
 											})}
 										</Td>
 									</Tr>
-
-									{/* <Tr>
-										<Td
-											fontSize={fontSizeSummaryLabel}
-											color='gray.600'
-											borderColor='gray.200'
-											py={3}
-											fontWeight='bold'
-										>
-											Total Amount
-										</Td>
-										<Td
-											fontSize={fontSizeSummaryValue}
-											color='gray.800'
-											borderColor='gray.200'
-											fontWeight='bold'
-											py={3}
-											textAlign='right'
-										>
-											{summary.totalAmount.toLocaleString('en-US', {
-												minimumFractionDigits: 2,
-												maximumFractionDigits: 2,
-											})}
-										</Td>
-									</Tr> */}
 								</Tbody>
 							</Table>
 						</Box>

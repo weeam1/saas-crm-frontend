@@ -10,7 +10,7 @@ import {
 	Divider,
 	Select,
 	useDisclosure,
-	IconButton
+	IconButton,
 } from '@chakra-ui/react';
 import { FaPlay } from 'react-icons/fa';
 import { IoPlaySkipForwardSharp } from 'react-icons/io5';
@@ -23,7 +23,7 @@ import DateFilterButton from './DateFilterButton';
 import DateFilter from './DateFilter';
 import { formattedDate } from 'utils/helpers';
 import SearchTags from 'components/search/SearchTags';
-import { FiRefreshCw } from "react-icons/fi";
+import TopPagination from 'components/pagination/TopPagination';
 
 const Pagination = ({
 	data,
@@ -247,10 +247,16 @@ const Pagination = ({
 
 	return (
 		<>
-			<Box width='100%' bg='white' p={5} borderRadius='10px'>
+			<Box
+				width='100%'
+				bg='bg.surface'
+				boxShadow='card'
+				borderRadius='lg'
+				p={6}
+			>
 				<LeadsProgress totalLeads={totalLeads} userData={userData} />
 				<HStack
-					flexDir={{ base: 'column', md: 'row' }}
+					flexDir={{ base: 'column', xl: 'row' }}
 					alignItems='flex-end'
 					mb='2'
 				>
@@ -268,21 +274,62 @@ const Pagination = ({
 						}}
 						isLoading={isLoading}
 					/>
-					<DateFilterButton onClick={dateTimeOnOpen} />
-						<IconButton
-							icon={<FiRefreshCw />}
-							aria-label="Refresh logs"
-							onClick={() => {
-								setCurrentPage(1);
-								setGotoPage(1);
-							}}
+					<Flex gap='2' ml='auto' justifyContent='center' alignItems='center'>
+						<SearchBox
+							fetchSearchedData={fetchSearchedData}
+							fetchAdvancedSearch={fetchAdvancedSearch}
+							pageSize={pageSize}
+							setData={setData}
+							setTotalPages={setTotalPages}
+							setTotalLeads={setTotalLeads}
+							setIsLoading={setIsLoading}
+							setDisplaySearchData={setDisplaySearchData}
+							onClearSearch={handleClearSearch}
 							isLoading={isLoading}
-							variant="outline"
-							size="md"
+							setSearchTerm={setSearchTerm}
+							setTags={setTags}
+							searchTerm={searchTerm}
+							setDateTime={setDateTime}
+							setQueryData={setQueryData}
 						/>
+						<DateFilterButton onClick={dateTimeOnOpen} />
+					</Flex>
+					{/* <IconButton
+            icon={<FiRefreshCw />}
+            aria-label="Refresh logs"
+            onClick={() => {
+              setCurrentPage(1);
+              setGotoPage(1);
+            }}
+            isLoading={isLoading}
+            variant="outline"
+            size="sm"
+            borderRadius="full"
+          /> */}
 				</HStack>
 
-				<Flex
+				<Box mt={4}>
+					<TopPagination
+						currentPage={currentPage}
+						totalPages={totalPagesForTab}
+						totalItems={totalLeads}
+						itemsPerPage={pageSize}
+						refetching={isLoading}
+						loading={isLoading}
+						onPageChange={(page) => {
+							setCurrentPage(page);
+							setGotoPage(page);
+							fetchLeads(page);
+						}}
+						handlePageSize={(size) => {
+							setPageSize(size);
+							fetchLeads(1, size);
+						}}
+						maximumPageSize={100}
+					/>
+				</Box>
+
+				{/* <Flex
 					direction={{ base: 'column', lg: 'row' }}
 					justifyContent='space-between'
 					alignItems='center'
@@ -458,37 +505,7 @@ const Pagination = ({
 							</HStack>
 						</HStack>
 					</Box>
-
-					<Box
-						bg='softGray.50'
-						border='1px solid'
-						borderColor='softGray.600'
-						borderRadius='md'
-						p={{ base: 2, md: 3 }}
-						flex='1'
-						minWidth={{ base: '100%', lg: '200px' }}
-						maxWidth={{ lg: '470px' }}
-						mt={{ base: 2, lg: 0 }}
-					>
-						<SearchBox
-							fetchSearchedData={fetchSearchedData}
-							fetchAdvancedSearch={fetchAdvancedSearch}
-							pageSize={pageSize}
-							setData={setData}
-							setTotalPages={setTotalPages}
-							setTotalLeads={setTotalLeads}
-							setIsLoading={setIsLoading}
-							setDisplaySearchData={setDisplaySearchData}
-							onClearSearch={handleClearSearch}
-							isLoading={isLoading}
-							setSearchTerm={setSearchTerm}
-							setTags={setTags}
-							searchTerm={searchTerm}
-							setDateTime={setDateTime}
-							setQueryData={setQueryData}
-						/>
-					</Box>
-				</Flex>
+				</Flex> */}
 
 				{displaySearchData && (
 					<Flex

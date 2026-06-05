@@ -55,11 +55,11 @@ const ManageSurveys = () => {
 
   return (
     <Box
-      bg="white"
-      p={{ base: 3, md: 4 }}
-      boxShadow="sm"
-      mt={"-16px"}
-      width="100%"
+      bg='bg.surface'
+      p={6}
+      borderRadius='lg'
+     minH='80vh'
+      boxShadow='card'
     >
       <FilterSearch
         currentPage={currentPage}
@@ -88,7 +88,7 @@ const ManageSurveys = () => {
         <SurveyCardLoading count={pageSize} />
       ) : view === "grid" ? (
         surveys?.doc?.surveys.length > 0 ? (
-          <Grid
+            <Grid
             sx={{
               "@media (min-width: 0px)": { gridTemplateColumns: "1fr" },
               "@media (min-width: 600px)": {

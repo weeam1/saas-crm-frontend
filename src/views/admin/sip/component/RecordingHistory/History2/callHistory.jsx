@@ -7,7 +7,7 @@ import {
 	useBreakpointValue,
 	Button,
 } from '@chakra-ui/react';
-import { FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { FiSearch } from 'react-icons/fi';
 import { fetchCallHistoryServer2Data } from '../../../../../../services/sip/index';
 import ActiveFiltersDisplay from './Component/ActiveFiltersDisplay';
 import AdvancedSearchModal from './Component/AdvancedSearchModal';
@@ -20,6 +20,7 @@ import TopPagination from 'components/pagination/TopPagination';
 import ShareRecordingModal from './Component/ShareRecordingModal';
 import LogModal from './Component/LogModal';
 import SharedDetailModal from './Component/SharedDetailModal';
+import RefreshButton from 'components/refresh/RefreshButton';
 
 const CallHistory = () => {
 	const [calls, setCalls] = useState([]);
@@ -184,14 +185,14 @@ const CallHistory = () => {
 				gap={2}
 				flexWrap={'wrap'}
 			>
-				<IconButton
-					icon={<FiRefreshCw />}
-					aria-label='Refresh Analytics'
-					onClick={() => loadCalls()}
+					<RefreshButton
+					label="Refresh"
+					onClick={loadCalls}
 					isLoading={loading}
-					variant='outline'
-					size='sm'
+					isFetching={loading}
+					size="sm"
 				/>
+
 
 				{isMobile ? (
 					<IconButton

@@ -11,6 +11,7 @@ import {
 	FormErrorMessage,
 	Flex,
 } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const FormField = ({
 	label,
@@ -24,6 +25,7 @@ const FormField = ({
 	rows = 3,
 	...props
 }) => {
+	const colors = useModalColors();
 	const hasError = formik.touched[name] && formik.errors[name];
 
 	const renderField = () => {
@@ -34,14 +36,16 @@ const FormField = ({
 			onChange: formik.handleChange,
 			onBlur: formik.handleBlur,
 			isInvalid: hasError,
-			bg: 'white',
-			borderColor: 'gray.300',
-			_hover: { borderColor: 'gray.400' },
+			bg: colors.bgInput,
+			borderColor: colors.borderColor,
+			_hover: { borderColor: colors.accentGold },
 			_focus: {
-				borderColor: '#B79045',
-				boxShadow: '0 0 0 1px #B79045',
+				borderColor: colors.accentGold,
+				boxShadow: `0 0 0 1px ${colors.accentGold}`,
 			},
+			color: colors.headingText,
 			fontSize: 'sm',
+			_placeholder: { color: colors.mutedText },
 			...props,
 		};
 
@@ -53,7 +57,11 @@ const FormField = ({
 			return (
 				<Select {...commonProps}>
 					{options.map((option) => (
-						<option key={option.value} value={option.value}>
+						<option
+							key={option.value}
+							value={option.value}
+							style={{ background: colors.bg, color: colors.headingText }}
+						>
 							{option.label}
 						</option>
 					))}
@@ -75,30 +83,21 @@ const FormField = ({
 			);
 		}
 
-		// if (icon) {
-		// 	return (
-		// 		<InputGroup>
-		// 			<InputLeftElement pointerEvents='none' color='gray.400'>
-		// 				{icon}
-		// 			</InputLeftElement>
-		// 			<Input type={type} pl={10} {...commonProps} />
-		// 		</InputGroup>
-		// 	);
-		// }
-
 		return <Input type={type} {...commonProps} />;
 	};
 
 	return (
 		<FormControl isRequired={isRequired} isInvalid={hasError}>
 			<Flex align='center' gap={1} mb={1}>
-				<FormLabel fontSize='sm' fontWeight='600' color='gray.600' mb={0}>
+				<FormLabel fontSize='sm' fontWeight='600' color={colors.labelColor} mb={0}>
 					{label}
 				</FormLabel>
 			</Flex>
 			{renderField()}
 			{hasError && (
-				<FormErrorMessage fontSize='xs'>{formik.errors[name]}</FormErrorMessage>
+				<FormErrorMessage fontSize='xs' color={colors.badgeErrorText}>
+					{formik.errors[name]}
+				</FormErrorMessage>
 			)}
 		</FormControl>
 	);

@@ -26,9 +26,9 @@ export default function Dashboard() {
 			{hasPermission('dashboard') ? (
 				<AppDashboard />
 			) : (
-				<Box bg={'white'} py={1} borderRadius={'md'}>
-					<PermissionSection />
-				</Box>
+				// <Box bg={'bg.surface'} py={1} borderRadius={'md'}>
+				<PermissionSection />
+				// </Box>
 			)}
 
 			<AppsDownloadSection />

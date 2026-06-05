@@ -3,37 +3,45 @@ import { Box, Text, Button, VStack, Grid, Heading } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import CountUpComponent from 'components/countUpComponent/countUpComponent';
 import { format } from 'date-fns';
+import { useModalColors } from 'hooks/useModalColors';
 
 const RunningInterviews = ({ interviews, totals }) => {
+	const colors = useModalColors();
 	const navigate = useNavigate();
 
 	const handleJoinInterview = (id) => {
 		navigate(`/hiring/interview/${id}`);
-
-		// window.location.href = `/hiring/interview/${id}`;
 	};
 
 	return (
-		<Box bg='white' p='8' m='4' rounded='md' shadow='sm'>
-			<Heading size='md' px={5} color='gray.800'>
+		<Box
+			bg={colors.bg}
+			p='6'
+			m='4'
+			rounded='md'
+			shadow={colors.cardShadow}
+			border="1px solid"
+			borderColor={colors.borderColor}
+		>
+			<Heading size='md' px={5} color={colors.headingText}>
 				Running Interviews
 				<span style={{ marginLeft: '6px' }}>
-					({<CountUpComponent targetNumber={totals || 0} />})
+					(<CountUpComponent targetNumber={totals || 0} />)
 				</span>
 			</Heading>
 
 			<Grid
-				templateColumns={{ base: '1fr', md: 'repeat(4, 1fr)' }}
-				gap={3}
+				templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)', xl: 'repeat(4, 1fr)' }}
+				gap={4}
 				w='full'
 				p={6}
 			>
-				{interviews.map((interview) => (
+				{interviews?.map((interview) => (
 					<InterviewCard
 						key={interview._id}
-						candidateName={interview.candidate.name}
+						candidateName={interview.candidate?.name}
 						interviewDate={interview.createdAt}
-						role={interview.candidate.position.name}
+						role={interview.candidate?.position?.name}
 						onJoin={() => handleJoinInterview(interview._id)}
 					/>
 				))}
@@ -43,44 +51,61 @@ const RunningInterviews = ({ interviews, totals }) => {
 };
 
 const InterviewCard = ({ candidateName, interviewDate, role, onJoin }) => {
+	const colors = useModalColors();
+
 	return (
 		<Box
 			borderRadius='lg'
-			p={4}
-			bg='brand.100'
+			p={5}
+			bg={colors.bgInput}
 			boxShadow='sm'
-			_hover={{ boxShadow: 'lg' }}
+			border="1px solid"
+			borderColor={colors.borderColor}
+			transition='all 0.3s ease'
+			_hover={{
+				boxShadow: colors.cardShadow,
+				borderColor: colors.accentGold,
+				transform: 'translateY(-2px)',
+			}}
+			maxW='100%'
+			overflow='hidden'
+			height='100%'
 		>
-			<VStack spacing={4} align='start'>
-				<Text fontSize='md' fontWeight='bold' color='gray.700'>
-					{candidateName}
+			<VStack spacing={3} align='start'>
+				<Text fontSize='md' fontWeight='bold' color={colors.headingText}>
+					{candidateName || 'N/A'}
 				</Text>
-				<Text fontSize='md' color='gray.600'>
-					Role: {role}
+				<Text fontSize='sm' color={colors.bodyText}>
+					Role: {role || 'N/A'}
 				</Text>
-				<Text fontSize='xs' color='gray.600'>
+				<Text fontSize='xs' color={colors.mutedText}>
 					Started at:
 					<span style={{ marginLeft: '4px' }}>
-						{format(new Date(interviewDate), 'EEE, MMM d, yyyy h:mm a')}
+						{interviewDate ? format(new Date(interviewDate), 'EEE, MMM d, yyyy h:mm a') : 'N/A'}
 					</span>
 				</Text>
-				<Button
-					onClick={onJoin}
-					fontSize='md'
-					fontWeight='semibold'
-					color='softGray.100'
-					bg='green.400'
-					_hover={{ bg: 'green.600', shadow: 'sm' }}
-					_active={{ bg: 'green.700' }}
-					transition='0.2 s all'
-					width='fit-content'
-					py={2}
-					px={4}
-					mr={2}
-					rounded='md'
-				>
-					Join Interview
-				</Button>
+				<Box w='full' display='flex' justifyContent='center' pt={2}>
+					<Button
+						onClick={onJoin}
+						fontSize='sm'
+						fontWeight='semibold'
+						bg={colors.accentGold}
+						color={colors.headerText}
+						_hover={{
+							bg: colors.goldLight,
+							shadow: colors.goldGlow,
+							transform: 'translateY(-1px)',
+						}}
+						_active={{ bg: colors.goldDark }}
+						transition='all 0.2s ease'
+						width='fit-content'
+						py={2}
+						px={5}
+						rounded='md'
+					>
+						Join Interview
+					</Button>
+				</Box>
 			</VStack>
 		</Box>
 	);

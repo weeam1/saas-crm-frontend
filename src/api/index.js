@@ -23,6 +23,10 @@ export const setAuthHeader = (headers) => {
 	if (token) {
 		headers['Authorization'] = `Bearer ${token}`;
 	}
+	const tenantId = localStorage.getItem('tenantId');
+	if (tenantId) {
+		headers['x-tenant-id'] = tenantId;
+	}
 };
 
 export const fetchAgentLeadsStats = async (

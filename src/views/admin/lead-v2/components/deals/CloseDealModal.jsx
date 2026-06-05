@@ -34,7 +34,6 @@ import { toast } from 'react-toastify';
 import {
 	ALLOWED_FILE_TYPES,
 	commissionStatuses,
-	// currencies,
 	dealSchema,
 	roundTo2,
 } from './../../../deals/dealUtils';
@@ -47,6 +46,7 @@ import { currencies } from 'constants/currencies';
 import { getSharedUsersData } from './dealUtils';
 import CommissionSummary from './CommissionSummary';
 import CurrencyConverterModal from './CurrencyConverter';
+import { useModalColors } from 'hooks/useModalColors';
 
 const CloseDealModal = React.memo(
 	({
@@ -55,8 +55,10 @@ const CloseDealModal = React.memo(
 		lead,
 		initialData,
 		onSuccess,
-		mode = 'add', // 'add' or 'edit'
+		mode = 'add',
 	}) => {
+		const colors = useModalColors();
+
 		const {
 			_id: leadId,
 			leadName,
@@ -77,7 +79,6 @@ const CloseDealModal = React.memo(
 			onClose: onCurrencyConverterClose,
 		} = useDisclosure();
 
-		// Fetch users data
 		const { data: usersData } = useFetchItemsQuery(
 			{
 				path: '/v2/user/search_users',
@@ -118,7 +119,7 @@ const CloseDealModal = React.memo(
 				bookingPercent: '',
 				spaDone: false,
 				invoiceSent: false,
-				file: null, // invoice document file
+				file: null,
 				commissionStatus: '',
 				currency: 'AED',
 				shareUser: null,
@@ -184,7 +185,6 @@ const CloseDealModal = React.memo(
 			}
 		}, [initialData, mode, reset, defaultValues]);
 
-		// inside component
 		const handleCommissionTypeChange = (e) => {
 			const value = e.target.value;
 			setSelectedType(value);
@@ -198,7 +198,6 @@ const CloseDealModal = React.memo(
 			}
 		};
 
-		// Calculate derived values
 		const unitPrice = watch('unitPrice');
 		const downpaymentPaid = useWatch({ control, name: 'downpaymentPaid' });
 		const bookingAmountPaid = useWatch({ control, name: 'bookingAmountPaid' });
@@ -212,17 +211,6 @@ const CloseDealModal = React.memo(
 		});
 		const shareUser = useWatch({ control, name: 'shareUser' });
 		const sharePercent = useWatch({ control, name: 'sharePercent' });
-
-		// const sharedUsers = getSharedUsersData({
-		// 	lead,
-		// 	user,
-		// 	unitPrice,
-		// 	companyCommissionAmount,
-		// 	companyCommissionPercent,
-		// 	shareUserId: shareUser,
-		// 	sharePercent,
-		// 	users: usersData?.doc || [],
-		// });
 
 		const sharedUsers = useMemo(() => {
 			if (!lead || !unitPrice) return [];
@@ -259,7 +247,6 @@ const CloseDealModal = React.memo(
 		const [createDeal, { isLoading: isCreating }] = useCreateItemMutation();
 		const [updateDeal, { isLoading: isUpdating }] = useUpdateItemMutation();
 
-		// Handle modal close
 		const handleClose = () => {
 			reset();
 			onClose();
@@ -268,9 +255,7 @@ const CloseDealModal = React.memo(
 		const handleCreateDeal = async (data) => {
 			try {
 				await createDeal({ path: '/deals', body: data }).unwrap();
-
 				toast.success('Deal was closed successfully');
-
 				reset();
 				onSuccess?.();
 				handleClose();
@@ -279,6 +264,7 @@ const CloseDealModal = React.memo(
 				toast.error(error?.data?.message || 'Deal is not created!');
 			}
 		};
+
 		const handleEditDeal = async (data) => {
 			try {
 				const res = await updateDeal({
@@ -287,7 +273,6 @@ const CloseDealModal = React.memo(
 				}).unwrap();
 
 				toast.success('Deal was updated successfully');
-
 				reset();
 				onSuccess?.(res?.doc);
 				handleClose();
@@ -297,7 +282,6 @@ const CloseDealModal = React.memo(
 			}
 		};
 
-		// Handle user selection
 		const handleSelectUser = (selectedUser) => {
 			if (selectedUser?._id) {
 				setValue('shareUser', selectedUser._id);
@@ -308,7 +292,6 @@ const CloseDealModal = React.memo(
 			}
 		};
 
-		// Form submission
 		const handleFormSubmit = (data) => {
 			const formData = new FormData();
 
@@ -338,25 +321,18 @@ const CloseDealModal = React.memo(
 			formData.append('agent', lead?.agentAssigned || '');
 			formData.append('lead', leadId);
 
-			// Add shared user data if selected
 			if (data.shareUser) {
 				formData.append('shareUser', data.shareUser);
 				formData.append('sharePercent', data.sharePercent);
 				formData.append('sharedUsers', JSON.stringify(sharedUsers));
 			}
 
-			// Optional file
 			if (data.file && data.invoiceSent) {
 				formData.append('file', data.file);
-				// } else if (!data?.file && data.invoiceSent) {
 			} else if (!data?.file && data.invoiceSent && mode === 'add') {
 				return toast.error('Invoice document not uploaded!');
 			}
 
-			// Debug
-			// console.log('Final FormData:', Object.fromEntries(formData));
-
-			// Submission
 			if (mode === 'add') {
 				handleCreateDeal(formData);
 			} else {
@@ -372,10 +348,8 @@ const CloseDealModal = React.memo(
 
 			if (!role) return false;
 
-			// Only allow these roles
 			const allowedRoles = ['Manager', 'Agent', 'Team Leader'];
 
-			// Exclude self and assigned users
 			const excludedIds = new Set([
 				user._id,
 				lead?.agentAssigned,
@@ -406,37 +380,58 @@ const CloseDealModal = React.memo(
 
 			setValue('file', file);
 			setFileName(file.name);
-
-			// finally clear the event
 			event.target.value = null;
 		};
 
 		return (
 			<Modal isOpen={isOpen} onClose={handleClose} size='6xl' isCentered>
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent borderRadius='xl' boxShadow='xl' m='2'>
+				<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
+				<ModalContent
+					borderRadius='xl'
+					boxShadow={colors.modalShadow}
+					m='2'
+					bg={colors.bg}
+				>
 					<ModalHeader
-						bg='brand.50'
+						bg={colors.headerBg}
 						borderTopRadius='xl'
-						py={3}
+						py={4}
 						fontSize='md'
 						fontWeight='bold'
-						color='brand.700'
+						color={colors.headerText}
+						borderBottom='1px solid'
+						borderColor={colors.borderColor}
 					>
 						{mode === 'add' ? 'Close Deal' : 'Edit Deal'}
 					</ModalHeader>
-					<ModalCloseButton />
+					<ModalCloseButton
+						color={colors.closeBtnColor}
+						_hover={{ bg: colors.closeBtnHoverBg }}
+					/>
 
 					<ModalBody
-						py={4}
+						py={6}
+						px={6}
 						overflowY='auto'
 						maxH={{ base: '50vh', md: '70vh' }}
+						bg={colors.bg}
 					>
 						<VStack spacing={6} align='stretch'>
 							{/* Lead Information */}
 							{mode === 'add' && (
-								<Box>
-									<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+								<Box
+									p={4}
+									bg={colors.bgDeep}
+									borderRadius='xl'
+									border='1px solid'
+									borderColor={colors.borderColor}
+								>
+									<Text
+										fontSize='md'
+										fontWeight='bold'
+										color={colors.accentGold}
+										mb={3}
+									>
 										Lead Information
 									</Text>
 									<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
@@ -447,6 +442,17 @@ const CloseDealModal = React.memo(
 											errors={errors}
 											isRequired
 											isDisabled
+											inputProps={{
+												bg: colors.bgInput,
+												borderColor: colors.borderColor,
+												color: colors.headingText,
+												_hover: { borderColor: colors.accentGold },
+												_focus: {
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
+												},
+											}}
+											labelColor={colors.labelColor}
 										/>
 
 										{userRoleName !== 'Manager' && (
@@ -457,6 +463,12 @@ const CloseDealModal = React.memo(
 												errors={errors}
 												isRequired
 												isDisabled
+												inputProps={{
+													bg: colors.bgInput,
+													borderColor: colors.borderColor,
+													color: colors.headingText,
+												}}
+												labelColor={colors.labelColor}
 											/>
 										)}
 
@@ -467,6 +479,12 @@ const CloseDealModal = React.memo(
 											errors={errors}
 											isDisabled
 											isRequired
+											inputProps={{
+												bg: colors.bgInput,
+												borderColor: colors.borderColor,
+												color: colors.headingText,
+											}}
+											labelColor={colors.labelColor}
 										/>
 										<FormInput
 											label='Team Lead'
@@ -475,6 +493,12 @@ const CloseDealModal = React.memo(
 											errors={errors}
 											isDisabled
 											isRequired
+											inputProps={{
+												bg: colors.bgInput,
+												borderColor: colors.borderColor,
+												color: colors.headingText,
+											}}
+											labelColor={colors.labelColor}
 										/>
 										<FormInput
 											label='Agent'
@@ -483,22 +507,31 @@ const CloseDealModal = React.memo(
 											errors={errors}
 											isDisabled
 											isRequired
+											inputProps={{
+												bg: colors.bgInput,
+												borderColor: colors.borderColor,
+												color: colors.headingText,
+											}}
+											labelColor={colors.labelColor}
 										/>
-										{/* <FormInput
-										label='Closed By'
-										name='closedBy'
-										register={register}
-										errors={errors}
-										isDisabled
-										isRequired
-									/> */}
 									</SimpleGrid>
 								</Box>
 							)}
 
 							{/* Property Information */}
-							<Box>
-								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+							<Box
+								p={4}
+								bg={colors.bgDeep}
+								borderRadius='xl'
+								border='1px solid'
+								borderColor={colors.borderColor}
+							>
+								<Text
+									fontSize='md'
+									fontWeight='bold'
+									color={colors.accentGold}
+									mb={3}
+								>
 									Property Information
 								</Text>
 								<SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
@@ -508,6 +541,17 @@ const CloseDealModal = React.memo(
 										register={register}
 										errors={errors}
 										isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 									<FormInput
 										label='Sales Person'
@@ -515,6 +559,17 @@ const CloseDealModal = React.memo(
 										register={register}
 										errors={errors}
 										isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 									<FormInput
 										label='Project Name'
@@ -522,6 +577,17 @@ const CloseDealModal = React.memo(
 										register={register}
 										errors={errors}
 										isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 									<FormInput
 										label='Unit Number'
@@ -529,6 +595,17 @@ const CloseDealModal = React.memo(
 										register={register}
 										errors={errors}
 										isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 									<FormInput
 										label='Unit Type'
@@ -536,6 +613,17 @@ const CloseDealModal = React.memo(
 										register={register}
 										errors={errors}
 										isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 									<FormInput
 										label='Unit Price'
@@ -545,38 +633,33 @@ const CloseDealModal = React.memo(
 										type='number'
 										step='0.01'
 										isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 								</SimpleGrid>
 							</Box>
 
-							{/* Info Message */}
-							{/* <HStack
-								spacing={2}
-								bg='blue.50'
-								p={2}
-								borderRadius='md'
-								align='start'
-								mt={2}
-							>
-								<InfoIcon color='blue.500' mt={1} />
-								<Text fontSize='sm' color='gray.600'>
-									Please enter correct values. <br />
-									<b>Unit Price</b> and <b>Booking Amount</b> cannot be changed
-									after a deal is booked.
-								</Text>
-							</HStack> */}
-
 							{watch('unitPrice') !== defaultValues.unitPrice && (
 								<HStack
 									spacing={2}
-									bg='blue.50'
-									p={2}
+									bg={colors.badgeInfoBg}
+									p={3}
 									borderRadius='md'
 									align='start'
-									mt={2}
+									border='1px solid'
+									borderColor={colors.badgeInfoBorder}
 								>
-									<InfoIcon color='blue.500' mt={1} />
-									<Text fontSize='sm' color='gray.600'>
+									<InfoIcon color={colors.badgeInfoText} mt={1} />
+									<Text fontSize='sm' color={colors.bodyText}>
 										Changing <b>Unit Price</b> will recalculate and affect{' '}
 										<b>Downpayment Paid</b>, <b>Booking Amount Paid</b>, and{' '}
 										<b>Company Commission</b>. Please ensure all values remain
@@ -586,12 +669,22 @@ const CloseDealModal = React.memo(
 							)}
 
 							{/* Commission Details */}
-							<Box>
-								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+							<Box
+								p={4}
+								bg={colors.bgDeep}
+								borderRadius='xl'
+								border='1px solid'
+								borderColor={colors.borderColor}
+							>
+								<Text
+									fontSize='md'
+									fontWeight='bold'
+									color={colors.accentGold}
+									mb={3}
+								>
 									Commission Details
 								</Text>
 								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
-									{/* 1. Commission Type */}
 									<FormSelect
 										label='Commission Type'
 										name='commissionType'
@@ -602,9 +695,15 @@ const CloseDealModal = React.memo(
 											{ label: 'Flat Amount', value: 'amount' },
 										]}
 										onChange={handleCommissionTypeChange}
+										selectProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+										}}
+										labelColor={colors.labelColor}
 									/>
 
-									{/* 2. Percent input, shown only if percent */}
 									{selectedType === 'percent' && (
 										<FormInput
 											label='Company Commission (%)'
@@ -614,10 +713,20 @@ const CloseDealModal = React.memo(
 											type='number'
 											step='0.01'
 											isRequired
+											inputProps={{
+												bg: colors.bgInput,
+												borderColor: colors.borderColor,
+												color: colors.headingText,
+												_hover: { borderColor: colors.accentGold },
+												_focus: {
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
+												},
+											}}
+											labelColor={colors.labelColor}
 										/>
 									)}
 
-									{/* 3. Amount input, shown only if amount */}
 									{selectedType === 'amount' && (
 										<FormInput
 											label='Company Commission'
@@ -627,6 +736,17 @@ const CloseDealModal = React.memo(
 											type='number'
 											step='0.01'
 											isRequired
+											inputProps={{
+												bg: colors.bgInput,
+												borderColor: colors.borderColor,
+												color: colors.headingText,
+												_hover: { borderColor: colors.accentGold },
+												_focus: {
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
+												},
+											}}
+											labelColor={colors.labelColor}
 										/>
 									)}
 
@@ -635,16 +755,33 @@ const CloseDealModal = React.memo(
 										name='commissionStatus'
 										register={register}
 										errors={errors}
-										// isRequired={}
 										options={commissionStatuses}
 										placeholder='Select status'
+										selectProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+										}}
+										labelColor={colors.labelColor}
 									/>
 								</SimpleGrid>
 							</Box>
 
 							{/* Shared Deal Section */}
-							<Box>
-								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+							<Box
+								p={4}
+								bg={colors.bgDeep}
+								borderRadius='xl'
+								border='1px solid'
+								borderColor={colors.borderColor}
+							>
+								<Text
+									fontSize='md'
+									fontWeight='bold'
+									color={colors.accentGold}
+									mb={3}
+								>
 									Is Shared Deal ?
 								</Text>
 								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
@@ -652,7 +789,7 @@ const CloseDealModal = React.memo(
 										<FormLabel
 											fontSize='sm'
 											fontWeight='semibold'
-											color='gray.600'
+											color={colors.labelColor}
 										>
 											Share With User
 										</FormLabel>
@@ -675,6 +812,17 @@ const CloseDealModal = React.memo(
 											min='0.01'
 											max='100.00'
 											isRequired
+											inputProps={{
+												bg: colors.bgInput,
+												borderColor: colors.borderColor,
+												color: colors.headingText,
+												_hover: { borderColor: colors.accentGold },
+												_focus: {
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
+												},
+											}}
+											labelColor={colors.labelColor}
 										/>
 									)}
 								</SimpleGrid>
@@ -683,8 +831,19 @@ const CloseDealModal = React.memo(
 							<CommissionSummary sharedUsers={sharedUsers} />
 
 							{/* Payment Details */}
-							<Box>
-								<Text fontSize='md' fontWeight='bold' color='gray.600' mb={3}>
+							<Box
+								p={4}
+								bg={colors.bgDeep}
+								borderRadius='xl'
+								border='1px solid'
+								borderColor={colors.borderColor}
+							>
+								<Text
+									fontSize='md'
+									fontWeight='bold'
+									color={colors.accentGold}
+									mb={3}
+								>
 									Payment Details
 								</Text>
 								<SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={4}>
@@ -695,13 +854,30 @@ const CloseDealModal = React.memo(
 										errors={errors}
 										type='number'
 										step='0.01'
-										// isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 									<VStack align='start' spacing={1} minW='180px'>
-										<Text fontWeight='semibold' fontSize='sm' color='gray.600'>
+										<Text fontWeight='semibold' fontSize='sm' color={colors.labelColor}>
 											Downpayment %
 										</Text>
-										<Text fontSize='sm' p={2} w='full' bg='gray.100'>
+										<Text
+											fontSize='sm'
+											p={2}
+											w='full'
+											bg={colors.bgInput}
+											borderRadius='md'
+											color={colors.bodyText}
+										>
 											{downpaymentPercent.toFixed(2)}%
 										</Text>
 									</VStack>
@@ -713,12 +889,30 @@ const CloseDealModal = React.memo(
 										type='number'
 										step='0.01'
 										isRequired
+										inputProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+											_hover: { borderColor: colors.accentGold },
+											_focus: {
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											},
+										}}
+										labelColor={colors.labelColor}
 									/>
 									<VStack align='start' spacing={1} minW='180px'>
-										<Text fontWeight='semibold' fontSize='sm' color='gray.600'>
+										<Text fontWeight='semibold' fontSize='sm' color={colors.labelColor}>
 											Booking %
 										</Text>
-										<Text p={2} w='full' bg='gray.100' fontSize='sm'>
+										<Text
+											p={2}
+											w='full'
+											bg={colors.bgInput}
+											borderRadius='md'
+											color={colors.bodyText}
+											fontSize='sm'
+										>
 											{bookingPercent.toFixed(2)}%
 										</Text>
 									</VStack>
@@ -738,15 +932,27 @@ const CloseDealModal = React.memo(
 										isDisabled
 										isRequired
 										options={currencies}
+										selectProps={{
+											bg: colors.bgInput,
+											borderColor: colors.borderColor,
+											color: colors.headingText,
+										}}
+										labelColor={colors.labelColor}
 									/>
 
 									<Button
 										leftIcon={<FiRefreshCw />}
 										size='sm'
-										colorScheme='blue'
 										variant='outline'
 										maxW='250px'
 										onClick={onCurrencyConverterOpen}
+										borderColor={colors.borderColor}
+										color={colors.bodyText}
+										_hover={{
+											borderColor: colors.accentGold,
+											color: colors.accentGold,
+											bg: colors.secondaryBtnHoverBg,
+										}}
 									>
 										Convert
 									</Button>
@@ -757,17 +963,31 @@ const CloseDealModal = React.memo(
 									<HStack spacing={6} align='start' mb={4}>
 										<Checkbox
 											{...register('invoiceSent')}
-											colorScheme='brand'
+											colorScheme='yellow'
 											size='md'
+											iconColor={colors.headerText}
+											sx={{
+												'.chakra-checkbox__control': {
+													borderColor: colors.borderColor,
+													_hover: { borderColor: colors.accentGold },
+												},
+											}}
 										>
-											Invoice Sent
+											<Text color={colors.bodyText}>Invoice Sent</Text>
 										</Checkbox>
 										<Checkbox
 											{...register('spaDone')}
-											colorScheme='brand'
+											colorScheme='yellow'
 											size='md'
+											iconColor={colors.headerText}
+											sx={{
+												'.chakra-checkbox__control': {
+													borderColor: colors.borderColor,
+													_hover: { borderColor: colors.accentGold },
+												},
+											}}
 										>
-											SPA Document Signed
+											<Text color={colors.bodyText}>SPA Document Signed</Text>
 										</Checkbox>
 									</HStack>
 
@@ -776,7 +996,7 @@ const CloseDealModal = React.memo(
 											<FormLabel
 												fontSize='sm'
 												fontWeight='medium'
-												color='gray.600'
+												color={colors.labelColor}
 											>
 												Upload Invoice
 											</FormLabel>
@@ -784,24 +1004,28 @@ const CloseDealModal = React.memo(
 												as='button'
 												onClick={() => fileInputRef.current?.click()}
 												border='2px dashed'
-												borderColor='gray.300'
+												borderColor={colors.borderColor}
 												p={5}
 												rounded='md'
 												textAlign='center'
-												bg='gray.50'
+												bg={colors.bgInput}
 												w='100%'
-												_hover={{ borderColor: 'brand.500', bg: 'gray.100' }}
+												_hover={{
+													borderColor: colors.accentGold,
+													bg: colors.bgInputHover
+												}}
+												transition='all 0.2s ease'
 											>
 												<VStack spacing={1}>
 													<Icon
 														as={FiUploadCloud}
 														boxSize={6}
-														color='brand.500'
+														color={colors.accentGold}
 													/>
-													<Text fontSize='sm' color='gray.600'>
+													<Text fontSize='sm' color={colors.bodyText}>
 														Click to upload
 													</Text>
-													<Text fontSize='xs' color='gray.400'>
+													<Text fontSize='xs' color={colors.mutedText}>
 														Only PDF, DOC, DOCX — Max 5MB
 													</Text>
 													{fileName && (
@@ -809,7 +1033,7 @@ const CloseDealModal = React.memo(
 															fontSize='sm'
 															maxW='200px'
 															isTruncated
-															color='gray.700'
+															color={colors.accentGold}
 															mt={1}
 														>
 															📄 {fileName}
@@ -831,21 +1055,31 @@ const CloseDealModal = React.memo(
 						</VStack>
 					</ModalBody>
 
-					<ModalFooter bg='gray.50' borderBottomRadius='xl' px={6} py={3}>
+					<ModalFooter
+						bg={colors.footerBg}
+						borderBottomRadius='xl'
+						px={6}
+						py={4}
+						borderTop='1px solid'
+						borderColor={colors.borderColor}
+					>
 						<Button
 							onClick={handleClose}
-							variant='outline'
-							colorScheme='gray'
-							size='sm'
+							variant='ghost'
+							size='md'
 							mr={3}
+							color={colors.bodyText}
+							_hover={{
+								bg: colors.secondaryBtnHoverBg,
+								color: colors.headingText
+							}}
 						>
 							Cancel
 						</Button>
 						<Button
-							// type='submit'
 							onClick={handleSubmit(handleFormSubmit)}
-							colorScheme='brand'
-							size='sm'
+							variant='brand'
+							size='md'
 							isLoading={isCreating || isUpdating}
 							isDisabled={!isValid || !isDirty}
 						>
@@ -854,7 +1088,6 @@ const CloseDealModal = React.memo(
 					</ModalFooter>
 				</ModalContent>
 
-				{/* Add this at the end of your ModalContent, after your existing form fields */}
 				<CurrencyConverterModal
 					isOpen={isCurrencyConverterOpen}
 					onClose={onCurrencyConverterClose}

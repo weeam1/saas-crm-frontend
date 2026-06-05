@@ -9,8 +9,10 @@ import { useEffect, useState, useMemo, useCallback, memo } from 'react';
 import { toast } from 'react-toastify';
 import { IoArrowBack } from 'react-icons/io5';
 import { getCurrentInterviewRound } from '../helpers';
+import { useModalColors } from 'hooks/useModalColors';
 
 const InterviewScreen = memo(() => {
+	const colors = useModalColors();
 	const { interviewId } = useParams();
 	const navigate = useNavigate();
 
@@ -53,11 +55,6 @@ const InterviewScreen = memo(() => {
 		{ refetchOnMountOrArgChange: true }
 	);
 
-	// const isNextRound = useMemo(
-	// 	() => interview?.doc?.isMultiRound && interview?.doc?.nextRound,
-	// 	[interview?.doc]
-	// );
-
 	const currentRound = getCurrentInterviewRound(interview?.doc);
 
 	const isLeadInterviewer = useMemo(
@@ -83,21 +80,6 @@ const InterviewScreen = memo(() => {
 		);
 		return isValid ? true : false;
 	}, [currentRound?.evaluations, user?._id]);
-
-	// // Memoize isLeadInterviewer check
-	// const isLeadInterviewer = useMemo(
-	// 	() => interview?.doc?.leadInterviewer?._id === user?._id,
-	// 	[interview, user]
-	// );
-
-	// // Memoize isLeadInterviewer check
-	// const isInterviewerSubmittedPoints = useMemo(() => {
-	// 	const points = interview?.doc?.evaluations?.filter(
-	// 		(item) => item.interviewer._id === user._id
-	// 	)[0];
-
-	// 	return points?.status ?? false;
-	// }, [interview, user]);
 
 	const [updateItemMutation, { isLoading: cancellingInterview }] =
 		useUpdateItemMutation();
@@ -153,9 +135,9 @@ const InterviewScreen = memo(() => {
 	return isRefetching || interviewLoading || cancellingInterview ? (
 		<Loader />
 	) : interview && interview?.doc ? (
-		<Box>
+		<Box bg={colors.bgDeep} minH="100vh" p={4}>
 			<Button
-				colorScheme='gray'
+				variant="ghost"
 				borderRadius='5px'
 				size={{ base: 'sm', md: 'md' }}
 				px={{ base: 4, md: 6 }}
@@ -164,30 +146,38 @@ const InterviewScreen = memo(() => {
 				leftIcon={<Icon as={IoArrowBack} boxSize={4} />}
 				onClick={() => navigate('/hiring')}
 				mb={4}
+				color={colors.bodyText}
+				_hover={{
+					color: colors.accentGold,
+					bg: colors.secondaryBtnHoverBg,
+				}}
 			>
 				Back
 			</Button>
+
 			{/* Header Section */}
 			<HStack
-				bg='white'
+				bg={colors.bg}
 				rounded='md'
-				shadow='sm'
+				shadow={colors.cardShadow}
 				p='1rem'
 				justifyContent='space-between'
 				alignItems='center'
 				mb={2}
-				transition={'.3s ease-in-out'}
+				transition='.3s ease-in-out'
+				border="1px solid"
+				borderColor={colors.borderColor}
 			>
 				<HStack gap={2}>
-					<Heading size='md' color='gray.800'>
+					<Heading size='md' color={colors.headingText}>
 						Interview Started
 					</Heading>
 				</HStack>
 
 				{isLeadInterviewer && (
 					<Button
-						bg='#EDC270'
-						color='gray.800'
+						bg={colors.accentGold}
+						color={colors.headerText}
 						h='8'
 						py='2'
 						px='4'
@@ -195,8 +185,8 @@ const InterviewScreen = memo(() => {
 						fontWeight='normal'
 						shadow='sm'
 						rounded='md'
-						_hover={{ bg: '#E0B960' }}
-						_active={{ bg: '#D4AC50' }}
+						_hover={{ bg: colors.goldLight }}
+						_active={{ bg: colors.goldDark }}
 						onClick={() => handleCancelInterview(interview?.doc?._id)}
 					>
 						Cancel

@@ -18,7 +18,8 @@ const TemplatesTable = ({ data, isLoading, isFetching }) => {
 
 	return (
 		<Box
-			maxH={'70vh'}
+			      maxHeight="70vh"
+      minH="70vh"
 			overflowY='auto'
 			borderRadius='md'
 			boxShadow='sm'

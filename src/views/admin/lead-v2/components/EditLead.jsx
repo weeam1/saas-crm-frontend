@@ -11,7 +11,6 @@ import {
 	Flex,
 	Icon,
 	Divider,
-	useColorModeValue,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -55,11 +54,6 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 	const { hasPermission } = usePermissions();
 	const { createUserLog } = useUserActivityLog();
 	const [updateItemMutation, { isLoading }] = useUpdateItemMutation();
-
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const headerColor = useColorModeValue('brand.300', 'brand.100');
-	const textColor = useColorModeValue('brand.700', 'brand.900');
-	const closeBtnColor = useColorModeValue('brand.700', 'brand.900');
 
 	// Initial Values
 	const initialValues = {
@@ -139,9 +133,7 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 			type: 'text',
 			icon: MdCampaign,
 		},
-
-		{ name: 'leadSource', label: 'Platform', type: 'text', MdCampaign },
-
+		{ name: 'leadSource', label: 'Platform', type: 'text', icon: MdCampaign },
 		{
 			name: 'leadCampaign',
 			label: 'Campaign Name',
@@ -250,11 +242,11 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 			scrollBehavior='inside'
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay />
+			<ModalOverlay bg='bg.overlay' />
 			<ModalContent
-				bg={bgColor}
+				bg='bg.surface'
 				borderRadius='2xl'
-				boxShadow='2xl'
+				boxShadow='deep'
 				maxH='90vh'
 				maxW={{ base: 'full', sm: 'full', md: '70vw' }}
 				overflow='hidden'
@@ -262,32 +254,35 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 				w='full'
 			>
 				{/* Header */}
-				<ModalHeader fontSize='lg' fontWeight='semibold' m='0' p='0'>
+				<ModalHeader p={0}>
 					<Flex
 						align='center'
 						justify='space-between'
-						bg={headerColor}
-						color={textColor}
+						bg='accent.gold'
+						color='#000000'
 						position='sticky'
 						top='0'
 						zIndex='20'
 						boxShadow='md'
 						px={5}
 						py={3}
+						borderBottom='1px solid'
+						borderColor='border.default'
 					>
 						<Flex align='center' gap={2}>
-							<Icon as={FaUserEdit} boxSize={5} color={textColor} />
+							<Icon as={FaUserEdit} boxSize={5} color='#000000' />
 							Edit Lead
 						</Flex>
 						<ModalCloseButton
-							color={closeBtnColor}
+							color='#000000'
 							position='relative'
 							top='0'
+							_hover={{ bg: 'rgba(0,0,0,0.1)' }}
 						/>
 					</Flex>
 				</ModalHeader>
 
-				<Divider />
+				<Divider borderColor='border.subtle' />
 
 				{/* Form */}
 				<Formik
@@ -303,7 +298,7 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 								height: '100%',
 							}}
 						>
-							<ModalBody py={4} px={6} flex='1' overflowY='auto' maxH='60vh'>
+							<ModalBody py={4} px={6} flex='1' overflowY='auto' maxH='60vh' bg='bg.app'>
 								<Grid
 									templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
 									gap={4}
@@ -312,21 +307,20 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 								</Grid>
 							</ModalBody>
 
-							<Divider />
+							<Divider borderColor='border.subtle' />
 
 							<ModalFooter
 								gap={3}
 								position='sticky'
 								bottom='0'
-								bg={bgColor}
+								bg='bg.surface'
 								borderTop='1px solid'
-								borderColor='gray.200'
+								borderColor='border.default'
 								py={3}
 								zIndex='10'
 							>
 								<Button
 									variant='outline'
-									colorScheme='gray'
 									onClick={onClose}
 									size='sm'
 									borderRadius='md'
@@ -335,7 +329,7 @@ const EditLeadModal = ({ isOpen, onClose, leadData }) => {
 								</Button>
 								{allowedFields.length > 0 && (
 									<Button
-										colorScheme='brand'
+										variant='brand'
 										type='submit'
 										size='sm'
 										borderRadius='md'

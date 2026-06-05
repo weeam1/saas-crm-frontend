@@ -40,7 +40,7 @@ const AdvancedSearchModal = ({
 	const user = JSON.parse(localStorage.getItem('user'));
 	const tree = useSelector((state) => state.user.tree);
 
-	const { headerBg, headerText } = useModalColors();
+	const mc = useModalColors();
 	const { leadStatusMaps } = useLeadStatuses();
 
 	const { mainStatusMap, subStatusMap } = leadStatusMaps;
@@ -98,10 +98,10 @@ const AdvancedSearchModal = ({
 						}
 						if (key === 'agentAssigned') {
 							const agentsArray = Object.values(tree.agents).flatMap(
-								(managerArray) => managerArray
+								(managerArray) => managerArray,
 							);
 							const assignedAgent = agentsArray.find(
-								(agent) => agent?._id?.toString() === value
+								(agent) => agent?._id?.toString() === value,
 							);
 							displayValue = assignedAgent
 								? `${assignedAgent.firstName} ${assignedAgent.lastName}`
@@ -111,7 +111,7 @@ const AdvancedSearchModal = ({
 						}
 						if (key === 'managerAssigned') {
 							const assignedManager = tree.managers.find(
-								(user) => user?._id?.toString() === value
+								(user) => user?._id?.toString() === value,
 							);
 							displayValue = assignedManager
 								? `${assignedManager.firstName} ${assignedManager.lastName}`
@@ -126,7 +126,7 @@ const AdvancedSearchModal = ({
 					}
 					return acc;
 				},
-				{ cleanedData: {}, tags: [] }
+				{ cleanedData: {}, tags: [] },
 			);
 
 			fetchAdvancedSearch(cleanedData, 1, pageSize);
@@ -165,79 +165,193 @@ const AdvancedSearchModal = ({
 	}, [isFormReset, resetForm, setIsFormReset]);
 
 	return (
-		<React.Suspense
-			fallback={
-				<Flex
-					position='fixed'
-					top='0'
-					left='0'
-					right='0'
-					bottom='0'
-					alignItems='center'
-					justifyContent='center'
-					bg='rgba(0, 0, 0, 0.1)'
-					zIndex={9999}
-				>
-					<Spinner size='xl' color='brand.500' />
-				</Flex>
-			}
+		// <React.Suspense
+		// 	fallback={
+		// 		<Flex
+		// 			position='fixed'
+		// 			top='0'
+		// 			left='0'
+		// 			right='0'
+		// 			bottom='0'
+		// 			alignItems='center'
+		// 			justifyContent='center'
+		// 			bg='rgba(0, 0, 0, 0.1)'
+		// 			zIndex={9999}
+		// 		>
+		// 			<Spinner size='xl' color='brand.500' />
+		// 		</Flex>
+		// 	}
+		// >
+		// 	<Modal
+		// 		size='6xl'
+		// 		onClose={() => setAdvanceSearch(false)}
+		// 		isOpen={advanceSearch}
+		// 		isCentered
+		// 		motionPreset='slideInBottom'
+		// 	>
+		// 		<ModalOverlay backdropFilter='blur(2px)' />
+		// 		<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+		// 			<ModalHeader
+		// 				display='flex'
+		// 				gap='2'
+		// 				bg={headerBg}
+		// 				color={headerText}
+		// 				borderTopRadius='xl'
+		// 				py={4}
+		// 				alignItems='center'
+		// 				w='100%'
+		// 			>
+		// 				Advanced Search
+		// 			</ModalHeader>
+		// 			<ModalCloseButton onClick={() => setAdvanceSearch(false)} />
+		// 			<ModalBody width='100%'>
+		// 				<LazyAdvancedSearchForm
+		// 					values={values}
+		// 					errors={errors}
+		// 					touched={touched}
+		// 					handleChange={handleChange}
+		// 					handleBlur={handleBlur}
+		// 					user={user}
+		// 					tree={tree}
+		// 					setFieldValue={setFieldValue}
+		// 				/>
+		// 			</ModalBody>
+		// 			<ModalFooter>
+		// 				<Button
+		// 					colorScheme='red'
+		// 					variant='outline'
+		// 					size='sm'
+		// 					mr={2}
+		// 					onClick={formClearHandler}
+		// 				>
+		// 					Clear
+		// 				</Button>
+		// 				<Button
+		// 					colorScheme='brand'
+		// 					size='sm'
+		// 					onClick={handleSubmit}
+		// 					disabled={isLoading || !dirty}
+		// 				>
+		// 					{isLoading ? 'Searching...' : 'Search'}
+		// 				</Button>
+		// 			</ModalFooter>
+		// 		</ModalContent>
+		// 	</Modal>
+		// </React.Suspense>
+
+		<Modal
+			size='6xl'
+			onClose={() => setAdvanceSearch(false)}
+			isOpen={advanceSearch}
+			isCentered
+			motionPreset='slideInBottom'
 		>
-			<Modal
-				size='6xl'
-				onClose={() => setAdvanceSearch(false)}
-				isOpen={advanceSearch}
-				isCentered
-				motionPreset='slideInBottom'
+			<ModalOverlay backdropFilter='blur(3px)' bg={mc.overlayBg} />
+			<ModalContent
+				mx='2'
+				borderRadius='2xl'
+				boxShadow={mc.modalShadow}
+				bg={mc.bg}
+				border='1px solid'
+				borderColor={mc.borderColor}
+				overflow='hidden'
 			>
-				<ModalOverlay backdropFilter='blur(2px)' />
-				<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
-					<ModalHeader
-						display='flex'
-						gap='2'
-						bg={headerBg}
-						color={headerText}
-						borderTopRadius='xl'
-						py={4}
-						alignItems='center'
-						w='100%'
+				{/* Header — Gold Gradient */}
+				<ModalHeader
+					display='flex'
+					gap='3'
+					background={mc.headerBg}
+					color={mc.headerText}
+					borderTopRadius='2xl'
+					py={4}
+					px={6}
+					alignItems='center'
+					w='100%'
+					fontSize='lg'
+					fontWeight='bold'
+					boxShadow='0 2px 10px rgba(0,0,0,0.15)'
+				>
+					Advanced Search
+				</ModalHeader>
+				<ModalCloseButton
+					onClick={() => setAdvanceSearch(false)}
+					top='14px'
+					right='14px'
+					bg={mc.closeBtnBg}
+					color={mc.closeBtnColor}
+					borderRadius='full'
+					_hover={{ bg: mc.closeBtnHoverBg }}
+					_focus={{ boxShadow: 'none' }}
+				/>
+
+				{/* Body */}
+				<ModalBody width='100%' py={6} px={{ base: 4, md: 6 }}>
+					<LazyAdvancedSearchForm
+						values={values}
+						errors={errors}
+						touched={touched}
+						handleChange={handleChange}
+						handleBlur={handleBlur}
+						user={user}
+						tree={tree}
+						setFieldValue={setFieldValue}
+					/>
+				</ModalBody>
+
+				{/* Footer — Navy with gold accent */}
+				<ModalFooter
+					bg={mc.footerBg}
+					borderTop='2px solid'
+					borderColor={mc.headerBg}
+					py={4}
+					px={6}
+					gap={3}
+				>
+					<Button
+						variant='ghost'
+						size='sm'
+						onClick={formClearHandler}
+						color={mc.secondaryBtnText}
+						_hover={{
+							bg: mc.secondaryBtnHoverBg,
+							color: mc.secondaryBtnHoverText,
+						}}
+						borderRadius='md'
 					>
-						Advanced Search
-					</ModalHeader>
-					<ModalCloseButton onClick={() => setAdvanceSearch(false)} />
-					<ModalBody width='100%'>
-						<LazyAdvancedSearchForm
-							values={values}
-							errors={errors}
-							touched={touched}
-							handleChange={handleChange}
-							handleBlur={handleBlur}
-							user={user}
-							tree={tree}
-							setFieldValue={setFieldValue}
-						/>
-					</ModalBody>
-					<ModalFooter>
-						<Button
-							colorScheme='red'
-							variant='outline'
-							size='sm'
-							mr={2}
-							onClick={formClearHandler}
-						>
-							Clear
-						</Button>
-						<Button
-							colorScheme='brand'
-							size='sm'
-							onClick={handleSubmit}
-							disabled={isLoading || !dirty}
-						>
-							{isLoading ? 'Searching...' : 'Search'}
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-		</React.Suspense>
+						Clear
+					</Button>
+					<Button
+						size='sm'
+						onClick={handleSubmit}
+						disabled={isLoading || !dirty}
+						background={mc.primaryBtnBg}
+						color={mc.primaryBtnText}
+						fontWeight='bold'
+						borderRadius='md'
+						px={6}
+						_hover={{
+							background: mc.primaryBtnHoverBg,
+							boxShadow: mc.primaryBtnShadow,
+							transform: 'translateY(-1px)',
+						}}
+						_active={{
+							background: mc.primaryBtnActiveBg,
+							transform: 'translateY(0)',
+						}}
+						_disabled={{
+							opacity: 0.5,
+							cursor: 'not-allowed',
+							transform: 'none',
+							boxShadow: 'none',
+						}}
+						isLoading={isLoading}
+						loadingText='Searching...'
+					>
+						{isLoading ? 'Searching...' : 'Search'}
+					</Button>
+				</ModalFooter>
+			</ModalContent>
+		</Modal>
 	);
 };
 

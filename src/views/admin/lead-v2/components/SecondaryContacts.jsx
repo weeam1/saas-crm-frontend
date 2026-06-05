@@ -11,7 +11,6 @@ import {
   Flex,
   Icon,
   Divider,
-  useColorModeValue,
 } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -33,11 +32,6 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
   const { hasPermission } = usePermissions();
   const { createUserLog } = useUserActivityLog();
   const [updateItem, { isLoading }] = useUpdateItemMutation();
-
-  const bgColor = useColorModeValue("white", "gray.800");
-  const headerColor = useColorModeValue("brand.300", "brand.100");
-  const textColor = useColorModeValue("brand.700", "brand.900");
-  const closeBtnColor = useColorModeValue("brand.700", "brand.900");
 
   // Check if secondary contacts exist
   const hasSecondaryContact =
@@ -148,26 +142,34 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
       isCentered
       scrollBehavior="inside"
     >
-      <ModalOverlay />
-      <ModalContent bg={bgColor} borderRadius="2xl">
+      <ModalOverlay bg="bg.overlay" />
+      <ModalContent
+        bg="bg.surface"
+        borderRadius="2xl"
+        boxShadow="deep"
+        overflow="hidden"
+      >
         <ModalHeader
-          fontSize="lg"
-          bg={headerColor}
-          color={textColor}
+          bg="accent.gold"
+          color="#000000"
           px={5}
           py={3}
-          borderTopRadius="2xl"
+          borderBottom="1px solid"
+          borderColor="border.default"
         >
           <Flex align="center" gap={2}>
-            <Icon as={FaUserEdit} boxSize={5} />
+            <Icon as={FaUserEdit} boxSize={5} color="#000000" />
             {hasSecondaryContact
               ? "Edit Secondary Contacts"
               : "Add Secondary Contacts"}
           </Flex>
-          <ModalCloseButton color={closeBtnColor} />
+          <ModalCloseButton
+            color="#000000"
+            _hover={{ bg: "rgba(0,0,0,0.1)" }}
+          />
         </ModalHeader>
 
-        <Divider />
+        <Divider borderColor="border.subtle" />
 
         <Formik
           initialValues={initialValues}
@@ -177,18 +179,22 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
         >
           {() => (
             <Form>
-              <ModalBody py={4} px={6}>
+              <ModalBody py={4} px={6} bg="bg.app">
                 <Grid templateColumns="1fr" gap={4}>
                   <RenderFields fields={allowedFields} />
                 </Grid>
               </ModalBody>
 
-              <Divider />
+              <Divider borderColor="border.subtle" />
 
-              <ModalFooter gap={3}>
+              <ModalFooter
+                gap={3}
+                borderTop="1px solid"
+                borderColor="border.default"
+                bg="bg.surface"
+              >
                 <Button
                   variant="outline"
-                  colorScheme="gray"
                   onClick={onClose}
                   size="sm"
                 >
@@ -197,7 +203,7 @@ export const SecondaryContactForm = ({ isOpen, onClose, leadData }) => {
 
                 {allowedFields.length > 0 && (
                   <Button
-                    colorScheme="brand"
+                    variant="brand"
                     type="submit"
                     size="sm"
                     isLoading={isLoading}

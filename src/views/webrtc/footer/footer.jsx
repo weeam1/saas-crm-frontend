@@ -6,6 +6,7 @@ import SIPSwitch from 'components/switch';
 import './styles.css';
 import { useDispatch } from 'react-redux';
 import { updateSipStatus } from './../../../redux/webrtc/webrtcSlice';
+import useUserSession from 'hooks/useUserSession';
 
 function Footer({
 	status,
@@ -23,7 +24,7 @@ function Footer({
 }) {
 	const [isConfigured, setIsConfigured] = useState(false);
 	const dispatch = useDispatch();
-
+const {agencyLogo}=useUserSession()
 	// **** Add user status in redux store **** //
 	useEffect(() => {
 		if (status === 'registered' || status === 'disconnected') {
@@ -118,7 +119,7 @@ function Footer({
 				</Text>
 
 				<Image
-					src={weeamLogo}
+					src={agencyLogo}
 					alt='weam Logo'
 					w='32px'
 					h='32px'

@@ -13,14 +13,16 @@ import PendingRequests from "./ViewRequest";
 import RejectedRequests from "./RejectRequest";
 import useUserSession from "hooks/useUserSession";
 import { useFetchItemsQuery } from "api/apiSlice";
+import { useModalColors } from "hooks/useModalColors";
 
 const ViewRequests = () => {
+  const colors = useModalColors();
   const [searchParams, setSearchParams] = useSearchParams();
   const subTab = searchParams.get("subTab") || "pending";
   const tabFontSize = useBreakpointValue({ base: "xs", sm: "sm", md: "md" });
   const tabPadding = useBreakpointValue({ base: "2", sm: "3", md: "4" });
   const { user } = useUserSession();
-  
+
   const { data: listingType } = useFetchItemsQuery(
     { path: `/listing/secondary/types` },
     { refetchOnMountOrArgChange: true, skip: !user?._id }
@@ -30,7 +32,7 @@ const ViewRequests = () => {
     { path: `/listing/secondary/unit-types` },
     { refetchOnMountOrArgChange: true, skip: !user?._id }
   );
-  
+
   const tabs = [
     {
       id: "pending",
@@ -72,7 +74,7 @@ const ViewRequests = () => {
 
   return (
     <Tabs
-      variant="goldenrod"
+      variant="enclosed"
       index={activeTabIndex}
       onChange={handleTabChange}
       isLazy
@@ -82,6 +84,10 @@ const ViewRequests = () => {
         overflowY="hidden"
         mx={0}
         px={0}
+        bg={colors.bgInput}
+        borderRadius="md"
+        borderBottom="1px solid"
+        borderColor={colors.borderColor}
         sx={{
           "&::-webkit-scrollbar": {
             display: "none",
@@ -95,15 +101,17 @@ const ViewRequests = () => {
             <Tab
               key={`tab-${index}`}
               _selected={{
-                borderTop: "4px solid #B79045",
-                bg: "#EDD199",
-                fontWeight: "semi-bold",
-                color: "black",
+                borderTop: `4px solid ${colors.accentGold}`,
+                bg: colors.bgDeep,
+                fontWeight: "semibold",
+                color: colors.headingText,
                 outline: "none",
+                borderBottom: "none",
               }}
               outline="none"
-              bg="softGray.50"
-              color="gray.500"
+              bg={colors.bgInput}
+              color={colors.mutedText}
+              _hover={{ color: colors.accentGold }}
               _focus={{ outline: "none" }}
               borderTop="4px solid transparent"
               fontSize={tabFontSize}
@@ -112,6 +120,8 @@ const ViewRequests = () => {
               whiteSpace="nowrap"
               flexShrink={0}
               mx={0}
+              borderBottom="1px solid"
+              borderColor={colors.borderColor}
             >
               {tab.label}
             </Tab>

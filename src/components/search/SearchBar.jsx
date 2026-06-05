@@ -1,169 +1,121 @@
 import React, { useState, useRef } from 'react';
-import { InputGroup, Input, Button, Flex, IconButton } from '@chakra-ui/react';
-import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
+import {
+	Input,
+	InputGroup,
+	InputRightElement,
+	Button,
+	HStack,
+	Box,
+	Flex,
+	IconButton,
+	Tooltip,
+} from '@chakra-ui/react';
+import { SearchIcon } from '@chakra-ui/icons';
+import { BiX } from 'react-icons/bi';
+import { useModalColors } from 'hooks/useModalColors';
 
-const SearchBar = ({ onSearchTermChange, isLoading = false }) => {
-	const [searchTerm, setSearchTerm] = useState('');
+const SearchBar = ({ onSearchTermChange, isLoading = false, onClear }) => {
+	const colors = useModalColors();
+	const [inputValue, setInputValue] = useState('');
 	const inputRef = useRef(null);
 
-	// Handle typing
-	const handleChange = (e) => {
-		const term = e.target.value;
-		setSearchTerm(term);
-		if (!term.trim()) onSearchTermChange(''); // Reset on clear
+	const handleInputChange = (event) => {
+		const value = event.target.value;
+		setInputValue(value);
+		if (!value.trim()) onSearchTermChange('');
 	};
 
-	// Handle Enter key
+	const handleClearInput = () => {
+		setInputValue('');
+		onSearchTermChange('');
+		if (onClear) onClear();
+		inputRef.current?.focus();
+	};
+
 	const handleKeyPress = (e) => {
 		if (e.key === 'Enter') {
-			const term = e.target.value.trim();
+			const term = inputValue.trim();
 			onSearchTermChange(term);
 		}
 	};
 
-	// Handle button click
 	const handleSearchClick = () => {
-		onSearchTermChange(searchTerm.trim());
-	};
-
-	// Clear search bar
-	const clearSearch = () => {
-		setSearchTerm('');
-		onSearchTermChange('');
-		inputRef.current?.focus();
+		onSearchTermChange(inputValue.trim());
 	};
 
 	return (
-		<InputGroup
-			bg='white'
+		<Flex
+			bg={colors.bgInput}
 			border='1px solid'
-			borderColor='gray.200'
+			borderColor={colors.borderColor}
 			borderRadius='md'
-			width={{ base: '100%', md: '18rem' }}
+			width={{ base: '100%', xl: '18rem' }}
 			overflow='hidden'
-			size='sm'
+			_focusWithin={{
+				borderColor: colors.accentGold,
+				boxShadow: colors.goldGlow,
+			}}
 		>
-			<Input
-				ref={inputRef}
-				placeholder='Search...'
-				border='none'
-				fontSize='sm'
-				height='2.5rem'
-				value={searchTerm}
-				onChange={handleChange}
-				onKeyPress={handleKeyPress}
-				isDisabled={isLoading}
-				_focus={{ boxShadow: 'none' }}
-			/>
-
-			{/**/}
-			{searchTerm && (
-				<IconButton
-					aria-label='Clear search'
-					icon={<CloseIcon boxSize={2.5} />}
-					onClick={clearSearch}
-					position='absolute'
-					right='5.5rem'
-					top='50%'
-					transform='translateY(-50%)'
+			<InputGroup flex='1'>
+				<Input
+					ref={inputRef}
+					id='searchInput'
+					placeholder='Search...'
+					border='none'
+					fontSize='xs'
+					height='2.5rem'
+					value={inputValue}
+					onChange={handleInputChange}
+					onKeyDown={handleKeyPress}
+					_focus={{ boxShadow: 'none' }}
+					_placeholder={{
+						color: colors.mutedText,
+					}}
+					color={colors.headingText}
 					bg='transparent'
-					_hover={{ bg: 'transparent' }}
-					size='xs'
 				/>
-			)}
 
-			{/* Search button */}
+				{inputValue && (
+					<InputRightElement height='100%'>
+						<Tooltip label='Clear search' hasArrow placement='top'>
+							<IconButton
+								icon={<BiX />}
+								size='sm'
+								variant='ghost'
+								onClick={handleClearInput}
+								aria-label='clear search'
+								color={colors.mutedText}
+								_hover={{
+									color: colors.accentGold,
+									transform: 'scale(1.1)',
+								}}
+								transition='all 0.2s ease'
+							/>
+						</Tooltip>
+					</InputRightElement>
+				)}
+			</InputGroup>
+
 			<Button
-				bg='gray.100'
-				borderLeft='1px solid'
-				borderColor='gray.200'
-				px={5}
-				borderRadius='0'
-				fontSize='sm'
-				display='flex'
-				alignItems='center'
-				_hover={{ bg: 'gray.50' }}
-				_active={{ bg: 'gray.100' }}
+				size='md'
+				variant='ghost'
+				px={4}
+				fontSize='xs'
 				onClick={handleSearchClick}
 				isLoading={isLoading}
-				height='100%'
+				color={colors.bodyText}
+				_hover={{
+					color: colors.accentGold,
+					bg: colors.secondaryBtnHoverBg,
+				}}
 			>
-				<Flex align='center' h='2.5rem'>
-					Search <SearchIcon fontSize='sm' color='brand.500' ml={1} />
+				<Flex align='center' gap={1}>
+					Search
+					<SearchIcon fontSize='xs' color={colors.accentGold} />
 				</Flex>
 			</Button>
-		</InputGroup>
+		</Flex>
 	);
 };
 
 export default SearchBar;
-
-// const SearchBar = ({ data, onFilteredData }) => {
-// 	const [searchTerm, setSearchTerm] = useState('');
-
-// 	// Handle changes in the search input
-// 	const handleInputChange = (e) => {
-// 		setSearchTerm(e.target.value);
-// 	};
-
-// 	// Handle key up for extra actions like filtering
-// 	const handleKeyUp = () => {
-// 		filterData(searchTerm);
-// 	};
-
-// 	// Function to filter the data based on search input
-// 	const filterData = (term) => {
-// 		if (!term) {
-// 			onFilteredData(data); // If search is empty, show all data
-// 			return;
-// 		}
-
-// 		const filteredData = data?.filter((item) =>
-// 			item.name.toLowerCase().includes(term.toLowerCase())
-// 		);
-
-// 		onFilteredData(filteredData);
-// 	};
-
-// 	// Clear the search bar and show all data again
-// 	const clearSearch = () => {
-// 		setSearchTerm('');
-// 		onFilteredData(data); // Reset to original data
-// 	};
-
-// 	return (
-// 		<InputGroup width={{ sm: '100%', md: '50%' }} mx='auto' my={4}>
-// 			<InputLeftElement
-// 				pointerEvents='none'
-// 				children={<SearchIcon color='gray.500' />}
-// 			/>
-// 			<Input
-// 				type='text'
-// 				value={searchTerm}
-// 				onChange={handleInputChange}
-// 				onKeyUp={handleKeyUp}
-// 				placeholder='Search...'
-// 				rounded='full'
-// 				size='md'
-// 				fontSize='md'
-// 				fontWeight='500'
-// 				bg='white'
-// 				_focus={{ borderColor: '#E0B960' }} // Brand color on focus
-// 			/>
-// 			{searchTerm && (
-// 				<IconButton
-// 					aria-label='Clear search'
-// 					icon={<CloseIcon />}
-// 					onClick={clearSearch}
-// 					size='sm'
-// 					position='absolute'
-// 					right='2'
-// 					top='50%'
-// 					transform='translateY(-50%)'
-// 					bg='transparent'
-// 					_hover={{ bg: 'transparent' }}
-// 				/>
-// 			)}
-// 		</InputGroup>
-// 	);
-// };

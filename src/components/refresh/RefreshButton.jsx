@@ -2,6 +2,7 @@ import { IconButton } from '@chakra-ui/react';
 import { MdRefresh } from 'react-icons/md';
 
 import CustomTooltip from 'components/shared/CustomTooltip';
+import { FiRefreshCw } from 'react-icons/fi';
 
 const RefreshButton = ({
 	label = 'Refresh',
@@ -16,12 +17,16 @@ const RefreshButton = ({
 	return (
 		<CustomTooltip label={label}>
 			<IconButton
-				icon={<MdRefresh size={20} className={spinning} />}
+				icon={<FiRefreshCw />}
 				aria-label={label}
 				onClick={onClick}
 				isLoading={isFetching}
 				isDisabled={isLoading || isFetching}
-				size={size}
+					variant='solid'
+							colorScheme='brand'
+							size='sm'
+							borderRadius='full'
+							boxShadow='md'
 				{...rest}
 			/>
 		</CustomTooltip>

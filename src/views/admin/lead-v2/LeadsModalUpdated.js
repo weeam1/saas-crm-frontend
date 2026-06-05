@@ -782,9 +782,9 @@ const LeadsModal = ({
 							justify='space-between'
 							p={3}
 							border='1px solid'
-							borderColor='gray.100'
+							borderColor='border.subtle'
 							borderRadius='md'
-							bg='gray.50'
+							bg='bg.elevated'
 							align={{ base: 'flex-start' }}
 							w='100%'
 						>
@@ -792,7 +792,7 @@ const LeadsModal = ({
 							<Text
 								fontWeight='500'
 								fontSize={{ base: 'xs', md: 'sm' }}
-								color='gray.600'
+								color='text.body'
 								flexShrink={0}
 							>
 								{item.label}
@@ -815,7 +815,7 @@ const LeadsModal = ({
 							) : (
 								<Text
 									fontWeight='600'
-									color='gray.800'
+									color='text.heading'
 									fontSize={{ base: 'xs', md: 'sm' }}
 									wordBreak='break-word'
 									whiteSpace='pre-wrap'
@@ -881,43 +881,38 @@ const LeadsModal = ({
 	return (
 		<>
 			<Modal onClose={onClose} isOpen={leadsModal.isOpen} size='6xl' isCentered>
-				<ModalOverlay bg='rgba(0,0,0,0.6)' backdropFilter='blur(6px)' />
-				<ModalContent m='3' borderRadius='2xl' shadow='2xl' overflow='hidden'>
+				<ModalOverlay bg='bg.overlay' backdropFilter='blur(6px)' />
+				<ModalContent m='3' borderRadius='2xl' shadow='deep' overflow='hidden'>
 					{/* HEADER */}
-					<ModalHeader
-						px={6}
-						py={6}
-						borderBottom='1px solid'
-						borderColor='gray.200'
-						bg='white'
-					>
+				<ModalHeader
+  px={6}
+  py={6}
+  borderBottom='1px solid'
+  borderColor='border.default'
+  bg='bg.elevated'
+>
+
 						<Flex align='center' justify='space-between' w='full'>
 							{/* Title */}
-							<Text
-								fontSize='lg'
-								fontWeight='600'
-								color='gray.800'
-								letterSpacing='0.2px'
-							>
+						 <Text fontSize='lg' fontWeight='600' color='text.heading'>
 								Lead Preview
 							</Text>
 
-							{/* Close Button */}
-							<ModalCloseButton
-								position='relative'
-								top='0'
-								right='0'
-								color='black'
-								boxSize={6}
-								_focus={{ outline: 'none' }}
-								_hover={{ bg: 'gray.100' }}
-							/>
+						<ModalCloseButton
+  position='relative'
+  top='0'
+  right='0'
+  color='text.muted'
+  boxSize={6}
+  _focus={{ outline: 'none' }}
+  _hover={{ bg: 'bg.elevated' }}
+/>
 						</Flex>
 					</ModalHeader>
 
 					<Box
-						bg='white'
-						color='gray.800'
+						bg='bg.app'
+						color='text.body'
 						p={6}
 						borderTopRadius='2xl'
 						maxH={{ base: '50vh', md: '81vh' }}
@@ -933,11 +928,10 @@ const LeadsModal = ({
 							flexDirection={{ base: 'column', md: 'row' }}
 							gap={{ base: '18px', md: '28px' }}
 							p={5}
-							border='1px solid'
-							borderColor='gray.200'
-							borderRadius='xl'
-							bg='white'
-							boxShadow='xs'
+							 border='1px solid'
+  borderColor='border.default'
+  bg='bg.surface'
+  boxShadow='card'
 							textAlign={{ base: 'center', md: 'left' }}
 						>
 							{/* Text Area */}
@@ -951,7 +945,7 @@ const LeadsModal = ({
 								<Heading
 									as='h2'
 									size='md'
-									color='gray.800'
+									color='text.heading'
 									letterSpacing='0.3px'
 								>
 									{data?.leadName}
@@ -963,16 +957,16 @@ const LeadsModal = ({
 											{/* Email */}
 
 											<Box display='flex' alignItems='center' gap='8px'>
-												<EmailIcon color='gray.500' boxSize={4} />
-												<Text fontSize='sm' color='gray.700'>
+												<EmailIcon color='text.muted' boxSize={4} />
+												<Text fontSize='sm' color='text.body'>
 													{data?.leadEmail}
 												</Text>
 											</Box>
 
 											{/* Phone */}
 											<Box display='flex' alignItems='center' gap='8px'>
-												<FaPhoneAlt color='gray' size={15} />
-												<Text fontSize='sm' color='gray.700'>
+												<FaPhoneAlt color='text.muted' size={15} />
+												<Text fontSize='sm' color='text.body'>
 													{formatValue(data?.leadPhoneNumber)}
 												</Text>
 											</Box>
@@ -980,7 +974,7 @@ const LeadsModal = ({
 											{/* WhatsApp */}
 											<Box display='flex' alignItems='center' gap='8px'>
 												<FaWhatsapp color='#25D366' size={17} />
-												<Text fontSize='sm' color='gray.700'>
+												<Text fontSize='sm' color='text.body'>
 													{/* +923041349020 */}
 													{formatValue(data?.leadWhatsappNumber)}
 												</Text>
@@ -999,26 +993,26 @@ const LeadsModal = ({
 									alignItems={{ base: 'center', md: 'flex-start' }}
 									borderLeftWidth={{ base: '0', md: '1px' }}
 									borderLeftStyle='solid'
-									borderLeftColor='gray.200'
+									borderLeftColor='border.default'
 									pl={{ base: 0, md: 5 }}
 									mt={{ base: 4, md: 0 }}
 									flex='1'
 								>
-									<Heading as='h4' size='sm' color='gray.600'>
+									<Heading as='h4' size='sm' color='text.body'>
 										Secondary Contact
 									</Heading>
 
 									<Box display='flex' gap='16px'>
 										<Box display='flex' alignItems='center' gap='8px'>
-											<FaPhoneAlt color='gray' size={15} />
-											<Text fontSize='sm' color='gray.700'>
+											<FaPhoneAlt color='text.muted' size={15} />
+											<Text fontSize='sm' color='text.body'>
 												{data?.secondaryContacts?.phoneNumber}
 											</Text>
 										</Box>
 
 										<Box display='flex' alignItems='center' gap='8px'>
 											<FaWhatsapp color='#25D366' size={17} />
-											<Text fontSize='sm' color='gray.700'>
+											<Text fontSize='sm' color='text.body'>
 												{data?.secondaryContacts?.whatsapp}
 											</Text>
 										</Box>
@@ -1040,9 +1034,9 @@ const LeadsModal = ({
 								mx='-24px'
 								px='24px'
 								zIndex='20'
-								bg='white'
+								bg='bg.surface'
 								borderBottom='1px solid'
-								borderColor='gray.200'
+								borderColor='border.default'
 								overflowX='auto'
 								whiteSpace='nowrap'
 								css={{
@@ -1066,11 +1060,10 @@ const LeadsModal = ({
 								{/* 1️⃣ Additional Details */}
 								<Tab
 									_selected={{
-										color: '#B79045',
-										borderBottom: '2px solid',
-										borderColor: '#B79045',
-										fontWeight: '600',
-									}}
+  color: 'text.accent',  // ← Change this
+  borderBottom: '2px solid',
+  borderColor: 'border.focus',
+}}
 									fontWeight='500'
 									px={4}
 									py={2}
@@ -1083,12 +1076,12 @@ const LeadsModal = ({
 								{/* 2️⃣ Lead Cycle */}
 								{hasPermission('leads', 'viewLeadCycle') && (
 									<Tab
-										_selected={{
-											color: '#B79045',
-											borderBottom: '2px solid',
-											borderColor: '#B79045',
-											fontWeight: '600',
-										}}
+									_selected={{
+  color: 'text.accent',    // ← Replace with this
+  borderBottom: '2px solid',
+  borderColor: 'border.focus',
+  fontWeight: '600',       // ← Keep as is
+}}
 										fontWeight='500'
 										px={4}
 										py={2}
@@ -1101,12 +1094,12 @@ const LeadsModal = ({
 
 								{/* 3️⃣ Source & Tracking */}
 								<Tab
-									_selected={{
-										color: '#B79045',
-										borderBottom: '2px solid',
-										borderColor: '#B79045',
-										fontWeight: '600',
-									}}
+								_selected={{
+  color: 'text.accent',    // ← Replace with this
+  borderBottom: '2px solid',
+  borderColor: 'border.focus',
+  fontWeight: '600',       // ← Keep as is
+}}
 									fontWeight='500'
 									px={4}
 									py={2}
@@ -1118,12 +1111,12 @@ const LeadsModal = ({
 
 								{/* 4️⃣ Lead Status */}
 								<Tab
-									_selected={{
-										color: '#B79045',
-										borderBottom: '2px solid',
-										borderColor: '#B79045',
-										fontWeight: '600',
-									}}
+								_selected={{
+  color: 'text.accent',    // ← Replace with this
+  borderBottom: '2px solid',
+  borderColor: 'border.focus',
+  fontWeight: '600',       // ← Keep as is
+}}
 									fontWeight='500'
 									px={4}
 									py={2}
@@ -1135,11 +1128,11 @@ const LeadsModal = ({
 
 								<Tab
 									_selected={{
-										color: '#B79045',
-										borderBottom: '2px solid',
-										borderColor: '#B79045',
-										fontWeight: '600',
-									}}
+  color: 'text.accent',    // ← Replace with this
+  borderBottom: '2px solid',
+  borderColor: 'border.focus',
+  fontWeight: '600',       // ← Keep as is
+}}
 									fontWeight='500'
 									px={4}
 									py={2}
@@ -1150,11 +1143,11 @@ const LeadsModal = ({
 								</Tab>
 								<Tab
 									_selected={{
-										color: '#B79045',
-										borderBottom: '2px solid',
-										borderColor: '#B79045',
-										fontWeight: '600',
-									}}
+  color: 'text.accent',    // ← Replace with this
+  borderBottom: '2px solid',
+  borderColor: 'border.focus',
+  fontWeight: '600',       // ← Keep as is
+}}
 									fontWeight='500'
 									px={4}
 									py={2}
@@ -1198,9 +1191,9 @@ const LeadsModal = ({
 												pl={8}
 												py={2}
 												borderLeft='2px solid'
-												borderColor='gray.100'
+												borderColor='border.subtle'
 												borderRadius='md'
-												bg='gray.50'
+												bg='bg.elevated'
 												alignItems='flex-start'
 												position='relative'
 												transition='all 0.2s'
@@ -1241,14 +1234,14 @@ const LeadsModal = ({
 														</Badge>
 														<Text
 															fontSize={{ base: '10px', md: 'sm' }}
-															color='gray.500'
+															color='text.muted'
 														>
 															{formatPostDate(item?.updatedAt, 'Asia/Dubai')}
 														</Text>
 													</Flex>
 
 													<Box
-														bg='white'
+														bg='bg.surface'
 														p={{ base: 2, md: 4 }}
 														borderRadius='lg'
 														boxShadow='sm'
@@ -1273,7 +1266,7 @@ const LeadsModal = ({
 																</Text>
 																<Text
 																	fontSize={{ base: 'xs', md: 'sm' }}
-																	color='gray.500'
+																	color='text.muted'
 																>
 																	By{' '}
 																	<Text as='span' color='brand.500'>
@@ -1300,7 +1293,7 @@ const LeadsModal = ({
 																</Text>
 																<Text
 																	fontSize={{ base: 'xs', md: 'sm' }}
-																	color='gray.500'
+																	color='text.muted'
 																>
 																	By{' '}
 																	<Text as='span' color='brand.500'>
@@ -1327,7 +1320,7 @@ const LeadsModal = ({
 																</Text>
 																<Text
 																	fontSize={{ base: 'xs', md: 'sm' }}
-																	color='gray.500'
+																	color='text.muted'
 																>
 																	By{' '}
 																	<Text as='span' color='brand.500'>
@@ -1354,7 +1347,7 @@ const LeadsModal = ({
 																</Text>
 																<Text
 																	fontSize={{ base: 'xs', md: 'sm' }}
-																	color='gray.500'
+																	color='text.muted'
 																>
 																	By{' '}
 																	<Text as='span' color='brand.500'>
@@ -1381,7 +1374,7 @@ const LeadsModal = ({
 																</Text>
 																<Text
 																	fontSize={{ base: 'xs', md: 'sm' }}
-																	color='gray.500'
+																	color='text.muted'
 																>
 																	By{' '}
 																	<Text as='span' color='brand.500'>
@@ -1407,7 +1400,7 @@ const LeadsModal = ({
 																</Text>
 																<Text
 																	fontSize={{ base: 'xs', md: 'sm' }}
-																	color='gray.500'
+																	color='text.muted'
 																>
 																	By{' '}
 																	<Text as='span' color='brand.500'>
@@ -1558,7 +1551,7 @@ const LeadsModal = ({
 											{(!allNotes || allNotes.length === 0) && (
 												<Text
 													textAlign='center'
-													color='gray.500'
+													color='text.muted'
 													fontSize='sm'
 													py={4}
 													fontStyle='italic'
@@ -1573,12 +1566,12 @@ const LeadsModal = ({
 														key={note._id}
 														direction='column'
 														p={{ base: 3, md: 4 }}
-														bg='gray.50'
+														bg='bg.elevated'
 														border='1px solid'
-														borderColor='gray.200'
+														borderColor='border.default'
 														borderRadius='xl'
 														boxShadow='sm'
-														_hover={{ bg: 'gray.100', transition: '0.2s' }}
+														_hover={{ bg: 'bg.elevated', transition: '0.2s' }}
 													>
 														{/* Header: Avatar + User + Time */}
 														<Flex
@@ -1600,13 +1593,13 @@ const LeadsModal = ({
 																<Text
 																	fontWeight='600'
 																	fontSize='sm'
-																	color='gray.800'
+																	color='text.heading'
 																>
 																	{note.addedBy?.firstName +
 																		' ' +
 																		note.addedBy?.lastName}
 																</Text>
-																<Text fontSize='xs' color='gray.500'>
+																<Text fontSize='xs' color='text.muted'>
 																	{formatPostDate(new Date(note?.createdAt))}
 																</Text>
 															</HStack>
@@ -1624,7 +1617,7 @@ const LeadsModal = ({
 																			icon={<FaEdit />}
 																			size='sm'
 																			variant='ghost'
-																			color='gray.600'
+																			color='text.body'
 																			_hover={{
 																				bg: '#B79045',
 																				color: 'white',
@@ -1649,7 +1642,7 @@ const LeadsModal = ({
 																				size='sm'
 																				variant='ghost'
 																				aria-label='Delete Note'
-																				color='gray.600'
+																				color='text.body'
 																				borderRadius='full'
 																				_hover={{
 																					bg: 'red.50',
@@ -1668,7 +1661,7 @@ const LeadsModal = ({
 																			borderRadius='xl'
 																			boxShadow='lg'
 																			border='1px solid'
-																			borderColor='gray.200'
+																			borderColor='border.default'
 																			width='260px'
 																		>
 																			<PopoverArrow />
@@ -1678,14 +1671,14 @@ const LeadsModal = ({
 																			fontSize='md'
 																			border='none'
 																			pb={1}
-																			color='gray.800'
+																			color='text.heading'
 																		>
 																			Delete Note?
 																		</PopoverHeader> */}
 
 																			<PopoverBody
 																				fontSize='sm'
-																				color='gray.600'
+																				color='text.body'
 																				pt={0}
 																			>
 																				This action cannot be undone.
@@ -1693,8 +1686,8 @@ const LeadsModal = ({
 																					<Button
 																						size='sm'
 																						variant='ghost'
-																						color='gray.700'
-																						_hover={{ bg: 'gray.100' }}
+																						color='text.body'
+																						_hover={{ bg: 'bg.elevated' }}
 																						onClick={() =>
 																							setOpenPopoverId(null)
 																						} // cancel closes popover
@@ -1732,17 +1725,17 @@ const LeadsModal = ({
 																	onChange={(e) =>
 																		setEditedContent(e.target.value)
 																	}
-																	bg='white'
-																	borderColor='gray.300'
+																	bg='bg.surface'
+																	borderColor='border.default'
 																	borderRadius='lg'
 																	size='sm'
 																	autoFocus
 																	resize='vertical'
 																	minH='80px'
 																	_focus={{
-																		borderColor: '#B79045',
-																		boxShadow: '0 0 0 1px #B79045',
-																	}}
+  borderColor: 'border.focus',
+  boxShadow: 'goldGlow',
+}}
 																/>
 
 																<Flex justify='flex-end' mt={3} gap={3}>
@@ -1750,16 +1743,15 @@ const LeadsModal = ({
 																		variant='ghost'
 																		size='sm'
 																		onClick={cancelEditing}
-																		_hover={{ bg: 'gray.100' }}
+																		_hover={{ bg: 'bg.elevated' }}
 																	>
 																		Cancel
 																	</Button>
 
 																	<Button
 																		size='sm'
-																		bg='#B79045'
-																		color='white'
-																		_hover={{ bg: '#a77a3f' }}
+
+																		variant='brand'
 																		onClick={saveEditedNote}
 																		isLoading={isUpdating}
 																	>
@@ -1768,7 +1760,7 @@ const LeadsModal = ({
 																</Flex>
 															</Box>
 														) : (
-															<Text fontSize='sm' color='gray.700' pl={10}>
+															<Text fontSize='sm' color='text.body' pl={10}>
 																{note?.note}
 															</Text>
 														)}
@@ -1783,9 +1775,9 @@ const LeadsModal = ({
 												ref={addNoteRef}
 												gap={3}
 												p={4}
-												bg='gray.50'
+												bg='bg.elevated'
 												border='1px solid'
-												borderColor='gray.200'
+												borderColor='border.default'
 												borderRadius='xl'
 												boxShadow='sm'
 												direction={{ base: 'column', md: 'row' }}
@@ -1798,36 +1790,29 @@ const LeadsModal = ({
 													value={newNote}
 													onChange={(e) => setNewNote(e.target.value)}
 													borderRadius='lg'
-													borderColor='gray.300'
+													borderColor='border.default'
 													_focus={{
-														borderColor: '#B79045',
-														boxShadow: '0 0 0 1px #B79045',
-													}}
+  borderColor: 'border.focus',
+  boxShadow: 'goldGlow',
+}}
 													resize='vertical'
 													minH='60px'
-													bg='white'
+													bg='bg.surface'
 												/>
 
-												<Button
-													leftIcon={<FaPlus />}
-													colorScheme='yellow'
-													bg='#B79045'
-													color='white'
-													size='sm'
-													px={6}
-													py={3}
-													borderRadius='lg'
-													boxShadow='sm'
-													_hover={{
-														bg: '#a77a3f',
-														transform: 'scale(1.02)',
-														transition: '0.2s',
-													}}
-													onClick={handleAddNote}
-													isLoading={isAdding}
-												>
-													Add
-												</Button>
+											<Button
+  leftIcon={<FaPlus />}
+  variant='brand'
+  size='sm'
+  px={6}
+  py={3}
+  borderRadius='lg'
+  boxShadow='sm'
+  onClick={handleAddNote}
+  isLoading={isAdding}
+>
+  Add
+</Button>
 											</Flex>
 										)}
 									</Box>
@@ -1846,7 +1831,7 @@ const LeadsModal = ({
 														You have already submitted qualification for this
 														lead
 													</Text>
-													<Text fontSize='xs' color='gray.500' mt={1}>
+													<Text fontSize='xs' color='text.muted' mt={1}>
 														You can view or edit your existing qualification
 														below
 													</Text>
@@ -1855,7 +1840,6 @@ const LeadsModal = ({
 												<Button
 													size='sm'
 													variant='outline'
-													colorScheme='gray'
 													onClick={() => {
 														setOpenFeedbackForm(true);
 														setTimeout(() => {
@@ -1872,12 +1856,12 @@ const LeadsModal = ({
 										</Flex>
 
 										{leadQualificationss?.length === 0 && (
-											<Center py={8} bg='gray.50' borderRadius='lg'>
+											<Center py={8} bg='bg.elevated' borderRadius='lg'>
 												<VStack spacing={2}>
-													<Icon as={FiFileText} color='gray.400' boxSize={6} />
+													<Icon as={FiFileText} color='text.muted' boxSize={6} />
 													<Text
 														fontSize='sm'
-														color='gray.500'
+														color='text.muted'
 														fontStyle='italic'
 													>
 														No qualification data available.
@@ -1933,9 +1917,9 @@ const LeadsModal = ({
 														position='relative'
 														overflow='hidden'
 														p={4}
-														bg='white'
+														bg='bg.surface'
 														border='1px solid'
-														borderColor='gray.200'
+														borderColor='border.default'
 														borderRadius='xl'
 														boxShadow='sm'
 														transition='all 0.2s ease'
@@ -1943,7 +1927,7 @@ const LeadsModal = ({
 															boxShadow: 'md',
 															transform: 'translateY(-2px)',
 															cursor: 'pointer',
-															borderColor: '#B79045',
+															borderColor:'border.focus',
 														}}
 														onClick={() => {
 															setSelectedQualification(q);
@@ -1963,7 +1947,7 @@ const LeadsModal = ({
 															<Flex align='center' gap={2}>
 																<Box
 																	p={1.5}
-																	bg='#B79045'
+																	bg='accent.gold'
 																	borderRadius='md'
 																	color='white'
 																	display='flex'
@@ -1976,12 +1960,12 @@ const LeadsModal = ({
 																	<Text
 																		fontSize='sm'
 																		fontWeight='600'
-																		color='#B79045'
+																		color='text.accent'
 																	>
 																		{leadInfo.leadName ||
 																			`Lead #${leadInfo._id?.slice(-6)}`}
 																	</Text>
-																	<Text fontSize='xs' color='gray.500'>
+																	<Text fontSize='xs' color='text.muted'>
 																		{core.leadType?.replace(/_/g, ' ')}
 																	</Text>
 																</Box>
@@ -1992,8 +1976,11 @@ const LeadsModal = ({
 																	icon={<FiEye />}
 																	size='sm'
 																	variant='ghost'
-																	color='gray.500'
-																	_hover={{ color: '#B79045', bg: 'gray.50' }}
+																	color='text.muted'
+																	_hover={{
+  bg: 'accent.gold',
+  color: 'text.inverse',
+}}
 																	onClick={(e) => {
 																		e.stopPropagation();
 																		setSelectedQualification(q);
@@ -2007,8 +1994,9 @@ const LeadsModal = ({
 																		icon={<FiEdit2 />}
 																		size='sm'
 																		variant='ghost'
-																		color='gray.500'
-																		_hover={{ color: '#B79045', bg: 'gray.50' }}
+																		color='text.muted'
+																		_hover={{ color: 'text.accent', bg: 'bg.elevated' }}
+
 																		onClick={(e) => {
 																			e.stopPropagation();
 																			setSelectedQualification(q);
@@ -2058,7 +2046,7 @@ const LeadsModal = ({
 																	<Text
 																		fontSize='xs'
 																		fontWeight='500'
-																		color='gray.600'
+																		color='text.body'
 																	>
 																		Budget
 																	</Text>
@@ -2087,7 +2075,7 @@ const LeadsModal = ({
 																	<Text
 																		fontSize='xs'
 																		fontWeight='500'
-																		color='gray.600'
+																		color='text.body'
 																	>
 																		Timeline
 																	</Text>
@@ -2116,7 +2104,7 @@ const LeadsModal = ({
 																	<Text
 																		fontSize='xs'
 																		fontWeight='500'
-																		color='gray.600'
+																		color='text.body'
 																	>
 																		Decision
 																	</Text>
@@ -2144,14 +2132,14 @@ const LeadsModal = ({
 																	<Text
 																		fontSize='xs'
 																		fontWeight='500'
-																		color='gray.600'
+																		color='text.body'
 																	>
 																		Locations
 																	</Text>
 																</Flex>
 																<Text
 																	fontSize='xs'
-																	color='gray.700'
+																	color='text.body'
 																	pl={4}
 																	lineHeight='shorter'
 																	textTransform='capitalize'
@@ -2168,19 +2156,19 @@ const LeadsModal = ({
 														<Box
 															pt={3}
 															borderTop='1px solid'
-															borderColor='gray.100'
+															borderColor='border.subtle'
 														>
 															<Flex align='center' justify='space-between'>
 																<Flex align='center' gap={2}>
 																	<Icon
 																		as={FiCalendar}
-																		color='#B79045'
+																		color='text.accent'
 																		boxSize={3}
 																	/>
 																	<Box>
 																		<Text
 																			fontSize='xs'
-																			color='gray.600'
+																			color='text.body'
 																			fontWeight='500'
 																		>
 																			Next Action:{' '}
@@ -2188,7 +2176,7 @@ const LeadsModal = ({
 																		</Text>
 																		<Text
 																			fontSize='xs'
-																			color='#B79045'
+																			color='text.accent'
 																			fontWeight='600'
 																		>
 																			{core.nextActionDate
@@ -2206,13 +2194,13 @@ const LeadsModal = ({
 																	>
 																		<Icon
 																			as={FiUser}
-																			color='gray.400'
+																			color='text.muted'
 																			boxSize={2.5}
 																		/>
-																		<Text fontSize='xs' color='gray.500'>
+																		<Text fontSize='xs' color='text.muted'>
 																			{updatedBy.fullName || 'Unknown'}
 																		</Text>
-																		<Text fontSize='xs' color='gray.400' ml={1}>
+																		<Text fontSize='xs' color='text.muted' ml={1}>
 																			{q.updatedAt
 																				? formatDate(q.updatedAt)
 																				: ''}

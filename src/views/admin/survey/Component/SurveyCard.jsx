@@ -1,4 +1,404 @@
-import React, { useState, useEffect } from 'react';
+// import React, { useState, useEffect } from 'react';
+// import {
+// 	Box,
+// 	Flex,
+// 	Text,
+// 	Button,
+// 	Tooltip,
+// 	Modal,
+// 	ModalOverlay,
+// 	ModalContent,
+// 	ModalHeader,
+// 	ModalBody,
+// 	ModalFooter,
+// 	ModalCloseButton,
+// 	Input,
+// 	useDisclosure,
+// 	Alert,
+// 	AlertIcon,
+// 	keyframes,
+// } from '@chakra-ui/react';
+// import { useNavigate } from 'react-router-dom';
+// import { DeleteIcon } from '@chakra-ui/icons';
+// import { toast } from 'react-toastify';
+// import { useDeleteItemMutation } from 'api/apiSlice';
+// import CustomTooltip from '../../../../components/shared/CustomTooltip';
+// import { useUserActivityLog } from 'hooks/useUserActivityLog';
+// import useUserSession from 'hooks/useUserSession';
+// import { usePermissions } from 'hooks/usePermissions';
+
+// const colorTheme = {
+// 	primary: '#B79045',
+// 	active: {
+// 		bg: '#FFF9E6',
+// 		accent: '#D4A017',
+// 		border: '#E8D9A8',
+// 		status: '#38A169',
+// 		text: '#5F370E',
+// 	},
+// 	inactive: {
+// 		bg: '#FEF2F2',
+// 		accent: '#EF4444',
+// 		border: '#FECACA',
+// 		status: '#F59E0B',
+// 	},
+// 	buttons: {
+// 		primary: '#B79045',
+// 		hover: '#C9A158',
+// 		active: '#A57D3C',
+// 		disabled: '#EDF2F7',
+// 		text: '#FFFFFF',
+// 	},
+// 	modal: {
+// 		header: '#B79045',
+// 		accent: '#D4A017',
+// 	},
+// };
+
+// const floatAnimation = keyframes`
+//   0% { transform: translateY(0px); }
+//   50% { transform: translateY(-5px); }
+//   100% { transform: translateY(0px); }
+// `;
+
+// const pulseAnimation = keyframes`
+//   0% { box-shadow: 0 0 0 0 rgba(183, 144, 69, 0.4); }
+//   70% { box-shadow: 0 0 0 10px rgba(183, 144, 69, 0); }
+//   100% { box-shadow: 0 0 0 0 rgba(183, 144, 69, 0); }
+// `;
+
+// const SurveyCard = ({ data, isActive, refetch, index }) => {
+// 	const [hasAnimated, setHasAnimated] = useState(true);
+// 	const navigate = useNavigate();
+// 	const { user, isSuperAdmin } = useUserSession();
+// 	const { hasPermission } = usePermissions();
+
+// 	const currentUserId = user?._id;
+// 	const { isOpen, onOpen, onClose } = useDisclosure();
+// 	const [securityPassword, setSecurityPassword] = useState('');
+// 	const [surveyIdToDelete, setSurveyIdToDelete] = useState(null);
+// 	const [isDeleting, setIsDeleting] = useState(false);
+// 	const [deleteItemMutation] = useDeleteItemMutation();
+
+// 	const { createUserLog } = useUserActivityLog();
+
+// 	useEffect(() => {
+// 		const timer = setTimeout(() => {
+// 			setHasAnimated(true);
+// 		}, index * 100);
+// 		return () => clearTimeout(timer);
+// 	}, [index]);
+
+// 	let isSurveyCompleted = false;
+// 	if (Array.isArray(data.invitedUsers) && currentUserId) {
+// 		const invitedUserObj = data.invitedUsers.find(
+// 			(u) =>
+// 				u.user &&
+// 				u.user._id &&
+// 				u.user._id.toString() === currentUserId.toString() &&
+// 				u.status === 'completed'
+// 		);
+// 		if (invitedUserObj) {
+// 			isSurveyCompleted = true;
+// 		}
+// 	}
+
+// 	const colors = isActive ? colorTheme.active : colorTheme.inactive;
+
+// 	const handleDeleteClick = (e, id) => {
+// 		setSurveyIdToDelete(id);
+// 		setSecurityPassword('');
+// 		onOpen();
+// 	};
+
+// 	const handleDeleteSurvey = async () => {
+// 		if (!securityPassword.trim()) {
+// 			toast.warning('Please enter your security password to proceed.');
+// 			return;
+// 		}
+
+// 		setIsDeleting(true);
+// 		try {
+// 			await deleteItemMutation({
+// 				path: `/surveys/${surveyIdToDelete}`,
+// 				body: { securityPassword: securityPassword.trim() },
+// 			}).unwrap();
+// 			createUserLog({
+// 				userId: user?._id,
+// 				action: 'DELETE',
+// 				entity: 'Survey',
+// 				entityType: 'Survey',
+// 				entityId: surveyIdToDelete,
+// 				status: 'success',
+// 				message: `"${user?.fullName}" deleted survey.`,
+// 			});
+// 			toast.success('The survey has been permanently deleted.');
+// 			onClose();
+// 			refetch();
+// 		} catch (error) {
+// 			const errorMsg =
+// 				error?.data?.message ||
+// 				'Failed to delete the survey. Please try again.';
+// 			console.log('error', error);
+// 			createUserLog({
+// 				userId: user?._id,
+// 				action: 'DELETE',
+// 				entity: 'Survey',
+// 				entityType: 'Survey',
+// 				entityId: surveyIdToDelete,
+// 				status: error?.status === '500' ? 'error' : 'fail',
+// 				message: errorMsg,
+// 			});
+// 			toast.error(error?.data?.message);
+// 		} finally {
+// 			setIsDeleting(false);
+// 		}
+// 	};
+
+// 	return (
+// 		<>
+// 			<Box
+// 				width='100%'
+// 				height='100%'
+// 				border='2px solid'
+// 				borderColor={colors.border}
+// 				borderRadius='12px'
+// 				p={6}
+// 				bg={'white'}
+// 				position='relative'
+// 				boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+// 				display='flex'
+// 				flexDirection='column'
+// 				justifyContent='space-between'
+// 				transition='all 0.3s ease'
+// 				cursor='pointer'
+// 				overflow='hidden'
+// 				animation={`${hasAnimated ? floatAnimation : 'none'} 0.5s ease-in-out`}
+// 				_hover={{
+// 					transform: 'translateY(-5px)',
+// 					boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+// 					bg: 'gray.100',
+// 				}}
+// 				_before={{
+// 					content: '""',
+// 					position: 'absolute',
+// 					top: 0,
+// 					left: 0,
+// 					width: '6px',
+// 					height: '100%',
+// 					bg: colors.accent,
+// 					borderRadius: '12px 0 0 12px',
+// 				}}
+// 			>
+// 				<Flex justify='space-between' mb={4} zIndex={1}>
+// 					<CustomTooltip label={isActive ? 'Active' : 'Inactive'}>
+// 						<Box
+// 							width='18px'
+// 							height='18px'
+// 							bg={colors.status}
+// 							borderRadius='full'
+// 							boxShadow='sm'
+// 							transition='all 0.2s'
+// 							_hover={{
+// 								transform: 'scale(1.1)',
+// 								animation: `${pulseAnimation} 1.5s infinite`,
+// 							}}
+// 						/>
+// 					</CustomTooltip>
+
+// 					{hasPermission('survey', 'delete') && (
+// 						<Tooltip label='Delete Survey' placement='top'>
+// 							<DeleteIcon
+// 								color='red.500'
+// 								boxSize={4}
+// 								_hover={{
+// 									color: 'red.400',
+// 									transform: 'scale(1.1)',
+// 									animation: `${pulseAnimation} 1.5s infinite`,
+// 								}}
+// 								transition='all 0.2s'
+// 								onClick={(e) => handleDeleteClick(e, data.id || data._id)}
+// 							/>
+// 						</Tooltip>
+// 					)}
+// 				</Flex>
+
+// 				<Box flex='1' zIndex={1}>
+// 					<Text
+// 						fontSize='lg'
+// 						fontWeight='800'
+// 						color={colorTheme.primary}
+// 						mb={2}
+// 						noOfLines={2}
+// 					>
+// 						{data.name || data.title || 'Untitled Survey'}
+// 					</Text>
+
+// 					{data.description && (
+// 						<Text fontSize='sm' color={colors.text} mb={4} noOfLines={3}>
+// 							{data.description}
+// 						</Text>
+// 					)}
+
+// 					<Flex direction='column' gap={3} mb={4}>
+// 						<Flex justify='space-between'>
+// 							<Text fontSize='sm' color={colors.text}>
+// 								Survey taken
+// 							</Text>
+// 							<Text fontSize='sm' fontWeight='600' color={colorTheme.primary}>
+// 								{data.taken ?? data.submittedUsers ?? 0}
+// 							</Text>
+// 						</Flex>
+// 						<Flex justify='space-between'>
+// 							<Text fontSize='sm' color={colors.text}>
+// 								Total questions
+// 							</Text>
+// 							<Text fontSize='sm' fontWeight='600' color={colorTheme.primary}>
+// 								{data.totalQuestions ?? data.questionsCount ?? 0}
+// 							</Text>
+// 						</Flex>
+// 						<Flex justify='space-between'>
+// 							<Text fontSize='sm' color={colors.text}>
+// 								Closing date
+// 							</Text>
+// 							<Text fontSize='sm' fontWeight='600' color={colorTheme.primary}>
+// 								{data.closingDate || data.closesAt?.slice(0, 10) || 'N/A'}
+// 							</Text>
+// 						</Flex>
+// 					</Flex>
+// 				</Box>
+
+// 				{hasPermission('survey', 'read') && (
+// 					<Button
+// 						bg={colorTheme.buttons.primary}
+// 						color={colorTheme.buttons.text}
+// 						mb='2'
+// 						size='sm'
+// 						_hover={{
+// 							bg: colorTheme.buttons.hover,
+// 							transform: 'translateY(-2px)',
+// 							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+// 						}}
+// 						_active={{
+// 							bg: colorTheme.buttons.active,
+// 							transform: 'translateY(0)',
+// 						}}
+// 						_disabled={{
+// 							bg: colorTheme.buttons.disabled,
+// 							color: 'gray.500',
+// 							cursor: 'not-allowed',
+// 							_hover: {
+// 								bg: colorTheme.buttons.disabled,
+// 								transform: 'none',
+// 								boxShadow: 'none',
+// 							},
+// 						}}
+// 						onClick={(e) => {
+// 							e.stopPropagation();
+// 							navigate(
+// 								`/survey/all-surveys/view-survey/${data.id || data._id}`
+// 							);
+// 						}}
+// 					>
+// 						View
+// 					</Button>
+// 				)}
+
+// 				{data?.data?.owner?._id !== user?._id && (
+// 					<Button
+// 						bg={colorTheme.buttons.primary}
+// 						color={colorTheme.buttons.text}
+// 						size='sm'
+// 						_hover={{
+// 							bg: colorTheme.buttons.hover,
+// 							transform: 'translateY(-2px)',
+// 							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+// 						}}
+// 						_active={{
+// 							bg: colorTheme.buttons.active,
+// 							transform: 'translateY(0)',
+// 						}}
+// 						_disabled={{
+// 							bg: colorTheme.buttons.disabled,
+// 							color: 'gray.500',
+// 							cursor: 'not-allowed',
+// 							_hover: {
+// 								bg: colorTheme.buttons.disabled,
+// 								transform: 'none',
+// 								boxShadow: 'none',
+// 							},
+// 						}}
+// 						isDisabled={isSurveyCompleted}
+// 						onClick={(e) => {
+// 							e.stopPropagation();
+// 							navigate(
+// 								`/survey/all-surveys/take-survey/${data.id || data._id}`
+// 							);
+// 						}}
+// 					>
+// 						{isSurveyCompleted ? 'Completed' : 'Take Survey'}
+// 					</Button>
+// 				)}
+// 			</Box>
+
+// 			<Modal isOpen={isOpen} onClose={onClose} isCentered>
+// 				<ModalOverlay bg='blackAlpha.600' />
+// 				<ModalContent borderRadius='xl' overflow='hidden'>
+// 					<ModalHeader bg={colorTheme.modal.header} color='brand.100'>
+// 						Delete Survey
+// 					</ModalHeader>
+// 					<ModalCloseButton color='white' />
+// 					<ModalBody py={4}>
+// 						<Alert status='warning' mb={4} borderRadius='md'>
+// 							<AlertIcon />
+// 							<Text fontWeight='medium'>
+// 								This will permanently delete the survey and all its data. Please
+// 								confirm your security password to proceed.
+// 							</Text>
+// 						</Alert>
+// 						<Input
+// 							type='password'
+// 							placeholder='Enter security password'
+// 							value={securityPassword}
+// 							onChange={(e) => setSecurityPassword(e.target.value)}
+// 							focusBorderColor={colorTheme.modal.accent}
+// 							borderRadius='md'
+// 						/>
+// 					</ModalBody>
+// 					<ModalFooter>
+// 						<Button
+// 							mr={3}
+// 							onClick={onClose}
+// 							variant='outline'
+// 							borderColor={colorTheme.modal.accent}
+// 						>
+// 							Cancel
+// 						</Button>
+// 						<Button
+// 							bg={colorTheme.buttons.primary}
+// 							color='white'
+// 							_hover={{
+// 								bg: colorTheme.buttons.hover,
+// 							}}
+// 							_active={{
+// 								bg: colorTheme.buttons.active,
+// 							}}
+// 							isLoading={isDeleting}
+// 							onClick={handleDeleteSurvey}
+// 						>
+// 							Delete
+// 						</Button>
+// 					</ModalFooter>
+// 				</ModalContent>
+// 			</Modal>
+// 		</>
+// 	);
+// };
+
+// export default SurveyCard;
+
+
+import React, { useState } from 'react';
 import {
 	Box,
 	Flex,
@@ -16,7 +416,9 @@ import {
 	useDisclosure,
 	Alert,
 	AlertIcon,
-	keyframes,
+	HStack,
+	Badge,
+	Divider,
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { DeleteIcon } from '@chakra-ui/icons';
@@ -27,48 +429,7 @@ import { useUserActivityLog } from 'hooks/useUserActivityLog';
 import useUserSession from 'hooks/useUserSession';
 import { usePermissions } from 'hooks/usePermissions';
 
-const colorTheme = {
-	primary: '#B79045',
-	active: {
-		bg: '#FFF9E6',
-		accent: '#D4A017',
-		border: '#E8D9A8',
-		status: '#38A169',
-		text: '#5F370E',
-	},
-	inactive: {
-		bg: '#FEF2F2',
-		accent: '#EF4444',
-		border: '#FECACA',
-		status: '#F59E0B',
-	},
-	buttons: {
-		primary: '#B79045',
-		hover: '#C9A158',
-		active: '#A57D3C',
-		disabled: '#EDF2F7',
-		text: '#FFFFFF',
-	},
-	modal: {
-		header: '#B79045',
-		accent: '#D4A017',
-	},
-};
-
-const floatAnimation = keyframes`
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-  100% { transform: translateY(0px); }
-`;
-
-const pulseAnimation = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(183, 144, 69, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(183, 144, 69, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(183, 144, 69, 0); }
-`;
-
 const SurveyCard = ({ data, isActive, refetch, index }) => {
-	const [hasAnimated, setHasAnimated] = useState(false);
 	const navigate = useNavigate();
 	const { user, isSuperAdmin } = useUserSession();
 	const { hasPermission } = usePermissions();
@@ -81,13 +442,6 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 	const [deleteItemMutation] = useDeleteItemMutation();
 
 	const { createUserLog } = useUserActivityLog();
-
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setHasAnimated(true);
-		}, index * 100);
-		return () => clearTimeout(timer);
-	}, [index]);
 
 	let isSurveyCompleted = false;
 	if (Array.isArray(data.invitedUsers) && currentUserId) {
@@ -103,9 +457,27 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 		}
 	}
 
-	const colors = isActive ? colorTheme.active : colorTheme.inactive;
+	const statusConfig = {
+		active: {
+			borderColor: 'brand.200',
+			bgColor: 'rgba(212, 175, 55, 0.04)',
+			accentBar: '#D4AF37',
+			statusColor: '#48BB78',
+			textColor: 'text.body',
+		},
+		inactive: {
+			borderColor: 'border.default',
+			bgColor: 'bg.surface',
+			accentBar: '#A0AEC0',
+			statusColor: '#F56565',
+			textColor: 'text.muted',
+		},
+	};
+
+	const config = isActive ? statusConfig.active : statusConfig.inactive;
 
 	const handleDeleteClick = (e, id) => {
+		e.stopPropagation();
 		setSurveyIdToDelete(id);
 		setSecurityPassword('');
 		onOpen();
@@ -139,7 +511,6 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 			const errorMsg =
 				error?.data?.message ||
 				'Failed to delete the survey. Please try again.';
-			console.log('error', error);
 			createUserLog({
 				userId: user?._id,
 				action: 'DELETE',
@@ -160,74 +531,68 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 			<Box
 				width='100%'
 				height='100%'
-				border='2px solid'
-				borderColor={colors.border}
-				borderRadius='12px'
-				p={6}
-				bg={'white'}
+				border='1px solid'
+				borderColor={config.borderColor}
+				borderRadius='xl'
+				p={5}
+				bg={config.bgColor}
 				position='relative'
-				boxShadow='0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+				boxShadow='card'
 				display='flex'
 				flexDirection='column'
 				justifyContent='space-between'
-				transition='all 0.3s ease'
+				transition='all 0.2s ease'
 				cursor='pointer'
 				overflow='hidden'
-				animation={`${hasAnimated ? floatAnimation : 'none'} 0.5s ease-in-out`}
 				_hover={{
-					transform: 'translateY(-5px)',
-					boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-					bg: 'gray.100',
+					transform: 'translateY(-2px)',
+					boxShadow: 'goldGlow',
+					borderColor: 'gold.primary',
 				}}
 				_before={{
 					content: '""',
 					position: 'absolute',
 					top: 0,
 					left: 0,
-					width: '6px',
+					width: '4px',
 					height: '100%',
-					bg: colors.accent,
-					borderRadius: '12px 0 0 12px',
+					bg: config.accentBar,
 				}}
 			>
-				<Flex justify='space-between' mb={4} zIndex={1}>
-					<CustomTooltip label={isActive ? 'Active' : 'Inactive'}>
-						<Box
-							width='18px'
-							height='18px'
-							bg={colors.status}
-							borderRadius='full'
-							boxShadow='sm'
-							transition='all 0.2s'
-							_hover={{
-								transform: 'scale(1.1)',
-								animation: `${pulseAnimation} 1.5s infinite`,
-							}}
-						/>
-					</CustomTooltip>
+				{/* Header */}
+				<Flex justify='space-between' align='center' mb={4}>
+					<Badge
+						variant={'outline'}
+						colorScheme={isActive ? 'green' : 'red'}
+						borderRadius='full'
+						px={3}
+						py={1}
+						fontSize='10px'
+						fontWeight='500'
+					>
+						{isActive ? 'Active' : 'Inactive'}
+					</Badge>
 
 					{hasPermission('survey', 'delete') && (
-						<Tooltip label='Delete Survey' placement='top'>
+						<Tooltip label='Delete Survey' placement='top' hasArrow>
 							<DeleteIcon
-								color='red.500'
+								color='red.400'
 								boxSize={4}
-								_hover={{
-									color: 'red.400',
-									transform: 'scale(1.1)',
-									animation: `${pulseAnimation} 1.5s infinite`,
-								}}
-								transition='all 0.2s'
+								cursor='pointer'
+								_hover={{ color: 'red.300', transform: 'scale(1.1)' }}
+								transition='all 0.15s'
 								onClick={(e) => handleDeleteClick(e, data.id || data._id)}
 							/>
 						</Tooltip>
 					)}
 				</Flex>
 
-				<Box flex='1' zIndex={1}>
+				{/* Content */}
+				<Box flex='1'>
 					<Text
 						fontSize='lg'
-						fontWeight='800'
-						color={colorTheme.primary}
+						fontWeight='700'
+						color='text.heading'
 						mb={2}
 						noOfLines={2}
 					>
@@ -235,154 +600,152 @@ const SurveyCard = ({ data, isActive, refetch, index }) => {
 					</Text>
 
 					{data.description && (
-						<Text fontSize='sm' color={colors.text} mb={4} noOfLines={3}>
+						<Text fontSize='sm' color={config.textColor} mb={4} noOfLines={3}>
 							{data.description}
 						</Text>
 					)}
 
-					<Flex direction='column' gap={3} mb={4}>
-						<Flex justify='space-between'>
-							<Text fontSize='sm' color={colors.text}>
+					<Divider borderColor='border.subtle' my={3} />
+
+					<Flex direction='column' gap={2.5} mb={4}>
+						<HStack justify='space-between'>
+							<Text fontSize='xs' color='text.muted' fontWeight='500'>
 								Survey taken
 							</Text>
-							<Text fontSize='sm' fontWeight='600' color={colorTheme.primary}>
+							<Text fontSize='sm' fontWeight='600' color='gold.primary'>
 								{data.taken ?? data.submittedUsers ?? 0}
 							</Text>
-						</Flex>
-						<Flex justify='space-between'>
-							<Text fontSize='sm' color={colors.text}>
+						</HStack>
+						<HStack justify='space-between'>
+							<Text fontSize='xs' color='text.muted' fontWeight='500'>
 								Total questions
 							</Text>
-							<Text fontSize='sm' fontWeight='600' color={colorTheme.primary}>
+							<Text fontSize='sm' fontWeight='600' color='gold.primary'>
 								{data.totalQuestions ?? data.questionsCount ?? 0}
 							</Text>
-						</Flex>
-						<Flex justify='space-between'>
-							<Text fontSize='sm' color={colors.text}>
+						</HStack>
+						<HStack justify='space-between'>
+							<Text fontSize='xs' color='text.muted' fontWeight='500'>
 								Closing date
 							</Text>
-							<Text fontSize='sm' fontWeight='600' color={colorTheme.primary}>
+							<Text fontSize='sm' fontWeight='600' color='gold.primary'>
 								{data.closingDate || data.closesAt?.slice(0, 10) || 'N/A'}
 							</Text>
-						</Flex>
+						</HStack>
 					</Flex>
 				</Box>
 
-				{hasPermission('survey', 'read') && (
-					<Button
-						bg={colorTheme.buttons.primary}
-						color={colorTheme.buttons.text}
-						mb='2'
-						size='sm'
-						_hover={{
-							bg: colorTheme.buttons.hover,
-							transform: 'translateY(-2px)',
-							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-						}}
-						_active={{
-							bg: colorTheme.buttons.active,
-							transform: 'translateY(0)',
-						}}
-						_disabled={{
-							bg: colorTheme.buttons.disabled,
-							color: 'gray.500',
-							cursor: 'not-allowed',
-							_hover: {
-								bg: colorTheme.buttons.disabled,
-								transform: 'none',
-								boxShadow: 'none',
-							},
-						}}
-						onClick={(e) => {
-							e.stopPropagation();
-							navigate(
-								`/survey/all-surveys/view-survey/${data.id || data._id}`
-							);
-						}}
-					>
-						View
-					</Button>
-				)}
+				{/* Actions */}
+				<Flex direction='column' gap={2} mt={2}>
+					{hasPermission('survey', 'read') && (
+						<Button
+							variant='outline'
+							size='sm'
+							width='100%'
+							borderRadius='lg'
+							onClick={(e) => {
+								e.stopPropagation();
+								navigate(`/survey/all-surveys/view-survey/${data.id || data._id}`);
+							}}
+							_hover={{ bg: 'bg.elevated', borderColor: 'gold.primary', color: 'gold.primary' }}
+						>
+							View Survey
+						</Button>
+					)}
 
-				{data?.data?.owner?._id !== user?._id && (
-					<Button
-						bg={colorTheme.buttons.primary}
-						color={colorTheme.buttons.text}
-						size='sm'
-						_hover={{
-							bg: colorTheme.buttons.hover,
-							transform: 'translateY(-2px)',
-							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-						}}
-						_active={{
-							bg: colorTheme.buttons.active,
-							transform: 'translateY(0)',
-						}}
-						_disabled={{
-							bg: colorTheme.buttons.disabled,
-							color: 'gray.500',
-							cursor: 'not-allowed',
-							_hover: {
-								bg: colorTheme.buttons.disabled,
-								transform: 'none',
-								boxShadow: 'none',
-							},
-						}}
-						isDisabled={isSurveyCompleted}
-						onClick={(e) => {
-							e.stopPropagation();
-							navigate(
-								`/survey/all-surveys/take-survey/${data.id || data._id}`
-							);
-						}}
-					>
-						{isSurveyCompleted ? 'Completed' : 'Take Survey'}
-					</Button>
-				)}
+					{data?.data?.owner?._id !== user?._id && (
+						<Button
+							variant='brand'
+							size='sm'
+							width='100%'
+							borderRadius='lg'
+							isDisabled={isSurveyCompleted}
+							onClick={(e) => {
+								e.stopPropagation();
+								navigate(`/survey/all-surveys/take-survey/${data.id || data._id}`);
+							}}
+						>
+							{isSurveyCompleted ? 'Completed' : 'Take Survey'}
+						</Button>
+					)}
+				</Flex>
 			</Box>
 
-			<Modal isOpen={isOpen} onClose={onClose} isCentered>
-				<ModalOverlay bg='blackAlpha.600' />
-				<ModalContent borderRadius='xl' overflow='hidden'>
-					<ModalHeader bg={colorTheme.modal.header} color='brand.100'>
+			{/* Delete Confirmation Modal */}
+			<Modal isOpen={isOpen} onClose={onClose} isCentered size='lg'>
+				<ModalOverlay backdropFilter='blur(4px)' />
+				<ModalContent
+					bg='bg.surface'
+					borderRadius='xl'
+					border='1px solid'
+					borderColor='border.default'
+					boxShadow='card'
+				>
+					<ModalHeader
+						borderBottom='1px solid'
+						borderBottomColor='border.default'
+						color='text.heading'
+					>
 						Delete Survey
 					</ModalHeader>
-					<ModalCloseButton color='white' />
+					<ModalCloseButton color='text.muted' _hover={{ color: 'gold.primary' }} />
+
 					<ModalBody py={4}>
-						<Alert status='warning' mb={4} borderRadius='md'>
-							<AlertIcon />
-							<Text fontWeight='medium'>
-								This will permanently delete the survey and all its data. Please
-								confirm your security password to proceed.
+						<Alert
+							status='error'
+							variant='subtle'
+							mb={4}
+							borderRadius='lg'
+							bg='rgba(229, 62, 62, 0.1)'
+							borderLeft='3px solid'
+							borderLeftColor='red.400'
+						>
+							<AlertIcon color='red.400' />
+							<Text fontSize='sm' color='text.body'>
+								This will permanently delete the survey and all its data.
 							</Text>
 						</Alert>
+						<Text fontSize='sm' color='text.muted' mb={3}>
+							Please confirm your security password to proceed.
+						</Text>
 						<Input
 							type='password'
 							placeholder='Enter security password'
 							value={securityPassword}
 							onChange={(e) => setSecurityPassword(e.target.value)}
-							focusBorderColor={colorTheme.modal.accent}
-							borderRadius='md'
+							bg='bg.input'
+							borderColor='border.default'
+							color='text.body'
+							borderRadius='lg'
+							_focus={{
+								borderColor: 'gold.primary',
+								boxShadow: '0 0 0 1px #D4AF37',
+							}}
+							_hover={{ borderColor: 'gold.dark' }}
 						/>
 					</ModalBody>
-					<ModalFooter>
+
+					<ModalFooter
+						borderTop='1px solid'
+						borderTopColor='border.default'
+						gap={3}
+					>
 						<Button
-							mr={3}
-							onClick={onClose}
 							variant='outline'
-							borderColor={colorTheme.modal.accent}
+							size='sm'
+							borderRadius='lg'
+							onClick={onClose}
+							borderColor='border.default'
+							color='text.body'
+							_hover={{ bg: 'bg.elevated', borderColor: 'gold.primary', color: 'gold.primary' }}
 						>
 							Cancel
 						</Button>
 						<Button
-							bg={colorTheme.buttons.primary}
-							color='white'
-							_hover={{
-								bg: colorTheme.buttons.hover,
-							}}
-							_active={{
-								bg: colorTheme.buttons.active,
-							}}
+							variant='solid'
+							colorScheme='red'
+							size='sm'
+							borderRadius='lg'
 							isLoading={isDeleting}
 							onClick={handleDeleteSurvey}
 						>

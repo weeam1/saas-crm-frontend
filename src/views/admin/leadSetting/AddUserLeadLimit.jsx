@@ -221,7 +221,7 @@ const AddUserLeadLimit = ({
 
 				<ModalFooter borderTop='1px' borderColor={borderColor} gap={3}>
 					<Button
-						variant='outline'
+						variant='ghost'
 						onClick={handleClose}
 						isDisabled={creating || updating}
 					>
@@ -229,7 +229,7 @@ const AddUserLeadLimit = ({
 					</Button>
 
 					<Button
-						colorScheme='brand'
+						variant='brand'
 						isLoading={creating || updating}
 						onClick={handleSubmit(submitHandler)}
 						isDisabled={!isValid || (!isDirty && isEditMode)}

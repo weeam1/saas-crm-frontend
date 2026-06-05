@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import imageCompression from 'browser-image-compression';
 import DefaultUserImage from 'assets/logo/logo.png';
 import { getImageUrl } from 'views/admin/Listing/client-listings/propertyUtils';
+import useUserSession from 'hooks/useUserSession';
 
 const compressImage = async (file) => {
 	return imageCompression(file, {
@@ -23,7 +24,8 @@ const compressImage = async (file) => {
 };
 
 const AvatarUpload = ({ profileImage, formik }) => {
-	const [preview, setPreview] = useState(DefaultUserImage);
+	const {agencyLogo}=useUserSession()
+	const [preview, setPreview] = useState(agencyLogo);
 	const [isLoading, setIsLoading] = useState(false);
 	const fileInputRef = useRef(null);
 
@@ -130,7 +132,7 @@ const AvatarUpload = ({ profileImage, formik }) => {
 						isLoading={isLoading}
 						loadingText='Uploading'
 					>
-						{preview === DefaultUserImage ? 'Upload Photo' : 'Change Photo'}
+						{preview === agencyLogo ? 'Upload Photo' : 'Change Photo'}
 					</Button>
 
 					<Text fontSize='xs' color='gray.500' mt={2}>

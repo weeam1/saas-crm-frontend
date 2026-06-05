@@ -7,7 +7,12 @@ import {
 import { StatCard } from '../../StatCard';
 import { formatCurrency } from 'utils/helpers';
 import { FaBullseye } from 'react-icons/fa6';
-import { FaMoneyBillWave } from 'react-icons/fa';
+import {
+	FaMoneyBillWave,
+	FaStar,
+	FaUserCheck,
+	FaUserSlash,
+} from 'react-icons/fa';
 
 export const TeamStatsOverview = ({ data }) => (
 	<>
@@ -18,11 +23,18 @@ export const TeamStatsOverview = ({ data }) => (
 			colorScheme='blue'
 		/>
 		<StatCard
-			title='Team Agents'
+			title='Team Leaders'
+			value={data?.totalTeamLeaders}
+			icon={FiUsers}
+			colorScheme='cyan'
+		/>
+		<StatCard
+			title=' Agents'
 			value={data?.totalAgents}
 			icon={FiUsers}
 			colorScheme='teal'
 		/>
+
 		<StatCard
 			title='Total Notes'
 			value={data?.totalNotes}
@@ -47,6 +59,25 @@ export const TeamStatsOverview = ({ data }) => (
 			value={formatCurrency(data?.salesReport?.totalSales)}
 			icon={FaMoneyBillWave}
 			colorScheme='cyan'
+		/>
+		<StatCard
+			title='Achievement Rate'
+			value={formatCurrency(data?.salesReport?.achievementRate)}
+			icon={FaStar}
+			colorScheme='green'
+		/>
+		<StatCard
+			title='Assigned Leads'
+			value={data?.assignedLeads}
+			icon={FaUserCheck}
+			colorScheme='greenish'
+		/>
+
+		<StatCard
+			title='Unassigned Leads'
+			value={data?.unassignedLeads}
+			icon={FaUserSlash}
+			colorScheme='red'
 		/>
 	</>
 );

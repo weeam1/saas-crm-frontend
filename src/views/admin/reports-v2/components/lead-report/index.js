@@ -2,13 +2,13 @@ import { Box } from '@chakra-ui/react';
 import LeadsCharts from './LeadCharts';
 import LeadFeedbacks from './LeadFeedbacks';
 import TeamList from './Teams';
-// import LeadsHistoryByYear from './LeadsHistoryByYear';
+import { useModalColors } from 'hooks/useModalColors';
 
 const LeadReport = () => {
-	return (
-		<Box p='2' mb='4'>
-			{/* <LeadsHistoryByYear /> */}
+	const colors = useModalColors();
 
+	return (
+		<Box p='2' mb='4' bg={colors.bgDeep}>
 			{/* Leads Charts */}
 			<LeadsCharts />
 

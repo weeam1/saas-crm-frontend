@@ -4,12 +4,14 @@ import {
 	ATTENDANCE_STATUS_CONFIG,
 	attendanceStatusFilters,
 } from '../constants';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AttendanceStatusFilter = ({ onChange, status }) => {
+	const colors = useModalColors();
+
 	const handleStatusChange = useCallback(
 		(e) => {
 			const val = e.target.value;
-			// setStatus(val);
 			onChange(val === '' ? '' : Number(val));
 		},
 		[onChange]
@@ -24,14 +26,21 @@ const AttendanceStatusFilter = ({ onChange, status }) => {
 			maxW='100px'
 			size='sm'
 			rounded='md'
-			bg={selectedConfig?.bg || 'white'}
-			color={selectedConfig?.text || 'black'}
-			borderColor='gray.300'
-			_hover={{ borderColor: 'gray.100' }}
-			_focus={{ borderColor: 'brand.400', boxShadow: '0 0 0 1px brand.400' }}
+			bg={selectedConfig?.bg || colors.bgInput}
+			color={selectedConfig?.text || colors.headingText}
+			borderColor={colors.borderColor}
+			_hover={{ borderColor: colors.accentGold }}
+			_focus={{
+				borderColor: colors.accentGold,
+				boxShadow: `0 0 0 1px ${colors.accentGold}`
+			}}
 		>
 			{attendanceStatusFilters.map((option) => (
-				<option key={option.value} value={option.value}>
+				<option
+					key={option.value}
+					value={option.value}
+					style={{ background: colors.bg, color: colors.headingText }}
+				>
 					{option.label}
 				</option>
 			))}

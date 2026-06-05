@@ -14,6 +14,7 @@ import {
 	Text,
 	Flex,
 	Select,
+	ModalFooter,
 } from '@chakra-ui/react';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -44,8 +45,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const [formValues, setFormValues] = useState(initialValues);
 
 	const { user, isSuperAdmin } = useUserSession();
-	const { headerBg, closeBtnColor, primaryBtnBg, headerText } =
-		useModalColors();
+	const colors = useModalColors();
 
 	const { data: countries } = useFetchItemsQuery({
 		path: '/countries',
@@ -71,10 +71,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 	const isMounted = useRef(true);
 
 	useEffect(() => {
-		// Set mounted to true on component mount
 		isMounted.current = true;
-
-		// Cleanup function sets mounted to false on component unmount
 		return () => {
 			isMounted.current = false;
 		};
@@ -107,23 +104,15 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 				placeholder: 'WhatsApp number',
 			},
 			{ name: 'source', label: 'Source', placeholder: 'Enter source' },
-			// {
-			// 	name: 'experienceYears',
-			// 	label: 'Experience in Years',
-			// 	placeholder: 'Years of Experience',
-			// },
 		];
-
 		return baseFields;
 	};
 
 	const fields = getFields(type);
 
 	const handleSubmit = (values) => {
-		onSearch(values); // Trigger search with form values
-		onClose(); // Close modal
-
-		// Only update state if the component is still mounted
+		onSearch(values);
+		onClose();
 		if (isMounted.current) {
 			setFormValues(values);
 		}
@@ -131,33 +120,39 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose} isCentered size='2xl'>
-			<ModalOverlay backdropFilter='blur(2px)' />
-			<ModalContent mx='2' borderRadius='xl' boxShadow='xl'>
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(2px)' />
+			<ModalContent mx='2' borderRadius='xl' boxShadow={colors.modalShadow} bg={colors.viewBg}>
 				<ModalHeader
-					bg={headerBg}
-					color={headerText}
+					bg={colors.viewHeaderBg}
+					color={colors.viewHeaderText}
+					borderBottom={`1px solid ${colors.viewHeaderBorder}`}
 					borderTopRadius='xl'
 					py={4}
+					px={6}
 					w='100%'
 				>
 					Advanced Search
 				</ModalHeader>
-				<ModalCloseButton />
-				<ModalBody p='2'>
-					<Formik
-						initialValues={formValues}
-						validationSchema={validationSchema}
-						onSubmit={handleSubmit}
-					>
-						{({
-							handleChange,
-							handleBlur,
-							values,
-							errors,
-							touched,
-							resetForm,
-						}) => (
-							<Form>
+				<ModalCloseButton
+					color={colors.bodyText}
+					_hover={{ color: colors.accentGold, bg: colors.secondaryBtnHoverBg }}
+				/>
+
+				<Formik
+					initialValues={formValues}
+					validationSchema={validationSchema}
+					onSubmit={handleSubmit}
+				>
+					{({
+						handleChange,
+						handleBlur,
+						values,
+						errors,
+						touched,
+						resetForm,
+					}) => (
+						<Form>
+							<ModalBody p='2' bg={colors.viewBg}>
 								<Grid
 									height='70vh'
 									overflow='scroll'
@@ -172,7 +167,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												ms='4px'
 												fontSize='md'
 												fontWeight='400'
-												color='gray.800'
+												color={colors.labelColor}
 												mt={2}
 												mb='1'
 											>
@@ -187,26 +182,31 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												onChange={handleChange}
 												onBlur={handleBlur}
 												value={values[field.name]}
-												borderColor='gray.300'
+												bg={colors.bgInput}
+												borderColor={colors.borderColor}
+												color={colors.headingText}
+												_hover={{ borderColor: colors.accentGold }}
 												_focus={{
-													borderColor: 'brand.500', // Apply brand color on focus
-													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
 												}}
+												_placeholder={{ color: colors.mutedText }}
 											/>
 											{errors[field.name] && touched[field.name] && (
-												<Text color='red' fontSize='xs'>
+												<Text color={colors.badgeErrorText} fontSize='xs'>
 													{errors[field.name]}
 												</Text>
 											)}
 										</GridItem>
 									))}
+
 									<GridItem>
 										<FormLabel
 											display='flex'
 											ms='4px'
 											fontSize='md'
 											fontWeight='500'
-											color='gray.800'
+											color={colors.labelColor}
 											mt={2}
 											mb='1'
 										>
@@ -222,27 +222,31 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values['position']}
-											borderColor='gray.300'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
 											_focus={{
-												borderColor: 'brand.500', // Apply brand color on focus
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
 											}}
 											placeholder='Search by role'
 										>
 											{positionOptions?.doc?.map((item) => (
-												<option value={item._id} key={item._id}>
+												<option value={item._id} key={item._id} style={{ background: colors.bg, color: colors.headingText }}>
 													{item.value}
 												</option>
 											))}
 										</Select>
 									</GridItem>
+
 									<GridItem>
 										<FormLabel
 											display='flex'
 											ms='4px'
 											fontSize='md'
 											fontWeight='500'
-											color='gray.800'
+											color={colors.labelColor}
 											mt={2}
 											mb='1'
 										>
@@ -258,27 +262,31 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values['gender']}
-											borderColor='gray.300'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
 											_focus={{
-												borderColor: 'brand.500', // Apply brand color on focus
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
 											}}
 											placeholder='Search by gender'
 										>
 											{genderOptions?.map((item) => (
-												<option value={item.value} key={item.value}>
+												<option value={item.value} key={item.value} style={{ background: colors.bg, color: colors.headingText }}>
 													{item.label}
 												</option>
 											))}
 										</Select>
 									</GridItem>
+
 									<GridItem>
 										<FormLabel
 											display='flex'
 											ms='4px'
 											fontSize='md'
 											fontWeight='500'
-											color='gray.800'
+											color={colors.labelColor}
 											mt={2}
 											mb='1'
 										>
@@ -294,27 +302,31 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values['experienceYears']}
-											borderColor='gray.300'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
 											_focus={{
-												borderColor: 'brand.500', // Apply brand color on focus
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
 											}}
 											placeholder='Search by experience years'
 										>
 											{experienceYearsOptions?.map((item) => (
-												<option value={item.value} key={item.value}>
+												<option value={item.value} key={item.value} style={{ background: colors.bg, color: colors.headingText }}>
 													{item.label}
 												</option>
 											))}
 										</Select>
 									</GridItem>
+
 									<GridItem>
 										<FormLabel
 											display='flex'
 											ms='4px'
 											fontSize='md'
 											fontWeight='400'
-											color='gray.800'
+											color={colors.labelColor}
 											mt={2}
 											mb='1'
 										>
@@ -330,20 +342,24 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values['nationality']}
-											borderColor='gray.300'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
 											_focus={{
-												borderColor: 'brand.500', // Apply brand color on focus
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
 											}}
 											placeholder='Search by nationality'
 										>
 											{countries?.doc?.map((country) => (
-												<option value={country.name} key={country.code}>
+												<option value={country.name} key={country.code} style={{ background: colors.bg, color: colors.headingText }}>
 													{country.name}
 												</option>
 											))}
 										</Select>
 									</GridItem>
+
 									{type !== 'interviewed' && (
 										<GridItem>
 											<FormLabel
@@ -351,13 +367,12 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												ms='4px'
 												fontSize='md'
 												fontWeight='400'
-												color='gray.800'
+												color={colors.labelColor}
 												mt={2}
 												mb='1'
 											>
 												Status
 											</FormLabel>
-
 											<Select
 												fontSize='sm'
 												name='status'
@@ -368,19 +383,23 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												onChange={handleChange}
 												onBlur={handleBlur}
 												value={values['status']}
-												borderColor='gray.300'
+												bg={colors.bgInput}
+												borderColor={colors.borderColor}
+												color={colors.headingText}
+												_hover={{ borderColor: colors.accentGold }}
 												_focus={{
-													borderColor: 'brand.500', // Apply brand color on focus
-													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
 												}}
 												placeholder='Search by status'
 											>
-												<option value='Pending'>Pending</option>
-												<option value='Eligible'>Eligible</option>
-												<option value='Not Eligible'>Not Eligible</option>
+												<option value='Pending' style={{ background: colors.bg, color: colors.headingText }}>Pending</option>
+												<option value='Eligible' style={{ background: colors.bg, color: colors.headingText }}>Eligible</option>
+												<option value='Not Eligible' style={{ background: colors.bg, color: colors.headingText }}>Not Eligible</option>
 											</Select>
 										</GridItem>
 									)}
+
 									{isSuperAdmin && (
 										<GridItem>
 											<FormLabel
@@ -388,13 +407,12 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												ms='4px'
 												fontSize='md'
 												fontWeight='400'
-												color='gray.800'
+												color={colors.labelColor}
 												mt={2}
 												mb='1'
 											>
 												Agency
 											</FormLabel>
-
 											<Select
 												fontSize='sm'
 												name='agency'
@@ -405,15 +423,18 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												onChange={handleChange}
 												onBlur={handleBlur}
 												value={values['agency']}
-												borderColor='gray.300'
+												bg={colors.bgInput}
+												borderColor={colors.borderColor}
+												color={colors.headingText}
+												_hover={{ borderColor: colors.accentGold }}
 												_focus={{
-													borderColor: 'brand.500', // Apply brand color on focus
-													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
 												}}
 												placeholder='Search by agency'
 											>
 												{agencies?.doc?.map((item) => (
-													<option key={item._id} value={item._id}>
+													<option key={item._id} value={item._id} style={{ background: colors.bg, color: colors.headingText }}>
 														{item.name}
 													</option>
 												))}
@@ -428,7 +449,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												ms='4px'
 												fontSize='md'
 												fontWeight='400'
-												color='gray.800'
+												color={colors.labelColor}
 												mt={2}
 												mb='1'
 											>
@@ -444,15 +465,18 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 												onChange={handleChange}
 												onBlur={handleBlur}
 												value={values['inviteAccepted']}
-												borderColor='gray.300'
+												bg={colors.bgInput}
+												borderColor={colors.borderColor}
+												color={colors.headingText}
+												_hover={{ borderColor: colors.accentGold }}
 												_focus={{
-													borderColor: 'brand.500', // Apply brand color on focus
-													boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+													borderColor: colors.accentGold,
+													boxShadow: `0 0 0 1px ${colors.accentGold}`,
 												}}
 												placeholder='Search by invite status'
 											>
-												<option value='true'>Accepted</option>
-												<option value='false'>Not Accepted</option>
+												<option value='true' style={{ background: colors.bg, color: colors.headingText }}>Accepted</option>
+												<option value='false' style={{ background: colors.bg, color: colors.headingText }}>Not Accepted</option>
 											</Select>
 										</GridItem>
 									)}
@@ -465,7 +489,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 													ms='4px'
 													fontSize='md'
 													fontWeight='400'
-													color='gray.800'
+													color={colors.labelColor}
 													mt={2}
 													mb='1'
 												>
@@ -481,16 +505,18 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 													onChange={handleChange}
 													onBlur={handleBlur}
 													value={values['jobType']}
-													borderColor='gray.300'
+													bg={colors.bgInput}
+													borderColor={colors.borderColor}
+													color={colors.headingText}
+													_hover={{ borderColor: colors.accentGold }}
 													_focus={{
-														borderColor: 'brand.500',
-														boxShadow:
-															'0 0 0 1px var(--chakra-colors-brand-500)',
+														borderColor: colors.accentGold,
+														boxShadow: `0 0 0 1px ${colors.accentGold}`,
 													}}
 													placeholder='Search by status'
 												>
 													{jobTypes.map((type) => (
-														<option key={type.value} value={type.value}>
+														<option key={type.value} value={type.value} style={{ background: colors.bg, color: colors.headingText }}>
 															{type.label}
 														</option>
 													))}
@@ -505,7 +531,7 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											ms='4px'
 											fontSize='md'
 											fontWeight='400'
-											color='gray.800'
+											color={colors.labelColor}
 											mt={2}
 											mb='1'
 										>
@@ -521,43 +547,51 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 											onChange={handleChange}
 											onBlur={handleBlur}
 											value={values['visaType']}
-											borderColor='gray.300'
+											bg={colors.bgInput}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_hover={{ borderColor: colors.accentGold }}
 											_focus={{
-												borderColor: 'brand.500',
-												boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)',
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
 											}}
 											placeholder='Search by visa type'
 										>
 											{visaOptions.map((type) => (
-												<option key={type.value} value={type.value}>
+												<option key={type.value} value={type.value} style={{ background: colors.bg, color: colors.headingText }}>
 													{type.label}
 												</option>
 											))}
 										</Select>
 									</GridItem>
 								</Grid>
+							</ModalBody>
 
-								<Flex mt={4} justifyContent='flex-end'>
+							<ModalFooter
+								bg={colors.viewFooterBg}
+								borderTop={`1px solid ${colors.viewFooterBorder}`}
+								borderBottomRadius='xl'
+								py={4}
+								px={6}
+							>
+								<Flex justifyContent='flex-end' width='100%'>
 									<Button
 										mr={3}
-										colorScheme='gray'
-										onClick={() => resetForm()}
 										variant='outline'
+										onClick={() => resetForm()}
 										size='sm'
 										rounded='md'
+										borderColor={colors.borderColor}
+										color={colors.bodyText}
+										_hover={{
+											bg: colors.secondaryBtnHoverBg,
+											color: colors.headingText,
+										}}
 									>
 										Clear
 									</Button>
 									<Button
-										bg={primaryBtnBg}
-										color='white'
-										_hover={{
-											bg: 'brand.600',
-											color: 'white',
-										}}
-										_active={{
-											bg: 'brand.600',
-										}}
+										variant='brand'
 										rounded='md'
 										size='sm'
 										type='submit'
@@ -565,10 +599,10 @@ const AdvancedSearch = ({ isOpen, onClose, onSearch, type }) => {
 										Search
 									</Button>
 								</Flex>
-							</Form>
-						)}
-					</Formik>
-				</ModalBody>
+							</ModalFooter>
+						</Form>
+					)}
+				</Formik>
 			</ModalContent>
 		</Modal>
 	);

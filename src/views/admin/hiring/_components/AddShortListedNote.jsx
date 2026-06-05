@@ -12,22 +12,16 @@ import {
   FormControl,
   FormLabel,
   Flex,
-  useColorModeValue,
   Text,
 } from "@chakra-ui/react";
-import { buttonStyle } from "utils/btn";
 import { useCreateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
+import { useModalColors } from "hooks/useModalColors";
 
 const AddShortListedNote = ({ applicationId, isOpen, onClose, refetch }) => {
   const [note, setNote] = useState("");
   const [createNote, { isLoading }] = useCreateItemMutation();
-
-  const headerBg = useColorModeValue("brand.300", "brand.100");
-  const headerText = useColorModeValue("brand.700", "brand.900");
-  const footerBg = useColorModeValue("gray.50", "gray.700");
-  const bodyBg = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
+  const colors = useModalColors();
 
   const handleSubmit = async () => {
     try {
@@ -56,19 +50,19 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose, refetch }) => {
       scrollBehavior="inside"
       motionPreset="slideInBottom"
     >
-      <ModalOverlay backdropFilter="blur(3px)" />
+      <ModalOverlay bg={colors.overlayBg} backdropFilter="blur(3px)" />
       <ModalContent
         mx="4"
         borderRadius="2xl"
-        bg={bodyBg}
-        shadow="2xl"
+        bg={colors.bg}
+        shadow={colors.modalShadow}
         overflow="hidden"
       >
         {/* Header */}
-        <ModalHeader p={0} borderBottom="1px solid" borderColor={borderColor}>
+        <ModalHeader p={0} borderBottom="1px solid" borderColor={colors.borderColor}>
           <Flex
-            bg={headerBg}
-            color={headerText}
+            bg={colors.headerBg}
+            color={colors.headerText}
             px={6}
             py={3}
             align="center"
@@ -77,15 +71,15 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose, refetch }) => {
             zIndex="10"
             boxShadow="md"
           >
-            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold">
+            <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold" color={colors.headerText}>
               Candidate Feedback Note
             </Text>
             <ModalCloseButton
               position="absolute"
               right="12px"
               top="10px"
-              color={headerText}
-              _hover={{ bg: "whiteAlpha.200" }}
+              color={colors.closeBtnColor}
+              _hover={{ bg: colors.closeBtnHoverBg }}
             />
           </Flex>
         </ModalHeader>
@@ -93,47 +87,60 @@ const AddShortListedNote = ({ applicationId, isOpen, onClose, refetch }) => {
         {/* Body */}
         <ModalBody p={6}>
           <FormControl>
-            <FormLabel>Note</FormLabel>
+            <FormLabel color={colors.labelColor}>Note</FormLabel>
             <Textarea
               placeholder="Type Note..."
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              focusBorderColor="brand.500"
+              focusBorderColor={colors.accentGold}
               height="160px"
               resize="none"
               overflowY="auto"
+              bg={colors.bgInput}
+              borderColor={colors.borderColor}
+              color={colors.headingText}
+              _hover={{ borderColor: colors.accentGold }}
+              _placeholder={{ color: colors.mutedText }}
             />
           </FormControl>
         </ModalBody>
 
         {/* Footer */}
         <ModalFooter
-          bg={footerBg}
+          bg={colors.footerBg}
           borderTop="1px solid"
-          borderColor={borderColor}
+          borderColor={colors.borderColor}
           py={3}
           px={6}
           justifyContent="flex-end"
+          gap={3}
         >
           <Button
-            {...buttonStyle}
-            bg="softGray.100"
-            color="gray.700"
-            _active={{ bg: "gray.200" }}
-            mr={3}
+            variant="ghost"
             onClick={onClose}
-            variant="outline"
             borderRadius="md"
+            color={colors.bodyText}
+            _hover={{
+              bg: colors.secondaryBtnHoverBg,
+              color: colors.headingText,
+            }}
           >
             Cancel
           </Button>
           <Button
-            {...buttonStyle}
-            colorScheme="brand"
+            bg={colors.accentGold}
+            color={colors.headerText}
             isLoading={isLoading}
             onClick={handleSubmit}
-            disabled={note.trim() === ""}
+            isDisabled={note.trim() === ""}
             borderRadius="md"
+            _hover={{
+              bg: colors.goldLight,
+              transform: "translateY(-1px)",
+              boxShadow: colors.goldGlow,
+            }}
+            _active={{ bg: colors.goldDark }}
+            transition="all 0.2s ease"
           >
             {isLoading ? "Loading..." : "Add"}
           </Button>

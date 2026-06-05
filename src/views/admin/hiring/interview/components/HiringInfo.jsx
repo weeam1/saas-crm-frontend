@@ -18,6 +18,7 @@ import { jobTypes } from 'utils/options';
 import RejectedCandidate from './RejectedCandidate';
 import InterviewNoteModal from './InterviewNoteModal';
 import { toast } from 'react-toastify';
+import { useModalColors } from 'hooks/useModalColors';
 
 const HiringInfo = ({
 	interview,
@@ -26,6 +27,7 @@ const HiringInfo = ({
 	positionOptions,
 	updatingInterview,
 }) => {
+	const colors = useModalColors();
 	const {
 		isOpen: isInterviewNoteOpen,
 		onOpen: onInterviewNoteOpen,
@@ -42,7 +44,7 @@ const HiringInfo = ({
 		interviewNote: '',
 	};
 
-	const isFinalRound = interview.currentRound === 'final';
+	const isFinalRound = interview?.currentRound === 'final';
 
 	// Validation Schema
 	const validationSchema = Yup.object().shape({
@@ -55,7 +57,7 @@ const HiringInfo = ({
 					.typeError('Amount must be a number')
 					.required('Amount is required')
 					.min(1, 'Amount must be at least 1'),
-			otherwise: (schema) => schema.notRequired(), // Not required if jobType is only "Salary"
+			otherwise: (schema) => schema.notRequired(),
 		}),
 		incentive: Yup.number()
 			.transform((value, originalValue) =>
@@ -74,16 +76,15 @@ const HiringInfo = ({
 					.required('Commission is required')
 					.min(0, 'Commission must be at least 0')
 					.max(100, 'Commission must be between 0 to 100'),
-			otherwise: (schema) => schema.notRequired(), // Not required if jobType is only "Salary"
+			otherwise: (schema) => schema.notRequired(),
 		}),
 	});
 
 	const formik = useFormik({
 		initialValues,
 		validationSchema,
-
 		onSubmit: (values) => {
-			onSubmit(values); // Proceed to the next step
+			onSubmit(values);
 			setHiringData(values);
 		},
 	});
@@ -124,6 +125,7 @@ const HiringInfo = ({
 					fontWeight='bold'
 					mb={4}
 					textAlign='center'
+					color={colors.headingText}
 				>
 					Hiring Information
 				</Text>
@@ -138,83 +140,98 @@ const HiringInfo = ({
 						<FormControl
 							isInvalid={formik.touched.position && formik.errors.position}
 						>
-							<FormLabel>Job Position</FormLabel>
+							<FormLabel color={colors.labelColor}>Job Position</FormLabel>
 							<Select
 								name='position'
-								bg='gray.100'
-								borderColor='gray.300'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
+								_hover={{ borderColor: colors.accentGold }}
 								_focus={{
-									borderColor: '#D99A36',
-									boxShadow: '0 0 0 1px #D99A36',
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
 								}}
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
 								value={formik.values.position}
 							>
-								<option disabled style={{ color: '#444' }} value=''>
+								<option disabled value='' style={{ background: colors.bg, color: colors.mutedText }}>
 									Select Position
 								</option>
-								{positionOptions.map((role) => (
-									<option key={role._id} value={role._id}>
+								{positionOptions?.map((role) => (
+									<option key={role._id} value={role._id} style={{ background: colors.bg, color: colors.headingText }}>
 										{role.label}
 									</option>
 								))}
 							</Select>
-							<FormErrorMessage>{formik.errors.position}</FormErrorMessage>
+							<FormErrorMessage color={colors.badgeErrorText}>
+								{formik.errors.position}
+							</FormErrorMessage>
 						</FormControl>
+
 						{/* Job Type */}
 						<FormControl
 							isInvalid={formik.touched.jobType && formik.errors.jobType}
 						>
-							<FormLabel>Job Type</FormLabel>
+							<FormLabel color={colors.labelColor}>Job Type</FormLabel>
 							<Select
 								name='jobType'
-								bg='gray.100'
-								borderColor='gray.300'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
+								_hover={{ borderColor: colors.accentGold }}
 								_focus={{
-									borderColor: '#D99A36',
-									boxShadow: '0 0 0 1px #D99A36',
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
 								}}
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
 								value={formik.values.jobType}
 							>
-								<option disabled style={{ color: '#444' }} value=''>
+								<option disabled value='' style={{ background: colors.bg, color: colors.mutedText }}>
 									Select Job Type
 								</option>
 								{jobTypes.map((type) => (
-									<option key={type.value} value={type.value}>
+									<option key={type.value} value={type.value} style={{ background: colors.bg, color: colors.headingText }}>
 										{type.label}
 									</option>
 								))}
 							</Select>
-							<FormErrorMessage>{formik.errors.jobType}</FormErrorMessage>
+							<FormErrorMessage color={colors.badgeErrorText}>
+								{formik.errors.jobType}
+							</FormErrorMessage>
 						</FormControl>
+
 						{/* Amount */}
 						{formik.values.jobType !== 'Commission' && (
 							<FormControl
 								isInvalid={formik.touched.amount && formik.errors.amount}
 							>
-								<FormLabel>Amount</FormLabel>
+								<FormLabel color={colors.labelColor}>Amount</FormLabel>
 								<Input
 									type='number'
 									name='amount'
 									placeholder='Enter Amount'
-									bg='gray.100'
-									borderColor='gray.300'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_hover={{ borderColor: colors.accentGold }}
 									_focus={{
-										borderColor: '#D99A36',
-										boxShadow: '0 0 0 1px #D99A36',
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
 									}}
+									_placeholder={{ color: colors.mutedText }}
 									onChange={formik.handleChange}
 									onBlur={formik.handleBlur}
 									value={formik.values.amount}
 								/>
-								<FormErrorMessage>{formik.errors.amount}</FormErrorMessage>
+								<FormErrorMessage color={colors.badgeErrorText}>
+									{formik.errors.amount}
+								</FormErrorMessage>
 							</FormControl>
 						)}
 
-						{/* Commission (Show when jobType is Commission OR SalaryPlusCommission) */}
+						{/* Commission */}
 						{['Commission', 'SalaryPlusCommission'].includes(
 							formik.values.jobType
 						) && (
@@ -223,7 +240,7 @@ const HiringInfo = ({
 									formik.touched.commission && formik.errors.commission
 								}
 							>
-								<FormLabel>Commission %</FormLabel>
+								<FormLabel color={colors.labelColor}>Commission %</FormLabel>
 								<Input
 									type='number'
 									name='commission'
@@ -231,54 +248,65 @@ const HiringInfo = ({
 									max={100}
 									step='any'
 									placeholder='Enter Commission'
-									bg='gray.100'
-									borderColor='gray.300'
+									bg={colors.bgInput}
+									borderColor={colors.borderColor}
+									color={colors.headingText}
+									_hover={{ borderColor: colors.accentGold }}
 									_focus={{
-										borderColor: '#D99A36',
-										boxShadow: '0 0 0 1px #D99A36',
+										borderColor: colors.accentGold,
+										boxShadow: `0 0 0 1px ${colors.accentGold}`,
 									}}
+									_placeholder={{ color: colors.mutedText }}
 									onChange={formik.handleChange}
 									onBlur={formik.handleBlur}
 									onKeyDown={(e) => {
-										// Block keys: e, E, +, -
 										if (['e', 'E', '+', '-'].includes(e.key)) {
 											e.preventDefault();
 										}
 									}}
 									value={formik.values.commission}
 								/>
-								<FormErrorMessage>{formik.errors.commission}</FormErrorMessage>
+								<FormErrorMessage color={colors.badgeErrorText}>
+									{formik.errors.commission}
+								</FormErrorMessage>
 							</FormControl>
 						)}
 
+						{/* Incentive */}
 						<FormControl
 							isInvalid={formik.touched.incentive && formik.errors.incentive}
 						>
-							<FormLabel>Incentive (Optional) </FormLabel>
+							<FormLabel color={colors.labelColor}>Incentive (Optional)</FormLabel>
 							<Input
 								type='number'
 								name='incentive'
 								placeholder='Enter Incentive'
-								bg='gray.100'
-								borderColor='gray.300'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
+								_hover={{ borderColor: colors.accentGold }}
 								_focus={{
-									borderColor: '#D99A36',
-									boxShadow: '0 0 0 1px #D99A36',
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
 								}}
+								_placeholder={{ color: colors.mutedText }}
 								onChange={formik.handleChange}
 								onBlur={formik.handleBlur}
 								value={formik.values.incentive}
 							/>
-							<FormErrorMessage>{formik.errors.incentive}</FormErrorMessage>
+							<FormErrorMessage color={colors.badgeErrorText}>
+								{formik.errors.incentive}
+							</FormErrorMessage>
 						</FormControl>
 					</Grid>
 
 					{!isFinalRound && (
-						<Box bg='white' rounded='md' p={4} my='4'>
+						<Box bg={colors.bgInput} rounded='md' p={4} my='4' border="1px solid" borderColor={colors.borderColor}>
 							<Text
 								fontSize={{ base: 'sm', md: 'md' }}
 								fontWeight='semibold'
 								mb={4}
+								color={colors.headingText}
 							>
 								This Candidate need to next interview?
 							</Text>
@@ -290,13 +318,13 @@ const HiringInfo = ({
 										!formik.values.isNextRound
 									)
 								}
-								colorScheme='brand'
+								colorScheme='yellow'
 								size='lg'
 								_focus={{
 									boxShadow: 'none',
 								}}
 							>
-								Yes
+								<Text color={colors.bodyText}>Yes</Text>
 							</Checkbox>
 						</Box>
 					)}
@@ -307,19 +335,21 @@ const HiringInfo = ({
 					/>
 
 					<Button
-						bg='#EDC270'
-						color='gray.800'
+						bg={colors.accentGold}
+						color={colors.headerText}
 						fontSize={{ base: 'sm', md: 'md' }}
 						fontWeight='normal'
 						shadow='sm'
 						rounded='md'
-						_hover={{ bg: '#E0B960' }}
-						_active={{ bg: '#D4AC50' }}
+						_hover={{ bg: colors.goldLight }}
+						_active={{ bg: colors.goldDark }}
 						w='full'
 						mt={6}
 						onClick={handleEndInterview}
+						isLoading={updatingInterview}
+						loadingText='Loading...'
 					>
-						{updatingInterview ? 'Loading...' : 'End Interview'}
+						End Interview
 					</Button>
 				</form>
 			</Box>

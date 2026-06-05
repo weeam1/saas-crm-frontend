@@ -45,7 +45,8 @@ export function StepAccountSelect({ onNext }) {
 			</Box>
 
 			<Box
-				maxH={'50vh'}
+				      maxHeight="70vh"
+      minH="70vh"
 				overflowY='auto'
 				borderRadius='md'
 				boxShadow='sm'

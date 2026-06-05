@@ -1,4 +1,5 @@
 import { Select } from '@chakra-ui/react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const SelectManager = ({
 	selectedManager,
@@ -6,6 +7,8 @@ const SelectManager = ({
 	managerList,
 	isDisabled,
 }) => {
+	const colors = useModalColors();
+
 	if (isDisabled) return null;
 
 	return (
@@ -16,18 +19,27 @@ const SelectManager = ({
 			placeholder='Select a Team'
 			onChange={handleManager}
 			cursor='pointer'
-			bg='brand.200'
-			color='gray.800'
+			bg={colors.bgInput}
+			borderColor={colors.borderColor}
+			color={colors.headingText}
 			outline='none'
 			isDisabled={isDisabled}
+			_hover={{
+				borderColor: colors.accentGold,
+			}}
 			_focus={{
+				borderColor: colors.accentGold,
+				boxShadow: `0 0 0 1px ${colors.accentGold}`,
 				outline: 'none',
 			}}
 			fontSize={{ base: 'xs', md: 'sm', lg: 'md' }}
-			// px={2}
 		>
 			{managerList.map((manager) => (
-				<option key={manager._id} value={manager._id}>
+				<option
+					key={manager._id}
+					value={manager._id}
+					style={{ background: colors.bg, color: colors.headingText }}
+				>
 					Team: {manager.name}
 				</option>
 			))}

@@ -16,7 +16,6 @@ import {
 	Badge,
 	CircularProgress,
 	Flex,
-	Divider,
 	Tooltip,
 } from '@chakra-ui/react';
 import {
@@ -26,11 +25,9 @@ import {
 	FiCheckCircle,
 	FiInfo,
 	FiX,
-	FiLoader,
 } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import { constant } from 'constant';
-import { buttonStyle } from 'utils/btn';
 
 const MotionBox = motion(Box);
 const MotionVStack = motion(VStack);
@@ -43,7 +40,6 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 	const progressRef = useRef(null);
 	const blobRef = useRef(null);
 
-	// Start fake progress that goes to 100%
 	const startFakeProgress = () => {
 		stopProgress();
 
@@ -76,7 +72,6 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 		}
 	};
 
-	// Function to trigger file download
 	const handleDownload = () => {
 		if (blobRef.current) {
 			try {
@@ -104,20 +99,17 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 		setProgress(0);
 		blobRef.current = null;
 
-		// Start fake progress
 		startFakeProgress();
 
 		try {
 			const token =
 				localStorage.getItem('token') || sessionStorage.getItem('token');
 
-			// Convert params to query string
 			let query = '';
 			if (params && Object.keys(params).length > 0) {
 				query = '?' + new URLSearchParams(params).toString();
 			}
 
-			// Make API call
 			const response = await fetch(
 				`${constant['baseUrl']}api/lead/export/csv${query}`,
 				{
@@ -134,7 +126,6 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 				throw new Error(`Failed to fetch CSV: ${text}`);
 			}
 
-			// Get the blob data and store it
 			const blob = await response.blob();
 			blobRef.current = blob;
 		} catch (err) {
@@ -162,17 +153,6 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 		}
 	}, [isOpen]);
 
-	const getStatusColor = () => {
-		switch (exportStatus) {
-			case 'processing':
-				return 'blue.500';
-			case 'success':
-				return 'green.500';
-			default:
-				return 'gray.500';
-		}
-	};
-
 	const getStatusIcon = () => {
 		switch (exportStatus) {
 			case 'processing':
@@ -184,9 +164,7 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 		}
 	};
 
-	const getFileExtension = () => {
-		return 'csv';
-	};
+	const getFileExtension = () => 'csv';
 
 	const getFileName = () => {
 		const now = new Date();
@@ -203,103 +181,52 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 		return `leads_${year}-${month}-${day}_${hourStr}-${minutes}${ampm}.${getFileExtension()}`;
 	};
 
-	const getFileTypeName = () => {
-		return 'CSV';
-	};
+	const getFileTypeName = () => 'CSV';
 
-	// Render progress screen
 	const renderProgressScreen = () => (
 		<MotionVStack spacing={5} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-			{/* File Preview Box */}
 			{exportStatus !== 'success' && (
-				<Box
-					w='full'
-					// border='1px solid'
-					// borderColor='gray.200'
-					boxShadow='sm'
-					// borderRadius='xl'
-					overflow='hidden'
-					bg='white'
-				>
+				<Box w='full' overflow='hidden'>
 					<Box p={5}>
 						<VStack spacing={4} align='stretch'>
 							<Flex justify='space-between'>
 								<HStack spacing={3}>
-									<Box p={2.5} bg='blue.50' borderRadius='lg' color='blue.600'>
+									<Box p={2.5} bg='bg.elevated' borderRadius='lg' color='text.accent'>
 										<Icon as={FiFileText} boxSize={4} />
 									</Box>
 									<VStack align='start' spacing={0.5}>
 										<HStack fontWeight='bold'>
-											<Text fontSize={{ base: 'md', md: 'lg' }}>
+											<Text fontSize={{ base: 'md', md: 'lg' }} color='text.heading'>
 												{totalRecords?.toLocaleString() || 0}
 											</Text>
-											<Text fontSize={{ base: 'md', md: 'lg' }}>Leads</Text>
+											<Text fontSize={{ base: 'md', md: 'lg' }} color='text.body'>
+												Leads
+											</Text>
 										</HStack>
 									</VStack>
 								</HStack>
-								{exportStatus !== 'ready' && exportStatus !== 'failed' && (
-									<Badge
-										colorScheme={
-											exportStatus === 'processing'
-												? 'blue'
-												: exportStatus === 'success'
-													? 'green'
-													: 'gray'
-										}
-										borderRadius='lg'
-										px={2}
-										py={0.5}
-										fontSize='xs'
-										lineHeight='1'
-										height='18px'
-									>
-										{exportStatus}
-									</Badge>
-								)}
+							{exportStatus !== 'ready' && exportStatus !== 'failed' && (
+	<Badge
+		colorScheme={exportStatus === 'processing' ? 'blue' : 'green'}
+		borderRadius='lg'
+		px={2}
+		py={1}
+		fontSize='xs'
+		lineHeight='1'
+		display='inline-flex'
+		alignItems='center'
+		height='22px'
+	>
+		{exportStatus}
+	</Badge>
+)}
 							</Flex>
 
-							{/* <HStack justify="space-around">
-                <VStack align="center" spacing={1.5} flex={1}>
-                  <Box p={2} bg="blue.50" borderRadius="md" color="blue.600">
-                    <Icon as={FiFileText} boxSize={4} />
-                  </Box>
-                  <VStack spacing={0}>
-                    <Text fontSize="xs" color="gray.600">
-                      Total Records
-                    </Text>
-                    <Text fontSize="lg" fontWeight="bold" color="gray.800">
-                      {totalRecords?.toLocaleString() || 0}
-                    </Text>
-                  </VStack>
-                </VStack>
-                <VStack align="center" spacing={1.5} flex={1}>
-                  <Box
-                    p={2}
-                    bg="purple.50"
-                    borderRadius="md"
-                    color="purple.600"
-                  >
-                    <Icon as={FiFileText} boxSize={4} />
-                  </Box>
-                  <VStack spacing={0}>
-                    <Text fontSize="xs" color="gray.600">
-                      Format
-                    </Text>
-                    <Text fontSize="lg" fontWeight="bold" color="gray.800">
-                      CSV
-                    </Text>
-                  </VStack>
-                </VStack>
-              </HStack> */}
-
 							<Button
-								{...buttonStyle}
 								onClick={handleExport}
 								isLoading={loading}
 								loadingText='Exporting...'
-								colorScheme='blue'
-								bg='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-								color='white'
+								variant='brand'
 								size='md'
 								py={6}
 								px={8}
@@ -307,15 +234,6 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 								fontSize='lg'
 								fontWeight='semibold'
 								borderRadius='lg'
-								_hover={{
-									transform: 'translateY(-2px)',
-									boxShadow: 'xl',
-									bg: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
-								}}
-								_active={{
-									transform: 'translateY(0)',
-								}}
-								transition='all 0.3s ease-in-out'
 								leftIcon={<FiDownload size={20} />}
 								isDisabled={
 									exportStatus === 'processing' || exportStatus === 'success'
@@ -323,7 +241,7 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 							>
 								{exportStatus === 'processing' ? 'Exporting...' : 'Export CSV'}
 							</Button>
-							<Text color='gray.500' fontSize='xs' mt={2} textAlign='center'>
+							<Text color='text.muted' fontSize='xs' mt={2} textAlign='center'>
 								Lead export typically completes within 5–20 seconds.
 							</Text>
 						</VStack>
@@ -343,10 +261,10 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 					>
 						<Box
 							p={5}
-							bg='green.50'
+							bg='bg.surface'
 							borderRadius='xl'
 							border='1px solid'
-							borderColor='green.200'
+							borderColor='border.default'
 							textAlign='center'
 						>
 							<MotionBox
@@ -360,17 +278,16 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 									mb={2}
 								/>
 							</MotionBox>
-							<Text fontSize='md' fontWeight='bold' color='green.800' mb={1.5}>
+							<Text fontSize='md' fontWeight='bold' color='text.heading' mb={1.5}>
 								Export Completed!
 							</Text>
-							<Text fontSize='xs' color='green.700' mb={3}>
+							<Text fontSize='xs' color='text.muted' mb={3}>
 								{totalRecords?.toLocaleString() || 0} records exported to{' '}
 								{getFileTypeName()} successfully.
 							</Text>
 							<Button
 								onClick={handleDownload}
-								colorScheme='green'
-								variant='solid'
+								variant='brand'
 								size='sm'
 								leftIcon={<FiDownload />}
 							>
@@ -392,63 +309,50 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 				>
 					<Box
 						p={5}
-						bg='green.50'
+						bg='bg.surface'
 						borderRadius='xl'
 						border='1px solid'
-						borderColor='green.200'
+						borderColor='border.default'
 						textAlign='left'
 					>
-						{/* Instruction guide */}
 						<VStack spacing={2} align='start' pl={3}>
-							<Text fontWeight='semibold'>How to open CSV in Excel:</Text>
+							<Text fontWeight='semibold' color='text.heading'>
+								How to open CSV in Excel:
+							</Text>
 							<VStack
 								as='ul'
 								align='start'
 								spacing={1.5}
 								pl={4}
-								color='gray.700'
+								color='text.body'
 								fontSize='sm'
 							>
 								<Flex as='li' align='flex-start'>
-									<Box as='span' mr={2}>
-										•
-									</Box>
+									<Box as='span' mr={2}>•</Box>
 									<Text>Open Excel</Text>
 								</Flex>
 								<Flex as='li' align='flex-start'>
-									<Box as='span' mr={2}>
-										•
-									</Box>
+									<Box as='span' mr={2}>•</Box>
 									<Text>Go to Data tab</Text>
 								</Flex>
 								<Flex as='li' align='flex-start'>
-									<Box as='span' mr={2}>
-										•
-									</Box>
+									<Box as='span' mr={2}>•</Box>
 									<Text>Click Get Data</Text>
 								</Flex>
 								<Flex as='li' align='flex-start'>
-									<Box as='span' mr={2}>
-										•
-									</Box>
+									<Box as='span' mr={2}>•</Box>
 									<Text>Select "From Text/CSV"</Text>
 								</Flex>
 								<Flex as='li' align='flex-start'>
-									<Box as='span' mr={2}>
-										•
-									</Box>
+									<Box as='span' mr={2}>•</Box>
 									<Text>Select CSV file</Text>
 								</Flex>
 								<Flex as='li' align='flex-start'>
-									<Box as='span' mr={2}>
-										•
-									</Box>
+									<Box as='span' mr={2}>•</Box>
 									<Text>Click "Load" to import your data into Excel</Text>
 								</Flex>
 								<Flex as='li' align='flex-start'>
-									<Box as='span' mr={2}>
-										•
-									</Box>
+									<Box as='span' mr={2}>•</Box>
 									<Text>You can now view, sort, or filter your records</Text>
 								</Flex>
 							</VStack>
@@ -461,17 +365,17 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 				<Box
 					p={5}
 					width='full'
-					bg='red.50'
+					bg='bg.surface'
 					borderRadius='xl'
 					border='1px solid'
-					borderColor='red.200'
+					borderColor='red.500'
 					textAlign='center'
 				>
 					<Icon as={FiX} boxSize={10} color='red.500' mb={2} />
-					<Text fontWeight='bold' color='red.700'>
+					<Text fontWeight='bold' color='text.heading'>
 						Export Failed
 					</Text>
-					<Text fontSize='xs' color='red.600'>
+					<Text fontSize='xs' color='text.muted'>
 						Something went wrong while exporting CSV.
 					</Text>
 				</Box>
@@ -483,18 +387,18 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 					{exportStatus === 'processing' && (
 						<>
 							<Flex justify='space-between' align='center'>
-								<Text fontSize='sm' fontWeight='semibold' color='gray.700'>
+								<Text fontSize='sm' fontWeight='semibold' color='text.body'>
 									Export Progress
 								</Text>
 								<HStack spacing={2}>
-									<Text fontSize='xs' fontWeight='medium' color='gray.600'>
+									<Text fontSize='xs' fontWeight='medium' color='text.muted'>
 										{Math.round(progress)}%
 									</Text>
 									{exportStatus === 'processing' && (
 										<CircularProgress
 											size='16px'
 											thickness='3px'
-											color='blue.500'
+											color='accent.gold'
 											isIndeterminate
 										/>
 									)}
@@ -507,38 +411,14 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 									height='8px'
 									width='full'
 									borderRadius='full'
-									colorScheme={exportStatus === 'success' ? 'green' : 'blue'}
+									colorScheme='yellow'
 									hasStripe={exportStatus === 'processing'}
 									isAnimated={exportStatus === 'processing'}
 								/>
-
-								{/* <MotionBox
-                  position="absolute"
-                  top="50%"
-                  left={`${Math.min(progress, 100)}%`}
-                  style={{ transform: "translate(-50%, -50%)" }}
-                  animate={{ left: `${Math.min(progress, 100)}%` }}
-                  transition={{
-                    type: "tween",
-                    duration: 0.5,
-                    ease: "linear",
-                  }}
-                >
-                  <Box
-                    width="16px"
-                    height="16px"
-                    borderRadius="full"
-                    bg="white"
-                    border="2px solid"
-                    borderColor={getStatusColor()}
-                    boxShadow="0 1px 4px rgba(0,0,0,0.2)"
-                  />
-                </MotionBox> */}
 							</Box>
 						</>
 					)}
 
-					{/* Current Step */}
 					{exportStatus === 'processing' && (
 						<MotionBox
 							initial={{ opacity: 0, y: -8 }}
@@ -547,30 +427,30 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 						>
 							<Box
 								p={3}
-								bg='blue.50'
+								bg='bg.elevated'
 								borderRadius='lg'
 								border='1px solid'
-								borderColor='blue.100'
+								borderColor='border.default'
 							>
 								<HStack spacing={2}>
 									<CircularProgress
 										size='16px'
 										thickness='4px'
-										color='blue.500'
+										color='accent.gold'
 										isIndeterminate
 									/>
 									<VStack align='start' spacing={0} flex={1}>
-										<Text fontSize='xs' fontWeight='medium' color='blue.700'>
+										<Text fontSize='xs' fontWeight='medium' color='text.body'>
 											{currentStep}
 										</Text>
-										<Text fontSize='2xs' color='blue.600'>
+										<Text fontSize='2xs' color='text.muted'>
 											This may take a moment...
 										</Text>
 									</VStack>
 									<Tooltip label='Export process details' placement='top'>
 										<Icon
 											as={FiInfo}
-											color='blue.500'
+											color='text.accent'
 											cursor='help'
 											boxSize={3.5}
 										/>
@@ -593,13 +473,22 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 			size='md'
 			motionPreset='scale'
 		>
-			<ModalOverlay backdropFilter='blur(10px)' bg='blackAlpha.600' />
-			<ModalContent borderRadius='2xl' maxW='520px' mx={4} overflow='hidden'>
+			<ModalOverlay bg='bg.overlay' backdropFilter='blur(10px)' />
+			<ModalContent
+				bg='bg.surface'
+				borderRadius='2xl'
+				maxW='520px'
+				mx={4}
+				overflow='hidden'
+				boxShadow='deep'
+			>
 				<ModalHeader
-					bg='linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-					color='white'
+					bg='accent.gold'
+					color='text.inverse'
 					py={3}
 					position='relative'
+					borderBottom='1px solid'
+					borderColor='border.default'
 				>
 					<Flex justify='space-between' align='center'>
 						<HStack spacing={3}>
@@ -615,7 +504,7 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 								<Icon as={getStatusIcon()} boxSize={6} />
 							</MotionBox>
 							<Box>
-								<Text fontSize='xl' fontWeight='bold'>
+								<Text fontSize='xl' color='text.inverse' fontWeight='bold'>
 									Export
 								</Text>
 							</Box>
@@ -625,13 +514,7 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 								whileHover={{ scale: 1.1 }}
 								whileTap={{ scale: 0.9 }}
 								cursor='pointer'
-								onClick={() => {
-									if (exportStatus === 'success') {
-										onClose();
-									} else {
-										onClose();
-									}
-								}}
+								onClick={onClose}
 							>
 								<Icon as={FiX} boxSize={5} />
 							</MotionBox>
@@ -639,37 +522,33 @@ const ExportModal = ({ isOpen, onClose, totalRecords = 0, params }) => {
 					</Flex>
 				</ModalHeader>
 
-				<ModalBody py={6} px={6}>
+				<ModalBody py={6} px={6} bg='bg.app'>
 					{renderProgressScreen()}
 				</ModalBody>
 
 				<ModalFooter
 					borderTop='1px solid'
-					borderColor='gray.200'
+					borderColor='border.default'
 					pt={5}
 					pb={6}
 					px={6}
+					bg='bg.surface'
 				>
 					<HStack spacing={3} w='full'>
 						{exportStatus !== 'success' ? (
-							<>
-								<Button
-									onClick={onClose}
-									variant='outline'
-									colorScheme='gray'
-									flex={1}
-									isDisabled={loading}
-								>
-									Cancel
-								</Button>
-							</>
+							<Button
+								onClick={onClose}
+								variant='outline'
+								flex={1}
+								isDisabled={loading}
+							>
+								Cancel
+							</Button>
 						) : (
 							<Button
 								onClick={onClose}
-								colorScheme='green'
+								variant='brand'
 								flex={1}
-								bg='linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)'
-								color='white'
 							>
 								Done
 							</Button>

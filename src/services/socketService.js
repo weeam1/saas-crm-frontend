@@ -14,6 +14,10 @@ import {
 	markLeadDecisionFinalized,
 } from '../redux/freshLeadPoolSlice';
 import keys from 'config/keys';
+import { addAnnouncement, addAnnouncements } from '../redux/announcementsSlice';
+import { NOTIFICATION_TYPES } from 'constants/notification.contants';
+import { triggerBrowserNotification } from './notification/browserNotification';
+import { setNotifyItem } from '../redux/notificationSlice';
 
 class SocketService {
 	constructor() {
@@ -35,6 +39,15 @@ class SocketService {
 			return this.connectionPromise;
 		}
 
+		const tenantId = localStorage.getItem('tenantId') || null;
+
+		console.log('Socket Tenant ID: ', tenantId);
+
+		if (!tenantId) {
+			console.error('Tenant ID not found');
+			return;
+		}
+
 		// Default options with merging
 		// transports: ['socket.io'],
 		const defaultOptions = {
@@ -46,6 +59,9 @@ class SocketService {
 			autoConnect: true,
 			forceNew: true,
 			timeout: 5000,
+			auth: {
+				tenantId,
+			},
 		};
 
 		this.socket = io(url, { ...defaultOptions, ...options });
@@ -56,6 +72,30 @@ class SocketService {
 				this.connectionStatus = 'connected';
 				// this.reconnectionAttempts = 0;
 				resolve(this.socket.id);
+			});
+
+			this.socket.on('notification', (payload) => {
+				console.log('New Notification:', payload);
+
+				triggerBrowserNotification({
+					title: payload?.title || 'Notification',
+					message: payload?.title || 'You received a new notification',
+				});
+
+				store.dispatch(setNotifyItem());
+
+				if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
+					store.dispatch(addAnnouncement(payload));
+				}
+			});
+
+			this.socket.on('unread_notifications', (payload) => {
+				console.log('Unread Notifications:', payload);
+
+				store.dispatch(addAnnouncements(payload));
+				// if (payload?.type === NOTIFICATION_TYPES.ANNOUNCEMENT) {
+				// 	store.dispatch(addAnnouncement(payload));
+				// }
 			});
 
 			this.socket.on('chatMessage', (msg) => {
@@ -126,7 +166,7 @@ class SocketService {
 			});
 
 			this.socket.on('activity_log_created', (data) => {
-				// console.log('Activity: ', data);
+				console.log('Activity: ', data);
 			});
 
 			this.socket.on('qr', (data) => {

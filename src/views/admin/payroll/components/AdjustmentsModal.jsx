@@ -24,6 +24,7 @@ import {
 	Textarea,
 } from '@chakra-ui/react';
 import { Icon, RepeatIcon } from 'lucide-react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const PREDEFINED_ADJUSTMENTS = [
 	{
@@ -70,6 +71,7 @@ const AdjustmentsModal = ({
 	employeeAdjustments = [],
 	currency = 'AED',
 }) => {
+	const colors = useModalColors();
 	const [adjustments, setAdjustments] = useState(() =>
 		employeeAdjustments?.length
 			? mergeAdjustments(employeeAdjustments)
@@ -93,23 +95,20 @@ const AdjustmentsModal = ({
 	};
 
 	function normalizeAdjustments(adjustments = []) {
-		return (
-			// .filter((a) => Number(a.amount) > 0) // drop zeros
-			adjustments.map((a) => {
-				const out = {
-					type: a.type, // BONUS | DEDUCTION | ...
-					calculation: a.calculation, // FIXED | PER_DAY
-					amount: Number(a.amount),
-					note: a?.note || '',
-				};
+		return adjustments.map((a) => {
+			const out = {
+				type: a.type,
+				calculation: a.calculation,
+				amount: Number(a.amount),
+				note: a?.note || '',
+			};
 
-				if (a.calculation === 'PER_DAY') {
-					out.days = Math.max(1, Math.min(30, Number(a.days || 1)));
-				}
+			if (a.calculation === 'PER_DAY') {
+				out.days = Math.max(1, Math.min(30, Number(a.days || 1)));
+			}
 
-				return out;
-			})
-		);
+			return out;
+		});
 	}
 
 	const handleSave = (mode = 'save') => {
@@ -126,6 +125,20 @@ const AdjustmentsModal = ({
 		setAdjustments(PREDEFINED_ADJUSTMENTS);
 	};
 
+	// Get badge color based on adjustment type
+	const getBadgeColors = (type) => {
+		switch (type) {
+			case 'DEDUCTION':
+				return { bg: colors.badgeErrorBg, color: colors.badgeErrorText };
+			case 'BONUS':
+				return { bg: colors.badgeSuccessBg, color: colors.badgeSuccessText };
+			case 'ALLOWANCE':
+				return { bg: colors.badgeInfoBg, color: colors.badgeInfoText };
+			default:
+				return { bg: colors.badgeWarningBg, color: colors.badgeWarningText };
+		}
+	};
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -134,20 +147,34 @@ const AdjustmentsModal = ({
 			isCentered
 			scrollBehavior='inside'
 		>
-			<ModalOverlay backdropFilter='blur(8px)' />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
 			<ModalContent
 				mx={{ base: 3, md: 8 }}
-				boxShadow='0 12px 45px rgba(0,0,0,0.25)'
+				boxShadow={colors.modalShadow}
 				borderRadius='2xl'
+				bg={colors.bg}
+				border='1px solid'
+				borderColor={colors.borderColor}
+				overflow='hidden'
 			>
-				<ModalHeader>Adjustments</ModalHeader>
-				<ModalCloseButton />
-				<ModalBody>
+				<ModalHeader
+					bg={colors.headerBg}
+					color={colors.headerText}
+					borderBottom='1px solid'
+					borderColor={colors.borderColor}
+				>
+					Adjustments
+				</ModalHeader>
+				<ModalCloseButton
+					color={colors.headerText}
+					_hover={{ bg: colors.closeBtnHoverBg }}
+				/>
+				<ModalBody py={4}>
 					<VStack spacing={4} align='stretch'>
 						<HStack justifyContent='space-between'>
-							<Text fontSize='sm' color='gray.600'>
+							<Text fontSize='sm' color={colors.mutedText}>
 								Currency:{' '}
-								<Text as='span' fontWeight='semibold'>
+								<Text as='span' fontWeight='semibold' color={colors.headingText}>
 									{currency}
 								</Text>
 							</Text>
@@ -155,111 +182,164 @@ const AdjustmentsModal = ({
 							<Button
 								size='sm'
 								variant='ghost'
-								colorScheme='cyan'
 								onClick={handleReset}
 								leftIcon={<RepeatIcon />}
+								color={colors.bodyText}
+								_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 							>
 								Reset
 							</Button>
 						</HStack>
 
-						{adjustments?.map((adj) => (
-							<Box key={adj.type} p={2} bg='gray.50' borderRadius='md'>
-								<VStack spacing={1} align='stretch'>
-									{/* Row: Name | Calculation | Amount */}
-									<Badge
-										colorScheme={
-											adj.type === 'DEDUCTION'
-												? 'red'
-												: adj.type === 'BONUS'
-													? 'blue'
-													: adj.type === 'ALLOWANCE'
-														? 'green'
-														: 'orange'
-										}
-										width='fit-content'
-										py='2'
-										px='4'
-									>
-										{adj.type}
-									</Badge>
-									<HStack spacing={3} w='full'>
-										{(adj.type === 'BONUS' || adj.type === 'DEDUCTION') && (
-											<Select
-												size='md'
-												maxWidth='120px'
-												value={adj.calculation}
-												onChange={(e) =>
-													handleChange(adj.type, 'calculation', e.target.value)
-												}
-											>
-												<option value='FIXED'>Fixed</option>
-												<option value='PER_DAY'>Per Day</option>
-											</Select>
-										)}
+						{adjustments?.map((adj) => {
+							const badgeColors = getBadgeColors(adj.type);
+							return (
+								<Box
+									key={adj.type}
+									p={3}
+									bg={colors.bgInput}
+									borderRadius='md'
+									border='1px solid'
+									borderColor={colors.borderColor}
+								>
+									<VStack spacing={3} align='stretch'>
+										{/* Row: Name | Calculation | Amount */}
+										<Badge
+											bg={badgeColors.bg}
+											color={badgeColors.color}
+											width='fit-content'
+											py='1'
+											px='3'
+											borderRadius='full'
+										>
+											{adj.type}
+										</Badge>
 
-										{/* Days input if PER_DAY */}
-										{(adj.type === 'BONUS' || adj.type === 'DEDUCTION') &&
-											adj.calculation === 'PER_DAY' && (
-												<NumberInput
+										<HStack spacing={3} w='full' flexWrap='wrap'>
+											{(adj.type === 'BONUS' || adj.type === 'DEDUCTION') && (
+												<Select
 													size='md'
-													width='120px'
-													min={0}
-													value={adj.days || 1}
-													onChange={(value) =>
-														handleChange(adj.type, 'days', parseInt(value) || 1)
+													maxWidth='120px'
+													value={adj.calculation}
+													onChange={(e) =>
+														handleChange(adj.type, 'calculation', e.target.value)
 													}
+													bg={colors.bg}
+													borderColor={colors.borderColor}
+													color={colors.headingText}
+													_hover={{ borderColor: colors.accentGold }}
+													_focus={{
+														borderColor: colors.accentGold,
+														boxShadow: `0 0 0 1px ${colors.accentGold}`,
+													}}
 												>
-													<NumberInputField placeholder='Days' />
-													<NumberInputStepper>
-														<NumberIncrementStepper />
-														<NumberDecrementStepper />
-													</NumberInputStepper>
-												</NumberInput>
+													<option value='FIXED' style={{ background: colors.bg, color: colors.headingText }}>Fixed</option>
+													<option value='PER_DAY' style={{ background: colors.bg, color: colors.headingText }}>Per Day</option>
+												</Select>
 											)}
 
-										<NumberInput
-											size='md'
-											width='100px'
-											flex='1'
-											min={0}
-											value={adj.amount}
-											onChange={(value) =>
-												handleChange(adj.type, 'amount', parseFloat(value))
-											}
-										>
-											<NumberInputField placeholder='Amount' />
-											<NumberInputStepper>
-												<NumberIncrementStepper />
-												<NumberDecrementStepper />
-											</NumberInputStepper>
-										</NumberInput>
-									</HStack>
+											{/* Days input if PER_DAY */}
+											{(adj.type === 'BONUS' || adj.type === 'DEDUCTION') &&
+												adj.calculation === 'PER_DAY' && (
+													<NumberInput
+														size='md'
+														width='120px'
+														min={0}
+														value={adj.days || 1}
+														onChange={(value) =>
+															handleChange(adj.type, 'days', parseInt(value) || 1)
+														}
+													>
+														<NumberInputField
+															bg={colors.bg}
+															borderColor={colors.borderColor}
+															color={colors.headingText}
+															_hover={{ borderColor: colors.accentGold }}
+															_focus={{
+																borderColor: colors.accentGold,
+																boxShadow: `0 0 0 1px ${colors.accentGold}`,
+															}}
+														/>
+														<NumberInputStepper>
+															<NumberIncrementStepper />
+															<NumberDecrementStepper />
+														</NumberInputStepper>
+													</NumberInput>
+												)}
 
-									{/* NOTE INPUT */}
-									<Textarea
-										value={adj.note || ''}
-										onChange={(e) =>
-											handleChange(adj.type, 'note', e.target.value)
-										}
-										placeholder='Optional note…'
-										maxH='50px'
-										resize='none'
-										overflowY='auto'
-										size='sm'
-									/>
-								</VStack>
-							</Box>
-						))}
-						<Divider />
+											<NumberInput
+												size='md'
+												width='100px'
+												flex='1'
+												min={0}
+												value={adj.amount}
+												onChange={(value) =>
+													handleChange(adj.type, 'amount', parseFloat(value))
+												}
+											>
+												<NumberInputField
+													bg={colors.bg}
+													borderColor={colors.borderColor}
+													color={colors.headingText}
+													placeholder='Amount'
+													_hover={{ borderColor: colors.accentGold }}
+													_focus={{
+														borderColor: colors.accentGold,
+														boxShadow: `0 0 0 1px ${colors.accentGold}`,
+													}}
+												/>
+												<NumberInputStepper>
+													<NumberIncrementStepper />
+													<NumberDecrementStepper />
+												</NumberInputStepper>
+											</NumberInput>
+										</HStack>
+
+										{/* NOTE INPUT */}
+										<Textarea
+											value={adj.note || ''}
+											onChange={(e) =>
+												handleChange(adj.type, 'note', e.target.value)
+											}
+											placeholder='Optional note…'
+											maxH='50px'
+											resize='none'
+											overflowY='auto'
+											size='sm'
+											bg={colors.bg}
+											borderColor={colors.borderColor}
+											color={colors.headingText}
+											_placeholder={{ color: colors.mutedText }}
+											_hover={{ borderColor: colors.accentGold }}
+											_focus={{
+												borderColor: colors.accentGold,
+												boxShadow: `0 0 0 1px ${colors.accentGold}`,
+											}}
+										/>
+									</VStack>
+								</Box>
+							);
+						})}
+						<Divider borderColor={colors.borderColor} />
 					</VStack>
 				</ModalBody>
 
-				<ModalFooter>
-					<Button variant='outline' onClick={() => handleSave('skip')}>
+				<ModalFooter
+					bg={colors.footerBg}
+					borderTop='1px solid'
+					borderColor={colors.borderColor}
+					gap={3}
+				>
+					<Button
+						variant='outline'
+						onClick={() => handleSave('skip')}
+					>
 						Skip & Generate
 					</Button>
-					<Button colorScheme='green' ml={6} onClick={() => handleSave('save')}>
+					<Button
+						variant='brand'
+						onClick={() => handleSave('save')}
+					>
 						Save & Generate
 					</Button>
 				</ModalFooter>

@@ -1,7 +1,9 @@
 import { Box, Select } from '@chakra-ui/react';
 import React from 'react';
+import { useModalColors } from 'hooks/useModalColors';
 
 const ApplicationStatus = ({ candidate, newStatus, setNewStatus }) => {
+	const colors = useModalColors();
 	const disabledOption =
 		candidate.status === 'Eligible' && candidate.inviteAccepted;
 
@@ -9,7 +11,7 @@ const ApplicationStatus = ({ candidate, newStatus, setNewStatus }) => {
 		<Box mt='2' fontSize='sm'>
 			<Box
 				htmlFor='status'
-				color='gray.800'
+				color={colors.labelColor}
 				px='1'
 				mb='1'
 				fontWeight='500'
@@ -25,22 +27,24 @@ const ApplicationStatus = ({ candidate, newStatus, setNewStatus }) => {
 				rounded='md'
 				fontSize='sm'
 				shadow='sm'
-				borderColor='gray.300'
+				bg={colors.bgInput}
+				borderColor={colors.borderColor}
+				color={colors.headingText}
 				_focus={{
-					borderColor: 'brand.500', // Apply brand color on focus
-					boxShadow: '0 0 0 1px var(--chakra-colors-brand-500)', // Highlight with brand color
+					borderColor: colors.accentGold,
+					boxShadow: `0 0 0 1px ${colors.accentGold}`,
 				}}
 				_hover={{
-					borderColor: 'brand.500', // Apply brand color on hover
+					borderColor: colors.accentGold,
 				}}
 			>
-				<option disabled value='Pending'>
+				<option disabled value='Pending' style={{ background: colors.bg, color: colors.mutedText }}>
 					Select status
 				</option>
-				<option value='Eligible' disabled={disabledOption}>
+				<option value='Eligible' disabled={disabledOption} style={{ background: colors.bg, color: colors.headingText }}>
 					Eligible
 				</option>
-				<option value='Not Eligible' disabled={disabledOption}>
+				<option value='Not Eligible' disabled={disabledOption} style={{ background: colors.bg, color: colors.headingText }}>
 					Not Eligible
 				</option>
 			</Select>

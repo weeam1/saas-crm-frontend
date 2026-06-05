@@ -8,8 +8,6 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
-import { FiFilter } from "react-icons/fi";
-
 import TopPagination from "components/pagination/TopPagination";
 import CountUpComponent from "components/countUpComponent/countUpComponent";
 import AgencyFilterModal from "../components/AgencyFilterModal";
@@ -23,8 +21,10 @@ import SearchBox from "views/admin/payroll/components/SearchBox";
 import RefreshButton from "components/refresh/RefreshButton";
 import ViewToggle from "components/toggle/ViewToggle";
 import UserEvaluationCards from "./UserEvaluationCard";
+import { useModalColors } from "hooks/useModalColors";
 
 const MyEvaluation = () => {
+  const colors = useModalColors();
   const {
     month,
     year,
@@ -67,16 +67,12 @@ const MyEvaluation = () => {
       setMyFilters(newFilters);
       setMyPagination((prev) => ({ ...prev, page: 1 }));
 
-      // Clear searchTerm when "search" filter is cleared
       if (filterKey === "search") {
         setSearchTerm("");
       }
     } else {
-      // Clear all filters
       setMyFilters({});
       setMyPagination((prev) => ({ ...prev, page: 1 }));
-
-      // Clear search term
       setSearchTerm("");
     }
   };
@@ -90,7 +86,7 @@ const MyEvaluation = () => {
     setMyFilters(cleanedFilters);
     setMyPagination((prev) => ({ ...prev, page: 1 }));
   };
-  // Add this function inside the component, before return
+
   const handleMySearchTermChange = (searchQuery) => {
     const trimmed = searchQuery?.trim() || "";
 
@@ -101,7 +97,6 @@ const MyEvaluation = () => {
       }));
       setMyPagination((prev) => ({ ...prev, page: 1 }));
     } else {
-      // remove search key from filters
       setMyFilters((prev) => {
         const updated = { ...prev };
         delete updated.search;
@@ -110,19 +105,18 @@ const MyEvaluation = () => {
       setMyPagination((prev) => ({ ...prev, page: 1 }));
     }
 
-    // Always update the searchTerm state
     setSearchTerm(searchQuery);
   };
-
-  // Then update the SearchBox usage:
 
   return (
     <Box
       p={{ base: 4, md: 6 }}
-      bg="white"
+      bg={colors.bg}
       minH="80vh"
-      borderRadius="md"
-      boxShadow="sm"
+      borderRadius="lg"
+      boxShadow={colors.cardShadow}
+      border="1px solid"
+      borderColor={colors.borderColor}
     >
       {/* Header */}
       <Flex
@@ -142,7 +136,7 @@ const MyEvaluation = () => {
           justify={{ base: "center", md: "flex-start" }}
           w={{ base: "100%", md: "auto" }}
         >
-          <Text textAlign={{ base: "center", md: "left" }}>
+          <Text textAlign={{ base: "center", md: "left" }} color={colors.headingText}>
             {user?.firstName} Evaluations
           </Text>
           <CountUpComponent
@@ -180,13 +174,10 @@ const MyEvaluation = () => {
             />
           </Box>
 
-          {/* Search */}
+          {/* Search Box - Uncomment when ready */}
           {/* <Box w={{ base: "100%", sm: "auto" }} flexShrink={1}>
             <SearchBox
-              onSearchTermChange={(value) => {
-                setSearchTerm(value);
-                handleMySearchTermChange(value); // Use the new handler
-              }}
+              onSearchTermChange={handleMySearchTermChange}
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
             />

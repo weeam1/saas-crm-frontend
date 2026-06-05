@@ -14,8 +14,10 @@ import {
 import { FiUpload, FiCheck, FiTrash2 } from "react-icons/fi";
 import { useDeleteItemMutation, useCreateItemMutation } from "api/apiSlice";
 import { toast } from "react-toastify";
+import { useModalColors } from 'hooks/useModalColors';
 
 const FileUpload = ({files, setFiles}) => {
+  const colors = useModalColors();
   const [uploading, setUploading] = useState({});
   const [isDragging, setIsDragging] = useState(false);
 
@@ -30,7 +32,7 @@ const FileUpload = ({files, setFiles}) => {
       const response = await uploadDocument({
         path: `/listing/secondary/upload-documents`,
         body: formData,
-       	formData: true,
+        formData: true,
       }).unwrap();
 
       return response.url;
@@ -66,7 +68,6 @@ const FileUpload = ({files, setFiles}) => {
 
       try {
         const uploadedUrl = await uploadFile(file);
-
         setFiles((prev) => [...prev, uploadedUrl]);
       } catch (error) {
         // Do nothing, error already toasts
@@ -81,7 +82,6 @@ const FileUpload = ({files, setFiles}) => {
   };
 
   const removeFile = async (url) => {
-
     const success = await deleteFileFromServer(url);
     if (success) {
       setFiles((prev) => prev.filter((f) => f !== url));
@@ -108,53 +108,68 @@ const FileUpload = ({files, setFiles}) => {
   return (
     <Box width="100%" maxW="600px" mx="auto" p={4}>
       <VStack spacing={4}>
+        {/* Drop Zone */}
         <Box
           border="2px dashed"
-          borderColor={isDragging ? "blue.500" : "gray.300"}
+          borderColor={isDragging ? colors.accentGold : colors.borderColor}
           borderRadius="lg"
           p={8}
           textAlign="center"
           width="100%"
-          bg={isDragging ? "blue.50" : "gray.50"}
+          bg={isDragging ? colors.bgDeep : colors.bgInput}
+          transition="all 0.2s ease"
           onDragEnter={(e) => handleDragEvents(e, "enter")}
           onDragLeave={(e) => handleDragEvents(e, "leave")}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
         >
-          <Icon as={FiUpload} boxSize={8} color="gray.500" mb={2} />
-          <Text fontSize="lg" fontWeight="semibold" mb={1}>
+          <Icon as={FiUpload} boxSize={8} color={colors.mutedText} mb={2} />
+          <Text fontSize="lg" fontWeight="semibold" mb={1} color={colors.headingText}>
             Drag and drop files here
           </Text>
-          <Text color="gray.500" mb={4}>
+          <Text color={colors.mutedText} mb={4}>
             or
           </Text>
-          <Button as="label" colorScheme="brand" cursor="pointer" htmlFor="file-upload">
+          <Button
+            as="label"
+            variant="brand"
+            cursor="pointer"
+            htmlFor="file-upload"
+          >
             Browse Files
-            <input 
-              type="file" 
-              id="file-upload" 
-              hidden 
-              onChange={handleFileInput} 
-              multiple 
+            <input
+              type="file"
+              id="file-upload"
+              hidden
+              onChange={handleFileInput}
+              multiple
             />
           </Button>
         </Box>
 
+        {/* Uploaded Files List */}
         {files.length > 0 && (
           <Box width="100%">
-            <Text fontSize="md" fontWeight="semibold" mb={2}>
+            <Text fontSize="md" fontWeight="semibold" mb={2} color={colors.headingText}>
               Uploaded Files ({files.length})
             </Text>
             <VStack spacing={3} align="stretch">
               {files.map((url) => {
                 const name = url.split("/").pop();
                 return (
-                  <Box key={url} borderWidth="1px" borderRadius="lg" p={3}>
+                  <Box
+                    key={url}
+                    borderWidth="1px"
+                    borderColor={colors.borderColor}
+                    borderRadius="lg"
+                    p={3}
+                    bg={colors.bg}
+                  >
                     <Flex justify="space-between" align="center">
                       <Box flex="1" minW="0">
                         <HStack spacing={2}>
                           <Tooltip label={name} hasArrow>
-                            <Text isTruncated fontWeight="medium">
+                            <Text isTruncated fontWeight="medium" color={colors.headingText}>
                               {name}
                             </Text>
                           </Tooltip>
@@ -162,9 +177,15 @@ const FileUpload = ({files, setFiles}) => {
 
                         {uploading[name] && (
                           <>
-                            <Progress value={80} size="xs" colorScheme="blue" mt={2} mb={1} />
+                            <Progress
+                              value={80}
+                              size="xs"
+                              colorScheme="yellow"
+                              mt={2}
+                              mb={1}
+                            />
                             <Flex justify="space-between" align="center">
-                              <Text fontSize="sm" color="gray.500">
+                              <Text fontSize="sm" color={colors.mutedText}>
                                 Uploading...
                               </Text>
                             </Flex>
@@ -173,10 +194,10 @@ const FileUpload = ({files, setFiles}) => {
 
                         {!uploading[name] && (
                           <Flex align="center" gap={2} mt={2}>
-                            <Text fontSize="sm" color="green.500">
+                            <Text fontSize="sm" color={colors.badgeSuccessText}>
                               Upload complete
                             </Text>
-                            <Icon as={FiCheck} color="green.500" />
+                            <Icon as={FiCheck} color={colors.badgeSuccessText} />
                           </Flex>
                         )}
                       </Box>
@@ -185,10 +206,11 @@ const FileUpload = ({files, setFiles}) => {
                         icon={<FiTrash2 />}
                         aria-label={`Remove ${name}`}
                         variant="ghost"
-                        colorScheme="red"
                         size="sm"
                         ml={2}
                         onClick={() => removeFile(url)}
+                        color={colors.badgeErrorText}
+                        _hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
                       />
                     </Flex>
                   </Box>
@@ -200,7 +222,6 @@ const FileUpload = ({files, setFiles}) => {
       </VStack>
     </Box>
   );
-
 };
 
 export default FileUpload;

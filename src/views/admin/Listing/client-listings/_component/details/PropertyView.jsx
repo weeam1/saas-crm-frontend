@@ -70,92 +70,10 @@ const MotionBox = motion(Box);
 
 // Document item component
 const DocumentItem = ({ document, index }) => {
-	const [copied, setCopied] = useState(false);
-	const [viewing, setViewing] = useState(false);
-
 	const fileName = getFileName(document);
 	const documentUrl = getDocumentUrl(document);
 	const fileExtension = fileName?.split('.').pop().toLowerCase();
 	const IconComponent = FaIcons[getDocumentIcon(fileName)] || FaFileAlt;
-
-	console.log({ documentUrl });
-
-	// const handleCopyLink = () => {
-	// 	navigator.clipboard
-	// 		.writeText(documentUrl)
-	// 		.then(() => {
-	// 			setCopied(true);
-	// 			toast.success('Link copied!');
-	// 			setTimeout(() => setCopied(false), 2000);
-	// 		})
-	// 		.catch(() => {
-	// 			toast.error('Failed to copy');
-	// 		});
-	// };
-
-	// const handleViewDocument = () => {
-	// 	if (fileExtension === 'pdf') {
-	// 		window.open(documentUrl, '_blank');
-	// 	} else {
-	// 		// For non-PDF files, download instead
-	// 		handleDownload();
-	// 	}
-	// };
-
-	// const handleViewDocument = async () => {
-	// 	if (!documentUrl) {
-	// 		toast.error('Document URL is missing.');
-	// 		return;
-	// 	}
-
-	// 	const exists = await checkFileExists(documentUrl);
-
-	// 	if (!exists) {
-	// 		toast.error('Document not found or no longer available.');
-	// 		return;
-	// 	}
-
-	// 	if (fileExtension === 'pdf') {
-	// 		window.open(documentUrl, '_blank', 'noopener,noreferrer');
-	// 	} else {
-	// 		handleDownload(); // reuse logic
-	// 	}
-	// };
-
-	// const handleDownload = async () => {
-	// 	if (!documentUrl) {
-	// 		toast.error('Document URL is missing.');
-	// 		return;
-	// 	}
-
-	// 	const exists = await checkFileExists(documentUrl);
-	// 	if (!exists) {
-	// 		toast.error('Document not found or download failed.');
-	// 		return;
-	// 	}
-
-	// 	try {
-	// 		const response = await fetch(documentUrl);
-	// 		if (!response.ok) throw new Error('Network response not ok');
-
-	// 		const blob = await response.blob();
-	// 		const url = window.URL.createObjectURL(blob);
-
-	// 		const link = document.createElement('a');
-	// 		link.href = url;
-	// 		link.download = fileName || 'document';
-	// 		document.body.appendChild(link);
-	// 		link.click();
-	// 		link.remove();
-
-	// 		window.URL.revokeObjectURL(url);
-
-	// 		toast.success('Download started...');
-	// 	} catch (err) {
-	// 		console.error(err);
-	// 		toast.error('Unable to start download.');
-	// 	}
-	// };
 
 	const handleDownload = async () => {
 		if (!documentUrl) {
@@ -224,14 +142,12 @@ const DocumentItem = ({ document, index }) => {
 				p={4}
 				borderRadius='lg'
 				borderWidth='1px'
-				borderColor='gray.200'
-				bg='white'
-				_dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
+				borderColor='border.default'
+				bg='bg.surface'
 				_hover={{
 					transform: 'translateY(-2px)',
 					boxShadow: 'md',
-					borderColor: 'blue.200',
-					_dark: { borderColor: 'blue.500' },
+					borderColor: 'border.default',
 				}}
 				transition='all 0.2s'
 			>
@@ -331,11 +247,12 @@ const PropertyView = () => {
 	const navigate = useNavigate();
 
 	// Color values for light/dark mode
-	const modalBg = useColorModeValue('white', 'gray.800');
-	const borderColor = useColorModeValue('gray.200', 'gray.700');
-	const textSecondary = useColorModeValue('gray.600', 'gray.400');
-	const cardBg = useColorModeValue('gray.50', 'gray.900');
-	const accentColor = useColorModeValue('blue.500', 'blue.300');
+	// const modalBg = useColorModeValue('white', 'gray.800');
+	// const textSecondary = useColorModeValue('gray.600', 'gray.400');
+	// const cardBg = useColorModeValue('gray.50', 'gray.900');
+	const modalBg = 'bg.surface';
+	const textSecondary = 'text.secondary';
+	const cardBg = 'bg.surface';
 
 	const { data, isLoading } = useFetchItemsQuery(
 		{
@@ -345,7 +262,7 @@ const PropertyView = () => {
 			refetchOnFocus: true,
 			refetchOnMountOrArgChange: true,
 			refetchOnReconnect: false,
-		}
+		},
 	);
 
 	const property = data?.doc || null;
@@ -388,6 +305,8 @@ const PropertyView = () => {
 							onClick={() => navigate(-1)}
 							size='md'
 							isRound
+							variant='ghost'
+							colorScheme='brand'
 							mb='2'
 						/>
 
@@ -404,7 +323,9 @@ const PropertyView = () => {
 								align={{ base: 'flex-start', md: 'center' }}
 							>
 								<VStack align='start' spacing={1}>
-									<Heading size='md'>{property?.projectName}</Heading>
+									<Heading size='md' textTransform='capitalize'>
+										{property?.projectName}
+									</Heading>
 									<HStack spacing={2}>
 										<Badge
 											bg='teal.100'
@@ -456,10 +377,9 @@ const PropertyView = () => {
 									<Box
 										p={6}
 										borderRadius='xl'
-										bgGradient='linear(to-r, blue.50, purple.50)'
-										_dark={{ bgGradient: 'linear(to-r, blue.900, purple.900)' }}
 										border='1px solid'
-										borderColor='blue.100'
+										borderColor='border.default'
+										bg='brand.800'
 										// _dark={{ borderColor: 'blue.800' }}
 									>
 										<HStack justify='space-between' mb={4}>
@@ -489,12 +409,12 @@ const PropertyView = () => {
 											<VStack align='start' spacing={1}>
 												<Heading
 													size='lg'
-													color='gray.800'
+													color='gray.100'
 													_dark={{ color: 'white' }}
 												>
 													{formatCurrency(
 														property?.sellingPrice,
-														property?.currency
+														property?.currency,
 													)}
 												</Heading>
 												<Text fontSize='sm' color={textSecondary}>
@@ -511,14 +431,13 @@ const PropertyView = () => {
 										borderRadius='xl'
 										bg={cardBg}
 										border='1px solid'
-										borderColor='gray.200'
-										_dark={{ borderColor: 'gray.700' }}
+										borderColor='border.default'
 									>
 										<HStack mb={6}>
 											<Icon as={FaUserTie} color='blue.500' boxSize={5} />
 											<Heading
 												size='md'
-												color='gray.700'
+												color='gray.100'
 												_dark={{ color: 'white' }}
 											>
 												Landlord Contact
@@ -553,13 +472,12 @@ const PropertyView = () => {
 									borderRadius='xl'
 									bg={cardBg}
 									border='1px solid'
-									borderColor='gray.200'
-									_dark={{ borderColor: 'gray.700' }}
+									borderColor='border.default'
 								>
 									<Heading
 										size='md'
 										mb={4}
-										color='gray.700'
+										color='gray.100'
 										_dark={{ color: 'white' }}
 									>
 										Property Details
@@ -613,87 +531,12 @@ const PropertyView = () => {
 							</GridItem>
 
 							<GridItem>
-								{/* Location Card */}
-								{/* <Box
-									p={6}
-									borderRadius='xl'
-									bg={cardBg}
-									border='1px solid'
-									borderColor='gray.200'
-									_dark={{ borderColor: 'gray.700' }}
-								>
-									<HStack mb={4}>
-										<Icon as={FaMapMarkerAlt} color='red.500' boxSize={5} />
-										<Heading
-											size='md'
-											color='gray.700'
-											_dark={{ color: 'white' }}
-										>
-											Location
-										</Heading>
-									</HStack>
-
-									<VStack spacing={3} align='start'>
-										<Text
-											fontSize={{ base: 'sm', md: 'md' }}
-											fontWeight='medium'
-										>
-											{property?.location}
-										</Text>
-										<HStack w='full' justifyContent='space-between'>
-											<Text
-												fontSize={{ base: 'sm', md: 'md' }}
-												fontWeight='medium'
-											>
-												City
-											</Text>
-											<Text
-												fontSize={{ base: 'sm', md: 'md' }}
-												fontWeight='medium'
-											>
-												{property?.city}
-											</Text>
-										</HStack>
-
-										{property?.country && (
-											<HStack
-												spacing={3}
-												p={3}
-												bg='white'
-												_dark={{ bg: 'gray.800' }}
-												borderRadius='lg'
-												w='full'
-											>
-												{property?.country.flags && (
-													<Image
-														src={
-															property?.country.flags?.svg ||
-															property?.country.flags?.png
-														}
-														alt={property?.country.name}
-														// boxSize='30px'
-														w='30px'
-														h='20px'
-														objectFit='cover'
-														borderRadius='sm'
-													/>
-												)}
-												<VStack align='start' spacing={0}>
-													<Text fontSize='sm' fontWeight='medium'>
-														{property?.country.name}
-													</Text>
-												</VStack>
-											</HStack>
-										)}
-									</VStack>
-								</Box> */}
-
 								<VStack
 									p={6}
 									borderRadius='xl'
 									bg={cardBg}
 									border='1px solid'
-									borderColor='gray.200'
+									borderColor='border.default'
 									align='start'
 									spacing={5}
 								>
@@ -701,7 +544,7 @@ const PropertyView = () => {
 										<Icon as={FaMapMarkerAlt} color='red.500' boxSize={5} />
 										<Heading
 											size='md'
-											color='gray.700'
+											color='gray.100'
 											_dark={{ color: 'white' }}
 										>
 											Unit Area Location
@@ -759,13 +602,13 @@ const PropertyView = () => {
 									borderRadius='xl'
 									bg={cardBg}
 									border='1px solid'
-									borderColor='gray.200'
+									borderColor='border.default'
 									_dark={{ borderColor: 'gray.700' }}
 								>
 									<HStack mb={4}>
 										<Heading
 											size='md'
-											color='gray.700'
+											color='gray.100'
 											_dark={{ color: 'white' }}
 										>
 											Description
@@ -773,15 +616,15 @@ const PropertyView = () => {
 									</HStack>
 
 									<Box
-										p={4}
-										bg='white'
-										_dark={{ bg: 'gray.800' }}
-										borderRadius='lg'
-										border='1px solid'
-										borderColor='gray.200'
+										p={2}
+										// bg='white'
+										// _dark={{ bg: 'gray.800' }}
+										// borderRadius='lg'
+										// border='1px solid'
+										// borderColor='gray.200'
 									>
 										<Text
-											color='gray.700'
+											color='text.body'
 											lineHeight={2}
 											fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
 											fontWeight='semibold'
@@ -842,15 +685,6 @@ const Overview = ({ property }) => {
 						</HStack>
 
 						<HStack spacing={4} align='center'>
-							{/* <Box
-								p={3}
-								borderRadius='lg'
-								bg='white'
-								_dark={{ bg: 'gray.800' }}
-								boxShadow='sm'
-							>
-								<Icon as={FaDollarSign} boxSize={6} color='green.500' />
-							</Box> */}
 							<VStack align='start' spacing={1}>
 								<Heading size='lg' color='gray.800' _dark={{ color: 'white' }}>
 									{formatCurrency(property?.sellingPrice, property?.currency)}
@@ -1022,105 +856,18 @@ const Overview = ({ property }) => {
 	);
 };
 
-const Details = ({ property }) => {
-	const textSecondary = useColorModeValue('gray.600', 'gray.400');
-	const cardBg = useColorModeValue('gray.50', 'gray.900');
-
-	return (
-		<VStack spacing={6} align='stretch'>
-			{/* Description Card */}
-			<Box
-				p={6}
-				borderRadius='xl'
-				bg={cardBg}
-				border='1px solid'
-				borderColor='gray.200'
-				_dark={{ borderColor: 'gray.700' }}
-			>
-				<HStack mb={4}>
-					<Icon as={MdDescription} color='blue.500' boxSize={5} />
-					<Heading size='md' color='gray.700' _dark={{ color: 'white' }}>
-						Description
-					</Heading>
-				</HStack>
-
-				<Box
-					p={4}
-					bg='white'
-					_dark={{ bg: 'gray.800' }}
-					borderRadius='lg'
-					border='1px solid'
-					borderColor='gray.200'
-					// _dark={{ borderColor: 'gray.700' }}
-				>
-					<Text color='gray.700' _dark={{ color: 'gray.300' }}>
-						{property?.description || 'No description provided.'}
-					</Text>
-				</Box>
-			</Box>
-
-			{/* Additional Information */}
-			<Grid
-				templateColumns={{
-					base: '1fr',
-					md: 'repeat(2, 1fr)',
-					lg: 'repeat(3, 1fr)',
-				}}
-				gap={6}
-			>
-				<InfoCard
-					title='Listing Info'
-					icon={FaTag}
-					items={[
-						{ label: 'Listing Number', value: property?.listingNumber },
-						{ label: 'Status', value: getStatusText(property?.status) },
-						{ label: 'Created', value: formatDate(property?.createdAt) },
-						{ label: 'Updated', value: formatDate(property?.updatedAt) },
-					]}
-					color='purple'
-				/>
-
-				<InfoCard
-					title='Property Info'
-					icon={FaBuilding}
-					items={[
-						{ label: 'Unit Type', value: property?.unitType?.name },
-						{ label: 'Sub Unit Type', value: property?.subUnitType?.name },
-						{ label: 'Listing Type', value: property?.listingType?.name },
-						{ label: 'Building Age', value: property?.buildingAge },
-					]}
-					color='green'
-				/>
-
-				<InfoCard
-					title='Financial Info'
-					icon={FaDollarSign}
-					items={[
-						{
-							label: 'Price',
-							value: formatCurrency(property?.sellingPrice, property?.currency),
-						},
-						{ label: 'Currency', value: property?.currency?.raw?.name },
-						{ label: 'Area', value: `${property?.area} sq. ft` },
-						{
-							label: 'Price per sq. ft',
-							value: `${(property?.sellingPrice / property?.area).toFixed(2)}`,
-						},
-					]}
-					color='blue'
-				/>
-			</Grid>
-		</VStack>
-	);
-};
-
 const Documents = ({ property }) => {
 	const textSecondary = useColorModeValue('gray.600', 'gray.400');
 	const cardBg = useColorModeValue('gray.50', 'gray.900');
 
 	if (!property?.documents || property?.documents.length === 0) {
 		return (
-			<Box textAlign='center' py={10}>
+			<Box
+				textAlign='center'
+				bg='bg.surface'
+				borderColor='border.default'
+				py={10}
+			>
 				<Icon as={FaFileAlt} boxSize={16} color='gray.300' mb={4} />
 				<Heading size='md' color='gray.500' mb={2}>
 					No Documents Available
@@ -1134,78 +881,12 @@ const Documents = ({ property }) => {
 
 	return (
 		<VStack spacing={6} align='stretch'>
-			{/* Document Statistics */}
-			{/* <Box
-				p={6}
-				borderRadius='xl'
-				bg={cardBg}
-				border='1px solid'
-				borderColor='gray.200'
-				_dark={{ borderColor: 'gray.700' }}
-			>
-				<HStack justify='space-between' mb={4}>
-					<Heading size='md' color='gray.700' _dark={{ color: 'white' }}>
-						Documents ({property?.documents.length})
-					</Heading>
-			
-				</HStack>
-
-				<Grid templateColumns='repeat(4, 1fr)' gap={4} mb={6}>
-					<StatCard
-						label='Total Files'
-						value={property?.documents.length}
-						icon={FaFileAlt}
-						color='blue'
-					/>
-					<StatCard
-						label='PDF Files'
-						value={property?.documents.filter((d) => d.endsWith('.pdf')).length}
-						icon={FaFilePdf}
-						color='red'
-					/>
-					<StatCard
-						label='Image Files'
-						value={
-							property?.documents.filter((d) =>
-								['.jpg', '.jpeg', '.png'].some((ext) => d.endsWith(ext))
-							).length
-						}
-						icon={FaFileImage}
-						color='purple'
-					/>
-					<StatCard
-						label='Other Files'
-						value={
-							property?.documents.filter(
-								(d) =>
-									!d.endsWith('.pdf') &&
-									!['.jpg', '.jpeg', '.png'].some((ext) => d.endsWith(ext))
-							).length
-						}
-						icon={FaFileArchive}
-						color='green'
-					/>
-				</Grid>
-			</Box> */}
-
 			{/* Document List */}
 			<VStack spacing={4} align='stretch'>
 				<HStack justify='space-between' align='center'>
-					<Heading size='sm' color='gray.700' _dark={{ color: 'white' }}>
+					<Heading size='sm' color='gray.100' _dark={{ color: 'white' }}>
 						All Documents
 					</Heading>
-					{/* <Button
-						size='sm'
-						colorScheme='blue'
-						variant='outline'
-						leftIcon={<FaDownload />}
-						onClick={() => {
-							// Implement bulk download
-							console.log('Bulk download');
-						}}
-					>
-						Download All
-					</Button> */}
 				</HStack>
 
 				{property?.documents.map((doc, index) => (
@@ -1218,7 +899,7 @@ const Documents = ({ property }) => {
 
 // Reusable Components
 const DetailItem = ({ icon, label, value, color }) => {
-	const textSecondary = useColorModeValue('gray.600', 'gray.400');
+	const textSecondary = useColorModeValue('gray.400', 'gray.400');
 
 	return (
 		<HStack spacing={3}>
@@ -1235,7 +916,12 @@ const DetailItem = ({ icon, label, value, color }) => {
 				<Text fontSize='xs' color={textSecondary}>
 					{label}
 				</Text>
-				<Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
+				<Text
+					fontSize='sm'
+					color='gray.100'
+					fontWeight='medium'
+					textTransform='capitalize'
+				>
 					{value || 'N/A'}
 				</Text>
 			</VStack>

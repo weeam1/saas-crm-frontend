@@ -4,10 +4,8 @@ import { useEffect, useState } from 'react';
 import BoxLoading from 'components/shared/BoxLoading';
 
 import { putApi } from 'services/api';
-import { sendLeadFeedback } from 'api';
 
-import { extractLocationData } from 'utils/helpers';
-import { eventLeadStatus, leadStatus } from 'utils/options';
+import { leadStatus } from 'utils/options';
 import useUserSession from 'hooks/useUserSession';
 import { useUserActivityLog } from 'hooks/useUserActivityLog';
 
@@ -38,32 +36,12 @@ const RenderStatus = ({
 				updateRowStatus(id, data.leadStatus);
 				toast.success('Lead Status Updated!');
 
-				// check if status is event lead status
-				if (eventLeadStatus.includes(data.leadStatus)) {
-					const leadEmail = lead?.leadEmail ?? '';
-					const leadPhone =
-						typeof lead?.leadPhoneNumber === 'object'
-							? lead?.leadPhoneNumber?.result
-							: lead?.leadPhoneNumber;
-
-					const { ip } = extractLocationData(lead?.ip, countries);
-
-					sendLeadFeedback({
-						email: leadEmail,
-						phone: leadPhone,
-						status: data.leadStatus,
-						action: 'Status',
-						ip,
-						fcblid: lead?.fcblid || null,
-					});
-				}
-
 				// update user activity log
 				createUserLog({
 					userId: user?._id,
 					action: 'UPDATE',
 					entity: 'Lead',
-enityType: 'Lead',
+					enityType: 'Lead',
 					entityId: lead._id || null,
 					status: 'success',
 					message: `${user?.fullName} update the lead status from '${value || 'No Status'} to '${data.leadStatus}'.`,
@@ -78,7 +56,7 @@ enityType: 'Lead',
 				userId: user?._id,
 				action: 'UPDATE',
 				entity: 'Lead',
-enityType: 'Lead',
+				enityType: 'Lead',
 				entityId: lead._id || null,
 				status: e?.status === 500 ? 'error' : 'fail',
 				message: `failed to update the lead status'.`,

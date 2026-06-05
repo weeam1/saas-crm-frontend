@@ -54,22 +54,6 @@ export const formattedDate = (_date) => {
 	return formattedDate;
 };
 
-export const formattedLocalDateTime = (dateStr) => {
-	if (!dateStr) return 'N/A';
-
-	const date = new Date(dateStr);
-
-	return date.toLocaleString(undefined, {
-		// weekday: 'short',
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-		hour: 'numeric',
-		minute: '2-digit',
-		hour12: true,
-	});
-};
-
 export const capitalizeWords = (str = '') =>
 	str
 		.toLowerCase()

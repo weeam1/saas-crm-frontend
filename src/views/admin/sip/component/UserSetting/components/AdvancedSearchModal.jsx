@@ -12,14 +12,12 @@ import {
 	Input,
 	Button,
 	VStack,
-	SimpleGrid,
 	useBreakpointValue,
-	useColorModeValue,
 	Flex,
 	Text,
-	Divider,
 } from '@chakra-ui/react';
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AdvancedSearchModal = ({
 	isOpen,
@@ -28,6 +26,7 @@ const AdvancedSearchModal = ({
 	initialFilters,
 	usersData,
 }) => {
+	const colors = useModalColors();
 	const [filters, setFilters] = useState(initialFilters);
 	const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
 
@@ -50,12 +49,6 @@ const AdvancedSearchModal = ({
 	const isFilterUnchanged =
 		JSON.stringify(filters) === JSON.stringify(initialFilters);
 
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const headerColor = useColorModeValue('brand.300', 'brand.100');
-	const textColor = useColorModeValue('brand.700', 'brand.900');
-	const borderColor = useColorModeValue('gray.200', 'gray.700');
-	const inputBg = useColorModeValue('gray.50', 'gray.900');
-
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -65,11 +58,11 @@ const AdvancedSearchModal = ({
 			scrollBehavior='inside'
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter="blur(4px)" />
 			<ModalContent
-				bg={bgColor}
+				bg={colors.viewBg}
 				borderRadius='2xl'
-				shadow='2xl'
+				boxShadow={colors.modalShadow}
 				overflow='hidden'
 				mx={{ base: 3, md: 0 }}
 			>
@@ -77,15 +70,15 @@ const AdvancedSearchModal = ({
 				<ModalHeader
 					p={0}
 					borderBottom='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.viewHeaderBorder}
 					fontWeight='semibold'
 					fontSize='lg'
 				>
 					<Flex
 						align='center'
 						justify='space-between'
-						bg={headerColor}
-						color={textColor}
+						bg={colors.viewHeaderBg}
+						color={colors.viewHeaderText}
 						px={6}
 						py={3}
 						position='sticky'
@@ -93,14 +86,15 @@ const AdvancedSearchModal = ({
 						zIndex='10'
 						boxShadow='sm'
 					>
-						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='semibold'>
+						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='semibold' color={colors.viewHeaderText}>
 							Advanced Search
 						</Text>
 						<ModalCloseButton
-							color={textColor}
+							color={colors.viewHeaderText}
 							position='relative'
 							top='0'
 							size='sm'
+							_hover={{ bg: colors.closeBtnHoverBg }}
 						/>
 					</Flex>
 				</ModalHeader>
@@ -110,13 +104,13 @@ const AdvancedSearchModal = ({
 					p={5}
 					overflowY='auto'
 					maxH='65vh'
-					bg={inputBg}
+					bg={colors.viewBg}
 					borderBottom='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.borderColor}
 				>
 					<VStack spacing={5} align='stretch'>
 						<FormControl>
-							<FormLabel fontWeight='medium'>Select User</FormLabel>
+							<FormLabel fontWeight='medium' color={colors.labelColor}>Select User</FormLabel>
 							<SearchUsers
 								selectedUserId={filters.user || null}
 								users={usersData?.doc || []}
@@ -125,102 +119,16 @@ const AdvancedSearchModal = ({
 								}
 							/>
 						</FormControl>
-
-						{/* <SimpleGrid columns={colSpan} gap={5} w="full">
-              <FormControl>
-                <FormLabel fontWeight="medium">
-                  SIP ID
-                </FormLabel>
-                <Input
-                  value={filters.sipId || ""}
-                  onChange={(e) =>
-                    setFilters({ ...filters, sipId: e.target.value })
-                  }
-                  placeholder="Enter SIP ID"
-                  bg={bgColor}
-                  focusBorderColor="brand.500"
-                  borderRadius="md"
-                />
-              </FormControl>
-
-              <FormControl>
-                <FormLabel fontWeight="medium">
-                  Extension ID
-                </FormLabel>
-                <Input
-                  value={filters.extensionId || ""}
-                  onChange={(e) =>
-                    setFilters({ ...filters, extensionId: e.target.value })
-                  }
-                  placeholder="Enter Extension ID"
-                  bg={bgColor}
-                  focusBorderColor="brand.500"
-                  borderRadius="md"
-                />
-              </FormControl>
-            </SimpleGrid>
-
-            <SimpleGrid columns={colSpan} gap={5} w="full">
-              <FormControl>
-                <FormLabel fontWeight="medium">
-                  SIP IP
-                </FormLabel>
-                <Input
-                  value={filters.sipIp || ""}
-                  onChange={(e) =>
-                    setFilters({ ...filters, sipIp: e.target.value })
-                  }
-                  placeholder="Enter SIP IP"
-                  bg={bgColor}
-                  focusBorderColor="brand.500"
-                  borderRadius="md"
-                />
-              </FormControl>
-
-              <FormControl>
-                <FormLabel fontWeight="medium" >
-                  SIP Port
-                </FormLabel>
-                <Input
-                  value={filters.sipPort || ""}
-                  onChange={(e) =>
-                    setFilters({ ...filters, sipPort: e.target.value })
-                  }
-                  placeholder="Enter SIP Port"
-                  bg={bgColor}
-                  focusBorderColor="brand.500"
-                  borderRadius="md"
-                />
-              </FormControl>
-            </SimpleGrid>
-
-            <FormControl>
-              <FormLabel fontWeight="medium">
-                SIM Number
-              </FormLabel>
-              <Input
-                value={filters.sipSimNumber || ""}
-                onChange={(e) =>
-                  setFilters({ ...filters, sipSimNumber: e.target.value })
-                }
-                placeholder="Enter SIM Number"
-                bg={bgColor}
-                focusBorderColor="brand.500"
-                borderRadius="md"
-              />
-            </FormControl> */}
 					</VStack>
 				</ModalBody>
-
-				<Divider />
 
 				{/* Footer */}
 				<ModalFooter
 					position='sticky'
 					bottom='0'
-					bg={bgColor}
+					bg={colors.viewFooterBg}
 					borderTop='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.viewFooterBorder}
 					py={3}
 					px={5}
 					zIndex='10'
@@ -229,7 +137,6 @@ const AdvancedSearchModal = ({
 				>
 					<Button
 						variant='outline'
-						colorScheme='gray'
 						size='sm'
 						onClick={handleClear}
 						borderRadius='md'
@@ -238,7 +145,7 @@ const AdvancedSearchModal = ({
 						Clear
 					</Button>
 					<Button
-						colorScheme='brand'
+						variant='brand'
 						size='sm'
 						onClick={handleApply}
 						isDisabled={isFilterUnchanged}

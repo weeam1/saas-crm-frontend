@@ -1,11 +1,13 @@
+import useUserSession from 'hooks/useUserSession';
 import React from 'react';
 
 const Invoice = () => {
+  const {agencyName, agencyLogo} = useUserSession();
   return (
     <div className="p-8 bg-gray-100">
       <div className="max-w-4xl mx-auto bg-white shadow-md p-8">
         <div className="flex justify-between items-center mb-6">
-          <img src="logo.png" alt="Weam Elnaggar Real Estate" className="h-16" />
+          <img src={agencyLogo} alt={agencyName ? `${agencyName}` : "Weam Elnaggar"} className="h-16" />
           <div className="text-right">
             <h2 className="text-2xl font-bold">Tax Invoice</h2>
             <p>Invoice Date: 07/08/2024</p>
@@ -13,7 +15,7 @@ const Invoice = () => {
           </div>
         </div>
         <div className="mb-6">
-          <h3 className="text-lg font-semibold">WEAM ELNAGGAR REAL ESTATE</h3>
+          <h3 className="text-lg font-semibold">{agencyName || "WEAM ELNAGGAR"}</h3>
           <p>Office #3102, API World Tower, Sheikh Zayed road, Dubai, UAE</p>
           <p>Telephone: +971-56-657-7271 | +971-56-115-0747</p>
           <p>TRN : 104271009300003</p>
@@ -45,7 +47,7 @@ const Invoice = () => {
               <tr key={index}>
                 <td className="p-2 border">{index + 1}</td>
                 <td className="p-2 border">AZIZI VENICE 08B-736</td>
-                <td className="p-2 border">WEAM ELNAGGAR REAL ESTATE</td>
+                <td className="p-2 border">{agencyName || "WEAM ELNAGGAR"}</td>
                 <td className="p-2 border">FULL</td>
                 <td className="p-2 border">7%</td>
                 <td className="p-2 border">6470000.00</td>
@@ -63,7 +65,7 @@ const Invoice = () => {
         <div className="grid grid-cols-2 gap-6 mb-6">
           <div className="bg-gray-200 p-4">
             <h3 className="text-lg font-semibold">Bank Account Details:</h3>
-            <p>Account Name: WEAM ELNAGGAR REAL Estate</p>
+            <p>Account Name: {agencyName || "WEAM ELNAGGAR"}</p>
             <p>Account Number: 300253070000001</p>
             <p>MARYAH AL IBAN : AE0607300253070000001</p>
             <p>Swift Code : E097AEXXXXXX</p>

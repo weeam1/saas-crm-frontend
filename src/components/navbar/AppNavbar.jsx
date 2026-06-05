@@ -17,8 +17,8 @@ export default function AppNavbar({
 }) {
 	const isMobile = useIsMobile(1024);
 
-	const bg = useColorModeValue('white', 'gray.800');
-	const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
+	const bg = useColorModeValue('bg.surface', 'gray.800');
+	const borderColor = useColorModeValue('brand.200', 'whiteAlpha.200');
 
 	const { user } = useUserSession();
 

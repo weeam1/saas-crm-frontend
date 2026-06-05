@@ -27,34 +27,20 @@ import * as yup from 'yup';
 import LateDeductionRuleModal from './LateDeductionRuleModal';
 import { isRuleOverlapping } from '../agencyUtils';
 import { toast } from 'react-toastify';
-
-// const ruleValidationSchema = yup.object().shape({
-// 	name: yup.string().required('Rule name is required'),
-// 	from: yup.string().required('From time is required'),
-// 	to: yup.string().required('To time is required'),
-// 	deduction: yup
-// 		.number()
-// 		.typeError('Deduction must be a number')
-// 		.min(0, 'Deduction must be at least 0%')
-// 		.max(100, 'Deduction cannot exceed 100%')
-// 		.required('Deduction is required'),
-// });
+import { useModalColors } from 'hooks/useModalColors';
 
 const ruleValidationSchema = yup.object().shape({
 	name: yup.string().required('Rule name is required'),
-
 	fromMinutes: yup
 		.number()
 		.typeError('From minutes must be a number')
 		.min(0, 'Minimum 0 minutes')
 		.required('From minutes is required'),
-
 	toMinutes: yup
 		.number()
 		.typeError('To minutes must be a number')
 		.moreThan(yup.ref('fromMinutes'), 'To must be greater than From')
 		.required('To minutes is required'),
-
 	deduction: yup
 		.number()
 		.typeError('Deduction must be a number')
@@ -67,6 +53,7 @@ const EarlyDeductionSettings = ({
 	earlyCheckoutDeductionSettings,
 	setEarlyCheckoutDeductionSettings,
 }) => {
+	const colors = useModalColors();
 	const {
 		isOpen: isModalOpen,
 		onOpen: onModalOpen,
@@ -83,10 +70,10 @@ const EarlyDeductionSettings = ({
 	});
 
 	const getLateBadgeColor = (minutes, type) => {
-		if (minutes <= 20) return 'green'; // small delay
-		if (minutes <= 60) return 'yellow'; // moderate late
-		if (minutes <= 120) return 'red'; // serious late
-		return 'red'; // very late
+		if (minutes <= 20) return 'green';
+		if (minutes <= 60) return 'yellow';
+		if (minutes <= 120) return 'red';
+		return 'red';
 	};
 
 	const resetForm = () => {
@@ -109,9 +96,10 @@ const EarlyDeductionSettings = ({
 		const rule =
 			earlyCheckoutDeductionSettings.earlyCheckoutDeductionRules[index];
 		setRuleForm({
-			...rule,
-			from: parseTimeForInput(rule.from),
-			to: parseTimeForInput(rule.to),
+			name: rule.name,
+			fromMinutes: rule.fromMinutes,
+			toMinutes: rule.toMinutes,
+			deduction: rule.deduction,
 		});
 		setEditingRuleIndex(index);
 		onModalOpen();
@@ -146,10 +134,6 @@ const EarlyDeductionSettings = ({
 			earlyCheckoutDeductionSettings.earlyCheckoutDeductionRules;
 
 		if (isRuleOverlapping(newRule, existingRules, editingRuleIndex)) {
-			// setFormErrors({
-			// 	range: 'This rule overlaps with an existing rule',
-			// });
-
 			toast.error('This rule overlaps with an existing rule');
 			return;
 		}
@@ -163,7 +147,6 @@ const EarlyDeductionSettings = ({
 			updatedRules = [...existingRules, newRule];
 		}
 
-		// sort rules for safety
 		updatedRules.sort((a, b) => a.fromMinutes - b.fromMinutes);
 
 		setEarlyCheckoutDeductionSettings({
@@ -186,21 +169,6 @@ const EarlyDeductionSettings = ({
 		});
 	};
 
-	const handleImportantDayChange = (day) => {
-		setEarlyCheckoutDeductionSettings({
-			...earlyCheckoutDeductionSettings,
-			importantDay: day === 'null' ? null : parseInt(day),
-		});
-	};
-
-	const formatTimeForDisplay = (time) => {
-		return moment(`${time}`, 'HH:mm').format('hh:mm A');
-	};
-
-	const parseTimeForInput = (timeString) => {
-		return moment(timeString, 'hh:mm A').format('HH:mm');
-	};
-
 	const tableHeaders = [
 		{ label: 'Rule Name' },
 		{ label: 'Early Leave From (min)' },
@@ -219,13 +187,13 @@ const EarlyDeductionSettings = ({
 						flexDir={{ base: 'column', md: 'row' }}
 						gap={4}
 					>
-						<Text fontSize='md' fontWeight='semibold' mb={3} color='gray.700'>
+						<Text fontSize='md' fontWeight='semibold' mb={3} color={colors.headingText}>
 							Early Checkout Rules
 						</Text>
 						<Box alignSelf={{ base: 'stretch', md: 'center' }}>
 							<Button
 								leftIcon={<AddIcon />}
-								colorScheme='brand'
+								variant='brand'
 								onClick={handleOpenAddModal}
 								size='sm'
 								borderRadius='md'
@@ -241,11 +209,12 @@ const EarlyDeductionSettings = ({
 					borderWidth='1px'
 					borderRadius='lg'
 					overflow='hidden'
-					boxShadow='sm'
+					boxShadow={colors.cardShadow}
 					overflowX='auto'
+					borderColor={colors.borderColor}
 				>
-					<Table variant='simple' bg='white' minWidth='600px'>
-						<Thead bg='brand.200' position='sticky' top={0} zIndex={2}>
+					<Table variant='simple' bg={colors.bg} minWidth='600px'>
+						<Thead bg={colors.bgDeep} position='sticky' top={0} zIndex={2}>
 							<Tr>
 								{tableHeaders.map((header, index) => (
 									<Th
@@ -254,9 +223,11 @@ const EarlyDeductionSettings = ({
 										py={4}
 										fontSize='14px'
 										fontWeight='600'
-										color='gray.700'
+										color={colors.headingText}
 										textTransform='capitalize'
 										width={header.width || 'auto'}
+										bg={colors.bgDeep}
+										borderColor={colors.borderColor}
 									>
 										{header.label}
 									</Th>
@@ -268,60 +239,63 @@ const EarlyDeductionSettings = ({
 							{earlyCheckoutDeductionSettings.earlyCheckoutDeductionRules
 								.length === 0 ? (
 								<Tr>
-									<Td colSpan={5} textAlign='center' color='gray.500' py={8}>
+									<Td colSpan={5} textAlign='center' color={colors.mutedText} py={8} borderColor={colors.borderColor}>
 										No early deduction rules added yet
 									</Td>
 								</Tr>
 							) : (
 								earlyCheckoutDeductionSettings.earlyCheckoutDeductionRules.map(
 									(rule, index) => (
-										<Tr key={index} _hover={{ bg: 'gray.50' }}>
-											<Td fontWeight='medium' whiteSpace='nowrap'>
+										<Tr key={index} _hover={{ bg: colors.bgDeep }} borderColor={colors.borderColor}>
+											<Td fontWeight='medium' whiteSpace='nowrap' color={colors.bodyText} borderColor={colors.borderColor}>
 												{rule.name}
 											</Td>
-											<Td whiteSpace='nowrap'>
+											<Td whiteSpace='nowrap' borderColor={colors.borderColor}>
 												<Badge
-													colorScheme={getLateBadgeColor(
-														rule.fromMinutes,
-														'from',
-													)}
+													bg={colors.badgeInfoBg}
+													color={colors.badgeInfoText}
 													fontSize='sm'
 													px={3}
 													py={1}
+													borderRadius='full'
 												>
 													{`${rule.fromMinutes} minutes`}
 												</Badge>
 											</Td>
-											<Td whiteSpace='nowrap'>
+											<Td whiteSpace='nowrap' borderColor={colors.borderColor}>
 												<Badge
-													colorScheme={getLateBadgeColor(rule.toMinutes, 'to')}
+													bg={colors.badgeInfoBg}
+													color={colors.badgeInfoText}
 													fontSize='sm'
 													px={3}
 													py={1}
+													borderRadius='full'
 												>
 													{`${rule.toMinutes} minutes`}
 												</Badge>
 											</Td>
-											<Td fontWeight='bold' whiteSpace='nowrap'>
+											<Td fontWeight='bold' whiteSpace='nowrap' color={colors.accentGold} borderColor={colors.borderColor}>
 												{rule.deduction}%
 											</Td>
-											<Td whiteSpace='nowrap'>
+											<Td whiteSpace='nowrap' borderColor={colors.borderColor}>
 												<HStack spacing={2}>
 													<IconButton
 														icon={<EditIcon />}
-														colorScheme='teal'
 														variant='ghost'
 														size='sm'
 														onClick={() => handleOpenEditModal(index)}
 														aria-label='Edit rule'
+														color={colors.bodyText}
+														_hover={{ color: colors.accentGold, bg: colors.bgDeep }}
 													/>
 													<IconButton
 														icon={<DeleteIcon />}
-														colorScheme='red'
 														variant='ghost'
 														size='sm'
 														onClick={() => handleDeleteRule(index)}
 														aria-label='Delete rule'
+														color={colors.badgeErrorText}
+														_hover={{ bg: colors.badgeErrorBg, color: colors.badgeErrorText }}
 													/>
 												</HStack>
 											</Td>

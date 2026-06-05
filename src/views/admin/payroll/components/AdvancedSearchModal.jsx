@@ -14,12 +14,11 @@ import {
 	useBreakpointValue,
 	Flex,
 	Text,
-	useColorModeValue,
-	Grid,
 	Select,
 } from '@chakra-ui/react';
 import SearchUsers from 'views/admin/whatsapp/WhatsappSettings/SearchUsers';
 import { useRoles } from 'hooks/user/userRoles';
+import { useModalColors } from 'hooks/useModalColors';
 
 const AdvancedSearchModal = ({
 	isOpen,
@@ -28,16 +27,12 @@ const AdvancedSearchModal = ({
 	initialFilters,
 	usersData,
 }) => {
+	const colors = useModalColors();
 	const [filters, setFilters] = useState(initialFilters);
 
 	const { roles } = useRoles() || [];
 
 	const colSpan = useBreakpointValue({ base: 1, sm: 1, md: 2 });
-	const bgColor = useColorModeValue('white', 'gray.800');
-	const headerBg = useColorModeValue('brand.300', 'brand.100');
-	const headerText = useColorModeValue('brand.700', 'brand.900');
-	const footerBg = useColorModeValue('gray.50', 'gray.700');
-	const borderColor = useColorModeValue('gray.200', 'gray.600');
 
 	useEffect(() => {
 		if (isOpen) {
@@ -72,25 +67,27 @@ const AdvancedSearchModal = ({
 			scrollBehavior='inside'
 			motionPreset='slideInBottom'
 		>
-			<ModalOverlay />
+			<ModalOverlay bg={colors.overlayBg} backdropFilter='blur(4px)' />
 			<ModalContent
-				bg={bgColor}
+				bg={colors.viewBg}
 				borderRadius='2xl'
-				shadow='2xl'
+				boxShadow={colors.modalShadow}
 				maxW={{ base: 'full', sm: '90vw', md: '500px' }}
 				overflow='hidden'
 				mx={{ base: 3, md: 0 }}
+				border='1px solid'
+				borderColor={colors.borderColor}
 			>
-				<ModalHeader p={0} borderBottom='1px solid' borderColor={borderColor}>
+				<ModalHeader p={0} borderBottom='1px solid' borderColor={colors.viewHeaderBorder}>
 					<Flex
-						bg={headerBg}
-						color={headerText}
+						bg={colors.viewHeaderBg}
+						color={colors.viewHeaderText}
 						px={6}
 						py={3}
 						position='sticky'
 						top='0'
 						zIndex='10'
-						boxShadow='md'
+						boxShadow='sm'
 					>
 						<Text fontSize={{ base: 'md', md: 'lg' }} fontWeight='bold'>
 							Advanced Search
@@ -99,8 +96,8 @@ const AdvancedSearchModal = ({
 							position='absolute'
 							right='12px'
 							top='10px'
-							color={headerText}
-							_hover={{ bg: 'whiteAlpha.200' }}
+							color={colors.viewHeaderText}
+							_hover={{ bg: colors.closeBtnHoverBg }}
 						/>
 					</Flex>
 				</ModalHeader>
@@ -110,11 +107,12 @@ const AdvancedSearchModal = ({
 					overflowY='auto'
 					maxH='65vh'
 					borderBottom='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.borderColor}
+					bg={colors.viewBg}
 				>
 					<VStack spacing={5} align='stretch'>
 						<FormControl>
-							<FormLabel fontWeight='semibold'>Employee Name</FormLabel>
+							<FormLabel fontWeight='semibold' color={colors.labelColor}>Employee Name</FormLabel>
 							<SearchUsers
 								selectedUserId={filters.userId || null}
 								users={usersData?.doc || []}
@@ -122,24 +120,30 @@ const AdvancedSearchModal = ({
 							/>
 						</FormControl>
 						<FormControl>
-							<FormLabel fontWeight='semibold'>Select Role</FormLabel>
+							<FormLabel fontWeight='semibold' color={colors.labelColor}>Select Role</FormLabel>
 							<Select
 								name='role'
 								value={filters.role}
 								onChange={(e) => handleRoleChange(e.target.value)}
 								placeholder='Select Role'
-								bg='gray.100'
-								borderColor='gray.300'
+								bg={colors.bgInput}
+								borderColor={colors.borderColor}
+								color={colors.headingText}
 								fontSize='sm'
 								borderRadius='md'
+								_hover={{ borderColor: colors.accentGold }}
 								_focus={{
-									borderColor: '#D99A36',
-									boxShadow: '0 0 0 1px #D99A36',
+									borderColor: colors.accentGold,
+									boxShadow: `0 0 0 1px ${colors.accentGold}`,
 									outline: 'none',
 								}}
 							>
 								{roles?.map((role) => (
-									<option key={role?._id} value={role?._id}>
+									<option
+										key={role?._id}
+										value={role?._id}
+										style={{ background: colors.viewBg, color: colors.headingText }}
+									>
 										{role?.roleName}
 									</option>
 								))}
@@ -151,9 +155,9 @@ const AdvancedSearchModal = ({
 				<ModalFooter
 					position='sticky'
 					bottom='0'
-					bg={footerBg}
+					bg={colors.viewFooterBg}
 					borderTop='1px solid'
-					borderColor={borderColor}
+					borderColor={colors.viewFooterBorder}
 					py={3}
 					px={5}
 					zIndex='10'
@@ -162,7 +166,6 @@ const AdvancedSearchModal = ({
 				>
 					<Button
 						variant='outline'
-						colorScheme='gray'
 						size='sm'
 						onClick={handleClear}
 						borderRadius='md'
@@ -171,7 +174,7 @@ const AdvancedSearchModal = ({
 						Clear
 					</Button>
 					<Button
-						colorScheme='brand'
+						variant='brand'
 						size='sm'
 						borderRadius='md'
 						onClick={handleApply}
