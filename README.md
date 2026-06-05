@@ -12,19 +12,10 @@
 - [Key Features](#key-features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Available Scripts](#available-scripts)
-- [Module Reference](#module-reference)
-- [State Management](#state-management)
-- [Real-Time & Telephony](#real-time--telephony)
-- [Authentication & Authorization](#authentication--authorization)
-- [Routing](#routing)
 - [Theming & UI](#theming--ui)
-- [Deployment](#deployment)
 - [Coding Conventions](#coding-conventions)
 - [Troubleshooting](#troubleshooting)
+- [License](#license)
 
 ---
 
@@ -32,60 +23,73 @@
 
 **Weeam CRM Frontend** is the single-page application (SPA) layer of the Weeam real-estate sales platform. It is designed for real-estate agencies that need to manage the full sales lifecycle — from raw lead capture, through agent assignment, calling and WhatsApp follow-up, to deal closure, invoicing, and back-office HR/payroll.
 
-The application is **multi-tenant** (agency-aware), **role-based** (Super Admin, Admin, Manager, Team Leader, Executive, Telecaller, HR, Accountant), and **real-time** (Socket.IO + native WebSocket channels for notifications, presence, live leads, and chat). It embeds a full **WebRTC/SIP softphone** and a **WhatsApp Web–style messaging client** directly in the browser.
-
-- **App name:** `real-estate` (package), branded as **Weeam CRM**
-- **Release version:** `2.1`
-- **Default dev port:** `3006`
-- **Backend API:** Node/Express service (see sibling `backend/` repo)
+The application is **multi-tenant** (agency-aware), **role-based** (Super Admin, Admin, Manager, Team Leader, Executive, Telecaller, HR, Accountant), and **real-time** (notifications, presence, live leads, and chat). It embeds a full **WebRTC/SIP softphone** and a **WhatsApp Web–style messaging client** directly in the browser.
 
 ---
 
 ## Key Features
 
 ### 🎯 Lead & Sales Management
-- **Lead lifecycle** — capture, qualify, assign, and track leads across stages with a configurable **lead cycle**.
-- **Fresh Leads & Lead Pool** — real-time inbound lead capture with live modals (`NewFreshLeadModal`, `FreshLeadPoolModal`, `FreshApprovedLeadModal`) and a shared **lead pool** with v1 and v2 implementations.
+- **Lead lifecycle** — capture, qualify, assign, and track leads across stages with a configurable lead cycle.
+- **Fresh leads & lead pool** — real-time inbound lead capture with live pop-up alerts and a shared lead pool.
 - **Lead settings & custom fields** — agency-configurable lead attributes, statuses, sources, and dynamic custom fields.
 - **Deals pipeline** — convert qualified leads into deals and track them to closure.
-- **Contacts** — centralized contact database with phone validation (`google-libphonenumber`, `libphonenumber-js`).
+- **Contacts** — centralized contact database with international phone validation.
 
 ### 📞 Telephony (WebRTC / SIP Softphone)
-- **In-browser softphone** built on `jssip` with a full SIP UA, session manager, and audio elements (`src/lib/webrtc`).
-- **Call history**, **dialer settings**, call feedback capture, and call recording (Opus via `opus-recorder` + `wavesurfer.js` waveform playback).
-- Dual SIP server support (primary + secondary base URLs).
+- **In-browser softphone** — place and receive calls directly from the CRM with no external dialer.
+- **Call history & feedback** — full call logs, outcome/feedback capture, and configurable dialer settings.
+- **Call recording & playback** — record calls with in-app audio waveform playback.
 
 ### 💬 WhatsApp Business Messaging
-- **WhatsApp Web–style client** (`whatsapp`, `whatsapp-v2` views) with live socket sync, media download handling, emoji picker, and per-instance sessions.
-- Dedicated socket service and media download handler (`src/services/whatsapp`).
+- **WhatsApp Web–style client** — live two-way chat with real-time message sync.
+- **Media handling** — send and receive images, documents, and other media with emoji support.
+- **Per-agent sessions** — isolated messaging sessions per user/instance.
 
 ### 📧 Communication & Outreach
-- **Email** history, templates, and rich-text composition (`react-quill`).
-- **SMS / Text messaging** module.
-- **Announcements** — broadcast modal with sound + push notifications.
+- **Email** — message history, templates, and rich-text composition.
+- **SMS / text messaging** — outbound and inbound text messaging.
+- **Announcements** — broadcast messages with in-app, sound, and push notifications.
 
 ### 👥 HR, Attendance & Payroll
-- **HR module**, **attendance** tracking, **payroll**, **hiring**, **evaluation**, and **daily reports**.
-- Agency office timings, late/early deduction rules, off-days, and timezone configuration.
+- **HR module** — employee records, hiring, and performance evaluation.
+- **Attendance** — clock-in/out tracking with office timings and timezone awareness.
+- **Payroll** — salary processing with configurable late/early deduction rules and off-days.
+- **Daily reports** — agent daily activity reporting.
 
 ### 💰 Finance & Billing
-- **Invoices** (with PDF generation via `@react-pdf/renderer` / `jspdf`), **payments** (Stripe integration), **bank accounts** (v1 & v2), **finance** dashboards, and **currency points**.
+- **Invoicing** — create and export invoices to PDF.
+- **Payments** — integrated online payment processing.
+- **Bank accounts & finance dashboards** — account management and financial overview.
+- **Currency points** — multi-currency support and conversion handling.
 
 ### 🏢 Property & Listings
-- **Property** and **Listing** management, **developers** directory, and **document** management with PDF viewing (`@react-pdf-viewer`).
+- **Property & listing management** — inventory of properties and listings.
+- **Developers directory** — manage real-estate developers.
+- **Document management** — upload, organize, and view documents (with in-app PDF viewing).
 
 ### 📅 Productivity
-- **Tasks** (v1 & v2), **meetings**, **calendar** (FullCalendar with resource timeline), and **surveys**.
+- **Tasks** — assignable to-dos with status tracking.
+- **Meetings** — schedule and manage meetings.
+- **Calendar** — full calendar with resource timeline views.
+- **Surveys** — create and collect survey responses.
 
 ### 📊 Reporting & Analytics
-- **Reports** (v1 & v2) with charts via ApexCharts, Chart.js, and Recharts.
-- Excel/CSV export (`exceljs`, `xlsx`, `papaparse`, `file-saver`) and screenshot/PDF export (`html2canvas`, `html-to-image`).
+- **Dashboards & reports** — interactive charts and KPIs across sales, calls, and team performance.
+- **Data export** — export to Excel and CSV, plus chart/screenshot and PDF export.
 
 ### ⚙️ Administration
-- **User & role management** (v1 & v2), **granular permissions** (`usePermissions`, `Permission` components), **agencies** management, **admin settings**, **table/field configuration**, and **action logs**.
+- **User & role management** — manage users, teams, and hierarchical reporting structures.
+- **Granular permissions** — fine-grained, per-feature access control.
+- **Agencies & settings** — multi-agency configuration and global admin settings.
+- **Table/field configuration** — customize visible columns and form fields.
+- **Action & activity logs** — auditable record of user actions.
 
 ### 🔔 Platform Capabilities
-- Real-time **notifications** with browser push + sound, **online-user presence**, multi-channel WebSocket reducers, **dark/light mode + RTL** theming, **QR codes**, **drag-and-drop** (`react-beautiful-dnd`), image compression on upload, and virtualized large tables.
+- Real-time notifications with browser push and sound alerts.
+- Online-user presence indicators.
+- Dark / light mode and full RTL (right-to-left) language support.
+- QR code generation, drag-and-drop interfaces, on-upload image compression, and virtualized tables for large datasets.
 
 ---
 
@@ -97,15 +101,15 @@ The application is **multi-tenant** (agency-aware), **role-based** (Super Admin,
 | **UI library** | Chakra UI `1.8` (`@chakra-ui/react`, `@chakra-ui/icons`, theme tools), Emotion |
 | **State** | Redux Toolkit `2.5`, React-Redux `7.2`, Redux Thunk |
 | **Routing** | React Router DOM `6.14` |
-| **Forms & validation** | React Hook Form, Formik, Yup, Zod, `@hookform/resolvers` |
+| **Forms & validation** | React Hook Form, Formik, Yup, Zod |
 | **HTTP** | Axios |
-| **Real-time** | Socket.IO Client `4.8`, native WebSocket service |
-| **Telephony** | JsSIP `3.10`, opus-recorder, wavesurfer.js |
+| **Real-time** | Socket.IO Client, native WebSocket |
+| **Telephony** | JsSIP, opus-recorder, wavesurfer.js |
 | **Charts** | ApexCharts, Chart.js, Recharts |
-| **Calendar** | FullCalendar `6.1` (core, react, resource, resource-timeline, scrollgrid) |
+| **Calendar** | FullCalendar `6.1` (resource timeline, scrollgrid) |
 | **PDF / Docs** | `@react-pdf/renderer`, jsPDF, `@react-pdf-viewer`, react-pdf |
 | **Data export** | ExcelJS, xlsx, PapaParse, file-saver |
-| **Payments** | Stripe (`@stripe/react-stripe-js`, `@stripe/stripe-js`) |
+| **Payments** | Stripe |
 | **Dates** | date-fns, dayjs, moment, moment-timezone |
 | **Phone** | google-libphonenumber, libphonenumber-js, react-phone-input-2 |
 | **Utilities** | crypto-js, fuse.js (fuzzy search), use-debounce, browser-image-compression, jwt-decode |
@@ -137,236 +141,29 @@ The app is a client-side SPA that talks to a REST backend and multiple real-time
                         └──────────────┘ └─────────────┘ └──────────────┘
 ```
 
-**Service layers (`src/services`):**
-- `api.js` — Axios wrapper (`getApi`, `postApi`, `putApi`, …) with token injection.
-- `socketService.js` — Socket.IO client lifecycle.
-- `WebSocketService.js` — native WebSocket channel for notifications/presence.
-- `NotificationService.js` — browser push permission + delivery.
-- `sip/` — SIP service glue around `src/lib/webrtc`.
-- `whatsapp/` — WhatsApp socket, media downloads, and type helpers.
-
-**Cross-cutting hooks (`src/hooks`):** permissions, user session, socket events, WhatsApp events, team hierarchy, timezones, notification history, media/PDF downloads, mobile detection, chunk-error recovery, and more.
-
----
-
-## Project Structure
-
-```
-frontend/
-├── public/                     # Static assets, index.html, audio, web workers (opus encoder)
-├── src/
-│   ├── api/                    # Domain API calls + RTK Query slice; webrtc API constants/types
-│   ├── assets/                 # Images, CSS, fonts, sounds
-│   ├── common/                 # Shared cross-module helpers
-│   ├── components/             # 40+ reusable UI building blocks (tables, modals, charts,
-│   │                           #   sidebar, navbar, fields, permission guards, etc.)
-│   ├── config/                 # keys.js — env-var mapping
-│   ├── constants/              # currencies, call-feedback constants
-│   ├── contexts/               # RoleContext, SidebarContext, global store provider
-│   ├── data/                   # Static JSON (countries, country codes)
-│   ├── hooks/                  # Custom hooks (permissions, session, sockets, reports, …)
-│   ├── layouts/                # admin / auth / user shells
-│   ├── lib/webrtc/             # SIP UA, session manager, audio elements, models, utils
-│   ├── redux/                  # Store + ~25 slices + websocket/webrtc reducers
-│   ├── schema/                 # Yup/Zod validation schemas per domain
-│   ├── services/               # API, sockets, SIP, WhatsApp, notifications
-│   ├── storage/                # LocalStorage/session abstraction
-│   ├── theme/                  # Chakra theme: foundations, components, styles
-│   ├── utils/                  # Formatters, filters, phone validation, permissions, sound, …
-│   ├── views/                  # Feature modules (see Module Reference)
-│   │   ├── admin/              # The bulk of the app — 60+ feature areas
-│   │   ├── auth/signIn/        # Login + agent onboarding
-│   │   └── webrtc/             # Softphone UI (dialer, phone, history, settings)
-│   ├── constant.js             # Resolves base URLs from env/node mode
-│   ├── roles.js                # ROLE and ROLE_PATH maps
-│   ├── routes.js / routesV2.js # Route tables (v1 & v2)
-│   ├── sidebarRoutes.js        # Sidebar navigation config
-│   └── index.js                # App bootstrap: providers, sockets, global modals
-├── .env                        # Local environment configuration
-├── jsconfig.json               # Path alias: @/* and baseUrl=src
-├── package.json
-└── README.md
-```
-
-> **Scale:** ~1,300 JS/JSX source files across ~60 admin feature modules.
-
----
-
-## Getting Started
-
-### Prerequisites
-
-- **Node.js** ≥ 16 (LTS recommended)
-- **npm** ≥ 8
-- A running instance of the **Weeam CRM backend** (default `http://127.0.0.1:5000/`)
-
-### Installation
-
-```bash
-# 1. Clone and enter the frontend
-git clone <repo-url>
-cd frontend
-
-# 2. Install dependencies
-npm install
-
-# 3. Configure environment
-# Edit the provided .env (see Environment Variables below)
-
-# 4. Start the dev server (http://localhost:3006)
-npm start
-```
-
-> **Note:** The `start` script sets `PORT=3006` using Windows syntax (`set PORT=3006 && ...`). On macOS/Linux, run with:
-> ```bash
-> PORT=3006 npx react-scripts start
-> ```
-> or install `cross-env` and use `cross-env PORT=3006 react-scripts start`.
-
----
-
-## Environment Variables
-
-Configured via `.env` and surfaced through `src/config/keys.js`. The active base URL is chosen by `REACT_APP_NODE_ENV` (`development` → local URLs, otherwise → live URLs) in `src/constant.js`.
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `REACT_APP_NODE_ENV` | `development` or `production` (selects local vs live API) | `development` |
-| `REACT_APP_WEEAM_LOCAL_API` | Local backend REST base URL | `http://127.0.0.1:5000/` |
-| `REACT_APP_WEEAM_LIVE_API` | Production backend REST base URL | `https://sasapi.weeam.info/` |
-| `REACT_APP_SOCKET_API` | Socket (notifications) base URL | `https://pystage.weeam.info` |
-| `REACT_APP_SOCKET_WSS_API` | Secure WebSocket URL | `wss://pystage.weeam.info` |
-| `REACT_APP_SOCKET_IO_URL` | Socket.IO server URL | `http://127.0.0.1:5000` |
-| `REACT_APP_CLIENT_URL` | This app's public URL | `http://localhost:3006/` |
-| `REACT_APP_RELEASE_VERSION` | App version banner | `2.1` |
-| `REACT_APP_SIP_BASE_URL` | Primary SIP/WebRTC server | `https://webrtc.weeam.info` |
-| `REACT_APP_SIP_SERVER_2_BASE_URL` | Secondary SIP server | `https://call.weeam.info:3001` |
-| `REACT_APP_CRM_PRODUCT_API_URL` | Product/listing API | `https://product-api.weeam.info/` |
-| `REACT_APP_FB_PIXEL_API` / `_ID` / `_TOKEN` | Optional Facebook Pixel tracking | — |
-
-> ⚠️ `.env` is git-ignored. Never commit secrets. Maintain a `.env.example` template for sharing config shape.
-
----
-
-## Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm start` | Start the dev server on port `3006` with hot reload. |
-| `npm run build` | Produce an optimized production build in `build/`. |
-| `npm test` | Run the CRA/Jest test runner. |
-| `npm run sitemap` | Generate a sitemap via `sitemap-builder.js` (Babel). |
-| `npm run predeploy` | Build before deploying (auto-runs on `deploy`). |
-| `npm run deploy` | Publish `build/` to GitHub Pages (`gh-pages`). |
-| `npm run eject` | Eject CRA configuration (irreversible). |
-
----
-
-## Module Reference
-
-All feature modules live under `src/views/admin/`. Highlights:
-
-| Module | Purpose |
-|--------|---------|
-| `lead`, `lead-v2`, `leadAdmin`, `leadCycle`, `leadSetting` | Core lead management, lifecycle stages, and configuration |
-| `freshLead`, `leadpool`, `leadPool-v2` | Real-time inbound lead capture and shared lead pools |
-| `deals` | Sales pipeline & deal closure |
-| `contact` | Contact database with phone validation |
-| `property`, `Listing`, `developers`, `document` | Property/listing inventory & document management |
-| `phoneCall`, `callHistory`, `sip` | Telephony, call logs, and SIP configuration |
-| `whatsapp`, `whatsapp-v2`, `communication`, `textMsg`, `emailHistory` | Multi-channel messaging |
-| `meeting`, `task`, `taskV2`, `calender`, `survey` | Productivity & scheduling |
-| `invoice`, `payments`, `finance`, `bankAccounts`, `bankAccountsV2`, `currencypoints` | Billing & finance |
-| `hrModule`, `attendance`, `payroll`, `hiring`, `evalution`, `dailyReport` | HR & back office |
-| `reports`, `reports-v2` | Analytics dashboards |
-| `users`, `users-v2`, `role`, `userPermission`, `agencies`, `adminSetting` | Administration & access control |
-| `customField`, `tableField`, `validation` | Dynamic schema & form configuration |
-| `announcement`, `logAction`, `default` | Broadcasts, audit logs, and the main dashboard |
-
-The **softphone UI** lives in `src/views/webrtc/` (`WebRTCApp.jsx`, `phone/`, `dialer_settings/`, `history/`, `settings/`), and **authentication** in `src/views/auth/signIn/`.
-
----
-
-## State Management
-
-Global state uses **Redux Toolkit** (`src/redux/store.js`) with ~25 feature slices, including:
-
-`leadSlice`, `leadsSlice`, `freshLeadSlice`, `freshLeadPoolSlice`, `usersSlice`, `roleSlice`, `permissionSlice`, `onlineUsersSlice`, `announcementsSlice`, `invoiceSlice`, `sipSlice`, `whatsappSlice`, `whatsappWebSlice`, `filtersSlice`, `countriesSlice`, `positionsSlice`, `imageSlice`, `missingFilesSlice`, `localSlice`, `utilSlice`, plus `webSocketReducer` and `webrtc/webrtcSlice`.
-
-Local/UI state is shared through React Context (`RoleContext`, `SidebarContext`, and a global `contexts/store` provider).
-
----
-
-## Real-Time & Telephony
-
-Initialized in `src/index.js` at app boot:
-
-- **Socket.IO** (`socketService`) — connection lifecycle + domain events via `useSocketEvents`.
-- **Native WebSocket** (`webSocketService`) — notification stream dispatched into `webSocketReducer`; triggers in-app toast, browser push (`react-push-notification`), and a notification sound.
-- **WhatsApp socket** (`registerWhatsappSocket`) — live message/media sync via `useWhatsappEvents`.
-- **WebRTC/SIP** — `src/lib/webrtc` provides `SipUA`, `SipSessionManager`, `SipSession`, and audio element management built on `jssip`; the `webrtc` view renders the dialer and call history.
-- **Live lead modals** — `NewFreshLeadModal`, `FreshLeadPoolModal`, and `FreshApprovedLeadModal` pop in response to socket events.
-
----
-
-## Authentication & Authorization
-
-- **Token-based auth** — JWT stored in `localStorage`/`sessionStorage` (`token`, `accessToken`); decoded via `jwt-decode`. Axios requests attach `Authorization` headers automatically (`setAuthHeader`).
-- **Roles** (`src/roles.js`): `superAdmin`, `admin`, `manager`, `teamleader`, `executive`, `telecaller`, `HR`, `accountant`, `user`, plus `attendance`.
-- **Granular permissions** — enforced via the `usePermissions` hook, `Permission` guard components, and `permissionUtils`. UI elements and routes render conditionally based on the user's resolved permission set.
-- **Multi-tenancy** — agency-scoped data and configuration (timings, deductions, currencies) managed in the `agencies` module.
-- **Sessions** — `useUserSession` resolves the active user and role name; `useUserActivityLog` records activity.
-
----
-
-## Routing
-
-- `src/routes.js` and `src/routesV2.js` define route tables (legacy v1 and current v2).
-- `src/sidebarRoutes.js` drives the collapsible sidebar navigation, filtered by role/permission.
-- Layout shells in `src/layouts/` (`admin`, `auth`, `user`) wrap routed views.
-- Path alias `@/*` → `src/*` (configured in `jsconfig.json`), so imports like `import keys from 'config/keys'` resolve from `src`.
+- **Presentation** — Chakra UI components organized into layouts and feature views.
+- **State** — Redux Toolkit slices for domain state, with React Context for shared UI state.
+- **Services** — a thin API layer (Axios), Socket.IO and WebSocket clients, a SIP/WebRTC layer, and a WhatsApp messaging client.
+- **Hooks** — reusable logic for permissions, sessions, real-time events, timezones, downloads, and more.
 
 ---
 
 ## Theming & UI
 
-- **Chakra UI** theme in `src/theme/` with custom `foundations` (colors, typography, breakpoints, shadows, radii, spacing, z-index), `components` (button, input, badge, switch, slider, …), and card `additions`.
-- **Dark / light mode** via `ColorModeScript` and a runtime theme editor (`@hypertheme-editor/chakra-ui`).
-- **RTL support** via `stylis-plugin-rtl` and an `rtlProvider` component.
-- **40+ shared components** in `src/components/` — data tables (`react-table`, virtualized), charts, modals, dropzones, date pickers, pagination, search, folder tree, fixed plugin, loaders, and more.
-
----
-
-## Deployment
-
-### GitHub Pages
-
-```bash
-npm run deploy   # builds and publishes build/ to gh-pages
-```
-
-### GitHub Actions
-
-A workflow at `.github/workflows/deploy.yml` handles CI/CD. Configure repository secrets and the production `.env` values in your hosting/CI environment.
-
-### Static hosting (Nginx, S3/CloudFront, Netlify, Vercel)
-
-```bash
-npm run build
-# Serve the build/ directory as a static SPA (enable history-API fallback to index.html)
-```
-
-> Ensure production env vars point at the live API, Socket.IO, SIP, and product endpoints.
+- **Chakra UI** theme with custom foundations (colors, typography, breakpoints, shadows, spacing) and component styles.
+- **Dark / light mode** with a runtime theme editor.
+- **RTL support** for right-to-left languages.
+- **40+ reusable components** — data tables, charts, modals, dropzones, date pickers, pagination, search, loaders, and more.
 
 ---
 
 ## Coding Conventions
 
 - **Indentation:** tabs (matches existing source).
-- **Imports:** use the `src`-relative aliases (e.g. `services/api`, `config/keys`, `redux/store`) rather than long relative paths.
+- **Imports:** use the source-relative path aliases rather than long relative paths.
 - **ESLint:** extends `react-app` + `react-app/jest`.
-- **Domain organization:** keep feature code under `views/admin/<module>/`, reusable UI under `components/`, side-effect logic in `hooks/` and `services/`, and validation in `schema/`.
-- **State:** add new global state as a Redux slice in `src/redux/` and register it in `store.js`.
+- **Domain organization:** keep feature code grouped by module, reusable UI in shared components, side-effect logic in hooks and services, and validation in schemas.
+- **State:** add new global state as a Redux slice and register it in the store.
 
 ---
 
@@ -374,13 +171,11 @@ npm run build
 
 | Issue | Resolution |
 |-------|-----------|
-| **`PORT` not set / wrong port on macOS/Linux** | Run `PORT=3006 npx react-scripts start` (the default script uses Windows `set` syntax). |
-| **API calls fail / CORS** | Confirm the backend is running at `REACT_APP_WEEAM_LOCAL_API` and `REACT_APP_NODE_ENV=development`. |
-| **No real-time updates** | Verify `REACT_APP_SOCKET_IO_URL` / `REACT_APP_SOCKET_API` and that the socket servers are reachable. |
-| **Softphone not registering** | Check `REACT_APP_SIP_BASE_URL` / `REACT_APP_SIP_SERVER_2_BASE_URL` and microphone permissions. |
-| **Chunk load errors after deploy** | Handled by `useChunkErrorHandler` (auto-reload); hard-refresh if it persists. |
-| **`react-error-overlay` mismatch** | Pinned via `resolutions` to `6.0.9`; reinstall with `npm install`. |
-| **Blank page / push notifications blocked** | Grant browser notification permission (requested on load via `NotificationService`). |
+| **API calls fail / CORS** | Confirm the backend is running and the environment is set to development. |
+| **No real-time updates** | Verify the socket server configuration and that the servers are reachable. |
+| **Softphone not registering** | Check SIP server configuration and grant microphone permissions. |
+| **Chunk load errors after deploy** | Handled automatically (auto-reload); hard-refresh if it persists. |
+| **Blank page / push notifications blocked** | Grant browser notification permission when prompted on load. |
 
 ---
 
