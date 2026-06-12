@@ -757,7 +757,7 @@ import {
 } from "react-icons/fa";
 import { HiUsers } from "react-icons/hi";
 import { FaClipboardUser, FaSquarePlus } from "react-icons/fa6";
-import { FaFileAlt, } from "react-icons/fa";
+import { FaFileAlt } from "react-icons/fa";
 import {
   GiCommercialAirplane,
   GiPayMoney,
@@ -982,7 +982,7 @@ export const sidebarRoutes = [
 
     routes: [
       // {
-      //        moduleId: "expense", 
+      //        moduleId: "expense",
       //     id: "employee_loans",
       //     name: "Employee Loans",
       //     path: "/employee-loans",
@@ -1035,12 +1035,12 @@ export const sidebarRoutes = [
         ],
       },
       {
-        moduleId: "employee_loans",  // Keep the same moduleId as backend
+        moduleId: "employee_loans", // Keep the same moduleId as backend
         name: "Employee Loans",
-        path: "/employee-loans",  // New standalone path
+        path: "/employee-loans", // New standalone path
         icon: RiBillLine,
         color: "#f8b626ff",
-        isNested: false,  // No children
+        isNested: false, // No children
       },
     ],
   },
@@ -1153,27 +1153,28 @@ export const sidebarRoutes = [
         color: "#06B6D4",
         isNested: true,
         children: [
-          { name: 'Dashboard', path: '/sip/dashboard' },
+          { name: "Dashboard", path: "/sip/dashboard" },
           {
             //  id: 'leaderboard',
-            name: 'Leaderboard', path: '/sip/leaderboard'
+            name: "Leaderboard",
+            path: "/sip/leaderboard",
           },
-          { id: 'call_history', name: 'Call History', path: '/sip/history' },
+          { id: "call_history", name: "Call History", path: "/sip/history" },
           {
-            id: 'my_recordings',
-            name: 'My Recordings',
-            path: '/sip/my-recordings',
+            id: "my_recordings",
+            name: "My Recordings",
+            path: "/sip/my-recordings",
           },
           {
-            id: 'user_analytics',
-            name: 'User Analytics',
-            path: '/sip/user-analytics',
+            id: "user_analytics",
+            name: "User Analytics",
+            path: "/sip/user-analytics",
           },
-          { id: 'user_settings', name: 'Call Settings', path: '/sip/settings' },
+          { id: "user_settings", name: "Call Settings", path: "/sip/settings" },
           {
-            id: 'shared_recordings',
-            name: 'Shared Recording',
-            path: '/sip/shared-recording',
+            id: "shared_recordings",
+            name: "Shared Recording",
+            path: "/sip/shared-recording",
           },
         ],
       },
@@ -1210,6 +1211,15 @@ export const sidebarRoutes = [
         isNested: false,
       },
       {
+        // moduleId: "reports",
+        name: "Reports New",
+        version: "beta",
+        path: "/reports-v3",
+        icon: TbReportAnalytics,
+        color: "#0aa9beff",
+        isNested: false,
+      },
+      {
         moduleId: "survey",
         name: "Survey",
         path: "/survey",
@@ -1232,30 +1242,29 @@ export const sidebarRoutes = [
         ],
       },
       {
-        moduleId: 'evaluation',
-        name: 'Evaluation',
-        path: '/evaluation',
+        moduleId: "evaluation",
+        name: "Evaluation",
+        path: "/evaluation",
         icon: FaFileAlt,
-        color: '#86f17dff', // Gray
+        color: "#86f17dff", // Gray
         children: [
           {
-            id: 'evaluation_users',
-            name: 'Evalute User',
-            path: '/evaluation/user-evaluation',
+            id: "evaluation_users",
+            name: "Evalute User",
+            path: "/evaluation/user-evaluation",
           },
           {
-            id: 'my_evaluations',
-            name: 'My Evaluation',
-            path: '/evaluation/my-evaluation',
+            id: "my_evaluations",
+            name: "My Evaluation",
+            path: "/evaluation/my-evaluation",
           },
           {
-            id: 'settings',
-            name: 'Settings',
-            path: '/evaluation/settings',
+            id: "settings",
+            name: "Settings",
+            path: "/evaluation/settings",
           },
         ],
       },
-
     ],
   },
 

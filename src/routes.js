@@ -300,6 +300,12 @@ const TeamDetailsScreen = React.lazy(
 		),
 );
 
+// Reports V3 (reportsModuleV3)
+const ReportsHomeV3 = React.lazy(() => import('views/admin/reportsModuleV3'));
+const LeadsReportsV3 = React.lazy(
+	() => import('views/admin/reportsModuleV3/leads/LeadsReportsPage'),
+);
+
 // Settings
 const AdminSetting = React.lazy(() => import('views/admin/adminSetting'));
 const Role = React.lazy(() => import('views/admin/role'));
@@ -1538,6 +1544,31 @@ const routes = [
 		parent: 'Reports',
 		under: 'Reports',
 		component: TeamDetailsScreen,
+	},
+	// ------------- Reports V3 (reportsModuleV3) ------------------------
+	{
+		moduleId: 'reports',
+		name: 'Reports V3',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reports-v3',
+		icon: (
+			<Icon
+				as={MdInsertChartOutlined}
+				width='20px'
+				height='20px'
+				color='inherit'
+			/>
+		),
+		component: ReportsHomeV3,
+	},
+	{
+		moduleId: 'reports',
+		name: 'Leads Reports V3',
+		layout: [ROLE_PATH.superAdmin, ROLE_PATH.user],
+		path: '/reports-v3/leads',
+		parent: 'Reports V3',
+		under: 'Reports V3',
+		component: LeadsReportsV3,
 	},
 	{
 		moduleId: 'system_log',
